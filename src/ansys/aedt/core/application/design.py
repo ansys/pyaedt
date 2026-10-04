@@ -2383,7 +2383,7 @@ class Design(AedtObjects, PyAedtBase):
             if self.design_type == "HFSS 3D Layout Design":
                 if variable_name in self.odesign.GetProperties("DefinitionParameterTab", "LocalVariables"):
                     tab = "NAME:DefinitionParameterTab"
-            elif self.design_type == "Circuit Design":
+            elif self.design_type in ["Circuit Design", "Twin Builder"]:
                 tab = "NAME:DefinitionParameterTab"
                 propserver = f"Instance:{self._odesign.GetName()}"
         arg2 = ["NAME:" + optimetrics_type, "Included:=", enable]

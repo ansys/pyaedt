@@ -317,14 +317,40 @@ class Standard(CommonReport, PyAedtBase):
             self._legacy_props["context"]["time_windowing"] = available_values[val.lower()]
 
     @property
+    def optimetrics_setup(self) -> str:
+        """Name of the optimetrics setup to use for the report.
+        This only applies to Twin Builder reports.
+
+        Returns
+        -------
+        str
+            Name of the optimetrics setup.
+
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.standard import Standard
+        >>> obj = Standard()
+        >>> obj.optimetrics_setup
+
+        """
+        return self._legacy_props["context"].get("OptiSetup", "")
+
+    @optimetrics_setup.setter
+    def optimetrics_setup(self, value: str) -> None:
+        self._legacy_props["context"]["OptiSetup"] = value
+
+    @property
     def _context(self):
         ctxt = []
-        if self._post.post_solution_type in ["TR", "AC", "DC"]:
+        if self._post.post_solution_type in ["TR", "AC", "DC", "TwinbuilderTR", "TwinbuilderAC", "TwinbuilderDC"]:
             ctxt = [
                 "NAME:Context",
                 "SimValueContext:=",
                 [self._did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0],
             ]
+            if self._post.post_solution_type in ["TwinbuilderTR", "TwinbuilderAC", "TwinbuilderDC"]:
+                ctxt.extend(["OptiSetup:=", self.optimetrics_setup])
         elif self._post._app.design_type in ["Q3D Extractor", "2D Extractor"]:
             if not self.matrix:
                 ctxt = ["Context:=", "Original"]

@@ -95,7 +95,7 @@ jobs:
 
       - name: Label based on trailers
         if: github.event_name == 'pull_request'
-        uses: ./.github/actions/label-from-trailers
+        uses: $/.github/actions/label-from-trailers
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           pr-number: ${{ github.event.pull_request.number }}

@@ -32,12 +32,16 @@ import os
 from pathlib import Path
 import re
 import types
+from typing import TYPE_CHECKING
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.general_methods import _retry_ntimes
 from ansys.aedt.core.generic.general_methods import inclusion_list
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.internal.errors import GrpcApiError
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.generic.protocols import _ODesktop
 
 
 class AedtBlockObj(list):
@@ -104,8 +108,8 @@ class AedtObjWrapper:
     def __init__(self, objID, listFuncs, AedtAPI=None) -> None:
         self.__dict__["objectID"] = objID  # avoid derive class overwrite __setattr__
         self.__dict__["__methodNames__"] = listFuncs
-        self.dllapi = AedtAPI
-        self.is_linux = os.name == "posix"
+        self.__dict__["dllapi"] = AedtAPI
+        self.__dict__["is_linux"] = os.name == "posix"
 
     # print(self.objectID)
 
@@ -126,7 +130,7 @@ class AedtObjWrapper:
                 argv,
             )  # Call C function
             if ret and isinstance(ret, (AedtObjWrapper, AedtPropServer)):
-                ret.AedtAPI = self.AedtAPI
+                ret.dllapi = self.dllapi
             return ret
         except Exception:  # pragma: no cover
             pyaedt_logger.debug("Failed to execute gRPC AEDT command:")
@@ -137,22 +141,19 @@ class AedtObjWrapper:
         return self.__methodNames__
 
     def __GetObjMethod__(self, funcName):
-        try:
+        for methodName in self.__methodNames__:
+            if methodName.lower() == funcName.lower():
 
-            def DynamicFunc(self, *args):
-                return self.__Invoke__(funcName, args)
+                def DynamicFunc(self, *args):
+                    return self.__Invoke__(methodName, args)
 
-            return types.MethodType(DynamicFunc, self)
-        except (AttributeError, GrpcApiError):
-            raise GrpcApiError("This AEDT object has no attribute '" + funcName + "'")
+                return types.MethodType(DynamicFunc, self)
+        raise AttributeError("This AEDT object has no attribute '" + funcName + "'")
 
     def __getattr__(self, funcName):
-        try:
-            if funcName == "ScopeID":  # backward compatible for IronPython wrapper.
-                return self.objectID
-            return self.__GetObjMethod__(funcName)
-        except Exception:
-            raise GrpcApiError(f"Failed to get gRPC API AEDT attribute {funcName}")
+        if funcName == "ScopeID":  # backward compatible for IronPython wrapper.
+            return self.objectID
+        return self.__GetObjMethod__(funcName)
 
     def __setattr__(self, attrName, val):
         if attrName == "objectID" or attrName == "__methodNames__":
@@ -180,6 +181,9 @@ class AedtObjWrapper:
 
     def GetHashCode(self):  # IronPython build in function
         return self.__hash__()
+
+    def __del__(self):
+        self.dllapi.AedtAPI.ReleaseAedtObject(self.objectID)
 
 
 class AedtPropServer(AedtObjWrapper):
@@ -209,15 +213,8 @@ class AedtPropServer(AedtObjWrapper):
 
     def __dir__(self):
         ret = super().__dir__().copy()
-        try:
-            for attrName, _ in self.__GetPropAttributes().items():
-                ret.append(attrName)
-        except Exception:
-            try:
-                for attrName, _ in self.__GetPropAttributes():
-                    ret.append(attrName)
-            except Exception:
-                return ret
+        for attrName in self.__GetPropAttributes().keys():
+            ret.append(attrName)
         return ret
 
     def __getattr__(self, attrName):
@@ -370,7 +367,7 @@ class AEDT:
         return self.aedt
 
     @property
-    def odesktop(self):
+    def odesktop(self) -> "_ODesktop":
         """Retrieve odesktop."""
         return self.recreate_application()
 

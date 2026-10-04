@@ -1,0 +1,651 @@
+DLXEMIASCII
+2.600000
+
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-1 GHz
+1
+NODE-*-RF Systems-*-Serial_m-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Serial_m-*-Radios-*-Serial_m-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-5021,-5021,-32742,-32742,-5021,-5021,-12096,-5021
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-1 GHz
+1
+NODE-*-RF Systems-*-Serial_s-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Serial_s-*-Radios-*-Serial_s-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-5103,-5103,-32742,-32742,-5103,-5103,-12096,-5102
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-1 GHz
+1
+NODE-*-RF Systems-*-clk_usb-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-clk_usb-*-Radios-*-clk_usb-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-6881,-6881,-32742,-32742,-6881,-6881,-12096,-6879
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-1 GHz
+1
+NODE-*-RF Systems-*-clk_wifi-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-clk_wifi-*-Radios-*-clk_wifi-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-4868,-4868,-32742,-32742,-4868,-4868,-12096,-4868
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-1 GHz
+1
+NODE-*-RF Systems-*-usbdatan-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatan-*-Radios-*-usbdatan-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-8998,-8998,-32742,-32742,-8998,-8998,-12096,-8974
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-1 GHz
+1
+NODE-*-RF Systems-*-usbdatan_slave-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatan_slave-*-Radios-*-usbdatan_slave-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-8339,-8339,-32742,-32742,-8339,-8339,-12096,-8328
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-1 GHz
+1
+NODE-*-RF Systems-*-usbdatap-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatap-*-Radios-*-usbdatap-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-8962,-8962,-32742,-32742,-8962,-8962,-12096,-8939
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-1 GHz
+1
+NODE-*-RF Systems-*-usbdatap_slave-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatap_slave-*-Radios-*-usbdatap_slave-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-8271,-8271,-32742,-32742,-8271,-8271,-12096,-8261
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-10 MHz
+1
+NODE-*-RF Systems-*-Serial_m-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Serial_m-*-Radios-*-Serial_m-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30001,-30000,-30000,-32742,-30001,-30000,-30000,0,-32742,0,-32742,0,-32742,0,-12096,0
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-10 MHz
+1
+NODE-*-RF Systems-*-Serial_s-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Serial_s-*-Radios-*-Serial_s-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30001,-30000,-30000,-32742,-30001,-30000,-30000,0,-32742,0,-32742,0,-32742,0,-12096,0
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-10 MHz
+1
+NODE-*-RF Systems-*-clk_usb-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-clk_usb-*-Radios-*-clk_usb-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30001,-30000,-30000,-32742,-30001,-30000,-30000,0,-32742,0,-32742,0,-32742,0,-12096,0
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-10 MHz
+1
+NODE-*-RF Systems-*-clk_wifi-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-clk_wifi-*-Radios-*-clk_wifi-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30001,-30000,-30000,-32742,-30001,-30000,-30000,0,-32742,0,-32742,0,-32742,0,-12096,0
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-10 MHz
+1
+NODE-*-RF Systems-*-usbdatan-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatan-*-Radios-*-usbdatan-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30001,-30000,-30000,-32742,-30001,-30000,-30000,0,-32742,0,-32742,0,-32742,0,-12096,0
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-10 MHz
+1
+NODE-*-RF Systems-*-usbdatan_slave-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatan_slave-*-Radios-*-usbdatan_slave-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30001,-30000,-30000,-32742,-30001,-30000,-30000,0,-32742,0,-32742,0,-32742,0,-12096,0
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-10 MHz
+1
+NODE-*-RF Systems-*-usbdatap-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatap-*-Radios-*-usbdatap-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30001,-30000,-30000,-32742,-30001,-30000,-30000,0,-32742,0,-32742,0,-32742,0,-12096,0
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-10 MHz
+1
+NODE-*-RF Systems-*-usbdatap_slave-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatap_slave-*-Radios-*-usbdatap_slave-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30001,-30000,-30000,-32742,-30001,-30000,-30000,0,-32742,0,-32742,0,-32742,0,-12096,0
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-100 MHz
+1
+NODE-*-RF Systems-*-Serial_m-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Serial_m-*-Radios-*-Serial_m-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-7705,-7705,-32742,-32742,-7705,-7705,-12096,-7700
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-100 MHz
+1
+NODE-*-RF Systems-*-Serial_s-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Serial_s-*-Radios-*-Serial_s-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-7587,-7587,-32742,-32742,-7587,-7587,-12096,-7582
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-100 MHz
+1
+NODE-*-RF Systems-*-clk_usb-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-clk_usb-*-Radios-*-clk_usb-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-9999,-9999,-32742,-32742,-9999,-9999,-12096,-9925
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-100 MHz
+1
+NODE-*-RF Systems-*-clk_wifi-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-clk_wifi-*-Radios-*-clk_wifi-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-7103,-7103,-32742,-32742,-7103,-7103,-12096,-7100
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-100 MHz
+1
+NODE-*-RF Systems-*-usbdatan-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatan-*-Radios-*-usbdatan-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-11776,-11776,-32742,-32742,-11776,-11776,-12096,-11319
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-100 MHz
+1
+NODE-*-RF Systems-*-usbdatan_slave-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatan_slave-*-Radios-*-usbdatan_slave-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-11755,-11755,-32742,-32742,-11755,-11755,-12096,-11307
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-100 MHz
+1
+NODE-*-RF Systems-*-usbdatap-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatap-*-Radios-*-usbdatap-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-11724,-11724,-32742,-32742,-11724,-11724,-12096,-11289
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-100 MHz
+1
+NODE-*-RF Systems-*-usbdatap_slave-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatap_slave-*-Radios-*-usbdatap_slave-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-11725,-11725,-32742,-32742,-11725,-11725,-12096,-11289
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-2 GHz
+1
+NODE-*-RF Systems-*-Serial_m-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Serial_m-*-Radios-*-Serial_m-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-3496,-3496,-32742,-32742,-3496,-3496,-12096,-3496
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-2 GHz
+1
+NODE-*-RF Systems-*-Serial_s-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Serial_s-*-Radios-*-Serial_s-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-3329,-3329,-32742,-32742,-3329,-3329,-12096,-3329
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-2 GHz
+1
+NODE-*-RF Systems-*-clk_usb-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-clk_usb-*-Radios-*-clk_usb-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-7020,-7020,-32742,-32742,-7020,-7020,-12096,-7017
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-2 GHz
+1
+NODE-*-RF Systems-*-clk_wifi-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-clk_wifi-*-Radios-*-clk_wifi-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-4037,-4037,-32742,-32742,-4037,-4037,-12096,-4037
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-2 GHz
+1
+NODE-*-RF Systems-*-usbdatan-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatan-*-Radios-*-usbdatan-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-7193,-7193,-32742,-32742,-7193,-7193,-12096,-7190
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-2 GHz
+1
+NODE-*-RF Systems-*-usbdatan_slave-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatan_slave-*-Radios-*-usbdatan_slave-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-6798,-6798,-32742,-32742,-6798,-6798,-12096,-6796
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-2 GHz
+1
+NODE-*-RF Systems-*-usbdatap-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatap-*-Radios-*-usbdatap-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-6870,-6870,-32742,-32742,-6870,-6870,-12096,-6868
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-2 GHz
+1
+NODE-*-RF Systems-*-usbdatap_slave-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatap_slave-*-Radios-*-usbdatap_slave-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-6789,-6789,-32742,-32742,-6789,-6789,-12096,-6787
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-3 GHz
+1
+NODE-*-RF Systems-*-Serial_m-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Serial_m-*-Radios-*-Serial_m-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-4309,-4309,-32742,-32742,-4309,-4309,-12096,-4308
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-3 GHz
+1
+NODE-*-RF Systems-*-Serial_s-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Serial_s-*-Radios-*-Serial_s-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-4059,-4059,-32742,-32742,-4059,-4059,-12096,-4059
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-3 GHz
+1
+NODE-*-RF Systems-*-clk_usb-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-clk_usb-*-Radios-*-clk_usb-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-5945,-5945,-32742,-32742,-5945,-5945,-12096,-5944
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-3 GHz
+1
+NODE-*-RF Systems-*-clk_wifi-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-clk_wifi-*-Radios-*-clk_wifi-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-5256,-5256,-32742,-32742,-5256,-5256,-12096,-5256
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-3 GHz
+1
+NODE-*-RF Systems-*-usbdatan-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatan-*-Radios-*-usbdatan-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-6447,-6447,-32742,-32742,-6447,-6447,-12096,-6446
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-3 GHz
+1
+NODE-*-RF Systems-*-usbdatan_slave-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatan_slave-*-Radios-*-usbdatan_slave-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-6381,-6381,-32742,-32742,-6381,-6381,-12096,-6380
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-3 GHz
+1
+NODE-*-RF Systems-*-usbdatap-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatap-*-Radios-*-usbdatap-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-6152,-6152,-32742,-32742,-6152,-6152,-12096,-6151
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-3 GHz
+1
+NODE-*-RF Systems-*-usbdatap_slave-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatap_slave-*-Radios-*-usbdatap_slave-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-6386,-6386,-32742,-32742,-6386,-6386,-12096,-6385
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-4 GHz
+1
+NODE-*-RF Systems-*-Serial_m-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Serial_m-*-Radios-*-Serial_m-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-4292,-4292,-32742,-32742,-4292,-4292,-12096,-4291
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-4 GHz
+1
+NODE-*-RF Systems-*-Serial_s-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Serial_s-*-Radios-*-Serial_s-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-3174,-3174,-32742,-32742,-3174,-3174,-12096,-3174
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-4 GHz
+1
+NODE-*-RF Systems-*-clk_usb-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-clk_usb-*-Radios-*-clk_usb-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-6172,-6172,-32742,-32742,-6172,-6172,-12096,-6171
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-4 GHz
+1
+NODE-*-RF Systems-*-clk_wifi-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-clk_wifi-*-Radios-*-clk_wifi-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-4820,-4820,-32742,-32742,-4820,-4820,-12096,-4820
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-4 GHz
+1
+NODE-*-RF Systems-*-usbdatan-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatan-*-Radios-*-usbdatan-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-6022,-6022,-32742,-32742,-6022,-6022,-12096,-6021
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-4 GHz
+1
+NODE-*-RF Systems-*-usbdatan_slave-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatan_slave-*-Radios-*-usbdatan_slave-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-6081,-6081,-32742,-32742,-6081,-6081,-12096,-6080
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-4 GHz
+1
+NODE-*-RF Systems-*-usbdatap-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatap-*-Radios-*-usbdatap-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-5769,-5769,-32742,-32742,-5769,-5769,-12096,-5769
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-4 GHz
+1
+NODE-*-RF Systems-*-usbdatap_slave-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatap_slave-*-Radios-*-usbdatap_slave-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-6072,-6072,-32742,-32742,-6072,-6072,-12096,-6072
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-4.9 GHz
+1
+NODE-*-RF Systems-*-Serial_m-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Serial_m-*-Radios-*-Serial_m-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-4872,-4872,-32742,-32742,-4872,-4872,-12096,-4872
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-4.9 GHz
+1
+NODE-*-RF Systems-*-Serial_s-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Serial_s-*-Radios-*-Serial_s-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-5011,-5011,-32742,-32742,-5011,-5011,-12096,-5011
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-4.9 GHz
+1
+NODE-*-RF Systems-*-clk_usb-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-clk_usb-*-Radios-*-clk_usb-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-5334,-5334,-32742,-32742,-5334,-5334,-12096,-5334
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-4.9 GHz
+1
+NODE-*-RF Systems-*-clk_wifi-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-clk_wifi-*-Radios-*-clk_wifi-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-4349,-4349,-32742,-32742,-4349,-4349,-12096,-4349
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-4.9 GHz
+1
+NODE-*-RF Systems-*-usbdatan-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatan-*-Radios-*-usbdatan-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-5514,-5514,-32742,-32742,-5514,-5514,-12096,-5514
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-4.9 GHz
+1
+NODE-*-RF Systems-*-usbdatan_slave-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatan_slave-*-Radios-*-usbdatan_slave-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-5741,-5741,-32742,-32742,-5741,-5741,-12096,-5740
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-4.9 GHz
+1
+NODE-*-RF Systems-*-usbdatap-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatap-*-Radios-*-usbdatap-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-5309,-5309,-32742,-32742,-5309,-5309,-12096,-5309
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-4.9 GHz
+1
+NODE-*-RF Systems-*-usbdatap_slave-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatap_slave-*-Radios-*-usbdatap_slave-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-5743,-5743,-32742,-32742,-5743,-5743,-12096,-5742
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-5 GHz
+1
+NODE-*-RF Systems-*-Serial_m-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Serial_m-*-Radios-*-Serial_m-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,0,0,-32742,-32742,0,0,-12096,0
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-5 GHz
+1
+NODE-*-RF Systems-*-Serial_s-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Serial_s-*-Radios-*-Serial_s-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,0,0,-32742,-32742,0,0,-12096,0
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-5 GHz
+1
+NODE-*-RF Systems-*-clk_usb-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-clk_usb-*-Radios-*-clk_usb-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,0,0,-32742,-32742,0,0,-12096,0
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-5 GHz
+1
+NODE-*-RF Systems-*-clk_wifi-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-clk_wifi-*-Radios-*-clk_wifi-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,0,0,-32742,-32742,0,0,-12096,0
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-5 GHz
+1
+NODE-*-RF Systems-*-usbdatan-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatan-*-Radios-*-usbdatan-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,0,0,-32742,-32742,0,0,-12096,0
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-5 GHz
+1
+NODE-*-RF Systems-*-usbdatan_slave-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatan_slave-*-Radios-*-usbdatan_slave-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,0,0,-32742,-32742,0,0,-12096,0
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-5 GHz
+1
+NODE-*-RF Systems-*-usbdatap-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatap-*-Radios-*-usbdatap-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,0,0,-32742,-32742,0,0,-12096,0
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-5 GHz
+1
+NODE-*-RF Systems-*-usbdatap_slave-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatap_slave-*-Radios-*-usbdatap_slave-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,0,0,-32742,-32742,0,0,-12096,0
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-500 MHz
+1
+NODE-*-RF Systems-*-Serial_m-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Serial_m-*-Radios-*-Serial_m-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-6155,-6155,-32742,-32742,-6155,-6155,-12096,-6154
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-500 MHz
+1
+NODE-*-RF Systems-*-Serial_s-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Serial_s-*-Radios-*-Serial_s-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-5836,-5836,-32742,-32742,-5836,-5836,-12096,-5836
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-500 MHz
+1
+NODE-*-RF Systems-*-clk_usb-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-clk_usb-*-Radios-*-clk_usb-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-7573,-7573,-32742,-32742,-7573,-7573,-12096,-7568
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-500 MHz
+1
+NODE-*-RF Systems-*-clk_wifi-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-clk_wifi-*-Radios-*-clk_wifi-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-5254,-5254,-32742,-32742,-5254,-5254,-12096,-5254
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-500 MHz
+1
+NODE-*-RF Systems-*-usbdatan-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatan-*-Radios-*-usbdatan-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-10530,-10530,-32742,-32742,-10530,-10530,-12096,-10397
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-500 MHz
+1
+NODE-*-RF Systems-*-usbdatan_slave-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatan_slave-*-Radios-*-usbdatan_slave-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-9469,-9469,-32742,-32742,-9469,-9469,-12096,-9428
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-500 MHz
+1
+NODE-*-RF Systems-*-usbdatap-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatap-*-Radios-*-usbdatap-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-10923,-10923,-32742,-32742,-10923,-10923,-12096,-10723
+NODE-*-RF Systems-*-Rx Probe-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Rx Probe-*-Radios-*-Rx Probe-*-500 MHz
+1
+NODE-*-RF Systems-*-usbdatap_slave-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatap_slave-*-Radios-*-usbdatap_slave-*-Band
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-30000,-30000,-30000,-32742,-30000,-30000,-30000,-32742,-9436,-9436,-32742,-32742,-9436,-9436,-12096,-9397

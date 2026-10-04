@@ -912,7 +912,7 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_model_from_nexxim_state_space(
-        self, input_file: str, num_terminal: int, model_name: str = None, port_names: list = None
+        self, input_file: str, num_terminal: int = 0, model_name: str = None, port_names: list = None
     ) -> str | bool:
         """Create a model from a Touchstone file.
 
@@ -920,8 +920,9 @@ class CircuitComponents(PyAedtBase):
         ----------
         input_file : str
             Full path to the Touchstone file.
-        num_terminal : int
+        num_terminal : int, optional
             Number of terminals in the .sss file.
+            Default value is ``0`` which will automatically parse the file header.
         model_name : str, optional
             Name of the model. The default is ``None``.
         show_bitmap : bool, optional
@@ -954,8 +955,18 @@ class CircuitComponents(PyAedtBase):
                 model_name = model_name.replace(".", "_")
         if model_name in list(self.omodel_manager.GetNames()):
             model_name = generate_unique_name(model_name, n=2)
-        if not port_names:
-            port_names = [str(i + 1) for i in range(num_terminal)]
+        if not port_names or num_terminal == 0:
+            from ansys.aedt.core.modeler.circuits.state_space import UnsupportedVersionError
+            from ansys.aedt.core.modeler.circuits.state_space import read_pin_names
+
+            try:
+                port_names = read_pin_names(input_file)
+                num_terminal = len(port_names)
+            except UnsupportedVersionError:
+                if num_terminal:  # pragma: no cover
+                    port_names = [str(i + 1) for i in range(num_terminal)]
+                else:  # pragma: no cover
+                    raise ValueError("sss format unsupported. Port names and number of terminal has to be provided.")
         arg = [
             "NAME:" + model_name,
             "Name:=",
@@ -1239,7 +1250,7 @@ class CircuitComponents(PyAedtBase):
     def create_nexxim_state_space_component(
         self,
         model_name: str,
-        num_terminal: int,
+        num_terminal: int = 0,
         location: list[float] = None,
         angle: int = 0,
         port_names: list[str] = None,
@@ -1252,8 +1263,9 @@ class CircuitComponents(PyAedtBase):
         model_name : str or Path
             Name of the Touchstone model or full path to the Touchstone file.
             If a full Touchstone path is provided, a new model is created.
-        num_terminal : int
+        num_terminal : int, optional
             Number of terminals in the ``.sss`` file.
+            Default value is ``0`` which will automatically parse the file header.
         location : list of float, optional
             Position on the X and Y axes.
         angle : float, optional

@@ -25,17 +25,27 @@
 """Test OpenStreetMap (OSM) module functionality with real pyvista and osmnx."""
 
 import json
+import os
 from pathlib import Path
 
 import numpy as np
 import pytest
+import requests
 
 from ansys.aedt.core import Hfss
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.modeler.advanced_cad.osm import BuildingsPrep
 from ansys.aedt.core.modeler.advanced_cad.osm import RoadPrep
 from ansys.aedt.core.modeler.advanced_cad.osm import TerrainPrep
-from tests.conftest import osm_xfail
+
+osm_network_xfail = pytest.mark.xfail(
+    condition=os.environ.get("PYAEDT_OSM_XFAIL") == "1",
+    raises=(requests.exceptions.ConnectionError, requests.exceptions.Timeout),
+    reason="Intermittent OpenStreetMap Overpass API connection failure",
+)
+
+# Apply the OpenStreetMap network xfail marker to all tests in this module.
+pytestmark = osm_network_xfail
 
 
 @pytest.fixture
@@ -47,7 +57,6 @@ def temp_cad_path(tmp_path):
 
 
 @pytest.mark.skipif(is_linux, reason="Failing VTK in Linux runners")
-@osm_xfail
 def test_import_from_open_street_map(add_app, test_tmp_dir):
     hfss = add_app(application=Hfss, solution_type="SBR+")
 
@@ -113,7 +122,6 @@ def test_road_init(temp_cad_path):
     assert road_prep.cad_path == temp_cad_path
 
 
-@osm_xfail
 def test_create_roads(temp_cad_path):
     """Test road creation with real osmnx data."""
     road_prep = RoadPrep(temp_cad_path)
@@ -146,7 +154,6 @@ def test_terrain_init_default_path():
     assert terrain_prep.cad_path == "./"
 
 
-@osm_xfail
 def test_terrain_get_terrain(temp_cad_path):
     """Test terrain generation with real elevation data."""
     terrain_prep = TerrainPrep(temp_cad_path)
@@ -163,7 +170,6 @@ def test_terrain_get_terrain(temp_cad_path):
     assert result["mesh"] is not None
 
 
-@osm_xfail
 def test_terrain_get_elevation_basic():
     """Test get_elevation returns correct structure."""
     center_lat_lon = [40.7128, -74.0060]
@@ -189,7 +195,6 @@ def test_terrain_get_elevation_basic():
     assert np.all(all_data == 0)
 
 
-@osm_xfail
 def test_terrain_get_elevation_different_grid_sizes():
     """Test get_elevation with different grid sizes."""
     center_lat_lon = [40.7128, -74.0060]
