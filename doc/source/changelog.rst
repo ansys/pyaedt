@@ -9,6 +9,126 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`1.8.0 <https://github.com/ansys/pyaedt/releases/tag/v1.8.0>`_ - October 02, 2026
+=================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Sss reader support
+          - `#8138 <https://github.com/ansys/pyaedt/pull/8138>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Add features to Tb setup and optimetrics
+          - `#8117 <https://github.com/ansys/pyaedt/pull/8117>`_
+
+        * - Mcad assembly minor fix
+          - `#8142 <https://github.com/ansys/pyaedt/pull/8142>`_
+
+        * - Fix generate mesh issue
+          - `#8148 <https://github.com/ansys/pyaedt/pull/8148>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Bump https://github.com/astral-sh/ty-pre-commit from v0.0.79 to 0.0.82
+          - `#8130 <https://github.com/ansys/pyaedt/pull/8130>`_
+
+        * - Bump https://github.com/astral-sh/ruff-pre-commit from v0.16.7 to 0.16.8
+          - `#8131 <https://github.com/ansys/pyaedt/pull/8131>`_
+
+        * - Bump plotly from 7.0.0 to 7.1.0
+          - `#8132 <https://github.com/ansys/pyaedt/pull/8132>`_
+
+        * - Bump codecov/codecov-action from 7.0.0 to 7.1.1
+          - `#8133 <https://github.com/ansys/pyaedt/pull/8133>`_
+
+        * - Bump grpcio from 1.83.0 to 1.84.0
+          - `#8134 <https://github.com/ansys/pyaedt/pull/8134>`_
+
+        * - Bump astral-sh/setup-uv from 10.0.0 to 10.1.0
+          - `#8135 <https://github.com/ansys/pyaedt/pull/8135>`_
+
+        * - Bump sphinx-gallery from 0.21.0 to 0.22.1
+          - `#8136 <https://github.com/ansys/pyaedt/pull/8136>`_
+
+        * - Bump numpydoc from 1.10.0 to 1.11.0
+          - `#8137 <https://github.com/ansys/pyaedt/pull/8137>`_
+
+        * - Bump urllib3 from 2.7.0 to 2.8.0
+          - `#8145 <https://github.com/ansys/pyaedt/pull/8145>`_
+
+        * - Bump tornado from 6.5.8 to 6.5.9
+          - `#8146 <https://github.com/ansys/pyaedt/pull/8146>`_
+
+        * - Bump jupyterlab from 4.6.2 to 4.6.4
+          - `#8155 <https://github.com/ansys/pyaedt/pull/8155>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update CHANGELOG for v1.7.0
+          - `#8127 <https://github.com/ansys/pyaedt/pull/8127>`_
+
+        * - Bump v1.8.dev0
+          - `#8129 <https://github.com/ansys/pyaedt/pull/8129>`_
+
+        * - Add PR migrator workflow
+          - `#8141 <https://github.com/ansys/pyaedt/pull/8141>`_
+
+        * - Fix weekly tests missing permission
+          - `#8149 <https://github.com/ansys/pyaedt/pull/8149>`_
+
+        * - Bump pyedb 0.84.3
+          - `#8153 <https://github.com/ansys/pyaedt/pull/8153>`_
+
+
+  .. tab-item:: Miscellaneous
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - IBIS reader and fix some code issue
+          - `#8139 <https://github.com/ansys/pyaedt/pull/8139>`_
+
+        * - Module general_methods.py and add fixes
+          - `#8147 <https://github.com/ansys/pyaedt/pull/8147>`_
+
+
+  .. tab-item:: Test
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Add EMIT level 1 tests
+          - `#8151 <https://github.com/ansys/pyaedt/pull/8151>`_
+
+        * - Skip test_import_tuned_variables
+          - `#8156 <https://github.com/ansys/pyaedt/pull/8156>`_
+
+
 `1.7.0 <https://github.com/ansys/pyaedt/releases/tag/v1.7.0>`_ - September 25, 2026
 ===================================================================================
 

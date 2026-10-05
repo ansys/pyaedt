@@ -17,7 +17,7 @@ exclude: |
 repos:
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: 2eeb5678de71a00c0902cbda7105d328432f72cb  # frozen: v0.16.8
+  rev: a56c0b927e6465d37cae3e97d35d4d18ab2b96cd  # frozen: v0.16.9
   hooks:
     - id: ruff-check
       name: Ruff linting check
@@ -43,7 +43,7 @@ repos:
 
 # Validate GitHub workflow files
 - repo: https://github.com/python-jsonschema/check-jsonschema
-  rev: 12e63946db2c5cfcc9030fac21c3883ba88c6ed8  # frozen: 0.38.0
+  rev: 0494aa7fa1314e98913a41227d8f0a515b2c1049  # frozen: 0.38.2
   hooks:
     - id: check-github-workflows
 
@@ -106,7 +106,7 @@ repos:
 
 # NOTE: Whenever this version is updated, please align the version in the lock file.
 - repo: https://github.com/astral-sh/ty-pre-commit
-  rev: e7729e08f9d338183032340a067053ca5e16e6a8  # frozen: v0.0.82
+  rev: 6972e4c5a7e9f45f05a2f30b668f221f43b770c9  # frozen: v0.0.84
   hooks:
     - id: ty
       name: Type check with Ty
