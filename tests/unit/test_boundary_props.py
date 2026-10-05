@@ -199,7 +199,7 @@ def test_aliases_are_the_unified_props_class() -> None:
     from ansys.aedt.core.modeler.cad.elements_3d import HistoryProps
     from ansys.aedt.core.modeler.cad.modeler import CsProps
     from ansys.aedt.core.modules.mesh import MeshProps
-    from ansys.aedt.core.modules.solve_sweeps import SetupProps
+    from ansys.aedt.core.modules.solve_setup import SetupProps
 
     assert BoundaryProps is Props
     assert MeshProps is Props
