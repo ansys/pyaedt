@@ -297,8 +297,8 @@ class WeaveDesignerExtension(ExtensionHFSSCommon):
             EXTENSION_TITLE,
             withdraw=withdraw,
             add_custom_content=False,
-            toggle_row=13,
-            toggle_column=1,
+            toggle_row=20,
+            toggle_column=2,
         )
         self.data = WeaveDesignerExtensionData()
         self.geometry_overrides: dict = {}
@@ -803,7 +803,7 @@ def main(data: WeaveDesignerExtensionData) -> bool:
 
     if data.mode == MODES[1]:
         # Weave existing layout: the user already has a full design in place (stackup,
-        # ports, vias, ...). We only touch the named, pre-existing substrate object(s);
+        # ports, vias, ...). The extension only touch the named, pre-existing substrate object(s);
         # nothing else is built or modified.
         names = [n.strip() for n in data.substrate_names.split(",") if n.strip()]
         if not names:
@@ -834,7 +834,6 @@ def main(data: WeaveDesignerExtensionData) -> bool:
         creation_fn(hfss, substrate.name, weave_style=data.weave_style, name=f"{data.name}_{substrate.name}")
 
     hfss.modeler.fit_all()
-    hfss.save_project()
     hfss.logger.info("Model and weave created correctly.")
     return True
 
