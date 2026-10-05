@@ -147,6 +147,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
             props = {}
             for key, value in self.properties.items():
                 props[key] = value
+
         if "Assignment" in props:
             assignment = props["Assignment"]
             if "Face_" in assignment:
@@ -299,6 +300,21 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         >>> obj.update(key_name=1, value=1)
 
         """
+        # Update using Child Object if available and supported
+        mesh_oo = self._mesh._app.get_oo_object(self._mesh._app.odesign, "Mesh")
+        mesh_names = self._mesh._app.get_oo_name(mesh_oo)
+        if key_name and self.name in mesh_names:
+            try:
+                if key_name in mesh_props.keys():
+                    if key_name == "SurfaceRepPriority":
+                        value = "Normal" if value == 0 else "High"
+                    key_name = mesh_props[key_name]
+                self._mesh._app.set_oo_property_value(mesh_oo, self.name, key_name, value)
+                return True
+            except Exception:
+                self._app.logger.info("Failed to use Child Object. Trying with legacy update.")
+
+        # Update using legacy method
         props = dict(self.props)
         if key_name not in props:
             raise ValueError(f"Key {key_name} not found in mesh operation properties.")
