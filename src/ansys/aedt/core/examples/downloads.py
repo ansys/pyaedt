@@ -149,6 +149,8 @@ def _copy_local_example(
     dst = target_path / Path(source_relative_path).name
     dst.mkdir(parents=True, exist_ok=True)
     for p in source.rglob("*"):
+        if p.name == ".gitignore":
+            continue
         target = dst / p.relative_to(source)
         if p.is_dir():
             target.mkdir(parents=True, exist_ok=True)
@@ -610,7 +612,7 @@ def download_sherlock(local_path: StrPath | None = None) -> str:
 
     """
     folder_path = _download_folder(
-        "pyaedt/sherlock", local_path=local_path, filter_func=lambda f: "SherkockTutorial" in f, strip_prefix="pyaedt"
+        "pyaedt/sherlock", local_path=local_path, filter_func=lambda f: "SherlockTutorial" in f, strip_prefix="pyaedt"
     )
     return str(folder_path)
 
@@ -869,7 +871,7 @@ def download_file(source: str, name: str | None = None, local_path: StrPath | No
     Files are downloaded from the
     :ref:`example-data<https://github.com/ansys/example-data/tree/main/pyaedt>`_ repository
     to a local destination. If ``name`` is not specified, the full directory path
-    will be copied to the local drive.
+    will be copied to the local drive, excluding ``.gitignore`` files.
 
     Parameters
     ----------
@@ -909,7 +911,7 @@ def download_file(source: str, name: str | None = None, local_path: StrPath | No
         path = _copy_local_example(source, local_path)
     else:
         if not name:  # Download all files in the folder if name is not provided.
-            path = _download_folder(source, local_path, force=force)
+            path = _download_folder(source, local_path, filter_func=lambda f: Path(f).name == ".gitignore", force=force)
         else:
             source = source + "/" + name
             path = _download_file(source, local_path, force=force)
