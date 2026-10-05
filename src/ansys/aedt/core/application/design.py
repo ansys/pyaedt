@@ -799,7 +799,7 @@ class Design(AedtObjects, PyAedtBase):
         """AEDT version environment variable name.
 
         Returns the name of the environment variable associated with the current
-        AEDT version (`"ANSYSEM_ROOT252"`` for version 2025.2).
+        AEDT version (``"ANSYSEM_ROOT252"`` for version 2025.2).
 
         .. note::
             This property returns the environment variable **name**, not the actual
