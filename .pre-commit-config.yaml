@@ -17,7 +17,7 @@ exclude: |
 repos:
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: a56c0b927e6465d37cae3e97d35d4d18ab2b96cd  # frozen: v0.16.9
+  rev: f12be1ebaa5351c1fc76472de98db2c3446c8253  # frozen: v0.16.10
   hooks:
     - id: ruff-check
       name: Ruff linting check
@@ -43,12 +43,12 @@ repos:
 
 # Validate GitHub workflow files
 - repo: https://github.com/python-jsonschema/check-jsonschema
-  rev: 0494aa7fa1314e98913a41227d8f0a515b2c1049  # frozen: 0.38.2
+  rev: 4f85d46a92dc17713078e5de73f8a13190edf6fc  # frozen: 0.38.2
   hooks:
     - id: check-github-workflows
 
 - repo: https://github.com/adamchainz/blacken-docs
-  rev: fda77690955e9b63c6687d8806bafd56a526e45f  # frozen: 1.20.0
+  rev: dda8db18cfc68df532abf33b185ecd12d5b7b326  # frozen: 1.20.0
   hooks:
     - id: blacken-docs
       name: Blacken documentation
@@ -76,7 +76,7 @@ repos:
       name: Check pre-commit configuration
 
 - repo: https://github.com/gitleaks/gitleaks
-  rev: 83d9cd684c87d95d656c1458ef04895a7f1cbd8e # frozen: v8.30.1
+  rev: 2ca41cc1372d1e939a6a879f18cdc19fc1cac1ce  # frozen: v8.30.0
   hooks:
     - id: gitleaks
 
