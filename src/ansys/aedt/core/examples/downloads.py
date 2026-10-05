@@ -842,7 +842,7 @@ def download_twin_builder_data(
     'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/twin_builder'
 
     """
-    local_path = Path(local_path) if local_path else EXAMPLES_PATH if local_path else EXAMPLES_PATH
+    local_path = Path(local_path) if local_path else EXAMPLES_PATH
 
     if file_name:
 
