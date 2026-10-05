@@ -71,6 +71,7 @@ from ansys.aedt.core.generic.file_utils import read_tab
 from ansys.aedt.core.generic.file_utils import read_xlsx
 from ansys.aedt.core.generic.file_utils import remove_project_lock
 from ansys.aedt.core.generic.file_utils import write_csv
+from ansys.aedt.core.generic.general_methods import deprecated_property
 from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
@@ -795,6 +796,7 @@ class Design(AedtObjects, PyAedtBase):
             return {}
 
     @property
+    @deprecated_property("Use aedt_env_variable instead.")
     def aedt_version_id(self) -> str:
         """AEDT version.
 
@@ -803,15 +805,29 @@ class Design(AedtObjects, PyAedtBase):
         str
             Version of AEDT.
 
-        References
-        ----------
-        >>> oDesktop.GetVersion()
-
         Examples
         --------
         >>> from ansys.aedt.core import Hfss
         >>> app = Hfss()
         >>> app.aedt_version_id
+
+        """
+        return self.aedt_env_variable
+
+    @property
+    def aedt_env_variable(self) -> str:
+        """Environment variable for the AEDT version.
+
+        Returns
+        -------
+        str
+            Environment variable for the AEDT version.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.aedt_env_variable
 
         """
         return aedt_versions.get_version_env_variable(self._aedt_version)

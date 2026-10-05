@@ -251,7 +251,7 @@ def main(data: CreateReportExtensionData) -> bool:
     report_design_name = str(aedtapp.design_name or "")
 
     report = AnsysReport(
-        version=str(app.aedt_version_id),
+        version=str(app.aedt_env_variable),
         design_name=report_design_name,
         project_name=str(aedtapp.project_name),
     )
