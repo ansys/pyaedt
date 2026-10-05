@@ -37,6 +37,7 @@ Using the extension
    - **Design full stackup**: build the ground/substrate/trace/ports/airbox automatically, then weave.
    - **Weave existing layout**: weave onto user-named, pre-existing substrate objects, picked
      either by typing their names or using the **Get Selection** button.
+
 4. Select the **Line type** (Microstrip or Stripline) and whether the pair is differential.
 5. Pick a **Glass style**, or choose **Custom** to edit the glass dimensions in the **Geometry**
    dialog.
