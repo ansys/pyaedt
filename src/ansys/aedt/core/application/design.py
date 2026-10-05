@@ -806,10 +806,6 @@ class Design(AedtObjects, PyAedtBase):
             AEDT version string. To get the version string, use
             :attr:`desktop_class.aedt_version_id` instead.
 
-        .. warning::
-            On Student version, the returned variable name (``ANSYSEM_ROOT*``)
-            may not exist because the student installer sets ``ANSYSEMSV_ROOT*`` instead.
-
         Returns
         -------
         str
@@ -829,7 +825,7 @@ class Design(AedtObjects, PyAedtBase):
         '2025.2'
 
         """
-        return aedt_versions.get_version_env_variable(self._aedt_version)
+        return aedt_versions.get_version_env_variable(self._aedt_version, self.student_version)
 
     @property
     def _aedt_version(self) -> str:
