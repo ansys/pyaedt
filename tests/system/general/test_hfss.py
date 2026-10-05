@@ -36,6 +36,7 @@ from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.generic.file_utils import get_dxf_layers
 from ansys.aedt.core.hfss import Hfss
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from ansys.aedt.core.modules.mesh import MeshOperation
 from ansys.aedt.core.visualization.advanced.misc import convert_farfield_data
 from ansys.aedt.core.visualization.advanced.misc import convert_nearfield_data
 from tests import TESTS_GENERAL_PATH
@@ -1067,31 +1068,29 @@ def test_create_open_region(aedt_app) -> None:
 def test_create_length_mesh(aedt_app) -> None:
     aedt_app.modeler.create_box([30, 0, 0], [40, 10, 5], "BoxCircuit1", "Copper")
     mesh = aedt_app.mesh.assign_length_mesh(["BoxCircuit1"])
-    assert mesh
+    assert isinstance(mesh, MeshOperation)
     mesh.props["NumMaxElem"] = "100"
-    assert mesh.props["NumMaxElem"] == aedt_app.odesign.GetChildObject("Mesh").GetChildObject(mesh.name).GetPropValue(
-        "Max Elems"
-    )
+    assert mesh.props["NumMaxElem"] == aedt_app.mesh.meshoperations[0].properties["Max Elems"]
+    assert mesh.props["NumMaxElem"] == "100"
 
 
 def test_create_skin_depth(aedt_app) -> None:
     aedt_app.modeler.create_box([30, 0, 0], [40, 10, 5], "BoxCircuit2", "Copper")
     mesh = aedt_app.mesh.assign_skin_depth(["BoxCircuit2"], "1mm")
-    assert mesh
+    assert isinstance(mesh, MeshOperation)
     mesh.props["SkinDepth"] = "3mm"
-    assert mesh.props["SkinDepth"] == aedt_app.odesign.GetChildObject("Mesh").GetChildObject(mesh.name).GetPropValue(
-        "Skin Depth"
-    )
+    assert mesh.props["SkinDepth"] == aedt_app.mesh.meshoperations[0].properties["Skin Depth"]
+    assert mesh.props["SkinDepth"] == "3mm"
 
 
 def test_create_curvilinear(aedt_app) -> None:
     aedt_app.modeler.create_box([30, 0, 0], [40, 10, 5], "BoxCircuit3", "Copper")
     mesh = aedt_app.mesh.assign_curvilinear_elements(["BoxCircuit3"])
-    assert mesh
+    assert isinstance(mesh, MeshOperation)
+    assert len(aedt_app.mesh.meshoperations) == 1
     mesh.props["Apply"] = False
-    assert mesh.props["Apply"] == aedt_app.odesign.GetChildObject("Mesh").GetChildObject(mesh.name).GetPropValue(
-        "Apply Curvilinear Elements"
-    )
+    assert mesh.props["Apply"] == aedt_app.mesh.meshoperations[0].properties["Apply Curvilinear Elements"]
+    assert not mesh.props["Apply"]
     mesh.delete()
     assert len(aedt_app.mesh.meshoperations) == 0
 

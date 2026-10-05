@@ -300,10 +300,13 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
 
         """
         props = dict(self.props)
-        for k, v in props.items():
-            if k == key_name:
-                if k == "NormalDev":
-                    props["NormalDeChoice"] = 2
+        if key_name not in props:
+            raise ValueError(f"Key {key_name} not found in mesh operation properties.")
+        props[key_name] = value
+
+        if key_name == "NormalDev":
+            # If NormalDev is updated, set NormalDeChoice to 2 (manual)
+            props["NormalDeChoice"] = 2
 
         if self.type == "SurfApproxBased":
             self._mesh.omeshmodule.EditTrueSurfOp(self.name, self._get_args(props))
@@ -528,9 +531,7 @@ class Mesh(PyAedtBase):
         >>> mesh_operations_list = hfss.mesh.meshoperations
 
         """
-        if self._meshoperations is None:
-            self._meshoperations = self._get_design_mesh_operations()
-        return self._meshoperations
+        return self._get_design_mesh_operations()
 
     @pyaedt_function_handler()
     def _refresh_mesh_operations(self):
@@ -704,7 +705,6 @@ class Mesh(PyAedtBase):
         )
         mop = MeshOperation(self, name, props, "SurfApproxBased")
         mop.create()
-        self.meshoperations.append(mop)
         return mop
 
     @pyaedt_function_handler()
@@ -791,7 +791,6 @@ class Mesh(PyAedtBase):
 
         mop = MeshOperation(self, name, props, "SurfApproxBased")
         mop.create()
-        self.meshoperations.append(mop)
         return mop
 
     @pyaedt_function_handler()
@@ -854,7 +853,6 @@ class Mesh(PyAedtBase):
 
         mop = MeshOperation(self, name, props, "DefeatureBased")
         mop.create()
-        self.meshoperations.append(mop)
         return mop
 
     @pyaedt_function_handler()
@@ -1105,7 +1103,6 @@ class Mesh(PyAedtBase):
         props = dict({"Type": "SurfaceRepPriority", "Objects": assignment, "SurfaceRepPriority": surface_priority})
         mop = MeshOperation(self, meshop_name, props, "SurfaceRepPriority")
         mop.create()
-        self.meshoperations.append(mop)
         return mop
 
     @pyaedt_function_handler()
@@ -1275,7 +1272,6 @@ class Mesh(PyAedtBase):
                 break
 
         mop.create()
-        self.meshoperations.append(mop)
         return mop
 
     @pyaedt_function_handler()
@@ -1369,7 +1365,6 @@ class Mesh(PyAedtBase):
 
         mop = MeshOperation(self, name, props, "SkinDepthBased")
         mop.create()
-        self.meshoperations.append(mop)
         return mop
 
     @pyaedt_function_handler()
@@ -1424,7 +1419,6 @@ class Mesh(PyAedtBase):
         props = dict({"Type": "Curvilinear", seltype: assignment, "Apply": enable})
         mop = MeshOperation(self, name, props, "Curvilinear")
         mop.create()
-        self.meshoperations.append(mop)
         return mop
 
     @pyaedt_function_handler()
@@ -1484,7 +1478,6 @@ class Mesh(PyAedtBase):
         )
         mop = MeshOperation(self, name, props, "CurvatureExtraction")
         mop.create()
-        self.meshoperations.append(mop)
         return mop
 
     @pyaedt_function_handler()
@@ -1543,7 +1536,6 @@ class Mesh(PyAedtBase):
 
         mop = MeshOperation(self, name, props, "RotationalLayerMesh")
         mop.create()
-        self.meshoperations.append(mop)
         return mop
 
     @pyaedt_function_handler()
@@ -1591,7 +1583,6 @@ class Mesh(PyAedtBase):
         mop = MeshOperation(self, name, props, "EdgeCutLayerMesh")
         mop.create()
         mop.props["Layer Thickness"] = layer_thickness
-        self.meshoperations.append(mop)
         return mop
 
     @pyaedt_function_handler()
@@ -1672,7 +1663,6 @@ class Mesh(PyAedtBase):
         )
         mop = MeshOperation(self, name, props, "DensityControlBased")
         mop.create()
-        self.meshoperations.append(mop)
         return mop
 
     @pyaedt_function_handler()
@@ -1787,7 +1777,6 @@ class Mesh(PyAedtBase):
                 )
             mesh_operation = MeshOperation(self, name, props, "CylindricalGap")
             mesh_operation.create()
-            self.meshoperations.append(mesh_operation)
             return mesh_operation
         except Exception:
             return False
