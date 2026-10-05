@@ -30,7 +30,6 @@ from unittest.mock import patch
 import pytest
 
 from ansys.aedt.core import Hfss
-from ansys.aedt.core.extensions.hfss.mcad_assembly import Arrange
 from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyBackend
 from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyFrontend
 from ansys.aedt.core.extensions.hfss.mcad_assembly import run
@@ -68,7 +67,7 @@ def get_test_data() -> MCADAssemblyBackend:
     sub_comp_.target_coordinate_system = "Guiding_Pin"
     sub_comp_.layout_coordinate_systems = ["CABLE1_via_65", "CABLE2_via_65", "H0_via_65"]
     sub_comp_.reference_coordinate_system = "H0_via_65"
-    sub_comp_.arranges = [Arrange(operation="rotate", axis="X", angle="0deg")]
+    sub_comp_.add_arrange_rotate(axis="X", angle="0deg")
 
     sub_comp__ = sub_comp_.add_sub_mcad_component(name="cap_c4", model="cap0402")
     sub_comp__.use_pin_mapping = True
