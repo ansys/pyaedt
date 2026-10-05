@@ -146,6 +146,8 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         else:
             props = {}
             for key, value in self.properties.items():
+                if key in mesh_props.values():
+                    key = [k for k, v in mesh_props.items() if v == key][0]
                 props[key] = value
 
         if "Assignment" in props:
@@ -301,66 +303,76 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
 
         """
         # Update using Child Object if available and supported
-        mesh_oo = self._mesh._app.get_oo_object(self._mesh._app.odesign, "Mesh")
-        mesh_names = self._mesh._app.get_oo_name(mesh_oo)
-        if key_name and self.name in mesh_names:
-            try:
-                if key_name in mesh_props.keys():
-                    if key_name == "SurfaceRepPriority":
-                        value = "Normal" if value == 0 else "High"
-                    key_name = mesh_props[key_name]
-                self._mesh._app.set_oo_property_value(mesh_oo, self.name, key_name, value)
-                return True
-            except Exception:
-                self._app.logger.info("Failed to use Child Object. Trying with legacy update.")
-
-        # Update using legacy method
         props = dict(self.props)
         if key_name not in props:
             raise ValueError(f"Key {key_name} not found in mesh operation properties.")
         props[key_name] = value
 
         if key_name == "NormalDev":
-            # If NormalDev is updated, set NormalDeChoice to 2 (manual)
-            props["NormalDeChoice"] = 2
+            # If NormalDev is updated, set NormalDevChoice to 2 (manual)
+            props["NormalDevChoice"] = 2
+        elif key_name == "AspectRatio":
+            # If AspectRatio is updated, set AspectRatioChoice to 2 (manual)
+            props["AspectRatioChoice"] = 2
+        elif key_name == "SurfDev":
+            # If SurfDev is updated, set SurfDevChoice to 2 (manual)
+            props["SurfDevChoice"] = 2
+        elif key_name == "Total Layer Thickness":
+            # If Total Layer Thickness is updated, set Total Layer Thickenss to the new value
+            props["Total Layer Thickenss"] = value
+            del props["Total Layer Thickness"]
+        elif key_name == "Layer Thickness":
+            # If Layer Thickness is updated, set Layer Thickenss to the new value
+            props["Layer Thickenss"] = value
+            del props["Layer Thickness"]
 
-        if self.type == "SurfApproxBased":
-            self._mesh.omeshmodule.EditTrueSurfOp(self.name, self._get_args(props))
-        elif self.type == "DefeatureBased":
-            self._mesh.omeshmodule.EditModelResolutionOp(self.name, self._get_args(props))
+        # if self.type == "SurfApproxBased":
+        #     self._mesh.omeshmodule.EditTrueSurfOp(self.name, self._get_args(props))
+        # elif self.type == "DefeatureBased":
+        #     self._mesh.omeshmodule.EditModelResolutionOp(self.name, self._get_args(props))
+        # elif self.type == "SurfaceRepPriority":
+        #     self._mesh.omeshmodule.Edit(
+        #         self.name, [f"NAME:{self.name}", "SurfaceRepPriority:=", 1 if value in [1, "High"] else 0]
+        #     )
+        # elif self.type == "LengthBased":
+        #     self._mesh.omeshmodule.EditLengthOp(self.name, self._get_args(props))
+        # elif self.type == "SkinDepthBased":
+        #     self._mesh.omeshmodule.EditSkinDepthOp(self.name, self._get_args(props))
+        # elif self.type == "Curvilinear":
+        #     self._mesh.omeshmodule.EditApplyCurvlinearElementsOp(self.name, self._get_args(props))
+        # elif self.type == "RotationalLayerMesh":
+        #     if "Total Layer Thickness" in props:
+        #         props["Total Layer Thickenss"] = props["Total Layer Thickness"]
+        #         del props["Total Layer Thickness"]
+        #     self._mesh.omeshmodule.EditRotationalLayerOp(self.name, self._get_args(props))
+        # elif self.type == "DensityControlBased":
+        #     self._mesh.omeshmodule.EditDensityControlOp(self.name, self._get_args())
+        # elif self.type == "EdgeCutLayerMesh":
+        #     props = dict(self.props)
+        #     if "Layer Thickness" in props:
+        #         props["Layer Thickenss"] = props["Layer Thickness"]
+        #         del props["Layer Thickness"]
+        #     self._mesh.omeshmodule.EditEdgeCutLayerOp(self.name, self._get_args(props))
+        # elif self.type == "Icepak":
+        #     self._mesh.omeshmodule.EditMeshOperation(self.name, self._get_args(props))
+        # elif self.type == "CurvatureExtraction":
+        #     self._mesh.omeshmodule.EditCurvatureExtractionOp(self.name, self._get_args(props))
+        # elif self.type in ["InitialMeshSettings", "MeshSettings"]:
+        #     self._mesh.omeshmodule.InitialMeshSettings(self._get_args(props))
+        # elif self.type == "CylindricalGap":
+        #     self._mesh.omeshmodule.EditCylindricalGapOp(self.name, self._get_args(props))
+        # else:
+        #     return False
+
+        if self.type in ["InitialMeshSettings", "MeshSettings"]:
+            self._mesh.omeshmodule.InitialMeshSettings(self._get_args(props))
         elif self.type == "SurfaceRepPriority":
             self._mesh.omeshmodule.Edit(
                 self.name, [f"NAME:{self.name}", "SurfaceRepPriority:=", 1 if value in [1, "High"] else 0]
             )
-        elif self.type == "LengthBased":
-            self._mesh.omeshmodule.EditLengthOp(self.name, self._get_args(props))
-        elif self.type == "SkinDepthBased":
-            self._mesh.omeshmodule.EditSkinDepthOp(self.name, self._get_args(props))
-        elif self.type == "Curvilinear":
-            self._mesh.omeshmodule.EditApplyCurvlinearElementsOp(self.name, self._get_args(props))
-        elif self.type == "RotationalLayerMesh":
-            if "Total Layer Thickness" in props:
-                props["Total Layer Thickenss"] = props["Total Layer Thickness"]
-                del props["Total Layer Thickness"]
-            self._mesh.omeshmodule.EditRotationalLayerOp(self.name, self._get_args(props))
-        elif self.type == "DensityControlBased":
-            self._mesh.omeshmodule.EditDensityControlOp(self.name, self._get_args())
-        elif self.type == "EdgeCutLayerMesh":
-            props = dict(self.props)
-            if "Layer Thickness" in props:
-                props["Layer Thickenss"] = props["Layer Thickness"]
-                del props["Layer Thickness"]
-            self._mesh.omeshmodule.EditEdgeCutLayerOp(self.name, self._get_args(props))
-        elif self.type == "Icepak":
-            self._mesh.omeshmodule.EditMeshOperation(self.name, self._get_args(props))
-        elif self.type == "CurvatureExtraction":
-            self._mesh.omeshmodule.EditCurvatureExtractionOp(self.name, self._get_args(props))
-        elif self.type in ["InitialMeshSettings", "MeshSettings"]:
-            self._mesh.omeshmodule.InitialMeshSettings(self._get_args(props))
-        elif self.type == "CylindricalGap":
-            self._mesh.omeshmodule.EditCylindricalGapOp(self.name, self._get_args(props))
         else:
-            return False
+            self._mesh.omeshmodule.Edit(self.name, self._get_args(props))
+
         return True
 
     @pyaedt_function_handler()

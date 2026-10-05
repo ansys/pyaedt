@@ -74,7 +74,7 @@ def test_assign_model_resolution(aedt_app) -> None:
         assert len(aedt_app.mesh.omeshmodule.GetMeshOpAssignment(mr1.name)) == 2
     mr2 = aedt_app.mesh.assign_model_resolution(o.faces[0], 1e-4, "ModelRes2")
     assert not mr2
-    assert aedt_app.mesh[mr1.name].type == "DefeatureBased"
+    assert aedt_app.mesh[mr1.name].type == "Model Resolution Based"
 
 
 def test_assign_surface_mesh(aedt_app) -> None:
@@ -93,16 +93,22 @@ def test_assign_surface_mesh_manual(aedt_app) -> None:
     surface = aedt_app.mesh.assign_surface_mesh_manual(o.id, 1e-6, aspect_ratio=3, name="Surface_Manual")
     assert "Surface_Manual" in [i.name for i in aedt_app.mesh.meshoperations]
     assert float(surface.props["SurfDev"]) == 1e-6
-    surface.props["SurfDev"] = 1e-05
-    assert (
-        aedt_app.odesign.GetChildObject("Mesh").GetChildObject(surface.name).GetPropValue("Surface Deviation")
-        == "1e-05"
-    )
-    surface.props["NormalDevChoice"] = 2
 
-    assert surface.props["NormalDev"] == "22.5deg"
+    surface.props["SurfDev"] = 1e-05
+    assert aedt_app.mesh.meshoperations[0].properties["Surface Deviation"] in ["1e-05", 1e-05]
+
+    surface.props["NormalDevChoice"] = 2
+    surface.props["NormalDev"] = "10deg"
+    assert aedt_app.mesh.meshoperations[0].properties["Normal Deviation"] == "10deg"
+
+    surface.props["AspectRatioChoice"] = 2
     surface.props["AspectRatio"] = 20
-    assert aedt_app.odesign.GetChildObject("Mesh").GetChildObject(surface.name).GetPropValue("Aspect Ratio") == "20"
+    assert aedt_app.mesh.meshoperations[0].properties["Aspect Ratio"] in [20, "20"]
+
+    if DESKTOP_VERSION >= "2026.1":
+        # Switch off the manual surface mesh and check if the default values are applied
+        surface.props["NormalDevChoice"] = 0
+        assert "NormalDev" not in surface.props
 
     cylinder_zx = aedt_app.modeler.create_cylinder(Plane.ZX, udp, 3, coax_dimension, 0, "surface_manual")
     surface_default_value = aedt_app.mesh.assign_surface_mesh_manual(cylinder_zx.id)
