@@ -290,7 +290,7 @@ def test_udc_setitem_calls_update_native() -> None:
 
 
 def test_setup_json_roundtrip(tmp_path) -> None:
-    from ansys.aedt.core.modules.solve_sweeps import SetupProps
+    from ansys.aedt.core.modules.solve_setup import SetupProps
 
     setup = DummyBoundary()
     props = SetupProps(setup, {"Frequency": "1GHz", "DataId": "skip-me"})
