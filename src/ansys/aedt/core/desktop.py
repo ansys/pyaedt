@@ -938,7 +938,7 @@ class Desktop(PyAedtBase):
         >>> desktop.aedt_version_id  # Major version only (cached)
         '2026.1'
         >>> desktop.aedt_version  # Full version with service pack
-        '2025.2.4'
+        '2026.1.4'
 
         """
         return self.__aedt_version_id
