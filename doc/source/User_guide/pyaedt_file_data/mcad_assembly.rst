@@ -22,10 +22,8 @@ This code creates a configure file and create an assembled design in HFSS 3D:
     import json
     from pathlib import Path
 
-
-    from ansys.aedt.core.extensions.hfss.mcad_assembly import Arrange
-    from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyBackend
-    from ansys.aedt.core.extensions.hfss.mcad_assembly import run
+    from ansys.aedt.core.modeler.advanced_cad.mcad_assembly import run
+    from ansys.aedt.core.modeler.advanced_cad.mcad_assembly import MCADAssembly as MCADAssemblyBackend # noqa: F401
 
     CUR_DIR = Path(__file__).parent
 
@@ -67,7 +65,7 @@ This code creates a configure file and create an assembled design in HFSS 3D:
             "H0_via_65",
         ]
         sub_comp_.reference_coordinate_system = "H0_via_65"
-        sub_comp_.arranges = [Arrange(operation="rotate", axis="X", angle="0deg")]
+        sub_comp_.add_arrange_rotate(axis="X", angle="0deg")
 
         sub_comp__ = sub_comp_.add_sub_mcad_component(name="cable_a", model="cable")
         sub_comp__.use_pin_mapping = True
