@@ -127,8 +127,9 @@ class BoundaryCommon(PropsManager, PyAedtBase):
 
     @pyaedt_function_handler()
     def _initialize_tree_node(self) -> bool:
-        if self._child_object:
-            BinaryTreeNode.__init__(self, self._name, self._child_object, False, app=self._app)
+        child_object = self._child_object
+        if child_object:
+            BinaryTreeNode.__init__(self, self._name, child_object, False, app=self._app)
             return True
         return False
 
@@ -311,11 +312,6 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         if "Excitations" in design_childs:
             if self._name in self._app.get_oo_name(self._app.odesign, "Excitations"):
                 return self._app.get_oo_object(self._app.get_oo_object(self._app.odesign, "Excitations"), self._name)
-            elif self._app.get_oo_name(self._app.odesign, "Excitations"):
-                for port in self._app.get_oo_name(self._app.odesign, "Excitations"):
-                    terminals = self._app.get_oo_name(self._app.odesign, f"Excitations\\{port}")
-                    if self._name in terminals:
-                        return self._app.get_oo_object(self._app.odesign, f"Excitations\\{port}\\{self._name}")
 
         if self._app.design_type in ["Maxwell 3D", "Maxwell 2D"] and "Model" in design_childs:
             model = self._app.get_oo_object(self._app.odesign, "Model")
