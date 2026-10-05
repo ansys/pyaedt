@@ -30,6 +30,7 @@ from typing import Any
 from typing import cast
 
 from ansys.aedt.core.base import PyAedtBase
+from ansys.aedt.core.generic.constants import METER2IN
 from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.file_utils import write_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -44,32 +45,6 @@ if TYPE_CHECKING:
     from ansys.aedt.core.modeler.cad.object_3d import Object3d
     from ansys.aedt.core.modeler.modeler_3d import Modeler3D
 
-#: Conversion factor from mils (thousandths of an inch) to millimeters.
-MIL_TO_MM = 0.0254
-
-#: Small interference (overlap) margin applied to the undulation amplitude in `create_weave` so
-#: warp/fill yarns overlap slightly at crossings instead of touching with exactly zero gap. See
-#: the comment at the `amplitude` computation in `create_weave` for the full rationale.
-_AMPLITUDE_OVERLAP_FACTOR = 1.05
-
-#: Vendor "Glass Dimensions" style presets.
-#:
-#: Each preset stores the raw vendor measurements (in mils) as reported on
-#: typical glass-fabric dimension sheets:
-#:
-#: - ``x1``/``y1``: yarn height (thin dimension) for warp/fill, respectively.
-#: - ``x2``/``y2``: yarn width for warp/fill, respectively.
-#: - ``x3``/``y3``: pitch (repeat distance) for warp/fill, respectively.
-#:
-#: ``target_amplitude`` is not stored here: `set_weave_style` derives it from ``x1``/``y1``
-#: as half the centerline-separation distance needed for the warp and fill yarns to clear
-#: each other at a crossing: ``centerline_distance = x1/2 + y1/2`` (mils), and since the warp
-#: and fill paths move by ``+-amplitude`` on opposite sides of the mid-plane, the required
-#: separation ``2 * amplitude`` must equal that distance, giving
-#: ``amplitude = (x1 + y1) / 4 * MIL_TO_MM``. This is also consistent with how yarn height is
-#: already computed elsewhere from ``x1``/``y1`` (see `create_weave_homogenized`).
-#: ``yarn_permittivity`` and ``yarn_loss_tangent`` are not part of the vendor glass-dimensions
-#: table either and are provided separately (E-glass dielectric properties).
 WEAVE_STYLES = {
     "1067": dict(
         x1=0.82,
@@ -122,6 +97,12 @@ WEAVE_STYLES = {
         yarn_loss_tangent=0.004,
     ),
 }
+"""Vendor "Glass Dimensions" style presets.
+Each preset stores the raw vendor measurements (in mils) as reported on typical glass-fabric dimension sheets:
+- ``x1``/``y1``: yarn height (thin dimension) for warp/fill, respectively.
+- ``x2``/``y2``: yarn width for warp/fill, respectively.
+- ``x3``/``y3``: pitch (repeat distance) for warp/fill, respectively.
+"""
 
 
 class Weave(PyAedtBase):
@@ -135,6 +116,7 @@ class Weave(PyAedtBase):
     >>> obj = Weave()
     >>> sub = hfss.modeler.create_box([0, 0, 0], [5, 10, 2])
     >>> w1 = weave.create_weave(hfss, sub)
+
     """
 
     def __init__(self) -> None:
@@ -155,6 +137,7 @@ class Weave(PyAedtBase):
         self._facet_path_segs_per_half = 6
         self._subtract_from_substrate = False
         self._sectors_per_pitch = 1
+        self._amplitude_overlap_factor = 1.05
 
     @property
     def yarn_material(self) -> str:
@@ -293,6 +276,27 @@ class Weave(PyAedtBase):
     @target_amplitude.setter
     def target_amplitude(self, value: float) -> None:
         self._target_amplitude = float(value)
+
+    @property
+    def amplitude_overlap_factor(self) -> float:
+        """Overlap margin applied to the undulation amplitude in `create_weave`.
+
+        Warp and fill yarns overlap slightly at crossings instead of touching with exactly zero
+        gap. See the amplitude computation in `create_weave` for the rationale.
+
+        Returns
+        -------
+        float
+            Multiplier applied to the target amplitude before creating yarn geometry.
+
+        """
+        return self._amplitude_overlap_factor
+
+    @amplitude_overlap_factor.setter
+    def amplitude_overlap_factor(self, value: float) -> None:
+        if value <= 0:
+            raise ValueError("amplitude_overlap_factor must be positive.")
+        self._amplitude_overlap_factor = float(value)
 
     @property
     def warp_width(self) -> float:
@@ -558,6 +562,7 @@ class Weave(PyAedtBase):
             "target_pitch_x": self.target_pitch_x,
             "target_pitch_y": self.target_pitch_y,
             "target_amplitude": self.target_amplitude,
+            "amplitude_overlap_factor": self.amplitude_overlap_factor,
             "warp_width": self.warp_width,
             "fill_width": self.fill_width,
             "ratio_warp": self.ratio_warp,
@@ -677,17 +682,17 @@ class Weave(PyAedtBase):
         x1, x2, x3 = preset["x1"], preset["x2"], preset["x3"]
         y1, y2, y3 = preset["y1"], preset["y2"], preset["y3"]
 
-        self.target_pitch_x = x3 * MIL_TO_MM
-        self.target_pitch_y = y3 * MIL_TO_MM
-        self.warp_width = x2 * MIL_TO_MM
-        self.fill_width = y2 * MIL_TO_MM
+        self.target_pitch_x = x3 * METER2IN
+        self.target_pitch_y = y3 * METER2IN
+        self.warp_width = x2 * METER2IN
+        self.fill_width = y2 * METER2IN
         self.ratio_warp = x1 / x2
         self.ratio_fill = y1 / y2
 
         # Amplitude derived so that warp/fill centerlines (each moving by +-amplitude on
         # opposite sides of the mid-plane) achieve a separation equal to the centerline
         # distance required for the two yarns to clear each other: (x1 + y1) / 2 (mils).
-        self.target_amplitude = (x1 + y1) / 4 * MIL_TO_MM
+        self.target_amplitude = (x1 + y1) / 4 * METER2IN
         self.yarn_permittivity = preset["yarn_permittivity"]
         self.yarn_loss_tangent = preset["yarn_loss_tangent"]
 
@@ -775,7 +780,7 @@ class Weave(PyAedtBase):
         # CAD kernel's boolean union and can intermittently fail ("Error in uniting objects").
         # Real woven yarns also compress slightly into each other at crossings, so a small overlap
         # is physically reasonable, not just a numerical workaround.
-        amplitude = min(amplitude * _AMPLITUDE_OVERLAP_FACTOR, max_amplitude)
+        amplitude = min(amplitude * self.amplitude_overlap_factor, max_amplitude)
 
         app[f"{name}_pitch_x"] = f"{pitch_x}mm"
         app[f"{name}_pitch_y"] = f"{pitch_y}mm"
@@ -1063,6 +1068,7 @@ class Weave(PyAedtBase):
         Walks into lists taking the first element until an int/float/str
         is found, then converts it to float. Raises TypeError if no numeric
         scalar can be extracted.
+
         """
         if isinstance(val, (int, float, str)):
             return float(val)

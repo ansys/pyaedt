@@ -80,6 +80,11 @@ def test_weave_properties() -> None:
     w.target_amplitude = 0.05
     assert isinstance(w.target_amplitude, float) and w.target_amplitude == pytest.approx(0.05)
 
+    w.amplitude_overlap_factor = 1.1
+    assert isinstance(w.amplitude_overlap_factor, float) and w.amplitude_overlap_factor == pytest.approx(1.1)
+    with pytest.raises(ValueError):
+        w.amplitude_overlap_factor = 0
+
     # Widths and ratios
     w.warp_width = 0.2
     w.fill_width = 0.25
@@ -124,6 +129,7 @@ def test_weave_properties() -> None:
         "target_pitch_x",
         "target_pitch_y",
         "target_amplitude",
+        "amplitude_overlap_factor",
         "warp_width",
         "fill_width",
         "ratio_warp",
@@ -161,7 +167,7 @@ def test_weave_export_load_json(test_tmp_dir) -> None:
 
 def test_weave_style() -> None:
     """Validate Weave style."""
-    from ansys.aedt.core.modeler.advanced_cad.weave import MIL_TO_MM
+    from ansys.aedt.core.generic.constants import METER2IN
 
     w = Weave()
     style1 = list(WEAVE_STYLES.keys())[0]
@@ -171,13 +177,13 @@ def test_weave_style() -> None:
         w.set_weave_style("invented")
 
     w.set_weave_style(style1)
-    assert w.target_pitch_x == pytest.approx(props["x3"] * MIL_TO_MM)
-    assert w.target_pitch_y == pytest.approx(props["y3"] * MIL_TO_MM)
-    assert w.warp_width == pytest.approx(props["x2"] * MIL_TO_MM)
-    assert w.fill_width == pytest.approx(props["y2"] * MIL_TO_MM)
+    assert w.target_pitch_x == pytest.approx(props["x3"] * METER2IN)
+    assert w.target_pitch_y == pytest.approx(props["y3"] * METER2IN)
+    assert w.warp_width == pytest.approx(props["x2"] * METER2IN)
+    assert w.fill_width == pytest.approx(props["y2"] * METER2IN)
     assert w.ratio_warp == pytest.approx(props["x1"] / props["x2"])
     assert w.ratio_fill == pytest.approx(props["y1"] / props["y2"])
-    assert w.target_amplitude == pytest.approx((props["x1"] + props["y1"]) / 4 * MIL_TO_MM)
+    assert w.target_amplitude == pytest.approx((props["x1"] + props["y1"]) / 4 * METER2IN)
     assert w.yarn_permittivity == pytest.approx(props["yarn_permittivity"])
     assert w.yarn_loss_tangent == pytest.approx(props["yarn_loss_tangent"])
 
@@ -188,9 +194,9 @@ def test_weave_style_target_amplitude_derivation() -> None:
     The amplitude is derived so that the warp and fill centerlines, each moving by
     +-amplitude on opposite sides of the mid-plane, achieve a separation equal to the
     centerline distance required for the two yarns to clear each other at a crossing:
-    ``centerline_distance = x1/2 + y1/2`` (mils) -> ``amplitude = (x1 + y1) / 4 * MIL_TO_MM``.
+    ``centerline_distance = x1/2 + y1/2`` (mils) -> ``amplitude = (x1 + y1) / 4 * METER2IN``.
     """
-    from ansys.aedt.core.modeler.advanced_cad.weave import MIL_TO_MM
+    from ansys.aedt.core.generic.constants import METER2IN
 
     for style_name, props in WEAVE_STYLES.items():
         # target_amplitude must no longer be a stored input in the presets.
@@ -199,7 +205,7 @@ def test_weave_style_target_amplitude_derivation() -> None:
         w = Weave()
         w.set_weave_style(style_name)
 
-        expected_amplitude = (props["x1"] + props["y1"]) / 4 * MIL_TO_MM
+        expected_amplitude = (props["x1"] + props["y1"]) / 4 * METER2IN
         assert w.target_amplitude == pytest.approx(expected_amplitude), (
             f"Unexpected derived target_amplitude for style '{style_name}'."
         )

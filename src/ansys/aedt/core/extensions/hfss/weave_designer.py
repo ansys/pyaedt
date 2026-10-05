@@ -40,8 +40,8 @@ from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
+from ansys.aedt.core.generic.constants import METER2IN
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-from ansys.aedt.core.modeler.advanced_cad.weave import MIL_TO_MM
 from ansys.aedt.core.modeler.advanced_cad.weave import WEAVE_STYLES
 from ansys.aedt.core.modeler.advanced_cad.weave import Weave
 
@@ -212,13 +212,13 @@ class GeometryDialog(tkinter.Toplevel):
                 return
 
             out: dict[str, Any] = {
-                "target_pitch_x": x3 * MIL_TO_MM,
-                "target_pitch_y": y3 * MIL_TO_MM,
-                "warp_width": x2 * MIL_TO_MM,
-                "fill_width": y2 * MIL_TO_MM,
+                "target_pitch_x": x3 * METER2IN,
+                "target_pitch_y": y3 * METER2IN,
+                "warp_width": x2 * METER2IN,
+                "fill_width": y2 * METER2IN,
                 "ratio_warp": x1 / x2,
                 "ratio_fill": y1 / y2,
-                "target_amplitude": (x1 + y1) / 4 * MIL_TO_MM,
+                "target_amplitude": (x1 + y1) / 4 * METER2IN,
                 **raw_values,
             }
             self.result = out
@@ -232,13 +232,14 @@ class GeometryDialog(tkinter.Toplevel):
 
 
 class WeaveAdvancedDialog(tkinter.Toplevel):
-    """Secondary window exposing the facet/sector discretization of the ``Weave`` object."""
+    """Secondary window exposing advanced discretization and overlap settings for ``Weave``."""
 
     #: (attribute name, python type, fallback default)
     FIELDS = [
         ("facet_ellipse_segments", int, 8),
         ("facet_path_segments_per_half", int, 6),
         ("sectors_per_pitch", int, 1),
+        ("amplitude_overlap_factor", float, 1.05),
     ]
 
     def __init__(self, master: tkinter.Misc, current: dict | None = None) -> None:
@@ -398,7 +399,7 @@ class WeaveDesignerExtension(ExtensionHFSSCommon):
             self.geometry_overrides = dialog.result
 
     def _open_advanced(self) -> None:
-        """Open the "Advanced Settings" dialog (facet/sector discretization)."""
+        """Open the "Advanced Settings" dialog."""
         dialog = WeaveAdvancedDialog(self.root, current=self.advanced_overrides)
         if dialog.result is not None:
             self.advanced_overrides = dialog.result
