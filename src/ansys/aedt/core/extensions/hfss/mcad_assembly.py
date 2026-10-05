@@ -36,9 +36,8 @@ from typing import cast
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.misc import ExtensionHFSSCommon
 from ansys.aedt.core.extensions.misc import get_arguments
-
+from ansys.aedt.core.modeler.advanced_cad.mcad_assembly import MCADAssembly as MCADAssemblyBackend  # noqa: F401
 from ansys.aedt.core.modeler.advanced_cad.mcad_assembly import run
-from ansys.aedt.core.modeler.advanced_cad.mcad_assembly import MCADAssembly as MCADAssemblyBackend # noqa: F401
 
 
 class MCADAssemblyFrontend(ExtensionHFSSCommon):

@@ -60,6 +60,7 @@ CONFIG_DICT = ConfigDict(extra="forbid", validate_assignment=True, populate_by_n
 
 OPERATIONS = Literal["move", "rotate"]
 
+
 class Arrange(BaseModel):
     """Provide arrange."""
 
@@ -87,8 +88,12 @@ class PlacementPinMapping(BaseModel):
     model_config = CONFIG_DICT
 
     reference_designator: str | None = None
-    pin_1_loc: tuple[str | int | float, str | int | float, str | int | float] | None = Field(None, description="Location of pin 1 in the 3D component.")
-    pin_2_loc: tuple[str | int | float, str | int | float, str | int | float] | None = Field(None, description="Location of pin 2 in the 3D component.")
+    pin_1_loc: tuple[str | int | float, str | int | float, str | int | float] | None = Field(
+        None, description="Location of pin 1 in the 3D component."
+    )
+    pin_2_loc: tuple[str | int | float, str | int | float, str | int | float] | None = Field(
+        None, description="Location of pin 2 in the 3D component."
+    )
 
 
 class Component(BaseModel):
@@ -223,7 +228,7 @@ class Component(BaseModel):
                 a3d_comp.placement_pin_mapping.pin_2_loc = models[name_def].get("pin_2_loc")
         edb.close()
 
-    def add_arrange_rotate(self, axis: str = "X", angle: str = "0deg")-> Arrange:
+    def add_arrange_rotate(self, axis: str = "X", angle: str = "0deg") -> Arrange:
         """Add a rotation arrange operation.
 
         Parameters
@@ -243,7 +248,7 @@ class Component(BaseModel):
         self.arranges.append(arrange)
         return arrange
 
-    def add_arrange_move(self, vector: list[str | int | float] = ("0mm", "0mm", "0mm"))-> Arrange:
+    def add_arrange_move(self, vector: list[str | int | float] = ("0mm", "0mm", "0mm")) -> Arrange:
         """Add a translation arrange operation.
 
         Parameters
@@ -260,7 +265,6 @@ class Component(BaseModel):
         arrange = Arrange(operation="move", vector=list(vector))
         self.arranges.append(arrange)
         return arrange
-
 
     def _assemble(
         self,

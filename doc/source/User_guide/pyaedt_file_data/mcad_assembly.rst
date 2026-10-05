@@ -23,7 +23,9 @@ This code creates a configure file and create an assembled design in HFSS 3D:
     from pathlib import Path
 
     from ansys.aedt.core.modeler.advanced_cad.mcad_assembly import run
-    from ansys.aedt.core.modeler.advanced_cad.mcad_assembly import MCADAssembly as MCADAssemblyBackend # noqa: F401
+    from ansys.aedt.core.modeler.advanced_cad.mcad_assembly import (
+        MCADAssembly as MCADAssemblyBackend,
+    )  # noqa: F401
 
     CUR_DIR = Path(__file__).parent
 
