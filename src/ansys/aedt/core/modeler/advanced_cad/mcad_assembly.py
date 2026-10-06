@@ -601,7 +601,7 @@ def run(
         app._runtime_component_models[i] = str(temp_model_dir / path.name)
 
     for name, path in app.layout_component_models.items():
-        path = Path(path) if Path(path).drive else model_dir / Path(path)
+        path = Path(path) if Path(path).is_absolute() else model_dir / Path(path)
         if path.suffix == ".aedb":
             temp_path = shutil.copytree(path, temp_model_dir / path.name)
         else:
@@ -609,7 +609,7 @@ def run(
         app._runtime_component_models[name] = str(temp_path)
 
     for name, path in app.component_models.items():
-        path = Path(path) if Path(path).drive else model_dir / Path(path)
+        path = Path(path) if Path(path).is_absolute() else model_dir / Path(path)
         shutil.copy(path, temp_model_dir)
         app._runtime_component_models[name] = str(temp_model_dir / path.name)
 
