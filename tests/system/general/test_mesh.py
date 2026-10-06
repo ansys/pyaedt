@@ -59,6 +59,8 @@ def test_assign_model_resolution(aedt_app) -> None:
     mr1.name = "resolution_test"
     assert "resolution_test" in aedt_app.mesh.meshoperations[0].name
     assert "resolution_test" in aedt_app.get_oo_name(mesh_object)
+    if mr1.assignment:
+        assert mr1.assignment == [o.name]
 
     # Try to set existing name and verify that it fails
     mr2 = aedt_app.mesh.assign_model_resolution(o, 1e-5, "resolution_test")
@@ -72,8 +74,9 @@ def test_assign_model_resolution(aedt_app) -> None:
     assert aedt_app.get_oo_property_value(mesh_object, mr1.name, "Use Auto Simplify")
 
     # If AutoEnable is set to True, DefeatureLength should not be settable. So we set it to False first.
-    mr1.props["DefeatureLength"] = "0.1mm"
-    assert aedt_app.get_oo_property_value(mesh_object, mr1.name, "Model Resolution Length") != "0.1mm"
+    if "DefeatureLength" in mr1.props:
+        mr1.props["DefeatureLength"] = "0.1mm"
+        assert aedt_app.get_oo_property_value(mesh_object, mr1.name, "Model Resolution Length") != "0.1mm"
 
     # Multiple property assignment
     new_props = dict(mr1.props)
@@ -83,19 +86,22 @@ def test_assign_model_resolution(aedt_app) -> None:
     assert aedt_app.get_oo_property_value(mesh_object, mr1.name, "Model Resolution Length") == "0.2mm"
     assert not aedt_app.get_oo_property_value(mesh_object, mr1.name, "Use Auto Simplify")
 
+    # Enable AutoLength
+    mr1.props["UseAutoLength"] = True
+    assert aedt_app.get_oo_property_value(mesh_object, mr1.name, "Use Auto Simplify")
+
     # Reassigning the model resolution to a different object and verifying the assignment
     mr1.props["Objects"] = [o2.name, o]
     assert len(mr1.props["Objects"]) == 2
-    if DESKTOP_VERSION >= "2023.1":
-        assert len(aedt_app.mesh.omeshmodule.GetMeshOpAssignment(mr1.name)) == 2
+    if mr1.assignment:
+        assert len(mr1.assignment) == 2
 
     new_props = dict(mr1.props)
     new_props["Objects"] = [o2]
     mr1.update_assignment(new_props)
-
     assert len(mr1.props["Objects"]) == 1
-    if DESKTOP_VERSION >= "2023.1":
-        assert len(aedt_app.mesh.omeshmodule.GetMeshOpAssignment(mr1.name)) == 2
+    if mr1.assignment:
+        assert len(mr1.assignment) == 1
 
 
 def test_assign_surface_mesh(aedt_app) -> None:

@@ -159,6 +159,32 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         return self._type
 
     @property
+    def assignment(self) -> list:
+        """Retrieve assignments.
+
+        Returns
+        -------
+        list
+            List of assigned objects.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> surface = hfss.mesh.assign_surface_mesh(o.name, 3, "Surface")
+        >>> surface.assignment
+
+        """
+        assignments = []
+        if self._child_object:
+            if hasattr(self._child_object, "Assignment"):
+                assignments = getattr(self._child_object, "Assignment", [])
+                assignments = [assignment.strip() for assignment in assignments.split(",") if assignment.strip()]
+
+        return assignments
+
+    @property
     def props(self) -> MeshProps:
         """Properties of the mesh operation.
 
