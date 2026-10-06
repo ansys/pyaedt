@@ -44,7 +44,6 @@ The code loads the configuration file and creates an assembled design in HFSS 3D
 Resources
 ---------
 - :download:`Example Configuration File <../../Resources/assembly_config.json>`
-- `MCAD Assembly Extension Examples <https://github.com/ansys-internal/pyaedt-extension-examples/tree/main/HFSS/MCAD%20Assembly>`_.(Ask Ansys support for more information)
 
 
 Create a Configuration File
