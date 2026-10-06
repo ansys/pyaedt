@@ -539,7 +539,7 @@ class Band(EmitNode):
     @min_aedt_version("2025.2")
     def freq_deviation(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
-        if int(self._emit_obj.aedt_version_id[-3:]) < 261:
+        if int(self._emit_obj.aedt_env_variable[-3:]) < 261:
             if self.modulation == self.ModulationOption.FM:
                 self._set_property("FMFreqDev", f"{value}")
             else:

@@ -384,7 +384,7 @@ class Filter(EmitNode):
         >>> filt.bp_lower_stop_band = 80e6
 
         """
-        if int(self._emit_obj.aedt_version_id[-3:]) < 261:
+        if int(self._emit_obj.aedt_env_variable[-3:]) < 261:
             val = self._get_property("Lower Stop Band")
         else:
             val = self._get_property("BP Lower Stop Band")
@@ -413,7 +413,7 @@ class Filter(EmitNode):
         >>> filt.bp_lower_cutoff = 90e6
 
         """
-        if int(self._emit_obj.aedt_version_id[-3:]) < 261:
+        if int(self._emit_obj.aedt_env_variable[-3:]) < 261:
             val = self._get_property("Lower Cutoff")
         else:
             val = self._get_property("BP Lower Cutoff")
@@ -442,7 +442,7 @@ class Filter(EmitNode):
         >>> filt.bp_higher_cutoff = 110e6
 
         """
-        if int(self._emit_obj.aedt_version_id[-3:]) < 261:
+        if int(self._emit_obj.aedt_env_variable[-3:]) < 261:
             val = self._get_property("Higher Cutoff")
         else:
             val = self._get_property("BP Higher Cutoff")
@@ -471,7 +471,7 @@ class Filter(EmitNode):
         >>> filt.bp_higher_stop_band = 120e6
 
         """
-        if int(self._emit_obj.aedt_version_id[-3:]) < 261:
+        if int(self._emit_obj.aedt_env_variable[-3:]) < 261:
             val = self._get_property("Higher Stop Band")
         else:
             val = self._get_property("BP Higher Stop Band")
@@ -500,7 +500,7 @@ class Filter(EmitNode):
         >>> filt.bs_lower_cutoff = 80e6
 
         """
-        if int(self._emit_obj.aedt_version_id[-3:]) < 261:
+        if int(self._emit_obj.aedt_env_variable[-3:]) < 261:
             val = self._get_property("Lower Cutoff")
         else:
             val = self._get_property("BS Lower Cutoff")
@@ -529,7 +529,7 @@ class Filter(EmitNode):
         >>> filt.bs_lower_stop_band = 90e6
 
         """
-        if int(self._emit_obj.aedt_version_id[-3:]) < 261:
+        if int(self._emit_obj.aedt_env_variable[-3:]) < 261:
             val = self._get_property("Lower Stop Band")
         else:
             val = self._get_property("BS Lower Stop Band")
@@ -558,7 +558,7 @@ class Filter(EmitNode):
         >>> filt.bs_higher_stop_band = 110e6
 
         """
-        if int(self._emit_obj.aedt_version_id[-3:]) < 261:
+        if int(self._emit_obj.aedt_env_variable[-3:]) < 261:
             val = self._get_property("Higher Stop Band")
         else:
             val = self._get_property("BS Higher Stop Band")
