@@ -178,7 +178,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         """
         assignments = []
         if self._child_object:
-            if hasattr(self._child_object, "Assignment"):
+            if "Assignment" in self._child_object.GetPropNames():
                 assignments = getattr(self._child_object, "Assignment", [])
                 assignments = [assignment.strip() for assignment in assignments.split(",") if assignment.strip()]
 

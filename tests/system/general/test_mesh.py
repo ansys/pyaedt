@@ -108,9 +108,34 @@ def test_assign_surface_mesh(aedt_app) -> None:
     udp = aedt_app.modeler.Position(10, 10, 0)
     coax_dimension = 200
     o = aedt_app.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, "surface")
+    mesh_object = aedt_app.get_oo_object(aedt_app.odesign, "Mesh")
+
+    # Create mesh operation
     surface = aedt_app.mesh.assign_surface_mesh(o.id, 3, "Surface")
     assert "Surface" in [i.name for i in aedt_app.mesh.meshoperations]
-    assert surface.props["SliderMeshSettings"] == 3
+
+    # Verify that the surface mesh operation is correctly assigned to the object
+    assert surface.name in aedt_app.get_oo_name(mesh_object)
+    surface.name = "surface_test"
+    assert "surface_test" in aedt_app.mesh.meshoperations[0].name
+    assert "surface_test" in aedt_app.get_oo_name(mesh_object)
+    if surface.assignment:
+        assert surface.assignment == [o.name]
+
+    # Single property assignment
+    surface.props["SliderMeshSettings"] = 2
+    assert surface.props["SliderMeshSettings"] == 2
+
+    # Change to manual settings
+    new_props = dict(surface.props)
+    new_props["CurvedSurfaceApproxChoice"] = "ManualSettings"
+    del new_props["SliderMeshSettings"]
+    new_props["SurfDevChoice"] = 2
+    new_props["SurfDev"] = "2mm"
+    new_props["NormalDevChoice"] = 1
+    new_props["AspectRatioChoice"] = 1
+    surface.props = new_props
+    assert aedt_app.get_oo_property_value(mesh_object, surface.name, "Curved Mesh Approximation") == "Manual Settings"
 
 
 def test_assign_surface_mesh_manual(aedt_app) -> None:
