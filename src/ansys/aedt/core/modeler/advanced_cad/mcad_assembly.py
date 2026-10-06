@@ -62,21 +62,20 @@ OPERATIONS = Literal["move", "rotate"]
 
 
 class Arrange(BaseModel):
-    """Provide arrange."""
+    """Define a transformation applied while assembling a component."""
 
     model_config = CONFIG_DICT
 
-    operation: OPERATIONS
-    """Value for operation."""
+    operation: OPERATIONS = Field(..., description="Transformation type to apply to the component.")
     # Rotate parameters
-    axis: str | None = "X"
-    """Value for axis."""
-    angle: str | None = "0deg"
-    """Value for angle."""
+    axis: str | None = Field(default="X", description="Axis used for rotation operations.")
+    angle: str | None = Field(default="0deg", description="Rotation angle expression used for rotate operations.")
 
     # Move parameters
-    vector: list[str | int | float] | None = ["0mm", "0mm", "0mm"]
-    """Value for vector."""
+    vector: list[str | int | float] | None = Field(
+        default_factory=lambda: ["0mm", "0mm", "0mm"],
+        description="Translation vector used for move operations.",
+    )
 
 
 COMPONENT_TYPE = Literal["ecad", "mcad"]
@@ -87,62 +86,86 @@ class PlacementPinMapping(BaseModel):
 
     model_config = CONFIG_DICT
 
-    reference_designator: str | None = None
+    reference_designator: str | None = Field(
+        default=None, description="Reference designator of the component footprint in the layout."
+    )
     pin_1_loc: tuple[str | int | float, str | int | float, str | int | float] | None = Field(
-        None, description="Location of pin 1 in the 3D component."
+        default=None, description="Location of pin 1 in the 3D component."
     )
     pin_2_loc: tuple[str | int | float, str | int | float, str | int | float] | None = Field(
-        None, description="Location of pin 2 in the 3D component."
+        default=None, description="Location of pin 2 in the 3D component."
     )
 
 
 class Component(BaseModel):
-    """Provide component."""
+    """Describe an MCAD or ECAD component included in an MCAD assembly."""
 
     model_config = CONFIG_DICT
 
     class PinMapping(BaseModel):
-        """Store resolved layout pin mapping data for a placed component."""
+        """Store resolved layout pin mapping data for a placed component. Internal use only."""
 
         model_config = CONFIG_DICT
 
-        refdes: str | None = None
-        cs_name: str | None = None
-        """Value for refdes."""
-        pin1_location: tuple[str | int | float, str | int | float] | None = None
-        flip: bool | None = False
-        thickness_offset: float | None = None
-        rotation_rad: int | float | None = 0
+        refdes: str | None = Field(
+            default=None, description="Reference designator of the resolved layout component."
+        )
+        cs_name: str | None = Field(default=None, description="Coordinate system created for the mapped component.")
+        pin1_location: tuple[str | int | float, str | int | float] | None = Field(
+            default=None, description="XY location of the first pin in the layout component."
+        )
+        flip: bool | None = Field(
+            default=False, description="Whether the component must be flipped during placement."
+        )
+        thickness_offset: float | None = Field(
+            default=None, description="Stackup thickness offset used when placing a flipped component."
+        )
+        rotation_rad: int | float | None = Field(
+            default=0, description="Resolved in-plane rotation angle for the mapped component, in radians."
+        )
 
-    component_type: COMPONENT_TYPE | None = Field("mcad")
-    """Value for component type."""
-    name: str = ""
-    """Value for name."""
-    model: str
-    """Value for model."""
+    component_type: COMPONENT_TYPE | None = Field(
+        default="mcad", description="Type of component to insert into the assembly."
+    )
+    name: str = Field(default="", description="Instance name of the component in the assembly.")
+    model: str = Field(..., description="Model definition name used to resolve the component file.")
 
-    use_pin_mapping: bool = False
-    placement_pin_mapping: PlacementPinMapping | None = Field(default_factory=PlacementPinMapping)
+    use_pin_mapping: bool = Field(
+        default=False, description="Whether layout pin mapping should drive component placement."
+    )
+    placement_pin_mapping: PlacementPinMapping | None = Field(
+        default_factory=PlacementPinMapping,
+        description="Pin mapping inputs used to place the component from layout reference data.",
+    )
     __pin_mapping_info: dict[str, PinMapping] | None = {}
 
-    target_coordinate_system: str | None = "Global"
-    """Value for target coordinate system."""
-    layout_coordinate_systems: list[str] | None = Field(default_factory=list)
-    """Value for layout coordinate systems."""
-    arranges: list[Arrange] = Field(default_factory=list)
-    """Value for arranges."""
-    sub_components: dict[str, "Component"] = Field(default_factory=dict)
-    """Value for sub components."""
-    password: str | None = None
-    """Value for password."""
+    target_coordinate_system: str | None = Field(
+        default="Global", description="Coordinate system where the component instance is inserted."
+    )
+    layout_coordinate_systems: list[str] | None = Field(
+        default_factory=list,
+        description="Coordinate systems imported from an ECAD layout component definition.",
+    )
+    arranges: list[Arrange] = Field(
+        default_factory=list,
+        description="Ordered transformation operations applied after component insertion.",
+    )
+    sub_components: dict[str, "Component"] = Field(
+        default_factory=dict,
+        description="Nested components assembled relative to this component.",
+    )
+    password: str | None = Field(default=None, description="Password used to open protected 3D component files.")
 
     # Mcad parameters
-    geometry_parameters: dict[str, str | float | int] | None = None
-    """Value for geometry parameters."""
+    geometry_parameters: dict[str, str | float | int] | None = Field(
+        default=None, description="Geometry parameter overrides passed when inserting an MCAD component."
+    )
 
     # Ecad parameters
-    reference_coordinate_system: str | None = "Global"
-    """Value for reference coordinate system."""
+    reference_coordinate_system: str | None = Field(
+        default="Global",
+        description="Reference coordinate system used when importing an ECAD component definition.",
+    )
 
     # internal properties
     __rotate_index: int | None = 0
@@ -411,28 +434,40 @@ class CoordinateSystem(BaseModel):
 
     model_config = CONFIG_DICT
 
-    origin: list[str] | None = ["0mm", "0mm", "0mm"]
-    reference_coordinate_system: str | None = Field(
-        "Global", validation_alias=AliasChoices("reference_coordinate_system", "reference_cs")
+    origin: list[str] | None = Field(
+        default_factory=lambda: ["0mm", "0mm", "0mm"],
+        description="Origin of the coordinate system expressed as XYZ values.",
     )
-    name: str | None = None
+    reference_coordinate_system: str | None = Field(
+        default="Global",
+        validation_alias=AliasChoices("reference_coordinate_system", "reference_cs"),
+        description="Parent coordinate system used to define this coordinate system.",
+    )
+    name: str | None = Field(default=None, description="Name assigned to the coordinate system in HFSS.")
 
 
 class MCADAssembly(BaseModel):
-    """Provide MCAD assembly backend."""
+    """Represent the full MCAD assembly configuration consumed by the backend."""
 
     model_config = CONFIG_DICT
 
-    coordinate_system: dict[str, CoordinateSystem] = Field(default_factory=dict)
-    """Value for coordinate system."""
-    layout_component_models: dict[str, str] = Field(default_factory=dict)
-    """Value for layout component models."""
-    component_models: dict[str, str] = Field(default_factory=dict)
-    """Value for component models."""
-    sub_components: dict[str, Component] = Field(
-        default_factory=dict, validation_alias=AliasChoices("sub_components", "assembly")
+    coordinate_system: dict[str, CoordinateSystem] = Field(
+        default_factory=dict,
+        description="Coordinate system definitions available to the assembly.",
     )
-    """Value for sub components."""
+    layout_component_models: dict[str, str] = Field(
+        default_factory=dict,
+        description="Mapping of ECAD model names to their source file paths.",
+    )
+    component_models: dict[str, str] = Field(
+        default_factory=dict,
+        description="Mapping of MCAD model names to their source file paths.",
+    )
+    sub_components: dict[str, Component] = Field(
+        default_factory=dict,
+        validation_alias=AliasChoices("sub_components", "assembly"),
+        description="Top-level components that make up the MCAD assembly.",
+    )
 
     @classmethod
     def _load(cls, data: dict) -> "MCADAssembly":
