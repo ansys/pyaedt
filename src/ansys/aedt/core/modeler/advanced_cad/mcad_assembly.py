@@ -621,6 +621,3 @@ def run(
 
     for name, comp in app.sub_components.items():
         comp._assemble(hfss, version=version)
-
-    if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
-        hfss.desktop_class.release_desktop(False, False)

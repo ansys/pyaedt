@@ -23,16 +23,37 @@
 # SOFTWARE.
 
 import json
+from unittest.mock import Mock
 from unittest.mock import patch
 
 from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyFrontend
 
 
 @patch("ansys.aedt.core.extensions.hfss.mcad_assembly.MCADAssemblyFrontend.check_design_type")
+@patch("ansys.aedt.core.extensions.hfss.mcad_assembly.get_pyaedt_app")
+@patch("ansys.aedt.core.extensions.hfss.mcad_assembly.ansys.aedt.core.Desktop")
 @patch("ansys.aedt.core.extensions.hfss.mcad_assembly.run")
 @patch("tkinter.filedialog.askopenfilename")
-def test_main_selected_edb(mock_askopenfilename, mock_run, mock_check_design_type, test_tmp_dir) -> None:
+def test_main_selected_edb(
+    mock_askopenfilename,
+    mock_run,
+    mock_desktop,
+    mock_get_pyaedt_app,
+    mock_check_design_type,
+    test_tmp_dir,
+) -> None:
     mock_check_design_type.return_value = True
+    active_project = Mock()
+    active_project.GetName.return_value = "Project1"
+    active_design = Mock()
+    active_design.GetName.return_value = "Design1"
+    desktop = Mock()
+    desktop.active_project.return_value = active_project
+    desktop.active_design.return_value = active_design
+    mock_desktop.return_value = desktop
+    hfss = Mock()
+    mock_get_pyaedt_app.return_value = hfss
+
     config_file = test_tmp_dir / "config.json"
     with open(config_file, "w") as f:
         json.dump({}, f, indent=4)
@@ -42,6 +63,7 @@ def test_main_selected_edb(mock_askopenfilename, mock_run, mock_check_design_typ
     extension.root.nametowidget(".notebook.main.load").invoke()
     assert extension.root.nametowidget(".notebook.main.tree").get_children()
     extension.root.nametowidget(".theme_button_frame.run").invoke()
-    mock_run.assert_called_once_with(extension.config_data, model_dir=extension.local_path)
+    mock_get_pyaedt_app.assert_called_once_with("Project1", "Design1")
+    mock_run.assert_called_once_with(extension.config_data, model_dir=extension.local_path, hfss=hfss)
 
     extension.root.destroy()

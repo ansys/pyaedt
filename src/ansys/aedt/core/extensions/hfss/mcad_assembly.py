@@ -33,11 +33,27 @@ from tkinter import ttk
 from typing import Any
 from typing import cast
 
+import ansys.aedt.core
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.misc import ExtensionHFSSCommon
-from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.modeler.advanced_cad.mcad_assembly import MCADAssembly as MCADAssemblyBackend  # noqa: F401
 from ansys.aedt.core.modeler.advanced_cad.mcad_assembly import run
+
+from ansys.aedt.core import get_pyaedt_app
+from ansys.aedt.core.extensions.misc import get_aedt_version
+from ansys.aedt.core.extensions.misc import get_arguments
+from ansys.aedt.core.extensions.misc import get_port
+from ansys.aedt.core.extensions.misc import get_process_id
+from ansys.aedt.core.extensions.misc import is_student
+
+PORT = get_port()
+"""Port used by the extension."""
+VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
+AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
+IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 
 class MCADAssemblyFrontend(ExtensionHFSSCommon):
@@ -89,7 +105,7 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
             button_frame,
             width=10,
             text="Run",
-            command=lambda: run(self.config_data, model_dir=self.local_path),
+            command=self.create_assembly,
             style="PyAEDT.TButton",
             name="run",
         ).pack(anchor="w", side="left", padx=15, pady=10)
@@ -132,6 +148,22 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
 
         create_tab_main(self.tab_frame_main, self)
 
+    def create_assembly(self):
+        app = ansys.aedt.core.Desktop(
+            new_desktop=False,
+            version=VERSION,
+            port=PORT,
+            aedt_process_id=AEDT_PROCESS_ID,
+            student_version=IS_STUDENT,
+        )
+
+        active_project = app.active_project()
+        active_design = app.active_design()
+        project_name = active_project.GetName()
+        design_name = active_design.GetName()
+
+        hfss: Any = get_pyaedt_app(project_name, design_name)
+        run(self.config_data, model_dir=self.local_path, hfss=hfss)
 
 # create main tab
 def create_tab_main(tab_frame: tkinter.Widget, master: MCADAssemblyFrontend) -> None:
@@ -196,6 +228,7 @@ def insert_items(tree: ttk.Treeview, parent: str, dictionary: dict | list | str 
             insert_items(tree, node, item)
     else:
         tree.insert(parent, "end", text=str(dictionary))
+
 
 
 # end of create_tab_main function
