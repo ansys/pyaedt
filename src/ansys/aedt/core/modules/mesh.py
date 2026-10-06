@@ -38,6 +38,7 @@ from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.props import Props as MeshProps
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import MethodNotSupportedError
 from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
@@ -271,7 +272,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
 
         """
         props = self.props if not props else props
-        arg = ["NAME:" + self.name]
+        arg = ["NAME:" + self._name]
         _dict2arg(props, arg)
         return arg
 
@@ -303,6 +304,13 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
             raise ValueError(f"Name {meshop_name} already assigned in the design.")
         if self._child_object:
             self._child_object.Name = str(meshop_name)
+            if self._child_object.Name != str(meshop_name):
+                # Fallback to legacy property update if the name change is not reflected in the child object
+                current_props = dict(self._legacy_props)
+                self._update_properties(props=current_props, new_name=str(meshop_name))
+                object.__setattr__(self, "_name", meshop_name)
+                if self._child_object.Name != str(meshop_name):
+                    raise AEDTRuntimeError("Name can not be changed.")
             object.__setattr__(self, "_name", meshop_name)
             object.__setattr__(self, "_tree_node_initialized", False)
             object.__setattr__(self, "_props", None)
@@ -435,44 +443,49 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
 
         return self._update_properties(props)
 
-    def _update_properties(self, props: dict) -> bool:
+    def _update_properties(self, props: dict, new_name: str = None) -> bool:
         """Send a complete mesh operation property dictionary to AEDT."""
+        aedt_props = self._get_args(props)
+
+        if new_name is not None:
+            aedt_props[0] = "NAME:" + new_name
+
         if self.type in ["InitialMeshSettings", "MeshSettings"]:
-            self._mesh.omeshmodule.InitialMeshSettings(self._get_args(props))
+            self._mesh.omeshmodule.InitialMeshSettings(aedt_props)
         elif hasattr(self._mesh.omeshmodule, "Edit"):
-            self._mesh.omeshmodule.Edit(self.name, self._get_args(props))
+            self._mesh.omeshmodule.Edit(self.name, aedt_props)
         else:  # pragma: no cover
             if self.type == "SurfApproxBased":
-                self._mesh.omeshmodule.EditTrueSurfOp(self.name, self._get_args(props))
+                self._mesh.omeshmodule.EditTrueSurfOp(self.name, aedt_props)
             elif self.type == "DefeatureBased":
-                self._mesh.omeshmodule.EditModelResolutionOp(self.name, self._get_args(props))
+                self._mesh.omeshmodule.EditModelResolutionOp(self.name, aedt_props)
             elif self.type == "SurfaceRepPriority":
-                self._mesh.omeshmodule.EditSurfPriorityOp(self.name, self._get_args(props))
+                self._mesh.omeshmodule.EditSurfPriorityOp(self.name, aedt_props)
             elif self.type == "LengthBased":
-                self._mesh.omeshmodule.EditLengthOp(self.name, self._get_args(props))
+                self._mesh.omeshmodule.EditLengthOp(self.name, aedt_props)
             elif self.type == "SkinDepthBased":
-                self._mesh.omeshmodule.EditSkinDepthOp(self.name, self._get_args(props))
+                self._mesh.omeshmodule.EditSkinDepthOp(self.name, aedt_props)
             elif self.type == "Curvilinear":
-                self._mesh.omeshmodule.EditApplyCurvlinearElementsOp(self.name, self._get_args(props))
+                self._mesh.omeshmodule.EditApplyCurvlinearElementsOp(self.name, aedt_props)
             elif self.type == "RotationalLayerMesh":
                 if "Total Layer Thickness" in props:
                     props["Total Layer Thickenss"] = props["Total Layer Thickness"]
                     del props["Total Layer Thickness"]
-                self._mesh.omeshmodule.EditRotationalLayerOp(self.name, self._get_args(props))
+                self._mesh.omeshmodule.EditRotationalLayerOp(self.name, aedt_props)
             elif self.type == "DensityControlBased":
-                self._mesh.omeshmodule.EditDensityControlOp(self.name, self._get_args())
+                self._mesh.omeshmodule.EditDensityControlOp(self.name, aedt_props)
             elif self.type == "EdgeCutLayerMesh":
                 props = dict(self.props)
                 if "Layer Thickness" in props:
                     props["Layer Thickenss"] = props["Layer Thickness"]
                     del props["Layer Thickness"]
-                self._mesh.omeshmodule.EditEdgeCutLayerOp(self.name, self._get_args(props))
+                self._mesh.omeshmodule.EditEdgeCutLayerOp(self.name, aedt_props)
             elif self.type == "Icepak":
-                self._mesh.omeshmodule.EditMeshOperation(self.name, self._get_args(props))
+                self._mesh.omeshmodule.EditMeshOperation(self.name, aedt_props)
             elif self.type == "CurvatureExtraction":
-                self._mesh.omeshmodule.EditCurvatureExtractionOp(self.name, self._get_args(props))
+                self._mesh.omeshmodule.EditCurvatureExtractionOp(self.name, aedt_props)
             elif self.type == "CylindricalGap":
-                self._mesh.omeshmodule.EditCylindricalGapOp(self.name, self._get_args(props))
+                self._mesh.omeshmodule.EditCylindricalGapOp(self.name, aedt_props)
             else:
                 return False
 

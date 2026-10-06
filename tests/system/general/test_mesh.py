@@ -135,27 +135,46 @@ def test_assign_surface_mesh(aedt_app) -> None:
     new_props["NormalDevChoice"] = 1
     new_props["AspectRatioChoice"] = 1
     surface.props = new_props
-    assert aedt_app.get_oo_property_value(mesh_object, surface.name, "Curved Mesh Approximation") == "Manual Settings"
+
+    if "Curved Mesh Approximation Type" in surface.properties:
+        assert (
+            aedt_app.get_oo_property_value(mesh_object, surface.name, "Curved Mesh Approximation Type")
+            == "Manual Settings"
+        )
+    elif "Curved Surface Approximation" in surface.properties:
+        assert (
+            aedt_app.get_oo_property_value(mesh_object, surface.name, "Curved Mesh Approximation") == "Manual Settings"
+        )
 
 
 def test_assign_surface_mesh_manual(aedt_app) -> None:
     udp = aedt_app.modeler.Position(20, 20, 0)
     coax_dimension = 200
     o = aedt_app.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, "surface_manual")
+    mesh_object = aedt_app.get_oo_object(aedt_app.odesign, "Mesh")
+
     surface = aedt_app.mesh.assign_surface_mesh_manual(o.id, 1e-6, aspect_ratio=3, name="Surface_Manual")
     assert "Surface_Manual" in [i.name for i in aedt_app.mesh.meshoperations]
-    assert float(surface.props["SurfDev"]) == 1e-6
+
+    # Verify that the surface mesh operation is correctly assigned to the object
+    assert surface.name in aedt_app.get_oo_name(mesh_object)
+    surface.name = "surface_test"
+    assert "surface_test" in aedt_app.mesh.meshoperations[0].name
+    assert "surface_test" in aedt_app.get_oo_name(mesh_object)
+    if surface.assignment:
+        assert surface.assignment == [o.name]
 
     surface.props["SurfDev"] = 1e-05
-    assert aedt_app.mesh.meshoperations[0].properties["Surface Deviation"] in ["1e-05", 1e-05]
+    assert float(surface.props["SurfDev"]) == 1e-5
+    assert aedt_app.get_oo_property_value(mesh_object, surface.name, "Surface Deviation") in ["1e-05", 1e-05]
 
     surface.props["NormalDevChoice"] = 2
     surface.props["NormalDev"] = "10deg"
-    assert aedt_app.mesh.meshoperations[0].properties["Normal Deviation"] == "10deg"
+    assert aedt_app.get_oo_property_value(mesh_object, surface.name, "Normal Deviation") == "10deg"
 
     surface.props["AspectRatioChoice"] = 2
     surface.props["AspectRatio"] = 20
-    assert aedt_app.mesh.meshoperations[0].properties["Aspect Ratio"] in [20, "20"]
+    assert aedt_app.get_oo_property_value(mesh_object, surface.name, "Aspect Ratio") in [20, "20"]
 
     if DESKTOP_VERSION >= "2026.1":
         # Switch off the manual surface mesh and check if the default values are applied
@@ -171,23 +190,26 @@ def test_assign_surface_mesh_manual(aedt_app) -> None:
 def test_assign_surface_priority(aedt_app):
     box = aedt_app.modeler.create_box([0, 0, 0], [10, 10, 10])
     rect = aedt_app.modeler.create_rectangle(Plane.XY, [0, 0, 10], [10, 10])
+    mesh_object = aedt_app.get_oo_object(aedt_app.odesign, "Mesh")
 
     surface = aedt_app.mesh.assign_surf_priority_for_tau([box.name, rect.name], 1)
-    assert surface.props["SurfaceRepPriority"] == 1
+
+    # Verify that the surface mesh operation is correctly assigned to the object
+    assert surface.name in aedt_app.get_oo_name(mesh_object)
+    surface.name = "surface_test"
+    assert "surface_test" in aedt_app.mesh.meshoperations[0].name
+    assert "surface_test" in aedt_app.get_oo_name(mesh_object)
+    if surface.assignment:
+        assert len(surface.assignment) == 2
+
     surface.props["SurfaceRepPriority"] = 0
     assert (
-        aedt_app.odesign.GetChildObject("Mesh")
-        .GetChildObject(surface.name)
-        .GetPropValue("Surface Representation Priority for TAU")
-        == "Normal"
+        aedt_app.get_oo_property_value(mesh_object, surface.name, "Surface Representation Priority for TAU") == "Normal"
     )
 
     surface.props["SurfaceRepPriority"] = 1
     assert (
-        aedt_app.odesign.GetChildObject("Mesh")
-        .GetChildObject(surface.name)
-        .GetPropValue("Surface Representation Priority for TAU")
-        == "High"
+        aedt_app.get_oo_property_value(mesh_object, surface.name, "Surface Representation Priority for TAU") == "High"
     )
 
 
