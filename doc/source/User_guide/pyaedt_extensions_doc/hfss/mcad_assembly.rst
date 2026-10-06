@@ -18,7 +18,7 @@ Features
    :alt:  MCAD Assembly Example
    :width: 800
 
-Using the Extension
+Using the extension
 -------------------
 
 1. Create an empty HFSS 3D design.
@@ -46,7 +46,7 @@ Resources
 - :download:`Example Configuration File <../../Resources/assembly_config.json>`
 
 
-Create a Configuration File
+Create a configuration file
 ---------------------------
 
 For detailed information about the configuration file format, see :doc:`../../pyaedt_file_data/mcad_assembly`.

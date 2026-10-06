@@ -12,12 +12,13 @@ Example 1, assembly RLC components on a PCB from the library in HFSS 3D
 
     from pathlib import Path
     from ansys.aedt.core import Hfss
-    from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyBackend, run
+    from ansys.aedt.core.modeler.advanced_cad.mcad_assembly import run
+    from ansys.aedt.core.modeler.advanced_cad.mcad_assembly import MCADAssembly
 
 
     CUR_DIR = Path(__file__).resolve().parent
 
-    top_assembly = MCADAssemblyBackend()
+    top_assembly = MCADAssembly()
     top_assembly.add_ecad_component_model(name="LimeSDR", path=str(CUR_DIR / "models/edb/LimeSDR-USB_1v4s_analog.aedb"))
 
     pcb = top_assembly.add_sub_ecad_component(name="pcb", model="LimeSDR")
@@ -30,6 +31,7 @@ Example 1, assembly RLC components on a PCB from the library in HFSS 3D
 
 Example 2, assemble a PCB into a chassis
 ----------------------------------------
+
 This example uses the board from https://github.com/myriadrf/LimeSDR-USB
 
 .. image:: ../../../_static/extensions/mcad_assembly_3.png

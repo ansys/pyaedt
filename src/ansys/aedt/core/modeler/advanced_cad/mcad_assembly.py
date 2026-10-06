@@ -25,7 +25,6 @@
 from __future__ import annotations
 
 import json
-import os
 from pathlib import Path
 import shutil
 import tempfile
@@ -240,9 +239,9 @@ class Component(BaseModel):
         models = read_toml(Path(library_path) / "model_library.toml")
 
         for comp_def, item in models.items():
-            if comp_def not in self._top_assembly.library_component_models:
+            if comp_def not in self._top_assembly._library_component_models:
                 path = str(Path(library_path) / item["model_path"])
-                self._top_assembly.library_component_models[comp_def] = path
+                self._top_assembly._library_component_models[comp_def] = path
 
         edb = Edb(self._top_assembly.layout_component_models[self.model])
         for name_def, comp_def in edb.definitions.components.items():
@@ -464,10 +463,6 @@ class MCADAssembly(BaseModel):
         default_factory=dict,
         description="Mapping of MCAD model names to their source file paths.",
     )
-    library_component_models: dict[str, str] = Field(
-        default_factory=dict,
-        description="Mapping of library-provided MCAD model names to their source file paths.",
-    )
     sub_components: dict[str, Component] = Field(
         default_factory=dict,
         validation_alias=AliasChoices("sub_components", "assembly"),
@@ -475,6 +470,7 @@ class MCADAssembly(BaseModel):
     )
 
     _runtime_component_models: dict[str, str] = PrivateAttr(default_factory=dict)
+    _library_component_models: dict[str, str] = PrivateAttr(default_factory=dict)
 
     def model_post_init(self, __context) -> None:
         for component in self.sub_components.values():
@@ -482,13 +478,13 @@ class MCADAssembly(BaseModel):
 
     @classmethod
     def _load(cls, data: dict) -> "MCADAssembly":
-        return cls(
+        obj = cls(
             coordinate_system=data.get("coordinate_system", {}),
             component_models=data.get("component_models", {}),
-            library_component_models=data.get("library_component_models", {}),
             layout_component_models=data.get("layout_component_models", {}),
             sub_components={name: Component._load(name, comp) for name, comp in data.get("sub_components", {}).items()},
         )
+        return obj
 
     def add_mcad_component_model(self, name: str, path: str):
         """Add component model."""
@@ -500,7 +496,7 @@ class MCADAssembly(BaseModel):
 
     def add_library_component_model(self, name: str, path: str):
         """Add a library-backed MCAD component model."""
-        self.library_component_models[name] = path
+        self._library_component_models[name] = path
 
     def add_coordinate_system(self, name: str):
         """Add coordinate system."""
@@ -593,7 +589,7 @@ def run(
     model_dir = Path(model_dir) if model_dir else None
 
     # models added in add_mcad_component_from_library
-    for i, j in app.library_component_models.items():
+    for i, j in app._library_component_models.items():
         if i in app._runtime_component_models:
             continue
         path = Path(j)
