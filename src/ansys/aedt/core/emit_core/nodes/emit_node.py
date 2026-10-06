@@ -881,7 +881,7 @@ class EmitNode:
         """
         try:
             if import_type == "CAD":
-                if int(self._emit_obj.aedt_version_id[-3:]) >= 271:
+                if int(self._emit_obj.aedt_env_variable[-3:]) >= 271:
                     node_id = self._oRevisionData.EmitNodeImport(
                         self._result_id, self._node_id, file_path, import_type, create_antennas
                     )

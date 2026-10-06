@@ -72,7 +72,7 @@ class InteractionDomain:
         self.design = emit_obj.desktop_class.active_design(emit_obj.odesktop.GetActiveProject())
         """Active design for the EMIT project."""
 
-        self.aedt_version = int(self.emit_project.aedt_version_id[-3:])
+        self.aedt_version = int(self.emit_project.aedt_env_variable[-3:])
 
         self.interferer_band_names = []
         """List of interferer band names."""
