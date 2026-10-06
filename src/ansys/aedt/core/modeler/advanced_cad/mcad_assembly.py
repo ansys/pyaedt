@@ -39,6 +39,7 @@ from pydantic import AliasChoices
 from pydantic import BaseModel
 from pydantic import ConfigDict
 from pydantic import Field
+from pydantic import PrivateAttr
 from pyedb import Edb
 
 import ansys.aedt.core
@@ -137,7 +138,6 @@ class Component(BaseModel):
         default_factory=PlacementPinMapping,
         description="Pin mapping inputs used to place the component from layout reference data.",
     )
-    __pin_mapping_info: dict[str, PinMapping] | None = {}
 
     target_coordinate_system: str | None = Field(
         default="Global", description="Coordinate system where the component instance is inserted."
@@ -168,9 +168,9 @@ class Component(BaseModel):
     )
 
     # internal properties
-    __rotate_index: int | None = 0
-
-    _top_assembly: MCADAssembly | None = None
+    _pin_mapping_info: dict[str, PinMapping] = PrivateAttr(default_factory=dict)
+    _rotate_index: int = PrivateAttr(default=0)
+    _top_assembly: MCADAssembly | None = PrivateAttr(default=None)
 
     @classmethod
     def _load(cls, name: str, data: dict) -> Component:
@@ -183,7 +183,7 @@ class Component(BaseModel):
     def _assemble_sub_components(self, hfss, cs_prefix: str | None = "", version: str | None = None):
         for _name, comp in self.sub_components.items():
             if comp.use_pin_mapping:
-                pin_mapping_info = self.__pin_mapping_info[comp.placement_pin_mapping.reference_designator]
+                pin_mapping_info = self._pin_mapping_info[comp.placement_pin_mapping.reference_designator]
             else:
                 pin_mapping_info = None
             comp._assemble(hfss, cs_prefix, version, pin_mapping_info=pin_mapping_info)
@@ -191,7 +191,7 @@ class Component(BaseModel):
     def _apply_arrange(self, hfss: "Hfss"):
         for i in self.arranges:
             if i.operation == "rotate":
-                self.__rotate_index += 1
+                self._rotate_index += 1
                 axis = i.axis or "Z"
                 angle = i.angle or "0deg"
                 hfss.modeler.rotate(self.name, getattr(Axis, axis), angle)
@@ -200,7 +200,7 @@ class Component(BaseModel):
                         "NAME:AllTabs",
                         [
                             "NAME:Geometry3DCmdTab",
-                            ["NAME:PropServers", f"{self.name}:Rotate:{self.__rotate_index}"],
+                            ["NAME:PropServers", f"{self.name}:Rotate:{self._rotate_index}"],
                             ["NAME:ChangedProps", ["NAME:Coordinate System", "Value:=", self.target_coordinate_system]],
                         ],
                     ]
@@ -389,7 +389,7 @@ class Component(BaseModel):
                                 dx, dy = np.array(p2_loc) - np.array(p1_loc)
                                 angle_rad = np.arctan2(dy, dx)
                                 pin_mapping.rotation_rad = angle_rad
-                            self.__pin_mapping_info[refdes] = pin_mapping
+                            self._pin_mapping_info[refdes] = pin_mapping
 
                     edb.save()
                     edb.close(terminate_rpc_session=False)
