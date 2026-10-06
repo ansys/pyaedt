@@ -107,6 +107,7 @@ def test_design_name(aedt_app) -> None:
 
 def test_design_properties(aedt_app) -> None:
     assert aedt_app.aedt_version_id
+    assert aedt_app.aedt_env_variable
     assert aedt_app.valid_design
     assert aedt_app.clean_proj_folder()
     assert aedt_app.desktop_class.install_path

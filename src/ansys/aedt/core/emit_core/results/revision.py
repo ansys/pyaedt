@@ -85,7 +85,7 @@ class Revision:
         self.parent_results = parent_results
         """Parent Results object."""
 
-        self.aedt_version = int(parent_results.emit_project.aedt_version_id[-3:])
+        self.aedt_version = int(parent_results.emit_project.aedt_env_variable[-3:])
         """AEDT version."""
 
         if self.aedt_version > 251:
