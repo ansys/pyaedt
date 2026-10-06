@@ -180,6 +180,12 @@ class Component(BaseModel):
         data_["name"] = name
         return cls(**data_)
 
+    def _set_top_assembly(self, top_assembly: "MCADAssembly | None") -> None:
+        """Bind this component tree to its top-level assembly."""
+        self._top_assembly = top_assembly
+        for component in self.sub_components.values():
+            component._set_top_assembly(top_assembly)
+
     def _assemble_sub_components(self, hfss, cs_prefix: str | None = "", version: str | None = None):
         for _name, comp in self.sub_components.items():
             if comp.use_pin_mapping:
@@ -211,14 +217,14 @@ class Component(BaseModel):
     def add_sub_mcad_component(self, name: str, model: str) -> Component:
         """Add sub 3D component."""
         comp = Component(name=name, model=model, component_type="mcad")
-        comp._top_assembly = self._top_assembly
+        comp._set_top_assembly(self._top_assembly)
         self.sub_components[name] = comp
         return comp
 
     def add_sub_ecad_component(self, name: str, model: str) -> Component:
         """Add sub 3D layout component."""
         comp = Component(name=name, model=model, component_type="ecad")
-        comp._top_assembly = self._top_assembly
+        comp._set_top_assembly(self._top_assembly)
         self.sub_components[name] = comp
         return comp
 
@@ -234,9 +240,9 @@ class Component(BaseModel):
         models = read_toml(Path(library_path) / "model_library.toml")
 
         for comp_def, item in models.items():
-            if comp_def not in COMPONENT_MODELS_:
+            if comp_def not in self._top_assembly.library_component_models:
                 path = str(Path(library_path) / item["model_path"])
-                COMPONENT_MODELS_[comp_def] = path
+                self._top_assembly.library_component_models[comp_def] = path
 
         edb = Edb(self._top_assembly.layout_component_models[self.model])
         for name_def, comp_def in edb.definitions.components.items():
@@ -338,7 +344,7 @@ class Component(BaseModel):
         if cs_prefix:
             self.target_coordinate_system = f"{cs_prefix}_{self.target_coordinate_system}"
 
-        model_path = COMPONENT_MODELS[self.model]
+        model_path = self._top_assembly._runtime_component_models[self.model]
         if not Path(model_path).exists():
             raise FileNotFoundError(f"{model_path} does not exist")
         if self.component_type == "mcad":
@@ -423,11 +429,6 @@ class Component(BaseModel):
 
 Component.model_rebuild()
 
-COMPONENT_MODELS = {}
-COMPONENT_MODELS_ = {}  #
-"""Component models."""
-PCB_COORDINATES = {}
-
 
 class CoordinateSystem(BaseModel):
     """Define a coordinate system entry for an MCAD assembly."""
@@ -463,17 +464,28 @@ class MCADAssembly(BaseModel):
         default_factory=dict,
         description="Mapping of MCAD model names to their source file paths.",
     )
+    library_component_models: dict[str, str] = Field(
+        default_factory=dict,
+        description="Mapping of library-provided MCAD model names to their source file paths.",
+    )
     sub_components: dict[str, Component] = Field(
         default_factory=dict,
         validation_alias=AliasChoices("sub_components", "assembly"),
         description="Top-level components that make up the MCAD assembly.",
     )
 
+    _runtime_component_models: dict[str, str] = PrivateAttr(default_factory=dict)
+
+    def model_post_init(self, __context) -> None:
+        for component in self.sub_components.values():
+            component._set_top_assembly(self)
+
     @classmethod
     def _load(cls, data: dict) -> "MCADAssembly":
         return cls(
             coordinate_system=data.get("coordinate_system", {}),
             component_models=data.get("component_models", {}),
+            library_component_models=data.get("library_component_models", {}),
             layout_component_models=data.get("layout_component_models", {}),
             sub_components={name: Component._load(name, comp) for name, comp in data.get("sub_components", {}).items()},
         )
@@ -486,6 +498,10 @@ class MCADAssembly(BaseModel):
         """Add component model."""
         self.layout_component_models[name] = path
 
+    def add_library_component_model(self, name: str, path: str):
+        """Add a library-backed MCAD component model."""
+        self.library_component_models[name] = path
+
     def add_coordinate_system(self, name: str):
         """Add coordinate system."""
         cs = CoordinateSystem(name=name, reference_coordinate_system="Global")
@@ -495,20 +511,20 @@ class MCADAssembly(BaseModel):
     def add_sub_mcad_component(self, name: str, model: str) -> Component:
         """Add sub component."""
         comp = Component(name=name, model=model, component_type="mcad")
-        comp._top_assembly = self
+        comp._set_top_assembly(self)
         self.sub_components[name] = comp
         return comp
 
     def add_sub_ecad_component(self, name: str, model: str) -> Component:
         """Add sub component."""
         comp = Component(name=name, model=model, component_type="ecad")
-        comp._top_assembly = self
+        comp._set_top_assembly(self)
         self.sub_components[name] = comp
         return comp
 
 
 def run(
-    config_data: dict | str | Path,
+    config_data: MCADAssembly | dict | str | Path,
     project_dir: str = None,
     model_dir: str = None,
     version: str = None,
@@ -546,9 +562,14 @@ def run(
     None
 
     """
-    if isinstance(config_data, str | Path):
+    if isinstance(config_data, MCADAssembly):
+        app = config_data
+    elif isinstance(config_data, str | Path):
         with open(config_data, "r") as f:
             config_data = json.load(f)
+        app = MCADAssembly._load(data=config_data)
+    else:
+        app = MCADAssembly._load(data=config_data)
 
     if not project_dir:
         project_dir = Path(tempfile.mkdtemp(prefix="mcad_assembly_"))
@@ -557,7 +578,7 @@ def run(
     temp_model_dir = project_dir / "models"
     temp_model_dir.mkdir(parents=True, exist_ok=True)
 
-    app = MCADAssembly._load(data=config_data)
+    app._runtime_component_models.clear()
 
     version = version if version else get_aedt_version()
     if hfss is None:
@@ -572,12 +593,12 @@ def run(
     model_dir = Path(model_dir) if model_dir else None
 
     # models added in add_mcad_component_from_library
-    for i, j in COMPONENT_MODELS_.items():
-        if i in COMPONENT_MODELS:
+    for i, j in app.library_component_models.items():
+        if i in app._runtime_component_models:
             continue
         path = Path(j)
         shutil.copy(path, temp_model_dir)
-        COMPONENT_MODELS[i] = str(temp_model_dir / path.name)
+        app._runtime_component_models[i] = str(temp_model_dir / path.name)
 
     for name, path in app.layout_component_models.items():
         path = Path(path) if Path(path).drive else model_dir / Path(path)
@@ -585,12 +606,12 @@ def run(
             temp_path = shutil.copytree(path, temp_model_dir / path.name)
         else:
             temp_path = shutil.copy(path, temp_model_dir)
-        COMPONENT_MODELS[name] = str(temp_path)
+        app._runtime_component_models[name] = str(temp_path)
 
     for name, path in app.component_models.items():
         path = Path(path) if Path(path).drive else model_dir / Path(path)
         shutil.copy(path, temp_model_dir)
-        COMPONENT_MODELS[name] = str(temp_model_dir / path.name)
+        app._runtime_component_models[name] = str(temp_model_dir / path.name)
 
     for name, value in app.coordinate_system.items():
         value.name = name
