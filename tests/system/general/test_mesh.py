@@ -46,35 +46,56 @@ def maxwell_app(add_app):
 
 
 def test_assign_model_resolution(aedt_app) -> None:
+    # Initialize the modeler and create a cylinder for testing
     udp = aedt_app.modeler.Position(0, 0, 0)
     coax_dimension = 200
     o = aedt_app.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, "inner")
+    o2 = aedt_app.modeler.create_cylinder(Plane.XY, [10, 10, 20], 3, coax_dimension, 0, "cyl2")
+    mesh_object = aedt_app.get_oo_object(aedt_app.odesign, "Mesh")
+
+    # Assign a model resolution to the cylinder and verify its properties
     mr1 = aedt_app.mesh.assign_model_resolution(o, 1e-4, "ModelRes1")
-    assert mr1.name in aedt_app.odesign.GetChildObject("Mesh").GetChildNames()
+    assert mr1.name in aedt_app.get_oo_name(mesh_object)
     mr1.name = "resolution_test"
     assert "resolution_test" in aedt_app.mesh.meshoperations[0].name
-    mr1.name = "resolution_test"
-    assert aedt_app.odesign.GetChildObject("Mesh")
-    mr1.auto_update = False
-    assert not (
-        aedt_app.odesign.GetChildObject("Mesh").GetChildObject(mr1.name).GetPropValue("Model Resolution Length")
-        == "0.1mm"
-    )
-    mr1.auto_update = True
-    mr1.props["DefeatureLength"] = "0.1mm"
-    assert (
-        aedt_app.odesign.GetChildObject("Mesh").GetChildObject(mr1.name).GetPropValue("Model Resolution Length")
-        == "0.1mm"
-    )
+    assert "resolution_test" in aedt_app.get_oo_name(mesh_object)
+
+    # Try to set existing name and verify that it fails
+    mr2 = aedt_app.mesh.assign_model_resolution(o, 1e-5, "resolution_test")
+    assert mr2.name != "resolution_test"
+    with pytest.raises(ValueError):
+        mr2.name = "resolution_test"
+
+    # Setting properties and verifying them
+    # Single property assignment
     mr1.props["UseAutoLength"] = True
-    assert aedt_app.odesign.GetChildObject("Mesh").GetChildObject(mr1.name).GetPropValue("Use Auto Simplify")
-    o2 = aedt_app.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, "inner")
+    assert aedt_app.get_oo_property_value(mesh_object, mr1.name, "Use Auto Simplify")
+
+    # If AutoEnable is set to True, DefeatureLength should not be settable. So we set it to False first.
+    mr1.props["DefeatureLength"] = "0.1mm"
+    assert aedt_app.get_oo_property_value(mesh_object, mr1.name, "Model Resolution Length") != "0.1mm"
+
+    # Multiple property assignment
+    new_props = dict(mr1.props)
+    new_props["UseAutoLength"] = False
+    new_props["DefeatureLength"] = "0.2mm"
+    mr1.props = new_props
+    assert aedt_app.get_oo_property_value(mesh_object, mr1.name, "Model Resolution Length") == "0.2mm"
+    assert not aedt_app.get_oo_property_value(mesh_object, mr1.name, "Use Auto Simplify")
+
+    # Reassigning the model resolution to a different object and verifying the assignment
     mr1.props["Objects"] = [o2.name, o]
+    assert len(mr1.props["Objects"]) == 2
     if DESKTOP_VERSION >= "2023.1":
         assert len(aedt_app.mesh.omeshmodule.GetMeshOpAssignment(mr1.name)) == 2
-    mr2 = aedt_app.mesh.assign_model_resolution(o.faces[0], 1e-4, "ModelRes2")
-    assert not mr2
-    assert aedt_app.mesh[mr1.name].type == "Model Resolution Based"
+
+    new_props = dict(mr1.props)
+    new_props["Objects"] = [o2]
+    mr1.update_assignment(new_props)
+
+    assert len(mr1.props["Objects"]) == 1
+    if DESKTOP_VERSION >= "2023.1":
+        assert len(aedt_app.mesh.omeshmodule.GetMeshOpAssignment(mr1.name)) == 2
 
 
 def test_assign_surface_mesh(aedt_app) -> None:

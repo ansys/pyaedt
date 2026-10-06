@@ -1051,7 +1051,6 @@ class Configurations(PyAedtBase):
             if mesh_el.name == name:
                 if not self.options.skip_import_if_exists:
                     mesh_el.props = props
-                    mesh_el.update()
                 return True
         bound = MeshOperation(self._app.mesh, name, props, props["Type"])
         if bound.create():

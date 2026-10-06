@@ -116,7 +116,6 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
             self._legacy_props = MeshProps(self, props)
         self._type = meshoptype
         self._name = name
-        self.auto_update = True
 
     @property
     def _child_object(self) -> object | None:
@@ -173,7 +172,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
 
         """
         _has_getobject = _has_get_obj_data(self._child_object)
-        if self._legacy_props and not (_has_getobject and self.auto_update):
+        if self._legacy_props and not _has_getobject:
             return self._legacy_props
         if _has_getobject:
             props = _get_obj_data(self._child_object) or {}
@@ -200,7 +199,10 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
             props["Objects"] = []
             props["Faces"] = []
             props["Edges"] = []
-            assigned_id = self._mesh.omeshmodule.GetMeshOpAssignment(self.name)
+            assigned_id = []
+            if self._app._aedt_version >= "2023.1":
+                # GetMeshOpAssignment is not available in 2022 R2 and earlier versions
+                assigned_id = self._mesh.omeshmodule.GetMeshOpAssignment(self.name)
             for comp_id in assigned_id:
                 if int(comp_id) in self._app.modeler.objects.keys():
                     props["Objects"].append(self._app.oeditor.GetObjectNameByID(comp_id))
@@ -218,6 +220,11 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
                         continue
         self._legacy_props = MeshProps(self, props)
         return self._legacy_props
+
+    @props.setter
+    def props(self, value: dict) -> None:
+        self._legacy_props = MeshProps(self, value)
+        self.update(props=value)
 
     @pyaedt_function_handler()
     def _get_args(self, props: dict | None = None) -> list:
@@ -261,16 +268,19 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
 
         """
         if self._child_object:
-            self._name = str(self.properties["Name"])
+            self._name = self._child_object.Name
         return self._name
 
     @name.setter
     def name(self, meshop_name: str) -> None:
+        if meshop_name in self._mesh.meshoperation_names:
+            raise ValueError(f"Name {meshop_name} already assigned in the design.")
         if self._child_object:
-            try:
-                self.properties["Name"] = meshop_name
-            except KeyError:
-                self._app.logger.error("Name %s already assigned in the design", meshop_name)
+            self._child_object.Name = str(meshop_name)
+            object.__setattr__(self, "_name", meshop_name)
+            object.__setattr__(self, "_tree_node_initialized", False)
+            object.__setattr__(self, "_props", None)
+            object.__setattr__(self, "_children_loaded", False)
 
     @pyaedt_function_handler()
     def create(self) -> bool:
@@ -326,7 +336,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def update(self, key_name: str | None = None, value: int | None = None) -> bool:
+    def update(self, key_name: str | None = None, value: int | None = None, props: dict | None = None) -> bool:
         """Update the mesh.
 
         Returns
@@ -364,10 +374,17 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
 
         """
         # Update using Child Object if available and supported
-        props = dict(self.props)
-        if key_name not in props:
-            raise ValueError(f"Key {key_name} not found in mesh operation properties.")
-        props[key_name] = value
+        if key_name is not None and props is not None:
+            raise ValueError("Specify either a property key and value or a properties dictionary, not both.")
+        if props is None:
+            props = dict(self.props)
+        else:
+            props = dict(props)
+
+        if key_name is not None:
+            if key_name not in props:
+                raise ValueError(f"Key {key_name} not found in mesh operation properties.")
+            props[key_name] = value
 
         if key_name == "NormalDev":
             # If NormalDev is updated, set NormalDevChoice to 2 (manual)
@@ -390,6 +407,10 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
             value = 1 if value in [1, "High"] else 0
             props["SurfaceRepPriority"] = value
 
+        return self._update_properties(props)
+
+    def _update_properties(self, props: dict) -> bool:
+        """Send a complete mesh operation property dictionary to AEDT."""
         if self.type in ["InitialMeshSettings", "MeshSettings"]:
             self._mesh.omeshmodule.InitialMeshSettings(self._get_args(props))
         elif hasattr(self._mesh.omeshmodule, "Edit"):
@@ -485,6 +506,9 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
             return False
 
         self._app.omeshmodule.ReassignOp(self.name, out)
+
+        if properties != self._legacy_props:
+            self._legacy_props = MeshProps(self, properties)
 
         return True
 
@@ -936,9 +960,9 @@ class Mesh(PyAedtBase):
                     name = generate_unique_name(name)
         else:
             name = generate_unique_name("ModelResolution")
-        for name in assignment:
-            if isinstance(name, int):
-                self.logger.error("Mesh Operation Applies to Objects only")
+        for assignment_name in assignment:
+            if isinstance(assignment_name, int):
+                self.logger.error("Mesh Operation applies to objects only")
                 return False
         if defeature_length is None:
             props = dict({"Objects": assignment, "UseAutoLength": True})
