@@ -226,54 +226,69 @@ def test_delete_mesh_ops(aedt_app) -> None:
 def test_curvature_extraction(aedt_app) -> None:
     aedt_app.solution_type = "SBR+"
     box = aedt_app.modeler.create_box([0, 0, 0], [10, 10, 10])
+    mesh_object = aedt_app.get_oo_object(aedt_app.odesign, "Mesh")
+
     curv = aedt_app.mesh.assign_curvature_extraction(box.name)
+
+    # Verify that the surface mesh operation is correctly assigned to the object
+    assert curv.name in aedt_app.get_oo_name(mesh_object)
+    curv.name = "curv_test"
+
+    assert "curv_test" in aedt_app.mesh.meshoperations[0].name
+    assert "curv_test" in aedt_app.get_oo_name(mesh_object)
+
     assert curv.props["DisableForFacetedSurfaces"]
     curv.props["DisableForFacetedSurfaces"] = False
-    assert (
-        not aedt_app.odesign.GetChildObject("Mesh")
-        .GetChildObject(curv.name)
-        .GetPropValue("Disable for Faceted Surface")
-    )
+    assert not aedt_app.get_oo_property_value(mesh_object, curv.name, "Disable for Faceted Surface")
 
 
 def test_maxwell_mesh(maxwell_app) -> None:
     o = maxwell_app.modeler.create_box([0, 0, 0], [10, 10, 10], name="Box_Mesh")
+    mesh_object = maxwell_app.get_oo_object(maxwell_app.odesign, "Mesh")
+
     rot = maxwell_app.mesh.assign_rotational_layer(o.name, total_thickness="5mm", name="Rotational")
+
+    # Verify that the surface mesh operation is correctly assigned to the object
+    assert rot.name in maxwell_app.get_oo_name(mesh_object)
+    rot.name = "rot_test"
+
+    assert "rot_test" in maxwell_app.mesh.meshoperations[0].name
+    assert "rot_test" in maxwell_app.get_oo_name(mesh_object)
+
     assert rot.props["Number of Layers"] == "3"
     rot.props["Number of Layers"] = 1
-    assert str(rot.props["Number of Layers"]) == maxwell_app.odesign.GetChildObject("Mesh").GetChildObject(
-        rot.name
-    ).GetPropValue("Number of Layers")
+
+    assert str(rot.props["Number of Layers"]) == maxwell_app.get_oo_property_value(
+        mesh_object, rot.name, "Number of Layers"
+    )
     assert rot.props["Total Layer Thickness"] == "5mm"
     rot.props["Total Layer Thickness"] = "1mm"
-    assert rot.props["Total Layer Thickness"] == maxwell_app.odesign.GetChildObject("Mesh").GetChildObject(
-        rot.name
-    ).GetPropValue("Total Layer Thickness")
+    assert rot.props["Total Layer Thickness"] == maxwell_app.get_oo_property_value(
+        mesh_object, rot.name, "Total Layer Thickness"
+    )
 
     edge_cut = maxwell_app.mesh.assign_edge_cut(o.name, name="Edge")
     assert edge_cut.props["Layer Thickness"] == "1mm"
     edge_cut.props["Layer Thickness"] = "2mm"
-    assert edge_cut.props["Layer Thickness"] == maxwell_app.odesign.GetChildObject("Mesh").GetChildObject(
-        edge_cut.name
-    ).GetPropValue("Layer Thickness")
+    assert edge_cut.props["Layer Thickness"] == maxwell_app.get_oo_property_value(
+        mesh_object, edge_cut.name, "Layer Thickness"
+    )
 
     dens = maxwell_app.mesh.assign_density_control(o.name, maximum_element_length=10000, name="Density")
     assert dens.props["RestrictMaxElemLength"]
 
     assert int(dens.props["MaxElemLength"]) == 10000
     dens.props["MaxElemLength"] = 10
-    assert str(dens.props["MaxElemLength"]) == maxwell_app.odesign.GetChildObject("Mesh").GetChildObject(
-        dens.name
-    ).GetPropValue("Max Element Length")
+    assert str(dens.props["MaxElemLength"]) == maxwell_app.get_oo_property_value(
+        mesh_object, dens.name, "Max Element Length"
+    )
 
     assert not dens.props["RestrictLayersNum"]
     dens.props["RestrictLayersNum"] = True
-    assert dens.props["RestrictLayersNum"] == maxwell_app.odesign.GetChildObject("Mesh").GetChildObject(
-        dens.name
-    ).GetPropValue("Restrict Layers Number")
+    assert dens.props["RestrictLayersNum"] == maxwell_app.get_oo_property_value(
+        mesh_object, dens.name, "Restrict Layers Number"
+    )
 
     assert dens.props["LayersNum"] == "1"
     dens.props["LayersNum"] = 2
-    assert str(dens.props["LayersNum"]) == maxwell_app.odesign.GetChildObject("Mesh").GetChildObject(
-        dens.name
-    ).GetPropValue("Number of layers")
+    assert str(dens.props["LayersNum"]) == maxwell_app.get_oo_property_value(mesh_object, dens.name, "Number of layers")

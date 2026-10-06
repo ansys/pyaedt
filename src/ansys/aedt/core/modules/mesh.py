@@ -304,6 +304,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
             raise ValueError(f"Name {meshop_name} already assigned in the design.")
         if self._child_object:
             self._child_object.Name = str(meshop_name)
+            object.__setattr__(self, "_name", meshop_name)
             if self._child_object.Name != str(meshop_name):
                 # Fallback to legacy property update if the name change is not reflected in the child object
                 current_props = dict(self._legacy_props)
