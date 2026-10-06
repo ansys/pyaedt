@@ -480,7 +480,7 @@ def run(
     port: int = None,
     aedt_process_id: int = None,
     student_version: bool = False,
-    hfss=None,
+    hfss: Hfss=None,
 ):
     """Build an MCAD assembly in HFSS from a configuration.
 
