@@ -2605,5 +2605,5 @@ def test_assign_fresnel(aedt_app, test_tmp_dir):
     with pytest.raises(AEDTRuntimeError):
         aedt_app.assign_fresnel(["invented"])
     # Not existing file
-    with pytest.raises(AEDTRuntimeError):
+    with pytest.raises(ValueError):
         aedt_app.assign_fresnel(assignment=b, input_file="invented.rttbl")
