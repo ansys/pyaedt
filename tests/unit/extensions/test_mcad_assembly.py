@@ -26,7 +26,9 @@ import json
 from unittest.mock import Mock
 from unittest.mock import patch
 
+from ansys.aedt.core.modeler.advanced_cad.mcad_assembly import MCADAssembly, MCADAssemblyService
 from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyFrontend
+from tests.conftest import test_tmp_dir
 
 
 @patch("ansys.aedt.core.extensions.hfss.mcad_assembly.MCADAssemblyFrontend.check_design_type")
@@ -35,12 +37,12 @@ from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyFrontend
 @patch("ansys.aedt.core.extensions.hfss.mcad_assembly.run")
 @patch("tkinter.filedialog.askopenfilename")
 def test_main_selected_edb(
-    mock_askopenfilename,
-    mock_run,
-    mock_desktop,
-    mock_get_pyaedt_app,
-    mock_check_design_type,
-    test_tmp_dir,
+        mock_askopenfilename,
+        mock_run,
+        mock_desktop,
+        mock_get_pyaedt_app,
+        mock_check_design_type,
+        test_tmp_dir,
 ) -> None:
     mock_check_design_type.return_value = True
     active_project = Mock()
@@ -67,3 +69,69 @@ def test_main_selected_edb(
     mock_run.assert_called_once_with(extension.config_data, model_dir=extension.local_path, hfss=hfss)
 
     extension.root.destroy()
+
+
+def test_config_model_dump(test_tmp_dir):
+    target = {'coordinate_system': {'GLOBAL_2': {'origin': ['100mm', '0mm', '0mm'],
+                                                 'reference_coordinate_system': 'Global',
+                                                 'name': 'GLOBAL_2'}},
+              'ecad_component_models': {
+                  'pcb': str(test_tmp_dir / 'models\\DCDC-Converter-App_main.aedbcomp')},
+              'mcad_component_models': {
+                  'chassis': str(test_tmp_dir / 'models\\Chassi.a3dcomp')},
+              'model_libraries': [],
+              'mcad_sub_components': {'box': {'component_type': 'mcad',
+                                              'name': 'box',
+                                              'model': 'chassis',
+                                              'use_pin_mapping': False,
+                                              'placement_pin_mapping': {},
+                                              'target_coordinate_system': 'GLOBAL_2',
+                                              'arranges': [],
+                                              'mcad_sub_components': {},
+                                              'ecad_sub_components': {'pcb': {'component_type': 'ecad',
+                                                                              'name': 'pcb',
+                                                                              'model': 'pcb',
+                                                                              'use_pin_mapping': False,
+                                                                              'placement_pin_mapping': {},
+                                                                              'target_coordinate_system': 'Guiding_Pin',
+                                                                              'arranges': [],
+                                                                              'mcad_sub_components': {},
+                                                                              'ecad_sub_components': {},
+                                                                              'reference_coordinate_system': 'H0_via_65',
+                                                                              'layout_coordinate_systems': [
+                                                                                  'H0_via_65']}},
+                                              'reference_coordinate_system': 'GLOBAL_2'}},
+              'ecad_sub_components': {}}
+
+    # Initial the configuration class
+    config = MCADAssembly()
+
+    # Add chassis model path
+    config.add_mcad_component_model(
+        name="chassis", path=str(test_tmp_dir / "models/Chassi.a3dcomp")
+    )
+
+    # Add layout component path
+    config.add_ecad_component_model(
+        name="pcb", path=str(test_tmp_dir / "models/DCDC-Converter-App_main.aedbcomp")
+    )
+
+    # Add a coordinate system to place the chassis.
+    cs = config.add_coordinate_system(name="GLOBAL_2")
+    cs.origin = ["100mm", "0mm", "0mm"]
+
+    # Place the chassis into HFSS 3D modeler
+    box = config.add_sub_mcad_component(name="box", model="chassis")
+    box.target_coordinate_system = "GLOBAL_2"
+    box.reference_coordinate_system = "GLOBAL_2"
+
+    # Assemble PCB into the chassis
+    pcb = box.add_sub_ecad_component(name="pcb", model="pcb")
+    pcb.target_coordinate_system = "Guiding_Pin"
+    # Include guiding hole padstack instance when inserting the PCB
+    pcb.layout_coordinate_systems = ["H0_via_65"]
+    pcb.reference_coordinate_system = "H0_via_65"
+
+    pcb.add_sub_mcad_component_from_library(library_path=str(test_tmp_dir / "models/a3d_library"))
+    assert config.model_dump(exclude_none=True) == target
+
