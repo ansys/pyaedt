@@ -68,12 +68,12 @@ def test_download_antenna_sherlock(test_tmp_dir):
     example_folder = test_tmp_dir / "sherlock" / "sherlock"
     for name in (
         "MaterialExport.csv",
+        "SherlockTutorial.aedt",
         "TutorialBoard.stp",
         "TutorialBoardPartsList.csv",
     ):
         assert (example_folder / name).is_file()
-    assert not (example_folder / "SherlockTutorial.aedb").exists()
-    assert not (example_folder / "SherlockTutorial.aedt").exists()
+    assert (example_folder / "SherlockTutorial.aedb").is_dir()
 
 
 @pytest.mark.skipif(is_linux, reason="Crashes on Linux")

@@ -611,9 +611,7 @@ def download_sherlock(local_path: StrPath | None = None) -> str:
     'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/sherlock'
 
     """
-    folder_path = _download_folder(
-        "pyaedt/sherlock", local_path=local_path, filter_func=lambda f: "SherlockTutorial" in f, strip_prefix="pyaedt"
-    )
+    folder_path = _download_folder("pyaedt/sherlock", local_path=local_path, strip_prefix="pyaedt")
     return str(folder_path)
 
 
