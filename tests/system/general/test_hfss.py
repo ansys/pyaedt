@@ -2584,3 +2584,23 @@ def test_create_qfactor_report(aedt_app, test_tmp_dir) -> None:
     aedt_app.solution_type = "Modal"
     with pytest.raises(AEDTRuntimeError):
         aedt_app.create_q_factor_report(modes=[1, 3])
+
+
+def test_assign_fresnel(aedt_app, test_tmp_dir):
+    file_format = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "fresnel_coefficients.rttbl"
+    file = shutil.copy2(file_format, test_tmp_dir / "fresnel_coefficients.rttbl")
+
+    aedt_app.solution_type = "SBR+"
+
+    b = aedt_app.modeler.create_box([0, 0, 0], [10, 10, 10])
+    c = aedt_app.modeler.create_rectangle(orientation=1, origin=[0, 20, 0], sizes=[10, 20])
+
+    bound1 = aedt_app.assign_fresnel(assignment=b)
+    assert bound1.properties["Fresnel Boundary Type"] == "Perfect Absorber"
+
+    bound2 = aedt_app.assign_fresnel(assignment=[b.name, b.faces[0], c.id], rttbl_file=file, name="pyaedt_fresnel")
+
+    assert "R/T Table Path" in bound2.properties
+    # Not existing assignment
+    with pytest.raises(AEDTRuntimeError):
+        aedt_app.assign_fresnel(["invented"])

@@ -8753,3 +8753,74 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                 bot_port = exc.name
 
         return [top_port, bot_port]
+
+    @pyaedt_function_handler()
+    def assign_fresnel(
+        self,
+        assignment: str | list,
+        rttbl_file: str | Path | None = None,
+        name: str | None = None,
+    ) -> BoundaryObject:
+        """Assign Fresnel to one or more objects or faces.
+
+        Parameters
+        ----------
+        assignment : str or list
+            One or more objects or faces to assign finite conductivity to.
+        rttbl_file : str or :class:`pathlib.Path` , optional
+            Fresnel reflection or reflection/transmission coefficient table file.
+            The default is ``None``, in which case perfect absorber is assigned.
+        name : str
+            Name of the boundary.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
+            Boundary object.
+
+        References
+        ----------
+        >>> oModule.AssignFresnel
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.generic.constants import Plane
+        >>> hfss = Hfss(solution_type="SBR+")
+        >>> origin = hfss.modeler.Position(0, 0, 0)
+        >>> inner = hfss.modeler.create_cylinder(Plane.XY, origin, 3, 200, 0, "inner")
+        >>> rttbl_file = "file.rttbl"
+        >>> fresnel = hfss.assign_fresnel(inner.name, rttbl_file=rttbl_file)
+
+        """
+        userlst = self.modeler.convert_to_selections(assignment, True)
+        lstobj = []
+        lstface = []
+        for selection in userlst:
+            if selection in self.modeler.model_objects:
+                lstobj.append(selection)
+            elif isinstance(selection, int) and self.modeler._find_object_from_face_id(selection):
+                lstface.append(selection)
+
+        if not lstface and not lstobj:
+            raise AEDTRuntimeError("Objects or Faces selected do not exist in the design.")
+
+        listobjname = ""
+        props = {}
+        if lstobj:
+            listobjname = listobjname + "_" + "_".join(lstobj)
+            props["Objects"] = lstobj
+        if lstface:
+            props["Faces"] = lstface
+            lstface = [str(i) for i in lstface]
+            listobjname = listobjname + "_" + "_".join(lstface)
+
+        if not rttbl_file:
+            props["Fresnel Boundary Type"] = "PerfectAbsorber"
+        else:
+            props["Fresnel Boundary Type"] = "ImportFromTableFile"
+            props["RTTable Path"] = str(rttbl_file)
+
+        if not name:
+            name = "Fresnel_" + listobjname[1:]
+        return self._create_boundary(name, props, "Fresnel")
