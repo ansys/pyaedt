@@ -238,6 +238,7 @@ class Settings(PyAedtBase):
             "AnsysSendMsg": "1",
             "ANSYSEM_FEATURE_F629017_HARMONIC_APHI_SOLUTION_ENABLE": "1",
             "ANSYSEM_FEATURE_F544773_SSFIT_AUTO_SELECTION_ENABLE": "1",
+            "ANSYSEM_FEATURE_S540447_NATIVE_GRPC_ENABLE": "1",
         }
         if is_linux:
             self.__aedt_environment_variables["ANS_NODEPCHECK"] = "1"

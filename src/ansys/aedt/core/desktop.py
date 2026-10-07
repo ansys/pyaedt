@@ -3072,28 +3072,44 @@ class Desktop(PyAedtBase):
             self.is_grpc_api = True
             base_path = self.aedt_install_dir
             sys.path.insert(0, base_path)
-            sys.path.insert(0, str(Path(base_path) / "PythonFiles" / "DesktopPlugin"))
-            if is_linux:
-                pyaedt_path = Path(__file__).parent
-                os.environ["PATH"] = str(pyaedt_path) + os.pathsep + os.environ["PATH"]
-            os.environ["DesktopPluginPyAEDT"] = str(Path(self.aedt_install_dir) / "PythonFiles" / "DesktopPlugin")
-            launch_msg = f"AEDT installation Path {base_path}"
+            if self.aedt_version_id >= "2027.1":
+                from ansys.aedt.core.internal.grpc_plugin_271 import AEDT
 
-            self.logger.info(launch_msg)
-            from ansys.aedt.core.internal.grpc_plugin_dll_class import AEDT
+                launch_msg = f"AEDT installation Path {base_path}"
+                self.logger.info(launch_msg)
+                self.grpc_plugin = AEDT(self.aedt_install_dir)
+                sys.path.append(str(Path(self.aedt_install_dir) / "grpcFiles"))
+                sys.path.append(str(Path(self.aedt_install_dir) / "grpcFiles" / "API"))
+                server_args: _ServerArgs = _get_grpcsrv_args(self.machine, self.port)
 
-            if settings.use_multi_desktop:
-                os.environ["DesktopPluginPyAEDT"] = str(
-                    Path(list(self.installed_versions.values())[0]) / "PythonFiles" / "DesktopPlugin"
+                oapp = self.grpc_plugin.CreateAedtApplication(
+                    server_args.client_machine, self.port, self.non_graphical, new_desktop_required
                 )
-            self.grpc_plugin = AEDT(os.environ["DesktopPluginPyAEDT"])
-            server_args: _ServerArgs = _get_grpcsrv_args(self.machine, self.port)
+                self.__port = self.grpc_plugin.port
+                self.aedt_process_id = self.odesktop.GetProcessID()
+            else:
+                sys.path.insert(0, str(Path(base_path) / "PythonFiles" / "DesktopPlugin"))
+                if is_linux:
+                    pyaedt_path = Path(__file__).parent
+                    os.environ["PATH"] = str(pyaedt_path) + os.pathsep + os.environ["PATH"]
+                os.environ["DesktopPluginPyAEDT"] = str(Path(self.aedt_install_dir) / "PythonFiles" / "DesktopPlugin")
+                launch_msg = f"AEDT installation Path {base_path}"
 
-            oapp = self.grpc_plugin.CreateAedtApplication(
-                server_args.client_machine, self.port, self.non_graphical, new_desktop_required
-            )
-            self.__port = self.grpc_plugin.port
-            self.aedt_process_id = self.odesktop.GetProcessID()
+                self.logger.info(launch_msg)
+                from ansys.aedt.core.internal.grpc_plugin_dll_class import AEDT
+
+                if settings.use_multi_desktop:
+                    os.environ["DesktopPluginPyAEDT"] = str(
+                        Path(list(self.installed_versions.values())[0]) / "PythonFiles" / "DesktopPlugin"
+                    )
+                self.grpc_plugin = AEDT(os.environ["DesktopPluginPyAEDT"])
+                server_args: _ServerArgs = _get_grpcsrv_args(self.machine, self.port)
+
+                oapp = self.grpc_plugin.CreateAedtApplication(
+                    server_args.client_machine, self.port, self.non_graphical, new_desktop_required
+                )
+                self.__port = self.grpc_plugin.port
+                self.aedt_process_id = self.odesktop.GetProcessID()
 
             return oapp
 

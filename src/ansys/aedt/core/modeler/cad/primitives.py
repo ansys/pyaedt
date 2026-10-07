@@ -10301,12 +10301,16 @@ class GeometryModeler(Modeler, PyAedtBase):
     def _refresh_points(self):
         try:
             objects = self.oeditor.GetPoints()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, Exception):
             objects = []
         if objects is False:
             raise RuntimeError("Get points is failing")
         elif objects is True or objects is None:
             self._points = []  # In IronPython True is returned when no points are present
+        elif isinstance(objects, str):
+            self._points = [objects]
+        elif isinstance(objects, list):
+            self._points = objects
         else:
             self._points = list(objects)
         self._all_object_names = self._solids + self._sheets + self._lines + self._points
