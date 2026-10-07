@@ -59,8 +59,8 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
+from ansys.aedt.core.modules.design_xploration import Optimetrics
 from ansys.aedt.core.modules.design_xploration import OptimizationSetups
-from ansys.aedt.core.modules.design_xploration import ParametricSetups
 from ansys.aedt.core.modules.solve_setup import Setup
 from ansys.aedt.core.modules.solve_setup import Setup3DLayout
 from ansys.aedt.core.modules.solve_setup import SetupCircuit
@@ -170,16 +170,14 @@ class Analysis(Design, PyAedtBase):
             self.active_setup = setup
         self._materials = None
         self._available_variations = None
+        self._optimetrics = None
         self._setups = []
-        self._parametrics = []
-        self._optimizations = []
         self._native_components = []
 
         if not settings.lazy_load:
             self._materials = self.materials
             self._setups = self.setups
-            self._parametrics = self.parametrics
-            self._optimizations = self.optimizations
+            self._optimetrics = self.optimetrics
             self._available_variations = self.available_variations
 
     @property
@@ -307,12 +305,18 @@ class Analysis(Design, PyAedtBase):
         return self._setups
 
     @property
-    def parametrics(self) -> ParametricSetups:
+    def optimetrics(self) -> Optimetrics:
+        if not self._optimetrics:
+            self._optimetrics = Optimetrics(self)
+        return self._optimetrics
+
+    @property
+    def parametrics(self) -> Optimetrics:
         """Setups in the project.
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.design_xploration.ParametricSetups`
+        :class:`ansys.aedt.core.modules.design_xploration.Optimetrics`
             Parametric setups in the project.
 
         Examples
@@ -322,9 +326,9 @@ class Analysis(Design, PyAedtBase):
         >>> hfss.parametrics
 
         """
-        if not self._parametrics:
-            self._parametrics = ParametricSetups(self)
-        return self._parametrics
+        if not self._optimetrics:
+            self._optimetrics = Optimetrics(self)
+        return self._optimetrics.parametric_setups
 
     @property
     def optimizations(self) -> OptimizationSetups:
@@ -342,9 +346,9 @@ class Analysis(Design, PyAedtBase):
         >>> hfss.optimizations
 
         """
-        if not self._optimizations:
-            self._optimizations = OptimizationSetups(self)
-        return self._optimizations
+        if not self._optimetrics:
+            self._optimetrics = Optimetrics(self)
+        return self._optimetrics.optimization_setups
 
     @property
     def Position(self) -> object:

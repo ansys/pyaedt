@@ -637,7 +637,7 @@ class Mesh(PyAedtBase):
         self._app = app
         self._odesign = self._app.odesign
         self.logger = self._app.logger
-        self.id = 0
+        # self.id = 0
         self._meshoperations = None
         self._globalmesh = None
         app.logger.info_timer("Mesh class has been initialized!")

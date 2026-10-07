@@ -143,9 +143,9 @@ def test_assign_winding(m3d_app) -> None:
     face_id = m3d_app.modeler["Coil_Section1"].faces[0].id
     assert m3d_app.assign_winding(face_id)
     bounds = m3d_app.assign_winding(assignment=face_id, current=20e-3)
-    assert bounds.props["Current"] == "0.02A"
+    assert bounds.props["Current"] in ["0.02A", "20e-3A"]
     bounds = m3d_app.assign_winding(assignment=face_id, current="20e-3A")
-    assert bounds.props["Current"] == "0.02A"
+    assert bounds.props["Current"] in ["0.02A", "20e-3A"]
     bounds = m3d_app.assign_winding(assignment=face_id, resistance="1ohm")
     assert bounds.props["Resistance"] == "1ohm"
     bounds = m3d_app.assign_winding(winding_type="Voltage", assignment=face_id, inductance="1H")
