@@ -149,18 +149,18 @@ class MCADComponent(BaseModel):
     """Describe an MCAD or ECAD component included in an MCAD assembly.
 
     This model represents a single component instance with its configuration,
-    transformations, and nested sub-components organized by type (MCAD or ECAD).
+    transformations, and nested subcomponents organized by type (MCAD or ECAD).
 
     """
 
     @property
     def sub_components(self):
-        """Return combined dictionary of all sub-components.
+        """Return combined dictionary of all subcomponents.
 
         Returns
         -------
         dict[str, MCADComponent | ECADComponent]
-            Dictionary combining ECAD and MCAD sub-components, with ECAD taking
+            Dictionary combining ECAD and MCAD subcomponents, with ECAD taking
             precedence in case of key collisions.
 
         """
@@ -386,7 +386,7 @@ class MCADAssembly(BaseModel):
         Returns
         -------
         dict[str, MCADComponent | ECADComponent]
-            Dictionary combining ECAD and MCAD sub-components, with ECAD taking
+            Dictionary combining ECAD and MCAD subcomponents, with ECAD taking
             precedence in case of key collisions.
 
         """
@@ -672,11 +672,9 @@ class MCADAssemblyService:
 
         def assemble_sub_components(
                 cad: ECADComponent|MCADComponent,
+                ecad_com_info: dict[str, EcadCompInfo],
                 cs_prefix: str | None = None,
-                ecad_com_info: dict[str, EcadCompInfo] | None = None,
         ):
-
-
             if cad.component_type == "mcad":
                 if cad.use_pin_mapping:
                     cad.target_coordinate_system = cad.placement_pin_mapping.reference_designator + "_"
@@ -692,7 +690,7 @@ class MCADAssemblyService:
                         Arrange(operation="rotate", axis="Z", angle=f"{-np.degrees(angle_rad):.0f}deg"))
 
                     refdes = cad.placement_pin_mapping.reference_designator
-                    if refdes and ecad_com_info:
+                    if refdes in ecad_com_info:
                         comp_info = ecad_com_info[refdes]
 
                         if comp_info and comp_info.flip:
@@ -792,7 +790,7 @@ class MCADAssemblyService:
                 assemble_sub_components(i, cs_prefix=model_name, ecad_com_info=comp_info)
 
         for _name, comp in temp.items():
-            assemble_sub_components(comp)
+            assemble_sub_components(comp, ecad_com_info=dict(), cs_prefix=None)
 
 
 def run(
