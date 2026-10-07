@@ -188,6 +188,7 @@ def test_create_parametrics(m3d_app) -> None:
     m3d_app["w1"] = "10mm"
     m3d_app["w2"] = "2mm"
     setup_parametrics = m3d_app.parametrics.add("w1", 0.1, 20, 0.2, "LinearStep")
+
     assert setup_parametrics.props["Sweeps"]["SweepDefinition"]["Variable"] == "w1"
     assert setup_parametrics.props["Sweeps"]["SweepDefinition"]["Data"] == "LIN 0.1mm 20mm 0.2mm"
     assert setup_parametrics.add_calculation(
@@ -196,6 +197,10 @@ def test_create_parametrics(m3d_app) -> None:
         report_type="Magnetostatic",
         solution=m3d_app.existing_analysis_sweeps[0],
     )
+    assert setup_parametrics.props["Goals"]["Goal"]["Solution"] == m3d_app.existing_analysis_sweeps[0]
+    m3d_app.create_setup()
+    setup_parametrics.props["Goals"]["Goal"]["Solution"] = m3d_app.existing_analysis_sweeps[1]
+    assert setup_parametrics.props["Goals"]["Goal"]["Solution"] == m3d_app.existing_analysis_sweeps[1]
 
 
 @pytest.mark.skipif(is_linux, reason="Crashing on Linux")

@@ -29,6 +29,8 @@ import csv
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from ansys.aedt.core.application import _get_obj_data
+from ansys.aedt.core.application import _has_get_obj_data
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import SolutionsHfss
 from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
@@ -36,9 +38,10 @@ from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
-from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.props import Props as SetupProps
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modules.optimetrics_templates import defaultdoeSetup
 from ansys.aedt.core.modules.optimetrics_templates import defaultdxSetup
 from ansys.aedt.core.modules.optimetrics_templates import defaultoptiSetup
@@ -50,7 +53,31 @@ if TYPE_CHECKING:
     from ansys.aedt.core.modules.solve_setup import Setup
 
 
-class CommonOptimetrics(PropsManager, PyAedtBase):
+def _copy_property_value(value):
+    if isinstance(value, dict):
+        return {key: _copy_property_value(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_copy_property_value(item) for item in value]
+    return value
+
+
+def _merge_property_dicts(current, updates):
+    merged = {}
+    for key, value in current.items():
+        if key in updates and isinstance(value, dict) and isinstance(updates[key], dict):
+            merged[key] = _merge_property_dicts(value, updates[key])
+        elif key in updates:
+            merged[key] = _copy_property_value(updates[key])
+        else:
+            merged[key] = _copy_property_value(value)
+
+    for key, value in updates.items():
+        if key not in current:
+            merged[key] = _copy_property_value(value)
+    return merged
+
+
+class CommonOptimetrics(BinaryTreeNode, PyAedtBase):
     """Creates and sets up optimizations.
 
     Parameters
@@ -75,97 +102,191 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
     def __repr__(self) -> str:
         return self.name
 
-    def __init__(self, p_app, name: str, dictinputs, optimtype) -> None:
+    def __str__(self) -> str:
+        return self.name
+
+    def __init__(self, p_app, name: str, dictinputs, optimtype, is_new_setup=True) -> None:
         self.auto_update = False
         self._app = p_app
         self.omodule = self._app.ooptimetrics
-        self.name = name
+        self._name = name
         self.soltype = optimtype
+        self._legacy_props = None
+        self._is_new_setup = is_new_setup
+        self._inputs = dictinputs
+        self._optimtype = optimtype
+        self._dictinputs = dictinputs
 
-        inputd = copy.deepcopy(dictinputs)
+    @property
+    def _child_object(self) -> object | None:
+        """Object-oriented properties.
 
-        if optimtype == "OptiParametric":
-            self.props = SetupProps(self, inputd or copy.deepcopy(defaultparametricSetup))
-            if not inputd and self._app.design_type == "Icepak":
-                self.props["ProdOptiSetupDataV2"] = {
-                    "SaveFields": False,
-                    "FastOptimetrics": False,
-                    "SolveWithCopiedMeshOnly": True,
-                }
-        if optimtype == "OptiDesignExplorer":
-            self.props = SetupProps(self, inputd or copy.deepcopy(defaultdxSetup))
-        if optimtype == "OptiOptimization":
-            self.props = SetupProps(self, inputd or copy.deepcopy(defaultoptiSetup))
-        if optimtype == "OptiSensitivity":
-            self.props = SetupProps(self, inputd or copy.deepcopy(defaultsensitivitySetup))
-        if optimtype == "OptiStatistical":
-            self.props = SetupProps(self, inputd or copy.deepcopy(defaultstatisticalSetup))
-        if optimtype == "OptiDXDOE":
-            self.props = SetupProps(self, inputd or copy.deepcopy(defaultdoeSetup))
-        if optimtype == "optiSLang":
-            self.props = SetupProps(self, inputd or copy.deepcopy(defaultdxSetup))
-        if inputd:
-            self.props.pop("ID", None)
-            self.props.pop("NextUniqueID", None)
-            self.props.pop("MoveBackwards", None)
-            self.props.pop("GoalSetupVersion", None)
-            self.props.pop("Version", None)
-            self.props.pop("SetupType", None)
-            if inputd.get("Sim. Setups"):
-                setups = inputd["Sim. Setups"]
-                for el in setups:
-                    try:
-                        if isinstance(self._app.design_properties["SolutionManager"]["ID Map"]["Setup"], list):
-                            for setup in self._app.design_properties["SolutionManager"]["ID Map"]["Setup"]:
-                                if setup["I"] == el:
-                                    setups[setups.index(el)] = setup["N"]
+        Returns
+        -------
+        AEDT object if any or None
+
+        """
+        child_object = None
+        design_childs = self._app.get_oo_name(self._app.odesign)
+
+        if "Optimetrics" in design_childs:
+            cc = self._app.get_oo_object(self._app.odesign, "Optimetrics")
+            cc_names = self._app.get_oo_name(cc)
+            if self._name in cc_names:
+                child_object = self._app.get_oo_object(cc, self._name)
+        return child_object
+
+    @property
+    def name(self) -> str:
+        """Name of the optimetrics setup.
+
+        Returns
+        -------
+        str
+           Name of the mesh operation.
+
+        """
+        if self._child_object:
+            self._name = self._child_object.Name
+        return self._name
+
+    @name.setter
+    def name(self, meshop_name: str) -> None:
+        # if meshop_name in self._mesh.meshoperation_names:
+        #     raise ValueError(f"Name {meshop_name} already assigned in the design.")
+        if self._child_object:
+            self._child_object.Name = str(meshop_name)
+            object.__setattr__(self, "_name", meshop_name)
+            if self._child_object.Name != str(meshop_name):
+                # Fallback to legacy property update if the name change is not reflected in the child object
+                current_props = dict(self._legacy_props)
+                self._update_properties(props=current_props, new_name=str(meshop_name))
+                object.__setattr__(self, "_name", meshop_name)
+                if self._child_object.Name != str(meshop_name):
+                    raise AEDTRuntimeError("Name can not be changed.")
+            object.__setattr__(self, "_name", meshop_name)
+            object.__setattr__(self, "_tree_node_initialized", False)
+            object.__setattr__(self, "_props", None)
+            object.__setattr__(self, "_children_loaded", False)
+
+    @property
+    def props(self) -> SetupProps:
+        """Properties of the optimetrics setup."""
+        _has_getobject = _has_get_obj_data(self._child_object)
+        if self._legacy_props and not _has_getobject:
+            return self._legacy_props
+
+        if self._is_new_setup:
+            inputd = copy.deepcopy(self._dictinputs)
+
+            if self._optimtype == "OptiParametric":
+                self._legacy_props = SetupProps(self, inputd or copy.deepcopy(defaultparametricSetup))
+                if not inputd and self._app.design_type == "Icepak":
+                    self._legacy_props["ProdOptiSetupDataV2"] = {
+                        "SaveFields": False,
+                        "FastOptimetrics": False,
+                        "SolveWithCopiedMeshOnly": True,
+                    }
+            elif self._optimtype == "OptiDesignExplorer":
+                self._legacy_props = SetupProps(self, inputd or copy.deepcopy(defaultdxSetup))
+            elif self._optimtype == "OptiOptimization":
+                self._legacy_props = SetupProps(self, inputd or copy.deepcopy(defaultoptiSetup))
+            elif self._optimtype == "OptiSensitivity":
+                self._legacy_props = SetupProps(self, inputd or copy.deepcopy(defaultsensitivitySetup))
+            elif self._optimtype == "OptiStatistical":
+                self._legacy_props = SetupProps(self, inputd or copy.deepcopy(defaultstatisticalSetup))
+            elif self._optimtype == "OptiDXDOE":
+                self._legacy_props = SetupProps(self, inputd or copy.deepcopy(defaultdoeSetup))
+            elif self._optimtype == "optiSLang":
+                self._legacy_props = SetupProps(self, inputd or copy.deepcopy(defaultdxSetup))
+            if inputd:
+                self._legacy_props.pop("ID", None)
+                self._legacy_props.pop("NextUniqueID", None)
+                self._legacy_props.pop("MoveBackwards", None)
+                self._legacy_props.pop("GoalSetupVersion", None)
+                self._legacy_props.pop("Version", None)
+                self._legacy_props.pop("SetupType", None)
+                if inputd.get("Sim. Setups"):
+                    setups = inputd["Sim. Setups"]
+                    for el in setups:
+                        try:
+                            if isinstance(self._app.design_properties["SolutionManager"]["ID Map"]["Setup"], list):
+                                for setup in self._app.design_properties["SolutionManager"]["ID Map"]["Setup"]:
+                                    if setup["I"] == el:
+                                        setups[setups.index(el)] = setup["N"]
+                                        break
+                            else:
+                                if self._app.design_properties["SolutionManager"]["ID Map"]["Setup"]["I"] == el:
+                                    setups[setups.index(el)] = self._app.design_properties["SolutionManager"]["ID Map"][
+                                        "Setup"
+                                    ]["N"]
                                     break
+
+                        except (TypeError, KeyError):
+                            pass
+
+                if inputd.get("Goals", None) and self.name in self.omodule.GetChildNames():
+                    if self._app._is_object_oriented_enabled():
+                        oparams = self._app.get_oo_object(self.omodule, self.name).GetCalculationInfo()
+                        oparam = [i for i in oparams[0]]
+                        idx = None
+                        if oparam[0] in oparam[1:]:
+                            idx = oparam[1:].index(oparam[0]) + 1
+                        if idx:
+                            oparam = [["NAME:Goal"] + oparam[k : idx + k] for k in range(0, len(oparam), idx)]
                         else:
-                            if self._app.design_properties["SolutionManager"]["ID Map"]["Setup"]["I"] == el:
-                                setups[setups.index(el)] = self._app.design_properties["SolutionManager"]["ID Map"][
-                                    "Setup"
-                                ]["N"]
-                                break
+                            oparam = [["NAME:Goal"] + oparam]
 
-                    except (TypeError, KeyError):
-                        pass
+                        self._legacy_props["Goals"]["Goal"] = []
+                        for param in oparam:
+                            arg1 = {}
+                            _arg2dict(param, arg1)
+                            self._get_setup_props(arg1)
+                            self._legacy_props["Goals"]["Goal"].append(SetupProps(self, arg1["Goal"]))
 
-            if inputd.get("Goals", None) and self.name in self.omodule.GetChildNames():
-                if self._app._is_object_oriented_enabled():
-                    oparams = self._app.get_oo_object(self.omodule, self.name).GetCalculationInfo()
-                    oparam = [i for i in oparams[0]]
-                    idx = None
-                    if oparam[0] in oparam[1:]:
-                        idx = oparam[1:].index(oparam[0]) + 1
-                    if idx:
-                        oparam = [["NAME:Goal"] + oparam[k : idx + k] for k in range(0, len(oparam), idx)]
-                    else:
-                        oparam = [["NAME:Goal"] + oparam]
+                if inputd.get("Variables"):  # pragma: no cover
+                    for var in inputd.get("Variables"):
+                        output_list = []
+                        props = self._legacy_props["Variables"][var]
+                        for prop in props:
+                            parts = prop.split("=")
+                            value = (
+                                True
+                                if parts[1].lower() == "true"
+                                else False
+                                if parts[1].lower() == "false"
+                                else parts[1].strip("'")
+                            )
+                            output_list.extend([parts[0] + ":=", value])
+                        self._legacy_props["Variables"][var] = output_list
+            self._is_new_setup = False
+        else:
+            if _has_getobject:
+                setup_data = _get_obj_data(self._child_object)
+                self._legacy_props = SetupProps(self, setup_data)
+            else:
+                try:
+                    if "AnalysisSetup" in self._app.design_properties.keys():
+                        setups_data = self._app.design_properties["AnalysisSetup"]["SolveSetups"]
+                        if self.name in setups_data:
+                            setup_data = setups_data[self.name]
+                            self._legacy_props = SetupProps(self, setup_data)
+                    elif "SimSetups" in self._app.design_properties.keys():
+                        setup_data = self._app.design_properties["SimSetups"]["SimSetup"]
+                        self._legacy_props = SetupProps(self, setup_data)
+                except Exception:
+                    self._legacy_props = SetupProps(self, {})
+        return self._legacy_props
 
-                    self.props["Goals"]["Goal"] = []
-                    for param in oparam:
-                        arg1 = {}
-                        _arg2dict(param, arg1)
-                        self._get_setup_props(arg1)
-                        self.props["Goals"]["Goal"].append(SetupProps(self, arg1["Goal"]))
+    @props.setter
+    def props(self, value: dict) -> None:
+        # Merge with existing props to support partial updates
+        current_props = dict(self.props) if self._legacy_props else {}
+        current_props.update(value)
 
-            if inputd.get("Variables"):  # pragma: no cover
-                for var in inputd.get("Variables"):
-                    output_list = []
-                    props = self.props["Variables"][var]
-                    for prop in props:
-                        parts = prop.split("=")
-                        value = (
-                            True
-                            if parts[1].lower() == "true"
-                            else False
-                            if parts[1].lower() == "false"
-                            else parts[1].strip("'")
-                        )
-                        output_list.extend([parts[0] + ":=", value])
-                    self.props["Variables"][var] = output_list
+        self._legacy_props = SetupProps(self, current_props)
 
-        self.auto_update = True
+        self.update()
 
     def _get_setup_props(self, arg1: dict):
         for k, v in arg1.items():
@@ -330,16 +451,19 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         >>> obj.update(update_dictionary={"Name": "Value"})
 
         """
-        if update_dictionary:
-            for el in update_dictionary:
-                self.props._setitem_without_update(el, update_dictionary[el])
+        if update_dictionary is not None:
+            # If new properties are added, the legacy_props should be refreshed. This only needed when GetObjData is not
+            # available
+            current_props = dict(self.props) if self._legacy_props else {}
+            current_props.update(update_dictionary)
+            self._legacy_props = SetupProps(self, current_props)
 
         arg = ["NAME:" + self.name]
-        _dict2arg(self.props, arg)
+        _dict2arg(self._legacy_props, arg)
 
         if self.soltype == "OptiParametric" and len(arg[8]) == 3:
             arg[8] = ["NAME:Sweep Operations"]
-            for variation in self.props["Sweep Operations"].get("add", []):
+            for variation in self._legacy_props["Sweep Operations"].get("add", []):
                 arg[8].append("add:=")
                 arg[8].append(variation)
 
@@ -347,8 +471,13 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def create(self) -> bool:
+    def create(self, props: dict | None = None) -> bool:
         """Create a setup.
+
+        Parameters
+        ----------
+        props: dict, optional
+            Setup properties. The default is ``None``.
 
         Returns
         -------
@@ -366,8 +495,10 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         >>> obj.create()
 
         """
+        if props is None:
+            props = self.props
         arg = ["NAME:" + self.name]
-        _dict2arg(self.props, arg)
+        _dict2arg(props, arg)
         self.omodule.InsertSetup(self.soltype, arg)
         return True
 
@@ -450,12 +581,15 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         goal_value: int = 1,
         goal_weight: int = 1,
     ):
-        self.auto_update = False
+        # self.auto_update = False
+        new_props = dict(self.props)
+
         if not solution:
             solution = self._app.nominal_sweep
         setupname = solution.split(" ")[0]
-        if setupname not in self.props["Sim. Setups"]:
-            self.props["Sim. Setups"].append(setupname)
+        if setupname not in new_props["Sim. Setups"]:
+            new_props["Sim. Setups"].append(setupname)
+
         domain = "Time"
         maxwell_solutions = SolutionsMaxwell3D
         if (ranges and ("Freq" in ranges or "Phase" in ranges or "Theta" in ranges)) or self._app.solution_type in [
@@ -509,16 +643,16 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
             optigoalname = "CostFunctionGoals"
         else:
             optigoalname = "Goals"
-        if "Goal" in self.props[optigoalname]:
-            if type(self.props[optigoalname]["Goal"]) is not list:
-                self.props[optigoalname]["Goal"] = [self.props[optigoalname]["Goal"], SetupProps(self, sweepdefinition)]
+        if "Goal" in new_props[optigoalname]:
+            if type(new_props[optigoalname]["Goal"]) is not list:
+                new_props[optigoalname]["Goal"] = [self.props[optigoalname]["Goal"], SetupProps(self, sweepdefinition)]
             else:
-                self.props[optigoalname]["Goal"].append(sweepdefinition)
+                new_props[optigoalname]["Goal"].append(sweepdefinition)
         else:
-            self.props[optigoalname] = {}
-            self.props[optigoalname]["Goal"] = sweepdefinition
-        self.auto_update = True
-        return self.update()
+            new_props[optigoalname] = {}
+            new_props[optigoalname]["Goal"] = sweepdefinition
+        # self.auto_update = True
+        return self.update(new_props)
 
     @pyaedt_function_handler()
     def _activate_variable(self, variable_name):
@@ -869,7 +1003,6 @@ class SetupParam(CommonOptimetrics, PyAedtBase):
 
     def __init__(self, p_app, name: str, dictinputs=None, optim_type: str = "OptiParametric") -> None:
         CommonOptimetrics.__init__(self, p_app, name, dictinputs=dictinputs, optimtype=optim_type)
-        pass
 
     @pyaedt_function_handler()
     def delete(self) -> bool:
@@ -964,15 +1097,20 @@ class SetupParam(CommonOptimetrics, PyAedtBase):
         sweepdefinition["Data"] = sweep_range
         sweepdefinition["OffsetF1"] = False
         sweepdefinition["Synchronize"] = 0
-        if self.props["Sweeps"]["SweepDefinition"] is None:
-            self.props["Sweeps"]["SweepDefinition"] = sweepdefinition
-        elif type(self.props["Sweeps"]["SweepDefinition"]) is not list:
-            self.props["Sweeps"]["SweepDefinition"] = [self.props["Sweeps"]["SweepDefinition"]]
+
+        new_props = dict(self.props)
+
+        if "SweepDefinition" not in new_props or new_props["Sweeps"]["SweepDefinition"] is None:
+            new_props["Sweeps"] = dict(new_props["Sweeps"])
+            new_props["Sweeps"]["SweepDefinition"] = sweepdefinition
+        elif type(new_props["Sweeps"]["SweepDefinition"]) is not list:
+            new_props["Sweeps"] = dict(new_props["Sweeps"])
+            new_props["Sweeps"]["SweepDefinition"] = [new_props["Sweeps"]["SweepDefinition"]]
             self._append_sweepdefinition(sweepdefinition)
         else:
             self._append_sweepdefinition(sweepdefinition)
 
-        return self.update()
+        return self.update(new_props)
 
     @pyaedt_function_handler()
     def _append_sweepdefinition(self, sweepdefinition) -> bool:
@@ -1203,14 +1341,15 @@ class ParametricSetups(PyAedtBase):
         if not name:
             name = generate_unique_name("Parametric")
         setup = SetupParam(self._app, name, optim_type="OptiParametric")
-        setup.auto_update = False
 
-        setup.props["Sim. Setups"] = [setupname]
-        setup.props["Sweeps"] = {"SweepDefinition": None}
-        setup.create()
+        new_props = dict(setup.props)
+        new_props["Sim. Setups"] = [setupname]
+        new_props["Sweeps"] = {"SweepDefinition": None}
+
+        setup.create(new_props)
         unit = self._app.variable_manager[variable].units
         setup.add_variation(variable, start_point, end_point, step, unit, variation_type)
-        setup.auto_update = True
+
         self.setups.append(setup)
         return setup
 

@@ -116,7 +116,7 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
         else:
             arg = ["NAME:" + name]
         if props is None:
-            props = self.props
+            props = self._legacy_props
         _dict2arg(props, arg)
         return arg
 
@@ -373,9 +373,8 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
 
     @props.setter
     def props(self, value: dict) -> None:
-        self._legacy_props = SetupProps(self, value)
         if self.auto_update:
-            self.update(self._legacy_props)
+            self.update(value)
 
     @property
     def is_solved(self) -> bool:
@@ -794,10 +793,15 @@ class Setup(CommonSetup):
         """
         legacy_update = self.auto_update
         self.auto_update = False
-        if properties:
-            arg = self._setup_dict_to_arg(props=properties)
-        else:
-            arg = self._setup_dict_to_arg()
+        if properties is not None:
+            # Merge with existing props to support partial updates
+            current_props = dict(self.props) if self._legacy_props else {}
+            current_props.update(properties)
+
+            self._legacy_props = SetupProps(self, current_props)
+
+        arg = self._setup_dict_to_arg()
+
         self.auto_update = legacy_update
         self.omodule.EditSetup(self.name, arg)
         return True
@@ -3879,7 +3883,7 @@ class SetupHFSSAuto(Setup, PyAedtBase):
         """
         if not isinstance(derivative_list, list):
             derivative_list = [derivative_list]
-        new_props = self.props
+        new_props = dict(self.props)
         new_props["VariablesForDerivatives"] = derivative_list + self.get_derivative_variables()
         return self.update(new_props)
 
