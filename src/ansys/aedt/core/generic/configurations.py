@@ -54,8 +54,10 @@ from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.common import BoundaryProps
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
-from ansys.aedt.core.modules.design_xploration import SetupOpti
-from ansys.aedt.core.modules.design_xploration import SetupParam
+from ansys.aedt.core.modules.design_xploration import Optimetrics
+
+# from ansys.aedt.core.modules.design_xploration import SetupOpti
+# from ansys.aedt.core.modules.design_xploration import SetupParam
 from ansys.aedt.core.modules.material_lib import Material
 from ansys.aedt.core.modules.mesh import MeshOperation
 
@@ -1088,7 +1090,7 @@ class Configurations(PyAedtBase):
                     setup_el.props = props
                     setup_el.update()
                 return True
-        setup = SetupOpti(self._app, name, dictinputs=props, optim_type=props.get("SetupType", None))
+        setup = Optimetrics(self._app, name, dictinputs=props, optim_type=props.get("SetupType", None))
         if setup.create():
             self._app.optimizations.setups.append(setup)
             self._app.logger.info(f"Optim {name} added.")
@@ -1105,7 +1107,7 @@ class Configurations(PyAedtBase):
                     setup_el.props = props
                     setup_el.update()
                 return True
-        setup = SetupParam(self._app, name, dictinputs=props, optim_type=props.get("SetupType", None))
+        setup = Optimetrics(self._app, name, dictinputs=props, optim_type=props.get("SetupType", None))
         if setup.create():
             self._app.optimizations.setups.append(setup)
             self._app.logger.info(f"Optim {name} added.")

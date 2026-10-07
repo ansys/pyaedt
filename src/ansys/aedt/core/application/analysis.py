@@ -49,8 +49,6 @@ from ansys.aedt.core.generic.general_methods import filter_tuple
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-
-# from ansys.aedt.core.generic.numbers_utils import Quantity
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.generic.props import Props as SetupProps
@@ -60,7 +58,6 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
 from ansys.aedt.core.modules.design_xploration import Optimetrics
-from ansys.aedt.core.modules.design_xploration import OptimizationSetups
 from ansys.aedt.core.modules.solve_setup import Setup
 from ansys.aedt.core.modules.solve_setup import Setup3DLayout
 from ansys.aedt.core.modules.solve_setup import SetupCircuit
@@ -73,6 +70,7 @@ from ansys.aedt.core.modules.solve_setup import SetupSBR
 
 if TYPE_CHECKING:
     from ansys.aedt.core.modules.boundary.common import BoundaryObject
+    from ansys.aedt.core.modules.design_xploration import OptimetricsSetup
     from ansys.aedt.core.modules.material_lib import Materials
 
 
@@ -311,12 +309,12 @@ class Analysis(Design, PyAedtBase):
         return self._optimetrics
 
     @property
-    def parametrics(self) -> Optimetrics:
+    def parametrics(self) -> dict[str, OptimetricsSetup]:
         """Setups in the project.
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.design_xploration.Optimetrics`
+        dict[str, :class:`ansys.aedt.core.modules.design_xploration.Optimetrics`]
             Parametric setups in the project.
 
         Examples
@@ -331,12 +329,12 @@ class Analysis(Design, PyAedtBase):
         return self._optimetrics.parametric_setups
 
     @property
-    def optimizations(self) -> OptimizationSetups:
+    def optimizations(self) -> dict[str, OptimetricsSetup]:
         """Optimizations in the project.
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.design_xploration.OptimizationSetups`
+        dict[str, :class:`ansys.aedt.core.modules.design_xploration.OptimizationSetups`]
             Parametric setups in the project.
 
         Examples
