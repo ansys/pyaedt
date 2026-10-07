@@ -587,7 +587,7 @@ class Filter(EmitNode):
         >>> filt.bs_higher_cutoff = 120e6
 
         """
-        if int(self._emit_obj.aedt_version_id[-3:]) < 261:
+        if int(self._emit_obj.aedt_env_variable[-3:]) < 261:
             val = self._get_property("Higher Cutoff")
         else:
             val = self._get_property("BS Higher Cutoff")
