@@ -2978,7 +2978,11 @@ class Desktop(PyAedtBase):
         executable = Path(Path(self.aedt_install_dir) / "ansysedtsv.exe").resolve(strict=True)
         if not executable.exists():
             raise FileNotFoundError(f"Student version executable {executable} not found")
-        pid = subprocess.Popen([executable], creationflags=subprocess.DETACHED_PROCESS)  # nosec
+        pid = subprocess.Popen(
+            [executable],
+            stdin=subprocess.DEVNULL,
+            creationflags=subprocess.DETACHED_PROCESS,
+        )  # nosec
         self.logger.debug(f"Running Electronic Desktop Student Version with PID {pid}.")
         time.sleep(5)
 
