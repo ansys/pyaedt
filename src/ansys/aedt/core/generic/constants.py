@@ -1360,7 +1360,7 @@ class SolutionsMaxwell3D(metaclass=DynamicMeta):
         "AC Magnetic with DC",
     )
     __versioned = {
-        "2025.1": {
+        version: {
             "ACConduction": "ACConduction",
             "DCConduction": "DCConduction",
             "EddyCurrent": "EddyCurrent",
@@ -1373,6 +1373,7 @@ class SolutionsMaxwell3D(metaclass=DynamicMeta):
             "ElectricTransient": "ElectricTransient",
             "DCBiasedEddyCurrent": "DCBiasedEddyCurrent",
         }
+        for version in ["2025.2", "2025.1", "2024.2", "2024.1", "2023.2", "2023.1", "2022.2"]
     }
 
 
@@ -1432,7 +1433,7 @@ class SolutionsMaxwell2D(metaclass=DynamicMeta):
         "AC Conduction",
     )
     __versioned = {
-        "2025.1": {
+        version: {
             "ACMagneticXY": "EddyCurrentXY",
             "ACMagneticZ": "EddyCurrentZ",
             "ACMagnetic": "EddyCurrent",
@@ -1446,6 +1447,7 @@ class SolutionsMaxwell2D(metaclass=DynamicMeta):
             "ACConductionZ": "ACConductionZ",
             "ACConduction": "ACConduction",
         }
+        for version in ["2025.2", "2025.1", "2024.2", "2024.1", "2023.2", "2023.1", "2022.2"]
     }
 
 

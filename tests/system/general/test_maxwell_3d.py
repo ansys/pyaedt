@@ -133,7 +133,7 @@ def test_lamination(m3d_app) -> None:
 
 
 def test_assign_winding(m3d_app) -> None:
-    m3d_app.solution_type = "AC Magnetic"
+    m3d_app.solution_type = SolutionsMaxwell3D.ACMagnetic
     coil_hole = m3d_app.modeler.create_box([-50, -50, 0], [100, 100, 100], name="Coil_Hole")
     coil = m3d_app.modeler.create_box([-100, -100, 0], [200, 200, 100], name="Coil")
     m3d_app.modeler.subtract([coil], [coil_hole])
