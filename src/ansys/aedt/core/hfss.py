@@ -8803,7 +8803,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                 lstobj.append(selection)
             elif isinstance(selection, int) and self.modeler._find_object_from_face_id(selection):
                 lstface.append(selection)
-
         if not lstface and not lstobj:
             raise AEDTRuntimeError("Objects or Faces selected do not exist in the design.")
 
