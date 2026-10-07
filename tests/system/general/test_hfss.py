@@ -2598,9 +2598,12 @@ def test_assign_fresnel(aedt_app, test_tmp_dir):
     bound1 = aedt_app.assign_fresnel(assignment=b)
     assert bound1.properties["Fresnel Boundary Type"] == "Perfect Absorber"
 
-    bound2 = aedt_app.assign_fresnel(assignment=[b.name, b.faces[0], c.id], rttbl_file=file, name="pyaedt_fresnel")
+    bound2 = aedt_app.assign_fresnel(assignment=[b.name, b.faces[0], c.id], input_file=file, name="pyaedt_fresnel")
 
     assert "R/T Table Path" in bound2.properties
     # Not existing assignment
     with pytest.raises(AEDTRuntimeError):
         aedt_app.assign_fresnel(["invented"])
+    # Not existing file
+    with pytest.raises(AEDTRuntimeError):
+        aedt_app.assign_fresnel(assignment=b, input_file="invented.rttbl")

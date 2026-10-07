@@ -8758,7 +8758,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     def assign_fresnel(
         self,
         assignment: str | list,
-        rttbl_file: str | Path | None = None,
+        input_file: str | Path | None = None,
         name: str | None = None,
     ) -> BoundaryObject:
         """Assign Fresnel to one or more objects or faces.
@@ -8767,7 +8767,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         ----------
         assignment : str or list
             One or more objects or faces to assign finite conductivity to.
-        rttbl_file : str or :class:`pathlib.Path`, optional
+        input_file : str or :class:`pathlib.Path`, optional
             Fresnel reflection or reflection/transmission coefficient table file.
             The default is ``None``, in which case perfect absorber is assigned.
         name : str, optional
@@ -8792,7 +8792,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> origin = hfss.modeler.Position(0, 0, 0)
         >>> inner = hfss.modeler.create_cylinder(Plane.XY, origin, 3, 200, 0, "inner")
         >>> rttbl_file = "file.rttbl"
-        >>> fresnel = hfss.assign_fresnel(inner.name, rttbl_file=rttbl_file)
+        >>> fresnel = hfss.assign_fresnel(inner.name, input_file=rttbl_file)
 
         """
         userlst = self.modeler.convert_to_selections(assignment, True)
@@ -8817,9 +8817,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             lstface = [str(i) for i in lstface]
             listobjname = listobjname + "_" + "_".join(lstface)
 
-        if not rttbl_file:
+        if not input_file:
             props["Fresnel Boundary Type"] = "PerfectAbsorber"
         else:
+            rttbl_file = Path(input_file)
+            if not rttbl_file.is_file() or not rttbl_file.suffix == ".rttbl":
+                raise ValueError(f"Invalid table file: {rttbl_file}.")
             props["Fresnel Boundary Type"] = "ImportFromTableFile"
             props["RTTable Path"] = str(rttbl_file)
 
