@@ -8767,7 +8767,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         ----------
         assignment : str or list
             One or more objects or faces to assign finite conductivity to.
-        rttbl_file : str or :class:`pathlib.Path` , optional
+        rttbl_file : str or :class:`pathlib.Path`, optional
             Fresnel reflection or reflection/transmission coefficient table file.
             The default is ``None``, in which case perfect absorber is assigned.
         name : str
