@@ -189,7 +189,7 @@ def test_objects(emit_app) -> None:
     assert isinstance(emit_app.modeler.components, EmitComponents)
     assert emit_app.modeler
     assert emit_app.oanalysis is None
-    if emit_app.aedt_version_id > "2023.1":
+    if emit_app.desktop_class.aedt_version_id > "2023.1":
         assert (
             str(type(emit_app._emit_api))
             == f"<class 'EmitApiPython{sys.version_info.major}{sys.version_info.minor}.EmitApi'>"
@@ -258,7 +258,7 @@ def test_create_components(emit_app) -> None:
     assert mux5.name == "Test5port"
     assert isinstance(mux5, EmitComponent)
     # Multiplexer 6 port added at 2023.2
-    if emit_app.aedt_version_id > "2023.1":
+    if emit_app.desktop_class.aedt_version_id > "2023.1":
         mux6 = emit_app.modeler.components.create_component("6 Port", "Test6port")
         assert mux6.name == "Test6port"
         assert isinstance(mux6, EmitComponent)
@@ -505,7 +505,7 @@ def test_radio_component(emit_app) -> None:
         exception_raised = True
     assert exception_raised
     # full units support added with 2023.2
-    if emit_app.aedt_version_id > "2023.1":
+    if emit_app.desktop_class.aedt_version_id > "2023.1":
         # test band.set_band_power_level
         band.set_band_power_level(100)
         power = band.get_band_power_level()
