@@ -8807,15 +8807,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         if not lstface and not lstobj:
             raise AEDTRuntimeError("Objects or Faces selected do not exist in the design.")
 
-        listobjname = ""
         props = {}
         if lstobj:
-            listobjname = listobjname + "_" + "_".join(lstobj)
             props["Objects"] = lstobj
         if lstface:
             props["Faces"] = lstface
-            lstface = [str(i) for i in lstface]
-            listobjname = listobjname + "_" + "_".join(lstface)
 
         if not input_file:
             props["Fresnel Boundary Type"] = "PerfectAbsorber"
@@ -8827,5 +8823,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             props["RTTable Path"] = str(rttbl_file)
 
         if not name:
-            name = "Fresnel_" + listobjname[1:]
+            name = generate_unique_name("Fresnel")
+
         return self._create_boundary(name, props, "Fresnel")
