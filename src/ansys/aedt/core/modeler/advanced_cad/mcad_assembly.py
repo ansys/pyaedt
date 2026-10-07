@@ -29,9 +29,7 @@ from pathlib import Path
 import shutil
 import tempfile
 from typing import TYPE_CHECKING
-from typing import Any
 from typing import Literal
-from typing import cast
 
 import numpy as np
 from pydantic import AliasChoices, model_validator
@@ -58,6 +56,19 @@ OPERATIONS = Literal["move", "rotate"]
 
 
 def get_all_ecads(cad: MCADAssembly| MCADComponent | ECADComponent) -> list[ECADComponent]:
+    """Recursively collect all ECAD components from an assembly or component tree.
+
+    Parameters
+    ----------
+    cad : MCADAssembly | MCADComponent | ECADComponent
+        The assembly or component to traverse for ECAD components.
+
+    Returns
+    -------
+    list[ECADComponent]
+        Flat list of all ECAD components found in the hierarchy.
+
+    """
     temp = []
 
     def elevate_lib(sub_comp: ECADComponent | MCADComponent):
@@ -135,10 +146,24 @@ class EcadCompInfo(BaseModel):
 
 
 class MCADComponent(BaseModel):
-    """Describe an MCAD or ECAD component included in an MCAD assembly."""
+    """Describe an MCAD or ECAD component included in an MCAD assembly.
+
+    This model represents a single component instance with its configuration,
+    transformations, and nested sub-components organized by type (MCAD or ECAD).
+
+    """
 
     @property
     def sub_components(self):
+        """Return combined dictionary of all sub-components.
+
+        Returns
+        -------
+        dict[str, MCADComponent | ECADComponent]
+            Dictionary combining ECAD and MCAD sub-components, with ECAD taking
+            precedence in case of key collisions.
+
+        """
         temp = {}
         temp.update(self.ecad_sub_components)
         temp.update(self.mcad_sub_components)
@@ -196,6 +221,23 @@ class MCADComponent(BaseModel):
     @model_validator(mode="before")
     @classmethod
     def preprocess(cls, data):
+        """Normalize legacy and new component sub-component formats.
+
+        Handles backward compatibility by merging legacy 'assembly' and
+        'sub_components' keys into separate 'mcad_sub_components' and
+        'ecad_sub_components' dictionaries based on component type.
+
+        Parameters
+        ----------
+        data : dict
+            Raw input data before model validation.
+
+        Returns
+        -------
+        dict
+            Normalized data with separated component types.
+
+        """
         legacy_1 = data.pop("assembly", {})
         legacy_2 = data.pop("sub_components", {})
         legacy_1.update(legacy_2)
@@ -209,34 +251,6 @@ class MCADComponent(BaseModel):
             else:
                 data["ecad_sub_components"][i] = j
         return data
-
-    def _assemble_sub_components(self, hfss, cs_prefix: str | None = "", version: str | None = None):
-        for _name, comp in self.sub_components.items():
-            if comp.use_pin_mapping:
-                pin_mapping_info = self._ecad_comp_info[comp.placement_pin_mapping.reference_designator]
-            else:
-                pin_mapping_info = None
-            comp._assemble(hfss, cs_prefix, version, pin_mapping_info=pin_mapping_info)
-
-    def _apply_arrange(self, hfss: "Hfss"):
-        for i in self.arranges:
-            if i.operation == "rotate":
-                self._rotate_index += 1
-                axis = i.axis or "Z"
-                angle = i.angle or "0deg"
-                hfss.modeler.rotate(self.name, getattr(Axis, axis), angle)
-                hfss.modeler.oeditor.ChangeProperty(
-                    [
-                        "NAME:AllTabs",
-                        [
-                            "NAME:Geometry3DCmdTab",
-                            ["NAME:PropServers", f"{self.name}:Rotate:{self._rotate_index}"],
-                            ["NAME:ChangedProps", ["NAME:Coordinate System", "Value:=", self.target_coordinate_system]],
-                        ],
-                    ]
-                )
-            elif i.operation == "move":
-                hfss.modeler.move(self.name, i.vector or ["0mm", "0mm", "0mm"])
 
     def add_sub_mcad_component(self, name: str, model: str) -> MCADComponent:
         """Add sub 3D component."""
@@ -288,140 +302,14 @@ class MCADComponent(BaseModel):
         self.arranges.append(arrange)
         return arrange
 
-    def _assemble(
-        self,
-        hfss: "Hfss",
-        cs_prefix: str | None = None,
-        version: str | None = None,
-        pin_mapping_info: EcadCompInfo | None = None,
-    ):
-        """Assemble the component into an HFSS design.
-
-        Parameters
-        ----------
-        hfss : ansys.aedt.core.hfss.Hfss
-            HFSS application instance used for geometry insertion.
-        cs_prefix : str, optional
-            Prefix applied to the target coordinate system name when inserting
-            nested components.
-        version : str, optional
-            AEDT version used when opening EDB-backed layout components.
-        pin_mapping_info : PinMapping, optional
-            Resolved placement information used for pin-mapped components.
-
-        """
-        modeler = cast(Any, hfss.modeler)
-
-        if self.use_pin_mapping:
-            self.target_coordinate_system = self.placement_pin_mapping.reference_designator + "_"
-            temp = self.placement_pin_mapping
-            self.arranges.append(Arrange(operation="move", vector=list(temp.pin_1_loc)))
-
-            if temp.pin_2_loc is not None:
-                dx, dy = np.array(temp.pin_2_loc[:2]) - np.array(temp.pin_1_loc[:2])
-                angle_rad = np.arctan2(dy, dx)
-            else:
-                angle_rad = 0
-            self.arranges.append(Arrange(operation="rotate", axis="Z", angle=f"{-np.degrees(angle_rad):.0f}deg"))
-
-            comp_cs = pin_mapping_info
-
-            if comp_cs and comp_cs.flip:
-                self.arranges.append(Arrange(operation="rotate", axis="X", angle="180deg"))
-                self.arranges.append(Arrange(operation="move", vector=[0, 0, f"{-comp_cs.thickness_offset}meter"]))
-                rotation = -comp_cs.rotation_rad
-            else:
-                rotation = comp_cs.rotation_rad
-            self.arranges.append(Arrange(operation="rotate", axis="Z", angle=f"{np.degrees(rotation):.0f}deg"))
-
-        if cs_prefix:
-            self.target_coordinate_system = f"{cs_prefix}_{self.target_coordinate_system}"
-
-        model_path = self._top_assembly._runtime_mcad_models[self.model]
-        if not Path(model_path).exists():
-            raise FileNotFoundError(f"{model_path} does not exist")
-        if self.component_type == "mcad":
-            # a3dcomp
-            comp = modeler.insert_3d_component(
-                name=self.name,
-                input_file=model_path,
-                coordinate_system=self.target_coordinate_system,
-                password=self.password,
-                geometry_parameters=self.geometry_parameters,
-            )
-            model_name = None
-
-        else:
-            if Path(model_path).suffix == ".aedb":
-                comps = [
-                    j.placement_pin_mapping.reference_designator
-                    for i, j in self.sub_components.items()
-                    if j.use_pin_mapping
-                ]
-                if comps:
-                    edb = Edb(model_path, version=version)
-                    for refdes, obj in edb.components.instances.items():
-                        if refdes in comps:
-                            obj.enabled = False
-                            cs_name = refdes + "_"
-                            pin_mapping = Component.PinMapping(refdes=refdes, cs_name=cs_name)
-                            pins = obj.pins
-                            pin_names = list(pins.keys())
-                            p1_name = sorted(pin_names)[0]
-                            p1_loc = pins[p1_name].position
-
-                            edb.modeler.insert_coordinate_system(
-                                name=cs_name, x=p1_loc[0], y=p1_loc[1], layer=obj.placement_layer
-                            )
-                            self.layout_coordinate_systems.append(cs_name)
-                            pin_mapping.pin1_location = (p1_loc[0], p1_loc[1])
-                            signal_layers = list(edb.stackup.signal_layers)
-                            pin_mapping.flip = (
-                                True if signal_layers.index(obj.placement_layer) > len(signal_layers) / 2 else False
-                            )
-                            pin_mapping.thickness_offset = edb.stackup.signal_layers[obj.placement_layer].thickness
-
-                            if len(pin_names) > 1:
-                                p2_name = sorted(pin_names)[1]
-                                p2_loc = pins[p2_name].position
-
-                                dx, dy = np.array(p2_loc) - np.array(p1_loc)
-                                angle_rad = np.arctan2(dy, dx)
-                                pin_mapping.rotation_rad = angle_rad
-                            self._ecad_comp_info[refdes] = pin_mapping
-
-                    edb.save()
-                    edb.close(terminate_rpc_session=False)
-
-            self.model = generate_unique_name(self.model)
-            modeler.add_layout_component_definition(file_path=model_path, name=self.model)
-            comp = modeler._insert_layout_component_instance(
-                name=self.name,
-                definition_name=self.model,
-                target_coordinate_system=self.target_coordinate_system,
-                parameter_mapping=None,
-                import_coordinate_systems=self.layout_coordinate_systems,
-                reference_coordinate_system=self.reference_coordinate_system,
-            )
-            for new_name in list(modeler.oeditor.Get3DComponentPartNames(comp)):
-                modeler._create_object(new_name)
-
-            udm_obj = modeler._create_user_defined_component(comp)
-            udm_obj.name = comp
-            self.name = comp
-
-            model_name = self.model
-
-        if comp is False:
-            raise ValueError(self.name, self.model, self.target_coordinate_system)
-
-        self._apply_arrange(hfss)
-        if self.sub_components:
-            self._assemble_sub_components(hfss, cs_prefix=model_name, version=version)
-
 
 class ECADComponent(MCADComponent):
-    """Describe an MCAD or ECAD component included in an MCAD assembly."""
+    """Describe an ECAD (layout) component included in an MCAD assembly.
+
+    Extends MCADComponent with ECAD-specific properties including layout
+    coordinate systems and library component management.
+
+    """
     component_type: COMPONENT_TYPE | None = Field(
         default="ecad", description="Type of component to insert into the assembly."
     )
@@ -446,10 +334,17 @@ class ECADComponent(MCADComponent):
     ) -> None:
         """Add 3D subcomponents from a model library.
 
+        Registers a library path and marks specific reference designators
+        (components) from the ECAD model to be assembled from a model library.
+
         Parameters
         ----------
-        library_path : str
+        library_path : str | Path, optional
             Path to the library folder containing ``model_library.toml``.
+            If not provided, must have been set on configure top level.
+        reference_designators : list[str], optional
+            List of reference designators from the ECAD model to include.
+            If not provided, no components are marked for assembly.
 
         """
         if library_path:
@@ -459,26 +354,6 @@ class ECADComponent(MCADComponent):
             temp = reference_designators if isinstance(reference_designators, list) else [reference_designators]
             self._mcad_component_from_library.extend(temp)
 
-
-        # models = read_toml(Path(library_path) / "model_library.toml")
-        #
-        # for comp_def, item in models.items():
-        #     if comp_def not in self._top_assembly._library_component_models:
-        #         path = str(Path(library_path) / item["model_path"])
-        #         self._top_assembly._library_component_models[comp_def] = path
-        #
-        # edb = Edb(self._top_assembly.layout_component_models[self.model])
-        # for name_def, comp_def in edb.definitions.components.items():
-        #     if name_def not in models:
-        #         continue
-        #     for comp in comp_def.components:
-        #         a3d_comp = self.add_sub_mcad_component(name=comp, model=name_def)
-        #         a3d_comp.password = models[name_def].get("password")
-        #         a3d_comp.use_pin_mapping = True
-        #         a3d_comp.placement_pin_mapping.reference_designator = comp
-        #         a3d_comp.placement_pin_mapping.pin_1_loc = models[name_def].get("pin_1_loc")
-        #         a3d_comp.placement_pin_mapping.pin_2_loc = models[name_def].get("pin_2_loc")
-        # edb.close()
 
 class CoordinateSystem(BaseModel):
     """Define a coordinate system entry for an MCAD assembly."""
@@ -498,9 +373,23 @@ class CoordinateSystem(BaseModel):
 
 
 class MCADAssembly(BaseModel):
-    """Represent the full MCAD assembly configuration consumed by the backend."""
+    """Represent the full MCAD assembly configuration consumed by the backend.
+
+    This model holds the complete configuration for an MCAD assembly including
+    coordinate systems, component models, and the hierarchy of MCAD/ECAD components.
+
+    """
     @property
     def sub_components(self):
+        """Return combined dictionary of all top-level components.
+
+        Returns
+        -------
+        dict[str, MCADComponent | ECADComponent]
+            Dictionary combining ECAD and MCAD sub-components, with ECAD taking
+            precedence in case of key collisions.
+
+        """
         temp = {}
         temp.update(self.ecad_sub_components)
         temp.update(self.mcad_sub_components)
@@ -539,6 +428,23 @@ class MCADAssembly(BaseModel):
     @model_validator(mode="before")
     @classmethod
     def preprocess(cls, data):
+        """Normalize legacy and new component formats for MCADAssembly.
+
+        Handles backward compatibility by merging legacy 'assembly' and
+        'sub_components' keys into separate 'mcad_sub_components' and
+        'ecad_sub_components' dictionaries based on component type.
+
+        Parameters
+        ----------
+        data : dict
+            Raw input data before model validation.
+
+        Returns
+        -------
+        dict
+            Normalized data with separated component types.
+
+        """
         legacy_1 = data.pop("assembly", {})
         legacy_2 = data.pop("sub_components", {})
         legacy_1.update(legacy_2)
@@ -552,18 +458,6 @@ class MCADAssembly(BaseModel):
             else:
                 data["ecad_sub_components"][i] = j
         return data
-
-
-    # @classmethod
-    # def _load(cls, data: dict) -> "MCADAssembly":
-    #     obj = cls(
-    #         coordinate_system=data.get("coordinate_system", {}),
-    #         component_models=data.get("component_models", {}),
-    #         layout_component_models=data.get("layout_component_models", {}),
-    #         sub_components={name: Component._load(name, comp) for name, comp in data.get("sub_components", {}).items()},
-    #     )
-    #     return obj
-
 
     def add_mcad_component_model(self, name: str, path: str):
         """Add component model."""
@@ -592,12 +486,24 @@ class MCADAssembly(BaseModel):
         return comp
 
     def add_model_library(self, library_path: str | Path):
-        """Add a model library path."""
+        """Add a model library path.
+
+        Parameters
+        ----------
+        library_path : str | Path
+            Path to the library folder containing ``model_library.toml``.
+
+        """
         self.model_libraries.append(str(library_path))
 
 
 class MCADAssemblyService:
-    """Manage the execution of an MCAD assembly inside HFSS."""
+    """Manage the execution of an MCAD assembly inside HFSS.
+
+    This service handles the preprocessing, staging, and assembly of an MCAD
+    assembly configuration into an active HFSS design.
+
+    """
 
     def __init__(
         self,
@@ -606,6 +512,20 @@ class MCADAssemblyService:
         model_dir: Path | None,
         hfss: Hfss | None,
     ):
+        """Initialize the MCAD assembly service.
+
+        Parameters
+        ----------
+        config : MCADAssembly
+            The assembly configuration to execute.
+        project_dir : Path
+            Output directory for the assembly project.
+        model_dir : Path, optional
+            Base directory for resolving relative model paths.
+        hfss : Hfss, optional
+            Active HFSS instance. If None, a new instance is created.
+
+        """
         self.config = config.model_copy(deep=True)
         self.project_dir = project_dir
         self.model_dir = model_dir
@@ -622,15 +542,41 @@ class MCADAssemblyService:
 
     @staticmethod
     def _resolve_model_path(path: str | Path, model_dir: Path | None) -> Path:
+        """Resolve a model path, handling both absolute and relative paths.
+
+        Parameters
+        ----------
+        path : str | Path
+            The model path to resolve.
+        model_dir : Path, optional
+            Base directory for relative path resolution.
+
+        Returns
+        -------
+        Path
+            Resolved absolute path to the model.
+
+        """
         source_path = Path(path)
         return source_path if source_path.is_absolute() else model_dir / source_path
 
     def execute(self):
+        """Execute the complete MCAD assembly workflow.
+
+        Orchestrates preprocessing, model staging, and assembly into HFSS.
+
+        """
         self.pre_process_config()
         self.stage_models()
         self.assemble()
 
     def pre_process_config(self):
+        """Preprocess the assembly configuration.
+
+        Elevates library paths, resolves ECAD component information from EDB files,
+        and auto-populates MCAD components from library definitions when enabled.
+
+        """
 
         all_ecad = get_all_ecads(self.config)
         # Elevates library path to MCADAssembly level so that it can be used to resolve component models.
@@ -727,7 +673,7 @@ class MCADAssemblyService:
         def assemble_sub_components(
                 cad: ECADComponent|MCADComponent,
                 cs_prefix: str | None = None,
-                ecad_com_info: list[EcadCompInfo] | None = None,
+                ecad_com_info: dict[str, EcadCompInfo] | None = None,
         ):
 
 
@@ -745,16 +691,18 @@ class MCADAssemblyService:
                     cad.arranges.append(
                         Arrange(operation="rotate", axis="Z", angle=f"{-np.degrees(angle_rad):.0f}deg"))
 
-                    comp_info = ecad_com_info[cad.placement_pin_mapping.reference_designator]
+                    refdes = cad.placement_pin_mapping.reference_designator
+                    if refdes and ecad_com_info:
+                        comp_info = ecad_com_info[refdes]
 
-                    if comp_info and comp_info.flip:
-                        cad.arranges.append(Arrange(operation="rotate", axis="X", angle="180deg"))
-                        cad.arranges.append(
-                            Arrange(operation="move", vector=[0, 0, f"{-comp_info.thickness_offset}meter"]))
-                        rotation = -comp_info.rotation_rad
-                    else:
-                        rotation = comp_info.rotation_rad
-                    cad.arranges.append(Arrange(operation="rotate", axis="Z", angle=f"{np.degrees(rotation):.0f}deg"))
+                        if comp_info and comp_info.flip:
+                            cad.arranges.append(Arrange(operation="rotate", axis="X", angle="180deg"))
+                            cad.arranges.append(
+                                Arrange(operation="move", vector=[0, 0, f"{-comp_info.thickness_offset}meter"]))
+                            rotation = -comp_info.rotation_rad
+                        else:
+                            rotation = comp_info.rotation_rad if comp_info else 0
+                        cad.arranges.append(Arrange(operation="rotate", axis="Z", angle=f"{np.degrees(rotation):.0f}deg"))
 
                 if cs_prefix:
                     cad.target_coordinate_system = f"{cs_prefix}_{cad.target_coordinate_system}"

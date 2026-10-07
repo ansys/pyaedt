@@ -24,6 +24,7 @@ Example 1, assembly RLC components on a PCB from the library in HFSS 3D
     pcb = top_assembly.add_sub_ecad_component(name="pcb", model="LimeSDR")
 
     pcb.add_sub_mcad_component_from_library(library_path=str(CUR_DIR / "models/a3d_library"))
+    pcb.assembly_all_from_library = True
 
     hfss = Hfss(version="2026.1")
     run(config_data=top_assembly.model_dump(), version="2026.1")

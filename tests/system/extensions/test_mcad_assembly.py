@@ -135,15 +135,16 @@ def test_backend_2(hfss_app, test_tmp_dir) -> None:
     cs = top_assembly.add_coordinate_system(name="GLOBAL_2")
     cs.origin = ["100mm", "0mm", "0mm"]
 
-    sub_comp = top_assembly.add_sub_mcad_component(name="case", model="case")
-    sub_comp.target_coordinate_system = "GLOBAL_2"
-    sub_comp.reference_coordinate_system = "GLOBAL_2"
+    box = top_assembly.add_sub_mcad_component(name="case", model="case")
+    box.target_coordinate_system = "GLOBAL_2"
+    box.reference_coordinate_system = "GLOBAL_2"
 
-    sub_comp_ = sub_comp.add_sub_ecad_component(name="pcb", model="pcb")
-    sub_comp_.target_coordinate_system = "Guiding_Pin"
-    sub_comp_.reference_coordinate_system = "H0_via_65"
+    pcb = box.add_sub_ecad_component(name="pcb", model="pcb")
+    pcb.target_coordinate_system = "Guiding_Pin"
+    pcb.reference_coordinate_system = "H0_via_65"
 
-    sub_comp_.add_sub_mcad_component_from_library(library_path=str(Path(test_tmp_dir) / "model_library"))
+    pcb.add_sub_mcad_component_from_library(library_path=str(Path(test_tmp_dir) / "model_library"))
+    pcb.assembly_all_from_library = True
 
     run(config_data=top_assembly.model_dump(), hfss=hfss_app, project_dir=test_tmp_dir)
     assert len(hfss_app.modeler.user_defined_component_names) == 8
