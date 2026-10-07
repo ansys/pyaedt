@@ -8770,8 +8770,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         rttbl_file : str or :class:`pathlib.Path`, optional
             Fresnel reflection or reflection/transmission coefficient table file.
             The default is ``None``, in which case perfect absorber is assigned.
-        name : str
+        name : str, optional
             Name of the boundary.
+            The default is ``None``, in which case the name starts with ``Fresnel_`` and
+            is then composed by the object(s) and/or face(s) selected.
 
         Returns
         -------
