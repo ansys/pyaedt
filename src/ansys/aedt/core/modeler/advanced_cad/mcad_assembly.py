@@ -246,10 +246,12 @@ class MCADComponent(BaseModel):
         data["ecad_sub_components"] = data.get("ecad_sub_components", {})
 
         for i, j in legacy_1.items():
-            if j.component_type == "mcad":
+            if j["component_type"] == "mcad":
+                j.pop("layout_coordinate_systems", None)
                 data["mcad_sub_components"][i] = j
             else:
                 data["ecad_sub_components"][i] = j
+
         return data
 
     def add_sub_mcad_component(self, name: str, model: str) -> MCADComponent:
@@ -413,7 +415,7 @@ class MCADAssembly(BaseModel):
     )
     model_libraries: list[str] = Field(
         default_factory=list,
-        description="Mapping of MCAD model library paths.",
+        description="Mapping of MCAD model library paths. Supports relative path to configure file.",
     )
 
     mcad_sub_components: dict[str, MCADComponent] = Field(
@@ -453,7 +455,8 @@ class MCADAssembly(BaseModel):
         data["ecad_sub_components"] = data.get("ecad_sub_components", {})
 
         for i, j in legacy_1.items():
-            if j.component_type == "mcad":
+            if j["component_type"] == "mcad":
+                j.pop("layout_coordinate_systems", None)
                 data["mcad_sub_components"][i] = j
             else:
                 data["ecad_sub_components"][i] = j

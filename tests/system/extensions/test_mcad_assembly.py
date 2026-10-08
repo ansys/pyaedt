@@ -31,7 +31,7 @@ import pytest
 
 from ansys.aedt.core import Hfss
 from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyBackend
-from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyFrontend
+from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyExtension
 from ansys.aedt.core.extensions.hfss.mcad_assembly import run
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.modeler.advanced_cad.mcad_assembly import MCADAssemblyService
@@ -115,7 +115,7 @@ def test_backend(mock_askopenfilename, hfss_app, test_tmp_dir) -> None:
     with open(config_file, "w") as f:
         json.dump(data.model_dump(), f, indent=4)
 
-    extension = MCADAssemblyFrontend(withdraw=True)
+    extension = MCADAssemblyExtension(withdraw=True)
     mock_askopenfilename.return_value = str(config_file)
     extension.root.nametowidget(".notebook.main.load").invoke()
 

@@ -25,17 +25,19 @@
 from __future__ import annotations
 
 import json
+import os
+from dataclasses import dataclass
 from pathlib import Path
-import tempfile
 import tkinter
 from tkinter import filedialog
 from tkinter import ttk
 from typing import Any
-from typing import cast
 
 import ansys.aedt.core
-from ansys.aedt.core.extensions.misc import ExtensionCommon
+from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import ExtensionHFSSCommon
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from ansys.aedt.core.modeler.advanced_cad.mcad_assembly import MCADAssembly
 from ansys.aedt.core.modeler.advanced_cad.mcad_assembly import MCADAssembly as MCADAssemblyBackend  # noqa: F401
 from ansys.aedt.core.modeler.advanced_cad.mcad_assembly import run
 
@@ -55,11 +57,27 @@ AEDT_PROCESS_ID = get_process_id()
 IS_STUDENT = is_student()
 """Flag indicating whether the student version is used."""
 
+# Extension batch arguments
+EXTENSION_DEFAULT_ARGUMENTS = {"config_file_path": ""}
+"""Default arguments for the extension."""
+EXTENSION_TITLE = "MCAD Assembly"
+"""Title displayed for the extension."""
 
-class MCADAssemblyFrontend(ExtensionHFSSCommon):
+@dataclass
+class MCADAssemblyExtensionData(ExtensionCommonData):
+    """Data class containing user input and computed data.
+
+    Examples
+    --------
+
+    """
+
+    config_file_path: str = EXTENSION_DEFAULT_ARGUMENTS["config_file_path"]
+
+
+class MCADAssemblyExtension(ExtensionHFSSCommon):
     """Provide MCAD assembly frontend."""
 
-    EXTENSION_TITLE = "MCAD Assembly"
     """Title displayed for the extension."""
     GRID_PARAMS = {"padx": 15, "pady": 10, "sticky": "nsew"}
     """Grid params."""
@@ -73,11 +91,12 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
     """Path to local."""
     config_data: dict = dict()
     """Value for config data."""
+    config_file_path: str = ""
 
     def __init__(self, withdraw: bool = False) -> None:
 
         super().__init__(
-            self.EXTENSION_TITLE,
+            EXTENSION_TITLE,
             withdraw=withdraw,
             add_custom_content=True,
             toggle_row=2,
@@ -89,12 +108,6 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
 
         Examples
         --------
-        >>> import tkinter
-        >>> from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyFrontend
-        >>> frontend = MCADAssemblyFrontend(withdraw=True)
-        >>> frame = tkinter.Frame(frontend.root)
-        >>> frontend.add_toggle_theme_button(frame)
-
         """
         button_frame = ttk.Frame(
             parent, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2, name="theme_button_frame"
@@ -129,9 +142,6 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
 
         Examples
         --------
-        >>> from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyFrontend
-        >>> extension = MCADAssemblyFrontend(withdraw=True)
-        >>> extension.add_extension_content()
 
         """
         self.root.geometry("700x600")
@@ -149,24 +159,13 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
         create_tab_main(self.tab_frame_main, self)
 
     def create_assembly(self):
-        app = ansys.aedt.core.Desktop(
-            new_desktop=False,
-            version=VERSION,
-            port=PORT,
-            aedt_process_id=AEDT_PROCESS_ID,
-            student_version=IS_STUDENT,
+        self.data = MCADAssemblyExtensionData(
+            config_file_path=self.config_file_path,
         )
-
-        active_project = app.active_project()
-        active_design = app.active_design()
-        project_name = active_project.GetName()
-        design_name = active_design.GetName()
-
-        hfss: Any = get_pyaedt_app(project_name, design_name)
-        run(self.config_data, model_dir=self.local_path, hfss=hfss)
+        self.root.destroy()
 
 # create main tab
-def create_tab_main(tab_frame: tkinter.Widget, master: MCADAssemblyFrontend) -> None:
+def create_tab_main(tab_frame: tkinter.Widget, master: MCADAssemblyExtension) -> None:
     """Create tab main."""
     tree = ttk.Treeview(tab_frame, name="tree")
     tree.pack(
@@ -186,7 +185,7 @@ def create_tab_main(tab_frame: tkinter.Widget, master: MCADAssemblyFrontend) -> 
     ).pack(anchor="w", padx=master.PACK_PARAMS["padx"], pady=master.PACK_PARAMS["pady"])
 
 
-def load_dict(tree: ttk.Treeview, master: MCADAssemblyFrontend) -> None:
+def load_dict(tree: ttk.Treeview, master: MCADAssemblyExtension) -> None:
     """Load dict."""
     file_path = filedialog.askopenfilename(
         title="Select Design",
@@ -195,6 +194,7 @@ def load_dict(tree: ttk.Treeview, master: MCADAssemblyFrontend) -> None:
     if not file_path:  # pragma: no cover
         return
     else:
+        master.config_file_path = file_path
         with open(file_path, "r") as f:
             data = json.load(f)
             local_path = Path(file_path)
@@ -230,18 +230,43 @@ def insert_items(tree: ttk.Treeview, parent: str, dictionary: dict | list | str 
         tree.insert(parent, "end", text=str(dictionary))
 
 
+def main(data: MCADAssemblyExtensionData) -> bool:
+    if not data.config_file_path:
+        raise AEDTRuntimeError("No assignment provided to the extension.")
 
-# end of create_tab_main function
+    app = ansys.aedt.core.Desktop(
+        new_desktop=False,
+        version=VERSION,
+        port=PORT,
+        aedt_process_id=AEDT_PROCESS_ID,
+        student_version=IS_STUDENT,
+    )
 
-# End of frontend
+    active_project = app.active_project()
+    active_design = app.active_design()
 
+    project_name = active_project.GetName()
+    design_name = active_design.GetName()
+
+    hfss: Any = get_pyaedt_app(project_name, design_name)
+
+    if hfss.design_type != "HFSS":
+        if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
+            app.release_desktop(False, False)
+        raise AEDTRuntimeError("Active design is not HFSS.")
+
+    config_file_path = data.config_file_path
+    json_text = Path(config_file_path).read_text()
+
+    data = MCADAssembly.model_validate_json(json_text)
+    run(data, model_dir=str(Path(config_file_path).parent), hfss=hfss)
 
 if __name__ == "__main__":  # pragma: no cover
-    args = get_arguments()
+    args = get_arguments(EXTENSION_DEFAULT_ARGUMENTS, EXTENSION_TITLE)
 
     if not args["is_batch"]:
-        temp = Path(tempfile.TemporaryDirectory(suffix=".ansys").name)
-        temp.mkdir()
-        extension: ExtensionCommon = MCADAssemblyFrontend(withdraw=False)
-        cast(Any, extension).working_directory = temp
+        extension = MCADAssemblyExtension(withdraw=False)
         tkinter.mainloop()
+
+        if isinstance(extension.data, MCADAssemblyExtensionData):
+            main(extension.data)
