@@ -304,18 +304,33 @@ class Analysis(Design, PyAedtBase):
 
     @property
     def optimetrics(self) -> Optimetrics:
+        """Optimetrics object.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.design_xploration.Optimetrics`
+            Optimetrics object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> o = hfss.optimetrics
+        >>> o.setup_names
+
+        """
         if not self._optimetrics:
             self._optimetrics = Optimetrics(self)
         return self._optimetrics
 
     @property
     def parametrics(self) -> dict[str, OptimetricsSetup]:
-        """Setups in the project.
+        """Optimetrics parametric setups in the design.
 
         Returns
         -------
-        dict[str, :class:`ansys.aedt.core.modules.design_xploration.Optimetrics`]
-            Parametric setups in the project.
+        dict[str, :class:`ansys.aedt.core.modules.design_xploration.OptimetricsSetup`]
+            Parametric setups in the design.
 
         Examples
         --------
@@ -324,29 +339,25 @@ class Analysis(Design, PyAedtBase):
         >>> hfss.parametrics
 
         """
-        if not self._optimetrics:
-            self._optimetrics = Optimetrics(self)
-        return self._optimetrics.parametric_setups
+        return self.optimetrics.parametric_setups
 
     @property
     def optimizations(self) -> dict[str, OptimetricsSetup]:
-        """Optimizations in the project.
+        """Optimetrics optimization setups in the design.
 
         Returns
         -------
-        dict[str, :class:`ansys.aedt.core.modules.design_xploration.OptimizationSetups`]
-            Parametric setups in the project.
+        dict[str, :class:`ansys.aedt.core.modules.design_xploration.OptimetricsSetup`]
+            Optimization setups in the design.
 
         Examples
         --------
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
-        >>> hfss.optimizations
+        >>> hfss.parametrics
 
         """
-        if not self._optimetrics:
-            self._optimetrics = Optimetrics(self)
-        return self._optimetrics.optimization_setups
+        return self.optimetrics.optimization_setups
 
     @property
     def Position(self) -> object:
