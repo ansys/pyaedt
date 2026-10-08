@@ -39,7 +39,11 @@ def test_main_selected_edb(mock_askopenfilename, test_tmp_dir, mock_hfss_app) ->
     mock_askopenfilename.return_value = str(config_file)
     extension.root.nametowidget(".notebook.main.load").invoke()
     assert extension.root.nametowidget(".notebook.main.tree").get_children()
-    extension.root.nametowidget(".theme_button_frame.run").invoke()
+    assert "add_toggle_theme_button" not in MCADAssemblyExtension.__dict__
+    theme_color = extension._get_root_theme()
+    extension.root.nametowidget(".theme_button_frame.theme_toggle_button").invoke()
+    assert extension._get_root_theme() != theme_color
+    extension.root.nametowidget(".run").invoke()
     assert extension.data.config_file_path == str(config_file)
 
 

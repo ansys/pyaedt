@@ -100,42 +100,8 @@ class MCADAssemblyExtension(ExtensionHFSSCommon):
             withdraw=withdraw,
             add_custom_content=True,
             toggle_row=2,
-            toggle_column=0,
+            toggle_column=1,
         )
-
-    def add_toggle_theme_button(self, parent: tkinter.Misc, toggle_row: int, toggle_column: int) -> None:
-        """Create a button to toggle between light and dark themes.
-
-        Examples
-        --------
-        """
-        button_frame = ttk.Frame(
-            parent, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2, name="theme_button_frame"
-        )
-        button_frame.pack(fill="both", expand=False, padx=5, pady=5)
-
-        ttk.Button(
-            button_frame,
-            width=10,
-            text="Run",
-            command=self.create_assembly,
-            style="PyAEDT.TButton",
-            name="run",
-        ).pack(anchor="w", side="left", padx=15, pady=10)
-
-        self._widgets["button_frame"] = button_frame
-
-        change_theme_button = ttk.Button(
-            button_frame,
-            width=10,
-            text="\u263d",
-            command=self.toggle_theme,
-            style="PyAEDT.TButton",
-            name="theme_toggle_button",
-        )
-        # change_theme_button.grid(row=0, column=0, **{"padx": 15, "pady": 10})
-        change_theme_button.pack(anchor="e", side="right", padx=15, pady=10)
-        self._widgets["change_theme_button"] = change_theme_button
 
     def add_extension_content(self) -> None:
         """Add custom content to the extension UI.
@@ -145,6 +111,9 @@ class MCADAssemblyExtension(ExtensionHFSSCommon):
 
         """
         self.root.geometry("700x600")
+        self.root.grid_rowconfigure(0, weight=1)
+        self.root.grid_columnconfigure(0, weight=1)
+        self.root.grid_columnconfigure(1, weight=1)
 
         menubar = tkinter.Menu(self.root)
         self.root.config(menu=menubar)
@@ -154,9 +123,18 @@ class MCADAssemblyExtension(ExtensionHFSSCommon):
 
         nb.add(self.tab_frame_main, text="Main")
 
-        nb.pack(fill="both", expand=True)
+        nb.grid(row=0, column=0, columnspan=2, sticky="nsew")
 
         create_tab_main(self.tab_frame_main, self)
+
+        ttk.Button(
+            self.root,
+            width=10,
+            text="Run",
+            command=self.create_assembly,
+            style="PyAEDT.TButton",
+            name="run",
+        ).grid(row=2, column=0, sticky="w", padx=15, pady=10)
 
     def create_assembly(self):
         self.data = MCADAssemblyExtensionData(
