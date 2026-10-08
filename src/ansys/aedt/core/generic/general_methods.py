@@ -1042,6 +1042,9 @@ def _get_pids_by_name_windows(image_name: str) -> list[int]:
         shell=False,
         encoding="mbcs",
         check=False,
+        # GUI hosts such as the STK plugin have no console, so inheriting their invalid
+        # stdin handle makes DuplicateHandle fail with "[WinError 6] The handle is invalid".
+        stdin=subprocess.DEVNULL,
         creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
     )  # nosec
 
