@@ -69,8 +69,8 @@ from ansys.aedt.core.modules.solve_setup import SetupQ3D
 from ansys.aedt.core.modules.solve_setup import SetupSBR
 
 if TYPE_CHECKING:
+    from ansys.aedt.core.generic.general_methods import SetupDict
     from ansys.aedt.core.modules.boundary.common import BoundaryObject
-    from ansys.aedt.core.modules.design_xploration import OptimetricsSetup
     from ansys.aedt.core.modules.material_lib import Materials
 
 
@@ -303,7 +303,7 @@ class Analysis(Design, PyAedtBase):
         return self._setups
 
     @property
-    def optimetrics(self) -> Optimetrics:
+    def optimetrics(self) -> SetupDict:
         """Optimetrics object.
 
         Returns
@@ -324,12 +324,12 @@ class Analysis(Design, PyAedtBase):
         return self._optimetrics
 
     @property
-    def parametrics(self) -> dict[str, OptimetricsSetup]:
+    def parametrics(self) -> SetupDict:
         """Optimetrics parametric setups in the design.
 
         Returns
         -------
-        dict[str, :class:`ansys.aedt.core.modules.design_xploration.OptimetricsSetup`]
+        :class:`ansys.aedt.core.generic.general_methods.SetupDict`
             Parametric setups in the design.
 
         Examples
@@ -342,12 +342,12 @@ class Analysis(Design, PyAedtBase):
         return self.optimetrics.parametric_setups
 
     @property
-    def optimizations(self) -> dict[str, OptimetricsSetup]:
+    def optimizations(self) -> SetupDict:
         """Optimetrics optimization setups in the design.
 
         Returns
         -------
-        dict[str, :class:`ansys.aedt.core.modules.design_xploration.OptimetricsSetup`]
+        :class:`ansys.aedt.core.generic.general_methods.SetupDict`
             Optimization setups in the design.
 
         Examples

@@ -2076,3 +2076,13 @@ def install_with_pip(
             subprocess.run(command, check=True)  # nosec
         except subprocess.CalledProcessError as e:  # nosec
             raise AEDTRuntimeError("An error occurred while installing with pip") from e
+
+
+class SetupDict(dict):
+    """Dictionary that supports accessing values by their insertion-order index."""
+
+    def __getitem__(self, item):
+        if type(item) is int:
+            return list(self.values())[item]
+        else:
+            return super().__getitem__(item)

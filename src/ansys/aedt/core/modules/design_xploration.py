@@ -32,6 +32,7 @@ from ansys.aedt.core.application import _get_obj_data
 from ansys.aedt.core.application import _has_get_obj_data
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _arg2dict
+from ansys.aedt.core.generic.general_methods import SetupDict
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.props import Props as SetupProps
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
@@ -44,16 +45,6 @@ from ansys.aedt.core.modules.optimetrics_templates import defaultstatisticalSetu
 
 if TYPE_CHECKING:
     pass
-
-
-class SetupDict(dict):
-    """Dictionary that supports accessing values by their insertion-order index."""
-
-    def __getitem__(self, item):
-        if type(item) is int:
-            return list(self.values())[item]
-        else:
-            return super().__getitem__(item)
 
 
 class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
@@ -246,6 +237,7 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
                     for setup_name in setups_data:
                         if isinstance(setups_data[setup_name], dict) and setup_name == self.name:
                             self._legacy_props = SetupProps(self, setups_data[setup_name])
+                            break
                 except Exception:
                     self._legacy_props = SetupProps(self, {})
                     self._app.logger.debug(
@@ -318,7 +310,7 @@ class Optimetrics(PyAedtBase):
         return []
 
     @property
-    def setups(self) -> dict[str, OptimetricsSetup]:
+    def setups(self) -> SetupDict:
         """Return the available setups.
 
         Returns
@@ -333,12 +325,12 @@ class Optimetrics(PyAedtBase):
         return setups
 
     @property
-    def parametric_setups(self) -> dict[str, OptimetricsSetup]:
+    def parametric_setups(self) -> SetupDict:
         """Return the available parametric setups.
 
         Returns
         -------
-        dict[str, :class:`ansys.aedt.core.modules.design_xploration.OptimetricsSetup`]
+        :class:`ansys.aedt.core.generic.general_methods.SetupDict`
             List of optimetrics setup object.
 
         """
@@ -350,12 +342,12 @@ class Optimetrics(PyAedtBase):
         return setups
 
     @property
-    def optimization_setups(self) -> dict[str, OptimetricsSetup]:
+    def optimization_setups(self) -> SetupDict:
         """Return the available optimization setups.
 
         Returns
         -------
-        dict[str, :class:`ansys.aedt.core.modules.design_xploration.OptimetricsSetup`]
+        :class:`ansys.aedt.core.generic.general_methods.SetupDict`
             List of optimetrics setup object.
 
         """
