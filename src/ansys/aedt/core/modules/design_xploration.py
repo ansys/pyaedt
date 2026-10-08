@@ -256,9 +256,9 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         current_props = dict(self.props) if self._legacy_props else {}
         current_props.update(value)
 
-        self._legacy_props = SetupProps(self, current_props)
+        props = SetupProps(self, current_props)
 
-        self.update()
+        self.update(props)
 
     @property
     def type(self) -> str | None:
@@ -299,18 +299,20 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
 
         """
         if props is None:
-            props = self.props
+            props = dict(self.props)
+
+        if self.type == "OptiParametric" and "Sweep Operations" in props and len(props["Sweep Operations"]) == 3:
+            props[8] = ["NAME:Sweep Operations"]
+            for variation in props["Sweep Operations"].get("add", []):
+                props[8].append("add:=")
+                props[8].append(variation)
 
         arg = ["NAME:" + self.name]
         _dict2arg(props, arg)
 
-        if self.type == "OptiParametric" and len(arg[8]) == 3:
-            arg[8] = ["NAME:Sweep Operations"]
-            for variation in props["Sweep Operations"].get("add", []):
-                arg[8].append("add:=")
-                arg[8].append(variation)
-
         self.ooptimetrics.EditSetup(self.name, arg)
+
+        self._legacy_props = props
         return True
 
 
