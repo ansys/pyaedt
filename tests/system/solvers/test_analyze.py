@@ -345,7 +345,8 @@ def test_hfss_export_results(hfss_app, test_tmp_dir) -> None:
     assert not fld_file2.exists()
 
     hfss_app.variable_manager.set_variable(name="dummy", expression=1, is_post_processing=True)
-    hfss_app.parametrics.add(variable="dummy", start_point=0, end_point=1, step=2)
+    # hfss_app.parametrics.add(variable="dummy", start_point=0, end_point=1, step=2)
+    hfss_app.optimetrics.add_parametric(variable="dummy", start_point=0, end_point=1, step=2)
     assert hfss_app.export_touchstone_on_completion(export=False)
     assert hfss_app.export_touchstone_on_completion(export=True)
 
