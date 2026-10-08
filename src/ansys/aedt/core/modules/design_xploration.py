@@ -279,8 +279,9 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         """
         if not self._setup_type:
             app_type = None
-            if "GetObjType" in dir(self._child_object):
-                app_type = self._child_object.GetObjType()
+            child_object = self._child_object
+            if "GetObjType" in dir(child_object):
+                app_type = child_object.GetObjType()
             elif "SetupType" in self.props:
                 app_type = self.props["SetupType"]
             self._setup_type = app_type
@@ -676,6 +677,9 @@ class Optimetrics(PyAedtBase):
         self._app: Any = app
         self.ooptimetrics = self._app.ooptimetrics
         self.logger = self._app.logger
+
+        self.__setups = SetupDict()
+
         app.logger.info_timer("Optimetrics class has been initialized!")
 
     @pyaedt_function_handler()
@@ -722,10 +726,10 @@ class Optimetrics(PyAedtBase):
             Optimetrics setup object.
 
         """
-        setups = SetupDict()
         for setup_name in self.setup_names:
-            setups[setup_name] = OptimetricsSetup(app=self, name=setup_name, props={})
-        return setups
+            if setup_name not in self.__setups:
+                self.__setups[setup_name] = OptimetricsSetup(app=self, name=setup_name, props={})
+        return self.__setups
 
     @property
     def parametric_setups(self) -> SetupDict:
