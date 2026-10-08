@@ -47,11 +47,13 @@ def hfss_app(add_app):
     app.close_project(app.project_name, save=False)
 
 
-def get_test_data(test_folder:Path) -> MCADAssemblyBackend:
+def get_test_data(test_folder: Path) -> MCADAssemblyBackend:
 
     top_assembly = MCADAssemblyBackend()
-    top_assembly.add_mcad_component_model(name="case", path= str(test_folder / "Chassi.a3dcomp"))
-    top_assembly.add_mcad_component_model(name="cap0402", path=str(test_folder / "model_library/Capacitor_220uF_HFSS.a3dcomp"))
+    top_assembly.add_mcad_component_model(name="case", path=str(test_folder / "Chassi.a3dcomp"))
+    top_assembly.add_mcad_component_model(
+        name="cap0402", path=str(test_folder / "model_library/Capacitor_220uF_HFSS.a3dcomp")
+    )
     top_assembly.add_ecad_component_model(name="pcb", path=str(test_folder / "DCDC-Converter-App_main.aedb"))
 
     cs = top_assembly.add_coordinate_system(name="GLOBAL_2")

@@ -23,20 +23,14 @@
 # SOFTWARE.
 
 import json
-from unittest.mock import Mock
 from unittest.mock import patch
 
-from ansys.aedt.core.modeler.advanced_cad.mcad_assembly import MCADAssembly
 from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyExtension
-from tests.conftest import test_tmp_dir
+from ansys.aedt.core.modeler.advanced_cad.mcad_assembly import MCADAssembly
 
 
 @patch("tkinter.filedialog.askopenfilename")
-def test_main_selected_edb(
-        mock_askopenfilename,
-        test_tmp_dir,
-        mock_hfss_app
-) -> None:
+def test_main_selected_edb(mock_askopenfilename, test_tmp_dir, mock_hfss_app) -> None:
     config_file = test_tmp_dir / "config.json"
     with open(config_file, "w") as f:
         json.dump({}, f, indent=4)
@@ -48,19 +42,16 @@ def test_main_selected_edb(
     extension.root.nametowidget(".theme_button_frame.run").invoke()
     assert extension.data.config_file_path == str(config_file)
 
+
 def test_config_model_dump(test_tmp_dir):
     # Initial the configuration class
     config = MCADAssembly()
 
     # Add chassis model path
-    config.add_mcad_component_model(
-        name="chassis", path=str(test_tmp_dir / "models/Chassi.a3dcomp")
-    )
+    config.add_mcad_component_model(name="chassis", path=str(test_tmp_dir / "models/Chassi.a3dcomp"))
 
     # Add layout component path
-    config.add_ecad_component_model(
-        name="pcb", path=str(test_tmp_dir / "models/DCDC-Converter-App_main.aedbcomp")
-    )
+    config.add_ecad_component_model(name="pcb", path=str(test_tmp_dir / "models/DCDC-Converter-App_main.aedbcomp"))
 
     # Add a coordinate system to place the chassis.
     cs = config.add_coordinate_system(name="GLOBAL_2")
@@ -86,19 +77,19 @@ def test_config_model_dump(test_tmp_dir):
 
     # Verify model dump structure and content
     dumped = config.model_dump(exclude_none=True)
-    
+
     # Verify top-level structure
     assert "coordinate_system" in dumped
     assert "GLOBAL_2" in dumped["coordinate_system"]
     assert dumped["coordinate_system"]["GLOBAL_2"]["origin"] == ["100mm", "0mm", "0mm"]
     assert dumped["coordinate_system"]["GLOBAL_2"]["reference_coordinate_system"] == "Global"
-    
+
     # Verify component models
     assert "ecad_component_models" in dumped
     assert "pcb" in dumped["ecad_component_models"]
     assert "mcad_component_models" in dumped
     assert "chassis" in dumped["mcad_component_models"]
-    
+
     # Verify MCAD sub-components structure
     assert "mcad_sub_components" in dumped
     assert "box" in dumped["mcad_sub_components"]
@@ -107,7 +98,7 @@ def test_config_model_dump(test_tmp_dir):
     assert box_dump["model"] == "chassis"
     assert box_dump["target_coordinate_system"] == "GLOBAL_2"
     assert box_dump["reference_coordinate_system"] == "GLOBAL_2"
-    
+
     # Verify ECAD sub-components structure
     assert "ecad_sub_components" in box_dump
     assert "pcb" in box_dump["ecad_sub_components"]
@@ -117,7 +108,7 @@ def test_config_model_dump(test_tmp_dir):
     assert pcb_dump["target_coordinate_system"] == "Guiding_Pin"
     assert pcb_dump["reference_coordinate_system"] == "H0_via_65"
     assert pcb_dump["layout_coordinate_systems"] == ["H0_via_65"]
-    
+
     # Verify public fields are included in the dump
     assert "model_libraries" in pcb_dump, "model_libraries should be in serialized output"
     assert pcb_dump["model_libraries"] == [library_path]

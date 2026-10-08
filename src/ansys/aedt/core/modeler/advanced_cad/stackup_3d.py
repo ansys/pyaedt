@@ -1216,7 +1216,9 @@ class Padstack(PyAedtBase):
         layer_name = None
         for layer_name, layer in self._stackup.stackup_layers.items():
             if self._padstacks_by_layer or layer.type != "dielectric":
-                self._padstacks_by_layer[layer_name] = PadstackLayer(self, layer_name, layer.lower_elevation, layer.thickness)
+                self._padstacks_by_layer[layer_name] = PadstackLayer(
+                    self, layer_name, layer.lower_elevation, layer.thickness
+                )
         if layer and layer.type == "dielectric":
             del self._padstacks_by_layer[layer_name]
         self._padstacks_material = material

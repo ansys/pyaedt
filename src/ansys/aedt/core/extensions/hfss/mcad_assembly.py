@@ -24,9 +24,9 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 import json
 import os
-from dataclasses import dataclass
 from pathlib import Path
 import tkinter
 from tkinter import filedialog
@@ -34,19 +34,18 @@ from tkinter import ttk
 from typing import Any
 
 import ansys.aedt.core
+from ansys.aedt.core import get_pyaedt_app
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import ExtensionHFSSCommon
-from ansys.aedt.core.internal.errors import AEDTRuntimeError
-from ansys.aedt.core.modeler.advanced_cad.mcad_assembly import MCADAssembly
-from ansys.aedt.core.modeler.advanced_cad.mcad_assembly import MCADAssembly as MCADAssemblyBackend  # noqa: F401
-from ansys.aedt.core.modeler.advanced_cad.mcad_assembly import run
-
-from ansys.aedt.core import get_pyaedt_app
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from ansys.aedt.core.modeler.advanced_cad.mcad_assembly import MCADAssembly
+from ansys.aedt.core.modeler.advanced_cad.mcad_assembly import MCADAssembly as MCADAssemblyBackend  # noqa: F401
+from ansys.aedt.core.modeler.advanced_cad.mcad_assembly import run
 
 PORT = get_port()
 """Port used by the extension."""
@@ -62,6 +61,7 @@ EXTENSION_DEFAULT_ARGUMENTS = {"config_file_path": ""}
 """Default arguments for the extension."""
 EXTENSION_TITLE = "MCAD Assembly"
 """Title displayed for the extension."""
+
 
 @dataclass
 class MCADAssemblyExtensionData(ExtensionCommonData):
@@ -164,6 +164,7 @@ class MCADAssemblyExtension(ExtensionHFSSCommon):
         )
         self.root.destroy()
 
+
 # create main tab
 def create_tab_main(tab_frame: tkinter.Widget, master: MCADAssemblyExtension) -> None:
     """Create tab main."""
@@ -260,6 +261,7 @@ def main(data: MCADAssemblyExtensionData) -> bool:
 
     data = MCADAssembly.model_validate_json(json_text)
     run(data, model_dir=str(Path(config_file_path).parent), hfss=hfss)
+
 
 if __name__ == "__main__":  # pragma: no cover
     args = get_arguments(EXTENSION_DEFAULT_ARGUMENTS, EXTENSION_TITLE)

@@ -17,9 +17,13 @@ Example 1, assembly RLC components on a PCB in HFSS 3D
     # Build the top-level ECAD/MCAD assembly definition.
     top_assembly = MCADAssembly()
     # Register the PCB database that will be used as the ECAD source.
-    top_assembly.add_ecad_component_model(name="LimeSDR", path=str(CUR_DIR / "models/edb/LimeSDR-USB_1v4s_analog.aedb"))
+    top_assembly.add_ecad_component_model(
+        name="LimeSDR", path=str(CUR_DIR / "models/edb/LimeSDR-USB_1v4s_analog.aedb")
+    )
     # Register the mechanical component that will be placed on the PCB.
-    top_assembly.add_mcad_component_model(name="cap0402", path=str(CUR_DIR / "models/a3d_library/CAP0402_100nF_26R1.a3dcomp"))
+    top_assembly.add_mcad_component_model(
+        name="cap0402", path=str(CUR_DIR / "models/a3d_library/CAP0402_100nF_26R1.a3dcomp")
+    )
 
     # Add the board instance to the assembly using the registered ECAD model.
     pcb = top_assembly.add_sub_ecad_component(name="pcb", model="LimeSDR")
@@ -53,15 +57,18 @@ Example 2, assembly RLC components on a PCB from the library in HFSS 3D
     from ansys.aedt.core.modeler.advanced_cad.mcad_assembly import run
     from ansys.aedt.core.modeler.advanced_cad.mcad_assembly import MCADAssembly
 
-
     CUR_DIR = Path(__file__).resolve().parent
 
     top_assembly = MCADAssembly()
-    top_assembly.add_ecad_component_model(name="LimeSDR", path=str(CUR_DIR / "models/edb/LimeSDR-USB_1v4s_analog.aedb"))
+    top_assembly.add_ecad_component_model(
+        name="LimeSDR", path=str(CUR_DIR / "models/edb/LimeSDR-USB_1v4s_analog.aedb")
+    )
 
     pcb = top_assembly.add_sub_ecad_component(name="pcb", model="LimeSDR")
 
-    pcb.add_sub_mcad_component_from_library(library_path=str(CUR_DIR / "models/a3d_library"))
+    pcb.add_sub_mcad_component_from_library(
+        library_path=str(CUR_DIR / "models/a3d_library")
+    )
     pcb.assembly_all_from_library = True
 
     hfss = Hfss(version="2026.1")
@@ -92,12 +99,12 @@ Example 3, assemble a PCB into a chassis
 
     # Add chassis model path
     config.add_mcad_component_model(
-        name="chassis", path= str(CUR_DIR / "models/Chassi.a3dcomp")
+        name="chassis", path=str(CUR_DIR / "models/Chassi.a3dcomp")
     )
 
     # Add layout component path
     config.add_ecad_component_model(
-        name="pcb", path= str(CUR_DIR / "models/DCDC-Converter-App_main.aedbcomp")
+        name="pcb", path=str(CUR_DIR / "models/DCDC-Converter-App_main.aedbcomp")
     )
 
     # Add a coordinate system to place the chassis.

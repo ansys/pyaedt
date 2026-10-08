@@ -32,11 +32,12 @@ from typing import TYPE_CHECKING
 from typing import Literal
 
 import numpy as np
-from pydantic import AliasChoices, model_validator
+from pydantic import AliasChoices
 from pydantic import BaseModel
 from pydantic import ConfigDict
 from pydantic import Field
 from pydantic import PrivateAttr
+from pydantic import model_validator
 from pyedb import Edb
 
 import ansys.aedt.core
@@ -55,7 +56,7 @@ CONFIG_DICT = ConfigDict(extra="forbid", validate_assignment=True, populate_by_n
 OPERATIONS = Literal["move", "rotate"]
 
 
-def get_all_ecads(cad: MCADAssembly| MCADComponent | ECADComponent) -> list[ECADComponent]:
+def get_all_ecads(cad: MCADAssembly | MCADComponent | ECADComponent) -> list[ECADComponent]:
     """Recursively collect all ECAD components from an assembly or component tree.
 
     Parameters
@@ -119,22 +120,19 @@ class PlacementPinMapping(BaseModel):
         default=None, description="Location of pin 2 in the 3D component."
     )
 
+
 class EcadCompInfo(BaseModel):
     """Store resolved layout pin mapping data for a placed component. Internal use only."""
 
     model_config = CONFIG_DICT
 
-    refdes: str | None = Field(
-        default=None, description="Reference designator of the resolved layout component."
-    )
+    refdes: str | None = Field(default=None, description="Reference designator of the resolved layout component.")
     part_name: str | None = Field(default=None, description="Name of the part of the component.")
     cs_name: str | None = Field(default=None, description="Coordinate system created for the mapped component.")
     pin1_location: tuple[str | int | float, str | int | float] | None = Field(
         default=None, description="XY location of the first pin in the layout component."
     )
-    flip: bool | None = Field(
-        default=False, description="Whether the component must be flipped during placement."
-    )
+    flip: bool | None = Field(default=False, description="Whether the component must be flipped during placement.")
     thickness_offset: float | None = Field(
         default=None, description="Stackup thickness offset used when placing a flipped component."
     )
@@ -312,6 +310,7 @@ class ECADComponent(MCADComponent):
     coordinate systems and library component management.
 
     """
+
     component_type: COMPONENT_TYPE | None = Field(
         default="ecad", description="Type of component to insert into the assembly."
     )
@@ -330,9 +329,9 @@ class ECADComponent(MCADComponent):
     _mcad_component_from_library: list[str] = PrivateAttr(default_factory=list)
 
     def add_sub_mcad_component_from_library(
-            self,
-            library_path:str|Path|None=None,
-            reference_designators:list[str] | None=None,
+        self,
+        library_path: str | Path | None = None,
+        reference_designators: list[str] | None = None,
     ) -> None:
         """Add 3D subcomponents from a model library.
 
@@ -381,6 +380,7 @@ class MCADAssembly(BaseModel):
     coordinate systems, component models, and the hierarchy of MCAD/ECAD components.
 
     """
+
     @property
     def sub_components(self):
         """Return combined dictionary of all top-level components.
@@ -542,7 +542,6 @@ class MCADAssemblyService:
 
         self.version = self.hfss.desktop_class.aedt_version_id if self.hfss else None
 
-
     @staticmethod
     def _resolve_model_path(path: str | Path, model_dir: Path | None) -> Path:
         """Resolve a model path, handling both absolute and relative paths.
@@ -580,7 +579,6 @@ class MCADAssemblyService:
         and auto-populates MCAD components from library definitions when enabled.
 
         """
-
         all_ecad = get_all_ecads(self.config)
         # Elevates library path to MCADAssembly level so that it can be used to resolve component models.
         for i in all_ecad:
@@ -599,9 +597,11 @@ class MCADAssemblyService:
             if ecad.assembly_all_from_library:
                 edb_components = edb.components.instances
             else:
-                edb_components = {ref: j for ref, j in edb.components.instances.items() if ref in ecad._mcad_component_from_library}
+                edb_components = {
+                    ref: j for ref, j in edb.components.instances.items() if ref in ecad._mcad_component_from_library
+                }
             for ref, obj in edb_components.items():
-                ecad_comp_info = EcadCompInfo(refdes=ref,cs_name=None)
+                ecad_comp_info = EcadCompInfo(refdes=ref, cs_name=None)
                 pins = obj.pins
                 pin_names = list(pins.keys())
                 p1_name = sorted(pin_names)[0]
@@ -646,10 +646,8 @@ class MCADAssemblyService:
                     c.placement_pin_mapping.pin_1_loc = model_info.get("pin_1_loc")
                     c.placement_pin_mapping.pin_2_loc = model_info.get("pin_2_loc")
 
-
     def stage_models(self) -> None:
         """Stage model files into the run-specific working directory."""
-
         for name, path in self._runtime_ecad_models.items():
             source_path = self._resolve_model_path(path, self.model_dir)
             if source_path.suffix == ".aedb":
@@ -674,9 +672,9 @@ class MCADAssemblyService:
         temp = self.config.sub_components
 
         def assemble_sub_components(
-                cad: ECADComponent|MCADComponent,
-                ecad_com_info: dict[str, EcadCompInfo],
-                cs_prefix: str | None = None,
+            cad: ECADComponent | MCADComponent,
+            ecad_com_info: dict[str, EcadCompInfo],
+            cs_prefix: str | None = None,
         ):
             if cad.component_type == "mcad":
                 if cad.use_pin_mapping:
@@ -689,8 +687,7 @@ class MCADAssemblyService:
                         angle_rad = np.arctan2(dy, dx)
                     else:
                         angle_rad = 0
-                    cad.arranges.append(
-                        Arrange(operation="rotate", axis="Z", angle=f"{-np.degrees(angle_rad):.0f}deg"))
+                    cad.arranges.append(Arrange(operation="rotate", axis="Z", angle=f"{-np.degrees(angle_rad):.0f}deg"))
 
                     refdes = cad.placement_pin_mapping.reference_designator
                     if refdes in ecad_com_info:
@@ -699,11 +696,14 @@ class MCADAssemblyService:
                         if comp_info and comp_info.flip:
                             cad.arranges.append(Arrange(operation="rotate", axis="X", angle="180deg"))
                             cad.arranges.append(
-                                Arrange(operation="move", vector=[0, 0, f"{-comp_info.thickness_offset}meter"]))
+                                Arrange(operation="move", vector=[0, 0, f"{-comp_info.thickness_offset}meter"])
+                            )
                             rotation = -comp_info.rotation_rad
                         else:
                             rotation = comp_info.rotation_rad if comp_info else 0
-                        cad.arranges.append(Arrange(operation="rotate", axis="Z", angle=f"{np.degrees(rotation):.0f}deg"))
+                        cad.arranges.append(
+                            Arrange(operation="rotate", axis="Z", angle=f"{np.degrees(rotation):.0f}deg")
+                        )
 
                 if cs_prefix:
                     cad.target_coordinate_system = f"{cs_prefix}_{cad.target_coordinate_system}"
@@ -719,7 +719,6 @@ class MCADAssemblyService:
                 )
                 model_name = None
             else:
-
                 model_path = self._runtime_ecad_models[cad.model]
                 cad.model = generate_unique_name(cad.model)
 
@@ -780,8 +779,10 @@ class MCADAssemblyService:
                             [
                                 "NAME:Geometry3DCmdTab",
                                 ["NAME:PropServers", f"{cad.name}:Rotate:{cad._rotate_index}"],
-                                ["NAME:ChangedProps",
-                                 ["NAME:Coordinate System", "Value:=", cad.target_coordinate_system]],
+                                [
+                                    "NAME:ChangedProps",
+                                    ["NAME:Coordinate System", "Value:=", cad.target_coordinate_system],
+                                ],
                             ],
                         ]
                     )
@@ -804,7 +805,7 @@ def run(
     port: int = None,
     aedt_process_id: int = None,
     student_version: bool = False,
-    hfss: Hfss=None,
+    hfss: Hfss = None,
 ):
     """Build an MCAD assembly in HFSS from a configuration.
 
