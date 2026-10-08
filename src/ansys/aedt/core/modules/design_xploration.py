@@ -32,6 +32,7 @@ from ansys.aedt.core.application import _get_obj_data
 from ansys.aedt.core.application import _has_get_obj_data
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _arg2dict
+from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import SetupDict
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.props import Props as SetupProps
@@ -88,7 +89,11 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         self._name = name
         self._is_new_setup = is_new_setup
 
+        # GetObjData is available for some objects in 2026R1
         self._has_getobject = _has_get_obj_data(self._child_object)
+
+        # Optimetrics setup type
+        self._type = None
 
     @property
     def _child_object(self) -> object | None:
@@ -234,10 +239,9 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
             else:
                 try:
                     setups_data = self._app.design_properties["Optimetrics"]["OptimetricsSetups"]
-                    for setup_name in setups_data:
-                        if isinstance(setups_data[setup_name], dict) and setup_name == self.name:
-                            self._legacy_props = SetupProps(self, setups_data[setup_name])
-                            break
+                    if self.name in setups_data:
+                        self._legacy_props = SetupProps(self, setups_data[self.name])
+
                 except Exception:
                     self._legacy_props = SetupProps(self, {})
                     self._app.logger.debug(
@@ -255,6 +259,59 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         self._legacy_props = SetupProps(self, current_props)
 
         self.update()
+
+    @property
+    def type(self) -> str | None:
+        """Retrieve type.
+
+        Returns
+        -------
+        str
+            Type of the optimetrics setup.
+
+        """
+        if not self._type:
+            app_type = None
+            if "GetObjType" in dir(self._child_object):
+                app_type = self._child_object.GetObjType()
+            elif "SetupType" in self.props:
+                app_type = self.props["SetupType"]
+            self._type = app_type
+        return self._type
+
+    @pyaedt_function_handler()
+    def update(self, props: dict | None = None) -> bool:
+        """Update the setup.
+
+        Parameters
+        ----------
+        props : dict, optional
+            New properties to update. The  default is ``None``, in which case it uses the current properties.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.EditSetup
+
+        """
+        if props is None:
+            props = self.props
+
+        arg = ["NAME:" + self.name]
+        _dict2arg(props, arg)
+
+        if self.type == "OptiParametric" and len(arg[8]) == 3:
+            arg[8] = ["NAME:Sweep Operations"]
+            for variation in props["Sweep Operations"].get("add", []):
+                arg[8].append("add:=")
+                arg[8].append(variation)
+
+        self.ooptimetrics.EditSetup(self.name, arg)
+        return True
 
 
 class Optimetrics(PyAedtBase):
@@ -291,7 +348,7 @@ class Optimetrics(PyAedtBase):
 
         """
         if name in self.setup_names:
-            setup_selected = [setup for setup in self.setups if setup.name == name]
+            setup_selected = [setup for setup_name, setup in self.setups.items() if setup_name == name]
             return setup_selected[0]
         return None
 
@@ -315,7 +372,7 @@ class Optimetrics(PyAedtBase):
 
         Returns
         -------
-        dict[str, :class:`ansys.aedt.core.modules.design_xploration.OptimetricsSetup`]
+        :class:`ansys.aedt.core.generic.general_methods.SetupDict`
             Optimetrics setup object.
 
         """
@@ -336,8 +393,7 @@ class Optimetrics(PyAedtBase):
         """
         setups = SetupDict()
         for name, setup in self.setups.items():
-            setup_props = dict(setup.props)
-            if "SetupType" in setup_props and setup_props["SetupType"] == "OptiParametric":
+            if setup.type and setup.type == "OptiParametric":
                 setups[name] = setup
         return setups
 
@@ -353,8 +409,7 @@ class Optimetrics(PyAedtBase):
         """
         setups = SetupDict()
         for name, setup in self.setups.items():
-            setup_props = dict(setup.props)
-            if "SetupType" in setup_props and setup_props["SetupType"] in [
+            if setup.type and setup.type in [
                 "OptiOptimization",
                 "OptiDXDOE",
                 "OptiDesignExplorer",
@@ -364,4 +419,5 @@ class Optimetrics(PyAedtBase):
                 "OptiStatistical",
             ]:
                 setups[name] = setup
+
         return setups

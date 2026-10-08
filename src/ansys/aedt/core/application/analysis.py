@@ -303,7 +303,7 @@ class Analysis(Design, PyAedtBase):
         return self._setups
 
     @property
-    def optimetrics(self) -> SetupDict:
+    def optimetrics(self) -> Optimetrics:
         """Optimetrics object.
 
         Returns
