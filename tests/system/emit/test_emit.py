@@ -1825,7 +1825,7 @@ def test_protection_filtering(interference):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2022.1", reason="Skipped on versions earlier than 2021.2")
-#@pytest.mark.skipif(True, reason="Test currently failings, need to investigate.")
+# @pytest.mark.skipif(True, reason="Test currently failings, need to investigate.")
 def test_couplings_1(cell_phone):
     links = cell_phone.couplings.linkable_design_names
     assert len(links) == 0
@@ -1857,62 +1857,72 @@ def test_couplings_1(cell_phone):
             break
 
     assert coupling_link is not None
-    assert coupling_link.ports == ["(undefined)", 
-                                   "(undefined)", 
-                                   "(undefined)", 
-                                   "(undefined)", 
-                                   "(undefined)",
-                                   "(undefined)", 
-                                   "(undefined)", 
-                                   "(undefined)", 
-                                   "(undefined)"]  # coupling link has 9 ports
+    assert coupling_link.ports == [
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+    ]  # coupling link has 9 ports
     # test setting the port map with AntennaNodes
     coupling_link.ports = [gps_ant, wifi_ant]
-    assert coupling_link.ports == ["NODE-*-Scene-*-GPS", 
-                                   "NODE-*-Scene-*-WiFi", 
-                                   "(undefined)", 
-                                   "(undefined)", 
-                                   "(undefined)",
-                                   "(undefined)", 
-                                   "(undefined)", 
-                                   "(undefined)", 
-                                   "(undefined)"]
+    assert coupling_link.ports == [
+        "NODE-*-Scene-*-GPS",
+        "NODE-*-Scene-*-WiFi",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+    ]
 
     # set the antennas with short names
     coupling_link.ports = "Cellular|GPS"
-    assert coupling_link.ports == ["NODE-*-Scene-*-Cellular", 
-                                   "NODE-*-Scene-*-GPS", 
-                                   "(undefined)", 
-                                   "(undefined)", 
-                                   "(undefined)",
-                                   "(undefined)", 
-                                   "(undefined)", 
-                                   "(undefined)", 
-                                   "(undefined)"]
+    assert coupling_link.ports == [
+        "NODE-*-Scene-*-Cellular",
+        "NODE-*-Scene-*-GPS",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+    ]
 
     # set the antennas with full node names
     coupling_link.ports = "NODE-*-Scene-*-GPS|NODE-*-Scene-*-WiFi"
-    assert coupling_link.ports == ["NODE-*-Scene-*-GPS", 
-                                   "NODE-*-Scene-*-WiFi", 
-                                   "(undefined)", 
-                                   "(undefined)", 
-                                   "(undefined)",
-                                   "(undefined)", 
-                                   "(undefined)", 
-                                   "(undefined)", 
-                                   "(undefined)"]
+    assert coupling_link.ports == [
+        "NODE-*-Scene-*-GPS",
+        "NODE-*-Scene-*-WiFi",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+    ]
 
     # set the antennas with a list of short names
     coupling_link.ports = ["Cellular", "GPS"]
-    assert coupling_link.ports == ["NODE-*-Scene-*-Cellular", 
-                                   "NODE-*-Scene-*-GPS", 
-                                   "(undefined)", 
-                                   "(undefined)", 
-                                   "(undefined)",
-                                   "(undefined)", 
-                                   "(undefined)", 
-                                   "(undefined)", 
-                                   "(undefined)"]
+    assert coupling_link.ports == [
+        "NODE-*-Scene-*-Cellular",
+        "NODE-*-Scene-*-GPS",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+    ]
 
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2022.1", reason="Skipped on versions earlier than 2021.2")
