@@ -603,6 +603,8 @@ class MCADAssemblyService:
             for ref, obj in edb_components.items():
                 ecad_comp_info = EcadCompInfo(refdes=ref, cs_name=None)
                 pins = obj.pins
+                if not pins:
+                    continue
                 pin_names = list(pins.keys())
                 p1_name = sorted(pin_names)[0]
                 p1_loc = pins[p1_name].position
