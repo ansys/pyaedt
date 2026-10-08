@@ -55,6 +55,7 @@ import tempfile
 import time
 import traceback
 from types import TracebackType
+from typing import TYPE_CHECKING
 import warnings
 
 from ansys.aedt.core import __version__
@@ -84,6 +85,9 @@ from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 from ansys.aedt.core.internal.desktop_sessions import _edb_sessions
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.generic.protocols import _ODesktop
 
 ON_CI = os.getenv("ON_CI", "false").lower() == "true"
 """Flag indicating whether execution is running on CI."""
@@ -897,7 +901,46 @@ class Desktop(PyAedtBase):
 
     @property
     def aedt_version_id(self) -> str | None:
-        """Retrieve AEDT version id."""
+        """Retrieve AEDT version from AEDT.
+
+        Returns the AEDT major version as a string (``"2026.1"``). This value
+        is cached during initialization and does not query AEDT. It does not include
+        the service pack number.
+
+        .. note::
+            - ``aedt_version_id``: Returns the cached major version string set during
+              initialization (e.g., ``"2026.1"``). Does not include service pack.
+              Does not require a call to AEDT.
+            - ``aedt_version``: Queries AEDT directly via ``oDesktop.GetVersion()``.
+              Returns the full version including service pack (e.g., ``"2026.1.0"``).
+              Requires an active AEDT connection.
+
+        .. note::
+            When working with application objects (``Hfss``, ``Maxwell3d``, etc.),
+            use ``app.desktop_class.aedt_version_id`` to get the version string.
+            The ``app.aedt_version_id`` property on application objects returns
+            an environment variable name instead.
+
+        Returns
+        -------
+        str
+            AEDT major version string, without service pack.
+
+        See Also
+        --------
+        aedt_version : Queries AEDT directly via ``oDesktop.GetVersion()``,
+            returns full version with service pack.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1")
+        >>> desktop.aedt_version_id  # Major version only (cached)
+        '2026.1'
+        >>> desktop.aedt_version  # Full version with service pack
+        '2026.1.4'
+
+        """
         return self.__aedt_version_id
 
     @aedt_version_id.setter
@@ -911,12 +954,25 @@ class Desktop(PyAedtBase):
 
     @property
     def aedt_version(self) -> str:
-        """Retrieve AEDT version from AEDT.
+        """AEDT version queried directly from the running AEDT instance.
+
+        This property calls ``GetVersion()`` to retrieve the full version
+        string directly from the AEDT interface, including the service
+        pack number.
+
+        .. note::
+
+            - ``aedt_version``: Queries AEDT directly via ``oDesktop.GetVersion()``.
+              Returns the full version including service pack (``"2026.1.0"``).
+              Requires an active AEDT connection.
+            - ``aedt_version_id``: Returns the cached major version string set during
+              initialization (``"2025.2"``). Does not include service pack.
+              Does not require a call to AEDT.
 
         Returns
         -------
         str
-            AEDT version.
+            Full AEDT version string including service pack.
 
         References
         ----------
@@ -925,8 +981,12 @@ class Desktop(PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core import Desktop
-        >>> desktop = Desktop(version="2026.1")
-        >>> version = desktop.aedt_version
+        >>> desktop = Desktop(version="2025.2")
+        >>> desktop.aedt_version  # Full version with service pack
+        '2025.2.4'
+        >>> desktop.aedt_version_id  # Major version only (cached)
+        '2025.2'
+
         """
         return self.odesktop.GetVersion()
 
@@ -1421,8 +1481,14 @@ class Desktop(PyAedtBase):
         return self.__logger
 
     @property
-    def odesktop(self) -> object:
+    def odesktop(self) -> "_ODesktop" | None:
         """AEDT instance containing all projects and designs.
+
+        Returns
+        -------
+        _ODesktop or None
+            The connected AEDT desktop object, or ``None`` when no desktop is
+            currently available.
 
         Examples
         --------
@@ -1448,7 +1514,7 @@ class Desktop(PyAedtBase):
         return self.__desktop
 
     @odesktop.setter
-    def odesktop(self, val: object) -> None:
+    def odesktop(self, val: "_ODesktop" | None) -> None:
         self.__desktop = val
 
     @property

@@ -54,9 +54,9 @@ jobs:
         shell: bash
         run: |
           set -eux
-          dnf -y update
-          dnf groupinstall -y "Development Tools"
-          dnf -y install \
+          dnf -y update --nobest
+          dnf groupinstall -y --nobest "Development Tools"
+          dnf -y install --nobest \
             gcc make wget tar xz bzip2 \
             bzip2-devel zlib-devel xz-devel \
             openssl-devel libffi-devel sqlite-devel \
@@ -66,7 +66,7 @@ jobs:
           update-ca-trust
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
           enable-cache: false
           prune-cache: true
@@ -97,5 +97,3 @@ jobs:
         run: |
           ${ACTIVATE_VENV}
           python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
-
-
