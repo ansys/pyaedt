@@ -756,7 +756,7 @@ class Layer3D(PyAedtBase):
         --------
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Layer3D
         >>> obj = Layer3D()
-        >>> obj.lower_elevation
+        >>> obj.elevation
 
         """
         return self._position
@@ -1216,9 +1216,7 @@ class Padstack(PyAedtBase):
         layer_name = None
         for layer_name, layer in self._stackup.stackup_layers.items():
             if self._padstacks_by_layer or layer.type != "dielectric":
-                self._padstacks_by_layer[layer_name] = PadstackLayer(
-                    self, layer_name, layer.lower_elevation, layer.thickness
-                )
+                self._padstacks_by_layer[layer_name] = PadstackLayer(self, layer_name, layer.elevation, layer.thickness)
         if layer and layer.type == "dielectric":
             del self._padstacks_by_layer[layer_name]
         self._padstacks_material = material
@@ -1365,7 +1363,7 @@ class Padstack(PyAedtBase):
             if k == layer:
                 found = True
             if found and layer not in self._padstacks_by_layer:
-                new_stackup[k] = PadstackLayer(self, k, v.lower_elevation, v.thickness)
+                new_stackup[k] = PadstackLayer(self, k, v.elevation, v.thickness)
             elif found:
                 new_stackup[k] = self._padstacks_by_layer[k]
         if not found:
@@ -2181,11 +2179,11 @@ class Stackup3D(PyAedtBase):
         """
         previous_layer_end = self._end_of_stackup3D.expression
 
-        layer.lower_elevation.expression = previous_layer_end
+        layer.elevation.expression = previous_layer_end
         if layer.thickness:
-            self._end_of_stackup3D.expression = layer.lower_elevation.name + " + " + layer.thickness.name
+            self._end_of_stackup3D.expression = layer.elevation.name + " + " + layer.thickness.name
         else:
-            self._end_of_stackup3D.expression = layer.lower_elevation.name
+            self._end_of_stackup3D.expression = layer.elevation.name
 
     @pyaedt_function_handler()
     def resize(self, percentage_offset: float) -> bool:
