@@ -31,6 +31,8 @@ from typing import Any
 from ansys.aedt.core.application import _get_obj_data
 from ansys.aedt.core.application import _has_get_obj_data
 from ansys.aedt.core.base import PyAedtBase
+from ansys.aedt.core.generic.constants import SolutionsHfss
+from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
 from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -430,6 +432,95 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         return self.update()
 
     @pyaedt_function_handler()
+    def add_calculation(
+        self,
+        calculation,
+        ranges=None,
+        variables=None,
+        solution: str | None = None,
+        context=None,
+        subdesign_id: int | None = None,
+        polyline_points: int = 1001,
+        report_type=None,
+        is_goal: bool = False,
+        condition: str = "<=",
+        goal_value: int = 1,
+        goal_weight: int = 1,
+    ):
+        if not solution:
+            solution = self._app.nominal_sweep
+        setupname = solution.split(" ")[0]
+        if setupname not in self._legacy_props["Sim. Setups"]:
+            self._legacy_props["Sim. Setups"].append(setupname)
+        domain = "Time"
+        maxwell_solutions = SolutionsMaxwell3D
+        if (ranges and ("Freq" in ranges or "Phase" in ranges or "Theta" in ranges)) or self._app.solution_type in [
+            maxwell_solutions.Magnetostatic,
+            maxwell_solutions.ElectroStatic,
+            maxwell_solutions.EddyCurrent,
+            maxwell_solutions.ACMagnetic,
+            maxwell_solutions.DCConduction,
+            SolutionsHfss.EigenMode,
+        ]:
+            domain = "Sweep"
+
+        if not report_type:
+            report_type = self._app.design_solutions.report_type
+            if context and context in self._app.modeler.sheet_names:
+                report_type = "Fields"
+            elif self._app.solution_type in ["Q3D Extractor", "2D Extractor"]:
+                report_type = "Matrix"
+            elif context:
+                try:
+                    for f in self._app.field_setups:
+                        if context == f.name:
+                            report_type = "Far Fields"
+                except Exception:
+                    self._app.logger.debug(
+                        "An error occurred when handling `report_type` while adding calculation."
+                    )  # pragma: no cover
+
+        sweepdefinition = self._get_context(
+            calculation,
+            condition,
+            goal_weight,
+            goal_value,
+            solution,
+            domain,
+            ranges,
+            report_type,
+            context,
+            subdesign_id,
+            polyline_points,
+            is_goal,
+        )
+        dx_variables = {}
+        if variables:
+            for el in list(variables):
+                try:
+                    dx_variables[el] = self._app[el]
+                except Exception:
+                    self._app.logger.debug("An error occurred while adding calculation.")  # pragma: no cover
+        for v in list(dx_variables.keys()):
+            self._activate_variable(v)
+        if self.setup_type in ["OptiDesignExplorer", "OptiDXDOE"] and is_goal:
+            optigoalname = "CostFunctionGoals"
+        else:
+            optigoalname = "Goals"
+        if "Goal" in self.props[optigoalname]:
+            if type(self.props[optigoalname]["Goal"]) is not list:
+                self._legacy_props[optigoalname]["Goal"] = [
+                    self.props[optigoalname]["Goal"],
+                    SetupProps(self, sweepdefinition),
+                ]
+            else:
+                self.props[optigoalname]["Goal"].append(sweepdefinition)
+        else:
+            self._legacy_props[optigoalname] = {}
+            self._legacy_props[optigoalname]["Goal"] = sweepdefinition
+        return self.update()
+
+    @pyaedt_function_handler()
     def _activate_variable(self, variable_name):
         if self.setup_type in ["OptiDesignExplorer", "OptiDXDOE", "OptiOptimization", "optiSLang"]:
             self._app.activate_variable_optimization(variable_name)
@@ -439,6 +530,134 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
             self._app.activate_variable_sensitivity(variable_name)
         elif self.setup_type == "OptiStatistical":
             self._app.activate_variable_statistical(variable_name)
+
+    @pyaedt_function_handler()
+    def _get_context(
+        self,
+        expressions,
+        condition,
+        goal_weight,
+        goal_value,
+        setup_sweep_name=None,
+        domain: str = "Sweep",
+        intrinsics=None,
+        report_category=None,
+        context=None,
+        subdesign_id: int | None = None,
+        polyline_points: int = 0,
+        is_goal: bool = False,
+    ):
+        did = 3
+        if domain != "Sweep":
+            did = 1
+        sweep_definition = {"ReportType": report_category}
+        if not setup_sweep_name:
+            setup_sweep_name = self._app.nominal_sweep
+        sweep_definition["Solution"] = setup_sweep_name
+        ctxt = {}
+
+        if self._app.solution_type in ["TR", "AC", "DC", "TwinbuilderTR", "TwinbuilderAC", "TwinbuilderDC"]:
+            ctxt["SimValueContext"] = [did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]
+            if self._app.solution_type == "TwinbuilderTR":
+                setup_sweep_name = "TR"
+            elif self._app.solution_type == "TwinbuilderAC":
+                setup_sweep_name = "AC"
+            elif self._app.solution_type == "TwinbuilderDC":
+                setup_sweep_name = "DC"
+            else:
+                setup_sweep_name = self._app.solution_type
+            sweep_definition["Solution"] = setup_sweep_name
+
+        elif self._app.solution_type in ["HFSS3DLayout"]:
+            if context == "Differential Pairs":
+                ctxt["SimValueContext"] = [
+                    did,
+                    0,
+                    2,
+                    0,
+                    False,
+                    False,
+                    -1,
+                    1,
+                    0,
+                    1,
+                    1,
+                    "",
+                    0,
+                    0,
+                    "EnsDiffPairKey",
+                    False,
+                    "1",
+                    "IDIID",
+                    False,
+                    "1",
+                ]
+            else:
+                ctxt["SimValueContext"] = [did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "IDIID", False, "1"]
+
+        elif self._app.solution_type in ["NexximLNA", "NexximTransient"]:
+            ctxt["SimValueContext"] = [did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]
+            if subdesign_id:
+                ctxt_temp = ["NUMLEVELS", False, "1", "SUBDESIGNID", False, str(subdesign_id)]
+                ctxt["SimValueContext"].extend(ctxt_temp)
+            if context == "Differential Pairs":
+                ctxt_temp = ["USE_DIFF_PAIRS", False, "1"]
+                ctxt["SimValueContext"].extend(ctxt_temp)
+        elif context == "Differential Pairs":
+            ctxt["SimValueContext"] = ["Diff:=", "Differential Pairs", "Domain:=", domain]
+        elif self._app.solution_type in ["Q3D Extractor", "2D Extractor"]:
+            if not context:
+                ctxt["Context"] = "Original"
+            else:
+                ctxt["Context"] = context
+        elif context:
+            ctxt["Context"] = context
+            if context in self._app.modeler.line_names:
+                ctxt["PointCount"] = polyline_points
+        else:
+            ctxt = {"Domain": domain}
+        sweep_definition["SimValueContext"] = ctxt
+        sweep_definition["Calculation"] = expressions
+        sweep_definition["Name"] = expressions
+        sweep_definition["Ranges"] = {}
+        if context and context in self._app.modeler.line_names and intrinsics and "Distance" not in intrinsics:
+            sweep_definition["Ranges"]["Range"] = ("Var:=", "Distance", "Type:=", "a")
+        if not setup_sweep_name:
+            setup_sweep_name = self._app.nominal_sweep
+            if not setup_sweep_name:
+                self._app.logger.error("Sweep not Available.")
+                return False
+        elif setup_sweep_name not in self._app.existing_analysis_sweeps:
+            self._app.logger.error("Sweep not Available.")
+            return False
+        if intrinsics:
+            for v, k in intrinsics.items():
+                r = {}
+                if not k:
+                    r = {"Var": v, "Type": "a"}
+                elif isinstance(k, tuple):
+                    r = {"Var": v, "Type": "rd", "Start": k[0], "Stop": k[1], "DiscreteValues": ""}
+                elif isinstance(k, (list, str)):
+                    r = {"Var": v, "Type": "d", "DiscreteValues": ",".join(k) if isinstance(k, list) else k}
+                r = SetupProps(self, r)
+                if not sweep_definition["Ranges"]:
+                    sweep_definition["Ranges"]["Range"] = [r]
+                elif isinstance(sweep_definition["Ranges"]["Range"], list):
+                    sweep_definition["Ranges"]["Range"].append(r)
+                else:
+                    sweep_definition["Ranges"]["Range"] = [sweep_definition["Ranges"]["Range"]]
+                    sweep_definition["Ranges"]["Range"].append(r)
+        if is_goal:
+            sweep_definition["Condition"] = condition
+            goal_value = {
+                "GoalValueType": "Independent",
+                "Format": "Real/Imag",
+                "bG": ["v:=", f"[{goal_value};]"],
+            }
+            goal_value = SetupProps(self, goal_value)
+            sweep_definition["GoalValue"] = goal_value
+            sweep_definition["Weight"] = f"[{goal_weight};]"
+        return sweep_definition
 
 
 class Optimetrics(PyAedtBase):
