@@ -619,7 +619,7 @@ class MCADAssemblyService:
                     angle_rad = np.arctan2(dy, dx)
                     ecad_comp_info.rotation_rad = angle_rad
 
-                ecad_comp_info.part_name = obj.component_def.part_name
+                ecad_comp_info.part_name = obj.component_definition.part_name
                 layer_obj = edb.stackup.layers[obj.placement_layer]
                 ecad_comp_info.lower_elevation = layer_obj.lower_elevation
                 ecad_comp_info.upper_elevation = layer_obj.upper_elevation

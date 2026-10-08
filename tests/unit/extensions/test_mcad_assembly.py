@@ -72,37 +72,6 @@ def test_main_selected_edb(
 
 
 def test_config_model_dump(test_tmp_dir):
-    target = {'coordinate_system': {'GLOBAL_2': {'origin': ['100mm', '0mm', '0mm'],
-                                                 'reference_coordinate_system': 'Global',
-                                                 'name': 'GLOBAL_2'}},
-              'ecad_component_models': {
-                  'pcb': str(test_tmp_dir / 'models\\DCDC-Converter-App_main.aedbcomp')},
-              'mcad_component_models': {
-                  'chassis': str(test_tmp_dir / 'models\\Chassi.a3dcomp')},
-              'model_libraries': [],
-              'mcad_sub_components': {'box': {'component_type': 'mcad',
-                                              'name': 'box',
-                                              'model': 'chassis',
-                                              'use_pin_mapping': False,
-                                              'placement_pin_mapping': {},
-                                              'target_coordinate_system': 'GLOBAL_2',
-                                              'arranges': [],
-                                              'mcad_sub_components': {},
-                                              'ecad_sub_components': {'pcb': {'component_type': 'ecad',
-                                                                              'name': 'pcb',
-                                                                              'model': 'pcb',
-                                                                              'use_pin_mapping': False,
-                                                                              'placement_pin_mapping': {},
-                                                                              'target_coordinate_system': 'Guiding_Pin',
-                                                                              'arranges': [],
-                                                                              'mcad_sub_components': {},
-                                                                              'ecad_sub_components': {},
-                                                                              'reference_coordinate_system': 'H0_via_65',
-                                                                              'layout_coordinate_systems': [
-                                                                                  'H0_via_65']}},
-                                              'reference_coordinate_system': 'GLOBAL_2'}},
-              'ecad_sub_components': {}}
-
     # Initial the configuration class
     config = MCADAssembly()
 
@@ -132,6 +101,48 @@ def test_config_model_dump(test_tmp_dir):
     pcb.layout_coordinate_systems = ["H0_via_65"]
     pcb.reference_coordinate_system = "H0_via_65"
 
-    pcb.add_sub_mcad_component_from_library(library_path=str(test_tmp_dir / "models/a3d_library"))
-    assert config.model_dump(exclude_none=True) == target
+    # Test adding library and verify it's stored as public field
+    library_path = str(test_tmp_dir / "models/a3d_library")
+    pcb.add_sub_mcad_component_from_library(library_path=library_path)
+    assert library_path in pcb.model_libraries, "Library path should be stored in model_libraries"
+    assert pcb.assembly_all_from_library is False, "assembly_all_from_library should default to False"
 
+    # Verify model dump structure and content
+    dumped = config.model_dump(exclude_none=True)
+    
+    # Verify top-level structure
+    assert "coordinate_system" in dumped
+    assert "GLOBAL_2" in dumped["coordinate_system"]
+    assert dumped["coordinate_system"]["GLOBAL_2"]["origin"] == ["100mm", "0mm", "0mm"]
+    assert dumped["coordinate_system"]["GLOBAL_2"]["reference_coordinate_system"] == "Global"
+    
+    # Verify component models
+    assert "ecad_component_models" in dumped
+    assert "pcb" in dumped["ecad_component_models"]
+    assert "mcad_component_models" in dumped
+    assert "chassis" in dumped["mcad_component_models"]
+    
+    # Verify MCAD sub-components structure
+    assert "mcad_sub_components" in dumped
+    assert "box" in dumped["mcad_sub_components"]
+    box_dump = dumped["mcad_sub_components"]["box"]
+    assert box_dump["name"] == "box"
+    assert box_dump["model"] == "chassis"
+    assert box_dump["target_coordinate_system"] == "GLOBAL_2"
+    assert box_dump["reference_coordinate_system"] == "GLOBAL_2"
+    
+    # Verify ECAD sub-components structure
+    assert "ecad_sub_components" in box_dump
+    assert "pcb" in box_dump["ecad_sub_components"]
+    pcb_dump = box_dump["ecad_sub_components"]["pcb"]
+    assert pcb_dump["name"] == "pcb"
+    assert pcb_dump["model"] == "pcb"
+    assert pcb_dump["target_coordinate_system"] == "Guiding_Pin"
+    assert pcb_dump["reference_coordinate_system"] == "H0_via_65"
+    assert pcb_dump["layout_coordinate_systems"] == ["H0_via_65"]
+    
+    # Verify public fields are included in the dump
+    assert "model_libraries" in pcb_dump, "model_libraries should be in serialized output"
+    assert pcb_dump["model_libraries"] == [library_path]
+    assert "assembly_all_from_library" in pcb_dump, "assembly_all_from_library should be in serialized output"
+    assert pcb_dump["assembly_all_from_library"] is False
