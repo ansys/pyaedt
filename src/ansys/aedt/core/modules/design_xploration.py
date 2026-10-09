@@ -540,6 +540,68 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
+    def sync_variables(self, variables: list, sync_n: int = 1) -> bool:
+        """Sync variable variations in an existing parametric setup.
+        Setting the sync number to `0` will effectively unsync the variables.
+
+        Parameters
+        ----------
+        variables : list
+            List of variables to sync.
+        sync_n : int, optional
+            Sync number. Sweep variables with the same Sync number will be synchronizad.
+            Default is `1`.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.EditSetup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.design_xploration import SetupParam
+        >>> obj = SetupParam()
+        >>> obj.sync_variables(variables=["Box1"])
+
+        """
+        if self.setup_type != "OptiParametric":
+            raise AEDTRuntimeError("Setup must be a parametric setup.")
+
+        if type(self.props["Sweeps"]["SweepDefinition"]) is not list:
+            raise AEDTRuntimeError("Not enough variables are defined in the parametric setup")
+
+        existing_variables = [s["Variable"] for s in self.props["Sweeps"]["SweepDefinition"]]
+        undo_vals = {}
+        for v in variables:
+            if v not in existing_variables:
+                raise AEDTRuntimeError(f"Variable {v} is not defined in the parametric setup.")
+
+        for v in variables:
+            for count, sweep_def in self._legacy_props["Sweeps"]["SweepDefinition"].items():
+                sweep_def_copy = dict(sweep_def)
+                if v == sweep_def_copy["Variable"]:
+                    undo_vals[v] = sweep_def_copy["Synchronize"]
+                    sweep_def_copy["Synchronize"] = sync_n
+                self._legacy_props["Sweeps"]["SweepDefinition"][count] = sweep_def_copy
+        try:
+            self.update()
+        except Exception:  # pragma: no cover
+            # If it fails to sync (due to e.g. different number of variations), reverts to original values.
+            for v in variables:
+                for count, sweep_def in self.props["Sweeps"]["SweepDefinition"].items():
+                    sweep_def_copy = dict(sweep_def)
+                    if v == sweep_def_copy["Variable"]:
+                        sweep_def_copy["Synchronize"] = undo_vals[v]
+                    self._legacy_props["Sweeps"]["SweepDefinition"][count] = sweep_def_copy
+            self._app.logger.error("Failed to sync the Parametric setup.")
+            return False
+        return True
+
+    @pyaedt_function_handler()
     def _activate_variable(self, variable_name):
         if self.setup_type in ["OptiDesignExplorer", "OptiDXDOE", "OptiOptimization", "optiSLang"]:
             self._app.activate_variable_optimization(variable_name)

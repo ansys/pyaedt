@@ -274,7 +274,8 @@ def test_create_parametrics_sync(aedtapp) -> None:
     setup1 = aedtapp.parametrics.add("a1", start_point=0.1, end_point=20, step=10, variation_type="LinearCount")
     assert setup1
     assert setup1.add_variation("a2", start_point="0.3mm", end_point=5, step=10, variation_type="LinearCount")
-    assert not setup1.sync_variables(["invalid"], sync_n=1)
+    with pytest.raises(AEDTRuntimeError):
+        setup1.sync_variables(["invalid"], sync_n=1)
     assert setup1.sync_variables(["a1", "a2"], sync_n=1)
     assert setup1.sync_variables(["a1", "a2"], sync_n=0)
     setup1.add_variation("a1", start_point="13mm", variation_type="SingleValue")
