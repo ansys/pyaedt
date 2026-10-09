@@ -198,7 +198,7 @@ class Props(dict):
 
     def _apply_owner_update(self, key, value):
         owner = self._pyaedt_owner
-        if owner is None:
+        if owner is None or hasattr(self._pyaedt_owner, "_is_created") and not self._pyaedt_owner._is_created:
             return True
 
         # BinaryTreeNode.properties must use update_property, even when the owner also has update()

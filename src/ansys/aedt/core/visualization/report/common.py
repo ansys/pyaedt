@@ -504,7 +504,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         self._app = self._post._app
         self._legacy_props = {}
         self._legacy_props["report_category"] = report_category
-        self.setup = setup_name
+        self._setup = setup_name
         self._legacy_props["report_type"] = "Rectangular Plot"
         self._legacy_props["context"] = {}
         self._legacy_props["context"]["domain"] = "Sweep"
@@ -526,6 +526,22 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         self._display_families_options = {}
         self._traces = []
         # self._initialize_tree_node()
+
+    @property
+    def setup(self):
+        if self._setup:
+            return self._setup
+        for trc_name in self.traces:
+            try:
+                self._setup = trc_name.properties["Solution"]
+                break
+            except Exception:  # nosec
+                pass
+        return self._setup
+
+    @setup.setter
+    def setup(self, setup):
+        self._setup = setup
 
     @pyaedt_function_handler()
     def _initialize_tree_node(self) -> bool:
