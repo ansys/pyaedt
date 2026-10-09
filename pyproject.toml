@@ -56,7 +56,7 @@ graphics = [
     "pyvista[io]>=0.38.0,<0.50",
     "matplotlib>=3.5.0",
     "vtk>=9.0,<9.8",
-    "fpdf2",
+    "pdf-oxide",
     "pillow",
 ]
 jupyter = [
@@ -76,7 +76,7 @@ all = [
     "pyaedt[jupyter]",
     "requests",
     "typer>=0.20.0",
-    "fpdf2",
+    "pdf-oxide",
     "rpyc>=6.0.0",
 ]
 all-dotnet = [
@@ -93,7 +93,7 @@ all-dotnet = [
     "pyaedt[jupyter]",
     "requests",
     "typer>=0.20.0",
-    "fpdf2",
+    "pdf-oxide",
     "rpyc>=6.0.0",
     # From 'dotnet' group
     "ansys-pythonnet>=3.1.0rc3",
@@ -111,7 +111,7 @@ examples = [
     "joblib>=1.4.0",
     "plotly>=6.0",
     "scikit-rf>=0.30.0",
-    "fpdf2",
+    "pdf-oxide",
     "rpyc>=6.0.0",
     "tables; python_version >= '3.10'",
 ]
@@ -464,4 +464,3 @@ showcontent = true
 directory = "test"
 name = "Test"
 showcontent = true
-
