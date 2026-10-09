@@ -2060,7 +2060,11 @@ class VirtualCompliance(PyAedtBase):
                     report.add_table("Components", components, col_widths=[75, 275])
 
     @pyaedt_function_handler()
-    def create_compliance_report(self, file_name: str = "compliance_test.pdf", close_project: bool = True) -> str:
+    def create_compliance_report(
+        self,
+        file_name: str = "compliance_test.pdf",
+        close_project: bool = True,
+    ) -> str:
         """Create the Virtual Compliance report.
 
         Parameters
@@ -2178,10 +2182,6 @@ class VirtualCompliance(PyAedtBase):
                 if content["type"] == 2:
                     report.add_image_with_aspect_ratio(**content["data"])
                 elif content["type"] == 3:
-                    y = report.get_y()
-                    table_height = report.font_size * 5 * len(content["data"]["content"])
-                    if y > report.h / 2 and y + table_height > (report.h - ((report.h - report.eph) / 2)):
-                        report.add_page_break()
                     report.add_table(**content["data"])
                 elif content["type"] == 1:
                     report.add_text(content["data"])

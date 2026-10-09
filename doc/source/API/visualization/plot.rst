@@ -52,7 +52,7 @@ PyAEDT benefits of `matplotlib <https://matplotlib.org/>`_ package and allows to
 PDF
 ~~~
 
-PyAEDT benefits of `fpdf2 <https://py-pdf.github.io/fpdf2/index.html/>`_ package and allows to generate PDF files.
+PyAEDT uses the `pdf-oxide <https://oxide.fyi/>`_ package to generate PDF files.
 
 .. currentmodule:: ansys.aedt.core.visualization.plot.pdf
 
