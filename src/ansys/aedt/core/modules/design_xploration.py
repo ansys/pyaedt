@@ -44,7 +44,12 @@ from ansys.aedt.core.generic.props import Props as SetupProps
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
+from ansys.aedt.core.modules.optimetrics_templates import defaultdoeSetup
+from ansys.aedt.core.modules.optimetrics_templates import defaultdxSetup
+from ansys.aedt.core.modules.optimetrics_templates import defaultoptiSetup
 from ansys.aedt.core.modules.optimetrics_templates import defaultparametricSetup
+from ansys.aedt.core.modules.optimetrics_templates import defaultsensitivitySetup
+from ansys.aedt.core.modules.optimetrics_templates import defaultstatisticalSetup
 
 if TYPE_CHECKING:
     pass
@@ -89,6 +94,17 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
             self._legacy_props = props
             if props == defaultparametricSetup:
                 self.__setup_type = "OptiParametric"
+            elif props == defaultoptiSetup:
+                self.__setup_type = "OptiOptimization"
+            elif props == defaultdxSetup:
+                self.__setup_type = "OptiDesignExplorer"
+            elif props == defaultstatisticalSetup:
+                self.__setup_type = "OptiStatistical"
+            elif props == defaultsensitivitySetup:
+                self.__setup_type = "OptiSensitivity"
+            elif props == defaultdoeSetup:
+                self.__setup_type = "OptiDXDOE"
+
         else:
             self.__setup_type = self._parent.setups_by_type.get(self._name)
 
