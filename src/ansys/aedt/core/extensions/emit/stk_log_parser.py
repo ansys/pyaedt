@@ -268,18 +268,17 @@ def parse_stk_summary_csv(file_path: str | Path) -> StkTimeline:
 
 
 def normalize_frame(frame: dict[str, PoseRecord], target_range: float) -> dict[str, Vector]:
-    """Scale a frame's positions so the farthest object sits at ``target_range`` meters.
+    """Scale each axis by its maximum absolute coordinate within the frame.
 
-    Orientations are left untouched. The EMIT-STK plugin pins the stationary ground
-    platform to the scene origin, so shrinking distances from the origin shrinks the
-    bounding box the Coupling Dialog 3D view fits to.
+    Orientations and coordinate signs are unchanged; zero-only axes remain zero.
+    Independent axis scaling changes relative directions and Euclidean distances.
 
     Parameters
     ----------
     frame : dict
         Poses for a single timestep, keyed by node name.
     target_range : float
-        Desired distance in meters between the origin and the farthest object.
+        Desired maximum absolute coordinate in meters on each nonzero axis.
 
     Returns
     -------
@@ -298,11 +297,9 @@ def normalize_frame(frame: dict[str, PoseRecord], target_range: float) -> dict[s
     if target_range <= 0:
         return positions
 
-    max_range = max((record.range_from_origin for record in frame.values()), default=0.0)
-    if max_range <= 0:
-        return positions
-
-    scale = target_range / max_range
+    axis_maxima = [max((abs(position[axis]) for position in positions.values()), default=0.0) for axis in range(3)]
+    scales = [target_range / maximum if maximum > 0 else 1.0 for maximum in axis_maxima]
     return {
-        name: (position[0] * scale, position[1] * scale, position[2] * scale) for name, position in positions.items()
+        name: (position[0] * scales[0], position[1] * scales[1], position[2] * scales[2])
+        for name, position in positions.items()
     }

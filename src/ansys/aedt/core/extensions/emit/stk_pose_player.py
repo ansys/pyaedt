@@ -27,9 +27,8 @@
 
 Steps through the position/orientation timeline logged by the EMIT-STK plugin and
 applies each timestep to the matching EMIT scene groups so the Coupling Dialog 3D view
-can be used to verify alignment. Distances are optionally normalized so the farthest
-object sits a short distance from the scene origin, which keeps widely separated objects
-within the same view.
+can be used to verify alignment. Each coordinate axis is optionally normalized independently
+to keep widely separated objects within the same view.
 
 Examples
 --------
@@ -49,7 +48,6 @@ from tkinter import ttk
 from typing import Any
 from typing import cast
 
-from ansys.aedt.core.extensions.emit.stk_log_parser import PoseRecord
 from ansys.aedt.core.extensions.emit.stk_log_parser import StkTimeline
 from ansys.aedt.core.extensions.emit.stk_log_parser import normalize_frame
 from ansys.aedt.core.extensions.emit.stk_log_parser import parse_stk_summary_csv
@@ -75,6 +73,7 @@ SCENE_HINT = (
 """Hint shown because the 3D page cannot be selected programmatically."""
 
 TABLE_COLUMNS = (
+    ("timestep", "Timestep", 160),
     ("object", "Object", 160),
     ("x", "X (m)", 90),
     ("y", "Y (m)", 90),
@@ -103,7 +102,7 @@ class StkPosePlayerData(ExtensionCommonData):
     file_path: str = ""
     """Path to the EMIT-STK plugin summary CSV."""
     target_range: float = 1.0
-    """Normalized distance in meters between the origin and the farthest object."""
+    """Maximum absolute coordinate in meters on each normalized axis."""
     normalize: bool = True
     """Whether positions are scaled to ``target_range``."""
     delay: float = 1.0
@@ -134,6 +133,8 @@ class StkPosePlayerExtension(ExtensionEMITCommon):
         self._playing: bool = False
         self._after_id: str | None = None
         self._updating_slider: bool = False
+        self._table_rows: dict[int, list[str]] = {}
+        self._table_settings: tuple[bool, float] | None = None
 
         super().__init__(
             EXTENSION_TITLE,
@@ -303,13 +304,19 @@ class StkPosePlayerExtension(ExtensionEMITCommon):
         )
         for column, heading, width in TABLE_COLUMNS:
             table.heading(column, text=heading)
-            table.column(column, width=width, anchor=tkinter.W if column in ("object", "receiver") else tkinter.E)
+            table.column(
+                column, width=width, anchor=tkinter.W if column in ("timestep", "object", "receiver") else tkinter.E
+            )
+        table.tag_configure("current", background="#d9edf7", foreground="#102a43")
         table.grid(row=0, column=0, sticky="nsew")
         self._widgets["pose_table"] = table
 
         scrollbar = ttk.Scrollbar(frame, orient=tkinter.VERTICAL, command=table.yview)
         scrollbar.grid(row=0, column=1, sticky="ns")
         table.configure(yscrollcommand=scrollbar.set)
+        horizontal = ttk.Scrollbar(frame, orient=tkinter.HORIZONTAL, command=table.xview)
+        horizontal.grid(row=1, column=0, sticky="ew")
+        table.configure(xscrollcommand=horizontal.set)
 
     def _build_status_frame(self, root: tkinter.Tk) -> None:
         frame = ttk.Frame(root, style="PyAEDT.TFrame", name="status_frame")
@@ -358,7 +365,7 @@ class StkPosePlayerExtension(ExtensionEMITCommon):
 
     @property
     def target_range(self) -> float:
-        """Normalized distance in meters between the origin and the farthest object."""
+        """Maximum absolute coordinate in meters on each normalized axis."""
         return self._float_from(self.target_range_var, 1.0, 1e-6)
 
     @property
@@ -415,6 +422,7 @@ class StkPosePlayerExtension(ExtensionEMITCommon):
     def _finish_load(self, timeline: StkTimeline, nodes: dict[str, Any], file_path: str) -> None:
         """Bind a parsed timeline and the matching scene groups, then show the first timestep."""
         self._timeline = timeline
+        self._table_settings = None
         self._nodes = nodes
         self._original_poses = {}
         self._poses_modified = False
@@ -493,7 +501,7 @@ class StkPosePlayerExtension(ExtensionEMITCommon):
             except (ValueError, AttributeError):
                 failed.append(name)
 
-        self._update_table(frame, positions)
+        self._update_table()
         self._update_timestep_widgets()
         if failed:
             self.status_var.set(
@@ -501,28 +509,54 @@ class StkPosePlayerExtension(ExtensionEMITCommon):
                 "nodes cannot be repositioned from EMIT."
             )
 
-    def _update_table(self, frame: dict[str, PoseRecord], positions: dict[str, tuple[float, float, float]]) -> None:
+    def _update_table(self) -> None:
+        timeline = self._timeline
+        if timeline is None:
+            return
         table = cast(ttk.Treeview, self._widgets["pose_table"])
-        table.delete(*table.get_children())
-        for name in sorted(frame):
-            record = frame[name]
-            position = positions[name]
-            table.insert(
-                "",
-                tkinter.END,
-                values=(
-                    name,
-                    f"{position[0]:.4f}",
-                    f"{position[1]:.4f}",
-                    f"{position[2]:.4f}",
-                    f"{record.orientation[0]:.1f}",
-                    f"{record.orientation[1]:.1f}",
-                    f"{record.orientation[2]:.1f}",
-                    f"{record.range_from_origin:.1f}",
-                    record.receiver_name,
-                    "" if record.emi_value is None else f"{record.emi_value:.2f}",
-                ),
-            )
+        settings = (self.normalize_var.get(), self.target_range)
+        if settings != self._table_settings:
+            table.delete(*table.get_children())
+            self._table_rows = {}
+            for index in range(len(timeline)):
+                frame = timeline.frame(index)
+                positions = (
+                    normalize_frame(frame, settings[1])
+                    if settings[0]
+                    else {name: record.position for name, record in frame.items()}
+                )
+                rows = []
+                for name in sorted(frame):
+                    record = frame[name]
+                    position = positions[name]
+                    rows.append(
+                        table.insert(
+                            "",
+                            tkinter.END,
+                            values=(
+                                timeline.label(index),
+                                name,
+                                f"{position[0]:.4f}",
+                                f"{position[1]:.4f}",
+                                f"{position[2]:.4f}",
+                                f"{record.orientation[0]:.1f}",
+                                f"{record.orientation[1]:.1f}",
+                                f"{record.orientation[2]:.1f}",
+                                f"{record.range_from_origin:.1f}",
+                                record.receiver_name,
+                                "" if record.emi_value is None else f"{record.emi_value:.2f}",
+                            ),
+                        )
+                    )
+                self._table_rows[index] = rows
+            self._table_settings = settings
+
+        for index, rows in self._table_rows.items():
+            for row in rows:
+                table.item(row, tags=("current",) if index == self._index else ())
+        active_rows = self._table_rows.get(self._index, [])
+        if active_rows:
+            table.see(active_rows[0])
 
     def _update_timestep_widgets(self) -> None:
         timeline = self._timeline

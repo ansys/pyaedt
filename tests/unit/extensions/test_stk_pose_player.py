@@ -75,7 +75,7 @@ def make_scene_group(name):
     """Return a mocked ``SceneGroupNode``."""
     node = MagicMock()
     node.name = name
-    node.node_type = "SceneGroupNode"
+    node._node_type = "SceneGroupNode"
     node.children = []
     node.get_properties.return_value = {
         "Position": "0 0 0",
@@ -170,7 +170,24 @@ def test_normalize_frame_scales_to_target_range() -> None:
     positions = normalize_frame(frame, 1.0)
 
     assert positions["Aircraft1"] == pytest.approx((1.0, 0.0, 0.0))
-    assert positions["Drone"] == pytest.approx((0.0, 0.5, 0.0))
+    assert positions["Drone"] == pytest.approx((0.0, 1.0, 0.0))
+
+
+def test_normalize_frame_preserves_signs_and_axis_ratios() -> None:
+    frame = {
+        "Aircraft1": PoseRecord(None, "Aircraft1", (-2000.0, 40.0, -8.0), (10.0, 20.0, 30.0)),
+        "Drone": PoseRecord(None, "Drone", (1000.0, -80.0, 2.0), (0.0, 0.0, 0.0)),
+    }
+
+    positions = normalize_frame(frame, 2.0)
+
+    assert positions["Aircraft1"] == pytest.approx((-2.0, 1.0, -2.0))
+    assert positions["Drone"] == pytest.approx((1.0, -2.0, 0.5))
+    assert frame["Aircraft1"].orientation == (10.0, 20.0, 30.0)
+
+
+def test_normalize_empty_frame() -> None:
+    assert normalize_frame({}, 1.0) == {}
 
 
 def test_normalize_frame_other_target_range() -> None:
@@ -240,7 +257,13 @@ def test_load_applies_normalized_first_timestep(mock_emit_environment, tmp_path)
         skipChecks=True,
     )
     assert extension._index == 0
-    assert len(extension._widgets["pose_table"].get_children()) == 1
+    table = extension._widgets["pose_table"]
+    rows = table.get_children()
+    assert len(rows) == 2
+    assert table.item(rows[0], "values")[0] == timeline.label(0)
+    assert table.item(rows[1], "values")[0] == timeline.label(1)
+    assert table.item(rows[0], "tags") == ("current",)
+    assert not table.item(rows[1], "tags")
     assert str(extension._widgets["next_button"].cget("state")) == "normal"
 
     extension.root.destroy()
@@ -251,15 +274,22 @@ def test_next_and_prev_step_through_timesteps(mock_emit_environment, tmp_path) -
     node = make_scene_group("Aircraft1")
     extension._finish_load(parse_stk_summary_csv(write_csv(tmp_path, HEADER + ROWS)), {"aircraft1": node}, "s.csv")
 
+    table = extension._widgets["pose_table"]
+    rows = table.get_children()
     extension._on_next()
     assert extension._index == 1
     assert node.set_properties.call_args[0][0]["Position"] == [0.0, 1.0, 0.0]
+    assert table.get_children() == rows
+    assert not table.item(rows[0], "tags")
+    assert table.item(rows[1], "tags") == ("current",)
 
     extension._on_next()
     assert extension._index == 1
 
     extension._on_prev()
     assert extension._index == 0
+    assert table.item(rows[0], "tags") == ("current",)
+    assert not table.item(rows[1], "tags")
 
     extension._on_prev()
     assert extension._index == 0
@@ -275,6 +305,53 @@ def test_true_range_mode_writes_unscaled_positions(mock_emit_environment, tmp_pa
 
     assert node.set_properties.call_args[0][0]["Position"] == [2000.0, 0.0, 0.0]
 
+    extension.root.destroy()
+
+
+def test_table_updates_all_timesteps_when_normalization_changes(mock_emit_environment, tmp_path) -> None:
+    extension = StkPosePlayerExtension(withdraw=True)
+    timeline = parse_stk_summary_csv(write_csv(tmp_path, HEADER + ROWS))
+    extension._finish_load(timeline, {}, "s.csv")
+    table = extension._widgets["pose_table"]
+
+    extension.target_range_var.set("2.0")
+    extension._on_apply_current()
+    rows = table.get_children()
+    assert float(table.item(rows[0], "values")[2]) == 2.0
+    assert float(table.item(rows[1], "values")[3]) == 2.0
+
+    extension.normalize_var.set(False)
+    extension._on_apply_current()
+    rows = table.get_children()
+    assert float(table.item(rows[0], "values")[2]) == 2000.0
+    assert float(table.item(rows[1], "values")[3]) == 4000.0
+    assert table.item(rows[0], "tags") == ("current",)
+    extension.root.destroy()
+
+
+def test_playback_highlights_all_objects_at_current_timestep(mock_emit_environment, tmp_path) -> None:
+    extension = StkPosePlayerExtension(withdraw=True)
+    content = (
+        HEADER
+        + ROWS
+        + ("2026-05-21 19:00:00,Drone,100 0 0,0 0 0,GPS,-1\n2026-05-21 19:01:00,Drone,0 100 0,0 0 0,GPS,-2\n")
+    )
+    extension._finish_load(parse_stk_summary_csv(write_csv(tmp_path, content)), {}, "s.csv")
+    table = extension._widgets["pose_table"]
+    rows = table.get_children()
+    assert len(rows) == 4
+
+    extension._playing = True
+    with patch.object(extension, "_schedule_tick") as schedule:
+        extension._tick()
+        schedule.assert_called_once()
+    assert table.get_children() == rows
+    assert all(table.item(row, "tags") == ("current",) for row in rows[2:])
+    assert all(not table.item(row, "tags") for row in rows[:2])
+
+    extension._on_stop()
+    assert all(table.item(row, "tags") == ("current",) for row in rows[:2])
+    assert all(not table.item(row, "tags") for row in rows[2:])
     extension.root.destroy()
 
 

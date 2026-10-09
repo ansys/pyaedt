@@ -20,11 +20,12 @@ Features
 - Parse the ``*_summary.csv`` written by the EMIT-STK plugin.
 - Step forward and backward through timesteps, or play through them automatically with a
   configurable delay.
-- Normalize the range so the farthest object sits a short distance from the scene origin,
-  which keeps widely separated objects within the same view. A true-range mode is also
-  available for comparison.
-- Display a table of the applied position and orientation for every object, alongside the
-  true range and the logged EMI margin.
+- Normalize X, Y, and Z independently using each axis's maximum absolute coordinate within
+  the timestep. Signs are preserved and zero-only axes remain zero. A true-range mode is
+  also available for comparison.
+- Display positions and orientations for every object at every timestep, alongside the
+  true range and logged EMI margin. The active timestep's rows are highlighted and scrolled
+  into view during stepping and playback.
 - Restore the original positions and orientations when finished.
 
 
@@ -50,6 +51,8 @@ Notes
 
 - The summary log is sampled on at least a 60 second cadence, so playback is coarse relative
   to the STK animation step.
+- Independent axis normalization changes relative directions and Euclidean distances;
+  **Target range (m)** is an axis limit, not an object separation distance.
 - Poses are applied to the EMIT scene group whose name matches the ``Group Node`` column.
   Objects with no matching scene group are reported in the status line.
 - HFSS-linked antennas and nodes that use a phase center cannot be repositioned from EMIT.
