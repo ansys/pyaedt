@@ -849,7 +849,7 @@ def run(
         config = MCADAssembly.model_validate(config_data)
 
     project_dir = Path(tempfile.mkdtemp(prefix="mcad_assembly_")) if not project_dir else Path(project_dir)
-    model_dir = Path(model_dir) if model_dir else None
+    model_dir = Path(model_dir) if model_dir else Path.cwd()
 
     if hfss is None:
         ng = True
