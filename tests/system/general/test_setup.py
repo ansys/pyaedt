@@ -27,6 +27,7 @@ import pytest
 from ansys.aedt.core import Circuit
 from ansys.aedt.core import Hfss
 from ansys.aedt.core.generic.constants import Setups
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests.conftest import DESKTOP_VERSION
 
 TEST_SUBFOLDER = "T11"
@@ -228,11 +229,13 @@ def test_create_parametrics(aedtapp, test_tmp_dir) -> None:
     setup = aedtapp.create_setup("My_HFSS_Setup", Setups.HFSSDrivenDefault)
     setup.props["Frequency"] == "3.5GHz"
     setup.enable_adaptive_setup_single(3.5)
-    assert not aedtapp.parametrics.add("invalid", 0.1, 20, 0.2, "LinearStep")
+    with pytest.raises(AEDTRuntimeError):
+        aedtapp.parametrics.add("invalid", 0.1, 20, 0.2, "LinearStep")
     setup1 = aedtapp.parametrics.add("w1", 0.1, 20, 0.2, "LinearStep")
     assert setup1.name in aedtapp.parametrics.design_setups
     assert setup1
-    assert not setup1.add_variation("invalid", "0.1mm", 10, 11)
+    with pytest.raises(AEDTRuntimeError):
+        setup1.add_variation("invalid", "0.1mm", 10, 11)
     assert setup1.add_variation("w2", "0.1mm", 10, 11)
     assert setup1.add_variation("w2", start_point="0.2mm", variation_type="SingleValue")
     assert setup1.add_variation("w1", start_point="0.3mm", end_point=5, step=0.2, variation_type="LinearStep")
@@ -246,8 +249,16 @@ def test_create_parametrics(aedtapp, test_tmp_dir) -> None:
     oo = aedtapp.get_oo_object(aedtapp.odesign, f"Optimetrics\\{setup1.name}")
     oo_calculation = oo.GetCalculationInfo()[0]
     assert "Modal Solution Data" in oo_calculation
+
     assert setup1.export_to_csv(str(test_tmp_dir / "test.csv"))
     assert (test_tmp_dir / "test.csv").is_file()
+
+    assert aedtapp.parametrics.export_to_csv(str(test_tmp_dir / "test1.csv"), setup1.name)
+    assert (test_tmp_dir / "test1.csv").is_file()
+
+    with pytest.raises(AEDTRuntimeError):
+        aedtapp.parametrics.export_to_csv(str(test_tmp_dir / "test1.csv"), "invented")
+
     assert aedtapp.parametrics.add_from_file(str(test_tmp_dir / "test.csv"), "ParametricsfromFile")
     with pytest.raises(ValueError):
         aedtapp.parametrics.add_from_file("test.invalid", "ParametricsfromFile")
