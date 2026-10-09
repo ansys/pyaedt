@@ -581,7 +581,7 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
                 raise AEDTRuntimeError(f"Variable {v} is not defined in the parametric setup.")
 
         for v in variables:
-            for count, sweep_def in self._legacy_props["Sweeps"]["SweepDefinition"].items():
+            for count, sweep_def in enumerate(self._legacy_props["Sweeps"]["SweepDefinition"]):
                 sweep_def_copy = dict(sweep_def)
                 if v == sweep_def_copy["Variable"]:
                     undo_vals[v] = sweep_def_copy["Synchronize"]
