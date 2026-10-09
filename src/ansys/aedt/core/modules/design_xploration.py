@@ -24,6 +24,8 @@
 
 from __future__ import annotations
 
+import csv
+from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
 
@@ -34,7 +36,9 @@ from ansys.aedt.core.generic.constants import SolutionsHfss
 from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import SetupDict
+from ansys.aedt.core.generic.general_methods import deprecated_property
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.props import Props as SetupProps
 from ansys.aedt.core.generic.settings import settings
@@ -828,16 +832,100 @@ class Parametrics(PyAedtBase):
 
         return setup
 
-    #     inputd = copy.deepcopy(props)
-    #
-    #     if self.setup_type == "OptiParametric":
-    #         self._legacy_props = inputd or copy.deepcopy(defaultparametricSetup)
-    #
-    #         if not inputd and self._app.design_type == "Icepak":
-    #             self._legacy_props["ProdOptiSetupDataV2"] = {
-    #                 "SaveFields": False,
-    #                 "FastOptimetrics": False,
-    #                 "SolveWithCopiedMeshOnly": True,
+    @pyaedt_function_handler()
+    def delete(self, name: str) -> bool:
+        """Delete a parametric setup.
+
+        Parameters
+        ----------
+        name : str
+            Name of parametric setup to delete.
+
+        Returns
+        -------
+        bool
+            ``True`` if setup is deleted. ``False`` if it failed.
+
+        """
+        for el in self.setups:
+            if el.name == name:
+                el.delete()
+                return True
+        return False
+
+    @pyaedt_function_handler()
+    def add_from_file(self, input_file: str, name: str | None = None):
+        """Add a Parametric setup from either a csv or txt file.
+
+        Parameters
+        ----------
+        input_file : str
+            ``.csv`` or ``.txt`` file path.
+        name : str, option
+            Name of parametric setup.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.design_xploration.SetupParam`
+            Optimization Object.
+
+        References
+        ----------
+        >>> oModule.ImportSetup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.design_xploration import ParametricSetups
+        >>> obj = ParametricSetups()
+        >>> obj.add_from_file(input_file="example.txt")
+
+        """
+        if not name:
+            name = generate_unique_name("Parametric")
+
+        setup = OptimetricsSetup(app=self, name=name, props={})
+
+        setup._legacy_props["Sim. Setups"] = [setup_defined.name for setup_defined in self._app.setups]
+
+        file_path = Path(input_file)
+        if file_path.suffix not in [".csv", ".txt"]:
+            raise ValueError("Input file must be a CSV or TXT file.")
+
+        with open_file(input_file, "r") as csvfile:
+            csvreader = csv.DictReader(csvfile)
+            first_data_line = next(csvreader)
+            sweep_definition = [
+                {
+                    "Variable": var_name,
+                    "Data": first_data_line[var_name],
+                    "OffsetF1": False,
+                    "Synchronize": 0,
+                }
+                for var_name in csvreader.fieldnames
+                if var_name != "*"
+            ]
+            setup._legacy_props["Sweeps"] = {"SweepDefinition": sweep_definition}
+
+            table = [[line[var_name] for var_name in csvreader.fieldnames if var_name != "*"] for line in csvreader]
+            if table:
+                setup._legacy_props["Sweep Operations"] = {"add": table}
+
+        args = ["NAME:" + name, input_file]
+        self.optimodule.ImportSetup("OptiParametric", args)
+
+        return setup
+
+    @property
+    @deprecated_property("Use setups from analysis instead.")
+    def design_setups(self):
+        """All design setups ordered by name.
+
+        Returns
+        -------
+        dict[str, :class:`ansys.aedt.core.modules.solve_setup.Setup`]
+
+        """
+        return self._app.design_setups
 
 
 class Optimizations(PyAedtBase):
