@@ -329,6 +329,28 @@ def test_table_updates_all_timesteps_when_normalization_changes(mock_emit_enviro
     extension.root.destroy()
 
 
+def test_single_object_motion_uses_timeline_axis_maxima(mock_emit_environment, tmp_path) -> None:
+    extension = StkPosePlayerExtension(withdraw=True)
+    node = make_scene_group("Aircraft1")
+    content = HEADER + (
+        "2026-05-21 19:00:00,Aircraft1,-100 -20 5,0 0 0,IFF,-1\n"
+        "2026-05-21 19:01:00,Aircraft1,-200 -80 10,0 0 0,IFF,-2\n"
+    )
+    extension._finish_load(parse_stk_summary_csv(write_csv(tmp_path, content)), {"aircraft1": node}, "s.csv")
+    assert extension._axis_maxima == (200.0, 80.0, 10.0)
+    assert node.set_properties.call_args[0][0]["Position"] == pytest.approx([-0.5, -0.25, 0.5])
+    table = extension._widgets["pose_table"]
+    rows = table.get_children()
+    assert [float(value) for value in table.item(rows[0], "values")[2:5]] == [-0.5, -0.25, 0.5]
+    assert [float(value) for value in table.item(rows[1], "values")[2:5]] == [-1.0, -1.0, 1.0]
+
+    extension._on_next()
+    assert node.set_properties.call_args[0][0]["Position"] == pytest.approx([-1.0, -1.0, 1.0])
+    extension._on_prev()
+    assert node.set_properties.call_args[0][0]["Position"] == pytest.approx([-0.5, -0.25, 0.5])
+    extension.root.destroy()
+
+
 def test_playback_highlights_all_objects_at_current_timestep(mock_emit_environment, tmp_path) -> None:
     extension = StkPosePlayerExtension(withdraw=True)
     content = (
@@ -342,9 +364,16 @@ def test_playback_highlights_all_objects_at_current_timestep(mock_emit_environme
     assert len(rows) == 4
 
     extension._playing = True
-    with patch.object(extension, "_schedule_tick") as schedule:
+    with (
+        patch.object(extension, "_schedule_tick") as schedule,
+        patch("ansys.aedt.core.extensions.emit.stk_pose_player.Thread") as thread,
+        patch.object(extension.root, "after") as after,
+    ):
         extension._tick()
-        schedule.assert_called_once()
+        schedule.assert_not_called()
+        thread.call_args.kwargs["target"]()
+        after.call_args.args[1]()
+        assert extension._playing is False
     assert table.get_children() == rows
     assert all(table.item(row, "tags") == ("current",) for row in rows[2:])
     assert all(not table.item(row, "tags") for row in rows[:2])
@@ -355,12 +384,81 @@ def test_playback_highlights_all_objects_at_current_timestep(mock_emit_environme
     extension.root.destroy()
 
 
+@pytest.mark.parametrize("action", ["pause", "stop", "restore", "close", "continue"])
+def test_autoplay_waits_for_worker_without_overlapping_writes(mock_emit_environment, tmp_path, action) -> None:
+    extension = StkPosePlayerExtension(withdraw=True)
+    node = make_scene_group("Aircraft1")
+    content = HEADER + ROWS + "2026-05-21 19:02:00,Aircraft1,10 20 30,0 0 0,IFF,-1\n"
+    extension._finish_load(parse_stk_summary_csv(write_csv(tmp_path, content)), {"aircraft1": node}, "s.csv")
+    node.set_properties.reset_mock()
+    extension._playing = True
+
+    with (
+        patch("ansys.aedt.core.extensions.emit.stk_pose_player.Thread") as thread,
+        patch.object(extension.root, "after") as after,
+        patch.object(extension, "_schedule_tick") as schedule,
+        patch.object(extension, "release_desktop"),
+        patch.object(extension.root, "destroy") as destroy,
+        patch("ansys.aedt.core.extensions.emit.stk_pose_player.messagebox.askyesnocancel", return_value=False),
+    ):
+        extension._tick()
+        assert extension._applying_frame
+        assert extension._index == 0
+        node.set_properties.assert_not_called()
+        schedule.assert_not_called()
+        poll = after.call_args.args[1]
+        poll()
+        extension._tick()
+        extension._on_apply_current()
+        thread.assert_called_once()
+        node.set_properties.assert_not_called()
+
+        if action != "continue":
+            getattr(extension, f"_on_{action}")()
+        node.set_properties.assert_not_called()
+        destroy.assert_not_called()
+        thread.call_args.kwargs["target"]()
+        poll()
+
+        assert not extension._applying_frame
+        if action == "continue":
+            schedule.assert_called_once()
+        else:
+            schedule.assert_not_called()
+        assert extension._index == (0 if action == "stop" else 1)
+        assert node.set_properties.call_count == (2 if action in ("stop", "restore") else 1)
+        assert destroy.called == (action == "close")
+    extension.root.destroy()
+
+
 def test_unmatched_group_is_reported(mock_emit_environment, tmp_path) -> None:
     extension = StkPosePlayerExtension(withdraw=True)
     extension._finish_load(parse_stk_summary_csv(write_csv(tmp_path, HEADER + ROWS)), {}, "s.csv")
 
     assert "No matching scene group for: Aircraft1" in extension.status_var.get()
 
+    extension.root.destroy()
+
+
+@pytest.mark.parametrize("error", [ValueError("read-only"), RuntimeError("connection lost")])
+def test_autoplay_stops_on_worker_failure(mock_emit_environment, tmp_path, error) -> None:
+    extension = StkPosePlayerExtension(withdraw=True)
+    node = make_scene_group("Aircraft1")
+    extension._finish_load(parse_stk_summary_csv(write_csv(tmp_path, HEADER + ROWS)), {"aircraft1": node}, "s.csv")
+    node.set_properties.side_effect = error
+    extension._playing = True
+    with (
+        patch("ansys.aedt.core.extensions.emit.stk_pose_player.Thread") as thread,
+        patch.object(extension.root, "after") as after,
+        patch.object(extension, "_schedule_tick") as schedule,
+    ):
+        extension._tick()
+        thread.call_args.kwargs["target"]()
+        after.call_args.args[1]()
+        assert not extension._playing
+        assert not extension._applying_frame
+        assert "failed" in extension.status_var.get() or "Could not update" in extension.status_var.get()
+        schedule.assert_not_called()
     extension.root.destroy()
 
 

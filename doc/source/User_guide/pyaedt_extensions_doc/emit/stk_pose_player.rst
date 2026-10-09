@@ -20,8 +20,8 @@ Features
 - Parse the ``*_summary.csv`` written by the EMIT-STK plugin.
 - Step forward and backward through timesteps, or play through them automatically with a
   configurable delay.
-- Normalize X, Y, and Z independently using each axis's maximum absolute coordinate within
-  the timestep. Signs are preserved and zero-only axes remain zero. A true-range mode is
+- Normalize X, Y, and Z independently using each axis's maximum absolute coordinate across
+  all objects and timesteps in the loaded log. Signs are preserved and zero-only axes remain zero. A true-range mode is
   also available for comparison.
 - Display positions and orientations for every object at every timestep, alongside the
   true range and logged EMI margin. The active timestep's rows are highlighted and scrolled

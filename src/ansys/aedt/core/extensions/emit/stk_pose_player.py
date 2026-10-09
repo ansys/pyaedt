@@ -41,6 +41,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+from queue import Empty
+from queue import Queue
+from threading import Thread
 import tkinter
 from tkinter import filedialog
 from tkinter import messagebox
@@ -135,6 +138,9 @@ class StkPosePlayerExtension(ExtensionEMITCommon):
         self._updating_slider: bool = False
         self._table_rows: dict[int, list[str]] = {}
         self._table_settings: tuple[bool, float] | None = None
+        self._axis_maxima: tuple[float, float, float] = (0.0, 0.0, 0.0)
+        self._applying_frame = False
+        self._pending_action: str | None = None
 
         super().__init__(
             EXTENSION_TITLE,
@@ -390,6 +396,9 @@ class StkPosePlayerExtension(ExtensionEMITCommon):
 
     def _on_load(self) -> None:
         self._stop_playback()
+        if self._applying_frame:
+            self.status_var.set("Wait for the current pose update before loading another log.")
+            return
         file_path = self.file_path_var.get().strip()
         if not file_path:
             messagebox.showerror("Error", "Select an EMIT-STK summary log first.")
@@ -422,6 +431,13 @@ class StkPosePlayerExtension(ExtensionEMITCommon):
     def _finish_load(self, timeline: StkTimeline, nodes: dict[str, Any], file_path: str) -> None:
         """Bind a parsed timeline and the matching scene groups, then show the first timestep."""
         self._timeline = timeline
+        self._axis_maxima = tuple(
+            max(
+                (abs(record.position[axis]) for frame in timeline.frames.values() for record in frame.values()),
+                default=0.0,
+            )
+            for axis in range(3)
+        )
         self._table_settings = None
         self._nodes = nodes
         self._original_poses = {}
@@ -469,38 +485,88 @@ class StkPosePlayerExtension(ExtensionEMITCommon):
 
     # ---------------------------------------------------------------- apply
 
-    def _apply_index(self, index: int) -> None:
+    def _apply_index(self, index: int, background: bool = False) -> None:
         timeline = self._timeline
-        if timeline is None or not timeline.timesteps:
+        if timeline is None or not timeline.timesteps or self._applying_frame:
             return
 
-        self._index = max(0, min(index, len(timeline) - 1))
-        frame = timeline.frame(self._index)
+        index = max(0, min(index, len(timeline) - 1))
+        frame = timeline.frame(index)
         positions = (
-            normalize_frame(frame, self.target_range)
+            normalize_frame(frame, self.target_range, self._axis_maxima)
             if self.normalize_var.get()
             else {name: record.position for name, record in frame.items()}
         )
 
+        updates = [
+            (name, self._nodes[_node_key(name)], positions[name], record.orientation)
+            for name, record in frame.items()
+            if _node_key(name) in self._nodes
+        ]
+        if not background:
+            failed, modified = self._write_frame(updates)
+            self._finish_frame(index, failed, modified)
+            return
+
+        self._applying_frame = True
+        completed = Queue()
+
+        def worker() -> None:
+            try:
+                completed.put(self._write_frame(updates))
+            except Exception as error:
+                completed.put(error)
+
+        def poll() -> None:
+            try:
+                result = completed.get_nowait()
+            except Empty:
+                self.root.after(50, poll)
+                return
+            self._applying_frame = False
+            if isinstance(result, Exception):
+                self._stop_playback()
+                self._poses_modified = True
+                self.status_var.set(f"Pose update failed: {result}")
+            else:
+                failed, modified = result
+                self._finish_frame(index, failed, modified)
+                if failed:
+                    self._stop_playback()
+            action = self._pending_action
+            self._pending_action = None
+            if action is not None:
+                {"stop": self._on_stop, "restore": self._on_restore, "close": self._on_close}[action]()
+            elif self._playing:
+                if self._index >= len(timeline) - 1:
+                    self._playing = False
+                else:
+                    self._schedule_tick()
+
+        Thread(target=worker, daemon=True).start()
+        self.root.after(50, poll)
+
+    def _write_frame(self, updates: list) -> tuple[list[str], bool]:
         failed: list[str] = []
-        for name, record in frame.items():
-            node = self._nodes.get(_node_key(name))
-            if node is None:
-                continue
-            position = positions[name]
+        modified = False
+        for name, node, position, orientation in updates:
             try:
                 node.set_properties(
                     {
                         "Orientation Mode": ORIENTATION_MODE_RPY,
                         "Position": list(position),
-                        "Orientation": list(record.orientation),
+                        "Orientation": list(orientation),
                     },
                     skipChecks=True,
                 )
-                self._poses_modified = True
+                modified = True
             except (ValueError, AttributeError):
                 failed.append(name)
+        return failed, modified
 
+    def _finish_frame(self, index: int, failed: list[str], modified: bool) -> None:
+        self._index = index
+        self._poses_modified = self._poses_modified or modified
         self._update_table()
         self._update_timestep_widgets()
         if failed:
@@ -521,7 +587,7 @@ class StkPosePlayerExtension(ExtensionEMITCommon):
             for index in range(len(timeline)):
                 frame = timeline.frame(index)
                 positions = (
-                    normalize_frame(frame, settings[1])
+                    normalize_frame(frame, settings[1], self._axis_maxima)
                     if settings[0]
                     else {name: record.position for name, record in frame.items()}
                 )
@@ -593,7 +659,7 @@ class StkPosePlayerExtension(ExtensionEMITCommon):
             self._apply_index(self._index + 1)
 
     def _on_play(self) -> None:
-        if self._timeline is None or self._playing:
+        if self._timeline is None or self._playing or self._applying_frame:
             return
         self._playing = True
         self._schedule_tick()
@@ -603,6 +669,9 @@ class StkPosePlayerExtension(ExtensionEMITCommon):
 
     def _on_stop(self) -> None:
         self._stop_playback()
+        if self._applying_frame:
+            self._pending_action = "stop"
+            return
         if self._timeline is not None:
             self._apply_index(0)
 
@@ -620,14 +689,12 @@ class StkPosePlayerExtension(ExtensionEMITCommon):
 
     def _tick(self) -> None:
         self._after_id = None
-        if not self._playing or self._timeline is None:
+        if not self._playing or self._timeline is None or self._applying_frame:
             return
         if self._index >= len(self._timeline) - 1:
             self._playing = False
             return
-        self._apply_index(self._index + 1)
-        if self._playing:
-            self._schedule_tick()
+        self._apply_index(self._index + 1, background=True)
 
     # -------------------------------------------------------------- restore
 
@@ -647,6 +714,9 @@ class StkPosePlayerExtension(ExtensionEMITCommon):
 
     def _on_restore(self) -> None:
         self._stop_playback()
+        if self._applying_frame:
+            self._pending_action = "restore"
+            return
         if not self._original_poses:
             self.status_var.set("No original poses have been captured yet.")
             return
@@ -657,6 +727,10 @@ class StkPosePlayerExtension(ExtensionEMITCommon):
 
     def _on_close(self) -> None:
         self._stop_playback()
+        if self._applying_frame:
+            self._pending_action = "close"
+            self.status_var.set("Waiting for the current pose update before closing.")
+            return
         if self._poses_modified and self._original_poses:
             answer = messagebox.askyesnocancel(
                 EXTENSION_TITLE,

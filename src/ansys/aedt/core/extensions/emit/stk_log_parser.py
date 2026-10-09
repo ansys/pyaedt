@@ -267,8 +267,10 @@ def parse_stk_summary_csv(file_path: str | Path) -> StkTimeline:
     return timeline
 
 
-def normalize_frame(frame: dict[str, PoseRecord], target_range: float) -> dict[str, Vector]:
-    """Scale each axis by its maximum absolute coordinate within the frame.
+def normalize_frame(
+    frame: dict[str, PoseRecord], target_range: float, axis_maxima: Vector | None = None
+) -> dict[str, Vector]:
+    """Scale each axis using fixed maxima, or the frame's maxima when omitted.
 
     Orientations and coordinate signs are unchanged; zero-only axes remain zero.
     Independent axis scaling changes relative directions and Euclidean distances.
@@ -279,6 +281,8 @@ def normalize_frame(frame: dict[str, PoseRecord], target_range: float) -> dict[s
         Poses for a single timestep, keyed by node name.
     target_range : float
         Desired maximum absolute coordinate in meters on each nonzero axis.
+    axis_maxima : tuple of float, optional
+        Maximum absolute X, Y, and Z over the timeline for consistent playback scaling.
 
     Returns
     -------
@@ -297,7 +301,10 @@ def normalize_frame(frame: dict[str, PoseRecord], target_range: float) -> dict[s
     if target_range <= 0:
         return positions
 
-    axis_maxima = [max((abs(position[axis]) for position in positions.values()), default=0.0) for axis in range(3)]
+    if axis_maxima is None:
+        axis_maxima = tuple(
+            max((abs(position[axis]) for position in positions.values()), default=0.0) for axis in range(3)
+        )
     scales = [target_range / maximum if maximum > 0 else 1.0 for maximum in axis_maxima]
     return {
         name: (position[0] * scales[0], position[1] * scales[1], position[2] * scales[2])
