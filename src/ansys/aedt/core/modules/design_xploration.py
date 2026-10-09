@@ -388,9 +388,10 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         """
         if self.setup_type != "OptiParametric":
             raise AEDTRuntimeError("Setup must be a parametric setup.")
+
         if sweep_variable not in self._app.variable_manager.variables:
-            self._app.logger.error(f"Variable {sweep_variable} does not exists.")
-            return False
+            raise AEDTRuntimeError(f"Variable {sweep_variable} does not exists.")
+
         sweep_range = ""
         if not units:
             units = self._app.variable_manager[sweep_variable].units
@@ -419,10 +420,14 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
             self._legacy_props["Sweeps"]["SweepDefinition"] = sweepdefinition
         elif type(self.props["Sweeps"]["SweepDefinition"]) is not list:
             self._legacy_props["Sweeps"]["SweepDefinition"] = [self._legacy_props["Sweeps"]["SweepDefinition"]]
-            self._append_sweepdefinition(sweepdefinition)
+            self._legacy_props["Sweeps"]["SweepDefinition"].append(sweepdefinition)
         else:
-            self._append_sweepdefinition(sweepdefinition)
-
+            for count, sweep_def in enumerate(self.props["Sweeps"]["SweepDefinition"]):
+                sweep_def_copy = dict(sweep_def)
+                if sweepdefinition["Variable"] == sweep_def_copy["Variable"]:
+                    sweep_def_copy["Data"] += " " + sweepdefinition["Data"]
+                    self._legacy_props["Sweeps"]["SweepDefinition"][count] = sweep_def_copy
+                    break
         return self.update()
 
     @pyaedt_function_handler()
@@ -524,6 +529,15 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
             self._app.activate_variable_sensitivity(variable_name)
         elif self.setup_type == "OptiStatistical":
             self._app.activate_variable_statistical(variable_name)
+
+    @pyaedt_function_handler()
+    def _append_sweepdefinition(self, sweepdefinition) -> bool:
+        for sweep_def in self.props["Sweeps"]["SweepDefinition"]:
+            if sweepdefinition["Variable"] == sweep_def["Variable"]:
+                sweep_def["Data"] += " " + sweepdefinition["Data"]
+                return True
+        self._legacy_props["Sweeps"]["SweepDefinition"].append(sweepdefinition)
+        return True
 
     @pyaedt_function_handler()
     def _get_context(
@@ -749,6 +763,18 @@ class Parametrics(PyAedtBase):
     def setups_by_type(self) -> SetupDict:
         return self.__setups_by_type
 
+    @property
+    @deprecated_property("Use setups instead.")
+    def design_setups(self) -> SetupDict:
+        """All design setups ordered by name.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.generic.general_methods.SetupDict`
+
+        """
+        return self.setups
+
     @pyaedt_function_handler()
     def add(
         self,
@@ -914,18 +940,6 @@ class Parametrics(PyAedtBase):
         self.optimodule.ImportSetup("OptiParametric", args)
 
         return setup
-
-    @property
-    @deprecated_property("Use setups from analysis instead.")
-    def design_setups(self):
-        """All design setups ordered by name.
-
-        Returns
-        -------
-        dict[str, :class:`ansys.aedt.core.modules.solve_setup.Setup`]
-
-        """
-        return self._app.design_setups
 
 
 class Optimizations(PyAedtBase):
