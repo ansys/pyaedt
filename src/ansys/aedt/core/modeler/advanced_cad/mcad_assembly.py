@@ -873,5 +873,5 @@ def run(
     service.execute()
     if ng:
         hfss.save_project()
-        hfss.release_desktop()
         hfss.logger.info(f"Project saved to {project_dir}")
+        hfss.release_desktop()
