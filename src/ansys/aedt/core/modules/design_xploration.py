@@ -40,6 +40,7 @@ from ansys.aedt.core.generic.props import Props as SetupProps
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
+from ansys.aedt.core.modules.optimetrics_templates import defaultparametricSetup
 
 if TYPE_CHECKING:
     pass
@@ -74,15 +75,20 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         return self.name
 
     def __init__(self, app: Parametrics | Optimizations, name: str, props: dict) -> None:
-        self._optimetrics = app
-        self._app: Any = self._optimetrics._app
+        self._parent: Parametrics | Optimizations = app
+        self._app: Any = self._parent._app
         self.ooptimetrics = self._app.ooptimetrics
         self._legacy_props = {}
         self._name = name
-        self._is_new_setup = False
 
-        # Optimetrics setup type
-        self._setup_type = None
+        # If no props is provided, it means the setup already exist.
+        if props:
+            self._legacy_props = props
+            if props == defaultparametricSetup:
+                self.__setup_type = "OptiParametric"
+        else:
+            self.__setup_type = self._parent.setups_by_type.get(self._name)
+
         # if setup_type:
         #     self._setup_type = setup_type
         #
@@ -259,7 +265,7 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
 
     @property
     def setup_type(self) -> str | None:
-        """Retrieve type.
+        """Setup type.
 
         Returns
         -------
@@ -267,19 +273,7 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
             Type of the optimetrics setup.
 
         """
-        if not self._setup_type:
-            app_type = None
-            child_object = self._child_object
-            if "GetObjType" in dir(child_object):
-                app_type = child_object.GetObjType()
-            else:
-                name = self.name
-                for st in self._app.ooptimetrics.GetChildTypes():
-                    if name in self._app.ooptimetrics.GetChildNames(st):
-                        app_type = st
-                        break
-            self._setup_type = app_type
-        return self._setup_type
+        return self.__setup_type
 
     @pyaedt_function_handler()
     def update(self, props: dict | None = None) -> bool:
@@ -415,6 +409,7 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
             return False
 
         self._activate_variable(sweep_variable)
+
         sweepdefinition = {"Variable": sweep_variable, "Data": sweep_range, "OffsetF1": False, "Synchronize": 0}
         if self._legacy_props["Sweeps"]["SweepDefinition"] is None:
             self._legacy_props["Sweeps"]["SweepDefinition"] = sweepdefinition
@@ -675,6 +670,7 @@ class Parametrics(PyAedtBase):
 
         self.__setups = SetupDict()
         self.__setup_names = []
+        self.__setups_by_type = SetupDict()
 
         app.logger.info_timer("Parametrics class has been initialized!")
 
@@ -725,6 +721,7 @@ class Parametrics(PyAedtBase):
                         break
             if app_type == "OptiParametric":
                 self.__setup_names.append(name)
+                self.__setups_by_type[name] = app_type
 
         return self.__setup_names
 
@@ -743,6 +740,104 @@ class Parametrics(PyAedtBase):
                 # ADD COMMENT
                 self.__setups[setup_name] = OptimetricsSetup(app=self, name=setup_name, props={})
         return self.__setups
+
+    @property
+    def setups_by_type(self) -> SetupDict:
+        return self.__setups_by_type
+
+    @pyaedt_function_handler()
+    def add(
+        self,
+        variable: str,
+        start_point: float | int,
+        end_point: float | int | None = None,
+        step: float | int = 100,
+        variation_type: str = "LinearCount",
+        solution: str | None = None,
+        name: str | None = None,
+        **kwargs,
+    ) -> OptimetricsSetup:
+        """Add parametric setup.
+        You can customize all options after the analysis is added.
+
+        Parameters
+        ----------
+        variable : str
+            Name of the variable.
+        start_point : float, int or str
+            Variation Start Point if a variation is defined or Single Value.
+        end_point : float or int, optional
+            Variation End Point. This parameter is optional if a Single Value is defined.
+        step : float, int, or str
+            Variation Step or Count depending on variation_type. The default is ``100``
+            for the "LinearCount" variation_type. If a string is passed as an argument, it
+            must be a valid expression in the given context. For example, "0.1mm" may be passed
+            for a step size when the variation_type is "LinearStep".
+        variation_type : str, optional
+            Variation Type. Permitted values are `"LinearCount"`, `"LinearStep"`, `"LogScale"`, `"SingleValue"`.
+        solution : str, optional
+            Type of the solution. The default is ``None``, in which case the default
+            solution is used.
+        name : str, optional
+            Name of the sensitivity analysis. The default is ``None``, in which case
+            a default name is assigned.
+        **kwargs : optional
+            Additional keyword arguments to pass when creating the setup.
+
+        Returns
+        -------
+         :class:`ansys.aedt.core.modules.design_xploration.OptimetricsSetup`
+            Optimetrics setup object.
+
+        References
+        ----------
+        >>> oModule.InsertSetup
+
+        """
+        if variable not in self._app.variable_manager.variables:
+            raise AEDTRuntimeError(f"Variable {variable} not found.")
+
+        if not solution and not self._app.nominal_sweep:
+            raise AEDTRuntimeError("At least one setup is needed.")
+
+        if not solution:
+            solution = self._app.nominal_sweep
+
+        setupname = solution.split(" ")[0]
+        if not name:
+            name = generate_unique_name("Parametric")
+
+        props = defaultparametricSetup
+
+        setup = OptimetricsSetup(app=self, name=name, props=props)
+
+        setup._legacy_props["Sim. Setups"] = [setupname]
+        setup._legacy_props["Sweeps"] = {"SweepDefinition": None}
+
+        for arg_name, arg_value in kwargs.items():
+            setup._legacy_props[arg_name] = arg_value
+
+        setup.create()
+
+        unit = self._app.variable_manager[variable].units
+
+        is_added = setup.add_variation(variable, start_point, end_point, step, unit, variation_type)
+
+        if not is_added:
+            raise AEDTRuntimeError("Variation could not be added.")
+
+        return setup
+
+    #     inputd = copy.deepcopy(props)
+    #
+    #     if self.setup_type == "OptiParametric":
+    #         self._legacy_props = inputd or copy.deepcopy(defaultparametricSetup)
+    #
+    #         if not inputd and self._app.design_type == "Icepak":
+    #             self._legacy_props["ProdOptiSetupDataV2"] = {
+    #                 "SaveFields": False,
+    #                 "FastOptimetrics": False,
+    #                 "SolveWithCopiedMeshOnly": True,
 
 
 class Optimizations(PyAedtBase):
@@ -765,6 +860,7 @@ class Optimizations(PyAedtBase):
 
         self.__setups = SetupDict()
         self.__setup_names = []
+        self.__setups_by_type = SetupDict()
 
         app.logger.info_timer("Optimizations class has been initialized!")
 
@@ -815,6 +911,7 @@ class Optimizations(PyAedtBase):
                         break
             if app_type != "OptiParametric":
                 self.__setup_names.append(name)
+                self.__setups_by_type[name] = app_type
 
         return self.__setup_names
 
@@ -833,6 +930,10 @@ class Optimizations(PyAedtBase):
                 # ADD COMMENT
                 self.__setups[setup_name] = OptimetricsSetup(app=self, name=setup_name, props={})
         return self.__setups
+
+    @property
+    def setups_by_type(self) -> SetupDict:
+        return self.__setups_by_type
 
 
 class Optimetrics(PyAedtBase):
@@ -997,31 +1098,13 @@ class Optimetrics(PyAedtBase):
         >>> oModule.InsertSetup
 
         """
-        if variable not in self._app.variable_manager.variables:
-            self._app.logger.error(f"Variable {variable} not found.")
-            return False
-        if not solution and not self._app.nominal_sweep:
-            self._app.logger.error("At least one setup is needed.")
-            return False
-        if not solution:
-            solution = self._app.nominal_sweep
-        setupname = solution.split(" ")[0]
-        if not name:
-            name = generate_unique_name("Parametric")
-
-        setup = OptimetricsSetup(app=self, name=name, props={}, setup_type="OptiParametric")
-
-        setup._legacy_props["Sim. Setups"] = [setupname]
-        setup._legacy_props["Sweeps"] = {"SweepDefinition": None}
-
-        for arg_name, arg_value in kwargs.items():
-            setup._legacy_props[arg_name] = arg_value
-
-        setup.create()
-
-        unit = self._app.variable_manager[variable].units
-        is_added = setup.add_variation(variable, start_point, end_point, step, unit, variation_type)
-        if not is_added:
-            raise AEDTRuntimeError("Variation could not be added.")
-
-        return setup
+        return self.parametrics.add(
+            variable=variable,
+            start_point=start_point,
+            end_point=end_point,
+            step=step,
+            variation_type=variation_type,
+            solution=solution,
+            name=name,
+            **kwargs,
+        )
