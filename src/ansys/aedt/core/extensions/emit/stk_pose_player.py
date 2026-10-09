@@ -434,7 +434,7 @@ class StkPosePlayerExtension(ExtensionEMITCommon):
 
         def _walk(node: Any) -> None:
             for child in node.children:
-                if child.node_type == SCENE_GROUP_NODE_TYPE:
+                if child._node_type == SCENE_GROUP_NODE_TYPE:
                     collected[_node_key(child.name)] = child
                 _walk(child)
 
