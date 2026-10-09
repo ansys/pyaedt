@@ -249,8 +249,16 @@ def test_create_parametrics(aedtapp, test_tmp_dir) -> None:
     oo = aedtapp.get_oo_object(aedtapp.odesign, f"Optimetrics\\{setup1.name}")
     oo_calculation = oo.GetCalculationInfo()[0]
     assert "Modal Solution Data" in oo_calculation
+
     assert setup1.export_to_csv(str(test_tmp_dir / "test.csv"))
     assert (test_tmp_dir / "test.csv").is_file()
+
+    assert aedtapp.parametrics.export_to_csv(str(test_tmp_dir / "test1.csv"), setup1.name)
+    assert (test_tmp_dir / "test1.csv").is_file()
+
+    with pytest.raises(AEDTRuntimeError):
+        aedtapp.parametrics.export_to_csv(str(test_tmp_dir / "test1.csv"), "invented")
+
     assert aedtapp.parametrics.add_from_file(str(test_tmp_dir / "test.csv"), "ParametricsfromFile")
     with pytest.raises(ValueError):
         aedtapp.parametrics.add_from_file("test.invalid", "ParametricsfromFile")

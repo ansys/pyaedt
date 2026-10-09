@@ -81,7 +81,6 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
     def __init__(self, app: Parametrics | Optimizations, name: str, props: dict) -> None:
         self._parent: Parametrics | Optimizations = app
         self._app: Any = self._parent._app
-        self.ooptimetrics = self._app.ooptimetrics
         self._legacy_props = {}
         self._name = name
 
@@ -310,7 +309,7 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         arg = ["NAME:" + self.name]
         _dict2arg(props, arg)
 
-        self.ooptimetrics.EditSetup(self.name, arg)
+        self._app.ooptimetrics.EditSetup(self.name, arg)
 
         self._legacy_props = dict(props)
         return True
@@ -326,7 +325,7 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         """
         arg = ["NAME:" + self.name]
         _dict2arg(self.props, arg)
-        self.ooptimetrics.InsertSetup(self.setup_type, arg)
+        self._app.ooptimetrics.InsertSetup(self.setup_type, arg)
         return self
 
     @pyaedt_function_handler()
@@ -345,7 +344,7 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
 
 
         """
-        self.ooptimetrics.DeleteSetups([self.name])
+        self._app.ooptimetrics.DeleteSetups([self.name])
         return True
 
     @pyaedt_function_handler()
@@ -518,6 +517,27 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
             self._legacy_props[optigoalname] = {}
             self._legacy_props[optigoalname]["Goal"] = sweepdefinition
         return self.update()
+
+    @pyaedt_function_handler()
+    def export_to_csv(self, output_file: str) -> bool:
+        """Export the current setup to csv.
+
+        Parameters
+        ----------
+        output_file : str
+            Full Path to the csv file.
+
+        Returns
+        -------
+        bool
+            `True` if the export is correctly executed.
+
+        """
+        if self.setup_type != "OptiParametric":
+            raise AEDTRuntimeError("Setup must be a parametric setup.")
+
+        self._app.ooptimetrics.ExportParametricSetupTable(self.name, output_file)
+        return True
 
     @pyaedt_function_handler()
     def _activate_variable(self, variable_name):
@@ -873,11 +893,31 @@ class Parametrics(PyAedtBase):
             ``True`` if setup is deleted. ``False`` if it failed.
 
         """
-        for el in self.setups:
-            if el.name == name:
-                el.delete()
+        for setup_name, setup in self.setups.items():
+            if setup_name == name:
+                setup.delete()
                 return True
         return False
+
+    @pyaedt_function_handler()
+    def export_to_csv(self, output_file: str, name: str) -> bool:
+        """Export the current Parametric Setup to csv.
+
+        Parameters
+        ----------
+        output_file : str
+            Full Path to the csv file.
+        name : str
+
+        Returns
+        -------
+        bool
+            `True` if the export is correctly executed.
+
+        """
+        if name not in self.setup_names:
+            raise AEDTRuntimeError(f"{name} not found in parametric setup names.")
+        return self.setups[name].export_to_csv(output_file)
 
     @pyaedt_function_handler()
     def add_from_file(self, input_file: str, name: str | None = None):
@@ -937,7 +977,7 @@ class Parametrics(PyAedtBase):
                 setup._legacy_props["Sweep Operations"] = {"add": table}
 
         args = ["NAME:" + name, input_file]
-        self.optimodule.ImportSetup("OptiParametric", args)
+        self._app.ooptimetrics.ImportSetup("OptiParametric", args)
 
         return setup
 
@@ -1052,7 +1092,6 @@ class Optimetrics(PyAedtBase):
     def __init__(self, app) -> None:
         app.logger.reset_timer()
         self._app: Any = app
-        self.ooptimetrics = self._app.ooptimetrics
         self.logger = self._app.logger
 
         # ADD COMMENT HERE
