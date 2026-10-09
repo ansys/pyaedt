@@ -592,6 +592,8 @@ class MCADAssemblyService:
         # Get all component information from ecad
         for ecad in all_ecad:
             aedb = self.config.ecad_component_models[ecad.model]
+            if not aedb.endswith(".aedb"):
+                continue
 
             edb = Edb(aedb, version=self.version)
             if ecad.assembly_all_from_library:
