@@ -696,7 +696,6 @@ class PostProcessorCommon(PyAedtBase):
                 plots.append(report(self, report_type, solution))
                 plots[-1]._legacy_props["plot_name"] = name
                 plots[-1]._is_created = True
-                plots[-1].setup
                 plots[-1].report_type = obj.GetPropValue("Display Type")
         return plots
 
