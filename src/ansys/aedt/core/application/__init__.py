@@ -26,9 +26,71 @@ import re
 
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
+TYPO_WORDS = {"Thickenss": "Thickness"}
+
+
+def _correct_typo_keys(node):
+    """Replace known AEDT typos in dictionary keys, including nested keys.
+
+    A key is corrected when it contains a typo from ``TYPO_WORDS``. Only that
+    word is replaced, so ``"Total Layer Thickenss"`` becomes ``"Total Layer Thickness"``.
+    """
+    if isinstance(node, list):
+        return [_correct_typo_keys(item) for item in node]
+    if isinstance(node, dict):
+        corrected = {}
+        for key, value in node.items():
+            new_key = key
+            if isinstance(key, str):
+                for typo, replacement in TYPO_WORDS.items():
+                    if typo in new_key:
+                        new_key = new_key.replace(typo, replacement)
+            corrected[new_key] = _correct_typo_keys(value)
+        return corrected
+    return node
+
+
+def _has_get_obj_data(child_object) -> bool:
+    """Return whether an AEDT child object supports ``GetObjData``. This is available from 2026 R1 onwards.
+
+    Returns
+    -------
+    bool
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Hfss
+    >>> from ansys.aedt.core.application import _has_get_obj_data
+    >>> hfss = Hfss()
+    >>> boundaries = hfss.get_oo_object(hfss.odesign, "Boundaries")
+    >>> has_obj_data = _has_get_obj_data(boundaries)
+
+    """
+    if child_object is None:
+        return False
+    try:
+        return callable(getattr(child_object, "GetObjData"))
+    except (AttributeError, RuntimeError):
+        return False
+
 
 @pyaedt_function_handler()
-def _get_data_model(child_object, level=-1):
+def _get_data_model(child_object, level=0) -> dict:
+    """Return the data model for an AEDT child object.
+
+    Returns
+    -------
+    dict
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Hfss
+    >>> from ansys.aedt.core.application import _get_data_model
+    >>> hfss = Hfss()
+    >>> boundaries = hfss.get_oo_object(hfss.odesign, "Boundaries")
+    >>> has_obj_data = _get_data_model(boundaries)
+
+    """
     import json
 
     def _fix_dict(p_list, p_out) -> None:
@@ -67,3 +129,124 @@ def _get_data_model(child_object, level=-1):
     props = {}
     _fix_dict(props_list, props)
     return props
+
+
+@pyaedt_function_handler()
+def _get_obj_data(child_object) -> dict:
+    """Return the object data for an AEDT child object. This is available from 2026 R1 onwards.
+
+    Returns
+    -------
+    dict
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Hfss
+    >>> from ansys.aedt.core.application import _get_obj_data
+    >>> hfss = Hfss()
+    >>> boundaries = hfss.get_oo_object(hfss.odesign, "Boundaries")
+    >>> has_obj_data = _get_obj_data(boundaries)
+
+    """
+    if not child_object:
+        return {}
+    import json
+
+    def _accumulate_parsed_entry(target, parsed) -> None:
+        """Merge a parsed node into ``target``, collating repeated dict keys into lists.
+
+        Repeated blocks such as two ``SweepDefinition`` entries become a list of
+        dictionaries instead of the second entry overwriting the first.
+        """
+        if not isinstance(parsed, dict):
+            return
+        for key, value in parsed.items():
+            if key not in target:
+                target[key] = value
+            elif isinstance(value, dict) and isinstance(target[key], dict):
+                target[key] = [target[key], value]
+            elif isinstance(value, dict) and isinstance(target[key], list):
+                target[key].append(value)
+            else:
+                target[key] = value
+
+    def _obj_data_parser(node):
+
+        # Primitive values can occur directly in a named node's "values" list.
+        if not isinstance(node, (dict, list)):
+            return node
+
+        # Case 1: If the node is a list, parse each item in the list
+        if isinstance(node, list):
+            return [_obj_data_parser(item) for item in node]
+
+        # Case 2: If the node is a dictionary without "name", parse its values
+        if isinstance(node, dict) and "name" not in node:
+            return node
+
+        # Case 3: schema dict with "name"
+        if isinstance(node, dict):
+            name = node.get("name")
+
+            if "value" in node:
+                return {name: node["value"]}
+
+            values = node.get("values", [])
+
+            if not values:
+                return {name: {}}
+
+            parsed_children = [_obj_data_parser(child) for child in values]
+
+            result = {}
+
+            for child in parsed_children:
+                if isinstance(child, dict):
+                    _accumulate_parsed_entry(result, child)
+                else:
+                    return {name: parsed_children}
+
+            return {name: result}
+
+    obj_data = child_object.GetObjData()
+
+    data = json.loads(obj_data)
+    result = {}
+
+    data_2 = data.get("data_2", [])
+
+    if data_2 and isinstance(data_2, list):
+        values = data_2[0].get("values", [])
+    else:
+        values = data_2
+    faces = []
+    objects = []
+    edges = []
+    vertices = []
+    if "Assignment" in dir(child_object):
+        assignments = child_object.Assignment.split(", ")
+
+        for assignment in assignments:
+            if "Face_" in assignment:
+                faces.append(int(re.search(r"Face_(\d+)", assignment).group(1)))
+            elif "Edge_" in assignment:
+                edges.append(int(re.search(r"Edge_(\d+)", assignment).group(1)))
+            elif "Vertex_" in assignment:
+                vertices.append(int(re.search(r"Vertex_(\d+)", assignment).group(1)))
+            else:
+                objects.append(assignment)
+    if faces:
+        result["Faces"] = faces
+    elif edges:
+        result["Edges"] = edges
+    elif vertices:
+        result["Vertices"] = vertices
+    elif objects:
+        result["Objects"] = objects
+
+    if "Type" in dir(child_object):
+        result["Type"] = child_object.Type
+    for item in values:
+        _accumulate_parsed_entry(result, _obj_data_parser(item))
+
+    return _correct_typo_keys(result)

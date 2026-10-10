@@ -146,10 +146,10 @@ def test_assign_coil(aedt_app) -> None:
     assert bound
     polarity = "Positive"
     bound = aedt_app.assign_coil(assignment=["Coil"], polarity=polarity)
-    assert bound.props["PolarityType"] == polarity.lower()
+    assert bound.props["PolarityType"].lower() == polarity.lower()
     polarity = "Negative"
     bound = aedt_app.assign_coil(assignment=["Coil"], polarity=polarity)
-    assert bound.props["PolarityType"] == polarity.lower()
+    assert bound.props["PolarityType"].lower() == polarity.lower()
     bound_name = ansys.aedt.core.generate_unique_name("Coil")
     bound = aedt_app.assign_coil(assignment=["Coil"], name=bound_name)
     assert bound_name == bound.name
@@ -364,9 +364,9 @@ def test_assign_current_density(sinusoidal) -> None:
     assert bound2.props["CoordinateSystem"] == ""
     bound_group = sinusoidal.assign_current_density(["Coil", "Coil_1"], "CurrentDensityGroup_1")
     assert bound_group
-    assert bound_group.props[bound_group.props["items"][0]]["Objects"] == ["Coil", "Coil_1"]
-    assert bound_group.props[bound_group.props["items"][0]]["Value"] == "0"
-    assert bound_group.props[bound_group.props["items"][0]]["CoordinateSystem"] == ""
+    assert bound_group.props["Objects"] == ["Coil"]
+    assert bound_group.props["Value"] == "0"
+    assert bound_group.props["CoordinateSystem"] == ""
     with pytest.raises(AEDTRuntimeError, match="Couldn't assign current density to desired list of objects."):
         sinusoidal.assign_current_density("Circle_inner", "CurrentDensity_1")
 
@@ -403,14 +403,14 @@ def test_skin_depth(aedt_app) -> None:
     assert mesh.type == "SkinDepthBased"
     assert mesh.props["Edges"][0] == edge.id
     assert mesh.props["SkinDepth"] == "0.3mm"
-    assert mesh.props["NumLayers"] == 3
+    assert int(mesh.props["NumLayers"]) == 3
     edge1 = aedt_app.modeler["Rotor_Section1"].edges[1]
     mesh = aedt_app.mesh.assign_skin_depth(assignment=edge1.id, skin_depth="0.3mm", layers_number=3)
     assert mesh
     assert mesh.type == "SkinDepthBased"
     assert mesh.props["Edges"][0] == edge1.id
     assert mesh.props["SkinDepth"] == "0.3mm"
-    assert mesh.props["NumLayers"] == 3
+    assert int(mesh.props["NumLayers"]) == 3
 
 
 def test_start_continue_from_previous_setup(test_tmp_dir, aedt_app) -> None:
@@ -679,7 +679,7 @@ def test_create_external_circuit(m2d_app) -> None:
     with pytest.raises(AEDTRuntimeError):
         m2d_app.create_external_circuit()
     m2d_app.solution_type = SolutionsMaxwell2D.EddyCurrentXY
-    for w in m2d_app.excitations_by_type["Winding"]:
+    for w in m2d_app.excitations_by_type["Winding Group"]:
         w.delete()
     m2d_app.save_project()
     with pytest.raises(

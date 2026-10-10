@@ -1821,12 +1821,7 @@ class IbisReader(PyAedtBase):
 
         """
         item = ModelSelectorItem()
-        if " " in current_line:
-            i_start = current_line.index(" ", 1)
-        elif "\t" in current_line:
-            i_start = current_line.index("\t", 1)
-        else:
-            return item
+        i_start = current_line.index(" ", 1)
 
         if i_start > 0:
             item.name = current_line[:i_start].strip()

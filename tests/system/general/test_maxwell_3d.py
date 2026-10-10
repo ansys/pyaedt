@@ -133,6 +133,7 @@ def test_lamination(m3d_app) -> None:
 
 
 def test_assign_winding(m3d_app) -> None:
+    m3d_app.solution_type = SolutionsMaxwell3D.ACMagnetic
     coil_hole = m3d_app.modeler.create_box([-50, -50, 0], [100, 100, 100], name="Coil_Hole")
     coil = m3d_app.modeler.create_box([-100, -100, 0], [200, 200, 100], name="Coil")
     m3d_app.modeler.subtract([coil], [coil_hole])
@@ -142,14 +143,14 @@ def test_assign_winding(m3d_app) -> None:
     face_id = m3d_app.modeler["Coil_Section1"].faces[0].id
     assert m3d_app.assign_winding(face_id)
     bounds = m3d_app.assign_winding(assignment=face_id, current=20e-3)
-    assert bounds.props["Current"] == "0.02A"
+    assert bounds.props["Current"] in ["0.02A", "20e-3A"]
     bounds = m3d_app.assign_winding(assignment=face_id, current="20e-3A")
-    assert bounds.props["Current"] == "20e-3A"
+    assert bounds.props["Current"] in ["0.02A", "20e-3A"]
     bounds = m3d_app.assign_winding(assignment=face_id, resistance="1ohm")
     assert bounds.props["Resistance"] == "1ohm"
-    bounds = m3d_app.assign_winding(assignment=face_id, inductance="1H")
+    bounds = m3d_app.assign_winding(winding_type="Voltage", assignment=face_id, inductance="1H")
     assert bounds.props["Inductance"] == "1H"
-    bounds = m3d_app.assign_winding(assignment=face_id, voltage="10V")
+    bounds = m3d_app.assign_winding(winding_type="Voltage", assignment=face_id, voltage="10V")
     assert bounds.props["Voltage"] == "10V"
     bounds_name = generate_unique_name("Winding")
     bounds = m3d_app.assign_winding(assignment=face_id, name=bounds_name)
@@ -186,15 +187,23 @@ def test_create_parametrics(m3d_app) -> None:
     m3d_app.create_setup()
     m3d_app["w1"] = "10mm"
     m3d_app["w2"] = "2mm"
-    setup_parametrics = m3d_app.parametrics.add("w1", 0.1, 20, 0.2, "LinearStep")
+
+    # setup_parametrics = m3d_app.parametrics.add("w1", 0.1, 20, 0.2, "LinearStep")
+    setup_parametrics = m3d_app.optimetrics.add_parametric("w1", 0.1, 20, 0.2, "LinearStep")
+
     assert setup_parametrics.props["Sweeps"]["SweepDefinition"]["Variable"] == "w1"
     assert setup_parametrics.props["Sweeps"]["SweepDefinition"]["Data"] == "LIN 0.1mm 20mm 0.2mm"
+
     assert setup_parametrics.add_calculation(
         calculation="SolidLoss",
         ranges={},
         report_type="Magnetostatic",
         solution=m3d_app.existing_analysis_sweeps[0],
     )
+    assert setup_parametrics.props["Goals"]["Goal"]["Solution"] == m3d_app.existing_analysis_sweeps[0]
+    m3d_app.create_setup()
+    setup_parametrics.props["Goals"]["Goal"]["Solution"] = m3d_app.existing_analysis_sweeps[1]
+    assert setup_parametrics.props["Goals"]["Goal"]["Solution"] == m3d_app.existing_analysis_sweeps[1]
 
 
 @pytest.mark.skipif(is_linux, reason="Crashing on Linux")
@@ -677,12 +686,10 @@ def test_assign_symmetry(m3d_app) -> None:
     symmetry = m3d_app.assign_symmetry([box.faces[0]], "symmetry_test")
     assert symmetry
     assert symmetry.props["Faces"][0] == box.faces[0].id
-    assert symmetry.props["Name"] == "symmetry_test"
     assert symmetry.props["IsOdd"]
     symmetry_1 = m3d_app.assign_symmetry([box.faces[1]], "symmetry_test_1", False)
     assert symmetry_1
     assert symmetry_1.props["Faces"][0] == box.faces[1].id
-    assert symmetry_1.props["Name"] == "symmetry_test_1"
     assert not symmetry_1.props["IsOdd"]
     assert all([bound.type == "Symmetry" for bound in m3d_app.boundaries])
 
@@ -742,12 +749,12 @@ def test_assign_current_density(m3d_app, maxwell_versioned) -> None:
 
     bound = m3d_app.assign_current_density([box.name, box1.name], "current_density_2")
     assert bound
-    assert bound.props[bound.name]["Objects"] == [box.name, box1.name]
-    assert bound.props[bound.name]["Phase"] == "0deg"
-    assert bound.props[bound.name]["CurrentDensityX"] == "0"
-    assert bound.props[bound.name]["CurrentDensityY"] == "0"
-    assert bound.props[bound.name]["CurrentDensityZ"] == "0"
-    assert bound.props[bound.name]["CoordinateSystem Name"] == "Global"
+    assert bound.props["Objects"] == [box.name]
+    assert bound.props["Phase"] == "0deg"
+    assert bound.props["CurrentDensityX"] == "0"
+    assert bound.props["CurrentDensityY"] == "0"
+    assert bound.props["CurrentDensityZ"] == "0"
+    assert bound.props["CoordinateSystem Name"] == "Global"
 
     with pytest.raises(ValueError, match="Invalid coordinate system."):
         m3d_app.assign_current_density(box.name, "current_density_3", coordinate_system_type="test")

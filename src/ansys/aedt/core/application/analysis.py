@@ -49,17 +49,17 @@ from ansys.aedt.core.generic.general_methods import filter_tuple
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-
-# from ansys.aedt.core.generic.numbers_utils import Quantity
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.numbers_utils import is_number
+from ansys.aedt.core.generic.props import Props as SetupProps
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
-from ansys.aedt.core.modules.design_xploration import OptimizationSetups
-from ansys.aedt.core.modules.design_xploration import ParametricSetups
+from ansys.aedt.core.modules.design_xploration import Optimetrics
+from ansys.aedt.core.modules.design_xploration import Optimizations
+from ansys.aedt.core.modules.design_xploration import Parametrics
 from ansys.aedt.core.modules.solve_setup import Setup
 from ansys.aedt.core.modules.solve_setup import Setup3DLayout
 from ansys.aedt.core.modules.solve_setup import SetupCircuit
@@ -69,7 +69,6 @@ from ansys.aedt.core.modules.solve_setup import SetupIcepak
 from ansys.aedt.core.modules.solve_setup import SetupMaxwell
 from ansys.aedt.core.modules.solve_setup import SetupQ3D
 from ansys.aedt.core.modules.solve_setup import SetupSBR
-from ansys.aedt.core.modules.solve_sweeps import SetupProps
 
 if TYPE_CHECKING:
     from ansys.aedt.core.modules.boundary.common import BoundaryObject
@@ -170,9 +169,10 @@ class Analysis(Design, PyAedtBase):
             self.active_setup = setup
         self._materials = None
         self._available_variations = None
+        self._optimetrics = None
+        self._parametrics = None
+        self._optimizations = None
         self._setups = []
-        self._parametrics = []
-        self._optimizations = []
         self._native_components = []
 
         if not settings.lazy_load:
@@ -180,6 +180,7 @@ class Analysis(Design, PyAedtBase):
             self._setups = self.setups
             self._parametrics = self.parametrics
             self._optimizations = self.optimizations
+            self._optimetrics = self.optimetrics
             self._available_variations = self.available_variations
 
     @property
@@ -307,13 +308,34 @@ class Analysis(Design, PyAedtBase):
         return self._setups
 
     @property
-    def parametrics(self) -> ParametricSetups:
-        """Setups in the project.
+    def optimetrics(self) -> Optimetrics:
+        """Optimetrics object.
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.design_xploration.ParametricSetups`
-            Parametric setups in the project.
+        :class:`ansys.aedt.core.modules.design_xploration.Optimetrics`
+            Optimetrics object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> o = hfss.optimetrics
+        >>> o.setup_names
+
+        """
+        if not self._optimetrics:
+            self._optimetrics = Optimetrics(self)
+        return self._optimetrics
+
+    @property
+    def parametrics(self) -> Parametrics:
+        """Optimetrics parametric setups in the design.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.design_xploration.Parametrics`
+            Parametric setups in the design.
 
         Examples
         --------
@@ -323,27 +345,27 @@ class Analysis(Design, PyAedtBase):
 
         """
         if not self._parametrics:
-            self._parametrics = ParametricSetups(self)
+            self._parametrics = Parametrics(self.optimetrics)
         return self._parametrics
 
     @property
-    def optimizations(self) -> OptimizationSetups:
-        """Optimizations in the project.
+    def optimizations(self) -> Optimizations:
+        """Optimetrics optimization setups in the design.
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.design_xploration.OptimizationSetups`
-            Parametric setups in the project.
+        :class:`ansys.aedt.core.modules.design_xploration.Optimizations`
+            Optimization setups in the design.
 
         Examples
         --------
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
-        >>> hfss.optimizations
+        >>> hfss.parametrics
 
         """
         if not self._optimizations:
-            self._optimizations = OptimizationSetups(self)
+            self._optimizations = Optimizations(self.optimetrics)
         return self._optimizations
 
     @property

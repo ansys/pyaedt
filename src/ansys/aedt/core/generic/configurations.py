@@ -54,8 +54,10 @@ from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.common import BoundaryProps
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
-from ansys.aedt.core.modules.design_xploration import SetupOpti
-from ansys.aedt.core.modules.design_xploration import SetupParam
+from ansys.aedt.core.modules.design_xploration import Optimetrics
+
+# from ansys.aedt.core.modules.design_xploration import SetupOpti
+# from ansys.aedt.core.modules.design_xploration import SetupParam
 from ansys.aedt.core.modules.material_lib import Material
 from ansys.aedt.core.modules.mesh import MeshOperation
 
@@ -1051,7 +1053,6 @@ class Configurations(PyAedtBase):
             if mesh_el.name == name:
                 if not self.options.skip_import_if_exists:
                     mesh_el.props = props
-                    mesh_el.update()
                 return True
         bound = MeshOperation(self._app.mesh, name, props, props["Type"])
         if bound.create():
@@ -1089,7 +1090,7 @@ class Configurations(PyAedtBase):
                     setup_el.props = props
                     setup_el.update()
                 return True
-        setup = SetupOpti(self._app, name, dictinputs=props, optim_type=props.get("SetupType", None))
+        setup = Optimetrics(self._app, name, dictinputs=props, optim_type=props.get("SetupType", None))
         if setup.create():
             self._app.optimizations.setups.append(setup)
             self._app.logger.info(f"Optim {name} added.")
@@ -1106,7 +1107,7 @@ class Configurations(PyAedtBase):
                     setup_el.props = props
                     setup_el.update()
                 return True
-        setup = SetupParam(self._app, name, dictinputs=props, optim_type=props.get("SetupType", None))
+        setup = Optimetrics(self._app, name, dictinputs=props, optim_type=props.get("SetupType", None))
         if setup.create():
             self._app.optimizations.setups.append(setup)
             self._app.logger.info(f"Optim {name} added.")
@@ -2772,7 +2773,7 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                     elif component_type == "nexxim state space":
                         new_comp = self._app.modeler.schematic.create_nexxim_state_space_component(
                             value["file_path"],
-                            value.get("num_terminals", 0),
+                            value["num_terminals"],
                             location=j["position"],
                             angle=j["angle"],
                             port_names=value.get("pin_names", []),

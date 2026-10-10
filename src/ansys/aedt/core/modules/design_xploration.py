@@ -24,158 +24,618 @@
 
 from __future__ import annotations
 
-import copy
 import csv
 from pathlib import Path
 from typing import TYPE_CHECKING
+from typing import Any
 
+from ansys.aedt.core.application import _get_obj_data
+from ansys.aedt.core.application import _has_get_obj_data
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import SolutionsHfss
 from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
-from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
-from ansys.aedt.core.generic.general_methods import PropsManager
+from ansys.aedt.core.generic.general_methods import SetupDict
+from ansys.aedt.core.generic.general_methods import deprecated_property
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.props import Props as SetupProps
+from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modules.optimetrics_templates import defaultdoeSetup
 from ansys.aedt.core.modules.optimetrics_templates import defaultdxSetup
 from ansys.aedt.core.modules.optimetrics_templates import defaultoptiSetup
 from ansys.aedt.core.modules.optimetrics_templates import defaultparametricSetup
 from ansys.aedt.core.modules.optimetrics_templates import defaultsensitivitySetup
 from ansys.aedt.core.modules.optimetrics_templates import defaultstatisticalSetup
-from ansys.aedt.core.modules.solve_sweeps import SetupProps
 
 if TYPE_CHECKING:
-    from ansys.aedt.core.modules.solve_setup import Setup
+    pass
 
 
-class CommonOptimetrics(PropsManager, PyAedtBase):
-    """Creates and sets up optimizations.
+class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
+    """Optimetrics setup object.
 
     Parameters
     ----------
-    p_app : :class:`ansys.aedt.core.application.analysis.Analysis`
-        PyAEDT analysis instance.
-    name : str
+    app : class:`ansys.aedt.core.modules.design_xploration.Parametrics`
+    or class:`ansys.aedt.core.modules.design_xploration.Optimizations`
+        PyAEDT optimetrics instance.
+    name : str, optional
         Optimetrics setup name.
-    dictinputs : dict
-        Input setup parameters.
-    optimtype : str
-        Type of the optimization. Available options are: ``"OptiParametric"``, ``"OptiDesignExplorer"`,
-        ``"OptiOptimization"``, ``"OptiSensitivity"``, ``"OptiStatistical"``, ``"OptiDXDOE"``, and ``"optiSLang"``.
+    props : dict, optional
+        Setup properties.
 
     Examples
     --------
-    >>> from ansys.aedt.core.modules.design_xploration import CommonOptimetrics
-    >>> obj = CommonOptimetrics()
+    >>> from ansys.aedt.core import Hfss
+    >>> app = Hfss()
+    >>> setup_names = app.optimetrics.setup_names
+    >>> app.optimetrics.setups[setup_names[0]]
 
     """
 
     def __repr__(self) -> str:
         return self.name
 
-    def __init__(self, p_app, name: str, dictinputs, optimtype) -> None:
-        self.auto_update = False
-        self._app = p_app
-        self.omodule = self._app.ooptimetrics
-        self.name = name
-        self.soltype = optimtype
+    def __str__(self) -> str:
+        return self.name
 
-        inputd = copy.deepcopy(dictinputs)
+    def __init__(self, app: Parametrics | Optimizations, name: str, props: dict) -> None:
+        self._parent: Parametrics | Optimizations = app
+        self._app: Any = self._parent._app
+        self._legacy_props = {}
+        self._name = name
 
-        if optimtype == "OptiParametric":
-            self.props = SetupProps(self, inputd or copy.deepcopy(defaultparametricSetup))
-            if not inputd and self._app.design_type == "Icepak":
-                self.props["ProdOptiSetupDataV2"] = {
-                    "SaveFields": False,
-                    "FastOptimetrics": False,
-                    "SolveWithCopiedMeshOnly": True,
-                }
-        if optimtype == "OptiDesignExplorer":
-            self.props = SetupProps(self, inputd or copy.deepcopy(defaultdxSetup))
-        if optimtype == "OptiOptimization":
-            self.props = SetupProps(self, inputd or copy.deepcopy(defaultoptiSetup))
-        if optimtype == "OptiSensitivity":
-            self.props = SetupProps(self, inputd or copy.deepcopy(defaultsensitivitySetup))
-        if optimtype == "OptiStatistical":
-            self.props = SetupProps(self, inputd or copy.deepcopy(defaultstatisticalSetup))
-        if optimtype == "OptiDXDOE":
-            self.props = SetupProps(self, inputd or copy.deepcopy(defaultdoeSetup))
-        if optimtype == "optiSLang":
-            self.props = SetupProps(self, inputd or copy.deepcopy(defaultdxSetup))
-        if inputd:
-            self.props.pop("ID", None)
-            self.props.pop("NextUniqueID", None)
-            self.props.pop("MoveBackwards", None)
-            self.props.pop("GoalSetupVersion", None)
-            self.props.pop("Version", None)
-            self.props.pop("SetupType", None)
-            if inputd.get("Sim. Setups"):
-                setups = inputd["Sim. Setups"]
-                for el in setups:
-                    try:
-                        if isinstance(self._app.design_properties["SolutionManager"]["ID Map"]["Setup"], list):
-                            for setup in self._app.design_properties["SolutionManager"]["ID Map"]["Setup"]:
-                                if setup["I"] == el:
-                                    setups[setups.index(el)] = setup["N"]
-                                    break
-                        else:
-                            if self._app.design_properties["SolutionManager"]["ID Map"]["Setup"]["I"] == el:
-                                setups[setups.index(el)] = self._app.design_properties["SolutionManager"]["ID Map"][
-                                    "Setup"
-                                ]["N"]
-                                break
+        # If no props is provided, it means the setup already exist.
+        if props:
+            self._legacy_props = props
+            if props == defaultparametricSetup:
+                self.__setup_type = "OptiParametric"
+            elif props == defaultoptiSetup:
+                self.__setup_type = "OptiOptimization"
+            elif props == defaultdxSetup:
+                self.__setup_type = "OptiDesignExplorer"
+            elif props == defaultstatisticalSetup:
+                self.__setup_type = "OptiStatistical"
+            elif props == defaultsensitivitySetup:
+                self.__setup_type = "OptiSensitivity"
+            elif props == defaultdoeSetup:
+                self.__setup_type = "OptiDXDOE"
 
-                    except (TypeError, KeyError):
-                        pass
+        else:
+            self.__setup_type = self._parent.setups_by_type.get(self._name)
 
-            if inputd.get("Goals", None) and self.name in self.omodule.GetChildNames():
-                if self._app._is_object_oriented_enabled():
-                    oparams = self._app.get_oo_object(self.omodule, self.name).GetCalculationInfo()
-                    oparam = [i for i in oparams[0]]
-                    idx = None
-                    if oparam[0] in oparam[1:]:
-                        idx = oparam[1:].index(oparam[0]) + 1
-                    if idx:
-                        oparam = [["NAME:Goal"] + oparam[k : idx + k] for k in range(0, len(oparam), idx)]
-                    else:
-                        oparam = [["NAME:Goal"] + oparam]
+        # if setup_type:
+        #     self._setup_type = setup_type
+        #
+        #     inputd = copy.deepcopy(props)
+        #
+        #     if self.setup_type == "OptiParametric":
+        #         self._legacy_props = inputd or copy.deepcopy(defaultparametricSetup)
+        #
+        #         if not inputd and self._app.design_type == "Icepak":
+        #             self._legacy_props["ProdOptiSetupDataV2"] = {
+        #                 "SaveFields": False,
+        #                 "FastOptimetrics": False,
+        #                 "SolveWithCopiedMeshOnly": True,
+        #             }
+        #     elif self.setup_type == "OptiDesignExplorer":
+        #         self._legacy_props = inputd or copy.deepcopy(defaultdxSetup)
+        #     elif self.setup_type == "OptiOptimization":
+        #         self._legacy_props = inputd or copy.deepcopy(defaultoptiSetup)
+        #     elif self.setup_type == "OptiSensitivity":
+        #         self._legacy_props = inputd or copy.deepcopy(defaultsensitivitySetup)
+        #     elif self.setup_type == "OptiStatistical":
+        #         self._legacy_props = inputd or copy.deepcopy(defaultstatisticalSetup)
+        #     elif self.setup_type == "OptiDXDOE":
+        #         self._legacy_props = inputd or copy.deepcopy(defaultdoeSetup)
+        #     elif self.setup_type == "optiSLang":
+        #         self._legacy_props = inputd or copy.deepcopy(defaultdxSetup)
+        #
+        #     if inputd:
+        #         self._legacy_props.pop("ID", None)
+        #         self._legacy_props.pop("NextUniqueID", None)
+        #         self._legacy_props.pop("MoveBackwards", None)
+        #         self._legacy_props.pop("GoalSetupVersion", None)
+        #         self._legacy_props.pop("Version", None)
+        #         self._legacy_props.pop("SetupType", None)
+        #         if inputd.get("Sim. Setups"):
+        #             setups = inputd["Sim. Setups"]
+        #             for el in setups:
+        #                 try:
+        #                     if isinstance(self._app.design_properties["SolutionManager"]["ID Map"]["Setup"], list):
+        #                         for setup in self._app.design_properties["SolutionManager"]["ID Map"]["Setup"]:
+        #                             if setup["I"] == el:
+        #                                 setups[setups.index(el)] = setup["N"]
+        #                                 break
+        #                     else:
+        #                         if self._app.design_properties["SolutionManager"]["ID Map"]["Setup"]["I"] == el:
+        #                             setups[setups.index(el)] = self._app.design_properties["SolutionManager"]
+        #                             ["ID Map"][
+        #                                 "Setup"
+        #                             ]["N"]
+        #                             break
+        #
+        #                 except (TypeError, KeyError):
+        #                     pass
+        #
+        #         if inputd.get("Goals", None) and self.name in self.omodule.GetChildNames():
+        #             if self._app._is_object_oriented_enabled():
+        #                 oparams = self._app.get_oo_object(self.omodule, self.name).GetCalculationInfo()
+        #                 oparam = [i for i in oparams[0]]
+        #                 idx = None
+        #                 if oparam[0] in oparam[1:]:
+        #                     idx = oparam[1:].index(oparam[0]) + 1
+        #                 if idx:
+        #                     oparam = [["NAME:Goal"] + oparam[k : idx + k] for k in range(0, len(oparam), idx)]
+        #                 else:
+        #                     oparam = [["NAME:Goal"] + oparam]
+        #
+        #                 self._legacy_props["Goals"]["Goal"] = []
+        #                 for param in oparam:
+        #                     arg1 = {}
+        #                     _arg2dict(param, arg1)
+        #                     self._get_setup_props(arg1)
+        #                     self._legacy_props["Goals"]["Goal"].append(SetupProps(self, arg1["Goal"]))
+        #
+        #         if inputd.get("Variables"):  # pragma: no cover
+        #             for var in inputd.get("Variables"):
+        #                 output_list = []
+        #                 props = self._legacy_props["Variables"][var]
+        #                 for prop in props:
+        #                     parts = prop.split("=")
+        #                     value = (
+        #                         True
+        #                         if parts[1].lower() == "true"
+        #                         else False
+        #                         if parts[1].lower() == "false"
+        #                         else parts[1].strip("'")
+        #                     )
+        #                     output_list.extend([parts[0] + ":=", value])
+        #                 self._legacy_props["Variables"][var] = output_list
 
-                    self.props["Goals"]["Goal"] = []
-                    for param in oparam:
-                        arg1 = {}
-                        _arg2dict(param, arg1)
-                        self._get_setup_props(arg1)
-                        self.props["Goals"]["Goal"].append(SetupProps(self, arg1["Goal"]))
+        # GetObjData is available for some objects in 2026R1
+        self._has_getobject = _has_get_obj_data(self._child_object)
 
-            if inputd.get("Variables"):  # pragma: no cover
-                for var in inputd.get("Variables"):
-                    output_list = []
-                    props = self.props["Variables"][var]
-                    for prop in props:
-                        parts = prop.split("=")
-                        value = (
-                            True
-                            if parts[1].lower() == "true"
-                            else False
-                            if parts[1].lower() == "false"
-                            else parts[1].strip("'")
-                        )
-                        output_list.extend([parts[0] + ":=", value])
-                    self.props["Variables"][var] = output_list
+    @property
+    def _child_object(self) -> object | None:
+        """Object-oriented properties.
 
-        self.auto_update = True
+        Returns
+        -------
+        AEDT object if any or None
 
-    def _get_setup_props(self, arg1: dict):
-        for k, v in arg1.items():
-            if isinstance(v, dict):
-                arg1[k] = SetupProps(self, v)
-                self._get_setup_props(v)
-            elif isinstance(v, list):
-                for idx, item in enumerate(v):
-                    if isinstance(item, dict):
-                        v[idx] = SetupProps(self, item)
+        """
+        child_object = None
+        design_childs = self._app.get_oo_name(self._app.odesign)
+
+        if "Optimetrics" in design_childs:
+            cc = self._app.get_oo_object(self._app.odesign, "Optimetrics")
+            cc_names = self._app.get_oo_name(cc)
+            if self._name in cc_names:
+                child_object = self._app.get_oo_object(cc, self._name)
+        return child_object
+
+    @property
+    def name(self) -> str:
+        """Name of the optimetrics setup.
+
+        Returns
+        -------
+        str
+           Name of the mesh operation.
+
+        """
+        if self._child_object:
+            self._name = self._child_object.Name
+        return self._name
+
+    @name.setter
+    def name(self, new_name: str) -> None:
+        if new_name in self._optimetrics.setup_names:
+            raise ValueError(f"Name {new_name} already assigned in the design.")
+        if self._child_object:
+            self._child_object.Name = str(new_name)
+            object.__setattr__(self, "_name", new_name)
+            object.__setattr__(self, "_tree_node_initialized", False)
+            object.__setattr__(self, "_props", None)
+            object.__setattr__(self, "_children_loaded", False)
+        if not self._has_getobject:
+            # If object does not have GetObjData, PyAEDT needs to save the project
+            self._app.save_project()
+
+    @property
+    def props(self) -> SetupProps:
+        """Properties of the optimetrics setup."""
+        if self._legacy_props and not self._has_getobject:
+            return SetupProps(self, self._legacy_props)
+
+        if self._has_getobject:
+            setup_data = _get_obj_data(self._child_object)
+
+            for prop_name, prop_value in setup_data.items():
+                self._legacy_props[prop_name] = prop_value
+        else:
+            try:
+                setups_data = self._app.design_properties["Optimetrics"]["OptimetricsSetups"]
+                if self.name in setups_data:
+                    self._legacy_props = SetupProps(self, setups_data[self._name])
+
+            except Exception:
+                self._legacy_props = {}
+                self._app.logger.debug(
+                    "An error occurred while creating an instance of OptimizationSetups."
+                )  # pragma: no cover
+
+        return SetupProps(self, self._legacy_props)
+
+    @props.setter
+    def props(self, value: dict) -> None:
+        # Merge with existing props to support partial updates
+        current_props = dict(self.props) if self._legacy_props else {}
+        current_props.update(value)
+
+        props = SetupProps(self, current_props)
+
+        self.update(props)
+
+    @property
+    def setup_type(self) -> str | None:
+        """Setup type.
+
+        Returns
+        -------
+        str
+            Type of the optimetrics setup.
+
+        """
+        return self.__setup_type
+
+    @pyaedt_function_handler()
+    def update(self, props: dict | None = None) -> bool:
+        """Update the setup.
+
+        Parameters
+        ----------
+        props : dict, optional
+            New properties to update. The  default is ``None``, in which case it uses the current properties.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.EditSetup
+
+        """
+        if props is None:
+            props = dict(self.props)
+
+        if self.setup_type == "OptiParametric" and "Sweep Operations" in props and len(props["Sweep Operations"]) == 3:
+            props[8] = ["NAME:Sweep Operations"]
+            for variation in props["Sweep Operations"].get("add", []):
+                props[8].append("add:=")
+                props[8].append(variation)
+
+        arg = ["NAME:" + self.name]
+        _dict2arg(props, arg)
+
+        self._app.ooptimetrics.EditSetup(self.name, arg)
+
+        self._legacy_props = dict(props)
+        return True
+
+    @pyaedt_function_handler()
+    def create(self) -> OptimetricsSetup:
+        """Create a setup.
+
+        References
+        ----------
+        >>> oModule.InsertSetup
+
+        """
+        arg = ["NAME:" + self.name]
+        _dict2arg(self.props, arg)
+        self._app.ooptimetrics.InsertSetup(self.setup_type, arg)
+        return self
+
+    @pyaedt_function_handler()
+    def delete(self) -> bool:
+        """Delete a defined Optimetrics Setup.
+
+        Parameters
+        ----------
+        name : str
+            Name of optimetrics setup to delete.
+
+        Returns
+        -------
+        bool
+            `True` if setup is deleted. `False` if it failed.
+
+
+        """
+        self._app.ooptimetrics.DeleteSetups([self.name])
+        return True
+
+    @pyaedt_function_handler()
+    def add_variation(
+        self,
+        sweep_variable: str,
+        start_point: float | int,
+        end_point: float | int | None = None,
+        step: float | int = 100,
+        units: str | None = None,
+        variation_type: str = "LinearCount",
+    ) -> bool:
+        """Add a variation to an existing parametric setup.
+
+        Parameters
+        ----------
+        sweep_variable : str
+            Name of the variable.
+        start_point : float or int
+            Variation Start Point.
+        end_point : float or int, optional
+            Variation End Point. This parameter is optional if a Single Value is defined.
+        step : float or int, optional
+            Variation Step or Count depending on variation_type. Default is `100`.
+        units : str, optional
+            Variation units. Default is `None`.
+        variation_type : str, optional
+            Variation Type. Admitted values are `"SingleValue", `"LinearCount"`, `"LinearStep"`,
+            `"DecadeCount"`, `"OctaveCount"`, `"ExponentialCount"`.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.EditSetup
+
+        """
+        if self.setup_type != "OptiParametric":
+            raise AEDTRuntimeError("Setup must be a parametric setup.")
+
+        if sweep_variable not in self._app.variable_manager.variables:
+            raise AEDTRuntimeError(f"Variable {sweep_variable} does not exists.")
+
+        sweep_range = ""
+        if not units:
+            units = self._app.variable_manager[sweep_variable].units
+        start_point = self._app.value_with_units(start_point, units)
+        if variation_type != "SingleValue":
+            end_point = self._app.value_with_units(end_point, units)
+        if variation_type == "LinearCount":
+            sweep_range = f"LINC {start_point} {end_point} {step}"
+        elif variation_type == "LinearStep":
+            sweep_range = f"LIN {start_point} {end_point} {self._app.value_with_units(step, units)}"
+        elif variation_type == "DecadeCount":
+            sweep_range = f"DEC {start_point} {end_point} {step}"
+        elif variation_type == "OctaveCount":
+            sweep_range = f"OCT {start_point} {end_point} {step}"
+        elif variation_type == "ExponentialCount":
+            sweep_range = f"ESTP {start_point} {end_point} {step}"
+        elif variation_type == "SingleValue":
+            sweep_range = f"{start_point}"
+        if not sweep_range:
+            return False
+
+        self._activate_variable(sweep_variable)
+
+        sweepdefinition = {"Variable": sweep_variable, "Data": sweep_range, "OffsetF1": False, "Synchronize": 0}
+        if self._legacy_props["Sweeps"]["SweepDefinition"] is None:
+            self._legacy_props["Sweeps"]["SweepDefinition"] = sweepdefinition
+        elif type(self.props["Sweeps"]["SweepDefinition"]) is not list:
+            self._legacy_props["Sweeps"]["SweepDefinition"] = [self._legacy_props["Sweeps"]["SweepDefinition"]]
+            self._legacy_props["Sweeps"]["SweepDefinition"].append(sweepdefinition)
+        else:
+            for count, sweep_def in enumerate(self.props["Sweeps"]["SweepDefinition"]):
+                sweep_def_copy = dict(sweep_def)
+                if sweepdefinition["Variable"] == sweep_def_copy["Variable"]:
+                    sweep_def_copy["Data"] += " " + sweepdefinition["Data"]
+                    self._legacy_props["Sweeps"]["SweepDefinition"][count] = sweep_def_copy
+                    break
+        return self.update()
+
+    @pyaedt_function_handler()
+    def add_calculation(
+        self,
+        calculation,
+        ranges=None,
+        variables=None,
+        solution: str | None = None,
+        context=None,
+        subdesign_id: int | None = None,
+        polyline_points: int = 1001,
+        report_type=None,
+        is_goal: bool = False,
+        condition: str = "<=",
+        goal_value: int = 1,
+        goal_weight: int = 1,
+    ):
+        if not solution:
+            solution = self._app.nominal_sweep
+        setupname = solution.split(" ")[0]
+        if setupname not in self._legacy_props["Sim. Setups"]:
+            self._legacy_props["Sim. Setups"].append(setupname)
+        domain = "Time"
+        maxwell_solutions = SolutionsMaxwell3D
+        if (ranges and ("Freq" in ranges or "Phase" in ranges or "Theta" in ranges)) or self._app.solution_type in [
+            maxwell_solutions.Magnetostatic,
+            maxwell_solutions.ElectroStatic,
+            maxwell_solutions.EddyCurrent,
+            maxwell_solutions.ACMagnetic,
+            maxwell_solutions.DCConduction,
+            SolutionsHfss.EigenMode,
+        ]:
+            domain = "Sweep"
+
+        if not report_type:
+            report_type = self._app.design_solutions.report_type
+            if context and context in self._app.modeler.sheet_names:
+                report_type = "Fields"
+            elif self._app.solution_type in ["Q3D Extractor", "2D Extractor"]:
+                report_type = "Matrix"
+            elif context:
+                try:
+                    for f in self._app.field_setups:
+                        if context == f.name:
+                            report_type = "Far Fields"
+                except Exception:
+                    self._app.logger.debug(
+                        "An error occurred when handling `report_type` while adding calculation."
+                    )  # pragma: no cover
+
+        sweepdefinition = self._get_context(
+            calculation,
+            condition,
+            goal_weight,
+            goal_value,
+            solution,
+            domain,
+            ranges,
+            report_type,
+            context,
+            subdesign_id,
+            polyline_points,
+            is_goal,
+        )
+        dx_variables = {}
+        if variables:
+            for el in list(variables):
+                try:
+                    dx_variables[el] = self._app[el]
+                except Exception:
+                    self._app.logger.debug("An error occurred while adding calculation.")  # pragma: no cover
+        for v in list(dx_variables.keys()):
+            self._activate_variable(v)
+        if self.setup_type in ["OptiDesignExplorer", "OptiDXDOE"] and is_goal:
+            optigoalname = "CostFunctionGoals"
+        else:
+            optigoalname = "Goals"
+        if "Goal" in self.props[optigoalname]:
+            if type(self.props[optigoalname]["Goal"]) is not list:
+                self._legacy_props[optigoalname]["Goal"] = [
+                    self.props[optigoalname]["Goal"],
+                    SetupProps(self, sweepdefinition),
+                ]
+            else:
+                self.props[optigoalname]["Goal"].append(sweepdefinition)
+        else:
+            self._legacy_props[optigoalname] = {}
+            self._legacy_props[optigoalname]["Goal"] = sweepdefinition
+        return self.update()
+
+    @pyaedt_function_handler()
+    def export_to_csv(self, output_file: str) -> bool:
+        """Export the current setup to csv.
+
+        Parameters
+        ----------
+        output_file : str
+            Full Path to the csv file.
+
+        Returns
+        -------
+        bool
+            `True` if the export is correctly executed.
+
+        """
+        if self.setup_type != "OptiParametric":
+            raise AEDTRuntimeError("Setup must be a parametric setup.")
+
+        self._app.ooptimetrics.ExportParametricSetupTable(self.name, output_file)
+        return True
+
+    @pyaedt_function_handler()
+    def sync_variables(self, variables: list, sync_n: int = 1) -> bool:
+        """Sync variable variations in an existing parametric setup.
+        Setting the sync number to `0` will effectively unsync the variables.
+
+        Parameters
+        ----------
+        variables : list
+            List of variables to sync.
+        sync_n : int, optional
+            Sync number. Sweep variables with the same Sync number will be synchronizad.
+            Default is `1`.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.EditSetup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.design_xploration import SetupParam
+        >>> obj = SetupParam()
+        >>> obj.sync_variables(variables=["Box1"])
+
+        """
+        if self.setup_type != "OptiParametric":
+            raise AEDTRuntimeError("Setup must be a parametric setup.")
+
+        if type(self.props["Sweeps"]["SweepDefinition"]) is not list:
+            raise AEDTRuntimeError("Not enough variables are defined in the parametric setup")
+
+        existing_variables = [s["Variable"] for s in self.props["Sweeps"]["SweepDefinition"]]
+        undo_vals = {}
+        for v in variables:
+            if v not in existing_variables:
+                raise AEDTRuntimeError(f"Variable {v} is not defined in the parametric setup.")
+
+        for v in variables:
+            for count, sweep_def in enumerate(self._legacy_props["Sweeps"]["SweepDefinition"]):
+                sweep_def_copy = dict(sweep_def)
+                if v == sweep_def_copy["Variable"]:
+                    undo_vals[v] = sweep_def_copy["Synchronize"]
+                    sweep_def_copy["Synchronize"] = sync_n
+                self._legacy_props["Sweeps"]["SweepDefinition"][count] = sweep_def_copy
+        try:
+            self.update()
+        except Exception:  # pragma: no cover
+            # If it fails to sync (due to e.g. different number of variations), reverts to original values.
+            for v in variables:
+                for count, sweep_def in self.props["Sweeps"]["SweepDefinition"].items():
+                    sweep_def_copy = dict(sweep_def)
+                    if v == sweep_def_copy["Variable"]:
+                        sweep_def_copy["Synchronize"] = undo_vals[v]
+                    self._legacy_props["Sweeps"]["SweepDefinition"][count] = sweep_def_copy
+            self._app.logger.error("Failed to sync the Parametric setup.")
+            return False
+        return True
+
+    @pyaedt_function_handler()
+    def _activate_variable(self, variable_name):
+        if self.setup_type in ["OptiDesignExplorer", "OptiDXDOE", "OptiOptimization", "optiSLang"]:
+            self._app.activate_variable_optimization(variable_name)
+        elif self.setup_type == "OptiParametric":
+            self._app.activate_variable_tuning(variable_name)
+        elif self.setup_type == "OptiSensitivity":
+            self._app.activate_variable_sensitivity(variable_name)
+        elif self.setup_type == "OptiStatistical":
+            self._app.activate_variable_statistical(variable_name)
+
+    @pyaedt_function_handler()
+    def _append_sweepdefinition(self, sweepdefinition) -> bool:
+        for sweep_def in self.props["Sweeps"]["SweepDefinition"]:
+            if sweepdefinition["Variable"] == sweep_def["Variable"]:
+                sweep_def["Data"] += " " + sweepdefinition["Data"]
+                return True
+        self._legacy_props["Sweeps"]["SweepDefinition"].append(sweepdefinition)
+        return True
 
     @pyaedt_function_handler()
     def _get_context(
@@ -305,852 +765,127 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
             sweep_definition["Weight"] = f"[{goal_weight};]"
         return sweep_definition
 
-    @pyaedt_function_handler()
-    def update(self, update_dictionary: dict = None) -> bool:
-        """Update the setup based on stored properties.
 
-        Parameters
-        ----------
-        update_dictionary : dict, optional
-            Dictionary to use. The  default is ``None``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oModule.EditSetup
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.design_xploration import CommonOptimetrics
-        >>> obj = CommonOptimetrics()
-        >>> obj.update(update_dictionary={"Name": "Value"})
-
-        """
-        if update_dictionary:
-            for el in update_dictionary:
-                self.props._setitem_without_update(el, update_dictionary[el])
-
-        arg = ["NAME:" + self.name]
-        _dict2arg(self.props, arg)
-
-        if self.soltype == "OptiParametric" and len(arg[8]) == 3:
-            arg[8] = ["NAME:Sweep Operations"]
-            for variation in self.props["Sweep Operations"].get("add", []):
-                arg[8].append("add:=")
-                arg[8].append(variation)
-
-        self.omodule.EditSetup(self.name, arg)
-        return True
-
-    @pyaedt_function_handler()
-    def create(self) -> bool:
-        """Create a setup.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oModule.InsertSetup
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.design_xploration import CommonOptimetrics
-        >>> obj = CommonOptimetrics()
-        >>> obj.create()
-
-        """
-        arg = ["NAME:" + self.name]
-        _dict2arg(self.props, arg)
-        self.omodule.InsertSetup(self.soltype, arg)
-        return True
-
-    @pyaedt_function_handler()
-    def add_calculation(
-        self,
-        calculation: str,
-        ranges: dict = None,
-        variables: dict = None,
-        solution: str = None,
-        context: str = None,
-        subdesign_id: int = None,
-        polyline_points: int = 1001,
-        report_type: str = None,
-    ) -> bool:
-        """Add a calculation to the setup.
-
-        Parameters
-        ----------
-        calculation : str, optional
-            Name of the calculation.
-        ranges : dict, optional
-            Dictionary of ranges with respective values.
-            Values can be: `None` for all values, a List of Discrete Values, a tuple of start and stop range.
-            It includes intrinsics like "Freq", "Time", "Theta", "Distance".
-            The default is ``None``, to be used e.g. in "Eigenmode" design type.
-        solution : str, optional
-            Type of the solution. The default is ``None``, in which case the default
-            solution is used.
-        context : str, optional
-            Calculation contexts. It can be a sphere, a matrix or a polyline.
-        subdesign_id : int, optional
-            Subdesign id for Circuit and HFSS 3D Layout objects.
-        polyline_points : int, optional
-            Number of points for Polyline context.
-        report_type : str, optional
-            Override the auto computation of Calculation Type.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oModule.EditSetup
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.design_xploration import CommonOptimetrics
-        >>> obj = CommonOptimetrics()
-        >>> obj.add_calculation(calculation=1)
-
-        """
-        return self._add_calculation(
-            calculation,
-            ranges,
-            variables,
-            solution,
-            context,
-            subdesign_id,
-            polyline_points,
-            report_type,
-            is_goal=False,
-        )
-
-    @pyaedt_function_handler()
-    def _add_calculation(
-        self,
-        calculation,
-        ranges=None,
-        variables=None,
-        solution: str | None = None,
-        context=None,
-        subdesign_id: int | None = None,
-        polyline_points: int = 1001,
-        report_type=None,
-        is_goal: bool = False,
-        condition: str = "<=",
-        goal_value: int = 1,
-        goal_weight: int = 1,
-    ):
-        self.auto_update = False
-        if not solution:
-            solution = self._app.nominal_sweep
-        setupname = solution.split(" ")[0]
-        if setupname not in self.props["Sim. Setups"]:
-            self.props["Sim. Setups"].append(setupname)
-        domain = "Time"
-        maxwell_solutions = SolutionsMaxwell3D
-        if (ranges and ("Freq" in ranges or "Phase" in ranges or "Theta" in ranges)) or self._app.solution_type in [
-            maxwell_solutions.Magnetostatic,
-            maxwell_solutions.ElectroStatic,
-            maxwell_solutions.EddyCurrent,
-            maxwell_solutions.ACMagnetic,
-            maxwell_solutions.DCConduction,
-            SolutionsHfss.EigenMode,
-        ]:
-            domain = "Sweep"
-        if not report_type:
-            report_type = self._app.design_solutions.report_type
-            if context and context in self._app.modeler.sheet_names:
-                report_type = "Fields"
-            elif self._app.solution_type in ["Q3D Extractor", "2D Extractor"]:
-                report_type = "Matrix"
-            elif context:
-                try:
-                    for f in self._app.field_setups:
-                        if context == f.name:
-                            report_type = "Far Fields"
-                except Exception:
-                    self._app.logger.debug(
-                        "An error occurred when handling `report_type` while adding calculation."
-                    )  # pragma: no cover
-        sweepdefinition = self._get_context(
-            calculation,
-            condition,
-            goal_weight,
-            goal_value,
-            solution,
-            domain,
-            ranges,
-            report_type,
-            context,
-            subdesign_id,
-            polyline_points,
-            is_goal,
-        )
-        dx_variables = {}
-        if variables:
-            for el in list(variables):
-                try:
-                    dx_variables[el] = self._app[el]
-                except Exception:
-                    self._app.logger.debug("An error occurred while adding calculation.")  # pragma: no cover
-        for v in list(dx_variables.keys()):
-            self._activate_variable(v)
-        if self.soltype in ["OptiDesignExplorer", "OptiDXDOE"] and is_goal:
-            optigoalname = "CostFunctionGoals"
-        else:
-            optigoalname = "Goals"
-        if "Goal" in self.props[optigoalname]:
-            if type(self.props[optigoalname]["Goal"]) is not list:
-                self.props[optigoalname]["Goal"] = [self.props[optigoalname]["Goal"], SetupProps(self, sweepdefinition)]
-            else:
-                self.props[optigoalname]["Goal"].append(sweepdefinition)
-        else:
-            self.props[optigoalname] = {}
-            self.props[optigoalname]["Goal"] = sweepdefinition
-        self.auto_update = True
-        return self.update()
-
-    @pyaedt_function_handler()
-    def _activate_variable(self, variable_name):
-        if self.soltype in ["OptiDesignExplorer", "OptiDXDOE", "OptiOptimization", "optiSLang"]:
-            self._app.activate_variable_optimization(variable_name)
-        elif self.soltype == "OptiParametric":
-            self._app.activate_variable_tuning(variable_name)
-        elif self.soltype == "OptiSensitivity":
-            self._app.activate_variable_sensitivity(variable_name)
-        elif self.soltype == "OptiStatistical":
-            self._app.activate_variable_statistical(variable_name)
-
-    @pyaedt_function_handler()
-    def analyze(
-        self,
-        cores: int = 1,
-        tasks: int = 1,
-        gpus: int = 0,
-        acf_file: str = None,
-        use_auto_settings: bool = True,
-        solve_in_batch: bool = False,
-        machine: str = "localhost",
-        run_in_thread: bool = False,
-        revert_to_initial_mesh: bool = False,
-        blocking: bool = True,
-    ) -> bool:
-        """Solve the active design.
-
-        Parameters
-        ----------
-        cores : int, optional
-            Number of simulation cores. The default is ``1``.
-        tasks : int, optional
-            Number of simulation tasks. The default is ``1``.
-        gpus : int, optional
-            Number of simulation graphic processing units to use. The default is ``0``.
-        acf_file : str, optional
-            Full path to the custom ACF file.
-        use_auto_settings : bool, optional
-            Set ``True`` to use automatic settings for HPC. The option is only considered for setups
-            that support automatic settings.
-        solve_in_batch : bool, optional
-            Whether to solve the project in batch or not.
-            If ``True`` the project will be saved, closed, solved and repened.
-        machine : str, optional
-            Name of the machine if remote.  The default is ``"localhost"``.
-        run_in_thread : bool, optional
-            Whether to submit the batch command as a thread. The default is
-            ``False``.
-        revert_to_initial_mesh : bool, optional
-            Whether to revert to initial mesh before solving or not. Default is ``False``.
-        blocking : bool, optional
-            Whether to block script while analysis is completed or not. It works from AEDT 2023 R2.
-            Default is ``True``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oDesign.Analyze
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.design_xploration import CommonOptimetrics
-        >>> obj = CommonOptimetrics()
-        >>> obj.analyze(cores=[1, 2, 3], tasks=[1, 2, 3])
-
-        """
-        return self._app.analyze(
-            setup=self.name,
-            cores=cores,
-            tasks=tasks,
-            gpus=gpus,
-            acf_file=acf_file,
-            use_auto_settings=use_auto_settings,
-            solve_in_batch=solve_in_batch,
-            machine=machine,
-            run_in_thread=run_in_thread,
-            revert_to_initial_mesh=revert_to_initial_mesh,
-            blocking=blocking,
-        )
-
-
-class SetupOpti(CommonOptimetrics, PyAedtBase):
-    """Sets up an optimization in Opimetrics.
-
-    Examples
-    --------
-    >>> from ansys.aedt.core.modules.design_xploration import SetupOpti
-    >>> obj = SetupOpti()
-
-    """
-
-    def __init__(self, app, name: str, dictinputs=None, optim_type: str = "OptiDesignExplorer") -> None:
-        CommonOptimetrics.__init__(self, app, name, dictinputs=dictinputs, optimtype=optim_type)
-
-    @pyaedt_function_handler()
-    def delete(self) -> bool:
-        """Delete a defined Optimetrics Setup.
-
-        Parameters
-        ----------
-        name : str
-            Name of optimetrics setup to delete.
-
-        Returns
-        -------
-        bool
-            `True` if setup is deleted. `False` if it failed.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.design_xploration import SetupOpti
-        >>> obj = SetupOpti()
-        >>> obj.delete()
-
-        """
-        self.omodule.DeleteSetups([self.name])
-        self._app.optimizations.setups.remove(self)
-        return True
-
-    @pyaedt_function_handler()
-    def add_goal(
-        self,
-        calculation: str,
-        ranges: dict,
-        variables: dict = None,
-        solution: str = None,
-        context: str = None,
-        subdesign_id: int = None,
-        polyline_points: int = 1001,
-        report_type: str = None,
-        condition: str = "<=",
-        goal_value: int = 1,
-        goal_weight: int = 1,
-    ) -> bool:
-        """Add a goal to the setup.
-
-        Parameters
-        ----------
-        calculation : str, optional
-            Name of the calculation.
-        ranges : dict
-            Dictionary of ranges with respective values.
-            Values can be: `None` for all values, a List of Discrete Values, a tuple of start and stop range.
-            It includes intrinsics like "Freq", "Time", "Theta", "Distance".
-        variables : list, optional
-            List of variables to include in the optimization.
-        condition : string, optional
-            The default is ``"<="``.
-        goal_value : optional
-            Value for the goal. The default is ``1``.
-        goal_weight : optional
-            Value for the goal weight. The default is ``1``.
-        solution : str, optional
-            Type of the solution. The default is ``None``, in which case the default
-            solution is used.
-        context : str, optional
-            Calculation contexts. It can be a sphere, a matrix or a polyline.
-        subdesign_id : int, optional
-            Subdesign id for Circuit and HFSS 3D Layout objects.
-        polyline_points : int, optional
-            Number of points for Polyline context.
-        report_type : str, optional
-            Override the auto computation of Calculation Type.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oModule.EditSetup
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.design_xploration import SetupOpti
-        >>> obj = SetupOpti()
-        >>> obj.add_goal(calculation=1, ranges={"Name": "Value"})
-
-        """
-        return self._add_calculation(
-            calculation,
-            ranges,
-            variables,
-            solution,
-            context,
-            subdesign_id,
-            polyline_points,
-            report_type,
-            True,
-            condition,
-            goal_value,
-            goal_weight,
-        )
-
-    @pyaedt_function_handler()
-    def add_variation(
-        self,
-        variable_name: str,
-        min_value: float,
-        max_value: float,
-        starting_point: float = None,
-        min_step: float = None,
-        max_step: float = None,
-        use_manufacturable: bool = False,
-        levels: list = None,
-    ) -> bool:
-        """Add a new variable as input for the optimization and defines its ranges.
-
-        Parameters
-        ----------
-        variable_name : str
-            Name of the variable.
-        min_value : float
-            Minimum Optimization Value for variable_name.
-        max_value : float
-            Maximum Optimization Value for variable_name.
-        starting_point : float, optional
-            Starting point for optimization. If None, default will be used.
-        min_step : float
-            Minimum Step Size for optimization. If None, 1/100 of the range will be used.
-        max_step : float
-            Maximum Step Size for optimization. If None, 1/10 of the range will be used.
-        use_manufacturable : bool
-            Either if to use or not the manufacturable values. Default is False.
-        levels : list, optional
-            List of available manufacturer levels.
-
-        Returns
-        -------
-        bool
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.design_xploration import SetupOpti
-        >>> obj = SetupOpti()
-        >>> obj.add_variation(variable_name=1, min_value=1.0, max_value=1.0)
-
-        """
-        if variable_name not in self._app.variable_manager.variables:
-            self._app.logger.error(f"Variable {variable_name} does not exists.")
-            return False
-        self.auto_update = False
-        self._activate_variable(variable_name)
-
-        if not min_step:
-            min_step = (max_value - min_value) / 100
-        min_step = self._app.value_with_units(min_step, self._app.variable_manager[variable_name].units)
-
-        if not max_step:
-            max_step = (max_value - min_value) / 10
-        if levels is None:
-            levels = f"[{min_value}: {max_value}] mm"
-        else:
-            levels = f"{levels} {self._app.variable_manager[variable_name].units}"
-        max_step = self._app.value_with_units(max_step, self._app.variable_manager[variable_name].units)
-        min_value_wuints = self._app.value_with_units(min_value, self._app.variable_manager[variable_name].units)
-        max_value_wuints = self._app.value_with_units(max_value, self._app.variable_manager[variable_name].units)
-
-        if self.soltype in "OptiDXDOE":
-            self._app.variable_manager.variables[variable_name].optimization_max_value = max_value_wuints
-            self._app.variable_manager.variables[variable_name].optimization_min_value = min_value_wuints
-            self.auto_update = True
-            return True
-        elif self.soltype in ["optiSLang", "OptiDesignExplorer"]:
-            self._app.variable_manager.variables[variable_name].optimization_max_value = max_value_wuints
-            self._app.variable_manager.variables[variable_name].optimization_min_value = min_value_wuints
-            input_variables = self.props["Sweeps"]["SweepDefinition"]
-            cont = 0
-            variable_included = False
-            for var in input_variables:
-                if var["Variable"] == variable_name:
-                    self.props["Sweeps"]["SweepDefinition"][cont]["Data"] = self._app.variable_manager.variables[
-                        variable_name
-                    ].evaluated_value
-                    variable_included = True
-                    break
-                cont += 1
-            if not variable_included:
-                sweepdefinition = {}
-                sweepdefinition["Variable"] = variable_name
-                sweepdefinition["Data"] = self._app.variable_manager.variables[variable_name].evaluated_value
-                sweepdefinition["OffsetF1"] = False
-                sweepdefinition["Synchronize"] = 0
-                self.props["Sweeps"]["SweepDefinition"].append(sweepdefinition)
-        elif self.soltype == "OptiParametric":
-            self._app.activate_variable_tuning(variable_name)
-        elif self.soltype == "OptiSensitivity":
-            self._app.activate_variable_sensitivity(variable_name)
-        elif self.soltype == "OptiStatistical":
-            self._app.activate_variable_statistical(variable_name)
-        else:
-            use_manufacturable = "true" if use_manufacturable else "false"
-            arg = [
-                "i:=",
-                True,
-                "int:=",
-                False,
-                "Min:=",
-                min_value_wuints,
-                "Max:=",
-                max_value_wuints,
-                "MinStep:=",
-                min_step,
-                "MaxStep:=",
-                max_step,
-                "MinFocus:=",
-                min_value_wuints,
-                "MaxFocus:=",
-                max_value_wuints,
-                "UseManufacturableValues:=",
-                use_manufacturable,
-            ]
-            if self._app.desktop_class.aedt_version_id > "2023.2":
-                arg.extend(["Level:=", levels])
-            if not self.props.get("Variables", None):
-                self.props["Variables"] = {}
-            self.props["Variables"][variable_name] = arg
-            if not self.props.get("StartingPoint", None):
-                self.props["StartingPoint"] = {}
-            if not starting_point:
-                starting_point = self._app.variable_manager[variable_name].numeric_value
-                if starting_point < min_value or starting_point > max_value:
-                    starting_point = (max_value + min_value) / 2
-
-            self.props["StartingPoint"][variable_name] = self._app.value_with_units(
-                starting_point, self._app.variable_manager[variable_name].units
-            )
-        self.auto_update = True
-        self.update()
-        return True
-
-
-class SetupParam(CommonOptimetrics, PyAedtBase):
-    """Sets up a parametric analysis in Optimetrics.
-
-    Examples
-    --------
-    >>> from ansys.aedt.core.modules.design_xploration import SetupParam
-    >>> obj = SetupParam()
-
-    """
-
-    def __init__(self, p_app, name: str, dictinputs=None, optim_type: str = "OptiParametric") -> None:
-        CommonOptimetrics.__init__(self, p_app, name, dictinputs=dictinputs, optimtype=optim_type)
-        pass
-
-    @pyaedt_function_handler()
-    def delete(self) -> bool:
-        """Delete a defined Optimetrics Setup.
-
-        Returns
-        -------
-        bool
-            ``True`` if setup is deleted. ``False`` if it failed.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.design_xploration import SetupParam
-        >>> obj = SetupParam()
-        >>> obj.delete()
-
-        """
-        self.omodule.DeleteSetups([self.name])
-        self._app.parametrics.setups.remove(self)
-        return True
-
-    @pyaedt_function_handler()
-    def add_variation(
-        self,
-        sweep_variable: str,
-        start_point: float,
-        end_point: float = None,
-        step: float = 100,
-        units: str = None,
-        variation_type: str = "LinearCount",
-    ) -> bool:
-        """Add a variation to an existing parametric setup.
-
-        Parameters
-        ----------
-        sweep_variable : str
-            Name of the variable.
-        start_point : float or int
-            Variation Start Point.
-        end_point : float or int, optional
-            Variation End Point. This parameter is optional if a Single Value is defined.
-        step : float or int, optional
-            Variation Step or Count depending on variation_type. Default is `100`.
-        units : str, optional
-            Variation units. Default is `None`.
-        variation_type : str, optional
-            Variation Type. Admitted values are `"SingleValue", `"LinearCount"`, `"LinearStep"`,
-            `"DecadeCount"`, `"OctaveCount"`, `"ExponentialCount"`.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oModule.EditSetup
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.design_xploration import SetupParam
-        >>> obj = SetupParam()
-        >>> obj.add_variation(sweep_variable=1, start_point=1.0)
-
-        """
-        if sweep_variable not in self._app.variable_manager.variables:
-            self._app.logger.error(f"Variable {sweep_variable} does not exists.")
-            return False
-        sweep_range = ""
-        if not units:
-            units = self._app.variable_manager[sweep_variable].units
-        start_point = self._app.value_with_units(start_point, units)
-        if variation_type != "SingleValue":
-            end_point = self._app.value_with_units(end_point, units)
-        if variation_type == "LinearCount":
-            sweep_range = f"LINC {start_point} {end_point} {step}"
-        elif variation_type == "LinearStep":
-            sweep_range = f"LIN {start_point} {end_point} {self._app.value_with_units(step, units)}"
-        elif variation_type == "DecadeCount":
-            sweep_range = f"DEC {start_point} {end_point} {step}"
-        elif variation_type == "OctaveCount":
-            sweep_range = f"OCT {start_point} {end_point} {step}"
-        elif variation_type == "ExponentialCount":
-            sweep_range = f"ESTP {start_point} {end_point} {step}"
-        elif variation_type == "SingleValue":
-            sweep_range = f"{start_point}"
-        if not sweep_range:
-            return False
-        self._activate_variable(sweep_variable)
-        sweepdefinition = {}
-        sweepdefinition["Variable"] = sweep_variable
-        sweepdefinition["Data"] = sweep_range
-        sweepdefinition["OffsetF1"] = False
-        sweepdefinition["Synchronize"] = 0
-        if self.props["Sweeps"]["SweepDefinition"] is None:
-            self.props["Sweeps"]["SweepDefinition"] = sweepdefinition
-        elif type(self.props["Sweeps"]["SweepDefinition"]) is not list:
-            self.props["Sweeps"]["SweepDefinition"] = [self.props["Sweeps"]["SweepDefinition"]]
-            self._append_sweepdefinition(sweepdefinition)
-        else:
-            self._append_sweepdefinition(sweepdefinition)
-
-        return self.update()
-
-    @pyaedt_function_handler()
-    def _append_sweepdefinition(self, sweepdefinition) -> bool:
-        for sweep_def in self.props["Sweeps"]["SweepDefinition"]:
-            if sweepdefinition["Variable"] == sweep_def["Variable"]:
-                sweep_def["Data"] += " " + sweepdefinition["Data"]
-                return True
-        self.props["Sweeps"]["SweepDefinition"].append(sweepdefinition)
-        return True
-
-    @pyaedt_function_handler()
-    def sync_variables(self, variables: list, sync_n: int = 1) -> bool:
-        """Sync variable variations in an existing parametric setup.
-        Setting the sync number to `0` will effectively unsync the variables.
-
-        Parameters
-        ----------
-        variables : list
-            List of variables to sync.
-        sync_n : int, optional
-            Sync number. Sweep variables with the same Sync number will be synchronizad.
-            Default is `1`.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oModule.EditSetup
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.design_xploration import SetupParam
-        >>> obj = SetupParam()
-        >>> obj.sync_variables(variables=["Box1"])
-
-        """
-        if type(self.props["Sweeps"]["SweepDefinition"]) is not list:
-            self._app.logger.error("Not enough variables are defined in the Parametric setup")
-            return False
-        existing_variables = [s["Variable"] for s in self.props["Sweeps"]["SweepDefinition"]]
-        undo_vals = {}
-        for v in variables:
-            if v not in existing_variables:
-                self._app.logger.error(f"Variable {v} is not defined in the Parametric setup")
-                return False
-        legacy_update = self.auto_update
-        self.auto_update = False
-        for v in variables:
-            for sweep_def in self.props["Sweeps"]["SweepDefinition"]:
-                if v == sweep_def["Variable"]:
-                    undo_vals[v] = sweep_def["Synchronize"]
-                    sweep_def["Synchronize"] = sync_n
-        try:
-            self.update()
-        except Exception:  # pragma: no cover
-            # If it fails to sync (due to e.g. different number of variations), reverts to original values.
-            for v in variables:
-                for sweep_def in self.props["Sweeps"]["SweepDefinition"]:
-                    if v == sweep_def["Variable"]:
-                        sweep_def["Synchronize"] = undo_vals[v]
-            self._app.logger.error("Failed to sync the Parametric setup.")
-            self.auto_update = legacy_update
-            return False
-        self.auto_update = legacy_update
-        return True
-
-    @pyaedt_function_handler()
-    def export_to_csv(self, output_file: str) -> bool:
-        """Export the current Parametric Setup to csv.
-
-        Parameters
-        ----------
-        output_file : str
-            Full Path to the csv file.
-
-        Returns
-        -------
-        bool
-            `True` if the export is correctly executed.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.design_xploration import SetupParam
-        >>> obj = SetupParam()
-        >>> obj.export_to_csv(output_file="example.csv")
-
-        """
-        self.omodule.ExportParametricSetupTable(self.name, output_file)
-        return True
-
-
-class ParametricSetups(PyAedtBase):
-    """Sets up Parametrics analyses. It includes Parametrics, Sensitivity and Statistical Analysis.
+class Parametrics(PyAedtBase):
+    """Optimetrics parametric main class.
 
     Examples
     --------
     >>> from ansys.aedt.core import Hfss
     >>> app = Hfss()
-    >>> sensitivity_setups = app.parametrics
+    >>> app.optimetrics.parametrics
 
     """
 
-    def __init__(self, p_app) -> None:
-        self._app = p_app
-        self.setups = []
-        if self._app.design_properties:
-            try:
-                setups_data = self._app.design_properties["Optimetrics"]["OptimetricsSetups"]
-                for data in setups_data:
-                    if isinstance(setups_data[data], dict) and setups_data[data]["SetupType"] == "OptiParametric":
-                        self.setups.append(SetupParam(p_app, data, setups_data[data], setups_data[data]["SetupType"]))
-            except Exception:
-                self._app.logger.debug(
-                    "An error occurred while creating an instance of ParametricSetups."
-                )  # pragma: no cover
+    def __init__(self, app: Optimetrics) -> None:
+        app.logger.reset_timer()
+        self.optimetrics: Optimetrics = app
+        self._app: Any = self.optimetrics._app
+        self._child_object = self.optimetrics._child_object
+        self.logger = self.optimetrics.logger
+
+        self.__setups = SetupDict()
+        self.__setup_names = []
+        self.__setups_by_type = SetupDict()
+
+        app.logger.info_timer("Parametrics class has been initialized!")
+
+    @pyaedt_function_handler()
+    def __getitem__(self, name) -> OptimetricsSetup | None:
+        """Get the object ``OptimetricsSetup`` for a given setup name.
+
+        Parameters
+        ----------
+        name : str
+            Optimetrics setup operation name.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.design_xploration.OptimetricsSetup`
+            Returns ``None`` if the part ID or the object name is not found.
+
+        """
+        return self.optimetrics[name]
 
     @property
-    def design_setups(self):
+    def setup_names(self) -> list[str]:
+        """Return the available optimetrics parametric setup names.
+
+        Returns
+        -------
+        list
+            List of setup names.
+
+        """
+        optimetrics_child_object = self._child_object
+
+        if not optimetrics_child_object:
+            return []
+
+        for name in self.optimetrics.setup_names:
+            app_type = None
+            if name in self.__setup_names:
+                # This saves time to avoid multiple call to the AEDT API
+                continue
+            child_object = self._app.get_oo_object(optimetrics_child_object, name)
+            if "GetObjType" in dir(child_object):
+                app_type = child_object.GetObjType()
+            else:
+                for st in self._app.ooptimetrics.GetChildTypes():
+                    if name in self._app.ooptimetrics.GetChildNames(st):
+                        app_type = st
+                        break
+            if app_type == "OptiParametric":
+                self.__setup_names.append(name)
+                self.__setups_by_type[name] = app_type
+
+        return self.__setup_names
+
+    @property
+    def setups(self) -> SetupDict:
+        """Parametric setups.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.generic.general_methods.SetupDict`
+            Optimetrics setup object.
+
+        """
+        for setup_name in self.setup_names:
+            if setup_name not in self.__setups:
+                # ADD COMMENT
+                self.__setups[setup_name] = OptimetricsSetup(app=self, name=setup_name, props={})
+        return self.__setups
+
+    @property
+    def setups_by_type(self) -> SetupDict:
+        return self.__setups_by_type
+
+    @property
+    @deprecated_property("Use setups instead.")
+    def design_setups(self) -> SetupDict:
         """All design setups ordered by name.
 
         Returns
         -------
-        dict[str, :class:`ansys.aedt.core.modules.solve_setup.Setup`]
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.design_xploration import ParametricSetups
-        >>> obj = ParametricSetups()
-        >>> obj.design_setups
+        :class:`ansys.aedt.core.generic.general_methods.SetupDict`
 
         """
-        return {i.name.split(":")[0].strip(): i for i in self.setups}
-
-    @property
-    def p_app(self):
-        """Parent.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.design_xploration import ParametricSetups
-        >>> obj = ParametricSetups()
-        >>> obj.p_app
-
-        """
-        return self._app
-
-    @property
-    def optimodule(self):
-        """Optimetrics module.
-
-        Returns
-        -------
-        :class:`Optimetrics`
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.design_xploration import ParametricSetups
-        >>> obj = ParametricSetups()
-        >>> obj.optimodule
-
-        """
-        return self._app.ooptimetrics
+        return self.setups
 
     @pyaedt_function_handler()
     def add(
         self,
         variable: str,
-        start_point: float,
-        end_point: float = None,
-        step: float = 100,
+        start_point: float | int,
+        end_point: float | int | None = None,
+        step: float | int = 100,
         variation_type: str = "LinearCount",
-        solution: str = None,
-        name: str = None,
-    ) -> SetupParam | bool:
-        """Add a basic sensitivity analysis.
+        solution: str | None = None,
+        name: str | None = None,
+        **kwargs,
+    ) -> OptimetricsSetup:
+        """Add parametric setup.
         You can customize all options after the analysis is added.
 
         Parameters
@@ -1174,49 +909,56 @@ class ParametricSetups(PyAedtBase):
         name : str, optional
             Name of the sensitivity analysis. The default is ``None``, in which case
             a default name is assigned.
+        **kwargs : optional
+            Additional keyword arguments to pass when creating the setup.
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.design_xploration.SetupParam`
-            Optimization Object.
+         :class:`ansys.aedt.core.modules.design_xploration.OptimetricsSetup`
+            Optimetrics setup object.
 
         References
         ----------
         >>> oModule.InsertSetup
 
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.design_xploration import ParametricSetups
-        >>> obj = ParametricSetups()
-        >>> obj.add(variable=1, start_point=1.0)
-
         """
         if variable not in self._app.variable_manager.variables:
-            self._app.logger.error(f"Variable {variable} not found.")
-            return False
+            raise AEDTRuntimeError(f"Variable {variable} not found.")
+
         if not solution and not self._app.nominal_sweep:
-            self._app.logger.error("At least one setup is needed.")
-            return False
+            raise AEDTRuntimeError("At least one setup is needed.")
+
         if not solution:
             solution = self._app.nominal_sweep
+
         setupname = solution.split(" ")[0]
         if not name:
             name = generate_unique_name("Parametric")
-        setup = SetupParam(self._app, name, optim_type="OptiParametric")
-        setup.auto_update = False
 
-        setup.props["Sim. Setups"] = [setupname]
-        setup.props["Sweeps"] = {"SweepDefinition": None}
+        props = defaultparametricSetup
+
+        setup = OptimetricsSetup(app=self, name=name, props=props)
+
+        setup._legacy_props["Sim. Setups"] = [setupname]
+        setup._legacy_props["Sweeps"] = {"SweepDefinition": None}
+
+        for arg_name, arg_value in kwargs.items():
+            setup._legacy_props[arg_name] = arg_value
+
         setup.create()
+
         unit = self._app.variable_manager[variable].units
-        setup.add_variation(variable, start_point, end_point, step, unit, variation_type)
-        setup.auto_update = True
-        self.setups.append(setup)
+
+        is_added = setup.add_variation(variable, start_point, end_point, step, unit, variation_type)
+
+        if not is_added:
+            raise AEDTRuntimeError("Variation could not be added.")
+
         return setup
 
     @pyaedt_function_handler()
     def delete(self, name: str) -> bool:
-        """Delete a defined Parametric Setup.
+        """Delete a parametric setup.
 
         Parameters
         ----------
@@ -1228,21 +970,35 @@ class ParametricSetups(PyAedtBase):
         bool
             ``True`` if setup is deleted. ``False`` if it failed.
 
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.design_xploration import ParametricSetups
-        >>> obj = ParametricSetups()
-        >>> obj.delete(name="MyObject")
-
         """
-        for el in self.setups:
-            if el.name == name:
-                el.delete()
+        for setup_name, setup in self.setups.items():
+            if setup_name == name:
+                setup.delete()
                 return True
         return False
 
     @pyaedt_function_handler()
-    def add_from_file(self, input_file: str, name: str = None):
+    def export_to_csv(self, output_file: str, name: str) -> bool:
+        """Export the current Parametric Setup to csv.
+
+        Parameters
+        ----------
+        output_file : str
+            Full Path to the csv file.
+        name : str
+
+        Returns
+        -------
+        bool
+            `True` if the export is correctly executed.
+
+        """
+        if name not in self.setup_names:
+            raise AEDTRuntimeError(f"{name} not found in parametric setup names.")
+        return self.setups[name].export_to_csv(output_file)
+
+    @pyaedt_function_handler()
+    def add_from_file(self, input_file: str, name: str | None = None):
         """Add a Parametric setup from either a csv or txt file.
 
         Parameters
@@ -1270,9 +1026,10 @@ class ParametricSetups(PyAedtBase):
         """
         if not name:
             name = generate_unique_name("Parametric")
-        setup = SetupParam(self._app, name, optim_type="OptiParametric")
-        setup.auto_update = False
-        setup.props["Sim. Setups"] = [setup_defined.name for setup_defined in self._app.setups]
+
+        setup = OptimetricsSetup(app=self, name=name, props={})
+
+        setup._legacy_props["Sim. Setups"] = [setup_defined.name for setup_defined in self._app.setups]
 
         file_path = Path(input_file)
         if file_path.suffix not in [".csv", ".txt"]:
@@ -1291,289 +1048,282 @@ class ParametricSetups(PyAedtBase):
                 for var_name in csvreader.fieldnames
                 if var_name != "*"
             ]
-            setup.props["Sweeps"] = {"SweepDefinition": sweep_definition}
+            setup._legacy_props["Sweeps"] = {"SweepDefinition": sweep_definition}
 
             table = [[line[var_name] for var_name in csvreader.fieldnames if var_name != "*"] for line in csvreader]
             if table:
-                setup.props["Sweep Operations"] = {"add": table}
+                setup._legacy_props["Sweep Operations"] = {"add": table}
 
         args = ["NAME:" + name, input_file]
-        self.optimodule.ImportSetup("OptiParametric", args)
+        self._app.ooptimetrics.ImportSetup("OptiParametric", args)
 
-        self.setups.append(setup)
         return setup
 
 
-class OptimizationSetups(PyAedtBase):
-    """Sets up optimizations. It includes Optimization, DOE and DesignXplorer Analysis.
+class Optimizations(PyAedtBase):
+    """Optimetrics optimization main class.
 
     Examples
     --------
     >>> from ansys.aedt.core import Hfss
     >>> app = Hfss()
-    >>> optimization_setup = app.optimizations
+    >>> app.optimizations
 
     """
 
-    def __init__(self, p_app) -> None:
-        self._app = p_app
-        self.setups = []
-        if self._app.design_properties:
-            try:
-                setups_data = self._app.design_properties["Optimetrics"]["OptimetricsSetups"]
-                for data in setups_data:
-                    if isinstance(setups_data[data], dict) and setups_data[data]["SetupType"] in [
-                        "OptiOptimization",
-                        "OptiDXDOE",
-                        "OptiDesignExplorer",
-                        "OptiSLang",
-                        "optiSLang",
-                        "OptiSensitivity",
-                        "OptiStatistical",
-                    ]:
-                        self.setups.append(SetupOpti(p_app, data, setups_data[data], setups_data[data]["SetupType"]))
-            except Exception:
-                self._app.logger.debug(
-                    "An error occurred while creating an instance of OptimizationSetups."
-                )  # pragma: no cover
+    def __init__(self, app: Optimetrics) -> None:
+        app.logger.reset_timer()
+        self.optimetrics: Optimetrics = app
+        self._app: Any = self.optimetrics._app
+        self._child_object = self.optimetrics._child_object
+        self.logger = self.optimetrics.logger
 
-    @property
-    def p_app(self):
-        """Parent.
+        self.__setups = SetupDict()
+        self.__setup_names = []
+        self.__setups_by_type = SetupDict()
 
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.design_xploration import OptimizationSetups
-        >>> obj = OptimizationSetups()
-        >>> obj.p_app
-
-        """
-        return self._app
-
-    @property
-    def design_setups(self) -> dict["Setup"]:
-        """All design setups ordered by name.
-
-        Returns
-        -------
-        dict[str, :class:`ansys.aedt.core.modules.solve_setup.Setup`]
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.design_xploration import OptimizationSetups
-        >>> obj = OptimizationSetups()
-        >>> obj.design_setups
-
-        """
-        return {i.name.split(":")[0].strip(): i for i in self.setups}
-
-    @property
-    def optimodule(self):
-        """Optimetrics module.
-
-        Returns
-        -------
-        :class:`Optimetrics`
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.design_xploration import OptimizationSetups
-        >>> obj = OptimizationSetups()
-        >>> obj.optimodule
-
-        """
-        return self._app.ooptimetrics
+        app.logger.info_timer("Optimizations class has been initialized!")
 
     @pyaedt_function_handler()
-    def delete(self, name: str) -> bool:
-        """Delete a defined Optimetrics Setup.
+    def __getitem__(self, name) -> OptimetricsSetup | None:
+        """Get the object ``OptimetricsSetup`` for a given setup name.
 
         Parameters
         ----------
         name : str
-            Name of optimetrics setup to delete.
+            Optimetrics setup operation name.
 
         Returns
         -------
-        bool
-            ``True`` if setup is deleted. ``False`` if it failed.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.design_xploration import OptimizationSetups
-        >>> obj = OptimizationSetups()
-        >>> obj.delete(name="MyObject")
+        :class:`ansys.aedt.core.modules.design_xploration.OptimetricsSetup`
+            Returns ``None`` if the part ID or the object name is not found.
 
         """
-        for el in self.setups:
-            if el.name == name:
-                el.delete()
-                return True
-        return False
+        return self.optimetrics[name]
+
+    @property
+    def setup_names(self) -> list[str]:
+        """Return the available optimetrics optimization setup names.
+
+        Returns
+        -------
+        list
+            List of setup names.
+
+        """
+        optimetrics_child_object = self._child_object
+
+        if not optimetrics_child_object:
+            return []
+
+        for name in self.optimetrics.setup_names:
+            app_type = None
+            if name in self.__setup_names:
+                # This saves time to avoid multiple call to the AEDT API
+                continue
+            child_object = self._app.get_oo_object(optimetrics_child_object, name)
+            if "GetObjType" in dir(child_object):
+                app_type = child_object.GetObjType()
+            else:
+                for st in self._app.ooptimetrics.GetChildTypes():
+                    if name in self._app.ooptimetrics.GetChildNames(st):
+                        app_type = st
+                        break
+            if app_type != "OptiParametric":
+                self.__setup_names.append(name)
+                self.__setups_by_type[name] = app_type
+
+        return self.__setup_names
+
+    @property
+    def setups(self) -> SetupDict:
+        """Parametric setups.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.generic.general_methods.SetupDict`
+            Optimetrics setup object.
+
+        """
+        for setup_name in self.setup_names:
+            if setup_name not in self.__setups:
+                # ADD COMMENT
+                self.__setups[setup_name] = OptimetricsSetup(app=self, name=setup_name, props={})
+        return self.__setups
+
+    @property
+    def setups_by_type(self) -> SetupDict:
+        return self.__setups_by_type
+
+
+class Optimetrics(PyAedtBase):
+    """Optimetrics main class.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Hfss
+    >>> app = Hfss()
+    >>> app.optimetrics
+
+    """
+
+    def __init__(self, app) -> None:
+        app.logger.reset_timer()
+        self._app: Any = app
+        self.logger = self._app.logger
+
+        # ADD COMMENT HERE
+        self._parametrics = None
+        self._optimizations = None
+
+        self.__setups = SetupDict()
+        self.__setups_by_type = SetupDict()
+
+        app.logger.info_timer("Optimetrics class has been initialized!")
+
+        if not settings.lazy_load:
+            self._parametrics = self.parametrics
+            self._optimizations = self.optimizations
 
     @pyaedt_function_handler()
-    def add(
+    def __getitem__(self, name) -> OptimetricsSetup | None:
+        """Get the object ``OptimetricsSetup`` for a given setup name.
+
+        Parameters
+        ----------
+        name : str
+            Optimetrics setup operation name.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.design_xploration.OptimetricsSetup`
+            Returns ``None`` if the part ID or the object name is not found.
+
+        """
+        if name in self.setup_names:
+            return self.setups[name]
+        return None
+
+    @property
+    def _child_object(self) -> object | None:
+        """Object-oriented properties.
+
+        Returns
+        -------
+        AEDT object if any or None
+
+        """
+        child_object = None
+        design_childs = self._app.get_oo_name(self._app.odesign)
+
+        if "Optimetrics" in design_childs:
+            child_object = self._app.get_oo_object(self._app.odesign, "Optimetrics")
+        return child_object
+
+    @property
+    def parametrics(self) -> Parametrics:
+        """"""
+        if self._parametrics is None:
+            self._parametrics = Parametrics(self)
+        return self._parametrics
+
+    @property
+    def optimizations(self) -> Parametrics:
+        """"""
+        if self._optimizations is None:
+            self._optimizations = Parametrics(self)
+        return self._optimizations
+
+    @property
+    def setup_names(self) -> list[str]:
+        """Return all the available optimetrics setup names.
+
+        Returns
+        -------
+        list
+            List of setup names.
+
+        """
+        if self._app._is_object_oriented_enabled():
+            return list(self._app.get_oo_name(self._app.odesign, "Optimetrics"))
+        return []
+
+    @property
+    def setups(self) -> SetupDict | None:
+        """Return the available setups.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.generic.general_methods.SetupDict`
+            Optimetrics setup object.
+
+        """
+        for setup_name, setup in self.parametrics.setups.items():
+            if setup_name not in self.__setups:
+                self.__setups[setup_name] = OptimetricsSetup(app=setup, name=setup_name, props={})
+
+        for setup_name, setup in self.optimizations.setups.items():
+            if setup_name not in self.__setups:
+                self.__setups[setup_name] = OptimetricsSetup(app=setup, name=setup_name, props={})
+
+        return self.__setups
+
+    @pyaedt_function_handler()
+    def add_parametric(
         self,
-        calculation: str = None,
-        ranges: dict = None,
-        variables: list = None,
-        optimization_type: str = "Optimization",
-        condition: str = "<=",
-        goal_value: int = 1,
-        goal_weight: int = 1,
-        solution: str = None,
-        name: str = None,
-        context: str = None,
-        subdesign_id: int = None,
-        polyline_points: int = 1001,
-        report_type: str = None,
-    ) -> SetupOpti | bool:
-        """Add a basic optimization analysis.
+        variable: str,
+        start_point: float,
+        end_point: float | None = None,
+        step: float | int = 100,
+        variation_type: str = "LinearCount",
+        solution: str | None = None,
+        name: str | None = None,
+        **kwargs,
+    ) -> OptimetricsSetup:
+        """Add parametric setup.
         You can customize all options after the analysis is added.
 
         Parameters
         ----------
-        calculation : str, optional
-            Name of the calculation.
-        ranges : dict, optional
-            Dictionary of ranges with respective values.
-            Values can be: a list of discrete values, a dict with tuple args of start and stop range.
-            It includes intrinsics like "Freq", "Time", "Theta", "Distance".
-        variables : list, optional
-            List of variables to include in the optimization. By default all variables are included.
-        optimization_type : strm optional
-            Optimization Type.
-            Possible values are `"Optimization"`, `"DXDOE"`,`"DesignExplorer"`,`"Sensitivity"`,`"Statistical"`
-            and `"optiSLang"`.
-        condition : string, optional
-            The default is ``"<="``.
-        goal_value : optional
-            Value for the goal. The default is ``1``.
-        goal_weight : optional
-            Value for the goal weight. The default is ``1``.
+        variable : str
+            Name of the variable.
+        start_point : float, int or str
+            Variation Start Point if a variation is defined or Single Value.
+        end_point : float or int, optional
+            Variation End Point. This parameter is optional if a Single Value is defined.
+        step : float, int, or str
+            Variation Step or Count depending on variation_type. The default is ``100``
+            for the "LinearCount" variation_type. If a string is passed as an argument, it
+            must be a valid expression in the given context. For example, "0.1mm" may be passed
+            for a step size when the variation_type is "LinearStep".
+        variation_type : str, optional
+            Variation Type. Permitted values are `"LinearCount"`, `"LinearStep"`, `"LogScale"`, `"SingleValue"`.
         solution : str, optional
             Type of the solution. The default is ``None``, in which case the default
             solution is used.
         name : str, optional
-            Name of the analysis. The default is ``None``, in which case a
-            default name is assigned.
-        context : str, optional
-            Calculation contexts. It can be a sphere, a matrix or a polyline.
-        subdesign_id : int, optional
-            Subdesign id for Circuit and HFSS 3D Layout objects.
-        polyline_points : int, optional
-            Number of points for Polyline context.
-        report_type : str, optional
-            Override the auto computation of Calculation Type.
+            Name of the sensitivity analysis. The default is ``None``, in which case
+            a default name is assigned.
+        **kwargs : optional
+            Additional keyword arguments to pass when creating the setup.
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.design_xploration.SetupOpti`
-            Optimization object.
+         :class:`ansys.aedt.core.modules.design_xploration.OptimetricsSetup`
+            Optimetrics setup object.
 
         References
         ----------
         >>> oModule.InsertSetup
 
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.design_xploration import OptimizationSetups
-        >>> obj = OptimizationSetups()
-        >>> obj.add(name="MyObject", calculation=1)
-
         """
-        if not solution and not self._app.nominal_sweep:
-            self._app.logger.error("At least one setup is needed.")
-            return False
-        if not solution:
-            solution = self._app.nominal_sweep
-        setupname = solution.split(" ")[0]
-        if not name:
-            name = generate_unique_name(optimization_type)
-        if optimization_type != "optiSLang":
-            optimization_type = "Opti" + optimization_type
-        setup = SetupOpti(self._app, name, optim_type=optimization_type)
-        setup.auto_update = False
-        setup.props["Sim. Setups"] = [setupname]
-        if calculation:
-            domain = "Time"
-            if not ranges:
-                ranges = {}
-            if "Freq" in ranges or "Phase" in ranges or "Theta" in ranges:
-                domain = "Sweep"
-            if not report_type:
-                report_type = self._app.design_solutions.report_type
-                if context and context in self._app.modeler.sheet_names:
-                    report_type = "Fields"
-                elif self._app.solution_type in ["Q3D Extractor", "2D Extractor"]:
-                    report_type = "Matrix"
-                elif context:
-                    try:
-                        for f in self._app.field_setups:
-                            if context == f.name:
-                                report_type = "Far Fields"
-                    except Exception:
-                        self._app.logger.debug(
-                            "An error occurred when handling `report_type` while adding a basic optimization analysis."
-                        )  # pragma: no cover
-            sweepdefinition = setup._get_context(
-                calculation,
-                condition,
-                goal_weight,
-                goal_value,
-                solution,
-                domain,
-                ranges,
-                report_type,
-                context,
-                subdesign_id,
-                polyline_points,
-                is_goal=True,
-            )
-            setup.props["Goals"]["Goal"] = sweepdefinition
-
-        dx_variables = {}
-        if variables:
-            for el in variables:
-                try:
-                    dx_variables[el] = self._app[el]
-                except Exception:
-                    self._app.logger.debug(
-                        "An error occurred while adding a basic optimization analysis."
-                    )  # pragma: no cover
-        for v in list(dx_variables.keys()):
-            if optimization_type in ["OptiOptimization", "OptiDXDOE", "OptiDesignExplorer", "optiSLang"]:
-                self._app.activate_variable_optimization(v)
-            elif optimization_type == "OptiSensitivity":
-                self._app.activate_variable_sensitivity(v)
-            elif optimization_type == "OptiStatistical":
-                self._app.activate_variable_statistical(v)
-        if optimization_type == "OptiDXDOE" and calculation:
-            setup.props["CostFunctionGoals"]["Goal"] = sweepdefinition
-
-        if optimization_type in ["optiSLang", "OptiDesignExplorer"]:
-            setup.props["Sweeps"]["SweepDefinition"] = []
-            if not dx_variables:
-                if optimization_type == "optiSLang":
-                    dx_variables = self._app.variable_manager.design_variables
-                else:
-                    dx_variables = self._app.variable_manager.variables
-                for variable in dx_variables.keys():
-                    self._app.activate_variable_optimization(variable)
-                for var in dx_variables:
-                    arg = {
-                        "Variable": var,
-                        "Data": dx_variables[var].evaluated_value,
-                        "OffsetF1": False,
-                        "Synchronize": 0,
-                    }
-                    setup.props["Sweeps"]["SweepDefinition"].append(arg)
-            else:
-                for var, data in dx_variables.items():
-                    arg = {"Variable": var, "Data": data, "OffsetF1": False, "Synchronize": 0}
-                    setup.props["Sweeps"]["SweepDefinition"].append(arg)
-        setup.create()
-
-        setup.auto_update = True
-        self.setups.append(setup)
-        return setup
+        return self.parametrics.add(
+            variable=variable,
+            start_point=start_point,
+            end_point=end_point,
+            step=step,
+            variation_type=variation_type,
+            solution=solution,
+            name=name,
+            **kwargs,
+        )

@@ -27,6 +27,7 @@ import pytest
 from ansys.aedt.core import Circuit
 from ansys.aedt.core import Hfss
 from ansys.aedt.core.generic.constants import Setups
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests.conftest import DESKTOP_VERSION
 
 TEST_SUBFOLDER = "T11"
@@ -56,7 +57,8 @@ def test_create_hfss_setup(aedtapp) -> None:
     setup1["SaveRadFieldsonly"] = True
     assert setup1.props["SaveRadFieldsOnly"] == setup1["SaveRadFieldsonly"]
     assert setup1.enable_adaptive_setup_multifrequency([1, 2, 3])
-    assert setup1.props["MultipleAdaptiveFreqsSetup"]["1GHz"][0] == 0.02
+    assert setup1.props["MultipleAdaptiveFreqsSetup"]["AdaptAt"][0]["Delta"] == 0.02
+    assert setup1.props["MultipleAdaptiveFreqsSetup"]["AdaptAt"][0]["Frequency"] == "1GHz"
     assert setup1.enable_adaptive_setup_broadband(1, 2.5, 10, 0.01)
     assert setup1.props["MultipleAdaptiveFreqsSetup"]["Low"] == "1GHz"
     assert setup1.props["MaximumPasses"] == 10
@@ -213,7 +215,8 @@ def test_delete_sweep(aedtapp) -> None:
 
 def test_sweep_sbr(aedtapp) -> None:
     aedtapp.solution_type = "SBR+"
-    aedtapp.insert_infinite_sphere()
+    sph = aedtapp.insert_infinite_sphere()
+    sph.props
     setup1 = aedtapp.create_setup("My_HFSS_Setup", Setups.HFSSSBR)
     assert setup1.add_subrange("LinearStep", 1, 10, 0.1, clear=False)
     assert setup1.add_subrange("LinearCount", 10, 20, 10, clear=True)
@@ -226,11 +229,13 @@ def test_create_parametrics(aedtapp, test_tmp_dir) -> None:
     setup = aedtapp.create_setup("My_HFSS_Setup", Setups.HFSSDrivenDefault)
     setup.props["Frequency"] == "3.5GHz"
     setup.enable_adaptive_setup_single(3.5)
-    assert not aedtapp.parametrics.add("invalid", 0.1, 20, 0.2, "LinearStep")
+    with pytest.raises(AEDTRuntimeError):
+        aedtapp.parametrics.add("invalid", 0.1, 20, 0.2, "LinearStep")
     setup1 = aedtapp.parametrics.add("w1", 0.1, 20, 0.2, "LinearStep")
     assert setup1.name in aedtapp.parametrics.design_setups
     assert setup1
-    assert not setup1.add_variation("invalid", "0.1mm", 10, 11)
+    with pytest.raises(AEDTRuntimeError):
+        setup1.add_variation("invalid", "0.1mm", 10, 11)
     assert setup1.add_variation("w2", "0.1mm", 10, 11)
     assert setup1.add_variation("w2", start_point="0.2mm", variation_type="SingleValue")
     assert setup1.add_variation("w1", start_point="0.3mm", end_point=5, step=0.2, variation_type="LinearStep")
@@ -244,8 +249,16 @@ def test_create_parametrics(aedtapp, test_tmp_dir) -> None:
     oo = aedtapp.get_oo_object(aedtapp.odesign, f"Optimetrics\\{setup1.name}")
     oo_calculation = oo.GetCalculationInfo()[0]
     assert "Modal Solution Data" in oo_calculation
+
     assert setup1.export_to_csv(str(test_tmp_dir / "test.csv"))
     assert (test_tmp_dir / "test.csv").is_file()
+
+    assert aedtapp.parametrics.export_to_csv(str(test_tmp_dir / "test1.csv"), setup1.name)
+    assert (test_tmp_dir / "test1.csv").is_file()
+
+    with pytest.raises(AEDTRuntimeError):
+        aedtapp.parametrics.export_to_csv(str(test_tmp_dir / "test1.csv"), "invented")
+
     assert aedtapp.parametrics.add_from_file(str(test_tmp_dir / "test.csv"), "ParametricsfromFile")
     with pytest.raises(ValueError):
         aedtapp.parametrics.add_from_file("test.invalid", "ParametricsfromFile")
@@ -261,7 +274,8 @@ def test_create_parametrics_sync(aedtapp) -> None:
     setup1 = aedtapp.parametrics.add("a1", start_point=0.1, end_point=20, step=10, variation_type="LinearCount")
     assert setup1
     assert setup1.add_variation("a2", start_point="0.3mm", end_point=5, step=10, variation_type="LinearCount")
-    assert not setup1.sync_variables(["invalid"], sync_n=1)
+    with pytest.raises(AEDTRuntimeError):
+        setup1.sync_variables(["invalid"], sync_n=1)
     assert setup1.sync_variables(["a1", "a2"], sync_n=1)
     assert setup1.sync_variables(["a1", "a2"], sync_n=0)
     setup1.add_variation("a1", start_point="13mm", variation_type="SingleValue")

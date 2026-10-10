@@ -58,7 +58,7 @@ class LimitLine(BinaryTreeNode, PyAedtBase):
         self._app = post._app
         self._oreport_setup = post.oreportsetup
         self.line_name = trace_name
-        self._initialize_tree_node()
+        # self._initialize_tree_node()
 
     @pyaedt_function_handler()
     def _initialize_tree_node(self) -> bool:
@@ -149,7 +149,11 @@ class Note(BinaryTreeNode, PyAedtBase):
         self._app = post._app
         self._oreport_setup = post.oreportsetup
         self.plot_note_name = plot_note_name
+
+    @pyaedt_function_handler()
+    def _initialize_tree_node(self) -> bool:
         BinaryTreeNode.__init__(self, self.plot_note_name, self._oo, False, app=self._app)
+        return True
 
     @pyaedt_function_handler()
     def _change_property(self, props_value) -> bool:
@@ -313,7 +317,7 @@ class Trace(BinaryTreeNode, PyAedtBase):
         self._symbol_color = None
         self._show_symbol = False
         self._available_props = []
-        self._initialize_tree_node()
+        # self._initialize_tree_node()
 
     @pyaedt_function_handler()
     def _initialize_tree_node(self) -> bool:
@@ -500,7 +504,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         self._app = self._post._app
         self._legacy_props = {}
         self._legacy_props["report_category"] = report_category
-        self.setup = setup_name
+        self._setup = setup_name
         self._legacy_props["report_type"] = "Rectangular Plot"
         self._legacy_props["context"] = {}
         self._legacy_props["context"]["domain"] = "Sweep"
@@ -521,7 +525,23 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         self._display_families_type = None
         self._display_families_options = {}
         self._traces = []
-        self._initialize_tree_node()
+        # self._initialize_tree_node()
+
+    @property
+    def setup(self):
+        if self._setup:
+            return self._setup
+        for trc_name in self.traces:
+            try:
+                self._setup = trc_name.properties["Solution"]
+                break
+            except Exception:  # nosec
+                pass
+        return self._setup
+
+    @setup.setter
+    def setup(self, setup):
+        self._setup = setup
 
     @pyaedt_function_handler()
     def _initialize_tree_node(self) -> bool:
@@ -690,9 +710,9 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> obj.expressions
 
         """
-        self._initialize_tree_node()
+        # self._initialize_tree_node()
         if self._is_created:
-            return [i.split(" ,")[-1] for i in list(self.properties.values())[4:]]
+            return [i.split(" ,")[-1] for i in list(self.properties.values())[4:] if i]
         if self._legacy_props.get("expressions", None) is None:
             return []
         return [k.get("name", None) for k in self._legacy_props["expressions"] if k.get("name", None) is not None]
@@ -1270,6 +1290,8 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         if self._is_created:
             if name not in self._post.oreportsetup.GetAllReportNames():
                 self._post.oreportsetup.RenameReport(self._legacy_props["plot_name"], name)
+            self._legacy_props["plot_name"] = name
+            self._initialize_tree_node()
         self._legacy_props["plot_name"] = name
 
     @property
@@ -1759,7 +1781,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         )
         self._post.plots.append(self)
         self._is_created = True
-        self._initialize_tree_node()
+        # self._initialize_tree_node()
         return True
 
     @pyaedt_function_handler()
@@ -3064,7 +3086,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         props = [f"{plot_name}:=", traces_list]
         try:
             self._post.oreportsetup.DeleteTraces(props)
-            self._initialize_tree_node()
+            # self._initialize_tree_node()
             return True
         except Exception:
             return False
@@ -3108,7 +3130,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
                 self._convert_dict_to_report_sel(variations if variations else self.variations),
                 self._trace_info(traces),
             )
-            self._initialize_tree_node()
+            # self._initialize_tree_node()
             return True
         except Exception:
             return False
