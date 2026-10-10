@@ -1,0 +1,47 @@
+﻿MathUtils
+=========
+
+.. currentmodule:: ansys.aedt.core.generic.math_utils
+
+.. autoclass:: MathUtils
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      MathUtils.atan2
+      
+      
+      MathUtils.fix_negative_zero
+      
+      
+      MathUtils.is_close
+      
+      
+      MathUtils.is_equal
+      
+      
+      MathUtils.is_scalar_number
+      
+      
+      MathUtils.is_zero
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      MathUtils.EPSILON
+      MathUtils.public_dir
+   
+   

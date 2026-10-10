@@ -1,0 +1,6 @@
+id
+==
+
+.. currentmodule:: ansys.aedt.core.visualization.post.monitor_icepak
+
+.. autoproperty:: FaceMonitor.id

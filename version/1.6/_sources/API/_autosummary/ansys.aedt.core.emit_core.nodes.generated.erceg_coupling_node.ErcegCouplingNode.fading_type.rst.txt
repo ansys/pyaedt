@@ -1,0 +1,6 @@
+fading\_type
+============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.erceg_coupling_node
+
+.. autoproperty:: ErcegCouplingNode.fading_type

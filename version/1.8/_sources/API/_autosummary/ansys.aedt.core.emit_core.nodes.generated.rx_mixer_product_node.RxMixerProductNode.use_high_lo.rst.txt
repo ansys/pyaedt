@@ -1,0 +1,6 @@
+use\_high\_lo
+=============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.rx_mixer_product_node
+
+.. autoproperty:: RxMixerProductNode.use_high_lo

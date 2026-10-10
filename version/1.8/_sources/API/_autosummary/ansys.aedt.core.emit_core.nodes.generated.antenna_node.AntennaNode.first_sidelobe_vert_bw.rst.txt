@@ -1,0 +1,6 @@
+first\_sidelobe\_vert\_bw
+=========================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.antenna_node
+
+.. autoproperty:: AntennaNode.first_sidelobe_vert_bw

@@ -1,0 +1,6 @@
+current\_revision
+=================
+
+.. currentmodule:: ansys.aedt.core.emit_core.results.interaction_domain
+
+.. autoproperty:: InteractionDomain.current_revision

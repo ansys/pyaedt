@@ -1,0 +1,6 @@
+props\_to\_dict
+===============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.emi_plot_marker_node
+
+.. automethod:: EmiPlotMarkerNode.props_to_dict

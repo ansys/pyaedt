@@ -1,0 +1,6 @@
+hop\_range\_min\_freq
+=====================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.band
+
+.. autoproperty:: Band.hop_range_min_freq

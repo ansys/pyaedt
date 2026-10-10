@@ -1,0 +1,6 @@
+port\_antenna\_assignment
+=========================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.touchstone_coupling_node
+
+.. autoproperty:: TouchstoneCouplingNode.port_antenna_assignment

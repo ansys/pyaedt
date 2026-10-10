@@ -1,0 +1,6 @@
+higher\_stop\_band
+==================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.antenna_passband
+
+.. autoproperty:: AntennaPassband.higher_stop_band

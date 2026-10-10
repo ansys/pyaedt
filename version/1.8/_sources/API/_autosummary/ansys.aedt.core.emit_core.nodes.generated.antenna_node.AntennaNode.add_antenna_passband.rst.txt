@@ -1,0 +1,6 @@
+add\_antenna\_passband
+======================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.antenna_node
+
+.. automethod:: AntennaNode.add_antenna_passband

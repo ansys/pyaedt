@@ -1,0 +1,6 @@
+aedt\_env\_variable
+===================
+
+.. currentmodule:: ansys.aedt.core.hfss
+
+.. autoproperty:: Hfss.aedt_env_variable

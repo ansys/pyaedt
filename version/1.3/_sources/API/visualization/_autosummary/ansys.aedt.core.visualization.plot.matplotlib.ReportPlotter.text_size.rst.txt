@@ -1,0 +1,6 @@
+text\_size
+==========
+
+.. currentmodule:: ansys.aedt.core.visualization.plot.matplotlib
+
+.. autoproperty:: ReportPlotter.text_size

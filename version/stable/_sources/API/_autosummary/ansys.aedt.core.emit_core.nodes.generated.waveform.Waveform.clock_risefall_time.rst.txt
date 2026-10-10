@@ -1,0 +1,6 @@
+clock\_risefall\_time
+=====================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.waveform
+
+.. autoproperty:: Waveform.clock_risefall_time

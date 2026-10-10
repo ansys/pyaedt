@@ -1,0 +1,6 @@
+is\_valid
+=========
+
+.. currentmodule:: ansys.aedt.core.emit_core.results.interaction
+
+.. automethod:: Interaction.is_valid

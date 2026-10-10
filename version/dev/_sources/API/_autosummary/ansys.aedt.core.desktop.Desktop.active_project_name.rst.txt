@@ -1,0 +1,6 @@
+active\_project\_name
+=====================
+
+.. currentmodule:: ansys.aedt.core.desktop
+
+.. autoproperty:: Desktop.active_project_name

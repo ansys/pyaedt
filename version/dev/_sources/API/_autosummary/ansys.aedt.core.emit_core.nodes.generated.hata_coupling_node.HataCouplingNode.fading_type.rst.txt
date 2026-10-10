@@ -1,0 +1,6 @@
+fading\_type
+============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.hata_coupling_node
+
+.. autoproperty:: HataCouplingNode.fading_type

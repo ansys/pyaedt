@@ -1,0 +1,6 @@
+public\_dir
+===========
+
+.. currentmodule:: ansys.aedt.core.modules.profile
+
+.. autoproperty:: FrequencySweepProfile.public_dir

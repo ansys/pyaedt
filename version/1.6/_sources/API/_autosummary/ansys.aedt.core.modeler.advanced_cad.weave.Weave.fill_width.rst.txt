@@ -1,0 +1,6 @@
+fill\_width
+===========
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.weave
+
+.. autoproperty:: Weave.fill_width

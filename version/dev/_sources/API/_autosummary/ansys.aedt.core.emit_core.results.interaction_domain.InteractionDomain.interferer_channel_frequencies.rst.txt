@@ -1,0 +1,6 @@
+interferer\_channel\_frequencies
+================================
+
+.. currentmodule:: ansys.aedt.core.emit_core.results.interaction_domain
+
+.. autoattribute:: InteractionDomain.interferer_channel_frequencies

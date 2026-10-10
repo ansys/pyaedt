@@ -1,0 +1,6 @@
+waveguide\_width
+================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.antenna_node
+
+.. autoproperty:: AntennaNode.waveguide_width

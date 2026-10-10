@@ -1,0 +1,6 @@
+min\_stop\_band
+===============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.filter
+
+.. autoproperty:: Filter.min_stop_band

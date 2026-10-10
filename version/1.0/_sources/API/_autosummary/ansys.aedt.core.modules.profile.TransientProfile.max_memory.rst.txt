@@ -1,0 +1,6 @@
+max\_memory
+===========
+
+.. currentmodule:: ansys.aedt.core.modules.profile
+
+.. autoproperty:: TransientProfile.max_memory

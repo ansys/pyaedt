@@ -1,0 +1,73 @@
+﻿MultiplexerBand
+===============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.multiplexer_band
+
+.. autoclass:: MultiplexerBand
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      MultiplexerBand.delete
+      
+      
+      MultiplexerBand.duplicate
+      
+      
+      MultiplexerBand.export_to_csv
+      
+      
+      MultiplexerBand.get_is_component
+      
+      
+      MultiplexerBand.get_properties
+      
+      
+      MultiplexerBand.plot
+      
+      
+      MultiplexerBand.props_to_dict
+      
+      
+      MultiplexerBand.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      MultiplexerBand.allowed_child_types
+      MultiplexerBand.children
+      MultiplexerBand.filename
+      MultiplexerBand.higher_cutoff
+      MultiplexerBand.higher_stop_band
+      MultiplexerBand.insertion_loss
+      MultiplexerBand.lower_cutoff
+      MultiplexerBand.lower_stop_band
+      MultiplexerBand.max_pass_band
+      MultiplexerBand.max_stop_band
+      MultiplexerBand.min_pass_band
+      MultiplexerBand.min_stop_band
+      MultiplexerBand.name
+      MultiplexerBand.node_type
+      MultiplexerBand.odesktop
+      MultiplexerBand.parent
+      MultiplexerBand.parent_name
+      MultiplexerBand.passband_type
+      MultiplexerBand.properties
+      MultiplexerBand.stop_band_attenuation
+      MultiplexerBand.valid
+      MultiplexerBand.warnings
+   
+   

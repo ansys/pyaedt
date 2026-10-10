@@ -1,0 +1,6 @@
+aedt\_env\_variable
+===================
+
+.. currentmodule:: ansys.aedt.core.maxwell
+
+.. autoproperty:: Maxwell3d.aedt_env_variable

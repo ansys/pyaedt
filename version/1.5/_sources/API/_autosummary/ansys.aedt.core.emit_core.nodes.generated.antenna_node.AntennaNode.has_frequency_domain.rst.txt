@@ -1,0 +1,6 @@
+has\_frequency\_domain
+======================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.antenna_node
+
+.. autoproperty:: AntennaNode.has_frequency_domain

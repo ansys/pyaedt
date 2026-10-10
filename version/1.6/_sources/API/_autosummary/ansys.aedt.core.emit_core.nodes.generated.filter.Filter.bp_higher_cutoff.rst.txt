@@ -1,0 +1,6 @@
+bp\_higher\_cutoff
+==================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.filter
+
+.. autoproperty:: Filter.bp_higher_cutoff

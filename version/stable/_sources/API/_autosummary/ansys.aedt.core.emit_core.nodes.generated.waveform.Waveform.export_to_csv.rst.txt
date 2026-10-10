@@ -1,0 +1,6 @@
+export\_to\_csv
+===============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.waveform
+
+.. automethod:: Waveform.export_to_csv

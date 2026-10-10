@@ -1,0 +1,6 @@
+get\_all\_radio\_nodes
+======================
+
+.. currentmodule:: ansys.aedt.core.emit_core.results.revision
+
+.. automethod:: Revision.get_all_radio_nodes

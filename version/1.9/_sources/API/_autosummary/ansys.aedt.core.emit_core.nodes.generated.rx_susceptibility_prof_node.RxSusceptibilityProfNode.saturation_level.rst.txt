@@ -1,0 +1,6 @@
+saturation\_level
+=================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.rx_susceptibility_prof_node
+
+.. autoproperty:: RxSusceptibilityProfNode.saturation_level

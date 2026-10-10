@@ -1,0 +1,6 @@
+revisions
+=========
+
+.. currentmodule:: ansys.aedt.core.emit_core.results.interaction_domain
+
+.. autoattribute:: InteractionDomain.revisions

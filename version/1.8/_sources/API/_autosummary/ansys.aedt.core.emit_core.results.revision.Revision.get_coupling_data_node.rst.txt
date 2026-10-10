@@ -1,0 +1,6 @@
+get\_coupling\_data\_node
+=========================
+
+.. currentmodule:: ansys.aedt.core.emit_core.results.revision
+
+.. automethod:: Revision.get_coupling_data_node

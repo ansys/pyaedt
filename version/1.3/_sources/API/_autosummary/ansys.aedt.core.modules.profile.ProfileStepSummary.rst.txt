@@ -1,0 +1,22 @@
+﻿ProfileStepSummary
+==================
+
+.. currentmodule:: ansys.aedt.core.modules.profile
+
+.. autoclass:: ProfileStepSummary
+
+   
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      ProfileStepSummary.public_dir
+   
+   

@@ -1,0 +1,6 @@
+display\_families\_type
+=======================
+
+.. currentmodule:: ansys.aedt.core.visualization.report.standard
+
+.. autoproperty:: Spectral.display_families_type

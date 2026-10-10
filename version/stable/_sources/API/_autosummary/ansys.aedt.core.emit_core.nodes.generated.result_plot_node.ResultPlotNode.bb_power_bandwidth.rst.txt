@@ -1,0 +1,6 @@
+bb\_power\_bandwidth
+====================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.result_plot_node
+
+.. autoproperty:: ResultPlotNode.bb_power_bandwidth

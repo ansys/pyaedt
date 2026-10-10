@@ -1,0 +1,58 @@
+﻿BandFolder
+==========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.band_folder
+
+.. autoclass:: BandFolder
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      BandFolder.add_band
+      
+      
+      BandFolder.delete
+      
+      
+      BandFolder.duplicate
+      
+      
+      BandFolder.get_is_component
+      
+      
+      BandFolder.get_properties
+      
+      
+      BandFolder.props_to_dict
+      
+      
+      BandFolder.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      BandFolder.allowed_child_types
+      BandFolder.children
+      BandFolder.name
+      BandFolder.node_type
+      BandFolder.odesktop
+      BandFolder.parent
+      BandFolder.parent_name
+      BandFolder.properties
+      BandFolder.valid
+      BandFolder.warnings
+   
+   

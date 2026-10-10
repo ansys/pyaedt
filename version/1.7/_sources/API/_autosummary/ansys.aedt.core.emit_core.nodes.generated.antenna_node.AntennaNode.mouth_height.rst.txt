@@ -1,0 +1,6 @@
+mouth\_height
+=============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.antenna_node
+
+.. autoproperty:: AntennaNode.mouth_height

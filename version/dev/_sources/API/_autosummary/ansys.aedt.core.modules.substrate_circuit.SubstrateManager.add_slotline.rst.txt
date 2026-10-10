@@ -1,0 +1,6 @@
+add\_slotline
+=============
+
+.. currentmodule:: ansys.aedt.core.modules.substrate_circuit
+
+.. automethod:: SubstrateManager.add_slotline

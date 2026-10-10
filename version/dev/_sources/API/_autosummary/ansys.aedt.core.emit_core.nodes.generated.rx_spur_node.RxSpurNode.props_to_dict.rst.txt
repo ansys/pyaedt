@@ -1,0 +1,6 @@
+props\_to\_dict
+===============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.rx_spur_node
+
+.. automethod:: RxSpurNode.props_to_dict

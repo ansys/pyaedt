@@ -1,0 +1,73 @@
+﻿PowerDivider
+============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.power_divider
+
+.. autoclass:: PowerDivider
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      PowerDivider.delete
+      
+      
+      PowerDivider.duplicate
+      
+      
+      PowerDivider.export_to_csv
+      
+      
+      PowerDivider.get_is_component
+      
+      
+      PowerDivider.get_properties
+      
+      
+      PowerDivider.plot
+      
+      
+      PowerDivider.props_to_dict
+      
+      
+      PowerDivider.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      PowerDivider.allowed_child_types
+      PowerDivider.children
+      PowerDivider.filename
+      PowerDivider.finite_bandwidth
+      PowerDivider.finite_isolation
+      PowerDivider.higher_cutoff
+      PowerDivider.higher_stop_band
+      PowerDivider.insertion_loss_above_ideal
+      PowerDivider.isolation
+      PowerDivider.lower_cutoff
+      PowerDivider.lower_stop_band
+      PowerDivider.name
+      PowerDivider.node_type
+      PowerDivider.noise_temperature
+      PowerDivider.notes
+      PowerDivider.odesktop
+      PowerDivider.out_of_band_attenuation
+      PowerDivider.parent_name
+      PowerDivider.power_divider_type
+      PowerDivider.properties
+      PowerDivider.valid
+      PowerDivider.warnings
+   
+   

@@ -1,0 +1,47 @@
+﻿ModelerEmit
+===========
+
+.. currentmodule:: ansys.aedt.core.modeler.schematic
+
+.. autoclass:: ModelerEmit
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      ModelerEmit.change_text_property
+      
+      
+      ModelerEmit.connect_schematic_components
+      
+      
+      ModelerEmit.create_text
+      
+      
+      ModelerEmit.zoom_to_fit
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      ModelerEmit.logger
+      ModelerEmit.o_def_manager
+      ModelerEmit.ocomponent_manager
+      ModelerEmit.oeditor
+      ModelerEmit.omodel_manager
+      ModelerEmit.projdir
+      ModelerEmit.public_dir
+      ModelerEmit.schematic_units
+   
+   

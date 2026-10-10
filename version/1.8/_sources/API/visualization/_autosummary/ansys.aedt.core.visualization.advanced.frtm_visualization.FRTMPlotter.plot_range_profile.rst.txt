@@ -1,0 +1,6 @@
+plot\_range\_profile
+====================
+
+.. currentmodule:: ansys.aedt.core.visualization.advanced.frtm_visualization
+
+.. automethod:: FRTMPlotter.plot_range_profile

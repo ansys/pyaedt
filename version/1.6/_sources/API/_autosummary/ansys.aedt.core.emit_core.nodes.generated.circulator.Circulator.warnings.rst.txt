@@ -1,0 +1,6 @@
+warnings
+========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.circulator
+
+.. autoproperty:: Circulator.warnings

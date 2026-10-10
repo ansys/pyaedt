@@ -1,0 +1,6 @@
+pointing\_error\_loss
+=====================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.five_g_channel_model
+
+.. autoproperty:: FiveGChannelModel.pointing_error_loss

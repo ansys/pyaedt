@@ -1,0 +1,6 @@
+plot
+====
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.tx_spur_node
+
+.. automethod:: TxSpurNode.plot
