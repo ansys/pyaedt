@@ -9,6 +9,93 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`1.9.0 <https://github.com/ansys/pyaedt/releases/tag/v1.9.0>`_ - October 09, 2026
+=================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Pdf_oxide report generation
+          - `#7934 <https://github.com/ansys/pyaedt/pull/7934>`_
+
+        * - Add Fresnel assignment functionality with RTTBL file support
+          - `#8172 <https://github.com/ansys/pyaedt/pull/8172>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update filter.py to use aedt_env_variable
+          - `#8171 <https://github.com/ansys/pyaedt/pull/8171>`_
+
+        * - Avoid WinError 6 when launching AEDT from a GUI host without a console
+          - `#8174 <https://github.com/ansys/pyaedt/pull/8174>`_
+
+        * - Update some Emit tests
+          - `#8178 <https://github.com/ansys/pyaedt/pull/8178>`_
+
+
+  .. tab-item:: Documentation
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Enhance AEDT version property documentation for clarity
+          - `#8159 <https://github.com/ansys/pyaedt/pull/8159>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Bump https://github.com/python-jsonschema/check-jsonschema from 0.38.0 to 0.38.2
+          - `#8161 <https://github.com/ansys/pyaedt/pull/8161>`_
+
+        * - Bump https://github.com/astral-sh/ty-pre-commit from v0.0.82 to 0.0.84
+          - `#8162 <https://github.com/ansys/pyaedt/pull/8162>`_
+
+        * - Bump https://github.com/astral-sh/ruff-pre-commit from v0.16.8 to 0.16.9
+          - `#8163 <https://github.com/ansys/pyaedt/pull/8163>`_
+
+        * - Bump astral-sh/setup-uv from 10.1.0 to 10.2.0
+          - `#8164 <https://github.com/ansys/pyaedt/pull/8164>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update CHANGELOG for v1.8.0
+          - `#8158 <https://github.com/ansys/pyaedt/pull/8158>`_
+
+        * - Bump version from 1.8.dev0 to 1.9.dev0
+          - `#8165 <https://github.com/ansys/pyaedt/pull/8165>`_
+
+
+  .. tab-item:: Miscellaneous
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update downloads to align with ansys common tools
+          - `#8166 <https://github.com/ansys/pyaedt/pull/8166>`_
+
+
 `1.8.0 <https://github.com/ansys/pyaedt/releases/tag/v1.8.0>`_ - October 02, 2026
 =================================================================================
 
