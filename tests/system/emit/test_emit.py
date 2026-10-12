@@ -189,7 +189,7 @@ def test_objects(emit_app) -> None:
     assert isinstance(emit_app.modeler.components, EmitComponents)
     assert emit_app.modeler
     assert emit_app.oanalysis is None
-    if emit_app.aedt_version_id > "2023.1":
+    if emit_app.desktop_class.aedt_version_id > "2023.1":
         assert (
             str(type(emit_app._emit_api))
             == f"<class 'EmitApiPython{sys.version_info.major}{sys.version_info.minor}.EmitApi'>"
@@ -258,7 +258,7 @@ def test_create_components(emit_app) -> None:
     assert mux5.name == "Test5port"
     assert isinstance(mux5, EmitComponent)
     # Multiplexer 6 port added at 2023.2
-    if emit_app.aedt_version_id > "2023.1":
+    if emit_app.desktop_class.aedt_version_id > "2023.1":
         mux6 = emit_app.modeler.components.create_component("6 Port", "Test6port")
         assert mux6.name == "Test6port"
         assert isinstance(mux6, EmitComponent)
@@ -270,7 +270,6 @@ def test_create_components(emit_app) -> None:
     assert isinstance(terminator, EmitComponent)
 
 
-@pytest.mark.skipif(True, reason="B1480584: EDT crashing during test_duplicate_components")
 @pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Duplicate method requires 2026 R1 or later")
 def test_duplicate_components(emit_app):
     """Test duplicating various component types using schematic.create_component which returns EmitNodes."""
@@ -505,7 +504,7 @@ def test_radio_component(emit_app) -> None:
         exception_raised = True
     assert exception_raised
     # full units support added with 2023.2
-    if emit_app.aedt_version_id > "2023.1":
+    if emit_app.desktop_class.aedt_version_id > "2023.1":
         # test band.set_band_power_level
         band.set_band_power_level(100)
         power = band.get_band_power_level()
@@ -1826,7 +1825,7 @@ def test_protection_filtering(interference):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2022.1", reason="Skipped on versions earlier than 2021.2")
-@pytest.mark.skipif(True, reason="Test currently failings, need to investigate.")
+# @pytest.mark.skipif(True, reason="Test currently failings, need to investigate.")
 def test_couplings_1(cell_phone):
     links = cell_phone.couplings.linkable_design_names
     assert len(links) == 0
@@ -1858,22 +1857,72 @@ def test_couplings_1(cell_phone):
             break
 
     assert coupling_link is not None
-    assert coupling_link.ports == ["(undefined)", "(undefined)"]
+    assert coupling_link.ports == [
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+    ]  # coupling link has 9 ports
     # test setting the port map with AntennaNodes
     coupling_link.ports = [gps_ant, wifi_ant]
-    assert coupling_link.ports == ["NODE-*-Scene-*-GPS", "NODE-*-Scene-*-WiFi"]
+    assert coupling_link.ports == [
+        "NODE-*-Scene-*-GPS",
+        "NODE-*-Scene-*-WiFi",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+    ]
 
     # set the antennas with short names
     coupling_link.ports = "Cellular|GPS"
-    assert coupling_link.ports == ["NODE-*-Scene-*-Cellular", "NODE-*-Scene-*-GPS"]
+    assert coupling_link.ports == [
+        "NODE-*-Scene-*-Cellular",
+        "NODE-*-Scene-*-GPS",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+    ]
 
     # set the antennas with full node names
     coupling_link.ports = "NODE-*-Scene-*-GPS|NODE-*-Scene-*-WiFi"
-    assert coupling_link.ports == ["NODE-*-Scene-*-GPS", "NODE-*-Scene-*-WiFi"]
+    assert coupling_link.ports == [
+        "NODE-*-Scene-*-GPS",
+        "NODE-*-Scene-*-WiFi",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+    ]
 
     # set the antennas with a list of short names
     coupling_link.ports = ["Cellular", "GPS"]
-    assert coupling_link.ports == ["NODE-*-Scene-*-Cellular", "NODE-*-Scene-*-GPS"]
+    assert coupling_link.ports == [
+        "NODE-*-Scene-*-Cellular",
+        "NODE-*-Scene-*-GPS",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+        "(undefined)",
+    ]
 
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2022.1", reason="Skipped on versions earlier than 2021.2")

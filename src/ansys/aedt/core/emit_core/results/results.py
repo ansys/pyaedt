@@ -60,7 +60,7 @@ class Results:
         self.design = emit_project.desktop_class.active_design(emit_project.odesktop.GetActiveProject())
         """Active design for the EMIT project."""
 
-        self.aedt_version = int(self.emit_project.aedt_version_id[-3:])
+        self.aedt_version = int(self.emit_project.aedt_env_variable[-3:])
 
     @pyaedt_function_handler()
     def _add_revision(self, name: str | None = None):

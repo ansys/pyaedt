@@ -283,13 +283,15 @@ class AedtVersions(PyAedtBase):
         return self._latest_version
 
     @staticmethod
-    def get_version_env_variable(version_id: str) -> str:
+    def get_version_env_variable(version_id: str, student_version: bool = False) -> str:
         """Get the environment variable for the AEDT version.
 
         Parameters
         ----------
         version_id : str
             Full AEDT version number. For example, ``"2021.2"``.
+        student_version : bool, optional
+            Whether the version is a student version.
 
         Returns
         -------
@@ -304,6 +306,8 @@ class AedtVersions(PyAedtBase):
 
         """
         version_env_var = "ANSYSEM_ROOT"
+        if student_version:
+            version_env_var = "ANSYSEMSV_ROOT"
         values = version_id.split(".")
         version = int(values[0][2:])
         release = int(values[1])
