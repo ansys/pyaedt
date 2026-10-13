@@ -161,6 +161,7 @@ class CouplingLinkNode(EmitNode):
     @ports.setter
     @min_aedt_version("2025.2")
     def ports(self, value: list[str] | list[EmitNode] | str) -> None:
+        port_list = value
         if isinstance(value, (list, tuple)):
             if all(isinstance(v, EmitNode) for v in value):
                 value = "|".join(self._full_node_name(v.name) for v in value)
@@ -168,5 +169,10 @@ class CouplingLinkNode(EmitNode):
                 value = "|".join(self._full_node_name(v) for v in value)
         else:
             parts = value.split("|")
+            port_list = parts
             value = "|".join(self._full_node_name(p) for p in parts)
+        # make sure every port is being set, append (undefined) for any missing ports
+        num_ports = len(self.ports)
+        if len(port_list) < num_ports:
+            value += "|" + "|".join(["(undefined)"] * (num_ports - len(port_list)))
         self._set_property("Ports", f"{value}")

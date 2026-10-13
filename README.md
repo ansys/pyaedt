@@ -55,11 +55,6 @@ Install PyAEDT with all extra packages (matplotlib, numpy, pandas, pyvista, ...)
   pip install pyaedt[all]
 ```
 
-> **Note:**
-The [all] installation target includes `fpdf2` for PDF export functionality, which is
-under license LGPL v3. For license-sensitive environments, install PyAEDT without [all]
-and add dependencies individually.
-
 You can also install PyAEDT from Conda-Forge with this command:
 
 ```sh
@@ -331,11 +326,6 @@ with Hfss as hfss:
 ## License
 
 PyAEDT is licensed under the MIT license.
-
-PyAEDT provides an optional PDF export feature via the class `AnsysReport`.
-It requires the [fpdf2](https://github.com/py-pdf/fpdf2)
-library, which is licensed under the
-[GNU Lesser General Public License v3.0 (LGPLv3)](https://www.gnu.org/licenses/lgpl-3.0.en.html#license-text).
 
 PyAEDT makes no commercial claim over Ansys whatsoever. This library extends the
 functionality of AEDT by adding a Python interface to AEDT without changing the
