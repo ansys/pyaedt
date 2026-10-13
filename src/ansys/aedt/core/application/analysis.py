@@ -345,7 +345,7 @@ class Analysis(Design, PyAedtBase):
 
         """
         if not self._parametrics:
-            self._parametrics = Parametrics(self.optimetrics)
+            self._parametrics = self.optimetrics.parametrics
         return self._parametrics
 
     @property
@@ -365,7 +365,7 @@ class Analysis(Design, PyAedtBase):
 
         """
         if not self._optimizations:
-            self._optimizations = Optimizations(self.optimetrics)
+            self._optimizations = self.optimetrics.optimizations
         return self._optimizations
 
     @property
@@ -1324,7 +1324,7 @@ class Analysis(Design, PyAedtBase):
         Parameters
         ----------
         sweep : str
-            Name of the optimetrics sweep.
+            Name of the Optimetrics sweep.
         output_file : str
             Full path and name of the CSV file to export the results to.
         export_units : bool, optional
@@ -2238,7 +2238,7 @@ class Analysis(Design, PyAedtBase):
             Number of tasks to use in the simulation.
             Set ``num_tasks`` to ``-1`` to apply auto settings and distributed mode.
         setup : str
-            Name of the setup, which can be an optimetrics setup or a simple setup.
+            Name of the setup, which can be an Optimetrics setup or a simple setup.
             The default is ``None``, in which case all setups are solved.
         revert_to_initial_mesh : bool, optional
             Whether to revert to the initial mesh before solving. The default is ``False``.

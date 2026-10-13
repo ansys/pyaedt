@@ -708,8 +708,6 @@ class Design(AedtObjects, PyAedtBase):
         self._post = None
         self._materials = None
         self._variable_manager = None
-        self._parametrics = None
-        self._optimizations = None
         self._native_components = None
         self._mesh = None
 

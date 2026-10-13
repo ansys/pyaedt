@@ -317,13 +317,13 @@ class Standard(CommonReport, PyAedtBase):
 
     @property
     def optimetrics_setup(self) -> str:
-        """Name of the optimetrics setup to use for the report.
+        """Name of the Optimetrics setup to use for the report.
         This only applies to Twin Builder reports.
 
         Returns
         -------
         str
-            Name of the optimetrics setup.
+            Name of the Optimetrics setup.
 
 
         Examples

@@ -405,13 +405,13 @@ class VariableManager(PyAedtBase):
         All dependent variable names within the project.
     independent_variable_names : list of str
         All independent variable names within the project. These can
-        be sweep variables for optimetrics.
+        be sweep variables for Optimetrics.
     independent_project_variable_names : str or list
         All independent project variable names within the
-        project. These can be sweep variables for optimetrics.
+        project. These can be sweep variables for Optimetrics.
     independent_design_variable_names : str or list
         All independent design properties (local variables) within the
-        project. These can be sweep variables for optimetrics.
+        project. These can be sweep variables for Optimetrics.
 
     See Also
     --------

@@ -2425,7 +2425,7 @@ class Desktop(PyAedtBase):
             return False
 
     def enable_optimetrics(self) -> bool:  # pragma: no cover
-        """Enable optimetrics.
+        """Enable Optimetrics.
 
         Returns
         -------
@@ -2442,11 +2442,11 @@ class Desktop(PyAedtBase):
         try:
             return self.change_registry_key("Desktop/Settings/ProjectOptions/EnableLegacyOptimetricsTools", 1)
         except Exception:
-            self.logger.error("Failed to enable optimetrics.")
+            self.logger.error("Failed to enable Optimetrics.")
             return False
 
     def disable_optimetrics(self) -> bool:  # pragma: no cover
-        """Disable optimetrics.
+        """Disable Optimetrics.
 
         Returns
         -------
@@ -2463,7 +2463,7 @@ class Desktop(PyAedtBase):
         try:
             return self.change_registry_key("Desktop/Settings/ProjectOptions/EnableLegacyOptimetricsTools", 0)
         except Exception:
-            self.logger.error("Failed to disable optimetrics.")
+            self.logger.error("Failed to disable Optimetrics.")
             return False
 
     def change_registry_key(self, key_full_name: str, key_value: str | int) -> bool:
