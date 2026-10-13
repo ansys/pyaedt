@@ -113,40 +113,76 @@ def test_create_parametrics(aedtapp, test_tmp_dir) -> None:
 
     setup1 = aedtapp.optimetrics.add_parametric("w1", 0.1, 20, 0.2, "LinearStep")
 
+    with pytest.raises(AEDTRuntimeError):
+        aedtapp.optimetrics.add_parametric("w1", 0.1, 20, 0.2, "LinearStep", name=setup1.name)
+
     assert isinstance(setup1, ParametricSetup)
     assert setup1.name in aedtapp.parametrics.design_setups
-    assert setup1
+    assert setup1.name in aedtapp.parametrics.setups
+    assert setup1.name in aedtapp.optimetrics.setup_names
+    assert setup1.props["Sweeps"]["SweepDefinition"]["Variable"] == "w1"
+    assert setup1.props["Sweeps"]["SweepDefinition"]["Data"] == "LIN 0.1mm 20mm 0.2mm"
+
     with pytest.raises(AEDTRuntimeError):
         setup1.add_variation("invalid", "0.1mm", 10, 11)
+
     assert setup1.add_variation("w2", "0.1mm", 10, 11)
+    assert len(setup1.props["Sweeps"]["SweepDefinition"]) == 2
+    assert setup1.props["Sweeps"]["SweepDefinition"][1]["Data"] == "LINC 0.1mm 10mm 11"
+
     assert setup1.add_variation("w2", start_point="0.2mm", variation_type="SingleValue")
-    assert setup1.add_variation("w1", start_point="0.3mm", end_point=5, step=0.2, variation_type="LinearStep")
+    assert setup1.props["Sweeps"]["SweepDefinition"][1]["Data"] == "LINC 0.1mm 10mm 11 0.2mm"
+
+    assert setup1.add_variation("w1", start_point="0.3mm", end_point="0.5mm", step="0.2mm", variation_type="LinearStep")
+    assert setup1.props["Sweeps"]["SweepDefinition"][0]["Data"] == "LIN 0.1mm 20mm 0.2mm LIN 0.3mm 0.5mm 0.2mm"
+
     assert setup1.add_variation("w1", start_point="0.3mm", end_point=5, step=1, variation_type="DecadeCount")
+    assert (
+        setup1.props["Sweeps"]["SweepDefinition"][0]["Data"]
+        == "LIN 0.1mm 20mm 0.2mm LIN 0.3mm 0.5mm 0.2mm DEC 0.3mm 5mm 1"
+    )
+
     assert setup1.add_variation("w1", start_point="0.3mm", end_point=5, step=1, variation_type="OctaveCount")
+    assert (
+        setup1.props["Sweeps"]["SweepDefinition"][0]["Data"]
+        == "LIN 0.1mm 20mm 0.2mm LIN 0.3mm 0.5mm 0.2mm DEC 0.3mm 5mm 1 OCT 0.3mm 5mm 1"
+    )
+
     assert setup1.add_variation("w1", start_point="0.3mm", end_point=5, step=1, variation_type="ExponentialCount")
+    assert (
+        setup1.props["Sweeps"]["SweepDefinition"][0]["Data"]
+        == "LIN 0.1mm 20mm 0.2mm LIN 0.3mm 0.5mm 0.2mm DEC 0.3mm 5mm 1 OCT 0.3mm 5mm 1 ESTP 0.3mm 5mm 1"
+    )
+
     assert setup1.add_calculation(
         calculation="dB(S(1,1))", ranges={"Freq": "3.5GHz"}, solution="My_HFSS_Setup : LastAdaptive"
     )
-    assert setup1.name in aedtapp.get_oo_name(aedtapp.odesign, "Optimetrics")
-    oo = aedtapp.get_oo_object(aedtapp.odesign, f"Optimetrics\\{setup1.name}")
-    oo_calculation = oo.GetCalculationInfo()[0]
-    assert "Modal Solution Data" in oo_calculation
+    assert setup1.props["Goals"]["Goal"]["Solution"] == "My_HFSS_Setup : LastAdaptive"
+    assert setup1.props["Goals"]["Goal"]["Calculation"] == "dB(S(1,1))"
 
     assert setup1.export_to_csv(str(test_tmp_dir / "test.csv"))
+
     assert (test_tmp_dir / "test.csv").is_file()
 
     assert aedtapp.parametrics.export_to_csv(str(test_tmp_dir / "test1.csv"), setup1.name)
+
     assert (test_tmp_dir / "test1.csv").is_file()
 
     with pytest.raises(AEDTRuntimeError):
         aedtapp.parametrics.export_to_csv(str(test_tmp_dir / "test1.csv"), "invented")
 
-    assert aedtapp.parametrics.add_from_file(str(test_tmp_dir / "test.csv"), "ParametricsfromFile")
+    setup2 = aedtapp.parametrics.add_from_file(str(test_tmp_dir / "test.csv"), "ParametricsfromFile")
+    assert setup2.name in aedtapp.parametrics.setup_names
+    assert len(setup2.props["Sweep Operations"]["add"]) == 1391
+
     with pytest.raises(ValueError):
-        aedtapp.parametrics.add_from_file("test.invalid", "ParametricsfromFile")
-    oo = aedtapp.get_oo_object(aedtapp.odesign, r"Optimetrics\ParametricsfromFile")
-    assert oo
+        aedtapp.parametrics.add_from_file("test.invalid", "ParametricsfromFile2")
+
+    with pytest.raises(AEDTRuntimeError):
+        aedtapp.parametrics.add_from_file(str(test_tmp_dir / "test.csv"), setup2.name)
+
     assert aedtapp.parametrics.delete("ParametricsfromFile")
+    assert len(aedtapp.parametrics.setups) == 1
 
 
 def test_create_parametrics_sync(aedtapp) -> None:
@@ -154,13 +190,14 @@ def test_create_parametrics_sync(aedtapp) -> None:
     aedtapp["a2"] = "2mm"
     aedtapp.create_setup("My_HFSS_Setup", Setups.HFSSDrivenDefault)
     setup1 = aedtapp.parametrics.add("a1", start_point=0.1, end_point=20, step=10, variation_type="LinearCount")
-    assert setup1
     assert setup1.add_variation("a2", start_point="0.3mm", end_point=5, step=10, variation_type="LinearCount")
     with pytest.raises(AEDTRuntimeError):
         setup1.sync_variables(["invalid"], sync_n=1)
+    assert setup1.props["Sweeps"]["SweepDefinition"][0]["Synchronize"] == 0
     assert setup1.sync_variables(["a1", "a2"], sync_n=1)
+    assert setup1.props["Sweeps"]["SweepDefinition"][0]["Synchronize"] == 1
     assert setup1.sync_variables(["a1", "a2"], sync_n=0)
-    setup1.add_variation("a1", start_point="13mm", variation_type="SingleValue")
+    assert setup1.props["Sweeps"]["SweepDefinition"][0]["Synchronize"] == 0
 
 
 def test_create_optimization(aedtapp) -> None:
@@ -169,6 +206,7 @@ def test_create_optimization(aedtapp) -> None:
     new_setup = aedtapp.create_setup("MyOptimSetup")
     new_setup.props["Frequency"] = "2.5GHz"
     sweep = new_setup.create_linear_step_sweep(start_frequency=2, stop_frequency=10, step_size=0.1)
+
     setup2 = aedtapp.optimetrics.add_optimization(
         calculation, ranges={"Freq": "2.5GHz"}, solution=f"{new_setup.name} : {sweep.name}"
     )

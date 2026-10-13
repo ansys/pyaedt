@@ -1115,6 +1115,8 @@ class Parametrics(PyAedtBase):
         setupname = solution.split(" ")[0]
         if not name:
             name = generate_unique_name("Parametric")
+        elif name in self.setup_names:
+            raise AEDTRuntimeError(f"Name {name} already exists.")
 
         props = defaultparametricSetup
 
@@ -1232,6 +1234,8 @@ class Parametrics(PyAedtBase):
         """
         if not name:
             name = generate_unique_name("Parametric")
+        elif name in self.setup_names:
+            raise AEDTRuntimeError(f"Name {name} already exists.")
 
         setup = ParametricSetup(app=self, name=name, props={})
 
@@ -1489,6 +1493,8 @@ class Optimizations(PyAedtBase):
         setupname = solution.split(" ")[0]
         if not name:
             name = generate_unique_name(optimization_type)
+        elif name in self.setup_names:
+            raise AEDTRuntimeError(f"Name {name} already exists.")
 
         if optimization_type != "optiSLang":
             optimization_type = "Opti" + optimization_type
