@@ -270,6 +270,7 @@ def test_create_components(emit_app) -> None:
     assert isinstance(terminator, EmitComponent)
 
 
+@pytest.mark.skipif(DESKTOP_VERSION == "2027.1", reason="Duplicate method hanging in 2027.1")
 @pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Duplicate method requires 2026 R1 or later")
 def test_duplicate_components(emit_app):
     """Test duplicating various component types using schematic.create_component which returns EmitNodes."""
