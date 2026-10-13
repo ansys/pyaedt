@@ -1211,6 +1211,8 @@ class Configurations(PyAedtBase):
         self.results._reset_results()
 
         dict_in = read_configuration_file(config_file)
+        if not isinstance(dict_in, dict):
+            raise ValueError("Configuration file must contain a dictionary.")
         if self.options._is_any_import_set:
             try:
                 self._app.modeler.model_units = dict_in["general"]["model_units"]
@@ -1356,7 +1358,10 @@ class Configurations(PyAedtBase):
         if list(self._app.output_variables):
             oo_out = Path(tempfile.gettempdir()) / f"{generate_unique_name('oo')}.txt"
             self._app.ooutput_variable.ExportOutputVariables(str(oo_out))
-            with open_file(oo_out, "r") as f:
+            output_file = open_file(oo_out, "r")
+            if output_file is None:
+                raise FileNotFoundError(f"Could not open exported output variables file {oo_out}.")
+            with output_file as f:
                 lines = f.readlines()
                 for line in lines:
                     line_split = line.split(" ")
@@ -1614,6 +1619,8 @@ class Configurations(PyAedtBase):
 
         if config_file.exists() and not overwrite:
             dict_in = read_configuration_file(config_file)
+            if not isinstance(dict_in, dict):
+                raise ValueError("Configuration file must contain a dictionary.")
             try:  # TODO: Allow import of config created with other versions of pyaedt.
                 if dict_in["general"]["pyaedt_version"] == __version__:
                     for k, v in dict_in.items():
@@ -1994,6 +2001,8 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
         else:  # pragma: no cover
             raise TypeError("import_config expected at most 2 arguments, got %d" % (len(args) + 1))
         dict_in = read_configuration_file(config_file)
+        if not isinstance(dict_in, dict):
+            raise ValueError("Configuration file must contain a dictionary.")
         self.results._reset_results()
 
         # TODO: See https://github.com/ansys/pyaedt/issues/7919
@@ -2354,7 +2363,9 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                     design = nc_dict["NativeComponentDefinitionProvider"]["DefnLink"]["Design"]
                     from ansys.aedt.core.generic.design_types import get_pyaedt_app
 
-                    app: _AppWithOProject = get_pyaedt_app(prj, design)
+                    app: _AppWithOProject | None = get_pyaedt_app(prj, design)
+                    if app is None:
+                        raise ValueError(f"Could not get the PyAEDT application for design {design} in project {prj}.")
                     app.oproject.Close()
                 user_defined_component = UserDefinedComponent(
                     self._app.modeler, instance_names, nc_dict["NativeComponentDefinitionProvider"], native_dict["Type"]
@@ -2574,6 +2585,8 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
 
         if config_file.exists() and not overwrite:
             dict_in = read_configuration_file(config_file)
+            if not isinstance(dict_in, dict):
+                raise ValueError("Configuration file must contain a dictionary.")
             try:  # TODO: Allow import of config created with other versions of pyaedt.
                 if dict_in["general"]["pyaedt_version"] == __version__:
                     for k, v in dict_in.items():
@@ -2619,6 +2632,8 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
         self.results._reset_results()
 
         data = read_configuration_file(config_file)
+        if not isinstance(data, dict):
+            raise ValueError("Configuration file must contain a dictionary.")
         try:
             offset = data["general"]["port_offset"]
         except KeyError:
