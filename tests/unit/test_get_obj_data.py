@@ -121,6 +121,39 @@ def test_get_obj_data_keeps_single_sweep_definition_as_dict() -> None:
     assert props["SweepDefinition"]["Data"] == "LIN 1GHz 2GHz 0.01GHz"
 
 
+def test_get_obj_data_parses_optimization_variables() -> None:
+    payload = {
+        "data_2": [
+            {
+                "name": "OptimizationSetup",
+                "values": [
+                    {
+                        "name": "Variables",
+                        "values": [
+                            {
+                                "w1": [
+                                    {"name": "i", "value": True},
+                                    {"name": "int", "value": False},
+                                    {"name": "Min", "value": "0.1mm"},
+                                    {"name": "Max", "value": "10mm"},
+                                ]
+                            }
+                        ],
+                    }
+                ],
+            }
+        ]
+    }
+    props = _get_obj_data(DummyChild(payload))
+
+    assert props["Variables"]["w1"] == {
+        "i": True,
+        "int": False,
+        "Min": "0.1mm",
+        "Max": "10mm",
+    }
+
+
 def test_get_obj_data_returns_empty_for_missing_child() -> None:
     assert _get_obj_data(None) == {}
 

@@ -182,7 +182,20 @@ def _get_obj_data(child_object) -> dict:
 
         # Case 2: If the node is a dictionary without "name", parse its values
         if isinstance(node, dict) and "name" not in node:
-            return node
+            result = {}
+            for key, value in node.items():
+                if (
+                    isinstance(value, list)
+                    and value
+                    and all(isinstance(item, dict) and "name" in item for item in value)
+                ):
+                    parsed_value = {}
+                    for item in value:
+                        _accumulate_parsed_entry(parsed_value, _obj_data_parser(item))
+                    result[key] = parsed_value
+                else:
+                    result[key] = _obj_data_parser(value)
+            return result
 
         # Case 3: schema dict with "name"
         if isinstance(node, dict):

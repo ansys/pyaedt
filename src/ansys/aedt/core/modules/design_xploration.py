@@ -260,6 +260,9 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         arg = ["NAME:" + self.name]
         _dict2arg(self.props, arg)
         self._app.ooptimetrics.InsertSetup(self.setup_type, arg)
+
+        # GetObjData is available for some objects in 2026R1
+        self._has_getobject = _has_get_obj_data(self._child_object)
         return self
 
     @pyaedt_function_handler()
@@ -357,29 +360,18 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
             optigoalname = "CostFunctionGoals"
         else:
             optigoalname = "Goals"
-        if "Goal" in self.props[optigoalname]:
-            if type(self.props[optigoalname]["Goal"]) is not list:
+        if "Goal" in self._legacy_props[optigoalname]:
+            if type(self._legacy_props[optigoalname]["Goal"]) is not list:
                 self._legacy_props[optigoalname]["Goal"] = [
-                    self.props[optigoalname]["Goal"],
+                    self._legacy_props[optigoalname]["Goal"],
                     SetupProps(self, sweepdefinition),
                 ]
             else:
-                self.props[optigoalname]["Goal"].append(sweepdefinition)
+                self._legacy_props[optigoalname]["Goal"].append(sweepdefinition)
         else:
             self._legacy_props[optigoalname] = {}
             self._legacy_props[optigoalname]["Goal"] = sweepdefinition
-        return self.update()
-
-    @pyaedt_function_handler()
-    def _activate_variable(self, variable_name):
-        if self.setup_type in ["OptiDesignExplorer", "OptiDXDOE", "OptiOptimization", "optiSLang"]:
-            self._app.activate_variable_optimization(variable_name)
-        elif self.setup_type == "OptiParametric":
-            self._app.activate_variable_tuning(variable_name)
-        elif self.setup_type == "OptiSensitivity":
-            self._app.activate_variable_sensitivity(variable_name)
-        elif self.setup_type == "OptiStatistical":
-            self._app.activate_variable_statistical(variable_name)
+        return self.update(self._legacy_props)
 
     @pyaedt_function_handler()
     def _get_context(
@@ -590,17 +582,17 @@ class ParametricSetup(OptimetricsSetup):
         sweepdefinition = {"Variable": sweep_variable, "Data": sweep_range, "OffsetF1": False, "Synchronize": 0}
         if self._legacy_props["Sweeps"]["SweepDefinition"] is None:
             self._legacy_props["Sweeps"]["SweepDefinition"] = sweepdefinition
-        elif type(self.props["Sweeps"]["SweepDefinition"]) is not list:
+        elif type(self._legacy_props["Sweeps"]["SweepDefinition"]) is not list:
             self._legacy_props["Sweeps"]["SweepDefinition"] = [self._legacy_props["Sweeps"]["SweepDefinition"]]
             self._legacy_props["Sweeps"]["SweepDefinition"].append(sweepdefinition)
         else:
-            for count, sweep_def in enumerate(self.props["Sweeps"]["SweepDefinition"]):
+            for count, sweep_def in enumerate(self._legacy_props["Sweeps"]["SweepDefinition"]):
                 sweep_def_copy = dict(sweep_def)
                 if sweepdefinition["Variable"] == sweep_def_copy["Variable"]:
                     sweep_def_copy["Data"] += " " + sweepdefinition["Data"]
                     self._legacy_props["Sweeps"]["SweepDefinition"][count] = sweep_def_copy
                     break
-        return self.update()
+        return self.update(self._legacy_props)
 
     @pyaedt_function_handler()
     def export_to_csv(self, output_file: str) -> bool:
@@ -672,11 +664,11 @@ class ParametricSetup(OptimetricsSetup):
                     sweep_def_copy["Synchronize"] = sync_n
                 self._legacy_props["Sweeps"]["SweepDefinition"][count] = sweep_def_copy
         try:
-            self.update()
+            self.update(self._legacy_props)
         except Exception:  # pragma: no cover
             # If it fails to sync (due to e.g. different number of variations), reverts to original values.
             for v in variables:
-                for count, sweep_def in self.props["Sweeps"]["SweepDefinition"].items():
+                for count, sweep_def in self._legacy_props["Sweeps"]["SweepDefinition"].items():
                     sweep_def_copy = dict(sweep_def)
                     if v == sweep_def_copy["Variable"]:
                         sweep_def_copy["Synchronize"] = undo_vals[v]
@@ -738,10 +730,12 @@ class OptimizationSetup(OptimetricsSetup):
 
         if not max_step:
             max_step = (max_value - min_value) / 10
+
         if levels is None:
-            levels_with_units = f"[{min_value}: {max_value}] mm"
+            levels = f"[{min_value}: {max_value}] mm"
         else:
-            levels_with_units = f"{levels} {self._app.variable_manager[variable_name].units}"
+            levels = f"{levels} {self._app.variable_manager[variable_name].units}"
+
         max_step = self._app.value_with_units(max_step, self._app.variable_manager[variable_name].units)
         min_value_wuints = self._app.value_with_units(min_value, self._app.variable_manager[variable_name].units)
         max_value_wuints = self._app.value_with_units(max_value, self._app.variable_manager[variable_name].units)
@@ -771,7 +765,7 @@ class OptimizationSetup(OptimetricsSetup):
                 sweepdefinition["Data"] = self._app.variable_manager.variables[variable_name].evaluated_value
                 sweepdefinition["OffsetF1"] = False
                 sweepdefinition["Synchronize"] = 0
-                self.props["Sweeps"]["SweepDefinition"].append(sweepdefinition)
+                self._legacy_props["Sweeps"]["SweepDefinition"].append(sweepdefinition)
         elif self.setup_type == "OptiParametric":
             self._app.activate_variable_tuning(variable_name)
         elif self.setup_type == "OptiSensitivity":
@@ -779,7 +773,7 @@ class OptimizationSetup(OptimetricsSetup):
         elif self.setup_type == "OptiStatistical":
             self._app.activate_variable_statistical(variable_name)
         else:
-            manufacturable_value = "true" if use_manufacturable else "false"
+            use_manufacturable = "true" if use_manufacturable else "false"
             arg = [
                 "i:=",
                 True,
@@ -798,13 +792,13 @@ class OptimizationSetup(OptimetricsSetup):
                 "MaxFocus:=",
                 max_value_wuints,
                 "UseManufacturableValues:=",
-                manufacturable_value,
+                use_manufacturable,
             ]
             if self._app.desktop_class.aedt_version_id > "2023.2":
-                arg.extend(["Level:=", levels_with_units])
-            if not self.props.get("Variables", None):
+                arg.extend(["Level:=", levels])
+            if not self._legacy_props.get("Variables", None):
                 self._legacy_props["Variables"] = {}
-            self.props["Variables"][variable_name] = arg
+            self._legacy_props["Variables"][variable_name] = arg
             if not self._legacy_props.get("StartingPoint", None):
                 self._legacy_props["StartingPoint"] = {}
             if not starting_point:
@@ -816,7 +810,7 @@ class OptimizationSetup(OptimetricsSetup):
                 starting_point, self._app.variable_manager[variable_name].units
             )
 
-        return self.update()
+        return self.update(self._legacy_props)
 
     @pyaedt_function_handler()
     def add_goal(
@@ -1374,6 +1368,27 @@ class Optimizations(PyAedtBase):
             if setup_name not in self.__setups:
                 self.__setups[setup_name] = OptimizationSetup(app=self, name=setup_name, props={})
         return self.__setups
+
+    @property
+    @deprecated_property("Use setups instead.")
+    def design_setups(self) -> SetupDict:
+        """Return parametric setups ordered by name.
+
+        Deprecated. Use :attr:`setups` instead.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.generic.general_methods.SetupDict`
+            Mapping of setup names to :class:`ParametricSetup` objects.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.optimizations.design_setups
+
+        """
+        return self.setups
 
     @property
     def setups_by_type(self) -> SetupDict:

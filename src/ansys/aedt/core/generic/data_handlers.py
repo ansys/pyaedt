@@ -146,7 +146,12 @@ def _dict2arg(d, arg_out) -> None:
         elif k == "Points":
             arg = ["NAME:" + k, *v]
             arg_out.append(arg)
+        elif k == "bG" and isinstance(v, dict):
+            arg_out.append(k + ":=")
+            arg_out.append([item for name, value in v.items() for item in (name + ":=", value)])
         elif k == "Range":
+            if isinstance(v, dict):
+                v = [v]
             if isinstance(v[0], dict):
                 for rr in v:
                     arg_out.append("Range:=")
