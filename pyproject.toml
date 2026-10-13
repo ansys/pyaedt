@@ -347,6 +347,7 @@ exclude = [
 
 [tool.ty.rules]
 unresolved-import = "ignore"
+deprecated = "error"
 
 [tool.codespell]
 ignore-words = "ignore_words.txt"
