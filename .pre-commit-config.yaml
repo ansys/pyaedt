@@ -16,6 +16,7 @@ exclude: |
 
 repos:
 
+# NOTE: Whenever this version is updated, please align the version in the lock file.
 - repo: https://github.com/astral-sh/ruff-pre-commit
   rev: a56c0b927e6465d37cae3e97d35d4d18ab2b96cd  # frozen: v0.16.9
   hooks:
@@ -97,9 +98,9 @@ repos:
       additional_dependencies: [uv]
       pass_filenames: false
       files: ^(pyproject\.toml|uv\.lock)$
-    - id: ty-version-check
-      name: Check ty versions
-      entry: python .ci/scripts/check_ty_version.py
+    - id: tool-versions-check
+      name: Check tool versions
+      entry: python .ci/scripts/check_tool_versions.py
       language: system
       pass_filenames: false
       files: ^(\.pre-commit-config\.yaml|uv\.lock)$
