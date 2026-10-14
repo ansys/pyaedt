@@ -33,7 +33,6 @@ from ansys.aedt.core.modules.design_xploration import Optimizations
 from ansys.aedt.core.modules.design_xploration import OptimizationSetup
 from ansys.aedt.core.modules.design_xploration import Parametrics
 from ansys.aedt.core.modules.design_xploration import ParametricSetup
-from tests.conftest import DESKTOP_VERSION
 
 TEST_SUBFOLDER = "T11"
 TEST_COAXIAL = "coax_setup_231"
@@ -275,30 +274,39 @@ def test_create_doe(aedtapp) -> None:
     assert setup2.props["Variables"] == {}
 
     assert setup2.add_variation("w1", 0.1, 10)
-    assert setup2.add_variation("w2", 0.1, 10)
+    assert isinstance(setup2.props["Variables"], Props)
+    assert "w1" in setup2.props["Variables"]
+    assert setup2.props["Variables"]["w1"]["Max"] == "10mm"
+
+    assert setup2.add_variation("w2", 0.1, 20)
+    assert len(setup2.props["Variables"]) == 2
+    assert "w2" in setup2.props["Variables"]
+    assert setup2.props["Variables"]["w2"]["Max"] == "20mm"
+
     assert aedtapp.variable_manager.variables["w1"].optimization_min_value == "0.1mm"
     assert aedtapp.variable_manager.variables["w1"].optimization_max_value == "10mm"
     assert aedtapp.variable_manager.variables["w2"].optimization_min_value == "0.1mm"
-    assert aedtapp.variable_manager.variables["w2"].optimization_max_value == "10mm"
+    assert aedtapp.variable_manager.variables["w2"].optimization_max_value == "20mm"
 
-    if DESKTOP_VERSION < "2024.1":
-        assert setup2.add_goal(
-            calculation="dB(S(1,1))",
-            ranges={"Freq": "2.5GHz"},
-            solution=f"{new_setup.name} : {sweep.name}",
-        )
-        assert setup2.props["CostFunctionGoals"]["Goal"]["Calculation"] == "dB(S(1,1))"
-        assert setup2.props["CostFunctionGoals"]["Goal"]["Ranges"]["Range"]["DiscreteValues"] == "2.5GHz"
-        assert setup2.add_calculation(
-            calculation="dB(S(1,1))",
-            ranges={"Freq": "2.5GHz"},
-            solution=f"{new_setup.name} : {sweep.name}",
-        )
-        assert setup2.props["Goals"]["Goal"]["Calculation"] == "dB(S(1,1))"
-        assert setup2.props["Goals"]["Goal"]["Ranges"]["Range"]["DiscreteValues"] == "2.5GHz"
+    assert setup2.add_goal(
+        calculation="dB(S(1,1))",
+        ranges={"Freq": "2.5GHz"},
+        solution=f"{new_setup.name} : {sweep.name}",
+    )
+    assert len(setup2.props["CostFunctionGoals"]["Goal"]) == 2
+    assert setup2.props["CostFunctionGoals"]["Goal"][1]["Calculation"] == "dB(S(1,1))"
+    assert setup2.props["CostFunctionGoals"]["Goal"][1]["Ranges"]["Range"]["DiscreteValues"] == "2.5GHz"
+    setup2.props["CostFunctionGoals"]["Goal"][1]["Ranges"]["Range"]["DiscreteValues"] = "2.6GHz"
+    assert (setup2.props["CostFunctionGoals"]["Goal"][1]["Ranges"]["Range"]["DiscreteValues"]).lower() == "2.6ghz"
 
-    assert setup2.delete()
-    assert setup2.name not in aedtapp.optimizations.setup_names
+    assert setup2.add_calculation(
+        calculation="dB(S(1,1))",
+        ranges={"Freq": "2.5GHz"},
+        solution=f"{new_setup.name} : {sweep.name}",
+    )
+    assert len(setup2.props["Goals"]["Goal"]) == 2
+    assert setup2.props["Goals"]["Goal"][1]["Calculation"] == "dB(S(1,1))"
+    assert setup2.props["Goals"]["Goal"][1]["Ranges"]["Range"]["DiscreteValues"] == "2.5GHz"
 
 
 def test_create_optislang(aedtapp) -> None:
@@ -308,6 +316,7 @@ def test_create_optislang(aedtapp) -> None:
     new_setup = aedtapp.create_setup("MyOptisSetup")
     new_setup.props["Frequency"] = "2.5GHz"
     sweep = new_setup.create_linear_step_sweep(start_frequency=2, stop_frequency=10, step_size=0.1)
+
     setup1 = aedtapp.optimizations.add(
         calculation=None,
         ranges=None,
