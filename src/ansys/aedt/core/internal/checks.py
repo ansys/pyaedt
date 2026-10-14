@@ -24,11 +24,15 @@
 
 """Provides functions for performing common checks."""
 
+from collections.abc import Callable
 from functools import wraps
+from typing import Any
+from typing import TypeVar
 import warnings
 
-from ansys.aedt.core.generic.general_methods import _F
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
+
+_F = TypeVar("_F", bound=Callable[..., Any])
 
 # NOTE: This should be updated for any modifications in pyaedt's graphics install target.
 # Graphics dependencies cache
@@ -237,6 +241,55 @@ def requires_graphical_dependency(*dependencies: str) -> callable:
             return method(*args, **kwargs)
 
         return wrapper  # type: ignore[return-value]
+
+    return decorator
+
+
+def deprecated_doc(version: str | None = None) -> Callable[[_F], _F]:
+    """Document a PEP 702 deprecation using the standard decorator's message.
+
+    Apply above ``@deprecated`` and below ``@property`` (or its accessor decorators:
+    ``setter``, ``deleter``), or directly above ``@deprecated`` on a method or function.
+    This decorator appends the Sphinx ``.. deprecated::`` directive to the callable's
+    docstring and leaves the callable unchanged.
+
+    Parameters
+    ----------
+    version : str, optional
+        Version in which the API was deprecated, used in the Sphinx directive.
+
+    Returns
+    -------
+    Callable[[_F], _F]
+        Decorator function that updates the docstring of the given callable.
+
+    Raises
+    ------
+    ValueError
+        If the callable has not been marked with the standard ``@deprecated`` decorator.
+
+    Examples
+    --------
+    >>> from typing_extensions import deprecated
+    >>> from ansys.aedt.core.internal.checks import deprecated_doc
+    >>> class MyClass:
+    ...     @property
+    ...     @deprecated_doc(version="2025.1")
+    ...     @deprecated("Use new_name instead.")
+    ...     def old_name(self):
+    ...         return self.new_name
+
+    """
+
+    def decorator(func: _F) -> _F:
+        message = getattr(func, "__deprecated__", None)
+        if not isinstance(message, str):
+            raise ValueError("Apply deprecated_doc above the standard @deprecated decorator.")
+        docstring = func.__doc__ or ""
+        if ".. deprecated::" not in docstring:
+            indented_message = "\n".join(f"   {line}" for line in message.splitlines())
+            func.__doc__ = f"{docstring}\n\n.. deprecated:: {version or ''}\n{indented_message}"
+        return func
 
     return decorator
 

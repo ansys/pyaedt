@@ -25,7 +25,13 @@
 from __future__ import annotations
 
 from collections import defaultdict
+import sys
 import warnings
+
+if sys.version_info >= (3, 13):
+    from warnings import deprecated
+else:
+    from typing_extensions import deprecated
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.emit_core import emit_constants as emit_consts
@@ -281,6 +287,7 @@ class EmitComponents(PyAedtBase):
             self._components_catalog = ComponentCatalog(self)
         return self._components_catalog
 
+    @deprecated("This method is deprecated. Use the create_component method from emit_schematic.py instead.")
     @pyaedt_function_handler()
     def create_component(self, component_type: str, name: str = None, library: str = None) -> EmitComponent:
         """Create a new component from a library.
@@ -335,6 +342,7 @@ class EmitComponents(PyAedtBase):
         self.components[new_comp_name] = o_update
         return o_update
 
+    @deprecated("This method is deprecated. Use the create_radio_antenna method from emit_schematic.py instead.")
     @pyaedt_function_handler()
     def create_radio_antenna(
         self, radio_type: str, radio_name: str = None, antenna_name: str = None, library: str = None
@@ -544,6 +552,7 @@ class EmitComponent(PyAedtBase):
         return decorator
 
     @classmethod
+    @deprecated("This method is deprecated. Use the create_component method from emit_schematic.py instead.")
     def create(cls, components: EmitComponents, component_name: str) -> EmitComponent:
         """Create an EMIT component.
 
@@ -614,6 +623,7 @@ class EmitComponent(PyAedtBase):
         """
         return self.name
 
+    @deprecated("This method is deprecated. Use the connect_components method from emit_schematic.py instead.")
     @pyaedt_function_handler()
     def move_and_connect_to(self, component: EmitComponent | str) -> None:
         """Move and connect this component to another component.
@@ -740,6 +750,7 @@ class EmitComponent(PyAedtBase):
         self.root_prop_node = nodes[root_node_name]
         return self.root_prop_node
 
+    @deprecated("This method is deprecated. Use the properties method from emit_node.py instead.")
     @pyaedt_function_handler()
     def get_node_properties(self, node: str | None = None) -> dict:
         """Return the properties of the given node (property group).
@@ -874,6 +885,7 @@ class EmitComponent(PyAedtBase):
         components = map(lambda component_name: self.components[component_name], component_names)
         return list(components)
 
+    @deprecated("This method is deprecated. Use node_type property from emit_node.py instead.")
     @pyaedt_function_handler()
     def get_type(self) -> str:
         """Get the property ``Type`` of a component.
@@ -1035,6 +1047,7 @@ class EmitRadioComponent(EmitComponent):
     def __init__(self, components, component_name) -> None:
         super(EmitRadioComponent, self).__init__(components, component_name)
 
+    @deprecated("This method is deprecated. Use the node_type property from emit_node.py instead.")
     def is_emitter(self) -> bool:
         """Check if the radio component is an emitter
 
@@ -1068,6 +1081,10 @@ class EmitRadioComponent(EmitComponent):
             return properties["IsEmitter"] == "true"
         return False
 
+    @deprecated(
+        "This method is deprecated. Use the get_all_band_nodes method from revision.py or "
+        "use radio_node.children instead."
+    )
     def bands(self) -> list[EmitComponentPropNode]:
         """Get the bands of this radio.
 
@@ -1099,6 +1116,7 @@ class EmitRadioComponent(EmitComponent):
         band_nodes = self.get_prop_nodes({"Type": "Band"})
         return band_nodes
 
+    @deprecated("This method is deprecated. Use the get_band_node method from revision.py instead.")
     def band_node(self, band_name: str) -> EmitComponentPropNode | None:
         """Get the specified band node from this radio.
 
@@ -1131,6 +1149,7 @@ class EmitRadioComponent(EmitComponent):
                 return node
         return None
 
+    @deprecated("This method is deprecated. Use the band_node.start_frequency property instead.")
     def band_start_frequency(self, band_node: EmitComponentPropNode, units: str = "") -> float:
         """Get the start frequency of the band node.
 
@@ -1164,6 +1183,7 @@ class EmitRadioComponent(EmitComponent):
             units = "Hz"
         return consts.unit_converter(float(band_node.props["StartFrequency"]), "Freq", "Hz", units)
 
+    @deprecated("This method is deprecated. Use the band_node.stop_frequency property instead.")
     def band_stop_frequency(self, band_node: EmitComponentPropNode, units: str = "") -> float:
         """Get the stop frequency of the band node.
 
@@ -1197,6 +1217,7 @@ class EmitRadioComponent(EmitComponent):
             units = "Hz"
         return consts.unit_converter(float(band_node.props["StopFrequency"]), "Freq", "Hz", units)
 
+    @deprecated("This method is deprecated. Use the band_node.start_frequency property instead.")
     def set_band_start_frequency(
         self, band_node: EmitComponentPropNode, band_start_freq: float, units: str = ""
     ) -> None:
@@ -1253,6 +1274,7 @@ class EmitRadioComponent(EmitComponent):
             prop_list = {"StartFrequency": freq_string}
             band_node._set_prop_value(prop_list)
 
+    @deprecated("This method is deprecated. Use the band_node.stop_frequency property instead.")
     def set_band_stop_frequency(self, band_node: EmitComponentPropNode, band_stop_freq: float, units: str = "") -> None:
         """Set stop frequency of the band.
 
@@ -1478,6 +1500,7 @@ class EmitComponentPropNode(PyAedtBase):
         """Initial parent of this node instance."""
 
     @property
+    @deprecated("This property is deprecated. Use the props_to_dict method from emit_node.py instead.")
     def props(self) -> dict:
         """Returns a dictionary of all the properties for this node.
 
@@ -1510,6 +1533,10 @@ class EmitComponentPropNode(PyAedtBase):
         return props
 
     @property
+    @deprecated(
+        "This property is deprecated. Use the properties method from emit_node.py instead to check if the"
+        "'Enabled' property is 'true'."
+    )
     def enabled(self) -> bool:
         """Returns ''True'' if the node is enabled and ''False'' if the node is disabled.
 
