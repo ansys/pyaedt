@@ -802,8 +802,74 @@ class OptimizationSetup(OptimetricsSetup):
             self._app.activate_variable_tuning(variable_name)
         elif self.setup_type == "OptiSensitivity":
             self._app.activate_variable_sensitivity(variable_name)
+            if not starting_point:
+                starting_point = self._app.variable_manager[variable_name].numeric_value
+                if starting_point < min_value or starting_point > max_value:
+                    starting_point = (max_value + min_value) / 2
+
+            starting_point = self._app.value_with_units(starting_point, self._app.variable_manager[variable_name].units)
+
+            arg = [
+                "i:=",
+                True,
+                "int:=",
+                False,
+                "Min:=",
+                min_value_wuints,
+                "Max:=",
+                max_value_wuints,
+                "IDisp:=",
+                starting_point,
+            ]
+
+            if not self._legacy_props.get("Variables", None):
+                self._legacy_props["Variables"] = {}
+
+            self._legacy_props["Variables"][variable_name] = arg
+
+            if not self._legacy_props.get("StartingPoint", None):
+                self._legacy_props["StartingPoint"] = {}
+
+            self._legacy_props["StartingPoint"][variable_name] = self._app.value_with_units(
+                starting_point, self._app.variable_manager[variable_name].units
+            )
+
         elif self.setup_type == "OptiStatistical":
             self._app.activate_variable_statistical(variable_name)
+            mean_value = (max_value - min_value) / 2
+            mean_value = self._app.value_with_units(mean_value, self._app.variable_manager[variable_name].units)
+
+            arg = [
+                "i:=",
+                True,
+                "int:=",
+                False,
+                "Min:=",
+                min_value_wuints,
+                "Max:=",
+                max_value_wuints,
+                "VarMin:=",
+                min_value_wuints,
+                "VarMax:=",
+                max_value_wuints,
+                "Mean:=",
+                mean_value,
+            ]
+
+            if not self._legacy_props.get("Variables", None):
+                self._legacy_props["Variables"] = {}
+            self._legacy_props["Variables"][variable_name] = arg
+            if not self._legacy_props.get("StartingPoint", None):
+                self._legacy_props["StartingPoint"] = {}
+            if not starting_point:
+                starting_point = self._app.variable_manager[variable_name].numeric_value
+                if starting_point < min_value or starting_point > max_value:
+                    starting_point = (max_value + min_value) / 2
+
+            self._legacy_props["StartingPoint"][variable_name] = self._app.value_with_units(
+                starting_point, self._app.variable_manager[variable_name].units
+            )
+
         else:
             use_manufacturable = "true" if use_manufacturable else "false"
             arg = [
