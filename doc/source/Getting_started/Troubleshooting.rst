@@ -244,6 +244,32 @@ Now run the PyAEDT script, (making sure it connects to the same port as the gRPC
 Capture the output in a file. For example *client.txt*. Then send all the logs
 to `Ansys Support <https://www.ansys.com/it-solutions/contacting-technical-support>`_.
 
+Variations solve sequentially under an interactive scheduler job
+------------------------------------------------------------------
+Sometimes under an interactive scheduler job (for example Slurm), AEDT exposes a single DSO
+configuration ("Interactive Scheduler Job") that is configurable only through command line
+flags at AEDT launch. ``analyze()``/``analyze_setup()``'s ``cores``/``tasks``/
+``num_variations_to_distribute``/``allowed_distribution_types``, ``set_custom_hpc_options()``,
+and hand-written ACF files are typically no-ops if AEDT launches in this environment: an
+Optimetrics or parametric sweep may solve one variation at a time regardless of what is
+requested.
+
+You may need to inject additional launch flags manually, using
+``settings.custom_desktop_launch_args``, to enable parallel solve of variations:
+
+.. code:: python
+
+    from ansys.aedt.core import Hfss
+    from ansys.aedt.core.generic.settings import settings
+
+    settings.custom_desktop_launch_args = (
+        "-distributed includetypes=default maxlevels=1 -machinelist num=4 "
+        "-batchoptions \"'HFSS/NumCoresPerDistributedTask'='4'\""
+    )
+
+    hfss = Hfss(new_desktop=True, non_graphical=True)
+    hfss.analyze_setup(name="ParametricSetup1")
+
 AEDT Student version fails to start via the default gRPC transport
 ------------------------------------------------------------------
 For AEDT Student 2025 R2 and earlier, launching a new session with the default secure-local (``wnua``) gRPC transport
