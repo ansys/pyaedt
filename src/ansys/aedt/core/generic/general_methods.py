@@ -62,9 +62,15 @@ from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.checks import deprecated_doc
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.internal.errors import MethodNotSupportedError
+
+if sys.version_info >= (3, 13):
+    from warnings import deprecated
+else:
+    from typing_extensions import deprecated
 
 # _F: a callable type variable used when the decorator returns the function unchanged.
 _F = TypeVar("_F", bound=Callable[..., Any])
@@ -357,7 +363,9 @@ def deprecate_argument(
     return decorator
 
 
-def deprecated_property(reason: str | None = None, version: str | None = None) -> Callable:
+@deprecated_doc()
+@deprecated("Use `@deprecated` (PEP 702) and `@deprecated_doc` from `ansys.aedt.core.internal.checks` instead.")
+def deprecated_property(reason: str | None = None, version: str | None = None) -> Callable[[_F], _F]:
     """Decorator to deprecate a property getter, setter, or deleter.
 
     Must be applied under ``@property`` (or ``@x.setter``/``@x.deleter``), not above it, so that

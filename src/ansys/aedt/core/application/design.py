@@ -44,6 +44,11 @@ from types import TracebackType
 from typing import Any
 from typing import cast
 
+if sys.version_info >= (3, 13):
+    from warnings import deprecated
+else:
+    from typing_extensions import deprecated
+
 from ansys.aedt.core.aedt_logger import AedtLogger
 from ansys.aedt.core.application import _get_obj_data
 from ansys.aedt.core.application import _has_get_obj_data
@@ -73,7 +78,6 @@ from ansys.aedt.core.generic.file_utils import read_tab
 from ansys.aedt.core.generic.file_utils import read_xlsx
 from ansys.aedt.core.generic.file_utils import remove_project_lock
 from ansys.aedt.core.generic.file_utils import write_csv
-from ansys.aedt.core.generic.general_methods import deprecated_property
 from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
@@ -82,6 +86,7 @@ from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.protocols import _OProject
 from ansys.aedt.core.generic.settings import inner_project_settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
+from ansys.aedt.core.internal.checks import deprecated_doc
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.internal.load_aedt_file import load_entire_aedt_file
@@ -816,7 +821,8 @@ class Design(AedtObjects, PyAedtBase):
             return {}
 
     @property
-    @deprecated_property("Use aedt_env_variable instead.")
+    @deprecated_doc()
+    @deprecated("Use aedt_env_variable instead.")
     def aedt_version_id(self) -> str:
         """AEDT version environment variable name.
 

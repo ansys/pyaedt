@@ -33,6 +33,12 @@ from __future__ import annotations
 import os
 from pathlib import Path
 import re
+import sys
+
+if sys.version_info >= (3, 13):
+    from warnings import deprecated
+else:
+    from typing_extensions import deprecated
 import shutil
 import tempfile
 import time
@@ -806,6 +812,7 @@ class Analysis(Design, PyAedtBase):
                             list_output.append(value)
         return list_output
 
+    @deprecated("`list_of_variations` is deprecated. Use `available_variations.variations` instead.")
     @pyaedt_function_handler()
     def list_of_variations(self, setup: str = None, sweep: str = None) -> list[str]:
         """Retrieve a list of active variations for input setup.

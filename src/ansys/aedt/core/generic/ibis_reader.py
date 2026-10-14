@@ -25,8 +25,14 @@
 import json
 from pathlib import Path
 import re
+import sys
 import traceback
 from typing import TYPE_CHECKING
+
+if sys.version_info >= (3, 13):
+    from warnings import deprecated
+else:
+    from typing_extensions import deprecated
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.base import PyAedtBase
@@ -34,7 +40,7 @@ from ansys.aedt.core.generic.file_utils import check_and_download_file
 from ansys.aedt.core.generic.file_utils import check_if_path_exists
 from ansys.aedt.core.generic.file_utils import get_filename_without_extension
 from ansys.aedt.core.generic.file_utils import open_file
-from ansys.aedt.core.generic.general_methods import deprecated_property
+from ansys.aedt.core.internal.checks import deprecated_doc
 
 if TYPE_CHECKING:
     from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
@@ -232,32 +238,38 @@ class Component(PyAedtBase):
     # NOTE: The following properties are deprecated and kept for backward compatibility.
 
     @property
-    @deprecated_property(reason="Use r_pkg instead.")
+    @deprecated_doc()
+    @deprecated("Use r_pkg instead.")
     def R_pkg(self) -> str | None:  # noqa: N802
         return self.r_pkg
 
     @R_pkg.setter
-    @deprecated_property(reason="Use r_pkg instead.")
+    @deprecated_doc()
+    @deprecated("Use r_pkg instead.")
     def R_pkg(self, value: str | None) -> None:  # noqa: N802
         self.r_pkg = value
 
     @property
-    @deprecated_property(reason="Use l_pkg instead.")
+    @deprecated_doc()
+    @deprecated("Use l_pkg instead.")
     def L_pkg(self) -> str | None:  # noqa: N802
         return self.l_pkg
 
     @L_pkg.setter
-    @deprecated_property(reason="Use l_pkg instead.")
+    @deprecated_doc()
+    @deprecated("Use l_pkg instead.")
     def L_pkg(self, value: str | None) -> None:  # noqa: N802
         self.l_pkg = value
 
     @property
-    @deprecated_property(reason="Use c_pkg instead.")
+    @deprecated_doc()
+    @deprecated("Use c_pkg instead.")
     def C_pkg(self) -> str | None:  # noqa: N802
         return self.c_pkg
 
     @C_pkg.setter
-    @deprecated_property(reason="Use c_pkg instead.")
+    @deprecated_doc()
+    @deprecated("Use c_pkg instead.")
     def C_pkg(self, value: str | None) -> None:  # noqa: N802
         self.c_pkg = value
 
@@ -1320,12 +1332,14 @@ class Ibis(PyAedtBase):
         self._is_ami = value
 
     @property
-    @deprecated_property(reason="Use is_ami instead.")
+    @deprecated_doc()
+    @deprecated("Use is_ami instead.")
     def AMI(self) -> bool:  # noqa: N802
         return self.is_ami
 
     @AMI.setter
-    @deprecated_property(reason="Use is_ami instead.")
+    @deprecated_doc()
+    @deprecated("Use is_ami instead.")
     def AMI(self, value: bool) -> None:  # noqa: N802
         self.is_ami = value
 
@@ -1491,12 +1505,14 @@ class AMI(PyAedtBase):
         self._is_ami = value
 
     @property
-    @deprecated_property(reason="Use is_ami instead.")
+    @deprecated_doc()
+    @deprecated("Use is_ami instead.")
     def AMI(self) -> bool:  # noqa: N802
         return self.is_ami
 
     @AMI.setter
-    @deprecated_property(reason="Use is_ami instead.")
+    @deprecated_doc()
+    @deprecated("Use is_ami instead.")
     def AMI(self, value: bool) -> None:  # noqa: N802
         self.is_ami = value
 

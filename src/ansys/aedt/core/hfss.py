@@ -37,8 +37,14 @@ from collections import defaultdict
 import math
 from pathlib import Path
 import re
+import sys
 import tempfile
 from typing import TYPE_CHECKING
+
+if sys.version_info >= (3, 13):
+    from warnings import deprecated
+else:
+    from typing_extensions import deprecated
 
 import numpy as np
 
@@ -4976,6 +4982,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             primary_sweep_variable=primary_sweep,
         )
 
+    @deprecated("`create_qfactor_report` is deprecated. Use `create_q_factor_report` method instead.")
     @pyaedt_function_handler()
     def create_qfactor_report(
         self,
