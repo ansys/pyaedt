@@ -366,8 +366,8 @@ def launch_aedt(
     - Environment variables from ``settings.aedt_environment_variables`` are applied before launch.
     - The gRPC transport mode is determined by ``settings.grpc_secure_mode`` and ``settings.grpc_local``.
     - Extra flags from ``settings.custom_desktop_launch_args`` are appended to the launch command, for example
-      to control variation distribution (``-distributed``, ``-auto``, ``-machinelist``) under an interactive
-      scheduler job.
+      to control variation distribution (``-distributed``, ``-machinelist``) under an interactive scheduler job.
+      See ``settings.custom_desktop_launch_args`` for which suboptions actually take effect interactively.
 
     Examples
     --------

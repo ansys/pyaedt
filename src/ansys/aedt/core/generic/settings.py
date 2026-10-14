@@ -718,9 +718,9 @@ class Settings(PyAedtBase):
     def custom_desktop_launch_args(self) -> str | None:
         """Extra command line arguments appended when launching AEDT in gRPC mode. The default is ``None``.
 
-        Use this to pass flags that AEDT only honors at launch, such as ``-distributed``, ``-auto``, and
-        ``-machinelist``, which are required to control variation distribution under an interactive scheduler
-        job (for example Slurm) where settings applied afterward through the registry have no effect.
+        Use this to pass flags that AEDT only honors at launch, such as ``-distributed`` and ``-machinelist``.
+        Required to control variation distribution under an interactive scheduler job (for example
+        Slurm), where settings applied afterward through custom acf have no effect.
 
         This must be set before AEDT is launched, since it is read once by ``launch_aedt()`` when the
         process starts, for example before creating a ``Desktop`` or application instance with
@@ -728,12 +728,18 @@ class Settings(PyAedtBase):
 
         Examples
         --------
+        >>> # Distribute upto 4 variations in ParametricSetup1 in parallel
+        >>> # With 4 cpus allocated per variation
+        >>> from ansys.aedt.core import Hfss
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.custom_desktop_launch_args = (
-        ...     "-distributed -auto NumDistributedVariations=4 -machinelist numcores=16"
+        ...     "-distributed includetypes=default maxlevels=1 -machinelist num=4 "
+        ...     "-batchoptions \"'HFSS/NumCoresPerDistributedTask'='4'\""
         ... )
-        >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(new_desktop=True, non_graphical=True)
+        >>> hfss.analyze_setup(
+        ...     name="ParametricSetup1",
+        ... )
 
         """
         return self.__custom_desktop_launch_args
