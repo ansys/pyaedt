@@ -409,3 +409,12 @@ model.index\+
 # Custom instructions for GitHub Copilot
 .github/copilot-instructions.md
 
+# Synopsys Autopilot / Copilot local config and scratch
+.synopsys_autopilot/
+AGENTS.md
+.github/copilot-instructions.md
+.github/copilot/
+.copilot/
+copilot-chat.log
+
+
