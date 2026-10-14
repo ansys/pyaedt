@@ -262,6 +262,8 @@ You may need to inject additional launch flags manually, using
     from ansys.aedt.core import Hfss
     from ansys.aedt.core.generic.settings import settings
 
+    # Distribute upto 4 variations in ParametricSetup1 in parallel
+    # With 4 cpus allocated per variation
     settings.custom_desktop_launch_args = (
         "-distributed includetypes=default maxlevels=1 -machinelist num=4 "
         "-batchoptions \"'HFSS/NumCoresPerDistributedTask'='4'\""
