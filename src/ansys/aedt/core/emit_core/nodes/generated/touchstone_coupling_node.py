@@ -272,7 +272,7 @@ class TouchstoneCouplingNode(EmitNode):
             port_list = parts
             value = "|".join(self._full_node_name(p) for p in parts)
         # make sure every port is being set, append (undefined) for any missing ports
-        num_ports = len(self.ports)
+        num_ports = len(self.port_antenna_assignment)
         if len(port_list) < num_ports:
             value += "|" + "|".join(["(undefined)"] * (num_ports - len(port_list)))
         self._set_property("Port-Antenna Assignment", f"{value}")
