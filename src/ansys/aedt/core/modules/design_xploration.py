@@ -129,6 +129,14 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         -------
         AEDT object if any or None
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> setup_names = app.optimetrics.setup_names
+        >>> setup = app.optimetrics.setups[setup_names[0]]
+        >>> setup._child_object
+
         """
         child_object = None
         design_childs = self._app.get_oo_name(self._app.odesign)
@@ -148,6 +156,14 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         -------
         str
            Name of the mesh operation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> setup_names = app.optimetrics.setup_names
+        >>> setup = app.optimetrics.setups[setup_names[0]]
+        >>> setup.name
 
         """
         child_object = self._child_object
@@ -172,7 +188,21 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
 
     @property
     def props(self) -> SetupProps:
-        """Properties of the Optimetrics setup."""
+        """Properties of the Optimetrics setup.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.generic.props.Props`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> setup_names = app.optimetrics.setup_names
+        >>> setup = app.optimetrics.setups[setup_names[0]]
+        >>> setup.props
+
+        """
         if self._legacy_props and not self._has_getobject:
             return SetupProps(self, self._legacy_props)
 
@@ -214,6 +244,14 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         str
             Type of the Optimetrics setup.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> setup_names = app.optimetrics.setup_names
+        >>> setup = app.optimetrics.setups[setup_names[0]]
+        >>> setup.setup_type
+
         """
         return self.__setup_type
 
@@ -234,6 +272,15 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         References
         ----------
         >>> oModule.EditSetup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> setup_names = app.optimetrics.setup_names
+        >>> setup = app.optimetrics.setups[setup_names[0]]
+        >>> setup.update()
+        >>> setup.props["Goals"]["Goal"]["Ranges"]["Range"]["DiscreteValues"] = "2.7GHz"
 
         """
         if props is None:
@@ -261,6 +308,14 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         ----------
         >>> oModule.InsertSetup
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> setup_names = app.optimetrics.setup_names
+        >>> setup = app.optimetrics.setups[setup_names[0]]
+        >>> setup.update()
+
         """
         arg = ["NAME:" + self.name]
         _dict2arg(self.props, arg)
@@ -274,16 +329,18 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
     def delete(self) -> bool:
         """Delete a defined Optimetrics Setup.
 
-        Parameters
-        ----------
-        name : str
-            Name of Optimetrics setup to delete.
-
         Returns
         -------
         bool
             `True` if setup is deleted. `False` if it failed.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> setup_names = app.optimetrics.setup_names
+        >>> setup = app.optimetrics.setups[setup_names[0]]
+        >>> setup.delete()
 
         """
         self._app.ooptimetrics.DeleteSetups([self.name])
@@ -292,19 +349,72 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
     @pyaedt_function_handler()
     def add_calculation(
         self,
-        calculation,
-        ranges=None,
-        variables=None,
+        calculation: str,
+        ranges: dict | None = None,
+        variables: dict | None = None,
         solution: str | None = None,
-        context=None,
+        context: str | None = None,
         subdesign_id: int | None = None,
         polyline_points: int = 1001,
-        report_type=None,
+        report_type: str | None = None,
         is_goal: bool = False,
         condition: str = "<=",
         goal_value: int = 1,
         goal_weight: int = 1,
     ):
+        """Add a calculation to the setup.
+
+        Parameters
+        ----------
+        calculation : str, optional
+            Name of the calculation.
+        ranges : dict, optional
+            Dictionary of ranges with respective values.
+            Values can be: `None` for all values, a List of Discrete Values, a tuple of start and stop range.
+            It includes intrinsics like "Freq", "Time", "Theta", "Distance".
+            The default is ``None``, to be used e.g. in "Eigenmode" design type.
+        variables : dict, optional
+            Dictionary of variable names and values used to resolve expressions in the
+            calculation. The default is ``None``.
+        solution : str, optional
+            Type of the solution. The default is ``None``, in which case the default
+            solution is used.
+        context : str, optional
+            Calculation context. It can be a sphere, a matrix, or a polyline.
+        subdesign_id : int, optional
+            Subdesign identifier for Circuit and HFSS 3D Layout objects.
+        polyline_points : int, optional
+            Number of points for a polyline context.
+        report_type : str, optional
+            Override the automatic computation of the calculation type.
+        is_goal : bool, optional
+            Whether the calculation is used as a goal in the optimization or design
+            exploration setup. The default is ``False``.
+        condition : str, optional
+            Comparison operator used when evaluating the goal. The default is ``"<="``.
+        goal_value : int, optional
+            Target value used when evaluating the goal. The default is ``1``.
+        goal_weight : int, optional
+            Weight assigned to the goal in the optimization process. The default is ``1``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.EditSetup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> setup_names = app.optimetrics.setup_names
+        >>> setup = app.optimetrics.setups[setup_names[0]]
+        >>> setup.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"})
+
+        """
         if not solution:
             solution = self._app.nominal_sweep
         setupname = solution.split(" ")[0]
@@ -377,6 +487,81 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
             self._legacy_props[optigoalname] = {}
             self._legacy_props[optigoalname]["Goal"] = sweepdefinition
         return self.update(self._legacy_props)
+
+    @pyaedt_function_handler()
+    def analyze(
+        self,
+        cores: int = 1,
+        tasks: int = 1,
+        gpus: int = 0,
+        acf_file: str | None = None,
+        use_auto_settings: bool = True,
+        solve_in_batch: bool = False,
+        machine: str = "localhost",
+        run_in_thread: bool = False,
+        revert_to_initial_mesh: bool = False,
+        blocking: bool = True,
+    ) -> bool:
+        """Solve the active design.
+
+        Parameters
+        ----------
+        cores : int, optional
+            Number of simulation cores. The default is ``1``.
+        tasks : int, optional
+            Number of simulation tasks. The default is ``1``.
+        gpus : int, optional
+            Number of simulation graphic processing units to use. The default is ``0``.
+        acf_file : str, optional
+            Full path to the custom ACF file.
+        use_auto_settings : bool, optional
+            Set ``True`` to use automatic settings for HPC. The option is only considered for setups
+            that support automatic settings.
+        solve_in_batch : bool, optional
+            Whether to solve the project in batch or not.
+            If ``True`` the project will be saved, closed, solved and repened.
+        machine : str, optional
+            Name of the machine if remote.  The default is ``"localhost"``.
+        run_in_thread : bool, optional
+            Whether to submit the batch command as a thread. The default is
+            ``False``.
+        revert_to_initial_mesh : bool, optional
+            Whether to revert to initial mesh before solving or not. Default is ``False``.
+        blocking : bool, optional
+            Whether to block script while analysis is completed or not. It works from AEDT 2023 R2.
+            Default is ``True``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oDesign.Analyze
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> setup_names = app.optimetrics.setup_names
+        >>> setup = app.optimetrics.setups[setup_names[0]]
+        >>> setup.analyze()
+
+        """
+        return self._app.analyze(
+            setup=self.name,
+            cores=cores,
+            tasks=tasks,
+            gpus=gpus,
+            acf_file=acf_file,
+            use_auto_settings=use_auto_settings,
+            solve_in_batch=solve_in_batch,
+            machine=machine,
+            run_in_thread=run_in_thread,
+            revert_to_initial_mesh=revert_to_initial_mesh,
+            blocking=blocking,
+        )
 
     @pyaedt_function_handler()
     def _get_context(
@@ -518,7 +703,16 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
 
 
 class ParametricSetup(OptimetricsSetup):
-    """Parametric setup object with parametric-specific operations."""
+    """Parametric setup object with parametric-specific operations.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Hfss
+    >>> app = Hfss()
+    >>> setup_names = app.parametrics.setup_names
+    >>> setup = app.parametrics.setups[setup_names[0]]
+
+    """
 
     @pyaedt_function_handler()
     def add_variation(
@@ -556,6 +750,14 @@ class ParametricSetup(OptimetricsSetup):
         References
         ----------
         >>> oModule.EditSetup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> setup_names = app.parametrics.setup_names
+        >>> setup = app.parametrics.setups[setup_names[0]]
+        >>> setup.add_variation("w1", start_point="0.3mm", end_point=5, step=1)
 
         """
         if sweep_variable not in self._app.variable_manager.variables:
@@ -613,6 +815,14 @@ class ParametricSetup(OptimetricsSetup):
         bool
             `True` if the export is correctly executed.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> setup_names = app.parametrics.setup_names
+        >>> setup = app.parametrics.setups[setup_names[0]]
+        >>> setup.export_to_csv("test.csv")
+
         """
         if self.setup_type != "OptiParametric":
             raise AEDTRuntimeError("Setup must be a parametric setup.")
@@ -644,9 +854,11 @@ class ParametricSetup(OptimetricsSetup):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.design_xploration import ParametricSetup
-        >>> obj = ParametricSetup()
-        >>> obj.sync_variables(variables=["Box1"])
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> setup_names = app.parametrics.setup_names
+        >>> setup = app.parametrics.setups[setup_names[0]]
+        >>> setup.sync_variables(variables=["a1"])
 
         """
         if self.setup_type != "OptiParametric":
@@ -684,7 +896,16 @@ class ParametricSetup(OptimetricsSetup):
 
 
 class OptimizationSetup(OptimetricsSetup):
-    """Parametric setup object with parametric-specific operations."""
+    """Parametric setup object with parametric-specific operations.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Hfss
+    >>> app = Hfss()
+    >>> setup_names = app.optimizations.setup_names
+    >>> setup = app.optimizations.setups[setup_names[0]]
+
+    """
 
     @pyaedt_function_handler()
     def add_variation(
@@ -722,6 +943,14 @@ class OptimizationSetup(OptimetricsSetup):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> setup_names = app.optimizations.setup_names
+        >>> setup = app.optimizations.setups[setup_names[0]]
+        >>> setup.add_variation("w1", 0.1, 10, 5)
 
         """
         if variable_name not in self._app.variable_manager.variables:
@@ -934,7 +1163,7 @@ class OptimizationSetup(OptimetricsSetup):
 
         Parameters
         ----------
-        calculation : str, optional
+        calculation : str
             Name of the calculation.
         ranges : dict
             Dictionary of ranges with respective values.
@@ -968,6 +1197,14 @@ class OptimizationSetup(OptimetricsSetup):
         References
         ----------
         >>> oModule.EditSetup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> setup_names = app.optimizations.setup_names
+        >>> setup = app.optimizations.setups[setup_names[0]]
+        >>> setup.add_goal("db(S1,1)", ranges={"Freq": "2.6GHz"})
 
         """
         return self.add_calculation(
