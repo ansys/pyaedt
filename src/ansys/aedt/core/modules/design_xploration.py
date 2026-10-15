@@ -1279,9 +1279,8 @@ class Parametrics(PyAedtBase):
         >>> same_parametric = app.parametrics[parametric.name]
 
         """
-        setup = self.optimetrics[name]
-        if isinstance(setup, ParametricSetup):
-            return setup
+        if name in self.setup_names:
+            return self.setups[name]
         return None
 
     @property
@@ -1695,9 +1694,8 @@ class Optimizations(PyAedtBase):
         >>> setup = app.optimetrics.optimizations["Optimization1"]
 
         """
-        setup = self.optimetrics[name]
-        if isinstance(setup, OptimizationSetup):
-            return setup
+        if name in self.setup_names:
+            return self.setups[name]
         return None
 
     @property
