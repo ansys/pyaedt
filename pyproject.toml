@@ -333,8 +333,7 @@ exclude = [
     "src/ansys/aedt/core/emit_core",
     "src/ansys/aedt/core/extensions",
     "src/ansys/aedt/core/filtersolutions_core",
-    "src/ansys/aedt/core/generic/configurations.py",
-    "src/ansys/aedt/core/generic/file_utils.py",
+    # TODO: Shouldn't we remove the python_optimizers module ?
     "src/ansys/aedt/core/generic/python_optimizers.py",
     "src/ansys/aedt/core/internal",
     "src/ansys/aedt/core/misc",
@@ -348,6 +347,7 @@ exclude = [
 
 [tool.ty.rules]
 unresolved-import = "ignore"
+deprecated = "error"
 
 [tool.codespell]
 ignore-words = "ignore_words.txt"
