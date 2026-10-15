@@ -40,6 +40,7 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.checks import deprecated_doc
 from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.mixins import CreateBoundaryMixin
@@ -2988,13 +2989,11 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
             self.logger.info("No new nets identified")
         return True
 
+    @deprecated_doc(version="1.5.0")
     @deprecated("`export_w_elements` is deprecated. Use `export_equivalent_circuit` instead with file_type=WElement.")
     @pyaedt_function_handler()
     def export_w_elements(self, export_folder: str | Path | None = None) -> list:
         """Export all W-elements to files.
-
-        .. deprecated:: 1.5.0
-           Use :meth:`export_equivalent_circuit` with file_type=WElement instead.
 
         Parameters
         ----------
@@ -3014,14 +3013,6 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         >>> obj.export_w_elements("C:/Users/UserName/ExportedWElements")
 
         """
-        import warnings
-
-        warnings.warn(
-            "`export_w_elements` is deprecated and will be removed in 1.5.0. "
-            "Use `export_equivalent_circuit` instead with file_type=WElement.",
-            DeprecationWarning,
-        )
-
         exported_files = []
         if not export_folder:
             export_folder = self.working_directory

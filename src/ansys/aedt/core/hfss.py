@@ -41,6 +41,8 @@ import sys
 import tempfile
 from typing import TYPE_CHECKING
 
+from ansys.aedt.core.internal.checks import deprecated_doc
+
 if sys.version_info >= (3, 13):
     from warnings import deprecated
 else:
@@ -5022,6 +5024,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             primary_sweep_variable=primary_sweep,
         )
 
+    @deprecated_doc(version="1.2.0")
     @deprecated("`create_qfactor_report` is deprecated. Use `create_q_factor_report` method instead.")
     @pyaedt_function_handler()
     def create_qfactor_report(
@@ -5033,9 +5036,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         x_axis: str | None = "X",
     ) -> bool:  # pragma: no cover
         """Export a CSV file of the EigenQ plot.
-
-        .. deprecated:: 1.2.0
-           Use :func:`create_q_factor_report` instead.
 
         Parameters
         ----------
@@ -5066,12 +5066,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> obj.create_qfactor_report(name="MyObject", setup="Setup1")
 
         """
-        import warnings
-
-        warnings.warn(
-            "`create_qfactor_report` is deprecated. Use `create_q_factor_report` method instead.", DeprecationWarning
-        )
-
         # Setup arguments list for createReport function
         args = [x_axis + ":=", ["All"]]
         args2 = ["X Component:=", x_axis, "Y Component:=", output]
