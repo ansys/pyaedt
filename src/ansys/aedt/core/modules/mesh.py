@@ -129,7 +129,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
             self._type = "InitialMeshSettings"
 
         if self._type == "InitialMeshSettings":
-            # TODO: Un comment next line once it is available
+            # TODO: Currently AEDT API does not have a way to get InitialMeshSettings props
             self._has_getobject = False
         else:
             self._has_getobject = _has_get_obj_data(self._child_object)
