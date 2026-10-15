@@ -97,6 +97,8 @@ def test_mesh_init(mesh_app) -> None:
     }
 
     assert mesh_app.mesh[names[1]].properties
+    assert mesh_app.mesh[names[1]].public_dir
+
     mesh_app.mesh[names[1]].props = new_props
     assert mesh_app.mesh[names[1]].props["NormalDevChoice"] == 1
 
