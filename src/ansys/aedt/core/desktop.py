@@ -365,6 +365,9 @@ def launch_aedt(
     - It checks for available licenses unless ``settings.skip_license_check`` is ``True``.
     - Environment variables from ``settings.aedt_environment_variables`` are applied before launch.
     - The gRPC transport mode is determined by ``settings.grpc_secure_mode`` and ``settings.grpc_local``.
+    - Extra flags from ``settings.custom_desktop_launch_args`` are appended to the launch command, for example
+      to control variation distribution (``-distributed``, ``-machinelist``) under an interactive scheduler job.
+      See ``settings.custom_desktop_launch_args`` for which suboptions actually take effect interactively.
 
     Examples
     --------
@@ -421,6 +424,8 @@ def launch_aedt(
         command.append("-waitforlicense")
     if settings.aedt_log_file:
         command.extend(["-Logfile", settings.aedt_log_file])
+    if settings.custom_desktop_launch_args:
+        command.extend(shlex.split(settings.custom_desktop_launch_args))
 
     kwargs = {
         "stdin": subprocess.DEVNULL,
