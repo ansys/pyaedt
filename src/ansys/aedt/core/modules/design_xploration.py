@@ -26,8 +26,14 @@ from __future__ import annotations
 
 import csv
 from pathlib import Path
+import sys
 from typing import TYPE_CHECKING
 from typing import Any
+
+if sys.version_info >= (3, 13):
+    from warnings import deprecated
+else:
+    from typing_extensions import deprecated
 
 from ansys.aedt.core.application import _get_obj_data
 from ansys.aedt.core.application import _has_get_obj_data
@@ -38,7 +44,6 @@ from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import SetupDict
-from ansys.aedt.core.generic.general_methods import deprecated_property
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.props import Props as SetupProps
 from ansys.aedt.core.generic.settings import settings
@@ -691,7 +696,7 @@ class OptimizationSetup(OptimetricsSetup):
         min_step: float | None = None,
         max_step: float | None = None,
         use_manufacturable: bool = False,
-        levels: list | None = None,
+        levels: str | list[Any] | None = None,
     ) -> bool:
         """Add a new variable as input for the optimization and defines its ranges.
 
@@ -744,7 +749,7 @@ class OptimizationSetup(OptimetricsSetup):
             self._app.variable_manager.variables[variable_name].optimization_max_value = max_value_wuints
             self._app.variable_manager.variables[variable_name].optimization_min_value = min_value_wuints
 
-            use_manufacturable = "true" if use_manufacturable else "false"
+            use_manufacturable_str = "true" if use_manufacturable else "false"
             arg = [
                 "i:=",
                 True,
@@ -755,7 +760,7 @@ class OptimizationSetup(OptimetricsSetup):
                 "Max:=",
                 max_value_wuints,
                 "UseManufacturableValues:=",
-                use_manufacturable,
+                use_manufacturable_str,
             ]
             if self._app.desktop_class.aedt_version_id > "2023.2":
                 arg.extend(["DiscreteLevel:=", levels])
@@ -871,7 +876,7 @@ class OptimizationSetup(OptimetricsSetup):
             )
 
         else:
-            use_manufacturable = "true" if use_manufacturable else "false"
+            use_manufacturable_str = "true" if use_manufacturable else "false"
             arg = [
                 "i:=",
                 True,
@@ -890,7 +895,7 @@ class OptimizationSetup(OptimetricsSetup):
                 "MaxFocus:=",
                 max_value_wuints,
                 "UseManufacturableValues:=",
-                use_manufacturable,
+                use_manufacturable_str,
             ]
             if self._app.desktop_class.aedt_version_id > "2023.2":
                 arg.extend(["Level:=", levels])
@@ -1109,7 +1114,7 @@ class Parametrics(PyAedtBase):
         return self.__setups_by_type
 
     @property
-    @deprecated_property("Use setups instead.")
+    @deprecated("Use setups instead.")
     def design_setups(self) -> SetupDict:
         """Return parametric setups ordered by name.
 
@@ -1128,6 +1133,42 @@ class Parametrics(PyAedtBase):
 
         """
         return self.setups
+
+    @property
+    @deprecated("Use the PyAEDT application object directly.")
+    def p_app(self):
+        """Parent.
+
+        Deprecated. Use the PyAEDT application object directly.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.parametrics.p_app
+
+        """
+        return self._app
+
+    @property
+    @deprecated("Use ooptimetrics from application instead.")
+    def optimodule(self):
+        """Optimetrics module.
+
+        Deprecated. Use :attr:`application.ooptimetrics` instead.
+
+        Returns
+        -------
+        :class:`Optimetrics`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.parametrics.optimodule
+
+        """
+        return self._app.ooptimetrics
 
     @pyaedt_function_handler()
     def add(
@@ -1468,7 +1509,7 @@ class Optimizations(PyAedtBase):
         return self.__setups
 
     @property
-    @deprecated_property("Use setups instead.")
+    @deprecated("Use setups instead.")
     def design_setups(self) -> SetupDict:
         """Return parametric setups ordered by name.
 
@@ -1487,6 +1528,42 @@ class Optimizations(PyAedtBase):
 
         """
         return self.setups
+
+    @property
+    @deprecated("Use the PyAEDT application object directly.")
+    def p_app(self):
+        """Parent.
+
+        Deprecated. Use the PyAEDT application object directly.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.parametrics.p_app
+
+        """
+        return self._app
+
+    @property
+    @deprecated("Use ooptimetrics from application instead.")
+    def optimodule(self):
+        """Optimetrics module.
+
+        Deprecated. Use :attr:`application.ooptimetrics` instead.
+
+        Returns
+        -------
+        :class:`Optimetrics`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.parametrics.optimodule
+
+        """
+        return self._app.ooptimetrics
 
     @property
     def setups_by_type(self) -> SetupDict:

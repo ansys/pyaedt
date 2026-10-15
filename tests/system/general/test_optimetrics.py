@@ -83,6 +83,7 @@ def test_optimetrics_init(optimetrics_app):
     assert isinstance(optimetrics_app.optimetrics[parametric_name], ParametricSetup)
     assert isinstance(optimetrics_app.optimetrics[optimization_name], OptimizationSetup)
 
+    # Delete setup
     assert not optimetrics_app.optimetrics.delete_setup("invented")
 
     assert optimetrics_app.optimetrics.delete_setup(parametric_name)
@@ -97,6 +98,7 @@ def test_optimetrics_init(optimetrics_app):
     assert len(optimetrics_app.optimetrics.setups) == 0
     assert optimetrics_app.optimetrics.setup_names == []
 
+    # No setups available
     assert not optimetrics_app.optimetrics.delete_setup(optimization_name)
 
 

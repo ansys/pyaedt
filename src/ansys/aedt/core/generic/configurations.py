@@ -54,10 +54,8 @@ from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.common import BoundaryProps
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
-from ansys.aedt.core.modules.design_xploration import Optimetrics
-
-# from ansys.aedt.core.modules.design_xploration import SetupOpti
-# from ansys.aedt.core.modules.design_xploration import SetupParam
+from ansys.aedt.core.modules.design_xploration import OptimizationSetup
+from ansys.aedt.core.modules.design_xploration import ParametricSetup
 from ansys.aedt.core.modules.material_lib import Material
 from ansys.aedt.core.modules.mesh import MeshOperation
 
@@ -1090,9 +1088,10 @@ class Configurations(PyAedtBase):
                     setup_el.props = props
                     setup_el.update()
                 return True
-        setup = Optimetrics(self._app, name, dictinputs=props, optim_type=props.get("SetupType", None))
+
+        setup = OptimizationSetup(app=self._app.optimizations, name=name, props=props)
+
         if setup.create():
-            self._app.optimizations.setups.append(setup)
             self._app.logger.info(f"Optim {name} added.")
             return True
         else:
@@ -1107,9 +1106,8 @@ class Configurations(PyAedtBase):
                     setup_el.props = props
                     setup_el.update()
                 return True
-        setup = Optimetrics(self._app, name, dictinputs=props, optim_type=props.get("SetupType", None))
+        setup = ParametricSetup(app=self._app.parametrics, name=name, props=props)
         if setup.create():
-            self._app.optimizations.setups.append(setup)
             self._app.logger.info(f"Optim {name} added.")
             return True
         else:
@@ -2355,7 +2353,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                         - instance_names[definition_names]
                     )[0]
                 # TODO: See https://github.com/ansys/pyaedt/issues/7919
-                native.component_name = definition_names  # ty: ignore[unresolved-attribute]
+                native.component_name = definition_names
                 native.name = instance_names
                 if nc_dict["NativeComponentDefinitionProvider"]["Type"] == "PCB" and nc_dict[
                     "NativeComponentDefinitionProvider"
