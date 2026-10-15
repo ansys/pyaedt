@@ -406,6 +406,11 @@ model.index\+
 .testmondata-shm
 .testmondata-wal
 
-# Custom instructions for GitHub Copilot
+# Synopsys Autopilot / Copilot local config and scratch
+.synopsys_autopilot/
+AGENTS.md
 .github/copilot-instructions.md
+.github/copilot/
+.copilot/
+
 
