@@ -67,24 +67,24 @@ def m2d_setup(add_app):
 
 def test_mesh_init(mesh_app) -> None:
     assert isinstance(mesh_app.mesh.operations, SetupDict)
-    assert len(mesh_app.mesh.operations) == 4
-    assert len(mesh_app.mesh.operation_names) == 4
+    assert isinstance(mesh_app.mesh.initial_mesh_settings, MeshOperation)
+    assert len(mesh_app.mesh.operations) == 3
+    assert len(mesh_app.mesh.operation_names) == 3
 
     names = mesh_app.mesh.operation_names
-
-    assert isinstance(mesh_app.mesh[names[0]], MeshOperation)
-    assert mesh_app.mesh[names[0]].name == "InitialMeshSettings"
 
     assert isinstance(mesh_app.mesh[names[1]], MeshOperation)
     assert len(mesh_app.mesh[names[1]].assignment) == 1
 
     # Initial Mesh settings can not be modified
-    mesh_app.mesh[names[0]].name = "NewName"
+    mesh_app.mesh.initial_mesh_settings.name = "NewName"
     assert "NewName" not in mesh_app.mesh.operation_names
-
+    assert "NewName" != mesh_app.mesh.initial_mesh_settings.name
     mesh_app.mesh[names[1]].name = "NewName"
     assert "NewName" in mesh_app.mesh.operation_names
-    assert len(mesh_app.mesh.operations) == 4
+    assert len(mesh_app.mesh.operations) == 3
+
+    names = mesh_app.mesh.operation_names
 
     new_props = {
         "Faces": [7],
@@ -96,15 +96,21 @@ def test_mesh_init(mesh_app) -> None:
         "AspectRatioChoice": 1,
     }
 
-    assert mesh_app.mesh[names[2]].properties
-    mesh_app.mesh[names[2]].props = new_props
-    assert mesh_app.mesh[names[2]].props["NormalDevChoice"] == 1
+    assert mesh_app.mesh[names[1]].properties
+    mesh_app.mesh[names[1]].props = new_props
+    assert mesh_app.mesh[names[1]].props["NormalDevChoice"] == 1
 
-    mesh_app.mesh[names[1]].delete()
-    assert len(mesh_app.mesh.operations) == 3
+    mesh_app.mesh[names[2]].delete()
+    assert len(mesh_app.mesh.operations) == 2
+
+    assert mesh_app.mesh.delete_mesh_operations("Surface Approximation Based")
+    assert len(mesh_app.mesh.operations) == 1
+
+    with pytest.raises(ValueError):
+        mesh_app.mesh.delete_mesh_operations(["invented"])
 
     assert mesh_app.mesh.delete_mesh_operations()
-    assert len(mesh_app.mesh.operations) == 1
+    assert len(mesh_app.mesh.operations) == 0
 
 
 def test_initial_mesh_settings_hfss(aedt_app) -> None:
@@ -144,7 +150,7 @@ def test_assign_model_resolution(aedt_app) -> None:
     mr1 = aedt_app.mesh.assign_model_resolution(o, 1e-4, "ModelRes1")
     assert mr1.name in aedt_app.get_oo_name(mesh_object)
     mr1.name = "resolution_test"
-    assert "resolution_test" in aedt_app.mesh.meshoperations[0].name
+    assert "resolution_test" in aedt_app.mesh.operations[0].name
     assert "resolution_test" in aedt_app.get_oo_name(mesh_object)
     if mr1.assignment:
         assert mr1.assignment == [o.name]
