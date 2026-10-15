@@ -28,14 +28,21 @@ from __future__ import annotations
 
 import os
 import shutil
+import sys
 from typing import TYPE_CHECKING
 from typing import Any
+
+if sys.version_info >= (3, 13):
+    from warnings import deprecated
+else:
+    from typing_extensions import deprecated
 
 from ansys.aedt.core.application import _get_obj_data
 from ansys.aedt.core.application import _has_get_obj_data
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.general_methods import SetupDict
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.props import Props as MeshProps
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
@@ -47,6 +54,7 @@ from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
 
 if TYPE_CHECKING:
+    from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
     from ansys.aedt.core.modules.mesh_icepak import IcepakMesh
 
 mesh_props = {
@@ -89,8 +97,6 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         Name of the mesh operation.
     props : dict
         Properties of the mesh operation.
-    meshoptype : str
-        Type of the mesh operation.
 
     Examples
     --------
@@ -109,14 +115,25 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
     def __str__(self) -> str:
         return self.name
 
-    def __init__(self, mesh: Mesh | IcepakMesh, name: str, props: dict, meshoptype: str) -> None:
-        self._mesh = mesh
+    def __init__(self, mesh: Mesh | IcepakMesh, name: str, props: dict) -> None:
+        self._mesh: Mesh | IcepakMesh = mesh
         self._app: Any = self._mesh._app
-        self._legacy_props = None
-        if props is not None:
-            self._legacy_props = MeshProps(self, props)
-        self._type = meshoptype
+        self._legacy_props = {}
         self._name = name
+        self._type = None
+
+        if props:
+            self._legacy_props = MeshProps(self, props)
+
+        if name == "InitialMeshSettings":
+            self._type = "InitialMeshSettings"
+
+        if self._type == "InitialMeshSettings":
+            # TODO: Un comment next line once it is available
+            self._has_getobject = False
+        else:
+            self._has_getobject = _has_get_obj_data(self._child_object)
+        self._has_getobject = False
 
     @property
     def _child_object(self) -> object | None:
@@ -200,58 +217,95 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         """
         _has_getobject = _has_get_obj_data(self._child_object)
         if self._legacy_props and not _has_getobject:
-            return self._legacy_props
+            return MeshProps(self, self._legacy_props)
+
         if _has_getobject:
             props = _get_obj_data(self._child_object) or {}
         else:
+            if self._type == "InitialMeshSettings":
+                return self._get_initial_mesh_settings()
+
             props = {}
             for key, value in self.properties.items():
                 if key in mesh_props.values():
                     key = [k for k, v in mesh_props.items() if v == key][0]
                 props[key] = value
 
-        if "Assignment" in props:
-            assignment = props["Assignment"]
-            if "Face_" in assignment:
-                props["Faces"] = [
-                    int(i.replace("Face_", "")) for i in assignment.split("(")[1].split(")")[0].split(",")
-                ]
-            elif "Edge_" in assignment:
-                props["Edges"] = [
-                    int(i.replace("Edge_", "")) for i in assignment.split("(")[1].split(")")[0].split(",")
-                ]
-            else:
-                props["Objects"] = assignment
-        elif not (props.get("Edges") or props.get("Faces") or props.get("Objects")):
-            props["Objects"] = []
-            props["Faces"] = []
-            props["Edges"] = []
-            assigned_id = []
-            if self._app._aedt_version >= "2023.1":
-                # GetMeshOpAssignment is not available in 2022 R2 and earlier versions
-                assigned_id = self._mesh.omeshmodule.GetMeshOpAssignment(self.name)
-            for comp_id in assigned_id:
-                if int(comp_id) in self._app.modeler.objects.keys():
-                    props["Objects"].append(self._app.oeditor.GetObjectNameByID(comp_id))
-                    continue
-                for comp in self._app.modeler.object_list:
-                    faces = comp.faces
-                    face_ids = [face.id for face in faces]
-                    if int(comp_id) in face_ids:
-                        props["Faces"].append(int(comp_id))
+            if "Assignment" in props:
+                assignment = props["Assignment"]
+                if "Face_" in assignment:
+                    props["Faces"] = [
+                        int(i.replace("Face_", "")) for i in assignment.split("(")[1].split(")")[0].split(",")
+                    ]
+                elif "Edge_" in assignment:
+                    props["Edges"] = [
+                        int(i.replace("Edge_", "")) for i in assignment.split("(")[1].split(")")[0].split(",")
+                    ]
+                else:
+                    props["Objects"] = assignment
+            elif not (props.get("Edges") or props.get("Faces") or props.get("Objects")):
+                props["Objects"] = []
+                props["Faces"] = []
+                props["Edges"] = []
+                assigned_id = []
+                if self._app._aedt_version >= "2023.1":
+                    # GetMeshOpAssignment is not available in 2022 R2 and earlier versions
+                    assigned_id = self._app.omeshmodule.GetMeshOpAssignment(self.name)
+                for comp_id in assigned_id:
+                    if int(comp_id) in self._app.modeler.objects.keys():
+                        props["Objects"].append(self._app.oeditor.GetObjectNameByID(comp_id))
                         continue
-                    edges = comp.edges
-                    edge_ids = [edge.id for edge in edges]
-                    if int(comp_id) in edge_ids:
-                        props["Edges"].append(int(comp_id))
-                        continue
-        self._legacy_props = MeshProps(self, props)
-        return self._legacy_props
+                    for comp in self._app.modeler.object_list:
+                        faces = comp.faces
+                        face_ids = [face.id for face in faces]
+                        if int(comp_id) in face_ids:
+                            props["Faces"].append(int(comp_id))
+                            continue
+                        edges = comp.edges
+                        edge_ids = [edge.id for edge in edges]
+                        if int(comp_id) in edge_ids:
+                            props["Edges"].append(int(comp_id))
+                            continue
+
+        self._legacy_props = props
+
+        return MeshProps(self, self._legacy_props)
 
     @props.setter
     def props(self, value: dict) -> None:
         self._legacy_props = MeshProps(self, value)
         self.update(props=value)
+
+    @pyaedt_function_handler()
+    def _get_initial_mesh_settings(self) -> MeshProps:
+        try:
+            self._legacy_props = self._app.design_properties["MeshSetup"]["MeshSettings"]
+        except Exception:
+            temp_name = generate_unique_name("temp_prj")
+            temp_proj = os.path.join(self._app.working_directory, temp_name + ".aedt")
+            oproject_target = self._app.odesktop.NewProject(temp_name)
+            if self._app.solution_type == "Modal":
+                sol = "HFSS Modal Network"
+            elif self._app.solution_type == "Terminal":
+                sol = "HFSS Terminal Network"
+            else:
+                sol = self._app.solution_type
+            oproject_target.InsertDesign(self._app.design_type, temp_name, sol, "")
+            oproject_target.SaveAs(temp_proj, True)
+            self._app.odesktop.CloseProject(temp_name)
+            _project_dictionary = load_keyword_in_aedt_file(temp_proj, "AnsoftProject")
+            try:
+                self._legacy_props = _project_dictionary["AnsoftProject"][self._app._design_type.model_name][
+                    "MeshSetup"
+                ]["MeshSettings"]
+            except Exception:
+                self._app.logger.debug("An error occurred while accessing design global mesh.")  # pragma: no cover
+            if os.path.exists(temp_proj):
+                os.remove(temp_proj)
+            if os.path.exists(temp_proj + "results"):
+                shutil.rmtree(temp_proj + "results", True)
+
+        return MeshProps(self, self._legacy_props)
 
     @pyaedt_function_handler()
     def _get_args(self, props: dict | None = None) -> list:
@@ -632,22 +686,20 @@ class Mesh(PyAedtBase):
 
     """
 
-    def __init__(self, app) -> None:
+    def __init__(self, app: FieldAnalysis3D) -> None:
         app.logger.reset_timer()
-        self._app = app
-        self._odesign = self._app.odesign
+        self._app: Any = app
         self.logger = self._app.logger
-        # self.id = 0
-        self._meshoperations = None
-        self._globalmesh = None
+
+        self._odesign = self._app.odesign
+
+        # Available mesh operations
+        self.__operations = SetupDict()
+
         app.logger.info_timer("Mesh class has been initialized!")
 
-    @property
-    def _modeler(self):
-        return self._app.modeler
-
     @pyaedt_function_handler()
-    def __getitem__(self, part_id):
+    def __getitem__(self, part_id) -> MeshOperation | None:
         """Get the object ``Mesh`` for a given mesh operation name.
 
         Parameters
@@ -671,18 +723,120 @@ class Mesh(PyAedtBase):
         >>> mr2 = hfss.mesh[mr1.name]
 
         """
-        if part_id in self.meshoperation_names:
-            mesh_op_selected = [mesh_op for mesh_op in self.meshoperations if mesh_op.name == part_id]
-            return mesh_op_selected[0]
+        if part_id in self.operation_names:
+            return self.operations[part_id]
         return None
 
     @property
-    def meshoperations(self) -> list[MeshOperation]:
+    @deprecated("Use modeler from PyAEDT application instead.")
+    def _modeler(self):
+        return self._app.modeler
+
+    @property
+    def _child_object(self) -> object | None:
+        """Object-oriented properties.
+
+        Returns
+        -------
+        AEDT object if any or None
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.mesh._child_object.GetChildNames()
+
+        """
+        child_object = None
+        design_childs = self._app.get_oo_name(self._app.odesign)
+
+        if "Mesh" in design_childs:
+            child_object = self._app.get_oo_object(self._app.odesign, "Mesh")
+        return child_object
+
+    @property
+    @deprecated("Use operation_names instead.")
+    def meshoperation_names(self) -> list[str]:
+        """Return the available mesh operation names.
+
+        Deprecated. Use :attr:`operation_names` instead.
+
+        Returns
+        -------
+        List
+            List of mesh operation names.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> mr1 = hfss.mesh.assign_model_resolution(o, 1e-4, "ModelRes1")
+        >>> mr2 = hfss.mesh.assign_model_resolution(o, 1e-2, "ModelRes2")
+        >>> mesh_operations_names = hfss.mesh.meshoperation_names
+
+        """
+        return self.operation_names
+
+    @property
+    def operation_names(self) -> list[str]:
+        """Return the available mesh operation names.
+
+        Returns
+        -------
+        List
+            List of mesh operation names.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> mr1 = hfss.mesh.assign_model_resolution(o, 1e-4, "ModelRes1")
+        >>> mr2 = hfss.mesh.assign_model_resolution(o, 1e-2, "ModelRes2")
+        >>> mesh_operations_names = hfss.mesh.operation_names
+
+        """
+        operations = ["InitialMeshSettings"]
+        if self._app._is_object_oriented_enabled():
+            operations.extend(list(self._app.get_oo_name(self._app.odesign, "Mesh")))
+        return operations
+
+    @property
+    def operations(self) -> SetupDict:
         """Return the available mesh operations.
 
         Returns
         -------
-        list[:class:`ansys.aedt.core.modules.mesh.MeshOperation`]
+        :class:`ansys.aedt.core.generic.general_methods.SetupDict`
+            Mapping of mesh operations.
+
+        Examples
+        --------
+        Basic usage demonstrated with an HFSS design:
+
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> mr1 = hfss.mesh.assign_model_resolution(o, 1e-4, "ModelRes1")
+        >>> mesh_operations_list = hfss.mesh.operations
+
+        """
+        for operation in self.operation_names:
+            if operation not in self.__operations:
+                self.__operations[operation] = MeshOperation(mesh=self, name=operation, props={})
+        return self.__operations
+
+    @property
+    @deprecated("Use operations instead.")
+    def meshoperations(self) -> SetupDict:
+        """Return the available mesh operations.
+
+        Deprecated. Use :attr:`operations` instead.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.generic.general_methods.SetupDict`
             List of mesh operation object.
 
         Examples
@@ -696,41 +850,10 @@ class Mesh(PyAedtBase):
         >>> mesh_operations_list = hfss.mesh.meshoperations
 
         """
-        return self._get_design_mesh_operations()
-
-    @pyaedt_function_handler()
-    def _refresh_mesh_operations(self):
-        """Refresh all mesh operations."""
-        self._meshoperations = self._get_design_mesh_operations()
-        return len(self.meshoperations)
+        return self.operations
 
     @property
-    def meshoperation_names(self) -> list[str]:
-        """Return the available mesh operation names.
-
-        Returns
-        -------
-        List
-            List of mesh operation names.
-
-        Examples
-        --------
-        Basic usage demonstrated with an HFSS design:
-
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
-        >>> mr1 = hfss.mesh.assign_model_resolution(o, 1e-4, "ModelRes1")
-        >>> mr2 = hfss.mesh.assign_model_resolution(o, 1e-2, "ModelRes2")
-        >>> mesh_operations_names = hfss.mesh.meshoperation_names
-
-        """
-        if self._app._is_object_oriented_enabled():
-            return list(self._app.get_oo_name(self._app.odesign, "Mesh"))
-        return []
-
-    @property
-    def initial_mesh_settings(self) -> MeshOperation:
+    def initial_mesh_settings(self) -> MeshOperation | None:
         """Return the global mesh object.
 
         Returns
@@ -749,11 +872,10 @@ class Mesh(PyAedtBase):
         >>> obj.initial_mesh_settings
 
         """
-        if not self._globalmesh:
-            self._globalmesh = self._get_design_global_mesh()
-        return self._globalmesh
+        return self["InitialMeshSettings"]
 
     @property
+    @deprecated("Use omeshmodule from application instead.")
     def omeshmodule(self):
         """AEDT Mesh Module.
 
@@ -763,56 +885,23 @@ class Mesh(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.mesh import Mesh
-        >>> obj = Mesh()
-        >>> obj.omeshmodule
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.omeshmodule
 
         """
-        return self._app.omeshmodule
+        return
 
     @pyaedt_function_handler()
-    def _get_design_global_mesh(self):
-        """"""
-        props = None
-        try:
-            props = self._app.design_properties["MeshSetup"]["MeshSettings"]
-        except Exception:
-            temp_name = generate_unique_name("temp_prj")
-            temp_proj = os.path.join(self._app.working_directory, temp_name + ".aedt")
-            oproject_target = self._app.odesktop.NewProject(temp_name)
-            if self._app.solution_type == "Modal":
-                sol = "HFSS Modal Network"
-            elif self._app.solution_type == "Terminal":
-                sol = "HFSS Terminal Network"
-            else:
-                sol = self._app.solution_type
-            oproject_target.InsertDesign(self._app.design_type, temp_name, sol, "")
-            oproject_target.SaveAs(temp_proj, True)
-            self._app.odesktop.CloseProject(temp_name)
-            # _project_dictionary = load_entire_aedt_file(temp_proj)
-            _project_dictionary = load_keyword_in_aedt_file(temp_proj, "AnsoftProject")
-            try:
-                props = _project_dictionary["AnsoftProject"][self._app._design_type.model_name]["MeshSetup"][
-                    "MeshSettings"
-                ]
-            except Exception:
-                self.logger.debug("An error occurred while accessing design global mesh.")  # pragma: no cover
-            if os.path.exists(temp_proj):
-                os.remove(temp_proj)
-            if os.path.exists(temp_proj + "results"):
-                shutil.rmtree(temp_proj + "results", True)
-        if props:
-            bound = MeshOperation(self, "MeshSettings", props, "InitialMeshSettings")
-            return bound
-        return {}
+    @deprecated("Use operations instead.")
+    def _refresh_mesh_operations(self):
+        """Refresh all mesh operations."""
+        return len(self.operations)
 
     @pyaedt_function_handler()
+    @deprecated("Use operations instead.")
     def _get_design_mesh_operations(self):
-        """"""
-        meshops = []
-        for ds in self.meshoperation_names:
-            meshops.append(MeshOperation(self, ds, {}, ""))
-        return meshops
+        return self.operations
 
     @pyaedt_function_handler()
     def assign_surface_mesh(self, assignment: list | str | int, level: int, name: str | None = None) -> MeshOperation:
@@ -1113,7 +1202,7 @@ class Mesh(PyAedtBase):
             ]
         if self._app.design_type == "HFSS":
             args += ["UseAlternativeMeshMethodsAsFallBack:=", fallback, "AllowPhiForLayeredGeometry:=", phi]
-        self.omeshmodule.InitialMeshSettings(args)
+        self._app.omeshmodule.InitialMeshSettings(args)
         return True
 
     @pyaedt_function_handler()
@@ -1233,7 +1322,7 @@ class Mesh(PyAedtBase):
             ]
         if self._app.design_type == "HFSS":
             args += ["UseAlternativeMeshMethodsAsFallBack:=", fallback, "AllowPhiForLayeredGeometry:=", phi]
-        self.omeshmodule.InitialMeshSettings(args)
+        self._app.omeshmodule.InitialMeshSettings(args)
         return True
 
     @pyaedt_function_handler()
@@ -1332,9 +1421,9 @@ class Mesh(PyAedtBase):
                 mesh_op_types = [mesh_type]
 
         for mesh_op_type in mesh_op_types:
-            opnames = self.omeshmodule.GetOperationNames(mesh_op_type)
+            opnames = self._app.omeshmodule.GetOperationNames(mesh_op_type)
             if opnames:
-                self.omeshmodule.DeleteOp(opnames)
+                self._app.omeshmodule.DeleteOp(opnames)
             for el in self.meshoperations[:]:
                 if el.name in opnames:
                     self.meshoperations.remove(el)

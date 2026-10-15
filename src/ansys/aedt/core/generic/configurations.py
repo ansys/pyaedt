@@ -1052,7 +1052,7 @@ class Configurations(PyAedtBase):
                 if not self.options.skip_import_if_exists:
                     mesh_el.props = props
                 return True
-        bound = MeshOperation(self._app.mesh, name, props, props["Type"])
+        bound = MeshOperation(self._app.mesh, name, props)
         if bound.create():
             self._app.mesh.meshoperations.append(bound)
             self._app.logger.info(f"Mesh Operation {name} added.")

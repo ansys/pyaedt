@@ -77,7 +77,7 @@ def _update_parameters(func):
     return parameters
 
 
-class BoundaryAssignmentList(list):
+class AssignmentList(list):
     """List of assignment entries that triggers ``update_assignment`` on mutation."""
 
     def __init__(self, props, iterable=()) -> None:
@@ -145,7 +145,7 @@ class Props(dict):
 
     Nested dictionaries are wrapped so that ``props["a"]["b"]["c"] = value``
     still updates the full property tree. Assignment keys (``Objects``,
-    ``Faces``, ``Edges``, ``Vertices``) are stored as ``BoundaryAssignmentList``
+    ``Faces``, ``Edges``, ``Vertices``) are stored as ``AssignmentList``
     so in-place list mutations trigger ``update_assignment``.
 
     Owner objects keep working through their existing update APIs:
@@ -174,9 +174,9 @@ class Props(dict):
     def _wrap(self, key, value):
         if isinstance(value, dict):
             return type(self)(self._pyaedt_owner, value, parent=self._root())
-        if key in ASSIGNMENT_KEYS and isinstance(value, list) and not isinstance(value, BoundaryAssignmentList):
-            return BoundaryAssignmentList(self, value)
-        if isinstance(value, list) and not isinstance(value, BoundaryAssignmentList):
+        if key in ASSIGNMENT_KEYS and isinstance(value, list) and not isinstance(value, AssignmentList):
+            return AssignmentList(self, value)
+        if isinstance(value, list) and not isinstance(value, AssignmentList):
             return [
                 type(self)(self._pyaedt_owner, el, parent=self._root()) if isinstance(el, dict) else el for el in value
             ]
@@ -297,10 +297,8 @@ class Props(dict):
         return True
 
 
-AssignmentList = BoundaryAssignmentList
 BoundaryProps = Props
 SetupProps = Props
-MeshProps = Props
 CsProps = Props
 ListsProps = Props
 UserDefinedComponentProps = Props

@@ -238,14 +238,14 @@ def test_mesh_nested_setitem_updates_root() -> None:
 
 
 def test_mesh_objects_append_triggers_update_assignment() -> None:
-    from ansys.aedt.core.generic.props import BoundaryAssignmentList
+    from ansys.aedt.core.generic.props import AssignmentList
     from ansys.aedt.core.modules.mesh import MeshProps
 
     mesh = DummyMesh()
     props = MeshProps(mesh, {"Objects": ["box"]})
     mesh.auto_update = True
 
-    assert isinstance(props["Objects"], BoundaryAssignmentList)
+    assert isinstance(props["Objects"], AssignmentList)
     props["Objects"].append("box2")
 
     assert props["Objects"] == ["box", "box2"]

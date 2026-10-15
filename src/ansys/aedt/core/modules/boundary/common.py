@@ -33,7 +33,7 @@ from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import is_number
-from ansys.aedt.core.generic.props import BoundaryAssignmentList  # noqa: F401
+from ansys.aedt.core.generic.props import AssignmentList  # noqa: F401
 from ansys.aedt.core.generic.props import Props as BoundaryProps
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
