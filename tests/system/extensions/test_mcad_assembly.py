@@ -30,11 +30,11 @@ from unittest.mock import patch
 import pytest
 
 from ansys.aedt.core import Hfss
-from ansys.aedt.core.extensions.hfss.mcad_assembly import Arrange
 from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyBackend
-from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyFrontend
+from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyExtension
 from ansys.aedt.core.extensions.hfss.mcad_assembly import run
 from ansys.aedt.core.generic.general_methods import is_linux
+from ansys.aedt.core.modeler.advanced_cad.mcad_assembly import MCADAssemblyService
 from tests import TESTS_EXTENSIONS_PATH
 
 MODEL_FOLDER = TESTS_EXTENSIONS_PATH / "example_models" / "mcad_assembly"
@@ -47,12 +47,14 @@ def hfss_app(add_app):
     app.close_project(app.project_name, save=False)
 
 
-def get_test_data() -> MCADAssemblyBackend:
+def get_test_data(test_folder: Path) -> MCADAssemblyBackend:
 
     top_assembly = MCADAssemblyBackend()
-    top_assembly.add_mcad_component_model(name="case", path="Chassi.a3dcomp")
-    top_assembly.add_mcad_component_model(name="cap0402", path="model_library/Capacitor_220uF_HFSS.a3dcomp")
-    top_assembly.add_ecad_component_model(name="pcb", path="DCDC-Converter-App_main.aedb")
+    top_assembly.add_mcad_component_model(name="case", path=str(test_folder / "Chassi.a3dcomp"))
+    top_assembly.add_mcad_component_model(
+        name="cap0402", path=str(test_folder / "model_library/Capacitor_220uF_HFSS.a3dcomp")
+    )
+    top_assembly.add_ecad_component_model(name="pcb", path=str(test_folder / "DCDC-Converter-App_main.aedb"))
 
     cs = top_assembly.add_coordinate_system(name="GLOBAL_2")
     cs.origin = ["100mm", "0mm", "0mm"]
@@ -68,7 +70,8 @@ def get_test_data() -> MCADAssemblyBackend:
     sub_comp_.target_coordinate_system = "Guiding_Pin"
     sub_comp_.layout_coordinate_systems = ["CABLE1_via_65", "CABLE2_via_65", "H0_via_65"]
     sub_comp_.reference_coordinate_system = "H0_via_65"
-    sub_comp_.arranges = [Arrange(operation="rotate", axis="X", angle="0deg")]
+    sub_comp_.add_arrange_rotate(axis="X", angle="0deg")
+    sub_comp_.assembly_all_from_library = True
 
     sub_comp__ = sub_comp_.add_sub_mcad_component(name="cap_c4", model="cap0402")
     sub_comp__.use_pin_mapping = True
@@ -85,17 +88,36 @@ def get_test_data() -> MCADAssemblyBackend:
     return top_assembly
 
 
+def test_service(test_tmp_dir, hfss_app):
+    shutil.copytree(MODEL_FOLDER, test_tmp_dir, dirs_exist_ok=True)
+
+    config = MCADAssemblyBackend()
+    config.add_mcad_component_model(name="case", path=str(Path(test_tmp_dir) / "Chassi.a3dcomp"))
+    config.add_ecad_component_model(name="pcb", path=str(Path(test_tmp_dir) / "DCDC-Converter-App_main.aedb"))
+    config.add_model_library(str(Path(test_tmp_dir) / "model_library"))
+    box = config.add_sub_mcad_component(name="case", model="case")
+    pcb = box.add_sub_ecad_component(name="pcb", model="pcb")
+    pcb.assembly_all_from_library = True
+
+    service = MCADAssemblyService(config, test_tmp_dir, None, hfss=hfss_app)
+    service.pre_process_config()
+    assert len(service.config.mcad_sub_components["case"].ecad_sub_components["pcb"]._ecad_comp_info) == 32
+    service.stage_models()
+    service.assemble()
+    assert service
+
+
 @pytest.mark.skipif(is_linux, reason="EDB load of Layout component failing in Linux.")
 @patch("tkinter.filedialog.askopenfilename")
 def test_backend(mock_askopenfilename, hfss_app, test_tmp_dir) -> None:
     """Test the examples provided in the via design extension."""
     shutil.copytree(MODEL_FOLDER, test_tmp_dir, dirs_exist_ok=True)
     config_file = test_tmp_dir / "config.json"
-    data = get_test_data()
+    data = get_test_data(test_tmp_dir)
     with open(config_file, "w") as f:
         json.dump(data.model_dump(), f, indent=4)
 
-    extension = MCADAssemblyFrontend(withdraw=True)
+    extension = MCADAssemblyExtension(withdraw=True)
     mock_askopenfilename.return_value = str(config_file)
     extension.root.nametowidget(".notebook.main.load").invoke()
 
@@ -115,15 +137,16 @@ def test_backend_2(hfss_app, test_tmp_dir) -> None:
     cs = top_assembly.add_coordinate_system(name="GLOBAL_2")
     cs.origin = ["100mm", "0mm", "0mm"]
 
-    sub_comp = top_assembly.add_sub_mcad_component(name="case", model="case")
-    sub_comp.target_coordinate_system = "GLOBAL_2"
-    sub_comp.reference_coordinate_system = "GLOBAL_2"
+    box = top_assembly.add_sub_mcad_component(name="case", model="case")
+    box.target_coordinate_system = "GLOBAL_2"
+    box.reference_coordinate_system = "GLOBAL_2"
 
-    sub_comp_ = sub_comp.add_sub_ecad_component(name="pcb", model="pcb")
-    sub_comp_.target_coordinate_system = "Guiding_Pin"
-    sub_comp_.reference_coordinate_system = "H0_via_65"
+    pcb = box.add_sub_ecad_component(name="pcb", model="pcb")
+    pcb.target_coordinate_system = "Guiding_Pin"
+    pcb.reference_coordinate_system = "H0_via_65"
 
-    sub_comp_.add_sub_mcad_component_from_library(library_path=str(Path(test_tmp_dir) / "model_library"))
+    pcb.add_sub_mcad_component_from_library(library_path=str(Path(test_tmp_dir) / "model_library"))
+    pcb.assembly_all_from_library = True
 
     run(config_data=top_assembly.model_dump(), hfss=hfss_app, project_dir=test_tmp_dir)
     assert len(hfss_app.modeler.user_defined_component_names) == 8
