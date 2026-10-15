@@ -26,9 +26,22 @@ import pytest
 
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core.generic.constants import Plane
+from ansys.aedt.core.generic.general_methods import SetupDict
 from ansys.aedt.core.hfss import Hfss
+from ansys.aedt.core.maxwell import Maxwell2d
+from ansys.aedt.core.modules.mesh import MeshOperation
+from ansys.aedt.core.modules.mesh import MeshProps
 from tests.conftest import DESKTOP_VERSION
 from tests.conftest import USE_GRPC
+
+MESH_PROJECT = "mesh_operations"
+
+
+@pytest.fixture
+def mesh_app(add_app_example):
+    app = add_app_example(project=MESH_PROJECT, subfolder="TMesh", application=Hfss)
+    yield app
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture
@@ -43,6 +56,80 @@ def maxwell_app(add_app):
     app = add_app(application=Maxwell3d)
     yield app
     app.close_project(app.project_name, save=False)
+
+
+@pytest.fixture
+def m2d_setup(add_app):
+    app = add_app(application=Maxwell2d)
+    yield app
+    app.close_project(app.project_name, save=False)
+
+
+def test_mesh_init(mesh_app) -> None:
+    assert isinstance(mesh_app.mesh.operations, SetupDict)
+    assert len(mesh_app.mesh.operations) == 4
+    assert len(mesh_app.mesh.operation_names) == 4
+
+    names = mesh_app.mesh.operation_names
+
+    assert isinstance(mesh_app.mesh[names[0]], MeshOperation)
+    assert mesh_app.mesh[names[0]].name == "InitialMeshSettings"
+
+    assert isinstance(mesh_app.mesh[names[1]], MeshOperation)
+    assert len(mesh_app.mesh[names[1]].assignment) == 1
+
+    # Initial Mesh settings can not be modified
+    mesh_app.mesh[names[0]].name = "NewName"
+    assert "NewName" not in mesh_app.mesh.operation_names
+
+    mesh_app.mesh[names[1]].name = "NewName"
+    assert "NewName" in mesh_app.mesh.operation_names
+    assert len(mesh_app.mesh.operations) == 4
+
+    new_props = {
+        "Faces": [7],
+        "Type": "Surface Approximation Based",
+        "CurvedSurfaceApproxChoice": "ManualSettings",
+        "SurfDevChoice": 2,
+        "SurfDev": "inf mm",
+        "NormalDevChoice": 1,
+        "AspectRatioChoice": 1,
+    }
+
+    assert mesh_app.mesh[names[2]].properties
+    mesh_app.mesh[names[2]].props = new_props
+    assert mesh_app.mesh[names[2]].props["NormalDevChoice"] == 1
+
+    mesh_app.mesh[names[1]].delete()
+    assert len(mesh_app.mesh.operations) == 3
+
+    assert mesh_app.mesh.delete_mesh_operations()
+    assert len(mesh_app.mesh.operations) == 1
+
+
+def test_initial_mesh_settings_hfss(aedt_app) -> None:
+    assert isinstance(aedt_app.mesh.initial_mesh_settings, MeshOperation)
+    assert isinstance(aedt_app.mesh.initial_mesh_settings.props, MeshProps)
+    assert "MeshMethod" in aedt_app.mesh.initial_mesh_settings.props
+
+
+def test_assign_initial_mesh_slider_hfss(aedt_app) -> None:
+    # TODO: Assert value assigned, when API allows to get this information
+    assert aedt_app.mesh.assign_initial_mesh_from_slider(6)
+
+
+def test_assign_initial_mesh_slider_maxwell3d(maxwell_app) -> None:
+    # TODO: Assert value assigned, when API allows to get this information
+    assert maxwell_app.mesh.assign_initial_mesh_from_slider(4)
+
+
+def test_assign_initial_mesh_from_slider_maxwell2d(m2d_setup) -> None:
+    # TODO: Assert value assigned, when API allows to get this information
+    assert m2d_setup.mesh.assign_initial_mesh_from_slider(4)
+    with pytest.raises(ValueError):
+        m2d_setup.mesh.assign_initial_mesh_from_slider(method="dummy")
+    with pytest.raises(ValueError):
+        m2d_setup.mesh.assign_initial_mesh(method="dummy")
 
 
 def test_assign_model_resolution(aedt_app) -> None:

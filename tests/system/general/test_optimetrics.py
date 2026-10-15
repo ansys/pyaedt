@@ -64,6 +64,8 @@ def test_optimetrics_init(optimetrics_app):
     assert len(optimetrics_app.optimizations.setups_by_type) == 1
     assert optimetrics_app.optimizations.setups[0].setup_type == "optiSLang"
 
+    assert optimetrics_app.optimizations.setups[0].properties
+
     assert len(optimetrics_app.parametrics.setups) == 1
     assert len(optimetrics_app.parametrics.setups_by_type) == 1
     assert optimetrics_app.parametrics.setups[0].setup_type == "OptiParametric"

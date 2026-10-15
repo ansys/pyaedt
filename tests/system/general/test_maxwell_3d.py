@@ -273,10 +273,6 @@ def test_assign_rotational_layer(m3d_app) -> None:
     assert m3d_app.mesh.assign_rotational_layer(box, name="my_rotational")
 
 
-def test_assign_initial_mesh_slider(m3d_app) -> None:
-    assert m3d_app.mesh.assign_initial_mesh_from_slider(4)
-
-
 def test_assign_initial_mesh(m3d_app) -> None:
     assert m3d_app.mesh.assign_initial_mesh(surface_deviation="2mm")
 
@@ -665,11 +661,6 @@ def test_reduced_matrix(m3d_app, maxwell_versioned):
         reduced_matrix_1.delete(name="invalid")
     assert reduced_matrix_1.delete(name="my_op")
     assert len(matrix.reduced_matrices) == 1
-
-
-def test_initial_mesh_settings(m3d_app) -> None:
-    assert m3d_app.mesh.initial_mesh_settings
-    assert m3d_app.mesh.initial_mesh_settings.props
 
 
 def test_assign_voltage_drop(m3d_app, maxwell_versioned) -> None:

@@ -121,6 +121,14 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         # GetObjData is available for some objects in 2026R1
         self._has_getobject = _has_get_obj_data(self._child_object)
 
+    @pyaedt_function_handler()
+    def _initialize_tree_node(self) -> bool:
+        # Initialize
+        if self._child_object:
+            BinaryTreeNode.__init__(self, self._name, self._child_object, False, app=self._app)
+            return True
+        return False
+
     @property
     def _child_object(self) -> Any | None:
         """Object-oriented properties.
@@ -1328,6 +1336,12 @@ class Parametrics(PyAedtBase):
         for setup_name in self.setup_names:
             if setup_name not in self.__setups:
                 self.__setups[setup_name] = ParametricSetup(app=self, name=setup_name, props={})
+
+        active_names = set(self.setup_names)
+        for setup_name in list(self.__setups):
+            if setup_name not in active_names:
+                del self.__setups[setup_name]
+
         return self.__setups
 
     @property
@@ -1741,6 +1755,12 @@ class Optimizations(PyAedtBase):
         for setup_name in self.setup_names:
             if setup_name not in self.__setups:
                 self.__setups[setup_name] = OptimizationSetup(app=self, name=setup_name, props={})
+
+        active_names = set(self.setup_names)
+        for setup_name in list(self.__setups):
+            if setup_name not in active_names:
+                del self.__setups[setup_name]
+
         return self.__setups
 
     @property

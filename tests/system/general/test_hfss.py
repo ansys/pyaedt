@@ -1095,10 +1095,6 @@ def test_create_curvilinear(aedt_app) -> None:
     assert len(aedt_app.mesh.meshoperations) == 0
 
 
-def test_assign_initial_mesh_from_slider(aedt_app) -> None:
-    assert aedt_app.mesh.assign_initial_mesh_from_slider(6)
-
-
 def test_assign_initial_mesh(aedt_app) -> None:
     assert aedt_app.mesh.assign_initial_mesh()
     assert aedt_app.mesh.assign_initial_mesh(normal_deviation="25deg", surface_deviation=0.2, aspect_ratio=20)

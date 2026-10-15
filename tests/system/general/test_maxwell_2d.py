@@ -114,14 +114,6 @@ def m2d_setup(add_app_example):
     app.close_project(app.project_name, save=False)
 
 
-def test_assign_initial_mesh_from_slider(aedt_app) -> None:
-    assert aedt_app.mesh.assign_initial_mesh_from_slider(4)
-    with pytest.raises(ValueError):
-        aedt_app.mesh.assign_initial_mesh_from_slider(method="dummy")
-    with pytest.raises(ValueError):
-        aedt_app.mesh.assign_initial_mesh(method="dummy")
-
-
 def test_assign_winding(aedt_app) -> None:
     bounds = aedt_app.assign_winding(assignment=["Coil"], current=20e-3)
     assert bounds
