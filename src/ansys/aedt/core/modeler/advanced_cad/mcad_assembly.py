@@ -29,7 +29,10 @@ from pathlib import Path
 import shutil
 import tempfile
 from typing import TYPE_CHECKING
+from typing import Any
 from typing import Literal
+from typing import Sequence
+from typing import cast
 
 import numpy as np
 from pydantic import AliasChoices
@@ -44,6 +47,7 @@ import ansys.aedt.core
 from ansys.aedt.core.generic.constants import Axis
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import read_toml
+from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 
 if TYPE_CHECKING:
     from ansys.aedt.core.hfss import Hfss
@@ -96,7 +100,7 @@ class Arrange(BaseModel):
     angle: str | None = Field(default="0deg", description="Rotation angle expression used for rotate operations.")
 
     # Move parameters
-    vector: list[str | int | float] | None = Field(
+    vector: Sequence[str | int | float] | None = Field(
         default_factory=lambda: ["0mm", "0mm", "0mm"],
         description="Translation vector used for move operations.",
     )
@@ -284,12 +288,12 @@ class MCADComponent(BaseModel):
         self.arranges.append(arrange)
         return arrange
 
-    def add_arrange_move(self, vector: list[str | int | float] = ("0mm", "0mm", "0mm")) -> Arrange:
+    def add_arrange_move(self, vector: Sequence[str | int | float] = ("0mm", "0mm", "0mm")) -> Arrange:
         """Add a translation arrange operation.
 
         Parameters
         ----------
-        vector : list[str | int | float], optional
+        vector : Sequence[str | int | float], optional
             Translation vector. The default is ``("0mm", "0mm", "0mm")``.
 
         Returns
@@ -560,7 +564,11 @@ class MCADAssemblyService:
 
         """
         source_path = Path(path)
-        return source_path if source_path.is_absolute() else model_dir / source_path
+        if source_path.is_absolute():
+            return source_path
+        if model_dir is None:
+            raise ValueError("model_dir must be provided when using relative model paths.")
+        return model_dir / source_path
 
     def execute(self):
         """Execute the complete MCAD assembly workflow.
@@ -640,15 +648,28 @@ class MCADAssemblyService:
             for ref, info in ecad._ecad_comp_info.items():
                 if not ecad.assembly_all_from_library and ref not in ecad._mcad_component_from_library:
                     continue
+                if info.part_name is None:
+                    continue
 
                 if info.part_name in self.runtime_comp_lib_models.keys():
                     model_info = self.runtime_comp_lib_models[info.part_name]
                     self._runtime_mcad_models[info.part_name] = model_info["model_path"]
                     c = ecad.add_sub_mcad_component(name=ref, model=info.part_name)
                     c.use_pin_mapping = True
-                    c.placement_pin_mapping.reference_designator = ref
-                    c.placement_pin_mapping.pin_1_loc = model_info.get("pin_1_loc")
-                    c.placement_pin_mapping.pin_2_loc = model_info.get("pin_2_loc")
+                    pin_mapping = c.placement_pin_mapping
+                    if pin_mapping is None:
+                        raise ValueError(f"No placement pin mapping initialized for {ref}.")
+                    pin_mapping.reference_designator = ref
+                    pin_1_loc = model_info.get("pin_1_loc")
+                    if pin_1_loc is not None:
+                        pin_mapping.pin_1_loc = cast(
+                            tuple[str | int | float, str | int | float, str | int | float], tuple(pin_1_loc)
+                        )
+                    pin_2_loc = model_info.get("pin_2_loc")
+                    if pin_2_loc is not None:
+                        pin_mapping.pin_2_loc = cast(
+                            tuple[str | int | float, str | int | float, str | int | float], tuple(pin_2_loc)
+                        )
 
     def stage_models(self) -> None:
         """Stage model files into the run-specific working directory."""
@@ -667,11 +688,16 @@ class MCADAssemblyService:
 
     def assemble(self) -> None:
         """Execute the full MCAD assembly workflow."""
+        hfss = self.hfss
+        if hfss is None:
+            raise ValueError("HFSS application instance is required to assemble the MCAD model.")
+
+        modeler: Any = hfss.modeler
         for name, value in self.config.coordinate_system.items():
             value.name = name
             value_ = value.model_dump()
             value_["reference_cs"] = value_.pop("reference_coordinate_system", None)
-            self.hfss.modeler.create_coordinate_system(**value_)
+            modeler.create_coordinate_system(**value_)
 
         temp = self.config.sub_components
 
@@ -682,29 +708,38 @@ class MCADAssemblyService:
         ):
             if cad.component_type == "mcad":
                 if cad.use_pin_mapping:
-                    cad.target_coordinate_system = cad.placement_pin_mapping.reference_designator + "_"
-                    _temp = cad.placement_pin_mapping
-                    cad.arranges.append(Arrange(operation="move", vector=list(_temp.pin_1_loc)))
+                    pin_mapping = cad.placement_pin_mapping
+                    if pin_mapping is None:
+                        raise ValueError(f"Pin mapping required for MCAD component '{cad.name}'.")
+                    refdes = pin_mapping.reference_designator
+                    if refdes is None:
+                        raise ValueError(f"Pin mapping reference designator is missing for component '{cad.name}'.")
+                    cad.target_coordinate_system = f"{refdes}_"
+                    pin_1_loc = pin_mapping.pin_1_loc
+                    if pin_1_loc is None:
+                        raise ValueError(f"Pin 1 location is missing for component '{cad.name}'.")
+                    cad.arranges.append(Arrange(operation="move", vector=list(pin_1_loc)))
 
-                    if _temp.pin_2_loc is not None:
-                        dx, dy = np.array(_temp.pin_2_loc[:2]) - np.array(_temp.pin_1_loc[:2])
+                    if pin_mapping.pin_2_loc is not None:
+                        dx, dy = np.array(pin_mapping.pin_2_loc[:2]) - np.array(pin_1_loc[:2])
                         angle_rad = np.arctan2(dy, dx)
                     else:
                         angle_rad = 0
                     cad.arranges.append(Arrange(operation="rotate", axis="Z", angle=f"{-np.degrees(angle_rad):.0f}deg"))
 
-                    refdes = cad.placement_pin_mapping.reference_designator
                     if refdes in ecad_com_info:
                         comp_info = ecad_com_info[refdes]
 
-                        if comp_info and comp_info.flip:
+                        if comp_info.flip:
                             cad.arranges.append(Arrange(operation="rotate", axis="X", angle="180deg"))
-                            cad.arranges.append(
-                                Arrange(operation="move", vector=[0, 0, f"{-comp_info.thickness_offset}meter"])
-                            )
-                            rotation = -comp_info.rotation_rad
+                            thickness_offset = comp_info.thickness_offset
+                            if thickness_offset is not None:
+                                cad.arranges.append(
+                                    Arrange(operation="move", vector=[0, 0, f"{-thickness_offset}meter"])
+                                )
+                            rotation = -comp_info.rotation_rad if comp_info.rotation_rad is not None else 0
                         else:
-                            rotation = comp_info.rotation_rad if comp_info else 0
+                            rotation = comp_info.rotation_rad if comp_info.rotation_rad is not None else 0
                         cad.arranges.append(
                             Arrange(operation="rotate", axis="Z", angle=f"{np.degrees(rotation):.0f}deg")
                         )
@@ -715,24 +750,29 @@ class MCADAssemblyService:
                 if not Path(model_path).exists():
                     raise FileNotFoundError(f"{model_path} does not exist")
 
-                _comp = self.hfss.modeler.insert_3d_component(
+                _comp = modeler.insert_3d_component(
                     name=cad.name,
                     input_file=model_path,
                     coordinate_system=cad.target_coordinate_system,
                     password=cad.password,
-                    geometry_parameters=cad.geometry_parameters,
+                    geometry_parameters=cad.geometry_parameters or {},
                 )
                 model_name = None
             else:
+                if not isinstance(cad, ECADComponent):  # pragma: no cover
+                    raise TypeError("Unsupported component type.")
                 model_path = self._runtime_ecad_models[cad.model]
                 cad.model = generate_unique_name(cad.model)
 
-                comps = [
-                    j.placement_pin_mapping.reference_designator
-                    for i, j in cad.mcad_sub_components.items()
-                    if j.use_pin_mapping
-                ]
+                comps = []
+                for j in cad.mcad_sub_components.values():
+                    if j.use_pin_mapping:
+                        pin_mapping = j.placement_pin_mapping
+                        if pin_mapping is not None:
+                            comps.append(pin_mapping.reference_designator)
+                comps = [ref for ref in comps if ref is not None]
                 if comps:
+                    cad.layout_coordinate_systems = cad.layout_coordinate_systems or []
                     edb = Edb(model_path, version=self.version)
                     for refdes, obj in edb.components.instances.items():
                         if refdes in comps:
@@ -751,18 +791,18 @@ class MCADAssemblyService:
                     edb.save()
                     edb.close()
 
-                _comp = self.hfss.modeler.insert_layout_component(
+                _comp = modeler.insert_layout_component(
                     input_file=model_path,
                     coordinate_system=cad.target_coordinate_system,
                     name=cad.name,
                     parameter_mapping=False,
-                    layout_coordinate_systems=cad.layout_coordinate_systems,
+                    layout_coordinate_systems=cad.layout_coordinate_systems or [],
                     reference_coordinate_system=cad.reference_coordinate_system,
                 )
                 model_name = _comp.definition_name
                 cad.name = _comp.name
 
-                self.hfss.save_project()
+                hfss.save_project()
 
             if _comp is False:
                 raise ValueError(cad.name, cad.model, cad.target_coordinate_system)
@@ -774,11 +814,11 @@ class MCADAssemblyService:
                     cad._rotate_index += 1
                     axis = i.axis or "Z"
                     angle = i.angle or "0deg"
-
-                    self.hfss.modeler.rotate(cad.name, getattr(Axis, axis), angle)
+                    angle, units = decompose_variable_value(angle)
+                    hfss.modeler.rotate(cad.name, getattr(Axis, axis), angle, units)
 
                     # It is more efficient changing the property with ChangeProperty than with the SetPropValue
-                    self.hfss.modeler.oeditor.ChangeProperty(
+                    hfss.modeler.oeditor.ChangeProperty(
                         [
                             "NAME:AllTabs",
                             [
@@ -793,12 +833,15 @@ class MCADAssemblyService:
                     )
 
                 elif i.operation == "move":
-                    self.hfss.modeler.move(cad.name, i.vector or ["0mm", "0mm", "0mm"])
+                    hfss.modeler.move(cad.name, list(i.vector or ["0mm", "0mm", "0mm"]))
 
             # self.hfss.logger.info_timer(f"Perform arranges for component {_comp.name}.")
 
             for i in cad.sub_components.values():
-                comp_info = cad._ecad_comp_info if cad.component_type == "ecad" else None
+                if isinstance(cad, ECADComponent):
+                    comp_info = cad._ecad_comp_info
+                else:
+                    comp_info = {}
                 assemble_sub_components(i, cs_prefix=model_name, ecad_com_info=comp_info)
 
         for _name, comp in temp.items():
@@ -852,13 +895,13 @@ def run(
                 config_data = json.load(f)
         config = MCADAssembly.model_validate(config_data)
 
-    project_dir = Path(tempfile.mkdtemp(prefix="mcad_assembly_")) if not project_dir else Path(project_dir)
-    model_dir = Path(model_dir) if model_dir else Path.cwd()
+    project_dir_path = Path(tempfile.mkdtemp(prefix="mcad_assembly_")) if project_dir is None else Path(project_dir)
+    model_dir_path = Path(model_dir) if model_dir else Path.cwd()
 
     if app is None:
         ng = True
         app = ansys.aedt.core.Hfss(
-            project=str(project_dir / "assembly.aedt"),
+            project=str(project_dir_path / "assembly.aedt"),
             version=version,
             port=port,
             aedt_process_id=aedt_process_id,
@@ -870,12 +913,12 @@ def run(
 
     service = MCADAssemblyService(
         config=config,
-        project_dir=project_dir,
-        model_dir=model_dir,
+        project_dir=project_dir_path,
+        model_dir=model_dir_path,
         app=app,
     )
     service.execute()
     if ng:
         app.save_project()
-        app.logger.info(f"Project saved to {project_dir}")
+        app.logger.info(f"Project saved to {project_dir_path}")
         app.release_desktop()

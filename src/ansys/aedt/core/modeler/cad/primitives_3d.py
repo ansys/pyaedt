@@ -1711,7 +1711,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             material_parameters: str = "",
             design_parameters: str = "",
             coordinate_system: str = "Global",
-            name: str = None,
+            name: str | None = None,
             password = None,
             auxiliary_parameters: bool = False,
     ) -> UserDefinedComponent | bool:
