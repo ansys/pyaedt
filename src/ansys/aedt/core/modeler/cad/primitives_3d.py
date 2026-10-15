@@ -2093,9 +2093,9 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             self,
             input_file: str,
             coordinate_system: str = "Global",
-            name: str = None,
+            name: str | None = None,
             parameter_mapping: bool = False,
-            layout_coordinate_systems: list = None,
+            layout_coordinate_systems: list | None = None,
             reference_coordinate_system: str = "Global"
     ) -> UserDefinedComponent | bool:
         """Insert a new layout component.
@@ -2111,7 +2111,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         parameter_mapping : bool, optional
             Whether to map the layout parameters in the target HFSS design. The default is ``False``.
         layout_coordinate_systems : list, optional
-            Coordinate system to import. The default is all available coordinate systems.
+            Coordinate system to import. The default is not import any coordinate system.
         reference_coordinate_system : str, optional
             Coordinate system to use as reference. The default is ``"Global"``.
 
@@ -2134,6 +2134,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         """
         if layout_coordinate_systems is None:
             layout_coordinate_systems = []
+
         if (self._app.solution_type != "Terminal" and
                 self._app.solution_type not in ("Transient APhi", "TransientAPhiFormulation")):
             self.logger.warning("Solution type must be terminal in HFSS or APhi in Maxwell")
@@ -2157,16 +2158,10 @@ class Primitives3D(GeometryModeler, PyAedtBase):
 
         is_edb_open = False
         parameters = {}
-        component_cs = []
+
         for edb_object in _edb_sessions:
             if edb_object.edbpath == aedb_component_path:
                 is_edb_open = True
-
-                # Get coordinate systems
-                component_cs = []
-                for comp_name, comp in edb_object.components.instances.items():
-                    for p_name in comp.pins:
-                        component_cs.append(f"{comp_name}_{p_name}")
 
                 # Extract and map parameters
                 for param in edb_object.design_variables:
@@ -2182,12 +2177,6 @@ class Primitives3D(GeometryModeler, PyAedtBase):
                 version=self._app._aedt_version,
                 student_version=self._app.student_version,
             )
-
-            # Get coordinate systems
-            component_cs = []
-            for comp_name, comp in component_obj.components.instances.items():
-                for p_name in comp.pins:
-                    component_cs.append(f"{comp_name}_{p_name}")
 
             # Extract and map parameters
             parameters = {}
@@ -2255,13 +2244,12 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             sub_arg_1,
             "ReferenceCS:=", reference_coordinate_system,
         ]
-        if component_cs and layout_coordinate_systems:  # pragma: no cover
-            sub_arg_3 = ["Global"]
-            for cs in layout_coordinate_systems:
-                if cs in component_cs:
-                    sub_arg_3.append(cs)
-            sub_arg_2.append("CSToImport:=")
-            sub_arg_2.append(sub_arg_3)
+
+        sub_arg_3 = ["Global"]
+        for cs in layout_coordinate_systems:
+            sub_arg_3.append(cs)
+        sub_arg_2.append("CSToImport:=")
+        sub_arg_2.append(sub_arg_3)
 
         arg_1.append(sub_arg_2)
 

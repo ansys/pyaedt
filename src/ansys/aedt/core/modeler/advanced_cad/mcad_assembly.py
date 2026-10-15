@@ -183,7 +183,7 @@ class MCADComponent(BaseModel):
         description="Pin mapping inputs used to place the component from layout reference data.",
     )
 
-    target_coordinate_system: str | None = Field(
+    target_coordinate_system: str = Field(
         default="Global", description="Coordinate system where the component instance is inserted."
     )
 
@@ -208,7 +208,7 @@ class MCADComponent(BaseModel):
     )
 
     # Ecad parameters
-    reference_coordinate_system: str | None = Field(
+    reference_coordinate_system: str = Field(
         default="Global",
         description="Reference coordinate system used when importing an ECAD component definition.",
     )
@@ -513,7 +513,7 @@ class MCADAssemblyService:
         config: MCADAssembly,
         project_dir: Path,
         model_dir: Path | None,
-        hfss: Hfss | None,
+        app: Hfss | None,
     ):
         """Initialize the MCAD assembly service.
 
@@ -525,14 +525,14 @@ class MCADAssemblyService:
             Output directory for the assembly project.
         model_dir : Path, optional
             Base directory for resolving relative model paths.
-        hfss : Hfss, optional
-            Active HFSS instance. If None, a new instance is created.
+        app : Hfss, optional
+            Active HFSS instance. If ``None``, a new instance is created.
 
         """
         self.config = config.model_copy(deep=True)
         self.project_dir = project_dir
         self.model_dir = model_dir
-        self.hfss = hfss
+        self.hfss = app
         self._temp_model_dir = self.project_dir / "models"
         self._temp_model_dir.mkdir(parents=True, exist_ok=True)
 
@@ -714,6 +714,7 @@ class MCADAssemblyService:
                 model_path = self._runtime_mcad_models[cad.model]
                 if not Path(model_path).exists():
                     raise FileNotFoundError(f"{model_path} does not exist")
+
                 _comp = self.hfss.modeler.insert_3d_component(
                     name=cad.name,
                     input_file=model_path,
@@ -736,12 +737,12 @@ class MCADAssemblyService:
                     for refdes, obj in edb.components.instances.items():
                         if refdes in comps:
                             obj.enabled = False
-                            cs_name = refdes + "_"
+
                             pins = obj.pins
                             pin_names = list(pins.keys())
                             p1_name = sorted(pin_names)[0]
                             p1_loc = pins[p1_name].position
-
+                            cs_name = f"{refdes}_"
                             edb.modeler.insert_coordinate_system(
                                 name=cs_name, x=p1_loc[0], y=p1_loc[1], layer=obj.placement_layer
                             )
@@ -750,33 +751,33 @@ class MCADAssemblyService:
                     edb.save()
                     edb.close()
 
-                self.hfss.modeler.add_layout_component_definition(file_path=model_path, name=cad.model)
-                _comp = self.hfss.modeler._insert_layout_component_instance(
+                _comp = self.hfss.modeler.insert_layout_component(
+                    input_file=model_path,
+                    coordinate_system=cad.target_coordinate_system,
                     name=cad.name,
-                    definition_name=cad.model,
-                    target_coordinate_system=cad.target_coordinate_system,
-                    parameter_mapping=None,
-                    import_coordinate_systems=cad.layout_coordinate_systems,
+                    parameter_mapping=False,
+                    layout_coordinate_systems=cad.layout_coordinate_systems,
                     reference_coordinate_system=cad.reference_coordinate_system,
                 )
-                for new_name in list(self.hfss.modeler.oeditor.Get3DComponentPartNames(_comp)):
-                    self.hfss.modeler._create_object(new_name)
+                model_name = _comp.definition_name
+                cad.name = _comp.name
 
-                udm_obj = self.hfss.modeler._create_user_defined_component(_comp)
-                udm_obj.name = _comp
-                cad.name = _comp
-
-                model_name = cad.model
+                self.hfss.save_project()
 
             if _comp is False:
                 raise ValueError(cad.name, cad.model, cad.target_coordinate_system)
+
+            # self.hfss.logger.reset_timer()
 
             for i in cad.arranges:
                 if i.operation == "rotate":
                     cad._rotate_index += 1
                     axis = i.axis or "Z"
                     angle = i.angle or "0deg"
+
                     self.hfss.modeler.rotate(cad.name, getattr(Axis, axis), angle)
+
+                    # It is more efficient changing the property with ChangeProperty than with the SetPropValue
                     self.hfss.modeler.oeditor.ChangeProperty(
                         [
                             "NAME:AllTabs",
@@ -790,8 +791,11 @@ class MCADAssemblyService:
                             ],
                         ]
                     )
+
                 elif i.operation == "move":
                     self.hfss.modeler.move(cad.name, i.vector or ["0mm", "0mm", "0mm"])
+
+            # self.hfss.logger.info_timer(f"Perform arranges for component {_comp.name}.")
 
             for i in cad.sub_components.values():
                 comp_info = cad._ecad_comp_info if cad.component_type == "ecad" else None
@@ -803,13 +807,13 @@ class MCADAssemblyService:
 
 def run(
     config_data: MCADAssembly | dict | str | Path,
-    project_dir: str = None,
-    model_dir: str = None,
-    version: str = None,
-    port: int = None,
-    aedt_process_id: int = None,
+    project_dir: str | None = None,
+    model_dir: str | None = None,
+    version: str | None = None,
+    port: int | None = None,
+    aedt_process_id: int | None = None,
     student_version: bool = False,
-    hfss: Hfss = None,
+    app: Hfss | None = None,
 ):
     """Build an MCAD assembly in HFSS from a configuration.
 
@@ -832,7 +836,7 @@ def run(
         Process identifier of an existing AEDT session.
     student_version : bool, optional
         Whether to connect to a student version of AEDT.
-    hfss : ansys.aedt.core.hfss.Hfss, optional
+    app : ansys.aedt.core.hfss.Hfss, optional
         Existing HFSS instance to reuse instead of creating a new session.
 
     Returns
@@ -851,9 +855,9 @@ def run(
     project_dir = Path(tempfile.mkdtemp(prefix="mcad_assembly_")) if not project_dir else Path(project_dir)
     model_dir = Path(model_dir) if model_dir else Path.cwd()
 
-    if hfss is None:
+    if app is None:
         ng = True
-        hfss = ansys.aedt.core.Hfss(
+        app = ansys.aedt.core.Hfss(
             project=str(project_dir / "assembly.aedt"),
             version=version,
             port=port,
@@ -868,10 +872,10 @@ def run(
         config=config,
         project_dir=project_dir,
         model_dir=model_dir,
-        hfss=hfss,
+        app=app,
     )
     service.execute()
     if ng:
-        hfss.save_project()
-        hfss.logger.info(f"Project saved to {project_dir}")
-        hfss.release_desktop()
+        app.save_project()
+        app.logger.info(f"Project saved to {project_dir}")
+        app.release_desktop()
