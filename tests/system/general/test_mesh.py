@@ -151,11 +151,16 @@ def test_assign_model_resolution(aedt_app) -> None:
     # Assign a model resolution to the cylinder and verify its properties
     mr1 = aedt_app.mesh.assign_model_resolution(o, 1e-4, "ModelRes1")
     assert mr1.name in aedt_app.get_oo_name(mesh_object)
+    assert mr1.name in aedt_app.mesh.operations
+
     mr1.name = "resolution_test"
     assert "resolution_test" in aedt_app.mesh.operations[0].name
-    assert "resolution_test" in aedt_app.get_oo_name(mesh_object)
-    if mr1.assignment:
-        assert mr1.assignment == [o.name]
+    assert "resolution_test" in aedt_app.mesh.operation_names
+
+    assert mr1.assignment == [o.name]
+
+    mr1_1 = aedt_app.mesh.assign_model_resolution(o, "1e-4cm")
+    assert mr1_1.props["DefeatureLength"] in ["1e-4cm", "0.0001cm"]
 
     # Try to set existing name and verify that it fails
     mr2 = aedt_app.mesh.assign_model_resolution(o, 1e-5, "resolution_test")
@@ -167,6 +172,7 @@ def test_assign_model_resolution(aedt_app) -> None:
     # Single property assignment
     mr1.props["UseAutoLength"] = True
     assert aedt_app.get_oo_property_value(mesh_object, mr1.name, "Use Auto Simplify")
+    assert mr1.props["UseAutoLength"]
 
     # If AutoEnable is set to True, DefeatureLength should not be settable. So we set it to False first.
     if "DefeatureLength" in mr1.props:
@@ -179,11 +185,10 @@ def test_assign_model_resolution(aedt_app) -> None:
     new_props["DefeatureLength"] = "0.2mm"
     mr1.props = new_props
     assert aedt_app.get_oo_property_value(mesh_object, mr1.name, "Model Resolution Length") == "0.2mm"
-    assert not aedt_app.get_oo_property_value(mesh_object, mr1.name, "Use Auto Simplify")
+    assert mr1.props["DefeatureLength"] == "0.2mm"
 
-    # Enable AutoLength
-    mr1.props["UseAutoLength"] = True
-    assert aedt_app.get_oo_property_value(mesh_object, mr1.name, "Use Auto Simplify")
+    assert not aedt_app.get_oo_property_value(mesh_object, mr1.name, "Use Auto Simplify")
+    assert not mr1.props["UseAutoLength"]
 
     # Reassigning the model resolution to a different object and verifying the assignment
     mr1.props["Objects"] = [o2.name, o]

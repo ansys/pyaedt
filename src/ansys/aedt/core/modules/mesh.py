@@ -55,6 +55,7 @@ from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
 
 if TYPE_CHECKING:
     from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
+    from ansys.aedt.core.modeler.cad.object_3d import Object3d
     from ansys.aedt.core.modules.mesh_icepak import IcepakMesh
 
 mesh_props = {
@@ -382,13 +383,13 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
             object.__setattr__(self, "_children_loaded", False)
 
     @pyaedt_function_handler()
-    def create(self) -> bool:
+    def create(self) -> MeshOperation | bool:
         """Create a mesh.
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`ansys.aedt.core.modules.mesh.MeshOperation`
+            The created mesh operation.
 
         Examples
         --------
@@ -432,7 +433,10 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
             self._app.omeshmodule.AssignCylindricalGapOp(self._get_args())
         else:
             return False
-        return True
+
+        # GetObjData is available for some objects in 2026R1
+        self._has_getobject = _has_get_obj_data(self._child_object)
+        return self
 
     @pyaedt_function_handler()
     def update(self, key_name: str | None = None, value: int | None = None, props: dict | None = None) -> bool:
@@ -613,7 +617,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         self._app.omeshmodule.ReassignOp(self.name, out)
 
         if properties != self._legacy_props:
-            self._legacy_props = MeshProps(self, properties)
+            self._legacy_props = properties
 
         return True
 
@@ -686,7 +690,7 @@ class Mesh(PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.mesh.meshoperations`
+        :class:`ansys.aedt.core.modules.mesh.MeshOperation`
             Returns None if the part ID or the object name is not found.
 
         Examples
@@ -700,11 +704,16 @@ class Mesh(PyAedtBase):
         >>> mr2 = hfss.mesh[mr1.name]
 
         """
-        if part_id in self.operation_names:
-            return self.operations[part_id]
         if part_id.lower() == "initialmeshsettings":
             return self.initial_mesh_settings
-        return None
+
+        if part_id not in self.operation_names:
+            return None
+
+        if part_id not in self.__operations:
+            self.__operations[part_id] = MeshOperation(mesh=self, name=part_id, props={})
+
+        return self.__operations[part_id]
 
     @property
     @deprecated("Use modeler from PyAEDT application instead.")
@@ -826,9 +835,9 @@ class Mesh(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.mesh import Mesh
-        >>> obj = Mesh()
-        >>> obj.initial_mesh_settings
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.mesh.initial_mesh_settings
 
         """
         if not self.__initial_mesh_settings:
@@ -890,12 +899,297 @@ class Mesh(PyAedtBase):
         return self.operations
 
     @pyaedt_function_handler()
-    def assign_surface_mesh(self, assignment: list | str | int, level: int, name: str | None = None) -> MeshOperation:
+    def assign_initial_mesh_from_slider(
+        self,
+        level: int = 5,
+        method: str = "Auto",
+        dynamic_surface: bool = True,
+        flex_mesh: bool = False,
+        curvilinear: bool = False,
+        fallback: bool = True,
+        phi: bool = True,
+        auto_model_resolution: bool = True,
+        model_resolution_length: str = "0.0001mm",
+    ) -> bool:
+        """Assign a surface mesh level to an object.
+
+        Parameters
+        ----------
+        level : int, optional
+            Level of the surface mesh. Options are ``1`` through ``10``. The default is ``5``.
+        method : str, optional
+            Meshing method. Options are ``"Auto"``, ``"AnsoftTAU"``, and ``"AnsoftClassic"``
+            The default is ``"Auto"``.
+        dynamic_surface : bool, optional
+            Whether to use dynamic surface resolution. The default is ``True``.
+        flex_mesh : bool, optional
+            Whether to use flexible mesh for TAU volume mesh. The default is ``False``.
+        curvilinear : bool, optional
+            Whether to apply curvilinear elements. The default is ``False``.
+        fallback : bool, optional
+            Whether to retain as a fallback. The default is ``True``.
+        phi : bool, optional
+            Whether to use the Phi mesher for layered geometry.
+            The default is ``True``.
+        auto_model_resolution : bool, optional
+            Whether to automatically calculate the resolution length
+            based on each object's effective thickness. The default is ``True``.
+        model_resolution_length : float, optional
+             Resolution thickness with units if ``automodelresolution=False``.
+             The default ``"0.0001mm"``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.InitialMeshSettings
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.mesh.assign_initial_mesh_from_slider()
+
+        """
+        if self._app.design_type in ["2D Extractor", "Maxwell 2D"]:
+            mesh_methods = ["Auto", "AnsoftClassic"]
+        else:
+            mesh_methods = ["Auto", "AnsoftTAU", "AnsoftClassic"]
+        if method not in mesh_methods:
+            raise ValueError(f"Invalid mesh method {method}")
+
+        modelres = ["NAME:GlobalModelRes", "UseAutoLength:=", auto_model_resolution]
+        if not auto_model_resolution:
+            modelres += ["DefeatureLength:=", model_resolution_length]
+        surface_appr: list[Any] = [
+            "NAME:GlobalSurfApproximation",
+            "CurvedSurfaceApproxChoice:=",
+            "UseSlider",
+            "SliderMeshSettings:=",
+            level,
+        ]
+
+        if self._app.design_type in ["2D Extractor", "Maxwell 2D"]:
+            args: list[Any] = ["NAME:MeshSettings", surface_appr, modelres, "MeshMethod:=", method]
+        else:
+            args = [
+                "NAME:MeshSettings",
+                surface_appr,
+                ["NAME:GlobalCurvilinear", "Apply:=", curvilinear],
+                modelres,
+                "MeshMethod:=",
+                method,
+                "UseLegacyFaceterForTauVolumeMesh:=",
+                False,
+                "DynamicSurfaceResolution:=",
+                dynamic_surface,
+                "UseFlexMeshingForTAUvolumeMesh:=",
+                flex_mesh,
+            ]
+        if self._app.design_type == "HFSS":
+            args += ["UseAlternativeMeshMethodsAsFallBack:=", fallback, "AllowPhiForLayeredGeometry:=", phi]
+        self._app.omeshmodule.InitialMeshSettings(args)
+
+        return True
+
+    @pyaedt_function_handler()
+    def assign_initial_mesh(
+        self,
+        method: str = "Auto",
+        surface_deviation: float | str | None = None,
+        normal_deviation: float | str | None = None,
+        aspect_ratio: float | str | None = None,
+        flex_mesh: bool = False,
+        curvilinear: bool = False,
+        fallback: bool = True,
+        phi: bool = True,
+        auto_model_resolution: bool = True,
+        model_resolution_length: str = "0.0001mm",
+    ) -> bool:
+        """Assign a surface mesh level to an object.
+
+        Parameters
+        ----------
+        method : str, optional
+            Meshing method. Options are ``"Auto"``, ``"AnsoftTAU"``, and ``"AnsoftClassic"``
+            The default is ``"Auto"``.
+        surface_deviation : float or str, optional
+             Surface deviation.
+             The default is ``None``, in which case the default value is assigned.
+        normal_deviation : float or str, optional
+             Normal deviation.
+             The default is ``None``, in which case the default value is assigned.
+        aspect_ratio : float or str, optional
+             Aspect ratio.
+             The default is ``None``, in which case the default value is assigned.
+        flex_mesh : bool, optional
+            Whether to use flexible mesh for TAU volume mesh. The default is ``False``.
+        curvilinear : bool, optional
+            Whether to apply curvilinear elements. The default is ``False``.
+        fallback : bool, optional
+            Whether to retain as a fallback. The default is ``True``.
+        phi : bool, optional
+            Whether to use the Phi mesher for layered geometry.
+            The default is ``True``.
+        auto_model_resolution : bool, optional
+            Whether to automatically calculate the resolution length
+            based on each object's effective thickness. The default is ``True``.
+        model_resolution_length : float or str, optional
+             Resolution thickness with units if ``automodelresolution=False``.
+             The default ``"0.0001mm"``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.InitialMeshSettings
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.mesh.assign_initial_mesh()
+
+        """
+        if self._app.design_type in ["2D Extractor", "Maxwell 2D"]:
+            mesh_methods = ["Auto", "AnsoftClassic"]
+        else:
+            mesh_methods = ["Auto", "AnsoftTAU", "AnsoftClassic"]
+        if method not in mesh_methods:
+            raise ValueError(f"Invalid mesh method {method}")
+
+        modelres = ["NAME:GlobalModelRes", "UseAutoLength:=", auto_model_resolution]
+        if not auto_model_resolution:
+            modelres.append("DefeatureLength:=")
+            modelres.append(model_resolution_length)
+
+        surface_appr: list[Any] = [
+            "NAME:GlobalSurfApproximation",
+            "CurvedSurfaceApproxChoice:=",
+            "ManualSettings",
+            "SurfDevChoice:=",
+        ]
+
+        if not surface_deviation:
+            surface_appr.append(0)
+        else:
+            surface_appr += [2, "SurfDev:=", surface_deviation]
+
+        surface_appr.append("NormalDevChoice:=")
+        if not normal_deviation:
+            surface_appr.append(1)
+        else:
+            surface_appr += [2, "NormalDev:=", normal_deviation]
+
+        surface_appr.append("AspectRatioChoice:=")
+        if not aspect_ratio:
+            surface_appr.append(1)
+        else:
+            surface_appr += [2, "AspectRatio:=", aspect_ratio]
+
+        if self._app.design_type in ["2D Extractor", "Maxwell 2D"]:
+            args: list[Any] = ["NAME:MeshSettings", surface_appr, modelres, "MeshMethod:=", method]
+        else:
+            args = [
+                "NAME:MeshSettings",
+                surface_appr,
+                ["NAME:GlobalCurvilinear", "Apply:=", curvilinear],
+                modelres,
+                "MeshMethod:=",
+                method,
+                "UseLegacyFaceterForTauVolumeMesh:=",
+                False,
+                "DynamicSurfaceResolution:=",
+                False,
+                "UseFlexMeshingForTAUvolumeMesh:=",
+                flex_mesh,
+            ]
+        if self._app.design_type == "HFSS":
+            args += ["UseAlternativeMeshMethodsAsFallBack:=", fallback, "AllowPhiForLayeredGeometry:=", phi]
+        self._app.omeshmodule.InitialMeshSettings(args)
+        return True
+
+    @pyaedt_function_handler()
+    def assign_model_resolution(
+        self,
+        assignment: str | list | Object3d,
+        defeature_length: float | int | str | None = None,
+        name: str | None = None,
+    ) -> MeshOperation | bool:
+        """Assign the model resolution.
+
+        Parameters
+        ----------
+        assignment : str, list, or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+            List of objects to defeature.
+        defeature_length : float, int or str, optional
+            Defeaturing length in millimeters, user can introduce the value with units.
+            The default is ``None``, in which case automatic defeaturing is used.
+        name : str, optional
+            Name of the mesh operation. The default is ``None``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.mesh.MeshOperation`
+            Mesh operation object.
+
+        References
+        ----------
+        >>> oModule.AssignModelResolutionOp
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> surface = hfss.mesh.assign_model_resolution(o, 1e-4, "ModelRes1")
+
+        """
+        assignment = self._modeler.convert_to_selections(assignment, True)
+
+        if name and name in self.operation_names:
+            name = generate_unique_name(name)
+        else:
+            name = generate_unique_name("ModelResolution")
+
+        for assignment_name in assignment:
+            if isinstance(assignment_name, int):
+                raise ValueError("Mesh operation applies to objects only.")
+
+        if defeature_length is None:
+            props = dict({"Objects": assignment, "UseAutoLength": True})
+        else:
+            if not isinstance(defeature_length, str):
+                defeature_length = str(defeature_length) + "mm"
+
+            props = dict(
+                {
+                    "Type": "DefeatureBased",
+                    "Objects": assignment,
+                    "UseAutoLength": False,
+                    "DefeatureLength": defeature_length,
+                }
+            )
+
+        mop = MeshOperation(self, name, props)
+
+        return mop.create()
+
+    @pyaedt_function_handler()
+    def assign_surface_mesh(
+        self, assignment: list | str | int | Object3d, level: int, name: str | None = None
+    ) -> MeshOperation:
         """Assign a surface mesh level to one or more objects.
 
         Parameters
         ----------
-        assignment : list, int, or str
+        assignment : list, int, str, or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             One or more names of the objects.
         level : int
             Level of the surface mesh. Options are ``1`` through ``10``
@@ -950,9 +1244,9 @@ class Mesh(PyAedtBase):
     @pyaedt_function_handler()
     def assign_surface_mesh_manual(
         self,
-        assignment: list,
-        surface_deviation: float | str | None = None,
-        normal_dev: float | str | None = None,
+        assignment: list | int | str | FacePrimitive,
+        surface_deviation: float | int | str | None = None,
+        normal_dev: float | int | str | None = None,
         aspect_ratio: int | None = None,
         name: str | None = None,
     ) -> MeshOperation:
@@ -962,9 +1256,9 @@ class Mesh(PyAedtBase):
         ----------
         assignment : list or str or :class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`
             List of faces to apply the surface mesh to.
-        surface_deviation : float or str, optional
+        surface_deviation : float, int, or str, optional
             Surface deviation. The default is ``None``. You can specify a float value, a number with units, or `"inf"`.
-        normal_dev : float or str, optional
+        normal_dev : float, int or str, optional
             Normal deviation. The default is ``None``.
         aspect_ratio : int, optional
             Aspect ratio. The default is ``None``.
@@ -1032,292 +1326,15 @@ class Mesh(PyAedtBase):
         return mop
 
     @pyaedt_function_handler()
-    def assign_model_resolution(
-        self, assignment: list, defeature_length: float | int | None = None, name: str | None = None
-    ) -> MeshOperation | bool:
-        """Assign the model resolution.
-
-        Parameters
-        ----------
-        assignment : list
-            List of objects to defeature.
-        defeature_length : float, or int, optional
-            Defeaturing length in millimeters. The default is ``None``, in which case
-            automatic defeaturing is used.
-        name : str, optional
-            Name of the mesh operation. The default is ``None``.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.mesh.MeshOperation`
-            Mesh operation object.
-
-        References
-        ----------
-        >>> oModule.AssignModelResolutionOp
-
-        Examples
-        --------
-        Basic usage demonstrated with an HFSS design:
-
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
-        >>> surface = hfss.mesh.assign_model_resolution(o, 1e-4, "ModelRes1")
-
-        """
-        assignment = self._modeler.convert_to_selections(assignment, True)
-
-        if name and name in self.operation_names:
-            name = generate_unique_name(name)
-        else:
-            name = generate_unique_name("ModelResolution")
-
-        for assignment_name in assignment:
-            if isinstance(assignment_name, int):
-                self.logger.error("Mesh Operation applies to objects only.")
-                return False
-        if defeature_length is None:
-            props = dict({"Objects": assignment, "UseAutoLength": True})
-        else:
-            props = dict(
-                {
-                    "Type": "DefeatureBased",
-                    "Objects": assignment,
-                    "UseAutoLength": False,
-                    "DefeatureLength": str(defeature_length) + "mm",
-                }
-            )
-
-        mop = MeshOperation(self, name, props)
-        mop.create()
-        return mop
-
-    @pyaedt_function_handler()
-    def assign_initial_mesh_from_slider(
-        self,
-        level: int = 5,
-        method: str = "Auto",
-        dynamic_surface: bool = True,
-        flex_mesh: bool = False,
-        curvilinear: bool = False,
-        fallback: bool = True,
-        phi: bool = True,
-        auto_model_resolution: bool = True,
-        model_resolution_length: str = "0.0001mm",
-    ) -> bool:
-        """Assign a surface mesh level to an object.
-
-        Parameters
-        ----------
-        level : int, optional
-            Level of the surface mesh. Options are ``1`` through ``10``. The default is ``5``.
-        method : str, optional
-            Meshing method. Options are ``"Auto"``, ``"AnsoftTAU"``, and ``"AnsoftClassic"``
-            The default is ``"Auto"``.
-        dynamic_surface : bool, optional
-            Whether to use dynamic surface resolution. The default is ``True``.
-        flex_mesh : bool, optional
-            Whether to use flexible mesh for TAU volume mesh. The default is ``False``.
-        curvilinear : bool, optional
-            Whether to apply curvilinear elements. The default is ``False``.
-        fallback : bool, optional
-            Whether to retain as a fallback. The default is ``True``.
-        phi : bool, optional
-            Whether to use the Phi mesher for layered geometry.
-            The default is ``True``.
-        auto_model_resolution : bool, optional
-            Whether to automatically calculate the resolution length
-            based on each object's effective thickness. The default is ``True``.
-        model_resolution_length : float, optional
-             Resolution thickness with units if ``automodelresolution=False``.
-             The default ``"0.0001mm"``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oModule.InitialMeshSettings
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.mesh import Mesh
-        >>> obj = Mesh()
-        >>> obj.assign_initial_mesh_from_slider(level=1, method=1)
-
-        """
-        if self._app.design_type in ["2D Extractor", "Maxwell 2D"]:
-            mesh_methods = ["Auto", "AnsoftClassic"]
-        else:
-            mesh_methods = ["Auto", "AnsoftTAU", "AnsoftClassic"]
-        if method not in mesh_methods:
-            raise ValueError(f"Invalid mesh method {method}")
-
-        modelres = ["NAME:GlobalModelRes", "UseAutoLength:=", auto_model_resolution]
-        if not auto_model_resolution:
-            modelres += ["DefeatureLength:=", model_resolution_length]
-        surface_appr: list[Any] = [
-            "NAME:GlobalSurfApproximation",
-            "CurvedSurfaceApproxChoice:=",
-            "UseSlider",
-            "SliderMeshSettings:=",
-            level,
-        ]
-
-        if self._app.design_type in ["2D Extractor", "Maxwell 2D"]:
-            args: list[Any] = ["NAME:MeshSettings", surface_appr, modelres, "MeshMethod:=", method]
-        else:
-            args = [
-                "NAME:MeshSettings",
-                surface_appr,
-                ["NAME:GlobalCurvilinear", "Apply:=", curvilinear],
-                modelres,
-                "MeshMethod:=",
-                method,
-                "UseLegacyFaceterForTauVolumeMesh:=",
-                False,
-                "DynamicSurfaceResolution:=",
-                dynamic_surface,
-                "UseFlexMeshingForTAUvolumeMesh:=",
-                flex_mesh,
-            ]
-        if self._app.design_type == "HFSS":
-            args += ["UseAlternativeMeshMethodsAsFallBack:=", fallback, "AllowPhiForLayeredGeometry:=", phi]
-        self._app.omeshmodule.InitialMeshSettings(args)
-        return True
-
-    @pyaedt_function_handler()
-    def assign_initial_mesh(
-        self,
-        method: str = "Auto",
-        surface_deviation: float | str | None = None,
-        normal_deviation: float | str | None = None,
-        aspect_ratio: float | str | None = None,
-        flex_mesh: bool = False,
-        curvilinear: bool = False,
-        fallback: bool = True,
-        phi: bool = True,
-        auto_model_resolution: bool = True,
-        model_resolution_length: str = "0.0001mm",
-    ) -> bool:
-        """Assign a surface mesh level to an object.
-
-        Parameters
-        ----------
-        method : str, optional
-            Meshing method. Options are ``"Auto"``, ``"AnsoftTAU"``, and ``"AnsoftClassic"``
-            The default is ``"Auto"``.
-        surface_deviation : float or str, optional
-             Surface deviation.
-             The default is ``None``, in which case the default value is assigned.
-        normal_deviation : float or str, optional
-             Normal deviation.
-             The default is ``None``, in which case the default value is assigned.
-        aspect_ratio : float or str, optional
-             Aspect ratio.
-             The default is ``None``, in which case the default value is assigned.
-        flex_mesh : bool, optional
-            Whether to use flexible mesh for TAU volume mesh. The default is ``False``.
-        curvilinear : bool, optional
-            Whether to apply curvilinear elements. The default is ``False``.
-        fallback : bool, optional
-            Whether to retain as a fallback. The default is ``True``.
-        phi : bool, optional
-            Whether to use the Phi mesher for layered geometry.
-            The default is ``True``.
-        auto_model_resolution : bool, optional
-            Whether to automatically calculate the resolution length
-            based on each object's effective thickness. The default is ``True``.
-        model_resolution_length : float or str, optional
-             Resolution thickness with units if ``automodelresolution=False``.
-             The default ``"0.0001mm"``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oModule.InitialMeshSettings
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.mesh import Mesh
-        >>> obj = Mesh()
-        >>> obj.assign_initial_mesh(method=1, surface_deviation=1.0)
-
-        """
-        if self._app.design_type in ["2D Extractor", "Maxwell 2D"]:
-            mesh_methods = ["Auto", "AnsoftClassic"]
-        else:
-            mesh_methods = ["Auto", "AnsoftTAU", "AnsoftClassic"]
-        if method not in mesh_methods:
-            raise ValueError(f"Invalid mesh method {method}")
-
-        modelres = ["NAME:GlobalModelRes", "UseAutoLength:=", auto_model_resolution]
-        if not auto_model_resolution:
-            modelres.append("DefeatureLength:=")
-            modelres.append(model_resolution_length)
-
-        surface_appr: list[Any] = [
-            "NAME:GlobalSurfApproximation",
-            "CurvedSurfaceApproxChoice:=",
-            "ManualSettings",
-            "SurfDevChoice:=",
-        ]
-
-        if not surface_deviation:
-            surface_appr.append(0)
-        else:
-            surface_appr += [2, "SurfDev:=", surface_deviation]
-
-        surface_appr.append("NormalDevChoice:=")
-        if not normal_deviation:
-            surface_appr.append(1)
-        else:
-            surface_appr += [2, "NormalDev:=", normal_deviation]
-
-        surface_appr.append("AspectRatioChoice:=")
-        if not aspect_ratio:
-            surface_appr.append(1)
-        else:
-            surface_appr += [2, "AspectRatio:=", aspect_ratio]
-
-        if self._app.design_type in ["2D Extractor", "Maxwell 2D"]:
-            args: list[Any] = ["NAME:MeshSettings", surface_appr, modelres, "MeshMethod:=", method]
-        else:
-            args = [
-                "NAME:MeshSettings",
-                surface_appr,
-                ["NAME:GlobalCurvilinear", "Apply:=", curvilinear],
-                modelres,
-                "MeshMethod:=",
-                method,
-                "UseLegacyFaceterForTauVolumeMesh:=",
-                False,
-                "DynamicSurfaceResolution:=",
-                False,
-                "UseFlexMeshingForTAUvolumeMesh:=",
-                flex_mesh,
-            ]
-        if self._app.design_type == "HFSS":
-            args += ["UseAlternativeMeshMethodsAsFallBack:=", fallback, "AllowPhiForLayeredGeometry:=", phi]
-        self._app.omeshmodule.InitialMeshSettings(args)
-        return True
-
-    @pyaedt_function_handler()
-    def assign_surf_priority_for_tau(self, assignment: list, surface_priority: int = 0) -> MeshOperation:
+    def assign_surf_priority_for_tau(
+        self, assignment: list | str | Object3d, surface_priority: int = 0
+    ) -> MeshOperation:
         """Assign a surface representation priority for the TAU mesh.
 
         Parameters
         ----------
-        assignment : list
-            List of objects to apply a surface representation
-            priority to.
+        assignment : list or str or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+            List of objects to apply a surface representation priority to.
         surface_priority : int, optional
             Surface representation priority. The default is ``0``.
 
@@ -1423,7 +1440,7 @@ class Mesh(PyAedtBase):
     @pyaedt_function_handler()
     def assign_length_mesh(
         self,
-        assignment: list | str,
+        assignment: list | str | Object3d,
         inside_selection: bool = True,
         maximum_length: int = 1,
         maximum_elements: int = 1000,
@@ -1433,7 +1450,7 @@ class Mesh(PyAedtBase):
 
         Parameters
         ----------
-        assignment : list, str
+        assignment : list or str or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             List of object names or face IDs.
         inside_selection : bool, optional
             Whether the length mesh is inside the selection. The default is ``True``.
@@ -1520,7 +1537,7 @@ class Mesh(PyAedtBase):
     @pyaedt_function_handler()
     def assign_skin_depth(
         self,
-        assignment: list | str,
+        assignment: list | str | Object3d,
         skin_depth: str = "0.2mm",
         maximum_elements: int | None = None,
         triangulation_max_length: str = "0.1mm",
@@ -1531,7 +1548,7 @@ class Mesh(PyAedtBase):
 
         Parameters
         ----------
-        assignment : list
+        assignment : list or str or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
            List of the object names, face IDs or edges IDs for Maxwell 2D design.
         skin_depth : str, float, optional
             Skin depth value.
@@ -1611,13 +1628,13 @@ class Mesh(PyAedtBase):
 
     @pyaedt_function_handler()
     def assign_curvilinear_elements(
-        self, assignment: list, enable: bool = True, name: str | None = None
+        self, assignment: list | str | Object3d, enable: bool = True, name: str | None = None
     ) -> MeshOperation | None:
         """Assign curvilinear elements.
 
         Parameters
         ----------
-        assignment : list
+        assignment : list or str or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             List of objects or faces.
         enable : bool, optional
             Whether to apply curvilinear elements. The default is ``True``.
@@ -1665,19 +1682,18 @@ class Mesh(PyAedtBase):
 
     @pyaedt_function_handler()
     def assign_curvature_extraction(
-        self, assignment: list, disabled_for_faceted: bool = True, name: str | None = None
+        self, assignment: list | str | Object3d, disabled_for_faceted: bool = True, name: str | None = None
     ) -> MeshOperation | None:
         """Assign curvature extraction.
 
         Parameters
         ----------
-        assignment : list
-        List of objects or faces.
+        assignment : list or str or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+            List of objects or faces.
         disabled_for_faceted : bool, optional
-        Whether curvature extraction is enabled for faceted surfaces.
-        The default is ``True``.
+            Whether curvature extraction is enabled for faceted surfaces. The default is ``True``.
         name : str, optional
-        Name of the mesh operation. The default is ``None``.
+            Name of the mesh operation. The default is ``None``.
 
         Returns
         -------
@@ -1722,13 +1738,17 @@ class Mesh(PyAedtBase):
 
     @pyaedt_function_handler()
     def assign_rotational_layer(
-        self, assignment: list, layers_number: int = 3, total_thickness: str = "1mm", name: str | None = None
+        self,
+        assignment: list | str | Object3d,
+        layers_number: int = 3,
+        total_thickness: str = "1mm",
+        name: str | None = None,
     ) -> MeshOperation:
         """Assign a rotational layer mesh.
 
         Parameters
         ----------
-        assignment : list
+        assignment : list or str or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             List of objects.
         layers_number : int, optional
             Number of layers to create in the radial direction, starting from
@@ -1779,12 +1799,14 @@ class Mesh(PyAedtBase):
         return mop
 
     @pyaedt_function_handler()
-    def assign_edge_cut(self, assignment: list, layer_thickness: str = "1mm", name: str | None = None) -> MeshOperation:
+    def assign_edge_cut(
+        self, assignment: list | str | EdgePrimitive, layer_thickness: str = "1mm", name: str | None = None
+    ) -> MeshOperation:
         """Assign an edge cut layer mesh.
 
         Parameters
         ----------
-        assignment : list
+        assignment : list or str or :class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`
             List of objects.
         layer_thickness :
             Thickness of the layer with units. The default is ``"1mm"``.
@@ -1828,7 +1850,7 @@ class Mesh(PyAedtBase):
     @pyaedt_function_handler()
     def assign_density_control(
         self,
-        assignment: list,
+        assignment: list | str | Object3d,
         refine_inside: bool = True,
         maximum_element_length: str | None = None,
         layers_number: int | None = None,
@@ -1838,7 +1860,7 @@ class Mesh(PyAedtBase):
 
         Parameters
         ----------
-        assignment : list
+        assignment : list or str or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             List of objects.
         refine_inside : bool, optional
             Whether to refine inside objects. The default is ``True``.
@@ -1907,7 +1929,7 @@ class Mesh(PyAedtBase):
     @pyaedt_function_handler()
     def assign_cylindrical_gap(
         self,
-        entity: list,
+        entity: list | str | Object3d,
         name: str | None = None,
         band_mapping_angle: float | None = None,
         clone_mesh: bool = False,

@@ -65,6 +65,7 @@ def test_optimetrics_init(optimetrics_app):
     assert optimetrics_app.optimizations.setups[0].setup_type == "optiSLang"
 
     assert optimetrics_app.optimizations.setups[0].properties
+    assert optimetrics_app.optimizations.setups[0].public_dir
 
     assert len(optimetrics_app.parametrics.setups) == 1
     assert len(optimetrics_app.parametrics.setups_by_type) == 1

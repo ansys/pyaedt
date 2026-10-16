@@ -312,6 +312,11 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
     def create(self) -> OptimetricsSetup:
         """Create a setup.
 
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.design_xploration.OptimetricsSetup`
+            The created optimization setup.
+
         References
         ----------
         >>> oModule.InsertSetup
@@ -1287,9 +1292,11 @@ class Parametrics(PyAedtBase):
         >>> same_parametric = app.parametrics[parametric.name]
 
         """
-        if name in self.setup_names:
-            return self.setups[name]
-        return None
+        if name not in self.__setups and name in self.setup_names:
+            self.__setups[name] = ParametricSetup(app=self, name=name, props={})
+        if name not in self.setup_names:
+            return None
+        return self.__setups[name]
 
     @property
     def setup_names(self) -> list[str]:
@@ -1708,9 +1715,11 @@ class Optimizations(PyAedtBase):
         >>> setup = app.optimetrics.optimizations["Optimization1"]
 
         """
-        if name in self.setup_names:
-            return self.setups[name]
-        return None
+        if name not in self.__setups and name in self.setup_names:
+            self.__setups[name] = ParametricSetup(app=self, name=name, props={})
+        if name not in self.setup_names:
+            return None
+        return self.__setups[name]
 
     @property
     def setup_names(self) -> list[str]:
