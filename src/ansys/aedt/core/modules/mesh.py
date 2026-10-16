@@ -178,7 +178,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         >>> hfss = Hfss()
         >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
         >>> surface = hfss.mesh.assign_surface_mesh(o.name, 3, "Surface")
-        >>> surface.type
+        >>> surface.operation_type
 
         """
         if not self.__operation_type:
@@ -1191,7 +1191,7 @@ class Mesh(PyAedtBase):
         >>> surface = hfss.mesh.assign_model_resolution(o, 1e-4, "ModelRes1")
 
         """
-        assignment = self._modeler.convert_to_selections(assignment, True)
+        assignment = self._app.modeler.convert_to_selections(assignment, True)
 
         if name and name in self.operation_names:
             name = generate_unique_name(name)
@@ -1268,7 +1268,7 @@ class Mesh(PyAedtBase):
             }
         )
 
-        assignment = self._modeler.convert_to_selections(assignment, True)
+        assignment = self._app.modeler.convert_to_selections(assignment, True)
 
         for sel in assignment:
             if isinstance(sel, str):
@@ -1358,7 +1358,7 @@ class Mesh(PyAedtBase):
             }
         )
 
-        assignment = self._modeler.convert_to_selections(assignment, True)
+        assignment = self._app.modeler.convert_to_selections(assignment, True)
 
         for sel in assignment:
             if isinstance(sel, str):
@@ -1406,7 +1406,7 @@ class Mesh(PyAedtBase):
 
         props = dict({"Type": "SurfaceRepPriority", "Objects": [], "Faces": [], "SurfaceRepPriority": surface_priority})
 
-        assignment = self._modeler.convert_to_selections(assignment, True)
+        assignment = self._app.modeler.convert_to_selections(assignment, True)
 
         for sel in assignment:
             if isinstance(sel, str):
@@ -1470,7 +1470,7 @@ class Mesh(PyAedtBase):
             }
         )
 
-        assignment = self._modeler.convert_to_selections(assignment, True)
+        assignment = self._app.modeler.convert_to_selections(assignment, True)
 
         for sel in assignment:
             if isinstance(sel, str):
@@ -1534,7 +1534,7 @@ class Mesh(PyAedtBase):
             restrictlength = False
         else:
             restrictlength = True
-        length = self._modeler.modeler_variable(maximum_length)
+        length = self._app.modeler.modeler_variable(maximum_length)
 
         if maximum_elements is None:
             restrictel = False
@@ -1560,7 +1560,7 @@ class Mesh(PyAedtBase):
             }
         )
 
-        assignment = self._modeler.convert_to_selections(assignment, True)
+        assignment = self._app.modeler.convert_to_selections(assignment, True)
 
         for sel in assignment:
             if isinstance(sel, str):
@@ -1618,7 +1618,7 @@ class Mesh(PyAedtBase):
         >>> hfss.mesh.assign_skin_depth(assignment=o)
 
         """
-        assignment = self._modeler.convert_to_selections(assignment, True)
+        assignment = self._app.modeler.convert_to_selections(assignment, True)
 
         if self._app.design_type not in ["HFSS", "Maxwell 3D", "Maxwell 2D"]:
             raise MethodNotSupportedError
@@ -1710,13 +1710,14 @@ class Mesh(PyAedtBase):
 
         props = dict({"Type": "Curvilinear", "Objects": [], "Faces": [], "Apply": enable})
 
-        assignment = self._modeler.convert_to_selections(assignment, True)
+        assignment = self._app.modeler.convert_to_selections(assignment, True)
 
         for sel in assignment:
             if isinstance(sel, str):
                 props["Objects"].append(sel)
             elif isinstance(sel, int):
                 props["Faces"].append(sel)
+
         mop = MeshOperation(self, name, props)
 
         return mop.create()
@@ -1760,7 +1761,7 @@ class Mesh(PyAedtBase):
         >>> app.mesh.assign_rotational_layer(assignment=box)
 
         """
-        assignment = self._modeler.convert_to_selections(assignment, True)
+        assignment = self._app.modeler.convert_to_selections(assignment, True)
 
         if self._app.design_type != "Maxwell 3D":
             raise MethodNotSupportedError
@@ -1816,7 +1817,7 @@ class Mesh(PyAedtBase):
         >>> app.mesh.assign_edge_cut(assignment=box)
 
         """
-        assignment = self._modeler.convert_to_selections(assignment, True)
+        assignment = self._app.modeler.convert_to_selections(assignment, True)
 
         if self._app.design_type != "Maxwell 3D":
             raise MethodNotSupportedError
@@ -1876,7 +1877,7 @@ class Mesh(PyAedtBase):
         >>> app.mesh.assign_density_control(assignment=box)
 
         """
-        assignment = self._modeler.convert_to_selections(assignment, True)
+        assignment = self._app.modeler.convert_to_selections(assignment, True)
 
         if self._app.design_type != "Maxwell 3D":
             raise MethodNotSupportedError
@@ -1982,10 +1983,14 @@ class Mesh(PyAedtBase):
             if self._app.design_type != "Maxwell 2D" and self._app.design_type != "Maxwell 3D":
                 raise MethodNotSupportedError
 
-            entity = self._modeler.convert_to_selections(entity, True)
+            entity = self._app.modeler.convert_to_selections(entity, True)
             if len(entity) > 1:
                 raise ValueError("Cylindrical gap treatment cannot be assigned to multiple objects.")
-            if [x for x in self.meshoperations if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"]:
+            if [
+                x
+                for x in self.operations
+                if x.operation_type == "Cylindrical Gap Based" or x.operation_type == "CylindricalGap"
+            ]:
                 raise ValueError("Cylindrical gap treatment cannot be assigned to multiple objects.")
             if band_mapping_angle and band_mapping_angle > 3:
                 raise ValueError("Band mapping angle must be between 0.0005 and 3 deg.")
@@ -2102,8 +2107,8 @@ class Mesh(PyAedtBase):
         elif not mesh_op_types:
             mesh_op_types = []
             for _, m in self.operations.items():
-                if m.type and m.type in mesh_op_types_compatible:
-                    mesh_op_types.append(m.type)
+                if m.operation_type and m.operation_type in mesh_op_types_compatible:
+                    mesh_op_types.append(m.operation_type)
 
         for mesh_op_type in mesh_op_types:
             if mesh_op_type not in mesh_op_types_compatible:
