@@ -40,6 +40,7 @@ else:
 from ansys.aedt.core.application import _get_obj_data
 from ansys.aedt.core.application import _has_get_obj_data
 from ansys.aedt.core.base import PyAedtBase
+from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import SetupDict
@@ -121,15 +122,15 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         self._app: Any = self._mesh._app
         self._legacy_props = {}
         self._name = name
-        self._type = None
+        self.__operation_type = None
 
         if props:
             self._legacy_props = MeshProps(self, props)
 
         if name == "InitialMeshSettings":
-            self._type = "InitialMeshSettings"
+            self.__operation_type = "InitialMeshSettings"
 
-        if self._type == "InitialMeshSettings":
+        if self.__operation_type == "InitialMeshSettings":
             # TODO: Currently AEDT API does not have a way to get InitialMeshSettings props
             self._has_getobject = False
         else:
@@ -163,7 +164,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         return child_object
 
     @property
-    def type(self) -> str | None:
+    def operation_type(self) -> str | None:
         """Retrieve type.
 
         Returns
@@ -180,9 +181,32 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         >>> surface.type
 
         """
-        if not self._type:
-            self._type = self.props.get("Type", None)
-        return self._type
+        if not self.__operation_type:
+            self.__operation_type = self.props.get("Type", None)
+        return self.__operation_type
+
+    @property
+    @deprecated("Use operation_type instead.")
+    def type(self) -> str | None:
+        """Retrieve type.
+
+        Deprecated. Use :attr:`operation_type` instead.
+
+        Returns
+        -------
+        str
+            Type of the mesh operation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> surface = hfss.mesh.assign_surface_mesh(o.name, 3, "Surface")
+        >>> surface.type
+
+        """
+        return self.operation_type
 
     @property
     def assignment(self) -> list:
@@ -234,7 +258,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         if _has_getobject:
             props = _get_obj_data(self._child_object) or {}
         else:
-            if self._type == "InitialMeshSettings":
+            if self.__operation_type == "InitialMeshSettings":
                 return self._get_initial_mesh_settings()
 
             props = {}
@@ -262,7 +286,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
                 assigned_id = []
                 if self._app._aedt_version >= "2023.1":
                     # GetMeshOpAssignment is not available in 2022 R2 and earlier versions
-                    assigned_id = self._app.omeshmodule.GetMeshOpAssignment(self.name)
+                    assigned_id = self._app.omeshmodule.GetMeshOpAssignment(self._name)
                 for comp_id in assigned_id:
                     if int(comp_id) in self._app.modeler.objects.keys():
                         props["Objects"].append(self._app.oeditor.GetObjectNameByID(comp_id))
@@ -285,7 +309,12 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
 
     @props.setter
     def props(self, value: dict) -> None:
-        self.update(props=value)
+        if self.name != "InitialMeshSettings":
+            self.update(props=value)
+        else:
+            self._app.logger.warning(
+                "Initial mesh settings props can not be set.Use assign_initial_mesh_from_slider or assign_initial_mesh."
+            )
 
     @pyaedt_function_handler()
     def _get_initial_mesh_settings(self) -> MeshProps:
@@ -359,7 +388,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         >>> surface.name
 
         """
-        if self._child_object and self.type != "InitialMeshSettings":
+        if self._child_object and self.operation_type != "InitialMeshSettings":
             self._name = self._child_object.Name
         return self._name
 
@@ -367,7 +396,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
     def name(self, meshop_name: str) -> None:
         if meshop_name in self._mesh.operation_names:
             raise ValueError(f"Name {meshop_name} already assigned in the design.")
-        if self._child_object is not None and self.type != "InitialMeshSettings":
+        if self._child_object is not None and self.operation_type != "InitialMeshSettings":
             self._child_object.Name = str(meshop_name)
             object.__setattr__(self, "_name", meshop_name)
             if self._child_object.Name != str(meshop_name):
@@ -399,37 +428,37 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         >>> surface = hfss.mesh.assign_surface_mesh(o.name, 3, "Surface")
 
         """
-        if self.type == "SurfApproxBased":
+        if self.operation_type == "SurfApproxBased":
             self._app.omeshmodule.AssignTrueSurfOp(self._get_args())
-        elif self.type == "DefeatureBased":
+        elif self.operation_type == "DefeatureBased":
             self._app.omeshmodule.AssignModelResolutionOp(self._get_args())
-        elif self.type == "SurfaceRepPriority":
+        elif self.operation_type == "SurfaceRepPriority":
             self._app.omeshmodule.AssignSurfPriorityForTauOp(self._get_args())
-        elif self.type == "LengthBased":
+        elif self.operation_type == "LengthBased":
             self._app.omeshmodule.AssignLengthOp(self._get_args())
-        elif self.type == "SkinDepthBased":
+        elif self.operation_type == "SkinDepthBased":
             self._app.omeshmodule.AssignSkinDepthOp(self._get_args())
-        elif self.type == "Curvilinear":
+        elif self.operation_type == "Curvilinear":
             self._app.omeshmodule.AssignApplyCurvlinearElementsOp(self._get_args())
-        elif self.type == "RotationalLayerMesh":
+        elif self.operation_type == "RotationalLayerMesh":
             props = dict(self.props)
             if "Total Layer Thickness" in props:
                 props["Total Layer Thickenss"] = props["Total Layer Thickness"]
                 del props["Total Layer Thickness"]
             self._app.omeshmodule.AssignRotationalLayerOp(self._get_args(props))
-        elif self.type == "EdgeCutLayerMesh":
+        elif self.operation_type == "EdgeCutLayerMesh":
             props = dict(self.props)
             if "Layer Thickness" in props:
                 props["Layer Thickenss"] = props["Layer Thickness"]
                 del props["Layer Thickness"]
             self._app.omeshmodule.AssignEdgeCutLayerOp(self._get_args(props))
-        elif self.type == "DensityControlBased":
+        elif self.operation_type == "DensityControlBased":
             self._app.omeshmodule.AssignDensityControlOp(self._get_args())
-        elif self.type == "Icepak":
+        elif self.operation_type == "Icepak":
             self._app.omeshmodule.AssignMeshOperation(self._get_args())
-        elif self.type == "CurvatureExtraction":
+        elif self.operation_type == "CurvatureExtraction":
             self._app.omeshmodule.AssignCurvatureExtractionOp(self._get_args())
-        elif self.type == "CylindricalGap":
+        elif self.operation_type == "CylindricalGap":
             self._app.omeshmodule.AssignCylindricalGapOp(self._get_args())
         else:
             return False
@@ -519,41 +548,41 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         if new_name is not None:
             aedt_props[0] = "NAME:" + new_name
 
-        if self.type in ["InitialMeshSettings", "MeshSettings"]:
+        if self.operation_type in ["InitialMeshSettings", "MeshSettings"]:
             self._app.omeshmodule.InitialMeshSettings(aedt_props)
         elif hasattr(self._app.omeshmodule, "Edit"):
             self._app.omeshmodule.Edit(self.name, aedt_props)
         else:  # pragma: no cover
-            if self.type in ["SurfApproxBased", "Surface Approximation Based"]:
+            if self.operation_type in ["SurfApproxBased", "Surface Approximation Based"]:
                 self._app.omeshmodule.EditTrueSurfOp(self.name, aedt_props)
-            elif self.type == "DefeatureBased":
+            elif self.operation_type == "DefeatureBased":
                 self._app.omeshmodule.EditModelResolutionOp(self.name, aedt_props)
-            elif self.type == "SurfaceRepPriority":
+            elif self.operation_type == "SurfaceRepPriority":
                 self._app.omeshmodule.EditSurfPriorityOp(self.name, aedt_props)
-            elif self.type == "LengthBased":
+            elif self.operation_type == "LengthBased":
                 self._app.omeshmodule.EditLengthOp(self.name, aedt_props)
-            elif self.type == "SkinDepthBased":
+            elif self.operation_type == "SkinDepthBased":
                 self._app.omeshmodule.EditSkinDepthOp(self.name, aedt_props)
-            elif self.type == "Curvilinear":
+            elif self.operation_type == "Curvilinear":
                 self._app.omeshmodule.EditApplyCurvlinearElementsOp(self.name, aedt_props)
-            elif self.type == "RotationalLayerMesh":
+            elif self.operation_type == "RotationalLayerMesh":
                 if "Total Layer Thickness" in props:
                     props["Total Layer Thickenss"] = props["Total Layer Thickness"]
                     del props["Total Layer Thickness"]
                 self._app.omeshmodule.EditRotationalLayerOp(self.name, aedt_props)
-            elif self.type == "DensityControlBased":
+            elif self.operation_type == "DensityControlBased":
                 self._app.omeshmodule.EditDensityControlOp(self.name, aedt_props)
-            elif self.type == "EdgeCutLayerMesh":
+            elif self.operation_type == "EdgeCutLayerMesh":
                 props = dict(self.props)
                 if "Layer Thickness" in props:
                     props["Layer Thickenss"] = props["Layer Thickness"]
                     del props["Layer Thickness"]
                 self._app.omeshmodule.EditEdgeCutLayerOp(self.name, aedt_props)
-            elif self.type == "Icepak":
+            elif self.operation_type == "Icepak":
                 self._app.omeshmodule.EditMeshOperation(self.name, aedt_props)
-            elif self.type == "CurvatureExtraction":
+            elif self.operation_type == "CurvatureExtraction":
                 self._app.omeshmodule.EditCurvatureExtractionOp(self.name, aedt_props)
-            elif self.type == "CylindricalGap":
+            elif self.operation_type == "CylindricalGap":
                 self._app.omeshmodule.EditCylindricalGapOp(self.name, aedt_props)
             else:
                 return False
@@ -993,15 +1022,20 @@ class Mesh(PyAedtBase):
             args += ["UseAlternativeMeshMethodsAsFallBack:=", fallback, "AllowPhiForLayeredGeometry:=", phi]
         self._app.omeshmodule.InitialMeshSettings(args)
 
+        # Change properties, because they are not refreshed due to API limitation
+        new_props = {}
+        _arg2dict(args, new_props)
+        if "MeshSettings" in new_props:
+            self.initial_mesh_settings._legacy_props = new_props["MeshSettings"]
         return True
 
     @pyaedt_function_handler()
     def assign_initial_mesh(
         self,
         method: str = "Auto",
-        surface_deviation: float | str | None = None,
-        normal_deviation: float | str | None = None,
-        aspect_ratio: float | str | None = None,
+        surface_deviation: float | int | str | None = None,
+        normal_deviation: float | int | str | None = None,
+        aspect_ratio: float | int | str | None = None,
         flex_mesh: bool = False,
         curvilinear: bool = False,
         fallback: bool = True,
@@ -1016,13 +1050,13 @@ class Mesh(PyAedtBase):
         method : str, optional
             Meshing method. Options are ``"Auto"``, ``"AnsoftTAU"``, and ``"AnsoftClassic"``
             The default is ``"Auto"``.
-        surface_deviation : float or str, optional
+        surface_deviation : float, int, or str, optional
              Surface deviation.
              The default is ``None``, in which case the default value is assigned.
-        normal_deviation : float or str, optional
+        normal_deviation : float, int, or str, optional
              Normal deviation.
              The default is ``None``, in which case the default value is assigned.
-        aspect_ratio : float or str, optional
+        aspect_ratio : float, int, or str, optional
              Aspect ratio.
              The default is ``None``, in which case the default value is assigned.
         flex_mesh : bool, optional
@@ -1113,6 +1147,13 @@ class Mesh(PyAedtBase):
         if self._app.design_type == "HFSS":
             args += ["UseAlternativeMeshMethodsAsFallBack:=", fallback, "AllowPhiForLayeredGeometry:=", phi]
         self._app.omeshmodule.InitialMeshSettings(args)
+
+        # Change properties, because they are not refreshed due to API limitation
+        new_props = {}
+        _arg2dict(args, new_props)
+        if "MeshSettings" in new_props:
+            self.initial_mesh_settings._legacy_props = new_props["MeshSettings"]
+
         return True
 
     @pyaedt_function_handler()
@@ -1184,7 +1225,7 @@ class Mesh(PyAedtBase):
     @pyaedt_function_handler()
     def assign_surface_mesh(
         self, assignment: list | str | int | Object3d, level: int, name: str | None = None
-    ) -> MeshOperation:
+    ) -> MeshOperation | bool:
         """Assign a surface mesh level to one or more objects.
 
         Parameters
@@ -1238,8 +1279,8 @@ class Mesh(PyAedtBase):
             }
         )
         mop = MeshOperation(self, name, props, "SurfApproxBased")
-        mop.create()
-        return mop
+
+        return mop.create()
 
     @pyaedt_function_handler()
     def assign_surface_mesh_manual(

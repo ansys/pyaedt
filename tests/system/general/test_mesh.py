@@ -74,7 +74,8 @@ def test_mesh_init(mesh_app) -> None:
     names = mesh_app.mesh.operation_names
 
     assert isinstance(mesh_app.mesh[names[1]], MeshOperation)
-    assert len(mesh_app.mesh[names[1]].assignment) == 1
+    if "Assignment" in mesh_app.mesh[names[1]].child_object.GetPropNames():
+        assert len(mesh_app.mesh[names[1]].assignment) == 1
 
     # Initial Mesh settings can not be modified
     mesh_app.mesh.initial_mesh_settings.name = "NewName"
@@ -121,23 +122,35 @@ def test_initial_mesh_settings_hfss(aedt_app) -> None:
     assert "MeshMethod" in aedt_app.mesh.initial_mesh_settings.props
 
 
-def test_assign_initial_mesh_slider_hfss(aedt_app) -> None:
+def test_assign_initial_mesh_hfss(aedt_app) -> None:
     # TODO: Assert value assigned, when API allows to get this information
+    assert aedt_app.mesh.initial_mesh_settings.props["GlobalSurfApproximation"]["SliderMeshSettings"] == 5
     assert aedt_app.mesh.assign_initial_mesh_from_slider(6)
+    assert aedt_app.mesh.initial_mesh_settings.props["GlobalSurfApproximation"]["SliderMeshSettings"] == 6
+    assert aedt_app.mesh.assign_initial_mesh(method="AnsoftClassic")
+    assert aedt_app.mesh.initial_mesh_settings.props["MeshMethod"] == "AnsoftClassic"
 
 
 def test_assign_initial_mesh_slider_maxwell3d(maxwell_app) -> None:
     # TODO: Assert value assigned, when API allows to get this information
+    assert maxwell_app.mesh.initial_mesh_settings.props["GlobalSurfApproximation"]["SliderMeshSettings"] == 5
     assert maxwell_app.mesh.assign_initial_mesh_from_slider(4)
+    assert maxwell_app.mesh.initial_mesh_settings.props["GlobalSurfApproximation"]["SliderMeshSettings"] == 4
+    assert maxwell_app.mesh.assign_initial_mesh(method="AnsoftClassic")
+    assert maxwell_app.mesh.initial_mesh_settings.props["MeshMethod"] == "AnsoftClassic"
 
 
 def test_assign_initial_mesh_from_slider_maxwell2d(m2d_setup) -> None:
     # TODO: Assert value assigned, when API allows to get this information
+    assert m2d_setup.mesh.initial_mesh_settings.props["GlobalSurfApproximation"]["SliderMeshSettings"] == 5
     assert m2d_setup.mesh.assign_initial_mesh_from_slider(4)
+    assert m2d_setup.mesh.initial_mesh_settings.props["GlobalSurfApproximation"]["SliderMeshSettings"] == 4
     with pytest.raises(ValueError):
         m2d_setup.mesh.assign_initial_mesh_from_slider(method="dummy")
     with pytest.raises(ValueError):
         m2d_setup.mesh.assign_initial_mesh(method="dummy")
+    m2d_setup.mesh.assign_initial_mesh(method="AnsoftClassic")
+    assert m2d_setup.mesh.initial_mesh_settings.props["MeshMethod"] == "AnsoftClassic"
 
 
 def test_assign_model_resolution(aedt_app) -> None:
@@ -157,7 +170,9 @@ def test_assign_model_resolution(aedt_app) -> None:
     assert "resolution_test" in aedt_app.mesh.operations[0].name
     assert "resolution_test" in aedt_app.mesh.operation_names
 
-    assert mr1.assignment == [o.name]
+    if mr1.assignment:
+        # In old versions, Assignment property was not available
+        assert mr1.assignment == [o.name]
 
     mr1_1 = aedt_app.mesh.assign_model_resolution(o, "1e-4cm")
     assert mr1_1.props["DefeatureLength"] in ["1e-4cm", "0.0001cm"]
