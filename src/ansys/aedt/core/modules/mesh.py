@@ -145,7 +145,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         return False
 
     @property
-    def _child_object(self) -> object | None:
+    def _child_object(self) -> Any | None:
         """Object-oriented properties.
 
         Returns
@@ -227,10 +227,14 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
 
         """
         assignments = []
-        if self._child_object:
-            if "Assignment" in self._child_object.GetPropNames():
-                assignments = getattr(self._child_object, "Assignment", [])
-                assignments = [assignment.strip() for assignment in assignments.split(",") if assignment.strip()]
+        child_object = self._child_object
+        if child_object is not None:
+            if "Assignment" in child_object.GetPropNames():
+                assignment = getattr(child_object, "Assignment", [])
+                if isinstance(assignment, str):
+                    assignments = [item.strip() for item in assignment.split(",") if item.strip()]
+                elif isinstance(assignment, list):
+                    assignments = assignment
 
         return assignments
 
@@ -388,13 +392,18 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         >>> surface.name
 
         """
-        if self._child_object and self.operation_type != "InitialMeshSettings":
-            self._name = self._child_object.Name
+        child_object = self._child_object
+        if child_object is not None and self.operation_type != "InitialMeshSettings":
+            self._name = child_object.Name
         return self._name
 
     @name.setter
     def name(self, meshop_name: str) -> None:
-        if meshop_name in self._mesh.operation_names:
+        if isinstance(self._mesh, Mesh):
+            operation_names = self._mesh.operation_names
+        else:
+            operation_names = [operation.name for operation in self._mesh.meshoperations]
+        if meshop_name in operation_names:
             raise ValueError(f"Name {meshop_name} already assigned in the design.")
         if self._child_object is not None and self.operation_type != "InitialMeshSettings":
             self._child_object.Name = str(meshop_name)
@@ -540,7 +549,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
 
         return self._update_properties(props)
 
-    def _update_properties(self, props: dict, new_name: str = None) -> bool:
+    def _update_properties(self, props: dict, new_name: str | None = None) -> bool:
         """Send a complete mesh operation property dictionary to AEDT."""
         aedt_props = self._get_args(props)
 
@@ -849,7 +858,7 @@ class Mesh(PyAedtBase):
         return self.__operations
 
     @property
-    def initial_mesh_settings(self) -> MeshOperation | None:
+    def initial_mesh_settings(self) -> MeshOperation:
         """Return the global mesh object.
 
         Returns
@@ -1022,7 +1031,7 @@ class Mesh(PyAedtBase):
         self._app.omeshmodule.InitialMeshSettings(args)
 
         # Change properties, because they are not refreshed due to API limitation
-        new_props = {}
+        new_props: dict[str, Any] = {}
         _arg2dict(args, new_props)
         if "MeshSettings" in new_props:
             self.initial_mesh_settings._legacy_props = new_props["MeshSettings"]
@@ -1148,7 +1157,7 @@ class Mesh(PyAedtBase):
         self._app.omeshmodule.InitialMeshSettings(args)
 
         # Change properties, because they are not refreshed due to API limitation
-        new_props = {}
+        new_props: dict[str, Any] = {}
         _arg2dict(args, new_props)
         if "MeshSettings" in new_props:
             self.initial_mesh_settings._legacy_props = new_props["MeshSettings"]
@@ -1208,7 +1217,7 @@ class Mesh(PyAedtBase):
             if not isinstance(defeature_length, str):
                 defeature_length = str(defeature_length) + "mm"
 
-            props = dict(
+            props: dict[str, Any] = dict(
                 {
                     "Type": "DefeatureBased",
                     "Objects": assignment,
@@ -1258,7 +1267,7 @@ class Mesh(PyAedtBase):
         else:
             name = generate_unique_name("SurfApprox")
 
-        props = dict(
+        props: dict[str, Any] = dict(
             {
                 "Type": "SurfApproxBased",
                 "CurvedSurfaceApproxChoice": "UseSlider",
@@ -1343,7 +1352,7 @@ class Mesh(PyAedtBase):
             aspect_ratio_enable = 1
             aspect_ratio = 10
 
-        props = dict(
+        props: dict[str, Any] = dict(
             {
                 "Type": "SurfApproxBased",
                 "Objects": [],
@@ -1404,7 +1413,9 @@ class Mesh(PyAedtBase):
         """
         meshop_name = generate_unique_name("SurfaceRepPriority")
 
-        props = dict({"Type": "SurfaceRepPriority", "Objects": [], "Faces": [], "SurfaceRepPriority": surface_priority})
+        props: dict[str, Any] = dict(
+            {"Type": "SurfaceRepPriority", "Objects": [], "Faces": [], "SurfaceRepPriority": surface_priority}
+        )
 
         assignment = self._app.modeler.convert_to_selections(assignment, True)
 
@@ -1461,7 +1472,7 @@ class Mesh(PyAedtBase):
         else:
             name = generate_unique_name("CurvilinearElements")
 
-        props = dict(
+        props: dict[str, Any] = dict(
             {
                 "Type": "CurvatureExtraction",
                 "Objects": [],
@@ -1546,7 +1557,7 @@ class Mesh(PyAedtBase):
         if maximum_length is None and maximum_elements is None:
             raise ValueError("Maximum length and maximum elements are not specified.")
 
-        props = dict(
+        props: dict[str, Any] = dict(
             {
                 "Type": "LengthBased",
                 "RefineInside": inside_selection,
@@ -1644,7 +1655,7 @@ class Mesh(PyAedtBase):
             else:
                 restrictlength = True
 
-            props = dict(
+            props: dict[str, Any] = dict(
                 {
                     "Type": "SkinDepthBased",
                     "Enabled": True,
@@ -1708,7 +1719,7 @@ class Mesh(PyAedtBase):
         else:
             name = generate_unique_name("CurvilinearElements")
 
-        props = dict({"Type": "Curvilinear", "Objects": [], "Faces": [], "Apply": enable})
+        props: dict[str, Any] = dict({"Type": "Curvilinear", "Objects": [], "Faces": [], "Apply": enable})
 
         assignment = self._app.modeler.convert_to_selections(assignment, True)
 
