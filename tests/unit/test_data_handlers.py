@@ -70,3 +70,26 @@ def test_numbers() -> None:
     assert b * 2
     assert b / 2
     assert b + "1GHz"
+
+
+def test_dict2arg_single_range_dict() -> None:
+    arg = []
+    dh._dict2arg(
+        {"Ranges": {"Range": {"DiscreteValues": "2.5GHz", "Type": "d", "Var": "Freq"}}},
+        arg,
+    )
+
+    assert arg == [
+        [
+            "NAME:Ranges",
+            "Range:=",
+            ["DiscreteValues:=", "2.5GHz", "Type:=", "d", "Var:=", "Freq"],
+        ]
+    ]
+
+
+def test_dict2arg_goal_value_b_g_dict() -> None:
+    arg = []
+    dh._dict2arg({"GoalValue": {"Format": "Real/Imag", "bG": {"v": "[1;]"}}}, arg)
+
+    assert arg == [["NAME:GoalValue", "Format:=", "Real/Imag", "bG:=", ["v:=", "[1;]"]]]

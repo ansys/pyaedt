@@ -1112,7 +1112,7 @@ class NetworkObject(BoundaryObject):
             return False
 
     @pyaedt_function_handler()
-    def update_assignment(self) -> bool:
+    def update_assignment(self, properties=None) -> bool:
         """Update assignments of the network.
 
         Examples
@@ -1122,7 +1122,7 @@ class NetworkObject(BoundaryObject):
         >>> obj.update_assignment()
 
         """
-        return self.update()
+        return self.update(properties)
 
     class _Link:
         def __init__(self, node_1, node_2, value, name: str, network) -> None:

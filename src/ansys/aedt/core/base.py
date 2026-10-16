@@ -86,7 +86,7 @@ class DirMixin:
             except (AttributeError, RuntimeError):
                 continue
 
-            if getattr(obj, "__deprecated__", None) is not None:
+            if "__deprecated__" in dir(obj) and getattr(obj, "__deprecated__", None) is not None:
                 continue
 
             doc = inspect.getdoc(obj)

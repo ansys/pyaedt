@@ -791,9 +791,9 @@ def test_update_assignment(ipk_app) -> None:
     box2 = ipk_app.modeler.create_box([9, 9, 9], [5, 5, 5], "box2", "copper")
     bound = ipk_app.assign_solid_block("box", "1W")
     bound.props["Objects"].append(box2)
-    assert bound.update_assignment()
+    assert box2.name in bound.assignment
     bound.props["Objects"].remove(box2)
-    assert bound.update_assignment()
+    assert box2.name not in bound.assignment
 
 
 def test_power_budget(power_budget_app) -> None:
