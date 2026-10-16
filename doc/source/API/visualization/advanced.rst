@@ -120,6 +120,48 @@ If you have existing farfield data, or you want to export it manually, you can s
     :alt: Farfield data with AEDT
 
 
+Farfield from binary results
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When HFSS stores the tangential fields on the radiation boundary (single antennas,
+explicit arrays, and FA-DDM solves), you can reconstruct the far field directly
+from the binary ``.aedtresults`` data with a near-field-to-far-field transform,
+avoiding a solver round-trip to re-export an ``.ffd`` file. The result is returned
+as an ``FfdSolutionData``.
+
+.. currentmodule:: ansys.aedt.core.visualization.advanced.farfield_binary
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   RadiationSurface
+   far_field_data_from_aedtresults
+   find_radiation_surface_folder
+   parse_surface_mesh_header
+
+This code reconstructs the far field from an existing results folder:
+
+.. code:: python
+
+    from ansys.aedt.core.visualization.advanced.farfield_binary import (
+        far_field_data_from_aedtresults,
+    )
+
+    ffdata = far_field_data_from_aedtresults(results_folder)
+    ffdata.plot_cut(primary_sweep="Theta", theta=0)
+
+You can also let ``get_antenna_data`` use the binary data when it is available:
+
+.. code:: python
+
+    from ansys.aedt.core import Hfss
+
+    app = Hfss()
+    ffdata = app.get_antenna_data(frequencies="10GHz", use_existing_binary=True)
+    app.release_desktop(False, False)
+
+
 Monostatic RCS
 ~~~~~~~~~~~~~~
 
