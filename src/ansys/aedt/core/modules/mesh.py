@@ -466,7 +466,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
             self._app.omeshmodule.AssignMeshOperation(self._get_args())
         elif self.operation_type == "CurvatureExtraction":
             self._app.omeshmodule.AssignCurvatureExtractionOp(self._get_args())
-        elif self.operation_type == "CylindricalGap":
+        elif self.operation_type in ["CylindricalGap", "AssignCylindricalGapOp"]:
             self._app.omeshmodule.AssignCylindricalGapOp(self._get_args())
         else:
             return False
@@ -1990,64 +1990,65 @@ class Mesh(PyAedtBase):
         >>> app.mesh.assign_cylindrical_gap(entity=box)
 
         """
-        try:
-            if self._app.design_type != "Maxwell 2D" and self._app.design_type != "Maxwell 3D":
-                raise MethodNotSupportedError
+        if self._app.design_type != "Maxwell 2D" and self._app.design_type != "Maxwell 3D":
+            raise MethodNotSupportedError
 
-            entity = self._app.modeler.convert_to_selections(entity, True)
-            if len(entity) > 1:
-                raise ValueError("Cylindrical gap treatment cannot be assigned to multiple objects.")
-            if [
-                x
-                for x in self.operations
-                if x.operation_type == "Cylindrical Gap Based" or x.operation_type == "CylindricalGap"
-            ]:
-                raise ValueError("Cylindrical gap treatment cannot be assigned to multiple objects.")
-            if band_mapping_angle and band_mapping_angle > 3:
-                raise ValueError("Band mapping angle must be between 0.0005 and 3 deg.")
+        entity = self._app.modeler.convert_to_selections(entity, True)
+        if len(entity) > 1:
+            raise ValueError("Cylindrical gap treatment cannot be assigned to multiple objects.")
 
-            if not name:
-                name = generate_unique_name("CylindricalGap")
+        ops = []
+        for _, op in self.operations.items():
+            if op.operation_type in ["Cylindrical Gap Based", "CylindricalGap"]:
+                ops.append(op)
 
-            if self._app.design_type == "Maxwell 3D":
-                if moving_side_layers < 1:
-                    raise ValueError("Moving side layers must be an integer greater or equal to 1.")
+        if len(ops) > 0:
+            raise ValueError("Cylindrical gap treatment cannot be assigned to multiple objects.")
 
-                if static_side_layers < 1:
-                    raise ValueError("Static side layers must be an integer greater or equal to 1.")
+        if band_mapping_angle and band_mapping_angle > 3:
+            raise ValueError("Band mapping angle must be between 0.0005 and 3 deg.")
 
-                if clone_mesh and not band_mapping_angle:
-                    band_mapping_angle = 3
-                props = dict(
-                    {
-                        "Name": name,
-                        "Objects": entity,
-                        "CloneMesh": clone_mesh,
-                        "BandMappingAngle": str(band_mapping_angle) + "deg",
-                        "MovingSideLayers": moving_side_layers,
-                        "StaticSideLayers": static_side_layers,
-                    }
-                )
-            elif self._app.design_type == "Maxwell 2D":
-                if band_mapping_angle:
-                    use_band_mapping_angle = True
-                else:
-                    use_band_mapping_angle = False
-                    band_mapping_angle = 3
-                props = dict(
-                    {
-                        "Name": name,
-                        "Objects": entity,
-                        "UseBandMappingAngle": use_band_mapping_angle,
-                        "BandMappingAngle": str(band_mapping_angle) + "deg",
-                    }
-                )
+        if not name:
+            name = generate_unique_name("CylindricalGap")
 
-            mesh_operation = MeshOperation(self, name, props)
+        if self._app.design_type == "Maxwell 3D":
+            if moving_side_layers < 1:
+                raise ValueError("Moving side layers must be an integer greater or equal to 1.")
 
-            return mesh_operation.create()
-        except Exception:  # pragma: no cover
-            return False
+            if static_side_layers < 1:
+                raise ValueError("Static side layers must be an integer greater or equal to 1.")
+
+            if clone_mesh and not band_mapping_angle:
+                band_mapping_angle = 3
+
+            props = dict(
+                {
+                    "Type": "AssignCylindricalGapOp",
+                    "Objects": entity,
+                    "CloneMesh": clone_mesh,
+                    "BandMappingAngle": str(band_mapping_angle) + "deg",
+                    "MovingSideLayers": moving_side_layers,
+                    "StaticSideLayers": static_side_layers,
+                }
+            )
+        elif self._app.design_type == "Maxwell 2D":
+            if band_mapping_angle:
+                use_band_mapping_angle = True
+            else:
+                use_band_mapping_angle = False
+                band_mapping_angle = 3
+            props = dict(
+                {
+                    "Type": "AssignCylindricalGapOp",
+                    "Objects": entity,
+                    "UseBandMappingAngle": use_band_mapping_angle,
+                    "BandMappingAngle": str(band_mapping_angle) + "deg",
+                }
+            )
+
+        mesh_operation = MeshOperation(self, name, props)
+
+        return mesh_operation.create()
 
     @pyaedt_function_handler()
     def generate_mesh(self, name: str) -> bool:
