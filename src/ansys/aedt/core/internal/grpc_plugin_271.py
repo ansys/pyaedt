@@ -59,7 +59,7 @@ class AEDT:
         """Retrieve odesktop."""
         return self._odesktop
 
-    def recreate_application(self):
+    def recreate_application(self, force: bool = False) -> None:
         self.CreateAedtApplication(self.machine, self.port)
         return self.odesktop
 
