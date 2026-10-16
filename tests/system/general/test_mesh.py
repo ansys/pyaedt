@@ -28,18 +28,34 @@ from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.generic.general_methods import SetupDict
 from ansys.aedt.core.hfss import Hfss
+from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
+from ansys.aedt.core.internal.errors import MethodNotSupportedError
 from ansys.aedt.core.maxwell import Maxwell2d
 from ansys.aedt.core.modules.mesh import MeshOperation
 from ansys.aedt.core.modules.mesh import MeshProps
+from tests import TESTS_LAYOUT_PATH
 from tests.conftest import DESKTOP_VERSION
-from tests.conftest import USE_GRPC
 
 MESH_PROJECT = "mesh_operations"
+LAYOUT_PROJECT = "ANSYS-HSD_V1"
+TEST_SUBFOLDER = "layout_edb"
 
 
 @pytest.fixture
 def mesh_app(add_app_example):
     app = add_app_example(project=MESH_PROJECT, subfolder="TMesh", application=Hfss)
+    yield app
+    app.close_project(app.project_name, save=False)
+
+
+@pytest.fixture
+def layout_app(add_app_example):
+    app = add_app_example(
+        project=LAYOUT_PROJECT,
+        application=Hfss3dLayout,
+        subfolder=TESTS_LAYOUT_PATH / "example_models" / TEST_SUBFOLDER,
+        is_edb=True,
+    )
     yield app
     app.close_project(app.project_name, save=False)
 
@@ -221,21 +237,26 @@ def test_assign_model_resolution(aedt_app) -> None:
 
 def test_assign_surface_mesh(aedt_app) -> None:
     udp = aedt_app.modeler.Position(10, 10, 0)
+    udp2 = aedt_app.modeler.Position(20, 30, 0)
     coax_dimension = 200
     o = aedt_app.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, "surface")
+    o2 = aedt_app.modeler.create_cylinder(Plane.XY, udp2, 3, coax_dimension, 0)
     mesh_object = aedt_app.get_oo_object(aedt_app.odesign, "Mesh")
 
     # Create mesh operation
-    surface = aedt_app.mesh.assign_surface_mesh(o.id, 3, "Surface")
-    assert "Surface" in [i.name for i in aedt_app.mesh.meshoperations]
+    surface = aedt_app.mesh.assign_surface_mesh([o.id, o2.faces[0].id], 3, "Surface")
+    assert surface.name in aedt_app.mesh.operation_names
+
+    surface2 = aedt_app.mesh.assign_surface_mesh(o.faces[0].id, 3, surface.name)
+    assert surface2.name in aedt_app.mesh.operation_names
 
     # Verify that the surface mesh operation is correctly assigned to the object
     assert surface.name in aedt_app.get_oo_name(mesh_object)
     surface.name = "surface_test"
-    assert "surface_test" in aedt_app.mesh.meshoperations[0].name
+    assert "surface_test" in aedt_app.mesh.operations[0].name
     assert "surface_test" in aedt_app.get_oo_name(mesh_object)
     if surface.assignment:
-        assert surface.assignment == [o.name]
+        assert len(surface.assignment) == 2
 
     # Single property assignment
     surface.props["SliderMeshSettings"] = 2
@@ -263,13 +284,20 @@ def test_assign_surface_mesh(aedt_app) -> None:
 
 
 def test_assign_surface_mesh_manual(aedt_app) -> None:
-    udp = aedt_app.modeler.Position(20, 20, 0)
+    udp = aedt_app.modeler.Position(10, 10, 0)
+    udp2 = aedt_app.modeler.Position(20, 30, 0)
     coax_dimension = 200
-    o = aedt_app.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, "surface_manual")
+    o = aedt_app.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, "surface")
+    o2 = aedt_app.modeler.create_cylinder(Plane.XY, udp2, 3, coax_dimension, 0)
     mesh_object = aedt_app.get_oo_object(aedt_app.odesign, "Mesh")
 
-    surface = aedt_app.mesh.assign_surface_mesh_manual(o.id, 1e-6, aspect_ratio=3, name="Surface_Manual")
-    assert "Surface_Manual" in [i.name for i in aedt_app.mesh.meshoperations]
+    surface = aedt_app.mesh.assign_surface_mesh_manual(
+        [o.id, o2.faces[0].id], 1e-6, aspect_ratio=3, name="Surface_Manual"
+    )
+    assert surface.name in aedt_app.mesh.operation_names
+
+    surface2 = aedt_app.mesh.assign_surface_mesh_manual(o.faces[0].id, 1e-6, aspect_ratio=3, name=surface.name)
+    assert surface2.name in aedt_app.mesh.operation_names
 
     # Verify that the surface mesh operation is correctly assigned to the object
     assert surface.name in aedt_app.get_oo_name(mesh_object)
@@ -277,7 +305,7 @@ def test_assign_surface_mesh_manual(aedt_app) -> None:
     assert "surface_test" in aedt_app.mesh.meshoperations[0].name
     assert "surface_test" in aedt_app.get_oo_name(mesh_object)
     if surface.assignment:
-        assert surface.assignment == [o.name]
+        assert len(surface.assignment) == 2
 
     surface.props["SurfDev"] = 1e-05
     assert float(surface.props["SurfDev"]) == 1e-5
@@ -298,7 +326,7 @@ def test_assign_surface_mesh_manual(aedt_app) -> None:
 
     cylinder_zx = aedt_app.modeler.create_cylinder(Plane.ZX, udp, 3, coax_dimension, 0, "surface_manual")
     surface_default_value = aedt_app.mesh.assign_surface_mesh_manual(cylinder_zx.id)
-    assert surface_default_value.name in [i.name for i in aedt_app.mesh.meshoperations]
+    assert surface_default_value.name in aedt_app.mesh.operation_names
     assert surface_default_value.props["SurfDevChoice"] == 0
 
 
@@ -307,15 +335,15 @@ def test_assign_surface_priority(aedt_app):
     rect = aedt_app.modeler.create_rectangle(Plane.XY, [0, 0, 10], [10, 10])
     mesh_object = aedt_app.get_oo_object(aedt_app.odesign, "Mesh")
 
-    surface = aedt_app.mesh.assign_surf_priority_for_tau([box.name, rect.name], 1)
+    surface = aedt_app.mesh.assign_surf_priority_for_tau([box.name, rect.name, rect.faces[0].id], 1)
 
     # Verify that the surface mesh operation is correctly assigned to the object
-    assert surface.name in aedt_app.get_oo_name(mesh_object)
+    assert surface.name in aedt_app.mesh.operation_names
     surface.name = "surface_test"
-    assert "surface_test" in aedt_app.mesh.meshoperations[0].name
+    assert "surface_test" in aedt_app.mesh.operation_names
     assert "surface_test" in aedt_app.get_oo_name(mesh_object)
     if surface.assignment:
-        assert len(surface.assignment) == 2
+        assert len(surface.assignment) == 3
 
     surface.props["SurfaceRepPriority"] = 0
     assert (
@@ -328,33 +356,73 @@ def test_assign_surface_priority(aedt_app):
     )
 
 
-@pytest.mark.skipif(not USE_GRPC, reason="Not running in COM mode")
-def test_delete_mesh_ops(aedt_app) -> None:
-    udp = aedt_app.modeler.Position(20, 20, 0)
-    coax_dimension = 200
-    o = aedt_app.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, "surface")
-    aedt_app.mesh.assign_surface_mesh(o.id, 3, "Surface")
-    assert aedt_app.mesh.delete_mesh_operations("surface")
-    assert len(aedt_app.mesh.meshoperation_names) == 0
-
-
 def test_curvature_extraction(aedt_app) -> None:
     aedt_app.solution_type = "SBR+"
     box = aedt_app.modeler.create_box([0, 0, 0], [10, 10, 10])
     mesh_object = aedt_app.get_oo_object(aedt_app.odesign, "Mesh")
 
-    curv = aedt_app.mesh.assign_curvature_extraction(box.name)
+    curv = aedt_app.mesh.assign_curvature_extraction([box.name, box.faces[0]])
 
     # Verify that the surface mesh operation is correctly assigned to the object
     assert curv.name in aedt_app.get_oo_name(mesh_object)
     curv.name = "curv_test"
 
-    assert "curv_test" in aedt_app.mesh.meshoperations[0].name
+    if curv.assignment:
+        assert len(curv.assignment) == 2
+
+    assert "curv_test" in aedt_app.mesh.operation_names
     assert "curv_test" in aedt_app.get_oo_name(mesh_object)
 
     assert curv.props["DisableForFacetedSurfaces"]
     curv.props["DisableForFacetedSurfaces"] = False
     assert not aedt_app.get_oo_property_value(mesh_object, curv.name, "Disable for Faceted Surface")
+
+    aedt_app.solution_type = "Modal"
+    with pytest.raises(MethodNotSupportedError):
+        aedt_app.mesh.assign_curvature_extraction(box.name)
+
+
+def test_assign_length_mesh(maxwell_app) -> None:
+    box = maxwell_app.modeler.create_box([30, 0, 0], [40, 10, 5], "BoxCircuit1", "Copper")
+    mesh = maxwell_app.mesh.assign_length_mesh(assignment=[box.name, box.faces[0]], name="mess1")
+    assert isinstance(mesh, MeshOperation)
+    assert mesh.name in maxwell_app.mesh.operation_names
+
+    if mesh.assignment:
+        assert len(mesh.assignment) == 1
+
+    mesh2 = maxwell_app.mesh.assign_length_mesh(assignment=box.name, name=mesh.name, maximum_length=None)
+    assert mesh2.name in maxwell_app.mesh.operation_names
+
+    mesh3 = maxwell_app.mesh.assign_length_mesh(assignment=box.name, name=mesh.name, maximum_elements=None)
+    assert mesh3.name in maxwell_app.mesh.operation_names
+
+    mesh4 = maxwell_app.mesh.assign_length_mesh(assignment=[box.name, box.faces[0]], inside_selection=False)
+    if mesh4.assignment:
+        assert len(mesh4.assignment) == 2
+
+    with pytest.raises(ValueError):
+        maxwell_app.mesh.assign_length_mesh(
+            assignment=box.name, name=mesh.name, maximum_length=None, maximum_elements=None
+        )
+
+    mesh.props["NumMaxElem"] = "100"
+    assert mesh.props["NumMaxElem"] == "100"
+    assert str(mesh.properties["Max Elems"]) == "100"
+
+
+def test_add_mesh_operations(layout_app) -> None:
+    aedt_app.create_setup("HFSS")
+    setup1 = aedt_app.mesh.assign_length_mesh("HFSS", "PWR", "GND")
+    setup2 = aedt_app.mesh.assign_skin_depth("HFSS", "PWR", "GND")
+    assert setup1
+    assert setup2
+    setup1.props["RestrictElem"] = False
+    assert setup1.update()
+    assert aedt_app.mesh.delete_mesh_operations(
+        "HFSS",
+        setup1.name,
+    )
 
 
 def test_maxwell_mesh(maxwell_app) -> None:

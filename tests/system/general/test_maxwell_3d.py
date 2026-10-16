@@ -218,14 +218,6 @@ def test_expression_cache(m3d_app) -> None:
     assert setup.enable_expression_cache(["CoreLoss"], "Fields", "Phase='0deg' ", True)
 
 
-def test_assign_length_mesh(m3d_app) -> None:
-    plate = m3d_app.modeler.create_box([0, 0, 0], [1.5, 1.5, 0.5], name="Plate")
-    assert m3d_app.mesh.assign_length_mesh(plate)
-    assert m3d_app.mesh.assign_length_mesh(plate, maximum_length=1, maximum_elements=1200)
-    assert m3d_app.mesh.assign_length_mesh(plate, name="test_mesh")
-    assert m3d_app.mesh.assign_length_mesh(plate, name="test_mesh")
-
-
 def test_assign_skin_depth(m3d_app) -> None:
     plate = m3d_app.modeler.create_box([0, 0, 0], [1.5, 1.5, 0.5], name="Plate")
     mesh = m3d_app.mesh.assign_skin_depth(plate, "1mm")

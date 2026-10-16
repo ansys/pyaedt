@@ -1065,15 +1065,6 @@ def test_create_open_region(aedt_app) -> None:
     assert aedt_app.create_open_region("1GHz", "PML", True, "-z")
 
 
-def test_create_length_mesh(aedt_app) -> None:
-    aedt_app.modeler.create_box([30, 0, 0], [40, 10, 5], "BoxCircuit1", "Copper")
-    mesh = aedt_app.mesh.assign_length_mesh(["BoxCircuit1"])
-    assert isinstance(mesh, MeshOperation)
-    mesh.props["NumMaxElem"] = "100"
-    assert mesh.props["NumMaxElem"] == aedt_app.mesh.meshoperations[0].properties["Max Elems"]
-    assert mesh.props["NumMaxElem"] == "100"
-
-
 def test_create_skin_depth(aedt_app) -> None:
     aedt_app.modeler.create_box([30, 0, 0], [40, 10, 5], "BoxCircuit2", "Copper")
     mesh = aedt_app.mesh.assign_skin_depth(["BoxCircuit2"], "1mm")

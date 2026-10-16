@@ -398,13 +398,12 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
             raise ValueError(f"Name {meshop_name} already assigned in the design.")
         if self._child_object is not None and self.operation_type != "InitialMeshSettings":
             self._child_object.Name = str(meshop_name)
-            object.__setattr__(self, "_name", meshop_name)
-            if self._child_object.Name != str(meshop_name):
+            # If child_object still exist is because it was not renamed
+            if self._child_object:
                 # Fallback to legacy property update if the name change is not reflected in the child object
                 current_props = dict(self._legacy_props)
                 self._update_properties(props=current_props, new_name=str(meshop_name))
-                object.__setattr__(self, "_name", meshop_name)
-                if self._child_object.Name != str(meshop_name):
+                if self._child_object:
                     raise AEDTRuntimeError("Name can not be changed.")
             object.__setattr__(self, "_name", meshop_name)
             object.__setattr__(self, "_tree_node_initialized", False)
@@ -1248,49 +1247,48 @@ class Mesh(PyAedtBase):
 
         Examples
         --------
-        Basic usage demonstrated with an HFSS design:
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
         >>> surface = hfss.mesh.assign_surface_mesh(o.name, 3, "Surface")
 
         """
-        assignment = self._modeler.convert_to_selections(assignment, True)
-
         if name and name in self.operation_names:
             name = generate_unique_name(name)
         else:
             name = generate_unique_name("SurfApprox")
 
-        self.logger.info("Assigning Mesh Level " + str(level) + " to " + str(assignment))
-        assignment = self._app.modeler.convert_to_selections(assignment, True)
-
-        if isinstance(assignment[0], int):
-            seltype = "Faces"
-        else:
-            seltype = "Objects"
         props = dict(
             {
                 "Type": "SurfApproxBased",
                 "CurvedSurfaceApproxChoice": "UseSlider",
-                seltype: assignment,
+                "Objects": [],
+                "Faces": [],
                 "SliderMeshSettings": level,
             }
         )
-        mop = MeshOperation(self, name, props, "SurfApproxBased")
+
+        assignment = self._modeler.convert_to_selections(assignment, True)
+
+        for sel in assignment:
+            if isinstance(sel, str):
+                props["Objects"].append(sel)
+            elif isinstance(sel, int):
+                props["Faces"].append(sel)
+
+        mop = MeshOperation(self, name, props)
 
         return mop.create()
 
     @pyaedt_function_handler()
     def assign_surface_mesh_manual(
         self,
-        assignment: list | int | str | FacePrimitive,
+        assignment: list | int | str | Object3d,
         surface_deviation: float | int | str | None = None,
         normal_dev: float | int | str | None = None,
         aspect_ratio: int | None = None,
         name: str | None = None,
-    ) -> MeshOperation:
+    ) -> MeshOperation | bool:
         """Assign a surface mesh to a list of faces.
 
         Parameters
@@ -1317,15 +1315,12 @@ class Mesh(PyAedtBase):
 
         Examples
         --------
-        Basic usage demonstrated with an HFSS design:
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
         >>> surface = hfss.mesh.assign_surface_mesh_manual(o.id, 1e-6, aspect_ratio=3, name="Surface_Manual")
 
         """
-        assignment = self._modeler.convert_to_selections(assignment, True)
         if name and name in self.operation_names:
             name = generate_unique_name(name)
         else:
@@ -1351,7 +1346,8 @@ class Mesh(PyAedtBase):
         props = dict(
             {
                 "Type": "SurfApproxBased",
-                "Objects": assignment,
+                "Objects": [],
+                "Faces": [],
                 "CurvedSurfaceApproxChoice": "ManualSettings",
                 "SurfDevChoice": surf_dev_enable,
                 "SurfDev": str(surface_deviation),
@@ -1362,14 +1358,24 @@ class Mesh(PyAedtBase):
             }
         )
 
-        mop = MeshOperation(self, name, props, "SurfApproxBased")
-        mop.create()
-        return mop
+        assignment = self._modeler.convert_to_selections(assignment, True)
+
+        for sel in assignment:
+            if isinstance(sel, str):
+                props["Objects"].append(sel)
+            elif isinstance(sel, int):
+                props["Faces"].append(sel)
+
+        mop = MeshOperation(self, name, props)
+
+        return mop.create()
 
     @pyaedt_function_handler()
     def assign_surf_priority_for_tau(
-        self, assignment: list | str | Object3d, surface_priority: int = 0
-    ) -> MeshOperation:
+        self,
+        assignment: list | str | Object3d,
+        surface_priority: int = 0,
+    ) -> MeshOperation | bool:
         """Assign a surface representation priority for the TAU mesh.
 
         Parameters
@@ -1390,16 +1396,182 @@ class Mesh(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.mesh import Mesh
-        >>> obj = Mesh()
-        >>> obj.assign_surf_priority_for_tau(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> hfss.mesh.assign_surf_priority_for_tau(assignment=o)
 
         """
         meshop_name = generate_unique_name("SurfaceRepPriority")
-        props = dict({"Type": "SurfaceRepPriority", "Objects": assignment, "SurfaceRepPriority": surface_priority})
+
+        props = dict({"Type": "SurfaceRepPriority", "Objects": [], "Faces": [], "SurfaceRepPriority": surface_priority})
+
+        assignment = self._modeler.convert_to_selections(assignment, True)
+
+        for sel in assignment:
+            if isinstance(sel, str):
+                props["Objects"].append(sel)
+            elif isinstance(sel, int):
+                props["Faces"].append(sel)
+
         mop = MeshOperation(self, meshop_name, props)
-        mop.create()
-        return mop
+
+        return mop.create()
+
+    @pyaedt_function_handler()
+    def assign_curvature_extraction(
+        self,
+        assignment: list | str | Object3d,
+        disabled_for_faceted: bool = True,
+        name: str | None = None,
+    ) -> MeshOperation | bool:
+        """Assign curvature extraction.
+
+        Parameters
+        ----------
+        assignment : list or str or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+            List of objects or faces.
+        disabled_for_faceted : bool, optional
+            Whether curvature extraction is enabled for faceted surfaces. The default is ``True``.
+        name : str, optional
+            Name of the mesh operation. The default is ``None``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.mesh.MeshOperation`
+            Mesh operation object.
+
+        References
+        ----------
+        >>> oModule.AssignCurvatureExtractionOp
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.solution_type = "SBR+"
+        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> hfss.mesh.assign_curvature_extraction(assignment=o)
+
+        """
+        if self._app.solution_type != "SBR+":
+            raise MethodNotSupportedError
+        if name and name in self.operation_names:
+            name = generate_unique_name(name)
+        else:
+            name = generate_unique_name("CurvilinearElements")
+
+        props = dict(
+            {
+                "Type": "CurvatureExtraction",
+                "Objects": [],
+                "Faces": [],
+                "DisableForFacetedSurfaces": disabled_for_faceted,
+            }
+        )
+
+        assignment = self._modeler.convert_to_selections(assignment, True)
+
+        for sel in assignment:
+            if isinstance(sel, str):
+                props["Objects"].append(sel)
+            elif isinstance(sel, int):
+                props["Faces"].append(sel)
+
+        mop = MeshOperation(self, name, props)
+
+        return mop.create()
+
+    @pyaedt_function_handler()
+    def assign_length_mesh(
+        self,
+        assignment: list | str | Object3d,
+        inside_selection: bool = True,
+        maximum_length: int = 1,
+        maximum_elements: int = 1000,
+        name: str | None = None,
+    ) -> MeshOperation | bool:
+        """Assign a length for the model resolution.
+
+        Parameters
+        ----------
+        assignment : list or str or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+            List of object names or face IDs.
+        inside_selection : bool, optional
+            Whether the length mesh is inside the selection. The default is ``True``.
+        maximum_length : str, float, optional
+            Maximum element length. The default is ``1``. When ``None``,
+            this parameter is disabled.
+        maximum_elements : int, optional
+            Maximum number of elements. The default is ``1000``. When ``None``, this parameter
+            is disabled.
+        name : str, optional
+            Name of the mesh operation. The default is ``None``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.mesh.MeshOperation`
+            Mesh operation object.
+
+        References
+        ----------
+        >>> oModule.AssignLengthOp
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.solution_type = "SBR+"
+        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> hfss.mesh.assign_length_mesh(assignment=o)
+
+        """
+        if name and name in self.operation_names:
+            name = generate_unique_name(name)
+        else:
+            name = generate_unique_name("length")
+
+        if maximum_length is None:
+            restrictlength = False
+        else:
+            restrictlength = True
+        length = self._modeler.modeler_variable(maximum_length)
+
+        if maximum_elements is None:
+            restrictel = False
+            numel = "1000"
+        else:
+            restrictel = True
+            numel = str(maximum_elements)
+
+        if maximum_length is None and maximum_elements is None:
+            raise ValueError("Maximum length and maximum elements are not specified.")
+
+        props = dict(
+            {
+                "Type": "LengthBased",
+                "RefineInside": inside_selection,
+                "Enabled": True,
+                "Objects": [],
+                "Faces": [],
+                "RestrictElem": restrictel,
+                "NumMaxElem": numel,
+                "RestrictLength": restrictlength,
+                "MaxLength": length,
+            }
+        )
+
+        assignment = self._modeler.convert_to_selections(assignment, True)
+
+        for sel in assignment:
+            if isinstance(sel, str):
+                props["Objects"].append(sel)
+            elif isinstance(sel, int) and not inside_selection:
+                props["Faces"].append(sel)
+
+        mop = MeshOperation(self, name, props)
+
+        return mop.create()
 
     @pyaedt_function_handler()
     def generate_mesh(self, name: str) -> bool:
@@ -1477,103 +1649,6 @@ class Mesh(PyAedtBase):
             if opnames:
                 self._app.omeshmodule.DeleteOp(opnames)
         return True
-
-    @pyaedt_function_handler()
-    def assign_length_mesh(
-        self,
-        assignment: list | str | Object3d,
-        inside_selection: bool = True,
-        maximum_length: int = 1,
-        maximum_elements: int = 1000,
-        name: str | None = None,
-    ) -> MeshOperation | None:
-        """Assign a length for the model resolution.
-
-        Parameters
-        ----------
-        assignment : list or str or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
-            List of object names or face IDs.
-        inside_selection : bool, optional
-            Whether the length mesh is inside the selection. The default is ``True``.
-        maximum_length : str, float, optional
-            Maximum element length. The default is ``1``. When ``None``,
-            this parameter is disabled.
-        maximum_elements : int, optional
-            Maximum number of elements. The default is ``1000``. When ``None``, this parameter
-            is disabled.
-        name : str, optional
-            Name of the mesh operation. The default is ``None``.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.mesh.MeshOperation`
-            Mesh operation object.
-
-        References
-        ----------
-        >>> oModule.AssignLengthOp
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.mesh import Mesh
-        >>> obj = Mesh()
-        >>> obj.assign_length_mesh(assignment="Box1")
-
-        """
-        assignment = self._modeler.convert_to_selections(assignment, True)
-
-        if name and name in self.operation_names:
-            name = generate_unique_name(name)
-        else:
-            name = generate_unique_name("length")
-
-        if maximum_length is None:
-            restrictlength = False
-        else:
-            restrictlength = True
-        length = self._modeler.modeler_variable(maximum_length)
-
-        if maximum_elements is None:
-            restrictel = False
-            numel = "1000"
-        else:
-            restrictel = True
-            numel = str(maximum_elements)
-        if maximum_length is None and maximum_elements is None:
-            self.logger.error("mesh not assigned due to incorrect settings")
-            return
-
-        if isinstance(assignment[0], int) and not inside_selection:
-            seltype = "Faces"
-        elif isinstance(assignment[0], str):
-            seltype = "Objects"
-        else:
-            seltype = None
-        if seltype is None:
-            self.logger.error("Error in Assignment")
-            return None
-        props = dict(
-            {
-                "Type": "LengthBased",
-                "RefineInside": inside_selection,
-                "Enabled": True,
-                seltype: assignment,
-                "RestrictElem": restrictel,
-                "NumMaxElem": numel,
-                "RestrictLength": restrictlength,
-                "MaxLength": length,
-            }
-        )
-
-        mop = MeshOperation(self, name, props)
-
-        for meshop in self.meshoperations[:]:
-            if meshop.name == mop.name:
-                meshop.delete()
-                break
-
-        mop.create()
-        return mop
 
     @pyaedt_function_handler()
     def assign_skin_depth(
@@ -1717,62 +1792,6 @@ class Mesh(PyAedtBase):
             self.logger.error("Error in Assignment")
             return
         props = dict({"Type": "Curvilinear", seltype: assignment, "Apply": enable})
-        mop = MeshOperation(self, name, props)
-        mop.create()
-        return mop
-
-    @pyaedt_function_handler()
-    def assign_curvature_extraction(
-        self, assignment: list | str | Object3d, disabled_for_faceted: bool = True, name: str | None = None
-    ) -> MeshOperation | None:
-        """Assign curvature extraction.
-
-        Parameters
-        ----------
-        assignment : list or str or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
-            List of objects or faces.
-        disabled_for_faceted : bool, optional
-            Whether curvature extraction is enabled for faceted surfaces. The default is ``True``.
-        name : str, optional
-            Name of the mesh operation. The default is ``None``.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.mesh.MeshOperation`
-            Mesh operation object.
-
-        References
-        ----------
-        >>> oModule.AssignCurvatureExtractionOp
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.mesh import Mesh
-        >>> obj = Mesh()
-        >>> obj.assign_curvature_extraction(assignment="Box1")
-
-        """
-        assignment = self._modeler.convert_to_selections(assignment, True)
-
-        if self._app.solution_type != "SBR+":
-            raise MethodNotSupportedError
-        if name and name in self.operation_names:
-            name = generate_unique_name(name)
-        else:
-            name = generate_unique_name("CurvilinearElements")
-        assignment = self._app.modeler.convert_to_selections(assignment, True)
-        if isinstance(assignment[0], int):
-            seltype = "Faces"
-        elif isinstance(assignment[0], str):
-            seltype = "Objects"
-        else:
-            seltype = None
-        if seltype is None:
-            self.logger.error("Error in Assignment")
-            return None
-        props = dict(
-            {"Type": "CurvatureExtraction", seltype: assignment, "DisableForFacetedSurfaces": disabled_for_faceted}
-        )
         mop = MeshOperation(self, name, props)
         mop.create()
         return mop
