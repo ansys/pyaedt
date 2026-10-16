@@ -26,6 +26,8 @@
 
 from collections.abc import Callable
 from functools import wraps
+import inspect
+import re
 from typing import Any
 from typing import TypeVar
 import warnings
@@ -250,8 +252,10 @@ def deprecated_doc(version: str | None = None) -> Callable[[_F], _F]:
 
     Apply above ``@deprecated`` and below ``@property`` (or its accessor decorators:
     ``setter``, ``deleter``), or directly above ``@deprecated`` on a method or function.
-    This decorator appends the Sphinx ``.. deprecated::`` directive to the callable's
-    docstring and leaves the callable unchanged.
+    This decorator inserts the Sphinx ``.. deprecated::`` directive after the summary
+    paragraph, before the extended description and sections such as ``Parameters``.
+    Multiline summaries and relative indentation are preserved. An existing deprecation
+    directive is left unchanged. Only the docstring is modified; no wrapper is added.
 
     Parameters
     ----------
@@ -275,7 +279,7 @@ def deprecated_doc(version: str | None = None) -> Callable[[_F], _F]:
     >>> class MyClass:
     ...     @property
     ...     @deprecated_doc(version="2025.1")
-    ...     @deprecated("Use new_name instead.")
+    ...     @deprecated("Use `new_name` instead.")
     ...     def old_name(self):
     ...         return self.new_name
 
@@ -287,8 +291,13 @@ def deprecated_doc(version: str | None = None) -> Callable[[_F], _F]:
             raise ValueError("Apply deprecated_doc above the standard @deprecated decorator.")
         docstring = func.__doc__ or ""
         if ".. deprecated::" not in docstring:
+            docstring = inspect.cleandoc(docstring)
             indented_message = "\n".join(f"   {line}" for line in message.splitlines())
-            func.__doc__ = f"{docstring}\n\n.. deprecated:: {version or ''}\n{indented_message}"
+            directive = f".. deprecated:: {version or ''}\n{indented_message}"
+            paragraphs = re.split(r"\n[ \t]*\n", docstring, maxsplit=1)
+            summary = paragraphs[0]
+            remainder = paragraphs[1] if len(paragraphs) > 1 else ""
+            func.__doc__ = "\n\n".join(part for part in (summary, directive, remainder) if part)
         return func
 
     return decorator
