@@ -370,41 +370,6 @@ def test_set_variable(aedt_app) -> None:
     assert aedt_app.variable_manager.design_variables["var_test"].expression == "234"
 
 
-def test_cylindrical_gap(aedt_app) -> None:
-    assert not aedt_app.mesh.assign_cylindrical_gap("Band")
-    [
-        x.delete()
-        for x in aedt_app.mesh.meshoperations[:]
-        if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
-    ]
-    assert aedt_app.mesh.assign_cylindrical_gap("Band", name="cyl_gap_test")
-    assert not aedt_app.mesh.assign_cylindrical_gap(["Band", "Region"])
-    assert not aedt_app.mesh.assign_cylindrical_gap("Band")
-    [
-        x.delete()
-        for x in aedt_app.mesh.meshoperations[:]
-        if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
-    ]
-    assert aedt_app.mesh.assign_cylindrical_gap("Band", name="cyl_gap_test", band_mapping_angle=2)
-
-
-def test_skin_depth(aedt_app) -> None:
-    edge = aedt_app.modeler["Rotor_Section1"].edges[0]
-    mesh = aedt_app.mesh.assign_skin_depth(assignment=edge, skin_depth="0.3mm", layers_number=3)
-    assert mesh
-    assert mesh.type == "SkinDepthBased"
-    assert mesh.props["Edges"][0] == edge.id
-    assert mesh.props["SkinDepth"] == "0.3mm"
-    assert int(mesh.props["NumLayers"]) == 3
-    edge1 = aedt_app.modeler["Rotor_Section1"].edges[1]
-    mesh = aedt_app.mesh.assign_skin_depth(assignment=edge1.id, skin_depth="0.3mm", layers_number=3)
-    assert mesh
-    assert mesh.type == "SkinDepthBased"
-    assert mesh.props["Edges"][0] == edge1.id
-    assert mesh.props["SkinDepth"] == "0.3mm"
-    assert int(mesh.props["NumLayers"]) == 3
-
-
 def test_start_continue_from_previous_setup(test_tmp_dir, aedt_app) -> None:
     assert aedt_app.setups[0].start_continue_from_previous_setup(design="Y_Connections", solution="Setup1 : Transient")
     assert aedt_app.setups[0].props["PrevSoln"]["Project"] == "This Project*"

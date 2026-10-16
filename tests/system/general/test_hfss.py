@@ -36,7 +36,6 @@ from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.generic.file_utils import get_dxf_layers
 from ansys.aedt.core.hfss import Hfss
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-from ansys.aedt.core.modules.mesh import MeshOperation
 from ansys.aedt.core.visualization.advanced.misc import convert_farfield_data
 from ansys.aedt.core.visualization.advanced.misc import convert_nearfield_data
 from tests import TESTS_GENERAL_PATH
@@ -1063,32 +1062,6 @@ def test_create_open_region(aedt_app) -> None:
     assert len(aedt_app.field_setups) == 3
     assert aedt_app.create_open_region("1GHz", "FEBI")
     assert aedt_app.create_open_region("1GHz", "PML", True, "-z")
-
-
-def test_create_skin_depth(aedt_app) -> None:
-    aedt_app.modeler.create_box([30, 0, 0], [40, 10, 5], "BoxCircuit2", "Copper")
-    mesh = aedt_app.mesh.assign_skin_depth(["BoxCircuit2"], "1mm")
-    assert isinstance(mesh, MeshOperation)
-    mesh.props["SkinDepth"] = "3mm"
-    assert mesh.props["SkinDepth"] == aedt_app.mesh.meshoperations[0].properties["Skin Depth"]
-    assert mesh.props["SkinDepth"] == "3mm"
-
-
-def test_create_curvilinear(aedt_app) -> None:
-    aedt_app.modeler.create_box([30, 0, 0], [40, 10, 5], "BoxCircuit3", "Copper")
-    mesh = aedt_app.mesh.assign_curvilinear_elements(["BoxCircuit3"])
-    assert isinstance(mesh, MeshOperation)
-    assert len(aedt_app.mesh.meshoperations) == 1
-    mesh.props["Apply"] = False
-    assert mesh.props["Apply"] == aedt_app.mesh.meshoperations[0].properties["Apply Curvilinear Elements"]
-    assert not mesh.props["Apply"]
-    mesh.delete()
-    assert len(aedt_app.mesh.meshoperations) == 0
-
-
-def test_assign_initial_mesh(aedt_app) -> None:
-    assert aedt_app.mesh.assign_initial_mesh()
-    assert aedt_app.mesh.assign_initial_mesh(normal_deviation="25deg", surface_deviation=0.2, aspect_ratio=20)
 
 
 def test_add_mesh_link(aedt_app) -> None:

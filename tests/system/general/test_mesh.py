@@ -25,6 +25,7 @@
 import pytest
 
 from ansys.aedt.core import Maxwell3d
+from ansys.aedt.core.generic.constants import Axis
 from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.generic.general_methods import SetupDict
 from ansys.aedt.core.hfss import Hfss
@@ -75,8 +76,15 @@ def maxwell_app(add_app):
 
 
 @pytest.fixture
-def m2d_setup(add_app):
+def m2d_app(add_app):
     app = add_app(application=Maxwell2d)
+    yield app
+    app.close_project(app.project_name, save=False)
+
+
+@pytest.fixture
+def icepak_app(add_app):
+    app = add_app(application=Hfss)
     yield app
     app.close_project(app.project_name, save=False)
 
@@ -156,17 +164,17 @@ def test_assign_initial_mesh_slider_maxwell3d(maxwell_app) -> None:
     assert maxwell_app.mesh.initial_mesh_settings.props["MeshMethod"] == "AnsoftClassic"
 
 
-def test_assign_initial_mesh_from_slider_maxwell2d(m2d_setup) -> None:
+def test_assign_initial_mesh_from_slider_maxwell2d(m2d_app) -> None:
     # TODO: Assert value assigned, when API allows to get this information
-    assert m2d_setup.mesh.initial_mesh_settings.props["GlobalSurfApproximation"]["SliderMeshSettings"] == 5
-    assert m2d_setup.mesh.assign_initial_mesh_from_slider(4)
-    assert m2d_setup.mesh.initial_mesh_settings.props["GlobalSurfApproximation"]["SliderMeshSettings"] == 4
+    assert m2d_app.mesh.initial_mesh_settings.props["GlobalSurfApproximation"]["SliderMeshSettings"] == 5
+    assert m2d_app.mesh.assign_initial_mesh_from_slider(4)
+    assert m2d_app.mesh.initial_mesh_settings.props["GlobalSurfApproximation"]["SliderMeshSettings"] == 4
     with pytest.raises(ValueError):
-        m2d_setup.mesh.assign_initial_mesh_from_slider(method="dummy")
+        m2d_app.mesh.assign_initial_mesh_from_slider(method="dummy")
     with pytest.raises(ValueError):
-        m2d_setup.mesh.assign_initial_mesh(method="dummy")
-    m2d_setup.mesh.assign_initial_mesh(method="AnsoftClassic")
-    assert m2d_setup.mesh.initial_mesh_settings.props["MeshMethod"] == "AnsoftClassic"
+        m2d_app.mesh.assign_initial_mesh(method="dummy")
+    m2d_app.mesh.assign_initial_mesh(method="AnsoftClassic")
+    assert m2d_app.mesh.initial_mesh_settings.props["MeshMethod"] == "AnsoftClassic"
 
 
 def test_assign_model_resolution(aedt_app) -> None:
@@ -411,18 +419,167 @@ def test_assign_length_mesh(maxwell_app) -> None:
     assert str(mesh.properties["Max Elems"]) == "100"
 
 
-def test_add_mesh_operations(layout_app) -> None:
-    aedt_app.create_setup("HFSS")
-    setup1 = aedt_app.mesh.assign_length_mesh("HFSS", "PWR", "GND")
-    setup2 = aedt_app.mesh.assign_skin_depth("HFSS", "PWR", "GND")
-    assert setup1
-    assert setup2
-    setup1.props["RestrictElem"] = False
-    assert setup1.update()
-    assert aedt_app.mesh.delete_mesh_operations(
-        "HFSS",
-        setup1.name,
+def test_assign_skin_depth(maxwell_app) -> None:
+    plate = maxwell_app.modeler.create_box([0, 0, 0], [1.5, 1.5, 0.5], name="Plate")
+    mesh = maxwell_app.mesh.assign_skin_depth(
+        assignment=[plate, plate.faces[0]], skin_depth="1mm", maximum_elements=None
     )
+    assert mesh.name in maxwell_app.mesh.operation_names
+    assert mesh.props["SkinDepth"] == "1mm"
+    mesh.props["SkinDepth"] = "5mm"
+    assert mesh.props["SkinDepth"] == "5mm"
+
+    if mesh.assignment:
+        assert len(mesh.assignment) == 2
+
+    mesh2 = maxwell_app.mesh.assign_skin_depth(plate, skin_depth="1mm", name=mesh.name, maximum_elements=200)
+    assert mesh2.name in maxwell_app.mesh.operation_names
+    assert str(mesh2.props["NumMaxElem"]) == "200"
+
+
+def test_assign_skin_depth_maxwell2d(m2d_app) -> None:
+    conductor = m2d_app.modeler.create_circle(origin=[0, 0, 0], radius=10, material="Copper")
+    mesh = m2d_app.mesh.assign_skin_depth(assignment=conductor.edges[0].id)
+    assert mesh.name in m2d_app.mesh.operation_names
+    mesh.props["SkinDepth"] = "1mm"
+    assert mesh.props["SkinDepth"] == "1mm"
+
+    edge = conductor.edges[0]
+    mesh = m2d_app.mesh.assign_skin_depth(assignment=edge, skin_depth="0.3mm", layers_number=3)
+    assert mesh
+    assert mesh.type == "SkinDepthBased"
+    assert mesh.props["Edges"][0] == edge.id
+    assert mesh.props["SkinDepth"] == "0.3mm"
+    assert int(mesh.props["NumLayers"]) == 3
+
+
+def test_assign_curvilinear(aedt_app) -> None:
+    box = aedt_app.modeler.create_box([30, 0, 0], [40, 10, 5], "BoxCircuit3", "Copper")
+    mesh = aedt_app.mesh.assign_curvilinear_elements([box, box.faces[0]])
+
+    assert isinstance(mesh, MeshOperation)
+    assert len(aedt_app.mesh.operations) == 1
+    assert mesh.name in aedt_app.mesh.operation_names
+    if mesh.assignment:
+        assert len(mesh.assignment) == 2
+
+    mesh2 = aedt_app.mesh.assign_curvilinear_elements(["BoxCircuit3"], name=mesh.name)
+    assert mesh2.name in aedt_app.mesh.operation_names
+
+    mesh.props["Apply"] = False
+    assert mesh.props["Apply"] == aedt_app.mesh.operations[0].properties["Apply Curvilinear Elements"]
+    assert not mesh.props["Apply"]
+
+
+def test_assign_rotational_layer(maxwell_app) -> None:
+    box = maxwell_app.modeler.create_box([30, 0, 0], [40, 10, 5])
+    mesh = maxwell_app.mesh.assign_rotational_layer(box)
+    assert mesh.name in maxwell_app.mesh.operation_names
+    if mesh.assignment:
+        assert len(mesh.assignment) == 1
+
+    mesh.props["Total Layer Thickness"] = "2mm"
+    assert mesh.props["Total Layer Thickness"] == "2mm"
+
+    mesh2 = maxwell_app.mesh.assign_rotational_layer(box, name=mesh.name)
+    assert mesh2.name in maxwell_app.mesh.operation_names
+
+
+def test_assign_edge_cut(maxwell_app) -> None:
+    maxwell_app.modeler.model_units = "mm"
+    box = maxwell_app.modeler.create_box([30, 0, 0], [40, 10, 5])
+    mesh = maxwell_app.mesh.assign_edge_cut(box, layer_thickness="2mm")
+    assert mesh.name in maxwell_app.mesh.operation_names
+    if mesh.assignment:
+        assert len(mesh.assignment) == 1
+    assert mesh.props["Layer Thickness"] == "2mm"
+
+    mesh2 = maxwell_app.mesh.assign_edge_cut(box, name="edge_cute")
+    assert mesh2.name in maxwell_app.mesh.operation_names
+
+
+def test_assign_density_control(maxwell_app) -> None:
+    box = maxwell_app.modeler.create_box([30, 0, 0], [40, 10, 5])
+    mesh = maxwell_app.mesh.assign_density_control(box, maximum_element_length="2mm", layers_number="3")
+
+    assert mesh.name in maxwell_app.mesh.operation_names
+    if mesh.assignment:
+        assert len(mesh.assignment) == 1
+    assert mesh.props["Layer Thickness"] == "2mm"
+
+    mesh2 = maxwell_app.mesh.assign_density_control(
+        box, maximum_element_length="2mm", layers_number="3", name=mesh.name
+    )
+    assert mesh2.name in maxwell_app.mesh.operation_names
+
+
+def test_cylindrical_gap_maxwell3d(maxwell_app) -> None:
+    inner_cylinder = maxwell_app.modeler.create_cylinder(Axis.Z, [0, 0, 0], 5, 10, 0, "inner")
+    outer_cylinder = maxwell_app.modeler.create_cylinder(Axis.Z, [0, 0, 0], 7, 12, 0, "outer")
+    assert maxwell_app.mesh.assign_cylindrical_gap(outer_cylinder.name, name="cyl_gap_test")
+
+    assert not maxwell_app.mesh.assign_cylindrical_gap([inner_cylinder.name, outer_cylinder.name])
+    assert not maxwell_app.mesh.assign_cylindrical_gap(outer_cylinder.name)
+    [
+        x.delete()
+        for x in maxwell_app.mesh.meshoperations[:]
+        if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
+    ]
+    assert maxwell_app.mesh.assign_cylindrical_gap(outer_cylinder.name, name="cyl_gap_test", clone_mesh=True)
+    [
+        x.delete()
+        for x in maxwell_app.mesh.meshoperations[:]
+        if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
+    ]
+    assert not maxwell_app.mesh.assign_cylindrical_gap(
+        outer_cylinder.name, name="cyl_gap_test", band_mapping_angle=5, clone_mesh=True
+    )
+    assert not maxwell_app.mesh.assign_cylindrical_gap(
+        outer_cylinder.name, name="cyl_gap_test", band_mapping_angle=2, clone_mesh=True, moving_side_layers=0
+    )
+    assert not maxwell_app.mesh.assign_cylindrical_gap(
+        outer_cylinder.name, name="cyl_gap_test", band_mapping_angle=2, clone_mesh=True, static_side_layers=0
+    )
+
+
+def test_cylindrical_gap_maxwell2d(aedt_app) -> None:
+    assert not aedt_app.mesh.assign_cylindrical_gap("Band")
+    [
+        x.delete()
+        for x in aedt_app.mesh.meshoperations[:]
+        if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
+    ]
+    assert aedt_app.mesh.assign_cylindrical_gap("Band", name="cyl_gap_test")
+    assert not aedt_app.mesh.assign_cylindrical_gap(["Band", "Region"])
+    assert not aedt_app.mesh.assign_cylindrical_gap("Band")
+    [
+        x.delete()
+        for x in aedt_app.mesh.meshoperations[:]
+        if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
+    ]
+    assert aedt_app.mesh.assign_cylindrical_gap("Band", name="cyl_gap_test", band_mapping_angle=2)
+
+
+def test_assign_mesh_exception(icepak_app) -> None:
+    plate = icepak_app.modeler.create_box([0, 0, 0], [1.5, 1.5, 0.5], name="Plate")
+
+    with pytest.raises(MethodNotSupportedError):
+        icepak_app.mesh.assign_skin_depth(plate, "1mm")
+
+    with pytest.raises(MethodNotSupportedError):
+        icepak_app.mesh.assign_curvilinear_elements(plate)
+
+    with pytest.raises(MethodNotSupportedError):
+        icepak_app.mesh.assign_rotational_layer(plate)
+
+    with pytest.raises(MethodNotSupportedError):
+        icepak_app.mesh.assign_edge_cut(plate)
+
+    with pytest.raises(MethodNotSupportedError):
+        icepak_app.mesh.assign_density_control(plate)
+
+    with pytest.raises(MethodNotSupportedError):
+        icepak_app.mesh.assign_cylindrical_gap(plate)
 
 
 def test_maxwell_mesh(maxwell_app) -> None:
@@ -475,3 +632,17 @@ def test_maxwell_mesh(maxwell_app) -> None:
     assert dens.props["LayersNum"] == "1"
     dens.props["LayersNum"] = 2
     assert str(dens.props["LayersNum"]) == maxwell_app.get_oo_property_value(mesh_object, dens.name, "Number of layers")
+
+
+def test_add_mesh_operations(layout_app) -> None:
+    layout_app.create_setup("HFSS")
+    setup1 = layout_app.mesh.assign_length_mesh("HFSS", "PWR", "GND")
+    setup2 = layout_app.mesh.assign_skin_depth("HFSS", "PWR", "GND")
+    assert setup1
+    assert setup2
+    setup1.props["RestrictElem"] = False
+    assert setup1.update()
+    assert layout_app.mesh.delete_mesh_operations(
+        "HFSS",
+        setup1.name,
+    )

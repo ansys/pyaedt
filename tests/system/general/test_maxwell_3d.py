@@ -218,53 +218,6 @@ def test_expression_cache(m3d_app) -> None:
     assert setup.enable_expression_cache(["CoreLoss"], "Fields", "Phase='0deg' ", True)
 
 
-def test_assign_skin_depth(m3d_app) -> None:
-    plate = m3d_app.modeler.create_box([0, 0, 0], [1.5, 1.5, 0.5], name="Plate")
-    mesh = m3d_app.mesh.assign_skin_depth(plate, "1mm")
-    assert mesh
-    mesh.delete()
-    mesh = m3d_app.mesh.assign_skin_depth(plate, "1mm", 1000)
-    assert mesh
-    mesh.delete()
-    mesh = m3d_app.mesh.assign_skin_depth(plate.faces[0].id, "1mm")
-    assert mesh
-    mesh.delete()
-    mesh = m3d_app.mesh.assign_skin_depth(plate, "1mm")
-    assert mesh
-
-
-def test_assign_curvilinear_elements(m3d_app) -> None:
-    box = m3d_app.modeler.create_box([30, 0, 0], [40, 10, 5])
-    assert m3d_app.mesh.assign_curvilinear_elements(box, "1mm")
-    assert m3d_app.mesh.assign_curvilinear_elements(box, "1mm", name="test")
-    assert m3d_app.mesh.assign_curvilinear_elements(box, "1mm", name="test")
-
-
-def test_assign_edge_cut(m3d_app) -> None:
-    m3d_app.modeler.model_units = "mm"
-    box = m3d_app.modeler.create_box([30, 0, 0], [40, 10, 5])
-    assert m3d_app.mesh.assign_edge_cut(box)
-    assert m3d_app.mesh.assign_edge_cut(box, name="edge_cute")
-
-
-def test_assign_density_control(m3d_app) -> None:
-    box = m3d_app.modeler.create_box([30, 0, 0], [40, 10, 5])
-    assert m3d_app.mesh.assign_density_control(box, maximum_element_length="2mm", layers_number="3")
-    assert m3d_app.mesh.assign_density_control(
-        box, maximum_element_length="2mm", layers_number="3", name="density_ctrl"
-    )
-    assert m3d_app.mesh.assign_density_control(
-        box, maximum_element_length="2mm", layers_number="3", name="density_ctrl"
-    )
-
-
-def test_assign_rotational_layer(m3d_app) -> None:
-    box = m3d_app.modeler.create_box([30, 0, 0], [40, 10, 5])
-    assert m3d_app.mesh.assign_rotational_layer(box)
-    assert m3d_app.mesh.assign_rotational_layer(box, name="my_rotational")
-    assert m3d_app.mesh.assign_rotational_layer(box, name="my_rotational")
-
-
 def test_assign_initial_mesh(m3d_app) -> None:
     assert m3d_app.mesh.assign_initial_mesh(surface_deviation="2mm")
 
@@ -899,34 +852,6 @@ def test_set_variable(m3d_app) -> None:
     m3d_app["var_test"] = "234"
     assert "var_test" in m3d_app.variable_manager.design_variable_names
     assert m3d_app.variable_manager.design_variables["var_test"].expression == "234"
-
-
-def test_cylindrical_gap(m3d_app) -> None:
-    inner_cylinder = m3d_app.modeler.create_cylinder(Axis.Z, [0, 0, 0], 5, 10, 0, "inner")
-    outer_cylinder = m3d_app.modeler.create_cylinder(Axis.Z, [0, 0, 0], 7, 12, 0, "outer")
-    assert m3d_app.mesh.assign_cylindrical_gap(outer_cylinder.name, name="cyl_gap_test")
-    assert not m3d_app.mesh.assign_cylindrical_gap([inner_cylinder.name, outer_cylinder.name])
-    assert not m3d_app.mesh.assign_cylindrical_gap(outer_cylinder.name)
-    [
-        x.delete()
-        for x in m3d_app.mesh.meshoperations[:]
-        if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
-    ]
-    assert m3d_app.mesh.assign_cylindrical_gap(outer_cylinder.name, name="cyl_gap_test", clone_mesh=True)
-    [
-        x.delete()
-        for x in m3d_app.mesh.meshoperations[:]
-        if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
-    ]
-    assert not m3d_app.mesh.assign_cylindrical_gap(
-        outer_cylinder.name, name="cyl_gap_test", band_mapping_angle=5, clone_mesh=True
-    )
-    assert not m3d_app.mesh.assign_cylindrical_gap(
-        outer_cylinder.name, name="cyl_gap_test", band_mapping_angle=2, clone_mesh=True, moving_side_layers=0
-    )
-    assert not m3d_app.mesh.assign_cylindrical_gap(
-        outer_cylinder.name, name="cyl_gap_test", band_mapping_angle=2, clone_mesh=True, static_side_layers=0
-    )
 
 
 def test_objects_segmentation(m3d_app) -> None:

@@ -1521,7 +1521,6 @@ class Mesh(PyAedtBase):
         --------
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
-        >>> hfss.solution_type = "SBR+"
         >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
         >>> hfss.mesh.assign_length_mesh(assignment=o)
 
@@ -1574,92 +1573,15 @@ class Mesh(PyAedtBase):
         return mop.create()
 
     @pyaedt_function_handler()
-    def generate_mesh(self, name: str) -> bool:
-        """Generate the mesh for a design.
-
-        Parameters
-        ----------
-        name : str
-            Name of the simulation setup.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oDesign.GenerateMesh
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Maxwell3d
-        >>> m3d = Maxwell3d()
-        >>> m3d.create_setup(setupname="Setup1")
-        >>> m3d.mesh.assign_length_mesh(maxlength=5, maxel="None")
-        >>> m3d.mesh.generate_mesh("Setup1")
-
-        """
-        return self._odesign.GenerateMesh(name) == 0
-
-    @pyaedt_function_handler()
-    def delete_mesh_operations(self, mesh_type: str | list[str] | None = None) -> bool:
-        """Remove mesh operations from a design.
-        This method only works for ``"Length Based"``, and ``"Surface Approximation Based"``.
-
-        Parameters
-        ----------
-        mesh_type : str, list[str], optional
-           Type of the mesh operation to delete. The default is ``None``, in which
-           case all mesh operations are deleted.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oModule.DeleteOp
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.mesh import Mesh
-        >>> obj = Mesh()
-        >>> obj.delete_mesh_operations(mesh_type=1)
-
-        """
-        # This method only works for the following mesh operations
-        mesh_op_types_compatible = ["Length Based", "Surface Approximation Based"]
-
-        mesh_op_types = mesh_type
-
-        if isinstance(mesh_op_types, str) and mesh_op_types in mesh_op_types_compatible:
-            mesh_op_types = [mesh_type]
-        elif not mesh_op_types:
-            mesh_op_types = []
-            for _, m in self.operations.items():
-                if m.type and m.type in mesh_op_types_compatible:
-                    mesh_op_types.append(m.type)
-
-        for mesh_op_type in mesh_op_types:
-            if mesh_op_type not in mesh_op_types_compatible:
-                raise ValueError(f"{mesh_op_type} is not a valid mesh type.")
-            opnames = self._app.omeshmodule.GetOperationNames(mesh_op_type)
-            if opnames:
-                self._app.omeshmodule.DeleteOp(opnames)
-        return True
-
-    @pyaedt_function_handler()
     def assign_skin_depth(
         self,
-        assignment: list | str | Object3d,
+        assignment: list | str | Object3d | EdgePrimitive,
         skin_depth: str = "0.2mm",
         maximum_elements: int | None = None,
         triangulation_max_length: str = "0.1mm",
         layers_number: str = "2",
         name: str | None = None,
-    ) -> MeshOperation | None:
+    ) -> MeshOperation | bool:
         """Assign a skin depth for the mesh refinement.
 
         Parameters
@@ -1690,9 +1612,10 @@ class Mesh(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.mesh import Mesh
-        >>> obj = Mesh()
-        >>> obj.assign_skin_depth(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> hfss.mesh.assign_skin_depth(assignment=o)
 
         """
         assignment = self._modeler.convert_to_selections(assignment, True)
@@ -1708,6 +1631,7 @@ class Mesh(PyAedtBase):
         if self._app.design_type == "Maxwell 2D":
             props = dict(
                 {
+                    "Type": "SkinDepthBased",
                     "Edges": assignment,
                     "SkinDepth": skin_depth,
                     "NumLayers": layers_number,
@@ -1720,16 +1644,12 @@ class Mesh(PyAedtBase):
             else:
                 restrictlength = True
 
-            if isinstance(assignment[0], int):
-                seltype = "Faces"
-            elif isinstance(assignment[0], str):
-                seltype = "Objects"
-
             props = dict(
                 {
                     "Type": "SkinDepthBased",
                     "Enabled": True,
-                    seltype: assignment,
+                    "Objects": [],
+                    "Faces": [],
                     "RestrictElem": restrictlength,
                     "NumMaxElem": str(maximum_elements),
                     "SkinDepth": skin_depth,
@@ -1738,14 +1658,20 @@ class Mesh(PyAedtBase):
                 }
             )
 
+            for sel in assignment:
+                if isinstance(sel, str):
+                    props["Objects"].append(sel)
+                elif isinstance(sel, int):
+                    props["Faces"].append(sel)
+
         mop = MeshOperation(self, name, props)
-        mop.create()
-        return mop
+
+        return mop.create()
 
     @pyaedt_function_handler()
     def assign_curvilinear_elements(
         self, assignment: list | str | Object3d, enable: bool = True, name: str | None = None
-    ) -> MeshOperation | None:
+    ) -> MeshOperation | bool:
         """Assign curvilinear elements.
 
         Parameters
@@ -1768,33 +1694,32 @@ class Mesh(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.mesh import Mesh
-        >>> obj = Mesh()
-        >>> obj.assign_curvilinear_elements(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> hfss.mesh.assign_curvilinear_elements(assignment=o)
 
         """
-        assignment = self._modeler.convert_to_selections(assignment, True)
-
         if self._app.design_type != "HFSS" and self._app.design_type != "Maxwell 3D":
             raise MethodNotSupportedError
+
         if name and name in self.operation_names:
             name = generate_unique_name(name)
         else:
             name = generate_unique_name("CurvilinearElements")
 
-        if isinstance(assignment[0], int):
-            seltype = "Faces"
-        elif isinstance(assignment[0], str):
-            seltype = "Objects"
-        else:
-            seltype = None
-        if seltype is None:
-            self.logger.error("Error in Assignment")
-            return
-        props = dict({"Type": "Curvilinear", seltype: assignment, "Apply": enable})
+        props = dict({"Type": "Curvilinear", "Objects": [], "Faces": [], "Apply": enable})
+
+        assignment = self._modeler.convert_to_selections(assignment, True)
+
+        for sel in assignment:
+            if isinstance(sel, str):
+                props["Objects"].append(sel)
+            elif isinstance(sel, int):
+                props["Faces"].append(sel)
         mop = MeshOperation(self, name, props)
-        mop.create()
-        return mop
+
+        return mop.create()
 
     @pyaedt_function_handler()
     def assign_rotational_layer(
@@ -1803,7 +1728,7 @@ class Mesh(PyAedtBase):
         layers_number: int = 3,
         total_thickness: str = "1mm",
         name: str | None = None,
-    ) -> MeshOperation:
+    ) -> MeshOperation | bool:
         """Assign a rotational layer mesh.
 
         Parameters
@@ -1829,9 +1754,10 @@ class Mesh(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.mesh import Mesh
-        >>> obj = Mesh()
-        >>> obj.assign_rotational_layer(assignment="Box1")
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> app = Maxwell3d()
+        >>> box = app.modeler.create_box([0, 0, 0], [10, 10, 10])
+        >>> app.mesh.assign_rotational_layer(assignment=box)
 
         """
         assignment = self._modeler.convert_to_selections(assignment, True)
@@ -1855,20 +1781,20 @@ class Mesh(PyAedtBase):
         )
 
         mop = MeshOperation(self, name, props)
-        mop.create()
-        return mop
+
+        return mop.create()
 
     @pyaedt_function_handler()
     def assign_edge_cut(
-        self, assignment: list | str | EdgePrimitive, layer_thickness: str = "1mm", name: str | None = None
-    ) -> MeshOperation:
+        self, assignment: list | str | Object3d, layer_thickness: str = "1mm", name: str | None = None
+    ) -> MeshOperation | bool:
         """Assign an edge cut layer mesh.
 
         Parameters
         ----------
-        assignment : list or str or :class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`
+        assignment : list or str or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             List of objects.
-        layer_thickness :
+        layer_thickness : str, optional
             Thickness of the layer with units. The default is ``"1mm"``.
         name : str, optional
             Name of the mesh operation. The default is ``None``.
@@ -1884,9 +1810,10 @@ class Mesh(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.mesh import Mesh
-        >>> obj = Mesh()
-        >>> obj.assign_edge_cut(assignment="Box1")
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> app = Maxwell3d()
+        >>> box = app.modeler.create_box([0, 0, 0], [10, 10, 10])
+        >>> app.mesh.assign_edge_cut(assignment=box)
 
         """
         assignment = self._modeler.convert_to_selections(assignment, True)
@@ -1903,9 +1830,8 @@ class Mesh(PyAedtBase):
         props = dict({"Type": "EdgeCutLayerMesh", seltype: assignment, "Layer Thickness": layer_thickness})
 
         mop = MeshOperation(self, name, props)
-        mop.create()
-        mop.props["Layer Thickness"] = layer_thickness
-        return mop
+
+        return mop.create()
 
     @pyaedt_function_handler()
     def assign_density_control(
@@ -1915,7 +1841,7 @@ class Mesh(PyAedtBase):
         maximum_element_length: str | None = None,
         layers_number: int | None = None,
         name: str | None = None,
-    ) -> MeshOperation:
+    ) -> MeshOperation | bool:
         """Assign density control.
 
         Parameters
@@ -1944,9 +1870,10 @@ class Mesh(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.mesh import Mesh
-        >>> obj = Mesh()
-        >>> obj.assign_density_control(assignment="Box1")
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> app = Maxwell3d()
+        >>> box = app.modeler.create_box([0, 0, 0], [10, 10, 10])
+        >>> app.mesh.assign_density_control(assignment=box)
 
         """
         assignment = self._modeler.convert_to_selections(assignment, True)
@@ -1958,19 +1885,23 @@ class Mesh(PyAedtBase):
             name = generate_unique_name(name)
         else:
             name = generate_unique_name("CloneMeshDensity")
+
         seltype = "Objects"
+
         if not maximum_element_length:
             restr = False
             restrval = "0mm"
         else:
             restr = True
             restrval = maximum_element_length
+
         if not layers_number:
             restrlay = False
             restrlaynum = "1"
         else:
             restrlay = True
             restrlaynum = str(layers_number)
+
         props = dict(
             {
                 "Type": "DensityControlBased",
@@ -1983,8 +1914,8 @@ class Mesh(PyAedtBase):
             }
         )
         mop = MeshOperation(self, name, props)
-        mop.create()
-        return mop
+
+        return mop.create()
 
     @pyaedt_function_handler()
     def assign_cylindrical_gap(
@@ -2041,9 +1972,10 @@ class Mesh(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.mesh import Mesh
-        >>> obj = Mesh()
-        >>> obj.assign_cylindrical_gap(entity=["Box1"])
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> app = Maxwell3d()
+        >>> box = app.modeler.create_box([0, 0, 0], [10, 10, 10])
+        >>> app.mesh.assign_cylindrical_gap(entity=box)
 
         """
         try:
@@ -2052,24 +1984,22 @@ class Mesh(PyAedtBase):
 
             entity = self._modeler.convert_to_selections(entity, True)
             if len(entity) > 1:
-                self.logger.error("Cylindrical gap treatment cannot be assigned to multiple objects.")
-                raise ValueError
+                raise ValueError("Cylindrical gap treatment cannot be assigned to multiple objects.")
             if [x for x in self.meshoperations if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"]:
-                self.logger.error("Cylindrical gap treatment cannot be assigned to multiple objects.")
-                raise ValueError
+                raise ValueError("Cylindrical gap treatment cannot be assigned to multiple objects.")
             if band_mapping_angle and band_mapping_angle > 3:
-                self.logger.error("Band mapping angle must be between 0.0005 and 3 deg.")
-                raise ValueError
+                raise ValueError("Band mapping angle must be between 0.0005 and 3 deg.")
+
             if not name:
                 name = generate_unique_name("CylindricalGap")
 
             if self._app.design_type == "Maxwell 3D":
                 if moving_side_layers < 1:
-                    self.logger.error("Moving side layers must be an integer greater or equal to 1.")
-                    raise ValueError
+                    raise ValueError("Moving side layers must be an integer greater or equal to 1.")
+
                 if static_side_layers < 1:
-                    self.logger.error("Static side layers must be an integer greater or equal to 1.")
-                    raise ValueError
+                    raise ValueError("Static side layers must be an integer greater or equal to 1.")
+
                 if clone_mesh and not band_mapping_angle:
                     band_mapping_angle = 3
                 props = dict(
@@ -2096,8 +2026,89 @@ class Mesh(PyAedtBase):
                         "BandMappingAngle": str(band_mapping_angle) + "deg",
                     }
                 )
+
             mesh_operation = MeshOperation(self, name, props)
-            mesh_operation.create()
-            return mesh_operation
-        except Exception:
+
+            return mesh_operation.create()
+        except Exception:  # pragma: no cover
             return False
+
+    @pyaedt_function_handler()
+    def generate_mesh(self, name: str) -> bool:
+        """Generate the mesh for a design.
+
+        Parameters
+        ----------
+        name : str
+            Name of the simulation setup.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oDesign.GenerateMesh
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d()
+        >>> m3d.create_setup(name="Setup1")
+        >>> o = m3d.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> m3d.mesh.assign_length_mesh(assignment=o)
+        >>> m3d.mesh.generate_mesh("Setup1")
+
+        """
+        return self._odesign.GenerateMesh(name) == 0
+
+    @pyaedt_function_handler()
+    def delete_mesh_operations(self, mesh_type: str | list[str] | None = None) -> bool:
+        """Remove mesh operations from a design.
+        This method only works for ``"Length Based"``, and ``"Surface Approximation Based"``.
+
+        Parameters
+        ----------
+        mesh_type : str, list[str], optional
+           Type of the mesh operation to delete. The default is ``None``, in which
+           case all mesh operations are deleted.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.DeleteOp
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d()
+        >>> o = m3d.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> m3d.mesh.assign_length_mesh(assignment=o)
+        >>> m3d.mesh.delete_mesh_operations()
+
+        """
+        # This method only works for the following mesh operations
+        mesh_op_types_compatible = ["Length Based", "Surface Approximation Based"]
+
+        mesh_op_types = mesh_type
+
+        if isinstance(mesh_op_types, str) and mesh_op_types in mesh_op_types_compatible:
+            mesh_op_types = [mesh_type]
+        elif not mesh_op_types:
+            mesh_op_types = []
+            for _, m in self.operations.items():
+                if m.type and m.type in mesh_op_types_compatible:
+                    mesh_op_types.append(m.type)
+
+        for mesh_op_type in mesh_op_types:
+            if mesh_op_type not in mesh_op_types_compatible:
+                raise ValueError(f"{mesh_op_type} is not a valid mesh type.")
+            opnames = self._app.omeshmodule.GetOperationNames(mesh_op_type)
+            if opnames:
+                self._app.omeshmodule.DeleteOp(opnames)
+        return True
