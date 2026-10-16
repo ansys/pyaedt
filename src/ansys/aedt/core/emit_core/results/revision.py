@@ -217,7 +217,7 @@ class Revision:
         return Simulation(self)
 
     @deprecated_doc()
-    @deprecated("This function is deprecated. Use `get_simulation().get_interaction()` instead.")
+    @deprecated("Use `get_simulation().get_interaction()` instead.")
     @pyaedt_function_handler()
     def get_interaction(self, domain):
         """
@@ -242,7 +242,7 @@ class Revision:
         return self.get_simulation().get_interaction(domain)
 
     @deprecated_doc()
-    @deprecated("This function is deprecated. Use `get_simulation().run()` instead.")
+    @deprecated("Use `get_simulation().run()` instead.")
     @pyaedt_function_handler()
     def run(self, domain: object) -> object:
         """
@@ -315,7 +315,7 @@ class Revision:
                     raise
 
     @deprecated_doc()
-    @deprecated("This function is deprecated. Use `get_simulation().is_domain_valid()` instead.")
+    @deprecated("Use `get_simulation().is_domain_valid()` instead.")
     @pyaedt_function_handler()
     def is_domain_valid(self, domain: object) -> bool:
         """
@@ -335,7 +335,7 @@ class Revision:
         return self.get_simulation().is_domain_valid(domain)
 
     @deprecated_doc()
-    @deprecated("This function is deprecated. Use `get_simulation().get_instance_count()` instead.")
+    @deprecated("Use `get_simulation().get_instance_count()` instead.")
     @pyaedt_function_handler()
     def get_instance_count(self, domain: object) -> int:
         """
@@ -620,7 +620,8 @@ class Revision:
             return None
         return band_names
 
-    @deprecated("Use the ``band_node.get_active_frequencies`` method instead.")
+    @deprecated_doc()
+    @deprecated("Use `band_node.get_active_frequencies` instead.")
     @pyaedt_function_handler()
     def get_active_frequencies(
         self, radio_name: str, band_name: str, tx_rx_mode: int | TxRxMode, units: str = ""
@@ -700,12 +701,13 @@ class Revision:
         return self.get_simulation().n_to_1_limit
 
     @n_to_1_limit.setter
-    @deprecated("Use get_simulation().n_to_1_limit instead.", category=None)
+    @deprecated_doc()
+    @deprecated("Use `get_simulation().n_to_1_limit` instead.", category=None)
     def n_to_1_limit(self, max_instances):
         self.get_simulation().n_to_1_limit = max_instances
 
     @deprecated_doc()
-    @deprecated("This function is deprecated. Use `get_simulation().interference_type_classification()` instead.")
+    @deprecated("Use `get_simulation().interference_type_classification()` instead.")
     @pyaedt_function_handler()
     def interference_type_classification(
         self,
@@ -742,7 +744,7 @@ class Revision:
         return self.get_simulation().interference_type_classification(domain, interferer_type, use_filter, filter_list)
 
     @deprecated_doc()
-    @deprecated("This function is deprecated. Use `get_simulation().protection_level_classification()` instead.")
+    @deprecated("Use `get_simulation().protection_level_classification()` instead.")
     @pyaedt_function_handler()
     def protection_level_classification(
         self,
@@ -793,7 +795,7 @@ class Revision:
         )
 
     @deprecated_doc()
-    @deprecated("This function is deprecated. Use `get_simulation().get_emi_category_filter_enabled()` instead.")
+    @deprecated("Use `get_simulation().get_emi_category_filter_enabled()` instead.")
     def get_emi_category_filter_enabled(self, category: EmiCategoryFilter) -> bool:
         """Get whether the EMI category filter is enabled.
 
@@ -810,7 +812,7 @@ class Revision:
         return self.get_simulation().get_emi_category_filter_enabled(category)
 
     @deprecated_doc()
-    @deprecated("Use get_simulation().set_emi_category_filter_enabled() instead.", category=None)
+    @deprecated("Use `get_simulation().set_emi_category_filter_enabled()` instead.", category=None)
     def set_emi_category_filter_enabled(self, category: EmiCategoryFilter, enabled: bool):
         """Set whether the EMI category filter is enabled.
 
@@ -824,7 +826,7 @@ class Revision:
         self.get_simulation().set_emi_category_filter_enabled(category, enabled)
 
     @deprecated_doc()
-    @deprecated("This function is deprecated. Use `get_simulation().get_license_session()` instead.")
+    @deprecated("Use `get_simulation().get_license_session()` instead.")
     @pyaedt_function_handler()
     def get_license_session(self) -> object:
         """Get a license session.

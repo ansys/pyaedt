@@ -792,7 +792,7 @@ class Analysis(Design, PyAedtBase):
         return list_output
 
     @deprecated_doc(version="1.5.0")
-    @deprecated("`list_of_variations` is deprecated. Use `available_variations.variations` instead.")
+    @deprecated("Use `available_variations.variations` instead.")
     @pyaedt_function_handler()
     def list_of_variations(self, setup: str = None, sweep: str = None) -> list[str]:
         """Retrieve a list of active variations for input setup.

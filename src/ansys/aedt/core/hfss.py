@@ -5025,7 +5025,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         )
 
     @deprecated_doc(version="1.2.0")
-    @deprecated("`create_qfactor_report` is deprecated. Use `create_q_factor_report` method instead.")
+    @deprecated("Use `create_q_factor_report` instead.")
     @pyaedt_function_handler()
     def create_qfactor_report(
         self,

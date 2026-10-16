@@ -279,7 +279,7 @@ def deprecated_doc(version: str | None = None) -> Callable[[_F], _F]:
     >>> class MyClass:
     ...     @property
     ...     @deprecated_doc(version="2025.1")
-    ...     @deprecated("Use new_name instead.")
+    ...     @deprecated("Use `new_name` instead.")
     ...     def old_name(self):
     ...         return self.new_name
 

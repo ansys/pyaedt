@@ -2990,7 +2990,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         return True
 
     @deprecated_doc(version="1.5.0")
-    @deprecated("`export_w_elements` is deprecated. Use `export_equivalent_circuit` instead with file_type=WElement.")
+    @deprecated("Use `export_equivalent_circuit` with `file_type=WElement` instead.")
     @pyaedt_function_handler()
     def export_w_elements(self, export_folder: str | Path | None = None) -> list:
         """Export all W-elements to files.

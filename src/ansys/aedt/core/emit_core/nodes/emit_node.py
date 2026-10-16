@@ -762,7 +762,7 @@ class EmitNode:
             self._oRevisionData.DeleteEmitNode(self._result_id, self._node_id)
 
     @deprecated_doc(version="0.21.3")
-    @deprecated("Use the name property instead.")
+    @deprecated("Use the `name` property instead.")
     @min_aedt_version("2025.2")
     def _rename(self, requested_name: str) -> str:
         """Renames the node/component.
