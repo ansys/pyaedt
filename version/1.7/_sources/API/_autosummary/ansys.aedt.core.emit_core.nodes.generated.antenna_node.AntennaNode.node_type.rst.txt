@@ -1,0 +1,6 @@
+node\_type
+==========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.antenna_node
+
+.. autoproperty:: AntennaNode.node_type

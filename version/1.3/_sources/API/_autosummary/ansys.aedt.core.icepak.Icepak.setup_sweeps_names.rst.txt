@@ -1,0 +1,6 @@
+setup\_sweeps\_names
+====================
+
+.. currentmodule:: ansys.aedt.core.icepak
+
+.. autoproperty:: Icepak.setup_sweeps_names

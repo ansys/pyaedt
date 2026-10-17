@@ -1,0 +1,6 @@
+legend\_font
+============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.result_plot_node
+
+.. autoproperty:: ResultPlotNode.legend_font

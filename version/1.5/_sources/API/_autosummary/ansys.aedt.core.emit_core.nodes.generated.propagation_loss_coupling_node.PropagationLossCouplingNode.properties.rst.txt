@@ -1,0 +1,6 @@
+properties
+==========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.propagation_loss_coupling_node
+
+.. autoproperty:: PropagationLossCouplingNode.properties

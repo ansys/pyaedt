@@ -1,0 +1,6 @@
+environment
+===========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.hata_coupling_node
+
+.. autoproperty:: HataCouplingNode.environment

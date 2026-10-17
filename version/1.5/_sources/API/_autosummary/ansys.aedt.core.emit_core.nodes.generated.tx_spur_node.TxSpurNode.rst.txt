@@ -1,0 +1,64 @@
+﻿TxSpurNode
+==========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.tx_spur_node
+
+.. autoclass:: TxSpurNode
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      TxSpurNode.delete
+      
+      
+      TxSpurNode.export_to_csv
+      
+      
+      TxSpurNode.get_is_component
+      
+      
+      TxSpurNode.get_properties
+      
+      
+      TxSpurNode.import_csv_file
+      
+      
+      TxSpurNode.plot
+      
+      
+      TxSpurNode.props_to_dict
+      
+      
+      TxSpurNode.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      TxSpurNode.allowed_child_types
+      TxSpurNode.children
+      TxSpurNode.enabled
+      TxSpurNode.name
+      TxSpurNode.node_type
+      TxSpurNode.odesktop
+      TxSpurNode.parent
+      TxSpurNode.parent_name
+      TxSpurNode.properties
+      TxSpurNode.spur_table_units
+      TxSpurNode.table_data
+      TxSpurNode.valid
+      TxSpurNode.warnings
+   
+   

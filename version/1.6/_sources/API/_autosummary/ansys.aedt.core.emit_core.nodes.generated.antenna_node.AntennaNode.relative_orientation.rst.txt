@@ -1,0 +1,6 @@
+relative\_orientation
+=====================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.antenna_node
+
+.. autoproperty:: AntennaNode.relative_orientation

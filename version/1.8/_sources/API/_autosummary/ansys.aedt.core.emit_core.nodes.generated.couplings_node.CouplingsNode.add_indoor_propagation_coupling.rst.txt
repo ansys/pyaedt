@@ -1,0 +1,6 @@
+add\_indoor\_propagation\_coupling
+==================================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.couplings_node
+
+.. automethod:: CouplingsNode.add_indoor_propagation_coupling

@@ -1,0 +1,6 @@
+odata\_block
+============
+
+.. currentmodule:: ansys.aedt.core.mechanical
+
+.. autoproperty:: Mechanical.odata_block

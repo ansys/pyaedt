@@ -1,0 +1,6 @@
+public\_dir
+===========
+
+.. currentmodule:: ansys.aedt.core.generic.configurations
+
+.. autoproperty:: ImportResults.public_dir

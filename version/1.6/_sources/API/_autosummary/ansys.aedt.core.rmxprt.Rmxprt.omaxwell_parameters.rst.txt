@@ -1,0 +1,6 @@
+omaxwell\_parameters
+====================
+
+.. currentmodule:: ansys.aedt.core.rmxprt
+
+.. autoproperty:: Rmxprt.omaxwell_parameters

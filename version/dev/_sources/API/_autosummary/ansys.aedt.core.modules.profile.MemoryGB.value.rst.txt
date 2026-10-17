@@ -1,0 +1,6 @@
+value
+=====
+
+.. currentmodule:: ansys.aedt.core.modules.profile
+
+.. autoproperty:: MemoryGB.value

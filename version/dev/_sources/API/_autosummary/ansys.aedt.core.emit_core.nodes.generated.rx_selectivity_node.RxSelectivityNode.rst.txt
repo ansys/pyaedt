@@ -1,0 +1,64 @@
+﻿RxSelectivityNode
+=================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.rx_selectivity_node
+
+.. autoclass:: RxSelectivityNode
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      RxSelectivityNode.delete
+      
+      
+      RxSelectivityNode.export_to_csv
+      
+      
+      RxSelectivityNode.get_is_component
+      
+      
+      RxSelectivityNode.get_properties
+      
+      
+      RxSelectivityNode.import_csv_file
+      
+      
+      RxSelectivityNode.plot
+      
+      
+      RxSelectivityNode.props_to_dict
+      
+      
+      RxSelectivityNode.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      RxSelectivityNode.allowed_child_types
+      RxSelectivityNode.children
+      RxSelectivityNode.enabled
+      RxSelectivityNode.name
+      RxSelectivityNode.node_type
+      RxSelectivityNode.odesktop
+      RxSelectivityNode.parent
+      RxSelectivityNode.parent_name
+      RxSelectivityNode.properties
+      RxSelectivityNode.table_data
+      RxSelectivityNode.use_arithmetic_mean
+      RxSelectivityNode.valid
+      RxSelectivityNode.warnings
+   
+   

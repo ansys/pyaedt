@@ -1,0 +1,6 @@
+real\_time
+==========
+
+.. currentmodule:: ansys.aedt.core.modules.profile
+
+.. automethod:: SimulationProfile.real_time

@@ -1,0 +1,6 @@
+percentage\_of\_channels
+========================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.sampling_node
+
+.. autoproperty:: SamplingNode.percentage_of_channels

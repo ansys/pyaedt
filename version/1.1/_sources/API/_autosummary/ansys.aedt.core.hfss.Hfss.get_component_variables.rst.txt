@@ -1,0 +1,6 @@
+get\_component\_variables
+=========================
+
+.. currentmodule:: ansys.aedt.core.hfss
+
+.. automethod:: Hfss.get_component_variables

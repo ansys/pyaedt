@@ -1,0 +1,6 @@
+show\_relative\_coordinates
+===========================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.cad_node
+
+.. autoproperty:: CADNode.show_relative_coordinates

@@ -1,0 +1,6 @@
+set\_hpc\_from\_file
+====================
+
+.. currentmodule:: ansys.aedt.core.maxwell
+
+.. automethod:: Maxwell2d.set_hpc_from_file

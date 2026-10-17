@@ -1,0 +1,6 @@
+aedt\_env\_variable
+===================
+
+.. currentmodule:: ansys.aedt.core.circuit
+
+.. autoproperty:: Circuit.aedt_env_variable

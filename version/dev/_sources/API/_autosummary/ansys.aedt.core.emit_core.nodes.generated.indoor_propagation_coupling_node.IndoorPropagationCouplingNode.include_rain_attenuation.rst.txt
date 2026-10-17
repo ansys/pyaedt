@@ -1,0 +1,6 @@
+include\_rain\_attenuation
+==========================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.indoor_propagation_coupling_node
+
+.. autoproperty:: IndoorPropagationCouplingNode.include_rain_attenuation

@@ -1,0 +1,6 @@
+export\_to\_csv
+===============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.tx_spur_node
+
+.. automethod:: TxSpurNode.export_to_csv

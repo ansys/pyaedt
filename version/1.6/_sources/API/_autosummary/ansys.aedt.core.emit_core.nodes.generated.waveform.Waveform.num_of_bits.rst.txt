@@ -1,0 +1,6 @@
+num\_of\_bits
+=============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.waveform
+
+.. autoproperty:: Waveform.num_of_bits
