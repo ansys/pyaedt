@@ -656,7 +656,11 @@ def test_maxwell_mesh(maxwell_app) -> None:
 
 
 def test_add_mesh_operations(layout_app) -> None:
-    layout_app.create_setup("HFSS")
+    layout_app.create_setup("HFSS", setup_type="HFSSDriven")
+    layout_app.mesh.operation_names
+
+    layout_app.mesh.operations
+
     setup1 = layout_app.mesh.assign_length_mesh("HFSS", "PWR", "GND")
     setup2 = layout_app.mesh.assign_skin_depth("HFSS", "PWR", "GND")
     assert setup1

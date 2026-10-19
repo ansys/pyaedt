@@ -694,8 +694,6 @@ class Mesh(PyAedtBase):
 
     Examples
     --------
-    Basic usage demonstrated with an HFSS design:
-
     >>> from ansys.aedt.core import Hfss
     >>> hfss = Hfss()
     >>> cylinder = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)

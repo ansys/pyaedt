@@ -31,12 +31,12 @@ from ansys.aedt.core.generic.configurations import Configurations3DLayout
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from ansys.aedt.core.modules.mesh_3d_layout import Mesh3dLayout
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.modules.solve_setup import Setup3DLayout
 
 if TYPE_CHECKING:
     from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
-    from ansys.aedt.core.modules.mesh_3d_layout import Mesh3d
     from ansys.aedt.core.visualization.post.post_3dlayout import PostProcessor3DLayout
     from ansys.aedt.core.visualization.post.post_circuit import PostProcessorCircuit
     from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
@@ -200,12 +200,12 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         return self._post
 
     @property
-    def mesh(self) -> "Mesh3d":
+    def mesh(self) -> Mesh3dLayout | None:
         """Mesh.
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.mesh_3d_layout.Mesh3d`
+        :class:`ansys.aedt.core.modules.mesh_3d_layout.Mesh3dLayout`
 
         Examples
         --------
@@ -215,9 +215,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
 
         """
         if self._mesh is None and self._odesign:
-            from ansys.aedt.core.modules.mesh_3d_layout import Mesh3d
-
-            self._mesh = Mesh3d(self)
+            self._mesh = Mesh3dLayout(self)
         return self._mesh
 
     @property
