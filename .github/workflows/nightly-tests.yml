@@ -15,7 +15,7 @@ env:
   PYAEDT_SOLVER_XFAIL: "1"
   PYAEDT_TCL_INIT_XFAIL: "1"
   # NOTE: This arguments differ from the workflow triggered on PRs as we don't use testmon for nightly tests and want to break when using code logging deprecation warning.
-  PYTEST_ARGUMENTS: '-vvv --color=yes -rsa -W error::DeprecationWarning --durations=25 --maxfail=10 --cov=ansys.aedt.core --cov-report=html --cov-report=xml --junitxml=junit/test-results.xml'
+  PYTEST_ARGUMENTS: '-vvv --color=yes -rsa -W error::DeprecationWarning -W error::pyvista.core.errors.PyVistaDeprecationWarning --durations=25 --maxfail=10 --cov=ansys.aedt.core --cov-report=html --cov-report=xml --junitxml=junit/test-results.xml'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
