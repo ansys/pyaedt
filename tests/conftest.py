@@ -44,8 +44,8 @@ from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.hfss import Hfss
 from tests import TESTS_PATH
 
-# NOTE: osmnx is optional and may not be installed in all environments.
-# When unavailable, the osmnx HTTP error filter is disabled by the None fallback.
+# NOTE: OSMnx is optional and may not be installed in all environments.
+# When unavailable, the OSMnx HTTP error filter is disabled by the None fallback.
 try:
     from osmnx._errors import ResponseStatusCodeError
 except ImportError:
