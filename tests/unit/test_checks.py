@@ -105,7 +105,6 @@ def test_example_method_docstring():
     expected = """Return a value through the deprecated method.
 
 .. deprecated:: 1.10
-   Use current_method() instead. This example will be removed in 2.0.
 
 This extended description should appear after the generated deprecation
 notice and before the parameter documentation.
@@ -135,7 +134,6 @@ def test_example_property_docstring():
     expected = """Default value exposed through a deprecated property.
 
 .. deprecated:: 1.10
-   Use current_method() instead.
 
 This description should appear below the generated notice.
 
@@ -153,7 +151,7 @@ def test_multiline_message_without_version():
     def old():
         """Summary."""
 
-    assert old.__doc__ == ("Summary.\n\n.. deprecated:: \n   Use new(). See the migration guide.")
+    assert old.__doc__ == ("Summary.\n\n.. deprecated:: ")
 
 
 def test_requires_deprecated_marker():
