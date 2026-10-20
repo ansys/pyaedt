@@ -292,8 +292,7 @@ def deprecated_doc(version: str | None = None) -> Callable[[_F], _F]:
         docstring = func.__doc__ or ""
         if ".. deprecated::" not in docstring:
             docstring = inspect.cleandoc(docstring)
-            indented_message = "\n".join(f"   {line}" for line in message.splitlines())
-            directive = f".. deprecated:: {version or ''}\n{indented_message}"
+            directive = f".. deprecated:: {version or ''}"
             paragraphs = re.split(r"\n[ \t]*\n", docstring, maxsplit=1)
             summary = paragraphs[0]
             remainder = paragraphs[1] if len(paragraphs) > 1 else ""
