@@ -26,7 +26,13 @@
 
 from pathlib import Path
 import re
+import sys
 from typing import TYPE_CHECKING
+
+if sys.version_info >= (3, 13):
+    from warnings import deprecated
+else:
+    from typing_extensions import deprecated
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.base import PyAedtBase
@@ -2982,6 +2988,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
             self.logger.info("No new nets identified")
         return True
 
+    @deprecated("`export_w_elements` is deprecated. Use `export_equivalent_circuit` instead with file_type=WElement.")
     @pyaedt_function_handler()
     def export_w_elements(self, export_folder: str | Path | None = None) -> list:
         """Export all W-elements to files.

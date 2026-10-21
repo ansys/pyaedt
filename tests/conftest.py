@@ -29,6 +29,7 @@ import inspect
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import sys
 import tempfile
@@ -43,11 +44,19 @@ from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.hfss import Hfss
 from tests import TESTS_PATH
 
+# NOTE: OSMnx is optional and may not be installed in all environments.
+# When unavailable, the OSMnx HTTP error filter is disabled by the None fallback.
+try:
+    from osmnx._errors import ResponseStatusCodeError
+except ImportError:
+    ResponseStatusCodeError = None
+
 # ================================
 # Category prefixes
 # ================================
 REPO_ROOT = TESTS_PATH.parent
 UNIT_TEST_PREFIX = "tests/unit"
+UNIT_EXTENSIONS_TEST_PREFIX = "tests/unit/extensions"
 INTEGRATION_TEST_PREFIX = "tests/integration"
 SYSTEM_TEST_PREFIX = "tests/system"
 SYSTEM_SOLVERS_TEST_PREFIX = "tests/system/solvers"
@@ -167,6 +176,66 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item
             item.add_marker(pytest.mark.filter_solutions)
         elif item.nodeid.startswith(EMIT_TEST_PREFIX):
             item.add_marker(pytest.mark.emit)
+
+
+def _env_is_truthy(name: str) -> bool:
+    """Return True when the environment variable contains a truthy value."""
+    return os.environ.get(name, "").lower() in {"1", "true", "yes"}
+
+
+def _is_extension_test(item: pytest.Item) -> bool:
+    """Return True if the test belongs to the extensions test suite."""
+    return item.nodeid.startswith((UNIT_EXTENSIONS_TEST_PREFIX, EXTENSIONS_GENERAL_TEST_PREFIX))
+
+
+def _is_tcl_init_error(exc: BaseException) -> bool:
+    """Return True only for intermittent Tcl/Tk library discovery or load failures."""
+    if exc.__class__.__name__ != "TclError":
+        return False
+
+    return bool(
+        re.search(
+            r"Can't find a usable (init|tk)\.tcl"
+            r"|invalid command name \"tcl_findLibrary\""
+            r"|couldn't read file .+\.tcl"
+            r"|This probably means that Tcl wasn't installed properly",
+            str(exc),
+        )
+    )
+
+
+def _is_transient_osm_error(exc: BaseException) -> bool:
+    """Identify transient OSMnx HTTP errors when the optional dependency is available."""
+    if ResponseStatusCodeError is None or not isinstance(exc, ResponseStatusCodeError):
+        return False
+
+    return bool(re.match(r"^'[^']+' responded: (429|502|503|504)\b", str(exc)))
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    """Mark opted-in transient Tcl/Tk extension and OSMnx HTTP failures as xfail."""
+    outcome = yield
+    report = outcome.get_result()
+
+    if not report.failed or report.when not in {"setup", "call"}:
+        return
+    if call.excinfo is None:
+        return
+
+    exc = call.excinfo.value
+
+    if (
+        sys.platform == "win32"
+        and _is_extension_test(item)
+        and _is_tcl_init_error(exc)
+        and _env_is_truthy("PYAEDT_TCL_INIT_XFAIL")
+    ):
+        report.outcome = "skipped"
+        report.wasxfail = "Intermittent tkinter Tcl/Tk discovery or load failure (Windows)"
+    elif _env_is_truthy("PYAEDT_OSM_XFAIL") and _is_transient_osm_error(exc):
+        report.outcome = "skipped"
+        report.wasxfail = f"Transient OpenStreetMap API server response failure: {exc}"
 
 
 # ================================
