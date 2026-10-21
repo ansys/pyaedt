@@ -4061,10 +4061,11 @@ wheels = [
 
 [[package]]
 name = "pyedb"
-version = "0.84.3"
+version = "0.85.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "ansys-edb-core" },
+    { name = "ansys-tools-common" },
     { name = "defusedxml" },
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
@@ -4072,9 +4073,9 @@ dependencies = [
     { name = "pydantic" },
     { name = "toml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/0b/73/9e6fdb25419700267ae4f2e15ed3c0af963729e07fddf4aebfaf0816fb47/pyedb-0.84.3.tar.gz", hash = "sha256:aa98652743a6e86344359823a724ebf91fc4954c1cd728d092fa94c02e60991c", size = 877297, upload-time = "2026-10-01T14:22:38.559Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/bd/51/6f51203bbc35ce2f6e5267f5f5002baf3099bc956a652cb634f860d52e52/pyedb-0.85.0.tar.gz", hash = "sha256:eb7262f61c509c67ccf3877f7910320fe7d93ca98b496c6b0e623ff4d14987a9", size = 884441, upload-time = "2026-10-15T19:22:57.076Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/15/61/1a373d1f191aac44a4de1f5491bd1bf70347b7b823761541f2987f27b44f/pyedb-0.84.3-py3-none-any.whl", hash = "sha256:35233a31d90dbc005860a8172b6f916efc0e5e458934e8d359577fe4c4451250", size = 1190987, upload-time = "2026-10-01T14:22:36.817Z" },
+    { url = "https://files.pythonhosted.org/packages/66/17/eaaf036b4b41a470e2c7fcd3c99096773ed346ef7fd73d26502977c82e6a/pyedb-0.85.0-py3-none-any.whl", hash = "sha256:fdf09031d747d8a8c106f539f3dd92f8a3dc159ad9a1449f99354b16158aeccb", size = 1197984, upload-time = "2026-10-15T19:22:54.826Z" },
 ]
 
 [[package]]
