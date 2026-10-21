@@ -33,4 +33,4 @@ Examples:
 - [ ] I have linked the issue(s) that are solved by the PR if any.
 - [ ] I have assigned this PR to myself.
 - [ ] I have added the minimum version decorator to any new backend method implemented.
-- [ ] I have agreed with the Contributor License Agreement ([CLA](https://developer.ansys.com/form/cla-acceptance)).
+- [ ] I have agreed with the Contributor License Agreement ([CLA](https://cla.developer.synopsys.com/)).
