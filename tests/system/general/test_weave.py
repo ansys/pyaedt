@@ -82,7 +82,7 @@ def test_weave_properties() -> None:
 
     w.amplitude_overlap_factor = 1.1
     assert isinstance(w.amplitude_overlap_factor, float) and w.amplitude_overlap_factor == pytest.approx(1.1)
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="amplitude_overlap_factor must be positive."):
         w.amplitude_overlap_factor = 0
 
     # Widths and ratios

@@ -262,7 +262,7 @@ class WeaveAdvancedDialog(tkinter.Toplevel):
         ).grid(row=row, column=0, columnspan=2, padx=10, pady=(10, 4), sticky="w")
         row += 1
 
-        for attr, _type, default in self.FIELDS:
+        for attr, _, default in self.FIELDS:
             ttk.Label(self, text=attr.replace("_", " ").title() + ":", style="PyAEDT.TLabel").grid(
                 row=row, column=0, padx=10, pady=4, sticky="w"
             )
@@ -274,7 +274,7 @@ class WeaveAdvancedDialog(tkinter.Toplevel):
 
         def on_ok() -> None:
             raw_values: dict[str, Any] = {}
-            for attr, attr_type, _default in self.FIELDS:
+            for attr, attr_type, _ in self.FIELDS:
                 raw = self._entries[attr].get("1.0", tkinter.END).strip()
                 try:
                     raw_values[attr] = raw if attr_type is str else attr_type(raw)
