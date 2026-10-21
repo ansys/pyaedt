@@ -1211,6 +1211,8 @@ class Configurations(PyAedtBase):
         self.results._reset_results()
 
         dict_in = read_configuration_file(config_file)
+        if not isinstance(dict_in, dict):
+            raise ValueError("Configuration file must contain a dictionary.")
         if self.options._is_any_import_set:
             try:
                 self._app.modeler.model_units = dict_in["general"]["model_units"]
@@ -1356,7 +1358,10 @@ class Configurations(PyAedtBase):
         if list(self._app.output_variables):
             oo_out = Path(tempfile.gettempdir()) / f"{generate_unique_name('oo')}.txt"
             self._app.ooutput_variable.ExportOutputVariables(str(oo_out))
-            with open_file(oo_out, "r") as f:
+            output_file = open_file(oo_out, "r")
+            if output_file is None:
+                raise FileNotFoundError(f"Could not open exported output variables file {oo_out}.")
+            with output_file as f:
                 lines = f.readlines()
                 for line in lines:
                     line_split = line.split(" ")
@@ -1614,6 +1619,8 @@ class Configurations(PyAedtBase):
 
         if config_file.exists() and not overwrite:
             dict_in = read_configuration_file(config_file)
+            if not isinstance(dict_in, dict):
+                raise ValueError("Configuration file must contain a dictionary.")
             try:  # TODO: Allow import of config created with other versions of pyaedt.
                 if dict_in["general"]["pyaedt_version"] == __version__:
                     for k, v in dict_in.items():
@@ -1994,6 +2001,8 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
         else:  # pragma: no cover
             raise TypeError("import_config expected at most 2 arguments, got %d" % (len(args) + 1))
         dict_in = read_configuration_file(config_file)
+        if not isinstance(dict_in, dict):
+            raise ValueError("Configuration file must contain a dictionary.")
         self.results._reset_results()
 
         # TODO: See https://github.com/ansys/pyaedt/issues/7919
@@ -2354,7 +2363,9 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                     design = nc_dict["NativeComponentDefinitionProvider"]["DefnLink"]["Design"]
                     from ansys.aedt.core.generic.design_types import get_pyaedt_app
 
-                    app: _AppWithOProject = get_pyaedt_app(prj, design)
+                    app: _AppWithOProject | None = get_pyaedt_app(prj, design)
+                    if app is None:
+                        raise ValueError(f"Could not get the PyAEDT application for design {design} in project {prj}.")
                     app.oproject.Close()
                 user_defined_component = UserDefinedComponent(
                     self._app.modeler, instance_names, nc_dict["NativeComponentDefinitionProvider"], native_dict["Type"]
@@ -2488,17 +2499,19 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                 for param, value in parameters.items():
                     if param in skip_list:
                         continue
-                    elif value and value[-1] == "'" and value[1] == "'":
-                        value = value[-1:1]
+                    elif value and isinstance(value, str) and value[-1] == "'" and value[0] == "'":
+                        value = value[1:-1]
                     properties[param] = value
             elif path[-4:] == ".ibs":
                 if "AMI_Version" in parameters:
                     component_type = "ami"
                 else:
                     component_type = "ibis"
-                component = parameters["comp_name"] if parameters.get("comp_name", None) else parameters["model"][1:-1]
+                component = parameters["comp_name"] if parameters.get("comp_name", None) else parameters["model"]
+                if component[0] == '"':
+                    component = component[1:-1]
                 for prop, value in parameters.items():
-                    if value and value[-1] == '"' and value[0] == '"':
+                    if value and isinstance(value, str) and value[-1] == '"' and value[0] == '"':
                         value = value[1:-1]
                     properties[prop] = value
             elif path[-4:] in [".LIB", ".lib"] or path[-3:] == ".sp":
@@ -2572,6 +2585,8 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
 
         if config_file.exists() and not overwrite:
             dict_in = read_configuration_file(config_file)
+            if not isinstance(dict_in, dict):
+                raise ValueError("Configuration file must contain a dictionary.")
             try:  # TODO: Allow import of config created with other versions of pyaedt.
                 if dict_in["general"]["pyaedt_version"] == __version__:
                     for k, v in dict_in.items():
@@ -2617,6 +2632,8 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
         self.results._reset_results()
 
         data = read_configuration_file(config_file)
+        if not isinstance(data, dict):
+            raise ValueError("Configuration file must contain a dictionary.")
         try:
             offset = data["general"]["port_offset"]
         except KeyError:
@@ -2770,7 +2787,7 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                     elif component_type == "nexxim state space":
                         new_comp = self._app.modeler.schematic.create_nexxim_state_space_component(
                             value["file_path"],
-                            value["num_terminals"],
+                            value.get("num_terminals", 0),
                             location=j["position"],
                             angle=j["angle"],
                             port_names=value.get("pin_names", []),
@@ -2791,44 +2808,38 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                         )
                     if j.get("mirror", False):
                         new_comp.mirror = True
-                    new_comp_params = {i: k[1:-1] if k.startswith('"') else k for i, k in new_comp.parameters.items()}
+                    if component_type in ["ibis", "ami"]:
+                        for key in ("model", "Model1", "Model2"):
+                            if key in j["properties"]:
+                                new_comp.parameters[key] = j["properties"].pop(key)
+                    new_comp_params = {
+                        i: k[1:-1] if isinstance(k, str) and k.startswith('"') else k
+                        for i, k in new_comp.parameters.items()
+                    }
                     params = {
                         i: j
                         for i, j in j["properties"].items()
                         if i in new_comp_params and j != new_comp_params and j != f'"{new_comp_params}"'
                     }
                     if params:
-                        # applying single settings to ibis because of parameters relationships.
-                        if component_type in ["ibis", "ami"]:
+                        try:
+                            if new_comp._readonly_parameters:
+                                params = {i: j for i, j in params.items() if i not in new_comp._readonly_parameters}
+                            self._app.change_properties(
+                                self._app.oeditor,
+                                "PassedParameterTab",
+                                new_comp.composed_name,
+                                list(params.keys()),
+                                list(params.values()),
+                            )
+                        except Exception:
+                            # applying single settings to ibis because of parameters relationships.
                             for ppn, ppv in params.items():
                                 new_comp.parameters[ppn] = (
                                     ppv[1:-1]
                                     if isinstance(ppv, str) and ppv.startswith('"') and is_number(ppv[1:-1])
                                     else ppv
                                 )
-                        else:
-                            try:
-                                values = [
-                                    i[1:-1] if isinstance(i, str) and i.startswith('"') and is_number(i[1:-1]) else i
-                                    for i in list(params.values())
-                                ]
-                                self._app.change_properties(
-                                    self._app.oeditor,
-                                    "PassedParameterTab",
-                                    new_comp.composed_name,
-                                    list(params.keys()),
-                                    values,
-                                )
-                            except Exception:  # pragma: no cover
-                                self._app.logger.warning(
-                                    f"Failed to set one of the properties for component {new_comp.composed_name}"
-                                )
-                                for ppn, ppv in params.items():
-                                    new_comp.parameters[ppn] = (
-                                        ppv[1:-1]
-                                        if isinstance(ppv, str) and ppv.startswith('"') and is_number(ppv[1:-1])
-                                        else ppv
-                                    )
 
         comp_list = list(self._app.modeler.schematic.components.values())
         for i, j in data["pin_mapping"].items():

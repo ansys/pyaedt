@@ -152,7 +152,6 @@ def test_layout_design_toolkit_unknown_action(add_app_example) -> None:
     h3d.close_project(save=False)
 
 
-@edb_xfail
 def test_layout_design_toolkit_microvia(add_app_example) -> None:
     """Test microvia creation with conical shape."""
     h3d = add_app_example(

@@ -44,6 +44,11 @@ from types import TracebackType
 from typing import Any
 from typing import cast
 
+if sys.version_info >= (3, 13):
+    from warnings import deprecated
+else:
+    from typing_extensions import deprecated
+
 from ansys.aedt.core.aedt_logger import AedtLogger
 from ansys.aedt.core.application.aedt_objects import AedtObjects
 from ansys.aedt.core.application.design_solutions import DesignSolution
@@ -79,6 +84,7 @@ from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.protocols import _OProject
 from ansys.aedt.core.generic.settings import inner_project_settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
+from ansys.aedt.core.internal.checks import deprecated_doc
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.internal.load_aedt_file import load_entire_aedt_file
@@ -795,26 +801,65 @@ class Design(AedtObjects, PyAedtBase):
             return {}
 
     @property
+    @deprecated_doc()
+    @deprecated("Use aedt_env_variable instead.")
     def aedt_version_id(self) -> str:
-        """AEDT version.
+        """AEDT version environment variable name.
+
+        Returns the name of the environment variable associated with the current
+        AEDT version (``"ANSYSEM_ROOT252"`` for version 2025.2).
+
+        .. note::
+            This property returns the environment variable **name**, not the actual
+            AEDT version string. To get the version string, use
+            :attr:`desktop_class.aedt_version_id` instead.
 
         Returns
         -------
         str
-            Version of AEDT.
+            Environment variable name for the AEDT installation path.
 
-        References
-        ----------
-        >>> oDesktop.GetVersion()
+        See Also
+        --------
+        desktop_class.aedt_version_id : Returns the actual AEDT version string.
 
         Examples
         --------
         >>> from ansys.aedt.core import Hfss
         >>> app = Hfss()
-        >>> app.aedt_version_id
+        >>> app.aedt_version_id  # Returns environment variable name
+        'ANSYSEM_ROOT252'
+        >>> app.desktop_class.aedt_version_id  # Returns actual version
+        '2025.2'
 
         """
-        return aedt_versions.get_version_env_variable(self._aedt_version)
+        return self.aedt_env_variable
+
+    @property
+    def aedt_env_variable(self) -> str:
+        """AEDT version environment variable name.
+
+        Returns the name of the environment variable associated with the current
+        AEDT version (``"ANSYSEM_ROOT252"`` for version 2025.2).
+
+        .. note::
+            This property returns the environment variable **name**, not the actual
+            AEDT version string. To get the version string, use
+            :attr:`desktop_class.aedt_version_id` instead.
+
+        Returns
+        -------
+        str
+            Environment variable name for the AEDT installation path.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.aedt_env_variable
+
+        """
+        return aedt_versions.get_version_env_variable(self._aedt_version, self.student_version)
 
     @property
     def _aedt_version(self) -> str:
@@ -2383,7 +2428,7 @@ class Design(AedtObjects, PyAedtBase):
             if self.design_type == "HFSS 3D Layout Design":
                 if variable_name in self.odesign.GetProperties("DefinitionParameterTab", "LocalVariables"):
                     tab = "NAME:DefinitionParameterTab"
-            elif self.design_type == "Circuit Design":
+            elif self.design_type in ["Circuit Design", "Twin Builder"]:
                 tab = "NAME:DefinitionParameterTab"
                 propserver = f"Instance:{self._odesign.GetName()}"
         arg2 = ["NAME:" + optimetrics_type, "Included:=", enable]

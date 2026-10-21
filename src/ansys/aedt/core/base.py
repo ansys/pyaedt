@@ -63,14 +63,30 @@ class DirMixin:
 
         """
         result = []
+        cls = type(self)
         for name in dir(self):
             if name.startswith("_") or name == "public_dir":
                 continue
+
+            # Check class descriptor first (e.g. properties, functions)
+            class_attr = getattr(cls, name, None)
+            if class_attr is not None:
+                if getattr(class_attr, "__deprecated__", None) is not None:
+                    continue
+                if getattr(getattr(class_attr, "fget", None), "__deprecated__", None) is not None:
+                    continue
+
+                doc = inspect.getdoc(class_attr)
+                if doc and ".. deprecated::" in doc:
+                    continue
 
             # NOTE: Could be necessary to handle properties that raise exceptions, e.g. NotImplementedError
             try:
                 obj = getattr(self, name)
             except (AttributeError, RuntimeError):
+                continue
+
+            if getattr(obj, "__deprecated__", None) is not None:
                 continue
 
             doc = inspect.getdoc(obj)

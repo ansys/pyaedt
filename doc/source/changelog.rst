@@ -9,6 +9,324 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`1.9.0 <https://github.com/ansys/pyaedt/releases/tag/v1.9.0>`_ - October 09, 2026
+=================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Pdf_oxide report generation
+          - `#7934 <https://github.com/ansys/pyaedt/pull/7934>`_
+
+        * - Add Fresnel assignment functionality with RTTBL file support
+          - `#8172 <https://github.com/ansys/pyaedt/pull/8172>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update filter.py to use aedt_env_variable
+          - `#8171 <https://github.com/ansys/pyaedt/pull/8171>`_
+
+        * - Avoid WinError 6 when launching AEDT from a GUI host without a console
+          - `#8174 <https://github.com/ansys/pyaedt/pull/8174>`_
+
+        * - Update some Emit tests
+          - `#8178 <https://github.com/ansys/pyaedt/pull/8178>`_
+
+
+  .. tab-item:: Documentation
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Enhance AEDT version property documentation for clarity
+          - `#8159 <https://github.com/ansys/pyaedt/pull/8159>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Bump https://github.com/python-jsonschema/check-jsonschema from 0.38.0 to 0.38.2
+          - `#8161 <https://github.com/ansys/pyaedt/pull/8161>`_
+
+        * - Bump https://github.com/astral-sh/ty-pre-commit from v0.0.82 to 0.0.84
+          - `#8162 <https://github.com/ansys/pyaedt/pull/8162>`_
+
+        * - Bump https://github.com/astral-sh/ruff-pre-commit from v0.16.8 to 0.16.9
+          - `#8163 <https://github.com/ansys/pyaedt/pull/8163>`_
+
+        * - Bump astral-sh/setup-uv from 10.1.0 to 10.2.0
+          - `#8164 <https://github.com/ansys/pyaedt/pull/8164>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update CHANGELOG for v1.8.0
+          - `#8158 <https://github.com/ansys/pyaedt/pull/8158>`_
+
+        * - Bump version from 1.8.dev0 to 1.9.dev0
+          - `#8165 <https://github.com/ansys/pyaedt/pull/8165>`_
+
+
+  .. tab-item:: Miscellaneous
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update downloads to align with ansys common tools
+          - `#8166 <https://github.com/ansys/pyaedt/pull/8166>`_
+
+
+`1.8.0 <https://github.com/ansys/pyaedt/releases/tag/v1.8.0>`_ - October 02, 2026
+=================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Sss reader support
+          - `#8138 <https://github.com/ansys/pyaedt/pull/8138>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Add features to Tb setup and optimetrics
+          - `#8117 <https://github.com/ansys/pyaedt/pull/8117>`_
+
+        * - Mcad assembly minor fix
+          - `#8142 <https://github.com/ansys/pyaedt/pull/8142>`_
+
+        * - Fix generate mesh issue
+          - `#8148 <https://github.com/ansys/pyaedt/pull/8148>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Bump https://github.com/astral-sh/ty-pre-commit from v0.0.79 to 0.0.82
+          - `#8130 <https://github.com/ansys/pyaedt/pull/8130>`_
+
+        * - Bump https://github.com/astral-sh/ruff-pre-commit from v0.16.7 to 0.16.8
+          - `#8131 <https://github.com/ansys/pyaedt/pull/8131>`_
+
+        * - Bump plotly from 7.0.0 to 7.1.0
+          - `#8132 <https://github.com/ansys/pyaedt/pull/8132>`_
+
+        * - Bump codecov/codecov-action from 7.0.0 to 7.1.1
+          - `#8133 <https://github.com/ansys/pyaedt/pull/8133>`_
+
+        * - Bump grpcio from 1.83.0 to 1.84.0
+          - `#8134 <https://github.com/ansys/pyaedt/pull/8134>`_
+
+        * - Bump astral-sh/setup-uv from 10.0.0 to 10.1.0
+          - `#8135 <https://github.com/ansys/pyaedt/pull/8135>`_
+
+        * - Bump sphinx-gallery from 0.21.0 to 0.22.1
+          - `#8136 <https://github.com/ansys/pyaedt/pull/8136>`_
+
+        * - Bump numpydoc from 1.10.0 to 1.11.0
+          - `#8137 <https://github.com/ansys/pyaedt/pull/8137>`_
+
+        * - Bump urllib3 from 2.7.0 to 2.8.0
+          - `#8145 <https://github.com/ansys/pyaedt/pull/8145>`_
+
+        * - Bump tornado from 6.5.8 to 6.5.9
+          - `#8146 <https://github.com/ansys/pyaedt/pull/8146>`_
+
+        * - Bump jupyterlab from 4.6.2 to 4.6.4
+          - `#8155 <https://github.com/ansys/pyaedt/pull/8155>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update CHANGELOG for v1.7.0
+          - `#8127 <https://github.com/ansys/pyaedt/pull/8127>`_
+
+        * - Bump v1.8.dev0
+          - `#8129 <https://github.com/ansys/pyaedt/pull/8129>`_
+
+        * - Add PR migrator workflow
+          - `#8141 <https://github.com/ansys/pyaedt/pull/8141>`_
+
+        * - Fix weekly tests missing permission
+          - `#8149 <https://github.com/ansys/pyaedt/pull/8149>`_
+
+        * - Bump pyedb 0.84.3
+          - `#8153 <https://github.com/ansys/pyaedt/pull/8153>`_
+
+
+  .. tab-item:: Miscellaneous
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - IBIS reader and fix some code issue
+          - `#8139 <https://github.com/ansys/pyaedt/pull/8139>`_
+
+        * - Module general_methods.py and add fixes
+          - `#8147 <https://github.com/ansys/pyaedt/pull/8147>`_
+
+
+  .. tab-item:: Test
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Add EMIT level 1 tests
+          - `#8151 <https://github.com/ansys/pyaedt/pull/8151>`_
+
+        * - Skip test_import_tuned_variables
+          - `#8156 <https://github.com/ansys/pyaedt/pull/8156>`_
+
+
+`1.7.0 <https://github.com/ansys/pyaedt/releases/tag/v1.7.0>`_ - September 25, 2026
+===================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Mcad assembly enhancement
+          - `#8102 <https://github.com/ansys/pyaedt/pull/8102>`_
+
+        * - Added new way to manage parameters in CircuitComponent using GetDataM…
+          - `#8119 <https://github.com/ansys/pyaedt/pull/8119>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Add xfail to open street map test
+          - `#8109 <https://github.com/ansys/pyaedt/pull/8109>`_
+
+        * - Fixed grpc_plugin_dll_class.py to support 27R1 properties in ChildObject
+          - `#8116 <https://github.com/ansys/pyaedt/pull/8116>`_
+
+        * - Circuit parameters property
+          - `#8123 <https://github.com/ansys/pyaedt/pull/8123>`_
+
+        * - Emit tests
+          - `#8124 <https://github.com/ansys/pyaedt/pull/8124>`_
+
+        * - Fix API change in 27R1 (boundary node cannot be anymore connected to a face node)
+          - `#8125 <https://github.com/ansys/pyaedt/pull/8125>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update pyvista[io] requirement from <0.49,>=0.38.0 to >=0.38.0,<0.50
+          - `#8104 <https://github.com/ansys/pyaedt/pull/8104>`_
+
+        * - Bump soupsieve from 2.8.4 to 2.9
+          - `#8108 <https://github.com/ansys/pyaedt/pull/8108>`_
+
+        * - Bump anyio from 4.12.1 to 4.14.2
+          - `#8111 <https://github.com/ansys/pyaedt/pull/8111>`_
+
+        * - Bump https://github.com/astral-sh/ruff-pre-commit from v0.16.6 to 0.16.7
+          - `#8112 <https://github.com/ansys/pyaedt/pull/8112>`_
+
+        * - Bump pyedb from 0.83.0 to 0.84.0
+          - `#8113 <https://github.com/ansys/pyaedt/pull/8113>`_
+
+        * - Bump pyvista/setup-headless-display-action from 5.0.0 to 5.1.0
+          - `#8114 <https://github.com/ansys/pyaedt/pull/8114>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Bump dev version into v1.7.dev0
+          - `#8097 <https://github.com/ansys/pyaedt/pull/8097>`_
+
+        * - Update CHANGELOG for v1.6.0
+          - `#8098 <https://github.com/ansys/pyaedt/pull/8098>`_
+
+        * - Update dependabot and ansys/action
+          - `#8100 <https://github.com/ansys/pyaedt/pull/8100>`_
+
+        * - Use dedicated action to setup test env
+          - `#8106 <https://github.com/ansys/pyaedt/pull/8106>`_
+
+        * - Add prek hooks and update ty
+          - `#8107 <https://github.com/ansys/pyaedt/pull/8107>`_
+
+        * - Bump v0.84.1
+          - `#8120 <https://github.com/ansys/pyaedt/pull/8120>`_
+
+
+  .. tab-item:: Miscellaneous
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Improve type hint and add fixes
+          - `#8095 <https://github.com/ansys/pyaedt/pull/8095>`_
+
+
+  .. tab-item:: Test
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Refactor xfail approach and fix toml duplicates
+          - `#8110 <https://github.com/ansys/pyaedt/pull/8110>`_
+
+
 `1.6.0 <https://github.com/ansys/pyaedt/releases/tag/v1.6.0>`_ - September 15, 2026
 ===================================================================================
 

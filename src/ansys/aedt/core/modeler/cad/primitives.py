@@ -6218,7 +6218,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         if is_linux:  # pragma: no cover
             self.logger.error("Discovery not supported on Linux.")
             return False
-        version = self._app.aedt_version_id[-3:]
+        version = self._app.aedt_env_variable[-3:]
 
         ansys_install_dir = os.environ.get(f"AWP_ROOT{version}", "")
 

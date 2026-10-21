@@ -25,8 +25,14 @@
 from __future__ import annotations
 
 import ast
+import sys
 from typing import TypeVar
 import warnings
+
+if sys.version_info >= (3, 13):
+    from warnings import deprecated
+else:
+    from typing_extensions import deprecated
 
 from ansys.aedt.core.emit_core.emit_constants import EMIT_FN_ALLOWED_FUNCS
 from ansys.aedt.core.emit_core.emit_constants import EMIT_FN_ALLOWED_OPS
@@ -754,6 +760,7 @@ class EmitNode:
         else:
             self._oRevisionData.DeleteEmitNode(self._result_id, self._node_id)
 
+    @deprecated("This method is deprecated in 0.21.3. Use the name property instead.")
     @min_aedt_version("2025.2")
     def _rename(self, requested_name: str) -> str:
         """Renames the node/component.
@@ -776,7 +783,6 @@ class EmitNode:
         ValueError
             If the node is read-only and cannot be renamed.
         """
-        warnings.warn("This method is deprecated in 0.21.3. Use the name property instead.", DeprecationWarning)
         self.name = requested_name
 
         return self.name
@@ -881,7 +887,7 @@ class EmitNode:
         """
         try:
             if import_type == "CAD":
-                if int(self._emit_obj.aedt_version_id[-3:]) >= 271:
+                if int(self._emit_obj.aedt_env_variable[-3:]) >= 271:
                     node_id = self._oRevisionData.EmitNodeImport(
                         self._result_id, self._node_id, file_path, import_type, create_antennas
                     )

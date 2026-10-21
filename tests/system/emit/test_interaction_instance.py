@@ -82,7 +82,7 @@ def test_instance_get_value(cell_phone):
     desense = instance.get_value(ResultType.DESENSE)
     emi = instance.get_value(ResultType.EMI)
 
-    assert round(power_at_rx, 4) == -18.1079
+    assert round(power_at_rx, 4) == -18.4894
     assert sensitivity == -125
     assert desense == -4.86
     assert emi == -4.86

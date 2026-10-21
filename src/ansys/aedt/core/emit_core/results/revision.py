@@ -24,8 +24,14 @@
 
 from __future__ import annotations
 
+import sys
 import time
 import warnings
+
+if sys.version_info >= (3, 13):
+    from warnings import deprecated
+else:
+    from typing_extensions import deprecated
 
 from ansys.aedt.core.emit_core.emit_constants import EmiCategoryFilter
 from ansys.aedt.core.emit_core.emit_constants import InterfererType
@@ -85,7 +91,7 @@ class Revision:
         self.parent_results = parent_results
         """Parent Results object."""
 
-        self.aedt_version = int(parent_results.emit_project.aedt_version_id[-3:])
+        self.aedt_version = int(parent_results.emit_project.aedt_env_variable[-3:])
         """AEDT version."""
 
         if self.aedt_version > 251:
@@ -204,6 +210,7 @@ class Revision:
         """
         return Simulation(self)
 
+    @deprecated("This function is deprecated. Use `get_simulation().get_interaction()` instead.")
     @pyaedt_function_handler()
     def get_interaction(self, domain):
         """
@@ -228,11 +235,9 @@ class Revision:
         >>> rev.get_interaction(domain)
 
         """
-        warnings.warn(
-            "This function is deprecated. Use `get_simulation().get_interaction()` instead.", DeprecationWarning
-        )
         return self.get_simulation().get_interaction(domain)
 
+    @deprecated("This function is deprecated. Use `get_simulation().run()` instead.")
     @pyaedt_function_handler()
     def run(self, domain: object) -> object:
         """
@@ -257,7 +262,6 @@ class Revision:
         >>> rev.run(domain)
 
         """
-        warnings.warn("This function is deprecated. Use `get_simulation().run()` instead.", DeprecationWarning)
         return self.get_simulation().run(domain)
 
     def _run_no_save(self, domain: object) -> object:
@@ -308,6 +312,7 @@ class Revision:
                 else:
                     raise
 
+    @deprecated("This function is deprecated. Use `get_simulation().is_domain_valid()` instead.")
     @pyaedt_function_handler()
     def is_domain_valid(self, domain: object) -> bool:
         """
@@ -327,11 +332,9 @@ class Revision:
         >>> aedtapp.results.current_revision.is_domain_valid(domain)
         True
         """
-        warnings.warn(
-            "This function is deprecated. Use `get_simulation().is_domain_valid()` instead.", DeprecationWarning
-        )
         return self.get_simulation().is_domain_valid(domain)
 
+    @deprecated("This function is deprecated. Use `get_simulation().get_instance_count()` instead.")
     @pyaedt_function_handler()
     def get_instance_count(self, domain: object) -> int:
         """
@@ -355,9 +358,6 @@ class Revision:
         >>> domain = aedtapp.interaction_domain()
         >>> num_instances = aedtapp.results.current_revision.get_instance_count(domain)
         """
-        warnings.warn(
-            "This function is deprecated. Use `get_simulation().get_instance_count()` instead.", DeprecationWarning
-        )
         return self.get_simulation().get_instance_count(domain)
 
     @pyaedt_function_handler()
@@ -691,6 +691,7 @@ class Revision:
         self.emit_project.save_project()
 
     @property
+    @deprecated("This property is deprecated. Use `get_simulation().n_to_1_limit` instead.")
     def n_to_1_limit(self) -> int:
         """
         Maximum number of interference combinations to run per receiver for N to 1.
@@ -707,13 +708,14 @@ class Revision:
         >>> aedtapp.results.current_revision.n_to_1_limit
         1048576
         """
-        warnings.warn("This property is deprecated. Use `get_simulation().n_to_1_limit` instead.", DeprecationWarning)
         return self.get_simulation().n_to_1_limit
 
     @n_to_1_limit.setter
+    @deprecated("Use get_simulation().n_to_1_limit instead.", category=None)
     def n_to_1_limit(self, max_instances):
         self.get_simulation().n_to_1_limit = max_instances
 
+    @deprecated("This function is deprecated. Use `get_simulation().interference_type_classification()` instead.")
     @pyaedt_function_handler()
     def interference_type_classification(
         self,
@@ -750,12 +752,9 @@ class Revision:
         --------
         >>> interference_results = rev.interference_type_classification(domain)
         """
-        warnings.warn(
-            "This function is deprecated. Use `get_simulation().interference_type_classification()` instead.",
-            DeprecationWarning,
-        )
         return self.get_simulation().interference_type_classification(domain, interferer_type, use_filter, filter_list)
 
+    @deprecated("This function is deprecated. Use `get_simulation().protection_level_classification()` instead.")
     @pyaedt_function_handler()
     def protection_level_classification(
         self,
@@ -804,14 +803,11 @@ class Revision:
         --------
         >>> protection_results = rev.protection_level_classification(domain)
         """
-        warnings.warn(
-            "This function is deprecated. Use `get_simulation().protection_level_classification()` instead.",
-            DeprecationWarning,
-        )
         return self.get_simulation().protection_level_classification(
             domain, interferer_type, global_protection_level, global_levels, protection_levels, use_filter, filter_list
         )
 
+    @deprecated("This function is deprecated. Use `get_simulation().get_emi_category_filter_enabled()` instead.")
     def get_emi_category_filter_enabled(self, category: EmiCategoryFilter) -> bool:
         """Get whether the EMI category filter is enabled.
 
@@ -828,12 +824,9 @@ class Revision:
         bool
             ``True`` when the EMI category filter is enabled, ``False`` otherwise.
         """
-        warnings.warn(
-            "This function is deprecated. Use `get_simulation().get_emi_category_filter_enabled()` instead.",
-            DeprecationWarning,
-        )
         return self.get_simulation().get_emi_category_filter_enabled(category)
 
+    @deprecated("Use get_simulation().set_emi_category_filter_enabled() instead.", category=None)
     def set_emi_category_filter_enabled(self, category: EmiCategoryFilter, enabled: bool):
         """Set whether the EMI category filter is enabled.
 
@@ -849,6 +842,7 @@ class Revision:
         """
         self.get_simulation().set_emi_category_filter_enabled(category, enabled)
 
+    @deprecated("This function is deprecated. Use `get_simulation().get_license_session()` instead.")
     @pyaedt_function_handler()
     def get_license_session(self) -> object:
         """Get a license session.
@@ -867,9 +861,6 @@ class Revision:
             domain = aedtapp.interaction_domain()
             revision.run(domain)
         """
-        warnings.warn(
-            "This function is deprecated. Use `get_simulation().get_license_session()` instead.", DeprecationWarning
-        )
         return self.get_simulation().get_license_session()
 
     @pyaedt_function_handler()

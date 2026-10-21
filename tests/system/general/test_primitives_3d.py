@@ -59,6 +59,7 @@ COMPONENT_3D_FILE = "new.a3dcomp"
 ENCRYPTED_CYL = "encrypted_cylinder.a3dcomp"
 LAYOUT_COMP = "Layoutcomponent_231.aedbcomp"
 LAYOUT_COMP_SI_VERSE_SFP = "ANSYS_SVP_V1_1_SFP_main.aedbcomp"
+LAYOUT_COMP_SI_VERSE_SFP_aedb = "ANSYS_SVP_V1_1_SFP_main.aedb"
 PRIMITIVES_FILE = "primitives_file.json"
 CYLINDER_PRIMITIVE_FILE = "cylinder_geometry_creation.csv"
 CYLINDER_PRIMITIVE_FILE_MISSING_VALUES = "cylinder_geometry_creation_missing_values.csv"
@@ -2275,6 +2276,9 @@ def test_insert_layout_component_2(aedt_app, test_tmp_dir) -> None:
     file_original2 = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / LAYOUT_COMP_SI_VERSE_SFP
     input_file2 = shutil.copy2(file_original2, test_tmp_dir / LAYOUT_COMP_SI_VERSE_SFP)
 
+    file_original3 = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / LAYOUT_COMP_SI_VERSE_SFP
+    input_file3 = shutil.copy2(file_original3, test_tmp_dir / LAYOUT_COMP_SI_VERSE_SFP)
+
     aedt_app.modeler.add_layout_component_definition(
         file_path=str(input_file),
         name="ann",
@@ -2287,12 +2291,20 @@ def test_insert_layout_component_2(aedt_app, test_tmp_dir) -> None:
         file_path=str(input_file2),
         name="SiVerse_SFP",
     )
+    aedt_app.modeler.add_layout_component_definition(
+        file_path=str(input_file3),
+        name="SiVerse_SFP_aedb",
+    )
+
     aedt_app.modeler._insert_layout_component_instance(
         name="PCB_A",
         definition_name="SiVerse_SFP",
     )
     aedt_app.modeler._insert_layout_component_instance(
         name="PCB_B", definition_name="SiVerse_SFP", import_coordinate_systems=["L8_1"]
+    )
+    aedt_app.modeler._insert_layout_component_instance(
+        name="PCB_C", definition_name="SiVerse_SFP_aedb", import_coordinate_systems=["L8_1"]
     )
 
 

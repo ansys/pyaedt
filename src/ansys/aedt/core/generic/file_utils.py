@@ -503,6 +503,8 @@ def open_file(
             local_file = Path(tempfile.gettempdir()) / file_path.name
             settings.remote_rpc_session.filemanager.download_file(str(file_path), str(local_file))
             return open(str(local_file), file_options, encoding=encoding)
+        pyaedt_logger.error(f"The file {file_path} does not exist locally or remotely.")
+        return
     elif dir_name.exists():
         return open(str(file_path), file_options, encoding=encoding)
     elif settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(str(dir_name)):
@@ -513,8 +515,37 @@ def open_file(
         else:
             return settings.remote_rpc_session.open_file(str(file_path), file_options, encoding=encoding)
     else:
-        pyaedt_logger.error("The file or folder %s does not exist", dir_name)
-        return None
+        pyaedt_logger.error(f"The file or folder {dir_name} does not exist.")
+        return
+
+
+# NOTE: Helper function to centralize the check for file existence and raise an error if the file cannot be opened.
+def _open_file_required(file_path: StrPath, file_options: str = "r", encoding: str | None = None) -> IO[Any]:
+    """Open a local or remote file, raising if no file object is available.
+
+    Parameters
+    ----------
+    file_path : str or :class:`pathlib.Path`
+        Full path to the file.
+    file_options : str, optional
+        File open options, such as ``"r"`` for reading or ``"w"`` for writing. The default is ``"r"``.
+    encoding : str, optional
+        Text encoding used to read or write the file. The default is ``None``.
+
+    Returns
+    -------
+    IO[Any]
+        Opened file object.
+
+    Raises
+    ------
+    FileNotFoundError
+        If the file cannot be opened.
+    """
+    file_object = open_file(file_path, file_options, encoding=encoding)
+    if file_object is None:
+        raise FileNotFoundError(f"Could not open file {file_path}.")
+    return file_object
 
 
 @pyaedt_function_handler()
@@ -540,7 +571,7 @@ def read_json(input_file: StrPath, encoding: str = "utf-8") -> dict:
 
     """
     json_data = {}
-    with open_file(input_file, encoding=encoding) as json_file:
+    with _open_file_required(input_file, encoding=encoding) as json_file:
         try:
             json_data = json.load(json_file)
         except json.JSONDecodeError as e:  # pragma: no cover
@@ -574,7 +605,7 @@ def read_toml(input_file: StrPath) -> dict:
     except (ImportError, ModuleNotFoundError):
         import tomli as tomllib
 
-    with open_file(input_file, "rb") as fb:
+    with _open_file_required(input_file, "rb") as fb:
         return tomllib.load(fb)
 
 
@@ -715,7 +746,7 @@ def read_tab(input_file: StrPath) -> list:
     >>> read_tab(r"C:\\Temp\\mesh.tab")
 
     """
-    with open_file(input_file) as my_file:
+    with _open_file_required(input_file) as my_file:
         lines = my_file.readlines()
     return lines
 
@@ -784,7 +815,7 @@ def read_component_file(input_file: StrPath) -> dict:
     if not file_path.is_file():
         return variables
 
-    with open_file(str(file_path), "rb") as aedt_fh:
+    with _open_file_required(str(file_path), "rb") as aedt_fh:
         temp = aedt_fh.read().splitlines()
 
     _all_lines = []
@@ -814,7 +845,7 @@ def parse_excitation_file(
     encoding: str = "utf-8",
     out_mag: str = "Voltage",
     window: str = "hamming",
-) -> tuple | bool:
+) -> tuple:
     """Parse a csv file and convert data in list that can be applied to Hfss and Hfss3dLayout sources.
 
     Parameters
@@ -840,7 +871,7 @@ def parse_excitation_file(
 
     Returns
     -------
-    tuple or bool
+    tuple
         Frequency, magnitude and phase.
 
     Examples
@@ -861,10 +892,13 @@ def parse_excitation_file(
 
     input_file = Path(input_file)
     df = read_csv_pandas(input_file, encoding=encoding)
-    if is_time_domain and isinstance(df, pandas.DataFrame):
+    if not isinstance(df, pandas.DataFrame):
+        raise ValueError("Failed to read the input file as a pandas DataFrame.")
+    if is_time_domain:
         time = df[df.keys()[0]].values * x_scale
         val = df[df.keys()[1]].values * y_scale
-        freq, fval = compute_fft(time, val, window)
+        fft_result = compute_fft(time, val, window)
+        freq, fval = fft_result
 
         if data_format.lower() == "current":
             if out_mag == "Voltage":
@@ -880,7 +914,7 @@ def parse_excitation_file(
         mag = list(np.abs(fval))
         phase = [math.atan2(j, i) * 180 / math.pi for i, j in zip(list(fval.real), list(fval.imag))]
 
-    elif isinstance(df, pandas.DataFrame):
+    else:
         freq = list(df[df.keys()[0]].values * x_scale)
         if data_format.lower() == "current":
             mag = df[df.keys()[1]].values * df[df.keys()[1]].values * impedance * y_scale * y_scale
@@ -919,7 +953,7 @@ def tech_to_control_file(input_file: StrPath, units: str = "nm", output_file: St
     """
     result = []
     input_file = Path(input_file)
-    with open_file(input_file) as f:
+    with _open_file_required(input_file) as f:
         vals = list(CSS4_COLORS.values())
         id_layer = 0
         for line in f:
@@ -940,7 +974,7 @@ def tech_to_control_file(input_file: StrPath, units: str = "nm", output_file: St
         output_file = input_file.with_suffix(".xml")
     else:
         output_file = Path(output_file)
-    with open_file(output_file, "w") as f:
+    with _open_file_required(output_file, "w") as f:
         f.write('<?xml version="1.0" encoding="UTF-8" standalone="no" ?>\n')
         f.write('    <c:Control xmlns:c="http://www.ansys.com/control" schemaVersion="1.0">\n')
         f.write("\n")
@@ -985,7 +1019,7 @@ def get_dxf_layers(input_file: StrPath) -> list[str]:
         return [element for element, value in enumerate(list_to_check) if value == item_to_find]
 
     layer_names = []
-    with open_file(str(file_path), encoding="utf8") as f:
+    with _open_file_required(str(file_path), encoding="utf8") as f:
         lines = f.readlines()
         indices = find_indices(lines, "AcDbLayerTableRecord\n")
         index_offset = 1
@@ -1067,7 +1101,7 @@ def write_configuration_file(input_data: dict, output_file: StrPath) -> bool:
 @pyaedt_function_handler()
 def compute_fft(
     time_values: "pandas.Series", data_values: "pandas.Series", window: str | None = None
-) -> tuple | bool:  # pragma: no cover
+) -> tuple:  # pragma: no cover
     """Compute FFT of input transient data.
 
     Parameters
@@ -1201,7 +1235,7 @@ def available_license_feature(
     available_licenses = 0
     pattern_license = r"Total of\s+(\d+)\s+licenses? issued;\s+Total of\s+(\d+)\s+licenses? in use"
     pattern_error = r"Error getting status"
-    with open_file(tempfile_checkout, "r") as f:
+    with _open_file_required(tempfile_checkout, "r") as f:
         for line in f:
             line = line.strip()
             match_license = re.search(pattern_license, line)
@@ -1240,7 +1274,7 @@ def _check_installed_version(install_path, long_version) -> bool:
     product_list_path = install_path / "config" / "ProductList.txt"
     if product_list_path.is_file():
         try:
-            with open_file(product_list_path, "r") as f:
+            with _open_file_required(product_list_path, "r") as f:
                 install_version = f.readline().strip()[-6:]
                 if install_version == long_version:
                     return True
@@ -1255,7 +1289,7 @@ def _create_json_file(json_dict, full_json_path) -> bool:
     if not full_json_path.parent.exists():
         full_json_path.parent.mkdir(parents=True)
 
-    with open_file(full_json_path, "w") as fp:
+    with _open_file_required(full_json_path, "w") as fp:
         json.dump(json_dict, fp, indent=4)
     pyaedt_logger.info(f"{full_json_path} correctly created.")
     return True
@@ -1285,7 +1319,7 @@ def _create_toml_file(input_dict, full_toml_path) -> bool:
         return new_dict_toml
 
     new_dict = _dict_toml(input_dict)
-    with open_file(full_toml_path, "wb") as fp:
+    with _open_file_required(full_toml_path, "wb") as fp:
         tomli_w.dump(new_dict, fp)
     pyaedt_logger.info(f"{full_toml_path} correctly created.")
     return True
