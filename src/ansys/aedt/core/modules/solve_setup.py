@@ -50,15 +50,16 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import SetupDict
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.props import Props as SetupProps
-from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modules.profile import Profiles
 from ansys.aedt.core.modules.setup_templates import SetupKeys
+from ansys.aedt.core.modules.setup_templates import Sweep3DLayout
 from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
 from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
 from ansys.aedt.core.modules.solve_sweeps import SweepMatrix
 from ansys.aedt.core.modules.solve_sweeps import SweepMaxwellEC
+from ansys.aedt.core.modules.solve_sweeps import get_sweep_type
 from ansys.aedt.core.modules.solve_sweeps import identify_setup
 
 if TYPE_CHECKING:
@@ -77,7 +78,7 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
         Inherited app object.
     name : str, optional
         Name of the setup. The default is ``"MySetupAuto"``.
-    props : dict
+    props : dict, optional
         Properties of the setup.
 
     Examples
@@ -87,6 +88,15 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
     >>> setup = app.create_setup()
 
     """
+
+    def __repr__(self) -> str:
+        return self.name
+
+    def __str__(self) -> str:
+        if not self._app.design_solutions.default_adaptive:
+            return self.name
+        else:
+            return f"{self.name} : {self._app.design_solutions.default_adaptive}"
 
     def __init__(
         self,
@@ -124,7 +134,14 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
 
         Returns
         -------
-        class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTreeNode`
+        AEDT object if any or None
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> setup = app.create_setup()
+        >>> setup._child_object.GetChildNames()
 
         """
         child_object = None
@@ -138,12 +155,12 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
         return child_object
 
     def _setup_dict_to_arg(self, props: dict | None = None):
-        """Retrieve arguments.
+        """Retrieve arguments needed to pass to AEDT API.
 
         Parameters
         ----------
         props : dict, optional
-            New properties to update. The  default is ``None``, in which case it uses the current properties.
+            New properties to update. The default is ``None``, in which case it uses the current properties.
 
         Returns
         -------
@@ -161,7 +178,8 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
         arg = ["NAME:" + self.name]
 
         if props is None:
-            props = self._legacy_props
+            props = dict(self.props)
+
         _dict2arg(props, arg)
         return arg
 
@@ -182,7 +200,7 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
 
         if self._has_getobject:
             self._legacy_props = _get_obj_data(self._child_object)
-        elif self._has_getsetupdata:
+        elif self._has_getsetupdata and self._name in self._app.setup_names:
             self._legacy_props = self._get_setup_data()
 
         if not self._legacy_props:
@@ -212,6 +230,35 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
         self.update(props)
 
     @property
+    def name(self) -> str:
+        """Name.
+
+        Examples
+        --------
+         >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> setup = app.create_setup()
+        >>> setup.name
+
+        """
+        child_object = self._child_object
+        if child_object is not None and "Setup" in dir(child_object):
+            self._name = child_object.Setup
+        return self._name
+
+    @name.setter
+    def name(self, name: str) -> None:
+        if name in self._app.setup_names:
+            raise ValueError(f"Name {name} already assigned in the design.")
+
+        if self._child_object is not None:
+            self._child_object.Setup = str(name)
+            object.__setattr__(self, "_name", name)
+            object.__setattr__(self, "_tree_node_initialized", False)
+            object.__setattr__(self, "_props", None)
+            object.__setattr__(self, "_children_loaded", False)
+
+    @property
     def default_intrinsics(self) -> dict:
         """Retrieve default intrinsic for actual setup.
 
@@ -229,17 +276,6 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
 
         """
         intrinsics = {}
-        if "HFSS 3D Layout" in self._app.design_type:  # pragma no cover
-            try:
-                intrinsics["Freq"] = (
-                    self._app.modeler.edb.setups[self.name]
-                    .adaptive_settings.adaptive_frequency_data_list[0]
-                    .adaptive_frequency
-                )
-                intrinsics["Phase"] = "0deg"
-                return intrinsics
-            except Exception:
-                settings.logger.debug("Failed to retrieve adaptive frequency.")
         if self._app.design_type in ["Twin Builder"]:
             if "Tend" in self.properties:
                 intrinsics["Time"] = "0s"
@@ -268,6 +304,27 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
             elif i == "Time":
                 intrinsics[i] = "0s"
         return intrinsics
+
+    @pyaedt_function_handler()
+    def delete(self) -> bool:
+        """Delete actual Setup.
+
+        Returns
+        -------
+        bool
+            ``True`` if setup is deleted. ``False`` if it failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> setup = app.create_setup()
+        >>> setup.delete()
+
+        """
+        name = self.name
+        self._app.oanalysis.Delete(name)
+        return True
 
     @pyaedt_function_handler()
     def analyze(
@@ -394,35 +451,6 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
 
         """
         return self._app.oanalysis
-
-    @property
-    def name(self) -> str:
-        """Name.
-
-        Examples
-        --------
-         >>> from ansys.aedt.core import Hfss
-        >>> app = Hfss()
-        >>> setup = app.create_setup()
-        >>> setup.name
-
-        """
-        child_object = self._child_object
-        if child_object is not None and "Setup" in dir(child_object):
-            self._name = child_object.Setup
-        return self._name
-
-    @name.setter
-    def name(self, name: str) -> None:
-        if name in self._app.setup_names:
-            raise ValueError(f"Name {name} already assigned in the design.")
-
-        if self._child_object is not None:
-            self._child_object.Name = str(name)
-            object.__setattr__(self, "_name", name)
-            object.__setattr__(self, "_tree_node_initialized", False)
-            object.__setattr__(self, "_props", None)
-            object.__setattr__(self, "_children_loaded", False)
 
     @pyaedt_function_handler()
     def get_profile(self) -> Profiles:
@@ -588,7 +616,7 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
         snapshot_path: str = None,
         width: int = 800,
         height: int = 450,
-    ) -> "Standard":
+    ) -> Standard:
         """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plot, or data table.
 
         Parameters
@@ -692,13 +720,13 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def _get_setup_data(self):
-        if self._has_getsetupdata:
+        legacy_props = {}
+        if self._has_getsetupdata and self._name in self._app.setup_names:
             setup_data = self._app.oanalysis.GetSetupData(self._name)
-            legacy_props = {}
             _arg2dict(setup_data, legacy_props)
             return legacy_props[self._name]
         else:
-            return None
+            return legacy_props
 
 
 class Setup(CommonSetup):
@@ -791,26 +819,6 @@ class Setup(CommonSetup):
 
         self.auto_update = legacy_update
         self.omodule.EditSetup(self.name, arg)
-        return True
-
-    @pyaedt_function_handler()
-    def delete(self) -> bool:
-        """Delete actual Setup.
-
-        Returns
-        -------
-        bool
-            ``True`` if setup is deleted. ``False`` if it failed.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> app = Hfss()
-        >>> setup = app.create_setup()
-        >>> setup.delete()
-
-        """
-        self._app.delete_setup(self.name)
         return True
 
     @pyaedt_function_handler()
@@ -2171,13 +2179,10 @@ class Setup3DLayout(CommonSetup):
     ----------
     app : :class:`ansys.aedt.core.application.analysis_3d_layout.FieldAnalysis3DLayout`
         Inherited app object.
-    solution_type : int or str
-        Type of the setup.
     name : str, optional
         Name of the setup. The default is ``"MySetupAuto"``.
-    is_new_setup : bool, optional
-        Whether to create the setup from a template. The default is ``True.``
-        If ``False``, access is to the existing setup.
+    props : dict
+        Properties of the setup.
 
     Examples
     --------
@@ -2341,13 +2346,14 @@ class Setup3DLayout(CommonSetup):
             )
             intrinsics["Phase"] = "0deg"
             return intrinsics
-        except Exception:
-            settings.logger.debug("Failed to retrieve adaptive frequency.")
+        except Exception:  # pragma: no cover
+            self._app.logger.debug("Failed to retrieve adaptive frequency.")
 
+        props = self.props
         for i in self._app.design_solutions.intrinsics:
             if i == "Freq":
-                if "Frequency" in self.props:
-                    intrinsics[i] = self.props["Frequency"]
+                if "Frequency" in props:
+                    intrinsics[i] = props["Frequency"]
                 elif "Solution Freq" in self.properties:
                     intrinsics[i] = self.properties["Solution Freq"]
                 else:
@@ -2359,13 +2365,12 @@ class Setup3DLayout(CommonSetup):
         return intrinsics
 
     @pyaedt_function_handler()
-    def create(self) -> bool:
+    def create(self) -> Setup3DLayout:
         """Add a new setup based on class settings in AEDT.
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`ansys.aedt.core.modules.solve_setup.Setup3DLayout`
 
         References
         ----------
@@ -2382,10 +2387,10 @@ class Setup3DLayout(CommonSetup):
 
         self.omodule.Add(arg)
 
-        # GetObjData is available for some objects in 2026R1
+        # GetObjData is available for some objects in 2026R1.
         self._has_getobject = _has_get_obj_data(self._child_object)
 
-        return True
+        return self
 
     @pyaedt_function_handler()
     def update(self, properties: dict | None = None) -> bool:
@@ -2420,12 +2425,44 @@ class Setup3DLayout(CommonSetup):
 
         self.omodule.Edit(self.name, arg)
 
-        if self._has_getobject:
-            self._legacy_props = _get_obj_data(self._child_object)
-        elif self._has_getsetupdata:
-            self._legacy_props = self._get_setup_data()
+        if not self._has_getobject and not self._has_getsetupdata:
+            self._legacy_props = properties
 
         return True
+
+    @pyaedt_function_handler()
+    def delete_sweep(self, name: str) -> bool:
+        """Delete a sweep.
+
+        Parameters
+        ----------
+        name : str
+            Name of the sweep.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.DeleteSweep
+
+        Examples
+        --------
+        Create a frequency sweep and then delete it.
+
+        >>> import ansys.aedt.core
+        >>> hfss = ansys.aedt.core.Hfss3dLayout()
+        >>> setup1 = hfss.create_setup()
+        >>> sweep = setup1.add_sweep()
+        >>> setup1.delete_sweep(sweep.name)
+
+        """
+        if name in self.sweep_names:
+            self.sweeps[name].delete()
+            return True
+        return False
 
     @pyaedt_function_handler()
     def enable(self) -> bool:
@@ -2810,7 +2847,7 @@ class Setup3DLayout(CommonSetup):
         return succeeded
 
     @pyaedt_function_handler()
-    def add_sweep(self, name: str = None, sweep_type: str = "Interpolating") -> SweepHFSS3DLayout | bool:
+    def add_sweep(self, name: str | None = None, sweep_type: str = "Interpolating") -> SweepHFSS3DLayout | bool:
         """Add a frequency sweep.
 
         Parameters
@@ -2842,16 +2879,21 @@ class Setup3DLayout(CommonSetup):
         """
         if not name:
             name = generate_unique_name("Sweep")
-        sweep_n = SweepHFSS3DLayout(self, name, sweep_type)
-        if sweep_n.create():
-            if self._sweeps is None:
-                self._sweeps = []
-            self._sweeps.append(sweep_n)
-            return sweep_n
-        return False
+        elif name in self.sweep_names:
+            name = generate_unique_name(name)
+
+        props = Sweep3DLayout
+
+        sweep_type = get_sweep_type(sweep_type)
+
+        props["FreqSweepType"] = sweep_type
+
+        sweep_n = SweepHFSS3DLayout(self, name, props)
+
+        return sweep_n.create()
 
     @pyaedt_function_handler()
-    def get_sweep(self, name: str = None) -> SweepHFSS3DLayout | bool:
+    def get_sweep(self, name: str | None = None) -> SweepHFSS3DLayout | bool:
         """Return frequency sweep object of a given sweep.
 
         Parameters
@@ -2866,20 +2908,20 @@ class Setup3DLayout(CommonSetup):
 
         Examples
         --------
-        >>> h3d = Hfss3dLayout()
-        >>> setup = h3d.get_setup("Pyaedt_setup")
-        >>> sweep = setup.get_sweep("Sweep1")
-        >>> sweep.add_subrange("LinearCount", 0, 10, 1, "Hz")
-        >>> sweep.add_subrange("LogScale", 10, 1e8, 100, "Hz")
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> app = Hfss3dLayout()
+        >>> setup = app.create_setup()
+        >>> sweep = setup.add_sweep()
+        >>> setup.get_sweep(sweep.name)
 
         """
         if name:
-            for sweep in self.sweeps:
-                if name == sweep.name:
-                    return sweep
-        else:
-            if self.sweeps:
-                return self.sweeps[0]
+            if name in self.sweep_names:
+                return self.sweeps[name]
+            else:
+                return False
+        elif self.sweep_names:
+            return self.sweeps[0]
         return False
 
     @pyaedt_function_handler()
@@ -2932,7 +2974,7 @@ class Setup3DLayout(CommonSetup):
         """
         if os.path.isfile(file_path):  # pragma no cover
             if not overwrite:  # pragma no cover
-                settings.logger.error(f"File {file_path} already exists. Configure file is not exported")
+                self._app.logger.error(f"File {file_path} already exists. Configure file is not exported")
                 return False
         return self.props._export_properties_to_json(file_path, overwrite=overwrite)
 
@@ -3489,6 +3531,7 @@ class SetupHFSS(Setup, PyAedtBase):
         """
         if not name:
             name = generate_unique_name("Sweep")
+
         if self.setuptype <= 4:
             sweep_n = SweepHFSS(self, name=name, sweep_type=sweep_type, props=props)
 

@@ -1063,8 +1063,8 @@ class Configurations(PyAedtBase):
 
     @pyaedt_function_handler()
     def _update_setup(self, name: str, props) -> bool:
-        for setup_el in self._app.setups:
-            if setup_el.name == name:
+        for setup_el_name, setup_el in self._app.setups.items():
+            if setup_el_name == name:
                 if not self.options.skip_import_if_exists:
                     setup_el.props = props
                     setup_el.update()
@@ -1390,37 +1390,26 @@ class Configurations(PyAedtBase):
     def _export_setups(self, dict_out):
         if self._app.setups:
             dict_out["setups"] = {}
-            for setup in self._app.setups:
-                legacy_update = setup.auto_update
-                setup.auto_update = False
-                dict_out["setups"][setup.name] = setup.props
-                dict_out["setups"][setup.name]["SetupType"] = setup.setuptype
+            for setup_name, setup in self._app.setups.items():
+                dict_out["setups"][setup_name] = setup.props
+
                 if setup.sweeps:
-                    for sweep in setup.sweeps:
-                        dict_out["setups"][setup.name][sweep.name] = sweep.props
-                setup.auto_update = legacy_update
+                    for sweep_name, sweep in setup.sweeps.items():
+                        dict_out["setups"][setup_name][sweep_name] = sweep.props
 
     @pyaedt_function_handler()
     def _export_optimizations(self, dict_out):
         if self._app.optimizations.setups:
             dict_out["optimizations"] = {}
             for setup in self._app.optimizations.setups:
-                legacy_update = setup.auto_update
-                setup.auto_update = False
                 dict_out["optimizations"][setup.name] = dict(setup.props)
-                dict_out["optimizations"][setup.name]["SetupType"] = setup.soltype
-                setup.auto_update = legacy_update
 
     @pyaedt_function_handler()
     def _export_parametrics(self, dict_out):
         if self._app.parametrics.setups:
             dict_out["parametrics"] = {}
             for setup in self._app.parametrics.setups:
-                legacy_update = setup.auto_update
-                setup.auto_update = False
                 dict_out["parametrics"][setup.name] = dict(setup.props)
-                dict_out["parametrics"][setup.name]["SetupType"] = setup.soltype
-                setup.auto_update = legacy_update
 
     @pyaedt_function_handler()
     def _export_boundaries(self, dict_out):

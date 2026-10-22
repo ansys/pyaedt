@@ -326,7 +326,7 @@ class Hfss3dLayoutConstants(metaclass=DynamicMeta):
             "options": None,
             "report_type": "Standard",
             "default_setup": Setups.HFSS3DLayout,
-            "default_adaptive": None,
+            "default_adaptive": "LastAdaptive",
             "intrinsics": ["Freq", "Phase"],
         },
         "SiwaveDC3DLayout": {

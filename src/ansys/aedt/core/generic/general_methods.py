@@ -1940,6 +1940,28 @@ def install_with_pip(
             raise AEDTRuntimeError("An error occurred while installing with pip") from e
 
 
+def _merge_props(target, updates):
+    """Recursively merge property updates into a target dictionary in place.
+
+    Nested dictionaries are merged recursively when both dictionaries contain
+    the same key. Otherwise, the value from ``updates`` replaces the value in
+    ``target``.
+
+    Parameters
+    ----------
+    target : dict
+        Dictionary to update.
+    updates : dict
+        Property values to merge into ``target``.
+
+    """
+    for key, value in updates.items():
+        if isinstance(value, dict) and isinstance(target.get(key), dict):
+            _merge_props(target[key], value)
+        else:
+            target[key] = value
+
+
 class SetupDict(dict):
     """Dictionary that supports accessing values by their insertion-order index."""
 

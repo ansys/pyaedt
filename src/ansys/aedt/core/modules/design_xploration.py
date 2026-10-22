@@ -305,7 +305,8 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
 
         self._app.ooptimetrics.EditSetup(self.name, arg)
 
-        self._legacy_props = dict(props)
+        if not self._has_getobject:
+            self._legacy_props = dict(props)
         return True
 
     @pyaedt_function_handler()
@@ -430,9 +431,12 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         """
         if not solution:
             solution = self._app.nominal_sweep
+
+        props = dict(self.props)
+
         setupname = solution.split(" ")[0]
-        if setupname not in self._legacy_props["Sim. Setups"]:
-            self._legacy_props["Sim. Setups"].append(setupname)
+        if setupname not in props["Sim. Setups"]:
+            props["Sim. Setups"].append(setupname)
         domain = "Time"
         maxwell_solutions = SolutionsMaxwell3D
         if (ranges and ("Freq" in ranges or "Phase" in ranges or "Theta" in ranges)) or self._app.solution_type in [
@@ -488,18 +492,18 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
             optigoalname = "CostFunctionGoals"
         else:
             optigoalname = "Goals"
-        if "Goal" in self._legacy_props[optigoalname]:
-            if type(self._legacy_props[optigoalname]["Goal"]) is not list:
-                self._legacy_props[optigoalname]["Goal"] = [
-                    self._legacy_props[optigoalname]["Goal"],
+        if "Goal" in props[optigoalname]:
+            if type(props[optigoalname]["Goal"]) is not list:
+                props[optigoalname]["Goal"] = [
+                    props[optigoalname]["Goal"],
                     SetupProps(self, sweepdefinition),
                 ]
             else:
-                self._legacy_props[optigoalname]["Goal"].append(sweepdefinition)
+                props[optigoalname]["Goal"].append(sweepdefinition)
         else:
-            self._legacy_props[optigoalname] = {}
-            self._legacy_props[optigoalname]["Goal"] = sweepdefinition
-        return self.update(self._legacy_props)
+            props[optigoalname] = {}
+            props[optigoalname]["Goal"] = sweepdefinition
+        return self.update(props)
 
     @pyaedt_function_handler()
     def analyze(
@@ -799,20 +803,22 @@ class ParametricSetup(OptimetricsSetup):
 
         self._activate_variable(sweep_variable)
 
+        props = dict(self.props)
+
         sweepdefinition = {"Variable": sweep_variable, "Data": sweep_range, "OffsetF1": False, "Synchronize": 0}
-        if self._legacy_props["Sweeps"]["SweepDefinition"] is None:
-            self._legacy_props["Sweeps"]["SweepDefinition"] = sweepdefinition
-        elif type(self._legacy_props["Sweeps"]["SweepDefinition"]) is not list:
-            self._legacy_props["Sweeps"]["SweepDefinition"] = [self._legacy_props["Sweeps"]["SweepDefinition"]]
-            self._legacy_props["Sweeps"]["SweepDefinition"].append(sweepdefinition)
+        if props["Sweeps"]["SweepDefinition"] is None:
+            props["Sweeps"]["SweepDefinition"] = sweepdefinition
+        elif type(props["Sweeps"]["SweepDefinition"]) is not list:
+            props["Sweeps"]["SweepDefinition"] = [props["Sweeps"]["SweepDefinition"]]
+            props["Sweeps"]["SweepDefinition"].append(sweepdefinition)
         else:
-            for count, sweep_def in enumerate(self._legacy_props["Sweeps"]["SweepDefinition"]):
+            for count, sweep_def in enumerate(props["Sweeps"]["SweepDefinition"]):
                 sweep_def_copy = dict(sweep_def)
                 if sweepdefinition["Variable"] == sweep_def_copy["Variable"]:
                     sweep_def_copy["Data"] += " " + sweepdefinition["Data"]
-                    self._legacy_props["Sweeps"]["SweepDefinition"][count] = sweep_def_copy
+                    props["Sweeps"]["SweepDefinition"][count] = sweep_def_copy
                     break
-        return self.update(self._legacy_props)
+        return self.update(props)
 
     @pyaedt_function_handler()
     def export_to_csv(self, output_file: str) -> bool:
@@ -886,23 +892,25 @@ class ParametricSetup(OptimetricsSetup):
             if v not in existing_variables:
                 raise AEDTRuntimeError(f"Variable {v} is not defined in the parametric setup.")
 
+        props = dict(self.props)
+
         for v in variables:
-            for count, sweep_def in enumerate(self._legacy_props["Sweeps"]["SweepDefinition"]):
+            for count, sweep_def in enumerate(props["Sweeps"]["SweepDefinition"]):
                 sweep_def_copy = dict(sweep_def)
                 if v == sweep_def_copy["Variable"]:
                     undo_vals[v] = sweep_def_copy["Synchronize"]
                     sweep_def_copy["Synchronize"] = sync_n
-                self._legacy_props["Sweeps"]["SweepDefinition"][count] = sweep_def_copy
+                props["Sweeps"]["SweepDefinition"][count] = sweep_def_copy
         try:
-            self.update(self._legacy_props)
+            self.update(props)
         except Exception:  # pragma: no cover
             # If it fails to sync (due to e.g. different number of variations), reverts to original values.
             for v in variables:
-                for count, sweep_def in self._legacy_props["Sweeps"]["SweepDefinition"].items():
+                for count, sweep_def in props["Sweeps"]["SweepDefinition"].items():
                     sweep_def_copy = dict(sweep_def)
                     if v == sweep_def_copy["Variable"]:
                         sweep_def_copy["Synchronize"] = undo_vals[v]
-                    self._legacy_props["Sweeps"]["SweepDefinition"][count] = sweep_def_copy
+                    props["Sweeps"]["SweepDefinition"][count] = sweep_def_copy
             self._app.logger.error("Failed to sync the Parametric setup.")
             return False
         return True
@@ -986,6 +994,7 @@ class OptimizationSetup(OptimetricsSetup):
         max_step = self._app.value_with_units(max_step, self._app.variable_manager[variable_name].units)
         min_value_wuints = self._app.value_with_units(min_value, self._app.variable_manager[variable_name].units)
         max_value_wuints = self._app.value_with_units(max_value, self._app.variable_manager[variable_name].units)
+        props = dict(self.props)
 
         if self.setup_type == "OptiDXDOE":
             self._app.variable_manager.variables[variable_name].optimization_max_value = max_value_wuints
@@ -1007,34 +1016,34 @@ class OptimizationSetup(OptimetricsSetup):
             if self._app.desktop_class.aedt_version_id > "2023.2":
                 arg.extend(["DiscreteLevel:=", levels])
 
-            if not self._legacy_props.get("Variables", None):
-                self._legacy_props["Variables"] = {}
+            if not props.get("Variables", None):
+                props["Variables"] = {}
 
-            self._legacy_props["Variables"][variable_name] = arg
+            props["Variables"][variable_name] = arg
 
-            if not self._legacy_props.get("StartingPoint", None):
-                self._legacy_props["StartingPoint"] = {}
+            if not props.get("StartingPoint", None):
+                props["StartingPoint"] = {}
 
             if not starting_point:
                 starting_point = self._app.variable_manager[variable_name].numeric_value
                 if starting_point < min_value or starting_point > max_value:
                     starting_point = (max_value + min_value) / 2
 
-            self._legacy_props["StartingPoint"][variable_name] = self._app.value_with_units(
+            props["StartingPoint"][variable_name] = self._app.value_with_units(
                 starting_point, self._app.variable_manager[variable_name].units
             )
 
         elif self.setup_type in ["optiSLang", "OptiDesignExplorer"]:
             self._app.variable_manager.variables[variable_name].optimization_max_value = max_value_wuints
             self._app.variable_manager.variables[variable_name].optimization_min_value = min_value_wuints
-            input_variables = self._legacy_props["Sweeps"]["SweepDefinition"]
+            input_variables = props["Sweeps"]["SweepDefinition"]
             cont = 0
             variable_included = False
             for var in input_variables:
                 if var["Variable"] == variable_name:
-                    self._legacy_props["Sweeps"]["SweepDefinition"][cont]["Data"] = (
-                        self._app.variable_manager.variables[variable_name].evaluated_value
-                    )
+                    props["Sweeps"]["SweepDefinition"][cont]["Data"] = self._app.variable_manager.variables[
+                        variable_name
+                    ].evaluated_value
                     variable_included = True
                     break
                 cont += 1
@@ -1044,7 +1053,7 @@ class OptimizationSetup(OptimetricsSetup):
                 sweepdefinition["Data"] = self._app.variable_manager.variables[variable_name].evaluated_value
                 sweepdefinition["OffsetF1"] = False
                 sweepdefinition["Synchronize"] = 0
-                self._legacy_props["Sweeps"]["SweepDefinition"].append(sweepdefinition)
+                props["Sweeps"]["SweepDefinition"].append(sweepdefinition)
         elif self.setup_type == "OptiParametric":
             self._app.activate_variable_tuning(variable_name)
         elif self.setup_type == "OptiSensitivity":
@@ -1069,15 +1078,15 @@ class OptimizationSetup(OptimetricsSetup):
                 starting_point,
             ]
 
-            if not self._legacy_props.get("Variables", None):
-                self._legacy_props["Variables"] = {}
+            if not props.get("Variables", None):
+                props["Variables"] = {}
 
-            self._legacy_props["Variables"][variable_name] = arg
+            props["Variables"][variable_name] = arg
 
-            if not self._legacy_props.get("StartingPoint", None):
-                self._legacy_props["StartingPoint"] = {}
+            if not props.get("StartingPoint", None):
+                props["StartingPoint"] = {}
 
-            self._legacy_props["StartingPoint"][variable_name] = self._app.value_with_units(
+            props["StartingPoint"][variable_name] = self._app.value_with_units(
                 starting_point, self._app.variable_manager[variable_name].units
             )
 
@@ -1103,17 +1112,17 @@ class OptimizationSetup(OptimetricsSetup):
                 mean_value,
             ]
 
-            if not self._legacy_props.get("Variables", None):
-                self._legacy_props["Variables"] = {}
-            self._legacy_props["Variables"][variable_name] = arg
-            if not self._legacy_props.get("StartingPoint", None):
-                self._legacy_props["StartingPoint"] = {}
+            if not props.get("Variables", None):
+                props["Variables"] = {}
+            props["Variables"][variable_name] = arg
+            if not props.get("StartingPoint", None):
+                props["StartingPoint"] = {}
             if not starting_point:
                 starting_point = self._app.variable_manager[variable_name].numeric_value
                 if starting_point < min_value or starting_point > max_value:
                     starting_point = (max_value + min_value) / 2
 
-            self._legacy_props["StartingPoint"][variable_name] = self._app.value_with_units(
+            props["StartingPoint"][variable_name] = self._app.value_with_units(
                 starting_point, self._app.variable_manager[variable_name].units
             )
 
@@ -1141,21 +1150,21 @@ class OptimizationSetup(OptimetricsSetup):
             ]
             if self._app.desktop_class.aedt_version_id > "2023.2":
                 arg.extend(["Level:=", levels])
-            if not self._legacy_props.get("Variables", None):
-                self._legacy_props["Variables"] = {}
-            self._legacy_props["Variables"][variable_name] = arg
-            if not self._legacy_props.get("StartingPoint", None):
-                self._legacy_props["StartingPoint"] = {}
+            if not props.get("Variables", None):
+                props["Variables"] = {}
+            props["Variables"][variable_name] = arg
+            if not props.get("StartingPoint", None):
+                props["StartingPoint"] = {}
             if not starting_point:
                 starting_point = self._app.variable_manager[variable_name].numeric_value
                 if starting_point < min_value or starting_point > max_value:
                     starting_point = (max_value + min_value) / 2
 
-            self._legacy_props["StartingPoint"][variable_name] = self._app.value_with_units(
+            props["StartingPoint"][variable_name] = self._app.value_with_units(
                 starting_point, self._app.variable_manager[variable_name].units
             )
 
-        return self.update(self._legacy_props)
+        return self.update(props)
 
     @pyaedt_function_handler()
     def add_goal(

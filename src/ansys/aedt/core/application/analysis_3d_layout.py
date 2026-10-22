@@ -29,6 +29,7 @@ from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.configurations import Configurations3DLayout
 from ansys.aedt.core.generic.constants import Setups
+from ansys.aedt.core.generic.general_methods import _merge_props
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
@@ -382,39 +383,36 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         ... )
 
         """
+        setup_keys = SetupKeys.get_setup_templates()
+        setup_names = SetupKeys.SetupNames
+
         if setup_type is None:
+            # Default setup type
             setup_type = self.design_solutions.default_setup
-        elif setup_type in SetupKeys.SetupNames:
-            setup_type = SetupKeys.SetupNames.index(setup_type)
+        elif setup_type in setup_names:
+            setup_type = setup_names.index(setup_type)
 
         if not name:
             name = self.generate_unique_setup_name("MySetupAuto")
         elif name in self.setup_names:
             name = self.generate_unique_setup_name(name)
-            self.logger.warning(f"Name already exists. New name is {name}.")
+            self.logger.warning(f"Name already exists. New name assigned is {name}.")
 
         if setup_type == Setups.RaptorX and not self.ic_mode:
             raise AEDTRuntimeError("RaptorX is supported only in 'IC' mode.")
 
-        props = SetupKeys.get_setup_templates()[setup_type]
+        props = setup_keys[setup_type]
+
+        if kwargs:
+            _merge_props(props, kwargs.pop("props"))
+
+            for arg_name, arg_value in kwargs.items():
+                if props[arg_name] is not None:
+                    props[arg_name] = arg_value
 
         setup = Setup3DLayout(app=self, name=name, props=props)
 
-        if kwargs:
-            if "props" in kwargs:
-                for el in kwargs["props"]:
-                    setup._legacy_props[el] = kwargs["props"][el]
-
-            for arg_name, arg_value in kwargs.items():
-                if arg_name == "props":
-                    continue
-
-                if setup._legacy_props[arg_name] is not None:
-                    setup._legacy_props[arg_name] = arg_value
-
-        setup.create()
-
-        return setup
+        return setup.create()
 
     @pyaedt_function_handler()
     def delete_setup(self, name: str) -> bool:
@@ -442,13 +440,9 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         >>> hfss3dlayout = ansys.aedt.core.Hfss3dLayout()
         >>> setup1 = hfss3dlayout.create_setup(name="Setup1")
         >>> hfss3dlayout.delete_setup()
-        PyAEDT INFO: Sweep was deleted correctly.
 
         """
-        if name in self.setup_names:
-            self.osolution.Delete(name)
-            for s in self.setups:
-                if s.name == name:
-                    self.setups.remove(s)
+        if name in self._app.setup_names:
+            self.setups[name].delete()
             return True
         return False

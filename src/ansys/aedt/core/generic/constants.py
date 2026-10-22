@@ -1653,11 +1653,13 @@ class Setups(metaclass=DynamicMeta):
     """Cpsm."""
     NSSM = 55
     """Nssm."""
-    MechTransientThermal = 56
+    TransientAPhiFormulation = 56
+    """Value for Transient APhi Formulation."""
+    MechTransientThermal = 57
     """Value for Mechanical Transient Thermal."""
-    DCConduction = 57
+    DCConduction = 58
     """Value for DC conduction."""
-    ACConduction = 58
+    ACConduction = 59
     """Value for AC conduction."""
     DCBiasedEddyCurrent = 60
     """Value for DC Biased eddy current."""

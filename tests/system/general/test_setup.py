@@ -27,8 +27,10 @@ import pytest
 from ansys.aedt.core import Circuit
 from ansys.aedt.core import Hfss
 from ansys.aedt.core import Hfss3dLayout
-from ansys.aedt.core.generic.constants import Setups
+from ansys.aedt.core.generic.aedt_constants import Setups
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from ansys.aedt.core.modules.setup_templates import HFSS3DLayout_AdaptiveFrequencyData
+from ansys.aedt.core.modules.solve_setup import Setup3DLayout
 
 TEST_SUBFOLDER = "T11"
 TEST_COAXIAL = "coax_setup_231"
@@ -58,27 +60,188 @@ def layout_app(add_app):
 
 # HFSS 3D Layout setups
 def test_create_setup_layout_hfss(layout_app) -> None:
-    props = {"MaxRatio": 1}
+    adaptive_props = HFSS3DLayout_AdaptiveFrequencyData("6GHz")
+    adaptive_settings = {"SingleFrequencyDataList": {"AdaptiveFrequencyData": {}}}
+    adaptive_settings["SingleFrequencyDataList"]["AdaptiveFrequencyData"] = adaptive_props
 
-    setup = layout_app.create_setup(
-        setup_type=Setups.HFSS3DLayout, MeshSizeFactor=2, SingleFrequencyDataList__AdaptiveFrequency="5GHZ", props=props
+    props = {"MaxRatio": 1, "AdaptiveSettings": adaptive_settings}
+
+    setup = layout_app.create_setup(setup_type=Setups.HFSS3DLayout, MeshSizeFactor=2, props=props)
+    name = setup.name
+    assert name in layout_app.setup_names
+    assert len(layout_app.setups) == 1
+    assert isinstance(setup, Setup3DLayout)
+    assert str(setup) == f"{name} : LastAdaptive"
+    assert setup.__repr__() == f"{name} with 0 Sweeps"
+
+    assert setup.props["MaxRatio"] == 1
+    assert setup.props["MeshSizeFactor"] == 2
+    assert (
+        setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"]
+        == "6GHz"
     )
 
-    setup.props
+    assert "Freq" in setup.default_intrinsics
+    assert not setup.is_solved
+    assert setup.solver_type == "HFSS"
 
-    layout_app.create_setup(name=setup.name)
-    pass
+    # Edit setup
+    setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"] = "1GHz"
+    assert (
+        setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"]
+        == "1GHz"
+    )
+
+    setup2 = layout_app.create_setup(setup_type="HFSS3DLayout")
+    name2 = setup2.name
+    assert name2 in layout_app.setup_names
+    assert len(layout_app.setups) == 2
+    assert isinstance(setup2, Setup3DLayout)
+    assert str(setup2) == f"{name2} : LastAdaptive"
+    assert setup2.__repr__() == f"{name2} with 0 Sweeps"
+
+    # Repeated name
+    setup3 = layout_app.create_setup(name=setup.name)
+    name3 = setup3.name
+    assert name3 != name
+    assert name3 in layout_app.setup_names
+    assert len(layout_app.setups) == 3
+    assert isinstance(setup3, Setup3DLayout)
+    assert str(setup3) == f"{name3} : LastAdaptive"
+    assert setup3.__repr__() == f"{name3} with 0 Sweeps"
 
     with pytest.raises(AEDTRuntimeError):
         layout_app.create_setup(setup_type=Setups.RaptorX)
 
-    # assert setup.name == layout_app.setup_names[0]
-    # assert setup.solver_type == "HFSS"
-    # Add sweep
+    # Rename
+    setup.name = "new_name"
+    assert "new_name" in layout_app.setup_names
+    assert name not in layout_app.setup_names
+    assert setup.name == "new_name"
+    assert setup.child_object
 
+    # Delete
+    assert layout_app.delete_setup(name=setup3.name)
+    assert name3 not in layout_app.setup_names
+    assert len(layout_app.setups) == 2
+    assert not layout_app.delete_setup(name="invented")
+
+    setup2.delete()
+    assert name2 not in layout_app.setup_names
+    assert len(layout_app.setups) == 1
+
+
+def test_create_setup_layout_hfss_sweep(layout_app) -> None:
+    setup = layout_app.create_setup(setup_type=Setups.HFSS3DLayout)
+
+    assert not setup.get_sweeps()
+
+    sweep = setup.add_sweep()
+
+    sweep_1 = setup.get_sweeps()
+    assert sweep_1.name == sweep.name
+    sweep_2 = setup.get_sweeps(sweep.name)
+    assert sweep_2.name == sweep.name
+    assert not setup.get_sweeps("invented")
+
+    assert not setup.get_sweeps()
+
+    assert len(setup.sweeps) == 1
+    assert sweep.name in setup.sweep_names
+    assert sweep.sweep_type == "Interpolating"
+
+    sweep2 = setup.add_sweep(name="my_sweep", sweep_type="discrete")
+    assert len(setup.sweeps) == 2
+    assert sweep2.name in setup.sweep_names
+    assert sweep2.sweep_type == "Discrete"
+
+    sweep3 = setup.add_sweep(name="my_sweep", sweep_type="Fast")
+    assert len(setup.sweeps) == 3
+    assert sweep3.name in setup.sweep_names
+    assert sweep3.sweep_type == "BroadbandFast"
+
+    sweep3.name = "new_sweep"
+    assert "new_sweep" in setup.sweep_names
+    assert "new_sweep" == sweep3.name
+    assert sweep3.sweep_type == "BroadbandFast"
+
+    with pytest.raises(ValueError):
+        sweep3.name = "new_sweep"
+
+    assert setup.delete_sweep(name=sweep3.name)
+    assert len(setup.sweeps) == 2
+    assert not setup.delete_sweep(name="invented")
+    assert sweep2.delete()
+    assert len(setup.sweeps) == 1
+
+    assert not sweep.is_solved
+
+    sweep.sweep_type = "Fast"
+    assert sweep.sweep_type == "BroadbandFast"
+
+    assert sweep.change_type("Discrete")
+    assert sweep.sweep_type == "Discrete"
+
+    assert sweep.change_type("Interpolating")
+    assert sweep.sweep_type == "Interpolating"
+
+    assert sweep.change_type("invented")
+    assert sweep.sweep_type == "Interpolating"
+
+    sweep.change_type("Discrete")
+    sweep.props["GenerateSurfaceCurrent"] = True
+    assert sweep.props["GenerateSurfaceCurrent"]
+    assert sweep.set_save_fields(False, False)
+    assert not sweep.props["GenerateSurfaceCurrent"]
+
+    sweep.change_type("Interpolating")
+    with pytest.raises(AttributeError):
+        sweep.add_subrange(range_type="SinglePoint", start=2)
+
+    with pytest.raises(AttributeError):
+        sweep.add_subrange(range_type="LinearCount", start=2)
+
+    assert sweep.add_subrange(range_type="LinearCount", start=2, end=4, count=10)
+    assert sweep.props["Sweeps"]["Data"] == "LINC 1GHz 5GHz 501 LINC 2GHz 4GHz 10"
+
+    assert sweep.add_subrange(range_type="LinearStep", start=2, end=4, count=10)
+    assert sweep.props["Sweeps"]["Data"] == "LINC 1GHz 5GHz 501 LINC 2GHz 4GHz 10 LIN 2GHz 4GHz 10GHz"
+
+    assert sweep.add_subrange(range_type="LogScale", start=2, end=4, count=10)
+    assert sweep.props["Sweeps"]["Data"] == "LINC 1GHz 5GHz 501 LINC 2GHz 4GHz 10 LIN 2GHz 4GHz 10GHz DEC 2GHz 4GHz 10"
+
+    sweep.change_type("Discrete")
+    assert sweep.add_subrange(range_type="SinglePoint", start=2)
+    assert (
+        sweep.props["Sweeps"]["Data"]
+        == "LINC 1GHz 5GHz 501 LINC 2GHz 4GHz 10 LIN 2GHz 4GHz 10GHz DEC 2GHz 4GHz 10 2GHz"
+    )
+
+    with pytest.raises(AttributeError):
+        sweep.add_subrange(range_type="invented", start=2)
+
+    assert sweep.change_range(range_type="LinearCount", start=2, end=4, count=10)
+    assert sweep.props["Sweeps"]["Data"] == "LINC 2GHz 4GHz 10"
+
+    assert sweep.change_range(range_type="LinearStep", start=2, end=4, count=10)
+    assert sweep.props["Sweeps"]["Data"] == "LIN 2GHz 4GHz 10GHz"
+
+    assert sweep.change_range(range_type="LogScale", start=2, end=4, count=10)
+    assert sweep.props["Sweeps"]["Data"] == "DEC 2GHz 4GHz 10"
+
+    assert sweep.change_range(range_type="SinglePoint", start=2, end=4, count=10)
+    assert sweep.props["Sweeps"]["Data"] == "2GHz"
+
+    with pytest.raises(AttributeError):
+        sweep.change_range(range_type="invented", start=2)
+
+
+def test_create_setup_layout_raptorx(layout_app) -> None:
     layout_app.ic_mode = True
-    layout_app.create_setup(name="setup1", setup_type=Setups.RaptorX)
-    pass
+    layout_app.create_setup(name="setup1", setup_type="RaptorX")
+    setup = layout_app.create_setup()
+    assert setup.name == layout_app.setup_names[0]
+    assert setup.solver_type == "HFSS"
 
 
 def test_create_setup_layout_hfss_auto(layout_app) -> None:

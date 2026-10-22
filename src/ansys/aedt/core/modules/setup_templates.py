@@ -26,31 +26,6 @@ import copy
 
 from ansys.aedt.core.generic.constants import Setups
 
-
-def HFSS3DLayout_AdaptiveFrequencyData(freq):
-    """Update HFSS 3D adaptive frequency data.
-
-    Parameters
-    ----------
-    freq : float
-        Adaptive frequency value.
-
-
-    Returns
-    -------
-    list
-        List of frequency data.
-
-    Examples
-    --------
-    >>> from ansys.aedt.core.modules.setup_templates import HFSS3DLayout_AdaptiveFrequencyData
-    >>> HFSS3DLayout_AdaptiveFrequencyData(1.0)
-
-    """
-    value = dict({"AdaptiveFrequency": freq, "MaxDelta": "0.02", "MaxPasses": 10, "Expressions": []})
-    return value
-
-
 meshlink = dict({"ImportMesh": False})
 """Value for meshlink."""
 autosweep = dict({"RangeType": "LinearCount", "RangeStart": "1GHz", "RangeEnd": "10GHz", "RangeCount": "501"})
@@ -1156,6 +1131,30 @@ TransientFlowOnly = dict(
 )
 """Icepak Transient Flow only setup properties and default values."""
 
+
+def HFSS3DLayout_AdaptiveFrequencyData(freq: float | str):
+    """Update HFSS 3D adaptive frequency data.
+
+    Parameters
+    ----------
+    freq : float or str
+        Adaptive frequency value.
+
+    Returns
+    -------
+    list
+        List of frequency data.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.setup_templates import HFSS3DLayout_AdaptiveFrequencyData
+    >>> HFSS3DLayout_AdaptiveFrequencyData(1.0)
+
+    """
+    value = dict({"AdaptiveFrequency": freq, "MaxDelta": "0.02", "MaxPasses": 10, "Expressions": []})
+    return value
+
+
 HFSS3DLayout_SingleFrequencyDataList = dict({"AdaptiveFrequencyData": HFSS3DLayout_AdaptiveFrequencyData("5GHz")})
 """Value for HFSS3DLayout SingleFrequencyDataList."""
 HFSS3DLayout_BroadbandFrequencyDataList = dict(
@@ -1256,7 +1255,7 @@ HFSS3DLayout = dict(
         "AdaptiveSettings": HFSS3DLayout_AdaptiveSettings,
     }
 )
-"""Value for HFSS 3 D layout."""
+"""Value for HFSS 3D layout."""
 
 HFSS3DLayout_v231 = dict(
     {
@@ -2438,6 +2437,7 @@ class SetupKeys:
         Setups.DCM: DCM,
         Setups.CPSM: CPSM,
         Setups.NSSM: NSSM,
+        Setups.TransientAPhiFormulation: MaxwellTransient,
         Setups.MechTransientThermal: MechTransientThermal,
         Setups.DCConduction: DCConduction,
         Setups.ACConduction: ACConduction,

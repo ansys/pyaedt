@@ -287,10 +287,10 @@ class Props(dict):
         with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
             set_props(self, data)
-            if getattr(self._pyaedt_owner, "auto_update", False):
-                res = self._apply_owner_update(None, None)
-                if res is False:
-                    _owner_logger(self._pyaedt_owner).warning("Update of properties failed. Check needed arguments")
+
+            res = self._apply_owner_update(None, None)
+            if res is False:
+                _owner_logger(self._pyaedt_owner).warning("Update of properties failed. Check needed arguments")
         return True
 
 
