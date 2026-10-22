@@ -63,6 +63,7 @@ jupyter = [
     "jupyterlab>=3.6.0",
     "ipython>=7.30.0",
 ]
+# NOTE: Any modification to all should be extended in internal checks (decorators)
 all = [
     "matplotlib>=3.5.0",
     "openpyxl>=3.1.0",
@@ -182,6 +183,7 @@ pyedb = false
 # (GHSA-6q48-6c7w-9gw2) despite the rolling exclude-newer window.
 # TODO: Remove this line after 2026-10-26, once "1 week" covers certifi 2026.10.19, then run `uv lock`.
 certifi = false
+prek = false
 
 [tool.ruff]
 line-length = 120
@@ -339,7 +341,13 @@ exclude = [
     "src/ansys/aedt/core/filtersolutions_core",
     # TODO: Shouldn't we remove the python_optimizers module ?
     "src/ansys/aedt/core/generic/python_optimizers.py",
-    "src/ansys/aedt/core/internal",
+    "src/ansys/aedt/core/internal/aedt_versions.py",
+    "src/ansys/aedt/core/internal/clr_module.py",
+    "src/ansys/aedt/core/internal/desktop_sessions.py",
+    "src/ansys/aedt/core/internal/errors.py",
+    "src/ansys/aedt/core/internal/filesystem.py",
+    "src/ansys/aedt/core/internal/grpc_plugin_dll_class.py",
+    "src/ansys/aedt/core/internal/load_aedt_file.py",
     "src/ansys/aedt/core/misc",
     "src/ansys/aedt/core/modeler",
     "src/ansys/aedt/core/modules",

@@ -36,7 +36,6 @@ from tkinter import ttk
 import webbrowser
 import zipfile
 
-import defusedxml
 import PIL.Image
 import PIL.ImageTk
 
@@ -51,8 +50,6 @@ from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.help import Help
-
-defusedxml.defuse_stdlib()
 
 DISCLAIMER = (
     "This script will download and install certain third-party software and/or "

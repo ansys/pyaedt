@@ -33,7 +33,6 @@ from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import open_file
-from ansys.aedt.core.internal.checks import check_dependency_available
 from ansys.aedt.core.internal.checks import requires_graphical_dependency
 
 
@@ -158,13 +157,6 @@ class _PdfOxidePage:
     page_format: str | tuple[float, float]
     blocks: list = field(default_factory=list)
     kind: str = "content"
-
-
-def _pdf_oxide_imports():
-    check_dependency_available("pdf_oxide")
-    from pdf_oxide import DocumentBuilder
-
-    return DocumentBuilder
 
 
 def _mm_to_pt(value: float) -> float:
@@ -1242,11 +1234,14 @@ class AnsysReport(PyAedtBase):
             self.__figure_idx = figure_idx
             self.__table_idx = table_idx
 
+    @requires_graphical_dependency("pdf_oxide")
     def save_pdf(self, file_path: str, file_name: str | None = None) -> str:
         """Save pdf."""
+        from pdf_oxide import DocumentBuilder
+
         if file_name is None:
             raise TypeError("file_name must be provided.")
-        DocumentBuilder = _pdf_oxide_imports()
+
         output_path = os.path.join(file_path, file_name)
         builder = (
             DocumentBuilder()
