@@ -49,8 +49,10 @@ from ansys.aedt.core.application.job_manager import update_hpc_option
 from ansys.aedt.core.application.variables import Variable
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import Gravity
+from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
+from ansys.aedt.core.generic.general_methods import SetupDict
 from ansys.aedt.core.generic.general_methods import filter_tuple
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
@@ -171,26 +173,28 @@ class Analysis(Design, PyAedtBase):
         )
         self._excitation_objects = {}
         self._setup = None
+        self.__active_setup = None
         if setup:
-            self.active_setup = setup
+            self.__active_setup = setup
         self._materials = None
         self._available_variations = None
         self._optimetrics = None
         self._parametrics = None
         self._optimizations = None
-        self._setups = []
+        self.__setups = SetupDict()
         self._native_components = []
 
         if not settings.lazy_load:
             self._materials = self.materials
-            self._setups = self.setups
+            self.__setups = self.setups
             self._parametrics = self.parametrics
             self._optimizations = self.optimizations
             self._optimetrics = self.optimetrics
             self._available_variations = self.available_variations
 
     @property
-    def design_setups(self) -> dict[str, Setup]:
+    @deprecated("Use setups instead.")
+    def design_setups(self) -> SetupDict:
         """All design setups ordered by name.
 
         Returns
@@ -204,7 +208,7 @@ class Analysis(Design, PyAedtBase):
         >>> hfss.design_setups
 
         """
-        return {i.name.split(":")[0].strip(): i for i in self.setups}
+        return self.setups
 
     @property
     def native_components(self) -> dict[str, NativeComponentObject]:
@@ -291,12 +295,12 @@ class Analysis(Design, PyAedtBase):
         return self._materials
 
     @property
-    def setups(self) -> list[Setup]:
+    def setups(self) -> SetupDict:
         """Setups in the project.
 
         Returns
         -------
-        list[:class:`ansys.aedt.core.modules.solve_setup.Setup`]
+        :class:`ansys.aedt.core.generic.general_methods.SetupDict`
             Setups in the project.
 
         Examples
@@ -306,12 +310,23 @@ class Analysis(Design, PyAedtBase):
         >>> hfss.setups
 
         """
-        if not self._setups:
-            if self.design_type not in ["Maxwell Circuit", "Circuit Netlist"]:
-                self._setups = [self._get_setup(setup_name) for setup_name in self.setup_names]
-                if self._setups:
-                    self.active_setup = self._setups[0].name
-        return self._setups
+        if self.design_type in ["Maxwell Circuit", "Circuit Netlist"]:
+            return self.__setups
+
+        setup_names = self.setup_names
+
+        for setup_name in setup_names:
+            if setup_name not in self.__setups:
+                self.__setups[setup_name] = self._get_setup(setup_name)
+
+        if self.__setups and not self.__active_setup:
+            self.__active_setup = self.__setups[0].name
+
+        for setup_name in list(self.__setups):
+            if setup_name not in setup_names:
+                del self.__setups[setup_name]
+
+        return self.__setups
 
     @property
     def optimetrics(self) -> Optimetrics:
@@ -415,7 +430,7 @@ class Analysis(Design, PyAedtBase):
         return self._available_variations
 
     @property
-    def active_setup(self) -> str:
+    def active_setup(self) -> str | None:
         """Get or Set the name of the active setup. If not set it will be the first analysis setup.
 
         Returns
@@ -435,21 +450,24 @@ class Analysis(Design, PyAedtBase):
 
         """
         if self._setup:
-            return self._setup
+            self.__active_setup = self._setup
+            return self.__active_setup
         elif self.setup_names:
-            return self.setup_names[0]
+            self.__active_setup = self.setup_names[0]
+            return self.__active_setup
         else:
             self._setup = None
-            return self._setup
+            self.__active_setup = self._setup
+            return self.__active_setup
 
     @active_setup.setter
-    @pyaedt_function_handler()
     def active_setup(self, name: str):
         setup_list = self.setup_names
         if setup_list:
             if name not in setup_list:
                 raise ValueError(f"Setup name {name} is invalid.")
             self._setup = name
+            self.__active_setup = name
         else:
             raise AttributeError("No setups defined.")
 
@@ -1519,9 +1537,9 @@ class Analysis(Design, PyAedtBase):
 
     @pyaedt_function_handler()
     def _get_setup(self, name: str):
-        setuptype = self.design_solutions.default_setup
-        if self.solution_type == "SBR+":
-            setuptype = 4
+        # setuptype = self.design_solutions.default_setup
+        # if self.solution_type == "SBR+":
+        #     setuptype = 4
         setup_by_type = {
             "HFSS": SetupHFSS,
             "SBR+": SetupSBR,
@@ -1538,15 +1556,26 @@ class Analysis(Design, PyAedtBase):
             "SetupCircuit": SetupCircuit,
         }
         if self.design_type in setup_by_type:
-            setup = setup_by_type[self.design_type](self, setuptype, name, is_new_setup=False)
-            if setup.properties:
-                if "Auto Solver Setting" in setup.properties:
-                    setup = SetupHFSSAuto(self, 0, name, is_new_setup=False)
-            elif setup.props and setup.props.get("SetupType", "") == "HfssDrivenAuto":
-                setup = SetupHFSSAuto(self, 0, name, is_new_setup=False)
+            setup = setup_by_type[self.design_type](app=self, name=name, props={})
+
+            if self.design_type in ["HFSS", "HFSS 3D Layout Design"]:
+                setup_data = self.oanalysis.GetSetupData(setup.name)
+                setup_data_dict = {}
+                _arg2dict(setup_data, setup_data_dict)
+
+                if setup.properties and "Auto Solver Setting" in setup.properties:
+                    setup = SetupHFSSAuto(app=self, name=name, props={})
+                elif (
+                    setup_data_dict
+                    and setup_data_dict.get(setup.name, "")
+                    and setup_data_dict[setup.name].get("AutoSetup", "")
+                ):
+                    setup = SetupHFSSAuto(app=self, name=name, props={})
+
         else:
-            setup = Setup(self, setuptype, name, is_new_setup=False)
-        self.active_setup = name
+            setup = Setup(app=self, name=name, props={})
+
+        # self.active_setup = name
         return setup
 
     @pyaedt_function_handler()

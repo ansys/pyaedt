@@ -24,6 +24,8 @@
 
 import copy
 
+from ansys.aedt.core.generic.constants import Setups
+
 
 def HFSS3DLayout_AdaptiveFrequencyData(freq):
     """Update HFSS 3D adaptive frequency data.
@@ -2380,11 +2382,11 @@ class SetupKeys:
     """Value for setup names."""
 
     SetupTemplates = {
-        0: HFSSDrivenAuto,
-        1: HFSSDrivenDefault,
-        2: HFSSEigen,
-        3: HFSSTransient,
-        4: HFSSSBR,
+        Setups.HFSSDrivenAuto: HFSSDrivenAuto,
+        Setups.HFSSDrivenDefault: HFSSDrivenDefault,
+        Setups.HFSSEigen: HFSSEigen,
+        Setups.HFSSTransient: HFSSTransient,
+        Setups.HFSSSBR: HFSSSBR,
         5: MaxwellTransient,
         6: Magnetostatic,
         7: EddyCurrent,
@@ -2409,7 +2411,7 @@ class SetupKeys:
         26: NexximSystem,
         27: NexximTVNoise,
         28: HSPICE,
-        29: HFSS3DLayout,
+        Setups.HFSS3DLayout: HFSS3DLayout,
         30: Open,
         31: Close,
         32: MechTerm,
@@ -2436,10 +2438,9 @@ class SetupKeys:
         53: DCM,
         54: CPSM,
         55: NSSM,
-        56: MaxwellTransient,
-        57: MechTransientThermal,
-        58: DCConduction,
-        59: ACConduction,
+        56: MechTransientThermal,
+        57: DCConduction,
+        58: ACConduction,
     }
     """Value for setup templates."""
 

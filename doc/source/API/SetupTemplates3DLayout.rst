@@ -7,16 +7,11 @@ You can edit a setup after it is created. Here is an example:
 
 .. code:: python
 
-    # Launch AEDT 2025 R1 in non-graphical mode
+    from ansys.aedt.core import Hfss3dLayout
 
-    from ansys.aedt.core import Hfss
-
-    hfss = Hfss()
-    # Any property of this setup can be found on this page.
+    hfss = Hfss3dLayout()
     setup = hfss.create_setup()
-    setup.props["AdaptMultipleFreqs"] = True
-    setup.update()
-
+    setup.props["MeshSizeFactor"] = 2
 
 
 .. pprint:: ansys.aedt.core.modules.setup_templates.HFSS3DLayout

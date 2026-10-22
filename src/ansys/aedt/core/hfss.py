@@ -1701,7 +1701,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def create_setup(
         self, name: str = "MySetupAuto", setup_type: str | None = None, **kwargs
-    ) -> "SetupHFSS | SetupHFSSAuto":
+    ) -> SetupHFSS | SetupHFSSAuto:
         """Create an analysis setup for HFSS.
 
         Optional arguments are passed along with ``setup_type`` and ``name``. Keyword

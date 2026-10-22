@@ -121,6 +121,41 @@ def test_get_obj_data_keeps_single_sweep_definition_as_dict() -> None:
     assert props["SweepDefinition"]["Data"] == "LIN 1GHz 2GHz 0.01GHz"
 
 
+def test_get_obj_data_parses_properties_from_all_data_blocks() -> None:
+    payload = {
+        "data_1": [
+            {"name": "DataBlockID", "value": 16},
+            {
+                "name": "Metadata",
+                "values": [{"name": "FirstProperty", "value": "from data_1"}],
+            },
+        ],
+        "data_2": ["Sweep1"],
+        "data_3": [
+            {
+                "name": "Sweep1",
+                "values": [
+                    {"name": "GenerateSurfaceCurrent", "value": False},
+                    {
+                        "name": "CurveApproximation",
+                        "values": [
+                            {"name": "ArcAngle", "value": "10deg"},
+                            {"name": "MaxPoints", "value": 4},
+                        ],
+                    },
+                ],
+            }
+        ],
+    }
+
+    props = _get_obj_data(DummyChild(payload))
+
+    assert props["FirstProperty"] == "from data_1"
+    assert props["DataBlockID"] == 16
+    assert props["GenerateSurfaceCurrent"] is False
+    assert props["CurveApproximation"] == {"ArcAngle": "10deg", "MaxPoints": 4}
+
+
 def test_get_obj_data_parses_optimization_variables() -> None:
     payload = {
         "data_2": [

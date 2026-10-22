@@ -1563,10 +1563,12 @@ class Setups(metaclass=DynamicMeta):
     """Value for electrostatic dc."""
     ElectricTransient = 10
     """Value for electric transient."""
-    SteadyState = 11
-    """Value for steady state."""
-    # SteadyState = 10
-    # SteadyState = 10
+    SteadyTemperatureAndFlow = 11
+    """Value for steady state, temperature and flow."""
+    SteadyTemperatureOnly = 12
+    """Value for steady state, temperature only."""
+    SteadyFlowOnly = 13
+    """Value for steady state, flow only."""
     Matrix = 14
     """Value for matrix."""
     NexximLNA = 15
@@ -1611,36 +1613,62 @@ class Setups(metaclass=DynamicMeta):
     """Grm."""
     TR = 35
     """Tr."""
-    Transient = 36
-    """Value for transient."""
-    # Transient,
-    # Transient,
-    DFIG = 39
+    TransientTemperatureAndFlow = 36
+    """Value for transient temperature and flow."""
+    TransientTemperatureOnly = 37
+    """Value for transient temperature only."""
+    TransientFlowOnly = 38
+    """Value for transient flow only."""
+    MechStructural = 39
+    """Value for mechanical structural."""
+    SiwaveDC3DLayout = 40
+    """Value for SIwave DCIR."""
+    SiwaveAC3DLayout = 41
+    """Value for SIwave SYZ."""
+    LNA3DLayout = 42
+    """Value for SIwave LNA."""
+    DFIG = 43
     """Dfig."""
-    TPIM = 40
+    TPIM = 44
     """Tpim."""
-    SPIM = 41
+    SPIM = 45
     """Spim."""
-    TPSM = 42
+    TPSM = 46
     """Tpsm."""
-    BLDC = 43
+    BLDC = 47
     """Bldc."""
-    ASSM = 44
+    ASSM = 48
     """Assm."""
-    PMDC = 45
+    PMDC = 49
     """Pmdc."""
-    SRM = 46
+    SRM = 50
     """Srm."""
-    LSSM = 47
+    LSSM = 51
     """Lssm."""
-    UNIM = 48
+    UNIM = 52
     """Unim."""
-    DCM = 49
+    DCM = 53
     """Dcm."""
-    CPSM = 50
+    CPSM = 54
     """Cpsm."""
-    NSSM = 51
+    NSSM = 55
     """Nssm."""
+    MechTransientThermal = 56
+    """Value for Mechanical Transient Thermal."""
+    DCConduction = 57
+    """Value for DC conduction."""
+    ACConduction = 58
+    """Value for AC conduction."""
+    DCBiasedEddyCurrent = 60
+    """Value for DC Biased eddy current."""
+    ElectroDCConduction = 61
+    """Value for electro DC Conduction."""
+    RaptorX = 62
+    """Value for RaptorX."""
+    TwinbuilderAC = 63
+    """Value for Twinbuilder AC."""
+    TwinbuilderDC = 64
+    """Value for Twinbuilder DC."""
 
 
 class LineStyle(metaclass=DynamicMeta):

@@ -135,7 +135,6 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
             self._has_getobject = False
         else:
             self._has_getobject = _has_get_obj_data(self._child_object)
-        self._has_getobject = False
 
     @pyaedt_function_handler()
     def _initialize_tree_node(self) -> bool:
@@ -255,11 +254,10 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         >>> surface.props
 
         """
-        _has_getobject = _has_get_obj_data(self._child_object)
-        if self._legacy_props and not _has_getobject:
+        if self._legacy_props and not self._has_getobject:
             return MeshProps(self, self._legacy_props)
 
-        if _has_getobject:
+        if self._has_getobject:
             props = _get_obj_data(self._child_object) or {}
         else:
             if self.__operation_type == "InitialMeshSettings":
@@ -479,6 +477,15 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
     def update(self, key_name: str | None = None, value: int | None = None, props: dict | None = None) -> bool:
         """Update the mesh.
 
+        Parameters
+        ----------
+        key_name : str, optional
+            Key name to update.
+        value : int, optional
+            Value to update.
+        props : dict, optional
+            New properties to update. The  default is ``None``, in which case it uses the current properties.
+
         Returns
         -------
         bool
@@ -509,8 +516,8 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         >>> box = hfss.modeler.create_box([0, 0, 0], [10, 10, 10])
         >>> rect = hfss.modeler.create_rectangle(0, [0, 0, 10], [10, 10])
         >>> surface = hfss.mesh.assign_surf_priority_for_tau([box.name, rect.name], 1)
-        >>> surface.props["SurfaceRepPriority"] == 1
         >>> surface.props["SurfaceRepPriority"] = 0
+        >>> surface.update("SurfaceRepPriority", 0)
 
         """
         # Update using Child Object if available and supported

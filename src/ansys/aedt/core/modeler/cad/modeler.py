@@ -36,7 +36,6 @@ import warnings
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
-from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.generic.props import Props as CsProps
@@ -50,7 +49,7 @@ from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 
-class BaseCoordinateSystem(PropsManager, PyAedtBase):
+class BaseCoordinateSystem(PyAedtBase):
     """Base methods common to FaceCoordinateSystem and CoordinateSystem.
 
     Parameters
@@ -1813,7 +1812,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
             return pos
 
 
-class Lists(PropsManager, PyAedtBase):
+class Lists(PyAedtBase):
     """Manages list data and execution.
 
     Parameters
@@ -2019,7 +2018,7 @@ class Lists(PropsManager, PyAedtBase):
         return object_list_new
 
 
-class NamedSelections(PropsManager, PyAedtBase):
+class NamedSelections(PyAedtBase):
     """Manages Named Selections (replacement for `Lists`) from AEDT version >= 2026.1."""
 
     def __init__(self, modeler, props=None, name: str | None = None) -> None:

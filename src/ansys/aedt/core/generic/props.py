@@ -182,9 +182,6 @@ class Props(dict):
             ]
         return value
 
-    def _setitem_without_update(self, key, value):
-        dict.__setitem__(self, key, value)
-
     def __setitem__(self, key, value):
         if isinstance(value, dict):
             dict.__setitem__(self, key, type(self)(self._pyaedt_owner, value, parent=self._root()))
@@ -298,7 +295,6 @@ class Props(dict):
 
 
 BoundaryProps = Props
-SetupProps = Props
 CsProps = Props
 ListsProps = Props
 UserDefinedComponentProps = Props

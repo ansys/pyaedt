@@ -226,12 +226,6 @@ def _get_obj_data(child_object) -> dict:
     data = json.loads(obj_data)
     result = {}
 
-    data_2 = data.get("data_2", [])
-
-    if data_2 and isinstance(data_2, list):
-        values = data_2[0].get("values", [])
-    else:
-        values = data_2
     faces = []
     objects = []
     edges = []
@@ -259,7 +253,23 @@ def _get_obj_data(child_object) -> dict:
 
     if "Type" in dir(child_object):
         result["Type"] = child_object.Type
-    for item in values:
-        _accumulate_parsed_entry(result, _obj_data_parser(item))
+
+    data_keys = sorted(
+        (key for key in data if re.fullmatch(r"data_\d+", key)),
+        key=lambda key: int(key.split("_")[1]),
+    )
+    for key in data_keys:
+        data_block = data[key]
+        if isinstance(data_block, dict):
+            data_block = [data_block]
+        if not isinstance(data_block, list):
+            continue
+
+        for entry in data_block:
+            # Each data_N block may contain a named wrapper around its properties.
+            is_wrapper = isinstance(entry, dict) and "name" in entry and "values" in entry and "value" not in entry
+            entries = entry["values"] if is_wrapper else [entry]
+            for item in entries:
+                _accumulate_parsed_entry(result, _obj_data_parser(item))
 
     return _correct_typo_keys(result)

@@ -28,6 +28,7 @@ from typing import TYPE_CHECKING
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.configurations import Configurations3DLayout
+from ansys.aedt.core.generic.constants import Setups
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
@@ -344,14 +345,14 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         return self.oexcitation.GetAllPortsList()
 
     @pyaedt_function_handler()
-    def create_setup(self, name: str = "MySetupAuto", setup_type: str | None = None, **kwargs) -> Setup3DLayout:
+    def create_setup(self, name: str | None = None, setup_type: str | int | None = None, **kwargs) -> Setup3DLayout:
         """Create a setup.
 
         Parameters
         ----------
         name : str, optional
             Name of the new setup. The default is ``"MySetupAuto"``.
-        setup_type : str, optional
+        setup_type : str or int, optional
             Type of the setup. The default is ``None``, in which case
             the default type is applied.
         **kwargs : dict, optional
@@ -370,33 +371,49 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core import Hfss3dLayout
+        >>> from ansys.aedt.core.generic.constants import Setups
         >>> app = Hfss3dLayout()
-        >>> app.create_setup(name="Setup1", MeshSizeFactor=2, SingleFrequencyDataList__AdaptiveFrequency="5GHZ")
+
+        >>> app.create_setup(
+        ...     name="Setup1",
+        ...     setup_type=Setups.HFSS3DLayout,
+        ...     MeshSizeFactor=2,
+        ...     SingleFrequencyDataList__AdaptiveFrequency="5GHZ",
+        ... )
 
         """
         if setup_type is None:
             setup_type = self.design_solutions.default_setup
         elif setup_type in SetupKeys.SetupNames:
             setup_type = SetupKeys.SetupNames.index(setup_type)
-        name = self.generate_unique_setup_name(name)
-        if setup_type == 62 and not self.ic_mode:
-            raise AEDTRuntimeError("RaptorX is supported only in 'IC' mode.")
-        setup = Setup3DLayout(self, setup_type, name)
-        tmp_setups = self.setups
-        setup.create()
-        setup.auto_update = False
 
-        if "props" in kwargs:
-            for el in kwargs["props"]:
-                setup.props[el] = kwargs["props"][el]
-        for arg_name, arg_value in kwargs.items():
-            if arg_name == "props":
-                continue
-            if setup[arg_name] is not None:
-                setup[arg_name] = arg_value
-        setup.auto_update = True
-        setup.update()
-        self._setups = tmp_setups + [setup]
+        if not name:
+            name = self.generate_unique_setup_name("MySetupAuto")
+        elif name in self.setup_names:
+            name = self.generate_unique_setup_name(name)
+            self.logger.warning(f"Name already exists. New name is {name}.")
+
+        if setup_type == Setups.RaptorX and not self.ic_mode:
+            raise AEDTRuntimeError("RaptorX is supported only in 'IC' mode.")
+
+        props = SetupKeys.get_setup_templates()[setup_type]
+
+        setup = Setup3DLayout(app=self, name=name, props=props)
+
+        if kwargs:
+            if "props" in kwargs:
+                for el in kwargs["props"]:
+                    setup._legacy_props[el] = kwargs["props"][el]
+
+            for arg_name, arg_value in kwargs.items():
+                if arg_name == "props":
+                    continue
+
+                if setup._legacy_props[arg_name] is not None:
+                    setup._legacy_props[arg_name] = arg_value
+
+        setup.create()
+
         return setup
 
     @pyaedt_function_handler()

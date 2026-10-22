@@ -26,7 +26,9 @@ import pytest
 
 from ansys.aedt.core import Circuit
 from ansys.aedt.core import Hfss
+from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.generic.constants import Setups
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 TEST_SUBFOLDER = "T11"
 TEST_COAXIAL = "coax_setup_231"
@@ -44,6 +46,115 @@ def circuit_app(add_app):
     app = add_app(application=Circuit)
     yield app
     app.close_project(app.project_name, save=False)
+
+
+@pytest.fixture
+def layout_app(add_app):
+    app = add_app(application=Hfss3dLayout)
+    project_name = app.project_name
+    yield app
+    app.close_project(name=project_name, save=False)
+
+
+# HFSS 3D Layout setups
+def test_create_setup_layout_hfss(layout_app) -> None:
+    props = {"MaxRatio": 1}
+
+    setup = layout_app.create_setup(
+        setup_type=Setups.HFSS3DLayout, MeshSizeFactor=2, SingleFrequencyDataList__AdaptiveFrequency="5GHZ", props=props
+    )
+
+    setup.props
+
+    layout_app.create_setup(name=setup.name)
+    pass
+
+    with pytest.raises(AEDTRuntimeError):
+        layout_app.create_setup(setup_type=Setups.RaptorX)
+
+    # assert setup.name == layout_app.setup_names[0]
+    # assert setup.solver_type == "HFSS"
+    # Add sweep
+
+    layout_app.ic_mode = True
+    layout_app.create_setup(name="setup1", setup_type=Setups.RaptorX)
+    pass
+
+
+def test_create_setup_layout_hfss_auto(layout_app) -> None:
+    setup = layout_app.create_setup()
+    assert setup.name == layout_app.setup_names[0]
+    assert setup.solver_type == "HFSS"
+
+
+def test_create_setup_layout_hfss_pi(layout_app) -> None:
+    setup = layout_app.create_setup()
+    assert setup.name == layout_app.setup_names[0]
+    assert setup.solver_type == "HFSS"
+    # Add sweep
+
+
+def test_create_setup_layout_emi(layout_app) -> None:
+    setup = layout_app.create_setup()
+    assert setup.name == layout_app.setup_names[0]
+    assert setup.solver_type == "HFSS"
+
+
+def test_create_setup_layout_ami(layout_app) -> None:
+    setup = layout_app.create_setup()
+    assert setup.name == layout_app.setup_names[0]
+    assert setup.solver_type == "HFSS"
+
+
+def test_create_setup_layout_lna(layout_app) -> None:
+    setup = layout_app.create_setup()
+    assert setup.name == layout_app.setup_names[0]
+    assert setup.solver_type == "HFSS"
+
+
+def test_create_setup_layout_quickeye(layout_app) -> None:
+    setup = layout_app.create_setup()
+    assert setup.name == layout_app.setup_names[0]
+    assert setup.solver_type == "HFSS"
+
+
+def test_create_setup_layout_siwave_syz(layout_app) -> None:
+    setup = layout_app.create_setup()
+    assert setup.name == layout_app.setup_names[0]
+    assert setup.solver_type == "HFSS"
+    # Add sweep
+
+
+def test_create_setup_layout_siwave_dcir(layout_app) -> None:
+    setup = layout_app.create_setup()
+    assert setup.name == layout_app.setup_names[0]
+    assert setup.solver_type == "HFSS"
+
+
+def test_create_setup_layout_siwave_farfield(layout_app) -> None:
+    setup = layout_app.create_setup()
+    assert setup.name == layout_app.setup_names[0]
+    assert setup.solver_type == "HFSS"
+    # Add sweep
+
+
+def test_create_setup_layout_siwave_nearfield(layout_app) -> None:
+    setup = layout_app.create_setup()
+    assert setup.name == layout_app.setup_names[0]
+    assert setup.solver_type == "HFSS"
+    # Add sweep
+
+
+def test_create_setup_layout_siwave_transient(layout_app) -> None:
+    setup = layout_app.create_setup()
+    assert setup.name == layout_app.setup_names[0]
+    assert setup.solver_type == "HFSS"
+
+
+def test_create_setup_layout_siwave_verify_eye(layout_app) -> None:
+    setup = layout_app.create_setup()
+    assert setup.name == layout_app.setup_names[0]
+    assert setup.solver_type == "HFSS"
 
 
 def test_create_hfss_setup(aedtapp) -> None:

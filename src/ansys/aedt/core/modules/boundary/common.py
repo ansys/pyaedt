@@ -30,7 +30,6 @@ from ansys.aedt.core.application import _get_obj_data
 from ansys.aedt.core.application import _has_get_obj_data
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
-from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.generic.props import AssignmentList  # noqa: F401
@@ -41,7 +40,7 @@ from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
 
 
-class BoundaryCommon(PropsManager, PyAedtBase):
+class BoundaryCommon(PyAedtBase):
     """Provide boundary common."""
 
     def __repr__(self) -> str:
