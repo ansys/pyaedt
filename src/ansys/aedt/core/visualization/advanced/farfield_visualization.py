@@ -32,8 +32,8 @@ import shutil
 import sys
 from typing import TYPE_CHECKING
 
-import defusedxml
 from defusedxml.ElementTree import ParseError
+from defusedxml.ElementTree import parse as defused_parse
 import numpy as np
 
 if TYPE_CHECKING:
@@ -55,8 +55,6 @@ from ansys.aedt.core.internal.checks import is_notebook
 from ansys.aedt.core.internal.checks import requires_graphical_dependency
 from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 from ansys.aedt.core.visualization.plot.pyvista import get_structured_mesh
-
-defusedxml.defuse_stdlib()
 
 
 class FfdSolutionData(PyAedtBase):
@@ -2083,7 +2081,7 @@ def antenna_metadata_from_xml(input_file: str) -> dict:
     """
     # Load the XML file
     try:
-        tree = defusedxml.ElementTree.parse(input_file)
+        tree = defused_parse(input_file)
     except ParseError:  # pragma: no cover
         logger.error(f"Unable to parse {input_file}.")
         return
