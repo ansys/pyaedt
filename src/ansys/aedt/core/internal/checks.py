@@ -26,8 +26,8 @@
 
 from collections.abc import Callable
 from functools import wraps
-import inspect
 from importlib import import_module
+import inspect
 import re
 from typing import Any
 from typing import TypeVar
