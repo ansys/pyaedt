@@ -32,6 +32,8 @@ from ansys.aedt.core.extensions.hfss.weave_designer import WeaveDesignerExtensio
 from ansys.aedt.core.extensions.hfss.weave_designer import main
 from ansys.aedt.core.modeler.advanced_cad.weave import WEAVE_STYLES
 
+EXT = "ansys.aedt.core.extensions.hfss.weave_designer"
+
 
 def _mock_desktop_and_hfss():
     """Build a MagicMock Desktop + HFSS app pair, mimicking the real main() dependencies."""
@@ -48,50 +50,44 @@ def _mock_desktop_and_hfss():
     return mock_desktop, mock_hfss
 
 
-def test_main_weave_only_mode_missing_substrate_names() -> None:
+@patch(f"{EXT}.get_pyaedt_app")
+@patch(f"{EXT}.ansys.aedt.core.Desktop")
+def test_main_weave_only_mode_missing_substrate_names(mock_desktop_cls, mock_get_app) -> None:
     """`main()` must reject "Weave existing layout" mode when no substrate name is given."""
     style = next(iter(WEAVE_STYLES.keys()))
     data = WeaveDesignerExtensionData(mode=MODES[1], weave_style=style, substrate_names="")
 
     mock_desktop, mock_hfss = _mock_desktop_and_hfss()
+    mock_desktop_cls.return_value = mock_desktop
+    mock_get_app.return_value = mock_hfss
 
-    with (
-        patch(
-            "ansys.aedt.core.extensions.hfss.weave_designer.ansys.aedt.core.Desktop",
-            return_value=mock_desktop,
-        ),
-        patch(
-            "ansys.aedt.core.extensions.hfss.weave_designer.get_pyaedt_app",
-            return_value=mock_hfss,
-        ),
-        pytest.raises(Exception, match="Provide at least one existing substrate object name"),
-    ):
+    with pytest.raises(Exception, match="Provide at least one existing substrate object name"):
         main(data)
 
 
-def test_main_weave_only_mode_unknown_object() -> None:
+@patch(f"{EXT}.get_pyaedt_app")
+@patch(f"{EXT}.ansys.aedt.core.Desktop")
+def test_main_weave_only_mode_unknown_object(mock_desktop_cls, mock_get_app) -> None:
     """`main()` must reject "Weave existing layout" mode when the named object does not exist."""
     style = next(iter(WEAVE_STYLES.keys()))
     data = WeaveDesignerExtensionData(mode=MODES[1], weave_style=style, substrate_names="MissingObject")
 
     mock_desktop, mock_hfss = _mock_desktop_and_hfss()
     mock_hfss.modeler.__getitem__.return_value = None
+    mock_desktop_cls.return_value = mock_desktop
+    mock_get_app.return_value = mock_hfss
 
-    with (
-        patch(
-            "ansys.aedt.core.extensions.hfss.weave_designer.ansys.aedt.core.Desktop",
-            return_value=mock_desktop,
-        ),
-        patch(
-            "ansys.aedt.core.extensions.hfss.weave_designer.get_pyaedt_app",
-            return_value=mock_hfss,
-        ),
-        pytest.raises(Exception, match="Object 'MissingObject' not found"),
-    ):
+    with pytest.raises(Exception, match="Object 'MissingObject' not found"):
         main(data)
 
 
-def test_main_weave_only_mode_creates_weave_on_existing_object() -> None:
+@patch(f"{EXT}._build_stackup")
+@patch(f"{EXT}.Weave")
+@patch(f"{EXT}.get_pyaedt_app")
+@patch(f"{EXT}.ansys.aedt.core.Desktop")
+def test_main_weave_only_mode_creates_weave_on_existing_object(
+    mock_desktop_cls, mock_get_app, mock_weave_cls, mock_build_stackup
+) -> None:
     """`main()` in "Weave existing layout" mode must skip stackup creation entirely and weave
     directly onto the named, pre-existing substrate object(s).
     """
@@ -115,25 +111,11 @@ def test_main_weave_only_mode_creates_weave_on_existing_object() -> None:
     }.get(name)
 
     mock_weave_instance = MagicMock()
+    mock_desktop_cls.return_value = mock_desktop
+    mock_get_app.return_value = mock_hfss
+    mock_weave_cls.return_value = mock_weave_instance
 
-    with (
-        patch(
-            "ansys.aedt.core.extensions.hfss.weave_designer.ansys.aedt.core.Desktop",
-            return_value=mock_desktop,
-        ),
-        patch(
-            "ansys.aedt.core.extensions.hfss.weave_designer.get_pyaedt_app",
-            return_value=mock_hfss,
-        ),
-        patch(
-            "ansys.aedt.core.extensions.hfss.weave_designer.Weave",
-            return_value=mock_weave_instance,
-        ),
-        patch(
-            "ansys.aedt.core.extensions.hfss.weave_designer._build_stackup",
-        ) as mock_build_stackup,
-    ):
-        result = main(data)
+    result = main(data)
 
     assert result is True
     # The stackup must never be built in "Weave existing layout" mode.
@@ -144,7 +126,13 @@ def test_main_weave_only_mode_creates_weave_on_existing_object() -> None:
     assert called_object_names == {"Sub_Bot", "Sub_Top"}
 
 
-def test_main_full_stackup_mode_still_builds_stackup() -> None:
+@patch(f"{EXT}._build_stackup")
+@patch(f"{EXT}.Weave")
+@patch(f"{EXT}.get_pyaedt_app")
+@patch(f"{EXT}.ansys.aedt.core.Desktop")
+def test_main_full_stackup_mode_still_builds_stackup(
+    mock_desktop_cls, mock_get_app, mock_weave_cls, mock_build_stackup
+) -> None:
     """`main()` in "Design full stackup" mode (default) must still call `_build_stackup`."""
     style = next(iter(WEAVE_STYLES.keys()))
     data = WeaveDesignerExtensionData(mode=MODES[0], weave_style=style, name="MyWeave")
@@ -155,26 +143,12 @@ def test_main_full_stackup_mode_still_builds_stackup() -> None:
     mock_substrate.name = "Sub_Bot"
 
     mock_weave_instance = MagicMock()
+    mock_desktop_cls.return_value = mock_desktop
+    mock_get_app.return_value = mock_hfss
+    mock_weave_cls.return_value = mock_weave_instance
+    mock_build_stackup.return_value = [mock_substrate]
 
-    with (
-        patch(
-            "ansys.aedt.core.extensions.hfss.weave_designer.ansys.aedt.core.Desktop",
-            return_value=mock_desktop,
-        ),
-        patch(
-            "ansys.aedt.core.extensions.hfss.weave_designer.get_pyaedt_app",
-            return_value=mock_hfss,
-        ),
-        patch(
-            "ansys.aedt.core.extensions.hfss.weave_designer.Weave",
-            return_value=mock_weave_instance,
-        ),
-        patch(
-            "ansys.aedt.core.extensions.hfss.weave_designer._build_stackup",
-            return_value=[mock_substrate],
-        ) as mock_build_stackup,
-    ):
-        result = main(data)
+    result = main(data)
 
     assert result is True
     mock_build_stackup.assert_called_once()
