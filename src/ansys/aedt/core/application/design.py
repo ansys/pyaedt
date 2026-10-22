@@ -802,7 +802,7 @@ class Design(AedtObjects, PyAedtBase):
 
     @property
     @deprecated_doc()
-    @deprecated("Use aedt_env_variable instead.")
+    @deprecated("Use `aedt_env_variable` instead.")
     def aedt_version_id(self) -> str:
         """AEDT version environment variable name.
 
