@@ -43,6 +43,7 @@ from ansys.aedt.core.emit_core.emit_constants import data_rate_conv
 from ansys.aedt.core.emit_core.emit_function_validator import FunctionValidator
 import ansys.aedt.core.generic.constants as consts
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.internal.checks import deprecated_doc
 from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.checks import requires_graphical_dependency
 
@@ -760,13 +761,11 @@ class EmitNode:
         else:
             self._oRevisionData.DeleteEmitNode(self._result_id, self._node_id)
 
-    @deprecated("This method is deprecated in 0.21.3. Use the name property instead.")
+    @deprecated_doc(version="0.21.3")
+    @deprecated("Use the `name` property instead.")
     @min_aedt_version("2025.2")
     def _rename(self, requested_name: str) -> str:
         """Renames the node/component.
-
-        .. deprecated: 0.21.3
-            Use name property instead
 
         Parameters
         ----------
