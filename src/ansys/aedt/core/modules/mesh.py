@@ -46,7 +46,6 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import SetupDict
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.props import Props as MeshProps
-from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import MethodNotSupportedError
 from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
@@ -123,6 +122,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         self._legacy_props = {}
         self._name = name
         self.__operation_type = None
+        self.__child_object = None
 
         if props:
             self._legacy_props = MeshProps(self, props)
@@ -152,15 +152,15 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         AEDT object if any or None
 
         """
-        child_object = None
-        design_childs = self._app.get_oo_name(self._app.odesign)
+        if not self.__child_object:
+            design_childs = self._app.get_oo_name(self._app.odesign)
 
-        if "Mesh" in design_childs:
-            cc = self._app.get_oo_object(self._app.odesign, "Mesh")
-            cc_names = self._app.get_oo_name(cc)
-            if self._name in cc_names:
-                child_object = self._app.get_oo_object(cc, self._name)
-        return child_object
+            if "Mesh" in design_childs:
+                cc = self._app.get_oo_object(self._app.odesign, "Mesh")
+                cc_names = self._app.get_oo_name(cc)
+                if self._name in cc_names:
+                    self.__child_object = self._app.get_oo_object(cc, self._name)
+        return self.__child_object
 
     @property
     def operation_type(self) -> str | None:
@@ -403,15 +403,10 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
             operation_names = [operation.name for operation in self._mesh.meshoperations]
         if meshop_name in operation_names:
             raise ValueError(f"Name {meshop_name} already assigned in the design.")
-        if self._child_object is not None and self.operation_type != "InitialMeshSettings":
-            self._child_object.Name = str(meshop_name)
-            # If child_object still exist is because it was not renamed
-            if self._child_object:
-                # Fallback to legacy property update if the name change is not reflected in the child object
-                current_props = dict(self._legacy_props)
-                self._update_properties(props=current_props, new_name=str(meshop_name))
-                if self._child_object:
-                    raise AEDTRuntimeError("Name can not be changed.")
+        if self.operation_type != "InitialMeshSettings":
+            self._app.omeshmodule.Rename(self.name, str(meshop_name))
+
+            self.__child_object = None
             object.__setattr__(self, "_name", meshop_name)
             object.__setattr__(self, "_tree_node_initialized", False)
             object.__setattr__(self, "_props", None)
@@ -718,6 +713,7 @@ class Mesh(PyAedtBase):
         # Available mesh operations
         self.__operations = SetupDict()
         self.__initial_mesh_settings = None
+        self.__child_object = None
 
         app.logger.info_timer("Mesh class has been initialized!")
 
@@ -777,12 +773,12 @@ class Mesh(PyAedtBase):
         >>> app.mesh._child_object.GetChildNames()
 
         """
-        child_object = None
-        design_childs = self._app.get_oo_name(self._app.odesign)
+        if not self.__child_object:
+            design_childs = self._app.get_oo_name(self._app.odesign)
 
-        if "Mesh" in design_childs:
-            child_object = self._app.get_oo_object(self._app.odesign, "Mesh")
-        return child_object
+            if "Mesh" in design_childs:
+                self.__child_object = self._app.get_oo_object(self._app.odesign, "Mesh")
+        return self.__child_object
 
     @property
     @deprecated("Use operation_names instead.")

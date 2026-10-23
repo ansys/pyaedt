@@ -118,6 +118,8 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         else:
             self.__setup_type = self._parent.setups_by_type.get(self._name)
 
+        self.__child_object = None
+
         # GetObjData is available for some objects in 2026R1
         self._has_getobject = _has_get_obj_data(self._child_object)
 
@@ -143,18 +145,18 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         >>> app = Hfss()
         >>> setup_names = app.optimetrics.setup_names
         >>> setup = app.optimetrics.setups[setup_names[0]]
-        >>> setup._child_object
+        >>> setup.child_object.GetChildNames()
 
         """
-        child_object = None
-        design_childs = self._app.get_oo_name(self._app.odesign)
+        if not self.__child_object:
+            design_childs = self._app.get_oo_name(self._app.odesign)
 
-        if "Optimetrics" in design_childs:
-            cc = self._app.get_oo_object(self._app.odesign, "Optimetrics")
-            cc_names = self._app.get_oo_name(cc)
-            if self._name in cc_names:
-                child_object = self._app.get_oo_object(cc, self._name)
-        return child_object
+            if "Optimetrics" in design_childs:
+                cc = self._app.get_oo_object(self._app.odesign, "Optimetrics")
+                cc_names = self._app.get_oo_name(cc)
+                if self._name in cc_names:
+                    self.__child_object = self._app.get_oo_object(cc, self._name)
+        return self.__child_object
 
     @property
     def name(self) -> str:
@@ -183,13 +185,15 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
     def name(self, new_name: str) -> None:
         if new_name in self._app.optimetrics.setup_names:
             raise ValueError(f"Name {new_name} already assigned in the design.")
-        child_object = self._child_object
-        if child_object is not None:
-            child_object.Name = str(new_name)
-            object.__setattr__(self, "_name", new_name)
-            object.__setattr__(self, "_tree_node_initialized", False)
-            object.__setattr__(self, "_props", None)
-            object.__setattr__(self, "_children_loaded", False)
+
+        self._app.ooptimetrics.Rename(self.name, str(new_name))
+
+        self.__child_object = None
+        object.__setattr__(self, "_name", new_name)
+        object.__setattr__(self, "_tree_node_initialized", False)
+        object.__setattr__(self, "_props", None)
+        object.__setattr__(self, "_children_loaded", False)
+
         if not self._has_getobject:
             # If object does not have GetObjData, PyAEDT needs to save the project
             self._app.save_project()
@@ -2125,6 +2129,7 @@ class Optimetrics(PyAedtBase):
         # Available Optimetrics setups
         self.__setups = SetupDict()
         self.__setups_by_type = SetupDict()
+        self.__child_object = None
 
         app.logger.info_timer("Optimetrics class has been initialized!")
 
@@ -2174,12 +2179,12 @@ class Optimetrics(PyAedtBase):
         >>> app.optimetrics._child_object.GetChildNames()
 
         """
-        child_object = None
-        design_childs = self._app.get_oo_name(self._app.odesign)
+        if not self.__child_object:
+            design_childs = self._app.get_oo_name(self._app.odesign)
 
-        if "Optimetrics" in design_childs:
-            child_object = self._app.get_oo_object(self._app.odesign, "Optimetrics")
-        return child_object
+            if "Optimetrics" in design_childs:
+                self.__child_object = self._app.get_oo_object(self._app.odesign, "Optimetrics")
+        return self.__child_object
 
     @property
     def parametrics(self) -> Parametrics:

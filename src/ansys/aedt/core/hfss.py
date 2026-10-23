@@ -1702,7 +1702,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_setup(
-        self, name: str = "MySetupAuto", setup_type: str | int | None = None, **kwargs
+        self,
+        name: str | None = None,
+        setup_type: str | int | None = None,
+        **kwargs,
     ) -> SetupHFSS | SetupHFSSAuto:
         """Create an analysis setup for HFSS.
 
@@ -1716,7 +1719,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         Parameters
         ----------
         name : str, optional
-            Name of the setup. The default is ``"Setup1"``.
+            Name of the setup. The default is ``"MySetupAuto"``.
         setup_type : str, optional
             Type of the setup, which is based on the solution type. Options are
             ``"HFSSDrivenAuto"``, ``"HFSSDriven"``, ``"HFSSEigen"``, ``"HFSSTransient"``,
@@ -1744,12 +1747,25 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> hfss.create_setup(name="Setup1", setup_type=Setups.HFSSDriven, Frequency="10GHz")
 
         """
+        setup_keys = SetupKeys.get_setup_templates()
+        setup_names = SetupKeys.SetupNames
+
         if setup_type is None:
+            # Default setup type
             setup_type = self.design_solutions.default_setup
-        elif setup_type in SetupKeys.SetupNames:
-            setup_type = SetupKeys.SetupNames.index(setup_type)
-        name = self.generate_unique_setup_name(name)
-        setup = self._create_setup(name=name, setup_type=setup_type)
+        elif setup_type in setup_names:
+            setup_type = setup_names.index(setup_type)
+
+        if not name:
+            name = self.generate_unique_setup_name("MySetupAuto")
+        elif name in self.setup_names:
+            name = self.generate_unique_setup_name(name)
+            self.logger.warning(f"Name already exists. New name assigned is {name}.")
+
+        props = setup_keys[setup_type]
+
+        setup = self._create_setup(name=name, setup_type=setup_type, props=props)
+
         if "MultipleAdaptiveFreqsSetup" in kwargs:
             setup.enable_adaptive_setup_multifrequency(kwargs["MultipleAdaptiveFreqsSetup"])
             del kwargs["MultipleAdaptiveFreqsSetup"]
@@ -1757,7 +1773,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             setup.enable_adaptive_setup_multifrequency(kwargs["Frequency"])
             del kwargs["Frequency"]
         for arg_name, arg_value in kwargs.items():
-            setup.props[arg_name] = arg_value
+            setup._legacy_props[arg_name] = arg_value
+
+        setup.update()
+
         return setup
 
     @pyaedt_function_handler()

@@ -128,6 +128,13 @@ def test_create_parametrics(aedtapp, test_tmp_dir) -> None:
     assert setup1.props["Sweeps"]["SweepDefinition"]["Variable"] == "w1"
     assert setup1.props["Sweeps"]["SweepDefinition"]["Data"] == "LIN 0.1mm 20mm 0.2mm"
 
+    # Rename
+    setup1.name = "new_name"
+    assert "new_name" in aedtapp.parametrics.design_setups
+    assert "new_name" not in aedtapp.parametrics.setups
+    assert setup1.name == "new_name"
+    assert setup1.child_object
+
     with pytest.raises(AEDTRuntimeError):
         setup1.add_variation("invalid", "0.1mm", 10, 11)
 

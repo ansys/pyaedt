@@ -39,6 +39,7 @@ if sys.version_info >= (3, 13):
     from warnings import deprecated
 else:
     from typing_extensions import deprecated
+
 import shutil
 import tempfile
 import time
@@ -1331,6 +1332,8 @@ class Analysis(Design, PyAedtBase):
         >>> hfss.get_sweeps("Setup1")
 
         """
+        if name not in self.setup_names:
+            raise ValueError(f"Setup {name} not found.")
         sweeps = self.oanalysis.GetSweeps(name)
         return list(sweeps)
 
@@ -1397,15 +1400,9 @@ class Analysis(Design, PyAedtBase):
         return name
 
     @pyaedt_function_handler()
-    def _create_setup(self, name: str = "MySetupAuto", setup_type=None, props=None):
-        if props is None:
-            props = {}
-
-        if setup_type is None:
-            setup_type = self.design_solutions.default_setup
-        name = self.generate_unique_setup_name(name)
+    def _create_setup(self, name, setup_type, props):
         if setup_type == 0:
-            setup = SetupHFSSAuto(self, setup_type, name)
+            setup = SetupHFSSAuto(self, name, props=props)
         elif setup_type == 4:
             setup = SetupSBR(self, setup_type, name)
         elif setup_type in [5, 6, 7, 8, 9, 10, 56, 58, 59, 60]:
@@ -1415,21 +1412,20 @@ class Analysis(Design, PyAedtBase):
         elif setup_type in [11, 36]:
             setup = SetupIcepak(self, setup_type, name)
         else:
-            setup = SetupHFSS(self, setup_type, name)
+            setup = SetupHFSS(app=self, name=name, props=props)
 
         if self.design_type == "HFSS":
             # Handle the situation when ports have not been defined.
 
-            if not self.excitation_names and "MaxDeltaS" in setup.props:
+            if not self.excitation_names and "MaxDeltaS" in setup._legacy_props:
                 new_dict = {}
-                setup.auto_update = False
-                for k, v in setup.props.items():
+
+                for k, v in setup._legacy_props.items():
                     if k == "MaxDeltaS":
                         new_dict["MaxDeltaE"] = 0.01
                     else:
                         new_dict[k] = v
-                setup.props = SetupProps(setup, new_dict)
-                setup.auto_update = True
+                setup._legacy_props = SetupProps(setup, new_dict)
 
             if self.solution_type == "SBR+":
                 setup.auto_update = False
@@ -1477,16 +1473,9 @@ class Analysis(Design, PyAedtBase):
                 setup.props = SetupProps(setup, new_dict)
                 setup.auto_update = True
 
-        tmp_setups = self.setups
         setup.create()
-        if props:
-            for el in props:
-                setup.props[el] = props[el]
-            setup.update()
 
         self.active_setup = name
-
-        self._setups = tmp_setups + [setup]
 
         return setup
 
@@ -1529,9 +1518,6 @@ class Analysis(Design, PyAedtBase):
 
     @pyaedt_function_handler()
     def _get_setup(self, name: str):
-        # setuptype = self.design_solutions.default_setup
-        # if self.solution_type == "SBR+":
-        #     setuptype = 4
         setup_by_type = {
             "HFSS": SetupHFSS,
             "SBR+": SetupSBR,
@@ -1551,7 +1537,7 @@ class Analysis(Design, PyAedtBase):
             setup = setup_by_type[self.design_type](app=self, name=name, props={})
 
             if self.design_type in ["HFSS", "HFSS 3D Layout Design"]:
-                setup_data = self.oanalysis.GetSetupData(setup.name)
+                setup_data = self.oanalysis.GetSetupData(name)
                 setup_data_dict = {}
                 _arg2dict(setup_data, setup_data_dict)
 
@@ -1567,7 +1553,6 @@ class Analysis(Design, PyAedtBase):
         else:
             setup = Setup(app=self, name=name, props={})
 
-        # self.active_setup = name
         return setup
 
     @pyaedt_function_handler()

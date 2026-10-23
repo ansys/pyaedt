@@ -216,12 +216,15 @@ class SweepCommon(BinaryTreeNode, PyAedtBase):
         sweep_names = self._setup.sweep_names
         if name in sweep_names:
             raise ValueError(f"Name {name} already assigned in the design.")
-        if self._child_object is not None and "Sweep" in dir(self._child_object):
-            self._child_object.Sweep = str(name)
-            object.__setattr__(self, "_name", name)
-            object.__setattr__(self, "_tree_node_initialized", False)
-            object.__setattr__(self, "_props", None)
-            object.__setattr__(self, "_children_loaded", False)
+
+        self._app.oanalysis.RenameSweep(self.setup_name, self.name, str(name))
+
+        # Reset object
+        self.__child_object = None
+        object.__setattr__(self, "_name", name)
+        object.__setattr__(self, "_tree_node_initialized", False)
+        object.__setattr__(self, "_props", None)
+        object.__setattr__(self, "_children_loaded", False)
 
     @property
     def sweep_type(self) -> str | None:
@@ -700,6 +703,8 @@ class SweepHFSS3DLayout(SweepCommon):
         """
         combined_name = str(self)
         expressions = [i for i in self._app.post.available_report_quantities(solution=combined_name)]
+        if not expressions:
+            return False
         sol = self._app.post.reports_by_category.standard(expressions=expressions[0], setup=combined_name)
         if identify_setup(dict(self.props)):
             sol.domain = "Time"

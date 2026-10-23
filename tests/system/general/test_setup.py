@@ -31,11 +31,13 @@ from ansys.aedt.core.generic.aedt_constants import Setups
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modules.setup_templates import HFSS3DLayout_AdaptiveFrequencyData
 from ansys.aedt.core.modules.solve_setup import Setup3DLayout
-from ansys.aedt.core.modules.solve_sweeps import Sweep3DLayout
+from ansys.aedt.core.modules.solve_setup import SetupHFSSAuto
+from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
 from tests.conftest import DESKTOP_VERSION
 
 TEST_SUBFOLDER = "TSetup"
 TEST_LAYOUT = "hfss3dlayout_setup_test"
+TEST_HFSS = "hfss_setup_test"
 
 
 @pytest.fixture
@@ -67,6 +69,13 @@ def layout_setup_app(add_app_example):
     app.close_project(app.project_name, save=False)
 
 
+@pytest.fixture
+def hfss_setup_app(add_app_example):
+    app = add_app_example(application=Hfss, project=TEST_HFSS, subfolder=TEST_SUBFOLDER)
+    yield app
+    app.close_project(app.project_name, save=False)
+
+
 # HFSS 3D Layout setups
 def test_setup_layout_init(layout_setup_app):
     assert len(layout_setup_app.setups) == 13
@@ -79,21 +88,15 @@ def test_setup_layout_init(layout_setup_app):
     assert layout_setup_app.setups[1].__repr__() == f"{layout_setup_app.setups[1].name} with 0 Sweeps"
     assert str(layout_setup_app.setups[1]) == layout_setup_app.setups[1].name
 
-    assert layout_setup_app.setups[1].solver_type == "SIwaveEMI"
-    assert layout_setup_app.setups[1].__repr__() == f"{layout_setup_app.setups[1].name} with 0 Sweeps"
-    assert str(layout_setup_app.setups[1]) == layout_setup_app.setups[1].name
-
     assert layout_setup_app.setups[2].solver_type == "HFSSPI"
     assert layout_setup_app.setups[2].__repr__() == f"{layout_setup_app.setups[2].name} with 1 Sweeps"
     assert str(layout_setup_app.setups[2]) == layout_setup_app.setups[2].name
     assert len(layout_setup_app.setups[2].sweeps) == 1
-    assert isinstance(layout_setup_app.setups[2].sweeps[0], Sweep3DLayout)
+    assert isinstance(layout_setup_app.setups[2].sweeps[0], SweepHFSS3DLayout)
 
     assert layout_setup_app.setups[3].solver_type == "LinearFrequency"
     assert layout_setup_app.setups[3].__repr__() == f"{layout_setup_app.setups[3].name} with 1 Sweeps"
     assert str(layout_setup_app.setups[3]) == layout_setup_app.setups[3].name
-    assert len(layout_setup_app.setups[3].sweeps) == 1
-    assert isinstance(layout_setup_app.setups[3].sweeps[0], Sweep3DLayout)
 
     assert layout_setup_app.setups[4].solver_type == "QuickEye"
     assert layout_setup_app.setups[4].__repr__() == f"{layout_setup_app.setups[4].name} with 0 Sweeps"
@@ -101,15 +104,47 @@ def test_setup_layout_init(layout_setup_app):
     assert len(layout_setup_app.setups[4].sweeps) == 0
 
     assert layout_setup_app.setups[5].solver_type == "HFSS"
-    assert layout_setup_app.setups[5].__repr__() == f"{layout_setup_app.setups[5].name} with 1 Sweeps"
-    assert str(layout_setup_app.setups[5]) == layout_setup_app.setups[5].name
-    assert len(layout_setup_app.setups[5].sweeps) == 1
+    assert layout_setup_app.setups[5].__repr__() == layout_setup_app.setups[5].name
+    assert str(layout_setup_app.setups[5]) == f"{layout_setup_app.setups[5].name} : Sweep"
 
     assert layout_setup_app.setups[6].solver_type == "HFSS"
     assert layout_setup_app.setups[6].__repr__() == f"{layout_setup_app.setups[6].name} with 1 Sweeps"
-    assert str(layout_setup_app.setups[6]) == layout_setup_app.setups[6].name
+    assert str(layout_setup_app.setups[6]) == f"{layout_setup_app.setups[6].name} : LastAdaptive"
     assert len(layout_setup_app.setups[6].sweeps) == 1
-    assert isinstance(layout_setup_app.setups[3].sweeps[0], Sweep3DLayout)
+    assert isinstance(layout_setup_app.setups[6].sweeps[0], SweepHFSS3DLayout)
+
+    assert layout_setup_app.setups[7].solver_type == "SIwaveDCIR"
+    assert layout_setup_app.setups[7].__repr__() == f"{layout_setup_app.setups[7].name} with 0 Sweeps"
+    assert str(layout_setup_app.setups[7]) == layout_setup_app.setups[7].name
+    assert len(layout_setup_app.setups[7].sweeps) == 0
+
+    assert layout_setup_app.setups[8].solver_type == "SIwaveFarField"
+    assert layout_setup_app.setups[8].__repr__() == f"{layout_setup_app.setups[8].name} with 1 Sweeps"
+    assert str(layout_setup_app.setups[8]) == layout_setup_app.setups[8].name
+    assert len(layout_setup_app.setups[8].sweeps) == 1
+    assert isinstance(layout_setup_app.setups[8].sweeps[0], SweepHFSS3DLayout)
+
+    assert layout_setup_app.setups[9].solver_type == "SIwaveNearField"
+    assert layout_setup_app.setups[9].__repr__() == f"{layout_setup_app.setups[9].name} with 1 Sweeps"
+    assert str(layout_setup_app.setups[9]) == layout_setup_app.setups[9].name
+    assert len(layout_setup_app.setups[9].sweeps) == 1
+    assert isinstance(layout_setup_app.setups[9].sweeps[0], SweepHFSS3DLayout)
+
+    assert layout_setup_app.setups[10].solver_type == "SIwave"
+    assert layout_setup_app.setups[10].__repr__() == f"{layout_setup_app.setups[10].name} with 1 Sweeps"
+    assert str(layout_setup_app.setups[10]) == layout_setup_app.setups[10].name
+    assert len(layout_setup_app.setups[10].sweeps) == 1
+    assert isinstance(layout_setup_app.setups[10].sweeps[0], SweepHFSS3DLayout)
+
+    assert layout_setup_app.setups[11].solver_type == "NexximTransient"
+    assert layout_setup_app.setups[11].__repr__() == f"{layout_setup_app.setups[11].name} with 0 Sweeps"
+    assert str(layout_setup_app.setups[11]) == layout_setup_app.setups[11].name
+    assert len(layout_setup_app.setups[11].sweeps) == 0
+
+    assert layout_setup_app.setups[12].solver_type == "VerifEyeAnalysis"
+    assert layout_setup_app.setups[12].__repr__() == f"{layout_setup_app.setups[12].name} with 0 Sweeps"
+    assert str(layout_setup_app.setups[12]) == layout_setup_app.setups[12].name
+    assert len(layout_setup_app.setups[12].sweeps) == 0
 
 
 def test_create_setup_layout_hfss(layout_app) -> None:
@@ -187,17 +222,15 @@ def test_create_setup_layout_hfss(layout_app) -> None:
 def test_create_setup_layout_hfss_sweep(layout_app) -> None:
     setup = layout_app.create_setup(setup_type=Setups.HFSS3DLayout)
 
-    assert not setup.get_sweeps()
+    assert len(layout_app.get_sweeps(setup.name)) == 0
 
     sweep = setup.add_sweep()
 
-    sweep_1 = setup.get_sweeps()
-    assert sweep_1.name == sweep.name
-    sweep_2 = setup.get_sweeps(sweep.name)
-    assert sweep_2.name == sweep.name
-    assert not setup.get_sweeps("invented")
+    sweep_1 = layout_app.get_sweeps(setup.name)
+    assert sweep_1[0] == sweep.name
 
-    assert not setup.get_sweeps()
+    with pytest.raises(ValueError):
+        layout_app.get_sweeps("invented")
 
     assert len(setup.sweeps) == 1
     assert sweep.name in setup.sweep_names
@@ -299,12 +332,22 @@ def test_create_setup_layout_raptorx(layout_app) -> None:
     assert setup.solver_type == "RaptorX"
     assert len(layout_app.setups) == 1
     assert isinstance(setup, Setup3DLayout)
-    assert str(setup) == f"{name} : LastAdaptive"
+    assert str(setup) == name
     assert setup.__repr__() == f"{name} with 0 Sweeps"
 
     sweep = setup.add_sweep()
     assert sweep.name in setup.sweep_names
     assert setup.__repr__() == f"{name} with 1 Sweeps"
+
+    # Rename
+    setup.name = "new_name"
+    assert "new_name" in layout_app.setup_names
+    assert name not in layout_app.setup_names
+    assert setup.name == "new_name"
+    assert setup.child_object
+
+    sweep.name = "new_sweep"
+    assert "new_sweep" in setup.sweep_names
 
 
 def test_create_setup_layout_hfss_auto(layout_app) -> None:
@@ -314,83 +357,265 @@ def test_create_setup_layout_hfss_auto(layout_app) -> None:
     assert name == layout_app.setup_names[0]
     assert setup.solver_type == "HFSS"
     assert len(layout_app.setups) == 1
+    assert isinstance(setup, SetupHFSSAuto)
+    assert str(setup) == f"{name} : Sweep"
+    assert setup.__repr__() == name
+
+    setup2 = layout_app.create_setup(setup_type=Setups.HFSS3DLayoutAuto)
+    name2 = setup2.name
+    assert name2 == layout_app.setup_names[1]
+
+    # Rename
+    setup.name = "new_name"
+    assert "new_name" in layout_app.setup_names
+    assert name not in layout_app.setup_names
+    assert setup.name == "new_name"
+    assert setup.child_object
+
+
+def test_create_setup_layout_hfss_pi(layout_app) -> None:
+    setup = layout_app.create_setup(setup_type=Setups.HFSSPI)
+    name = setup.name
+
+    assert name == layout_app.setup_names[0]
+    assert setup.solver_type == "HFSSPI"
+    assert name == layout_app.setup_names[0]
+    assert len(layout_app.setups) == 1
     assert isinstance(setup, Setup3DLayout)
-    assert str(setup) == f"{name} : LastAdaptive"
+    assert str(setup) == name
     assert setup.__repr__() == f"{name} with 0 Sweeps"
 
     sweep = setup.add_sweep()
     assert sweep.name in setup.sweep_names
     assert setup.__repr__() == f"{name} with 1 Sweeps"
 
+    # Rename
+    setup.name = "new_name"
+    assert "new_name" in layout_app.setup_names
+    assert name not in layout_app.setup_names
+    assert setup.name == "new_name"
+    assert setup.child_object
 
-def test_create_setup_layout_hfss_pi(layout_app) -> None:
-    setup = layout_app.create_setup()
-    assert setup.name == layout_app.setup_names[0]
-    assert setup.solver_type == "HFSS"
-    # Add sweep
+    sweep.name = "new_sweep"
+    assert "new_sweep" in setup.sweep_names
 
 
 def test_create_setup_layout_emi(layout_app) -> None:
-    setup = layout_app.create_setup()
-    assert setup.name == layout_app.setup_names[0]
-    assert setup.solver_type == "HFSS"
+    setup = layout_app.create_setup(setup_type=Setups.SIwaveEMI)
+    name = setup.name
+
+    assert name == layout_app.setup_names[0]
+    assert setup.solver_type == "SIwaveEMI"
+    assert name == layout_app.setup_names[0]
+    assert len(layout_app.setups) == 1
+    assert isinstance(setup, Setup3DLayout)
+    assert str(setup) == name
+    assert setup.__repr__() == f"{name} with 0 Sweeps"
+
+    # Rename
+    setup.name = "new_name"
+    assert "new_name" in layout_app.setup_names
+    assert name not in layout_app.setup_names
+    assert setup.name == "new_name"
+    assert setup.child_object
 
 
 def test_create_setup_layout_ami(layout_app) -> None:
-    setup = layout_app.create_setup()
-    assert setup.name == layout_app.setup_names[0]
-    assert setup.solver_type == "HFSS"
+    setup = layout_app.create_setup(setup_type=Setups.HFSS3DLayoutAMI)
+    name = setup.name
+
+    assert name == layout_app.setup_names[0]
+    assert setup.solver_type == "AMIAnalysis"
+    assert name == layout_app.setup_names[0]
+    assert len(layout_app.setups) == 1
+    assert isinstance(setup, Setup3DLayout)
+    assert str(setup) == name
+    assert setup.__repr__() == f"{name} with 0 Sweeps"
+
+    # Rename
+    setup.name = "new_name"
+    assert "new_name" in layout_app.setup_names
+    assert name not in layout_app.setup_names
+    assert setup.name == "new_name"
+    assert setup.child_object
+
+    setup2 = layout_app.create_setup(setup_type=Setups.NexximAMI)
+    assert setup2.solver_type == "AMIAnalysis"
 
 
 def test_create_setup_layout_lna(layout_app) -> None:
-    setup = layout_app.create_setup()
-    assert setup.name == layout_app.setup_names[0]
-    assert setup.solver_type == "HFSS"
+    setup = layout_app.create_setup(setup_type=Setups.HFSS3DLayoutLNA)
+    name = setup.name
+
+    assert name == layout_app.setup_names[0]
+    assert setup.solver_type == "LinearFrequency"
+    assert name == layout_app.setup_names[0]
+    assert len(layout_app.setups) == 1
+    assert isinstance(setup, Setup3DLayout)
+    assert str(setup) == name
+    assert setup.__repr__() == f"{name} with 1 Sweeps"
+
+    # Rename
+    setup.name = "new_name"
+    assert "new_name" in layout_app.setup_names
+    assert name not in layout_app.setup_names
+    assert setup.name == "new_name"
+    assert setup.child_object
+
+    setup2 = layout_app.create_setup(setup_type=Setups.NexximLNA)
+    assert setup2.solver_type == "LinearFrequency"
 
 
 def test_create_setup_layout_quickeye(layout_app) -> None:
-    setup = layout_app.create_setup()
-    assert setup.name == layout_app.setup_names[0]
-    assert setup.solver_type == "HFSS"
+    setup = layout_app.create_setup(setup_type=Setups.HFSS3DLayoutQuickEye)
+    name = setup.name
+
+    assert name == layout_app.setup_names[0]
+    assert setup.solver_type == "QuickEye"
+    assert name == layout_app.setup_names[0]
+    assert len(layout_app.setups) == 1
+    assert isinstance(setup, Setup3DLayout)
+    assert str(setup) == name
+    assert setup.__repr__() == f"{name} with 0 Sweeps"
+
+    # Rename
+    setup.name = "new_name"
+    assert "new_name" in layout_app.setup_names
+    assert name not in layout_app.setup_names
+    assert setup.name == "new_name"
+    assert setup.child_object
+
+    setup2 = layout_app.create_setup(setup_type=Setups.NexximQuickEye)
+    assert setup2.solver_type == "QuickEye"
 
 
 def test_create_setup_layout_siwave_syz(layout_app) -> None:
-    setup = layout_app.create_setup()
-    assert setup.name == layout_app.setup_names[0]
-    assert setup.solver_type == "HFSS"
-    # Add sweep
+    setup = layout_app.create_setup(setup_type=Setups.SiwaveAC3DLayout)
+    name = setup.name
+
+    assert name == layout_app.setup_names[0]
+    assert setup.solver_type == "SIwave"
+    assert name == layout_app.setup_names[0]
+    assert len(layout_app.setups) == 1
+    assert isinstance(setup, Setup3DLayout)
+    assert str(setup) == name
+    assert setup.__repr__() == f"{name} with 0 Sweeps"
+
+    sweep = setup.add_sweep()
+    assert sweep.name in setup.sweep_names
+    assert setup.__repr__() == f"{name} with 1 Sweeps"
+
+    # Rename
+    setup.name = "new_name"
+    assert "new_name" in layout_app.setup_names
+    assert name not in layout_app.setup_names
+    assert setup.name == "new_name"
+    assert setup.child_object
+
+    sweep.name = "new_sweep"
+    assert "new_sweep" in setup.sweep_names
 
 
 def test_create_setup_layout_siwave_dcir(layout_app) -> None:
-    setup = layout_app.create_setup()
-    assert setup.name == layout_app.setup_names[0]
-    assert setup.solver_type == "HFSS"
+    setup = layout_app.create_setup(setup_type=Setups.SiwaveDC3DLayout)
+    name = setup.name
 
+    assert name == layout_app.setup_names[0]
+    assert setup.solver_type == "SIwaveDCIR"
+    assert name == layout_app.setup_names[0]
+    assert len(layout_app.setups) == 1
+    assert isinstance(setup, Setup3DLayout)
+    assert str(setup) == name
+    assert setup.__repr__() == f"{name} with 0 Sweeps"
 
-def test_create_setup_layout_siwave_farfield(layout_app) -> None:
-    setup = layout_app.create_setup()
-    assert setup.name == layout_app.setup_names[0]
-    assert setup.solver_type == "HFSS"
-    # Add sweep
+    # Rename
+    setup.name = "new_name"
+    assert "new_name" in layout_app.setup_names
+    assert name not in layout_app.setup_names
+    assert setup.name == "new_name"
+    assert setup.child_object
 
 
 def test_create_setup_layout_siwave_nearfield(layout_app) -> None:
-    setup = layout_app.create_setup()
-    assert setup.name == layout_app.setup_names[0]
-    assert setup.solver_type == "HFSS"
-    # Add sweep
+    setup = layout_app.create_setup(setup_type=Setups.SIwaveNearField)
+    name = setup.name
+
+    assert name == layout_app.setup_names[0]
+    assert setup.solver_type == "SIwaveNearField"
+    assert name == layout_app.setup_names[0]
+    assert len(layout_app.setups) == 1
+    assert isinstance(setup, Setup3DLayout)
+    assert str(setup) == name
+    assert setup.__repr__() == f"{name} with 0 Sweeps"
+
+    sweep = setup.add_sweep()
+    assert sweep.name in setup.sweep_names
+    assert setup.__repr__() == f"{name} with 1 Sweeps"
+
+    # Rename
+    setup.name = "new_name"
+    assert "new_name" in layout_app.setup_names
+    assert name not in layout_app.setup_names
+    assert setup.name == "new_name"
+    assert setup.child_object
+
+    sweep.name = "new_sweep"
+    assert "new_sweep" in setup.sweep_names
 
 
 def test_create_setup_layout_siwave_transient(layout_app) -> None:
-    setup = layout_app.create_setup()
-    assert setup.name == layout_app.setup_names[0]
-    assert setup.solver_type == "HFSS"
+    setup = layout_app.create_setup(setup_type=Setups.HFSS3DLayoutTransient)
+    name = setup.name
+
+    assert name == layout_app.setup_names[0]
+    assert setup.solver_type == "NexximTransient"
+    assert name == layout_app.setup_names[0]
+    assert len(layout_app.setups) == 1
+    assert isinstance(setup, Setup3DLayout)
+    assert str(setup) == name
+    assert setup.__repr__() == f"{name} with 0 Sweeps"
+
+    # Rename
+    setup.name = "new_name"
+    assert "new_name" in layout_app.setup_names
+    assert name not in layout_app.setup_names
+    assert setup.name == "new_name"
+    assert setup.child_object
+
+    setup2 = layout_app.create_setup(setup_type=Setups.NexximTransient)
+    assert setup2.solver_type == "NexximTransient"
 
 
 def test_create_setup_layout_siwave_verify_eye(layout_app) -> None:
-    setup = layout_app.create_setup()
-    assert setup.name == layout_app.setup_names[0]
-    assert setup.solver_type == "HFSS"
+    setup = layout_app.create_setup(setup_type=Setups.HFSS3DLayoutVerifEye)
+    name = setup.name
+
+    assert name == layout_app.setup_names[0]
+    assert setup.solver_type == "VerifEyeAnalysis"
+    assert name == layout_app.setup_names[0]
+    assert len(layout_app.setups) == 1
+    assert isinstance(setup, Setup3DLayout)
+    assert str(setup) == name
+    assert setup.__repr__() == f"{name} with 0 Sweeps"
+
+    # Rename
+    setup.name = "new_name"
+    assert "new_name" in layout_app.setup_names
+    assert name not in layout_app.setup_names
+    assert setup.name == "new_name"
+    assert setup.child_object
+
+    setup2 = layout_app.create_setup(setup_type=Setups.NexximVerifEye)
+    assert setup2.solver_type == "VerifEyeAnalysis"
+
+
+# HFSS setups
+def test_setup_hfss_init(hfss_setup_app):
+    assert len(hfss_setup_app.setups) == 13
+
+    assert layout_setup_app.setups[0].solver_type == "AMIAnalysis"
+    assert layout_setup_app.setups[0].__repr__() == f"{layout_setup_app.setups[0].name} with 0 Sweeps"
+    assert str(layout_setup_app.setups[0]) == layout_setup_app.setups[0].name
 
 
 def test_create_hfss_setup(hfss_app) -> None:

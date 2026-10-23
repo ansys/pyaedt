@@ -36,6 +36,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modules.mesh_3d_layout import Mesh3dLayout
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.modules.solve_setup import Setup3DLayout
+from ansys.aedt.core.modules.solve_setup import SetupHFSSAuto
 
 if TYPE_CHECKING:
     from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
@@ -346,7 +347,9 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         return self.oexcitation.GetAllPortsList()
 
     @pyaedt_function_handler()
-    def create_setup(self, name: str | None = None, setup_type: str | int | None = None, **kwargs) -> Setup3DLayout:
+    def create_setup(
+        self, name: str | None = None, setup_type: str | int | None = None, **kwargs
+    ) -> Setup3DLayout | SetupHFSSAuto:
         """Create a setup.
 
         Parameters
@@ -363,6 +366,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
 
         Returns
         -------
+        :class:`ansys.aedt.core.modules.solve_setup.Setup3DLayout`, or
         :class:`ansys.aedt.core.modules.solve_setup.Setup3DLayout`
 
         References
@@ -375,12 +379,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         >>> from ansys.aedt.core.generic.constants import Setups
         >>> app = Hfss3dLayout()
 
-        >>> app.create_setup(
-        ...     name="Setup1",
-        ...     setup_type=Setups.HFSS3DLayout,
-        ...     MeshSizeFactor=2,
-        ...     SingleFrequencyDataList__AdaptiveFrequency="5GHZ",
-        ... )
+        >>> app.create_setup(name="Setup1", setup_type=Setups.HFSS3DLayout, MeshSizeFactor=2)
 
         """
         setup_keys = SetupKeys.get_setup_templates()
@@ -401,7 +400,24 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         if setup_type == Setups.RaptorX and not self.ic_mode:
             raise AEDTRuntimeError("RaptorX is supported only in 'IC' mode.")
 
-        props = setup_keys[setup_type]
+        if setup_type in [Setups.HFSSDrivenAuto, Setups.HFSS3DLayoutAuto]:
+            setup_type = Setups.HFSS3DLayoutAuto
+            props = setup_keys[setup_type]
+            setup = SetupHFSSAuto(app=self, name=name, props=props)
+        else:
+            if setup_type == Setups.NexximAMI:
+                setup_type = Setups.HFSS3DLayoutAMI
+            elif setup_type == Setups.NexximLNA:
+                setup_type = Setups.HFSS3DLayoutLNA
+            elif setup_type == Setups.NexximQuickEye:
+                setup_type = Setups.HFSS3DLayoutQuickEye
+            elif setup_type == Setups.NexximTransient:
+                setup_type = Setups.HFSS3DLayoutTransient
+            elif setup_type == Setups.NexximVerifEye:
+                setup_type = Setups.HFSS3DLayoutVerifEye
+
+            props = setup_keys[setup_type]
+            setup = Setup3DLayout(app=self, name=name, props=props)
 
         if kwargs:
             _merge_props(props, kwargs.pop("props"))
@@ -409,8 +425,6 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
             for arg_name, arg_value in kwargs.items():
                 if props[arg_name] is not None:
                     props[arg_name] = arg_value
-
-        setup = Setup3DLayout(app=self, name=name, props=props)
 
         return setup.create()
 

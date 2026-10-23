@@ -1671,6 +1671,24 @@ class Setups(metaclass=DynamicMeta):
     """Value for Twinbuilder AC."""
     TwinbuilderDC = 64
     """Value for Twinbuilder DC."""
+    HFSS3DLayoutAuto = 65
+    """Value for Hfss 3D Layout Auto."""
+    HFSSPI = 66
+    """Value for HFSS PI."""
+    SIwaveEMI = 67
+    """Value for SIwave EMI."""
+    HFSS3DLayoutAMI = 68
+    """Value for AMI."""
+    HFSS3DLayoutLNA = 69
+    """Value for LNA."""
+    HFSS3DLayoutQuickEye = 70
+    """Value for QuickEye."""
+    SIwaveNearField = 71
+    """Value for SIwave near-field."""
+    HFSS3DLayoutTransient = 72
+    """Value for HFSS 3D Layout transient."""
+    HFSS3DLayoutVerifEye = 73
+    """Value for HFSS 3D Layout VerifEye."""
 
 
 class LineStyle(metaclass=DynamicMeta):
