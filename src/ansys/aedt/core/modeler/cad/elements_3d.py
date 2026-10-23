@@ -999,7 +999,16 @@ class FacePrimitive(PyAedtBase):
         >>> obj.center
 
         """
-        if self.is_planar:
+        if self._is_planar is None:
+            try:
+                c = self.oeditor.GetFaceCenter(self.id)
+                self._is_planar = True
+                return [float(i) for i in c]
+            except Exception:
+                if self.logger and hasattr(self.logger, "clear_messages"):
+                    self.logger.clear_messages()
+                self._is_planar = False
+        if self._is_planar:
             return [float(i) for i in self.oeditor.GetFaceCenter(self.id)]
         else:  # pragma: no cover
             # self.logger.clear_messages()
