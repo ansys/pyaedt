@@ -125,8 +125,14 @@ class PlacementPinMapping(BaseModel):
     )
 
 
-class EcadCompInfo(BaseModel):
-    """Store resolved layout pin mapping data for a placed component. Internal use only."""
+class _EcadCompInfo(BaseModel):
+    """Store resolved layout pin mapping data for a placed component.
+
+    .. warning::
+        This is an internal class used for internal assembly processing.
+        It is not part of the public API and may change without notice.
+
+    """
 
     model_config = CONFIG_DICT
 
@@ -148,22 +154,36 @@ class EcadCompInfo(BaseModel):
 
 
 class MCADComponent(BaseModel):
-    """Describe an MCAD or ECAD component included in an MCAD assembly.
+    """Describe a single MCAD or ECAD component instance in an assembly.
 
     This model represents a single component instance with its configuration,
     transformations, and nested subcomponents organized by type (MCAD or ECAD).
+    Components can be placed in the assembly using coordinate systems and
+    transformations, and can have child components to form hierarchies.
+
+    Examples
+    --------
+    Create an MCAD component and configure placement:
+
+    >>> comp = MCADComponent(name="connector", model="USB_Type_A")
+    >>> comp.target_coordinate_system = "CS_1"
+    >>> comp.add_arrange_rotate(axis="Z", angle="90deg")
 
     """
 
     @property
     def sub_components(self):
-        """Return combined dictionary of all subcomponents.
+        """Return a combined dictionary of all child subcomponents.
+
+        Provides a unified view of both ECAD and MCAD child components.
+        When keys overlap, ECAD components take precedence.
 
         Returns
         -------
         dict[str, MCADComponent | ECADComponent]
-            Dictionary combining ECAD and MCAD subcomponents, with ECAD taking
-            precedence in case of key collisions.
+            Dictionary combining ECAD and MCAD subcomponents. Keys are component
+            instance names and values are the component objects. ECAD components
+            override any MCAD components with the same key.
 
         """
         temp = {}
@@ -199,11 +219,11 @@ class MCADComponent(BaseModel):
 
     mcad_sub_components: dict[str, MCADComponent] = Field(
         default_factory=dict,
-        description="Top-level components that make up the MCAD assembly.",
+        description="List of 3D components aligned to this component in the hierarchy assembly.",
     )
     ecad_sub_components: dict[str, ECADComponent] = Field(
         default_factory=dict,
-        description="Top-level components that make up the MCAD assembly.",
+        description="List of layout components aligned to this component in the hierarchy assembly.",
     )
 
     # Mcad parameters
@@ -211,10 +231,9 @@ class MCADComponent(BaseModel):
         default=None, description="Geometry parameter overrides passed when inserting an MCAD component."
     )
 
-    # Ecad parameters
     reference_coordinate_system: str = Field(
         default="Global",
-        description="Reference coordinate system used when importing an ECAD component definition.",
+        description="Reference coordinate system used as the handle",
     )
 
     # internal properties
@@ -223,11 +242,13 @@ class MCADComponent(BaseModel):
     @model_validator(mode="before")
     @classmethod
     def preprocess(cls, data):
-        """Normalize legacy and new component sub-component formats.
+        """Normalize and validate component configuration formats.
 
-        Handles backward compatibility by merging legacy 'assembly' and
-        'sub_components' keys into separate 'mcad_sub_components' and
-        'ecad_sub_components' dictionaries based on component type.
+        This validator handles backward compatibility by automatically converting
+        legacy component configuration formats. It merges the legacy 'assembly'
+        and 'sub_components' keys into separate 'mcad_sub_components' and
+        'ecad_sub_components' dictionaries based on the child component's
+        ``component_type`` field.
 
         Parameters
         ----------
@@ -237,7 +258,13 @@ class MCADComponent(BaseModel):
         Returns
         -------
         dict
-            Normalized data with separated component types.
+            Normalized data with separated and categorized component types.
+
+        Notes
+        -----
+        This method ensures that old configuration files using the 'assembly' or
+        'sub_components' keys continue to work with the new component structure.
+        Layout-specific fields are removed from MCAD components during normalization.
 
         """
         legacy_1 = data.pop("assembly", {})
@@ -257,31 +284,100 @@ class MCADComponent(BaseModel):
         return data
 
     def add_sub_mcad_component(self, name: str, model: str) -> MCADComponent:
-        """Add sub 3D component."""
+        """Add a child MCAD (3D) subcomponent.
+
+        Create and register an MCAD (3D model) subcomponent as a child of this
+        component. This creates a hierarchical relationship where the new component
+        is subordinate to the current component in the assembly tree.
+
+        Parameters
+        ----------
+        name : str
+            Instance name for this child component.
+        model : str
+            Reference name of a registered MCAD model.
+
+        Returns
+        -------
+        MCADComponent
+            The created MCAD component instance, ready for configuration.
+
+        Examples
+        --------
+        Add a connector subcomponent to a PCB component:
+
+        >>> pcb = MCADComponent(name="main_pcb", model="PCB_Model")
+        >>> connector = pcb.add_sub_mcad_component(
+        ...     name="usb_connector", model="USB_TypeA"
+        ... )
+        >>> connector.target_coordinate_system = "USB_Mount_Point"
+
+        """
         comp = MCADComponent(name=name, model=model)
         self.mcad_sub_components[name] = comp
         return comp
 
     def add_sub_ecad_component(self, name: str, model: str) -> ECADComponent:
-        """Add sub 3D layout component."""
+        """Add a child ECAD (layout) subcomponent.
+
+        Create and register an ECAD (layout/PCB) subcomponent as a child of this
+        component. This creates a hierarchical relationship where the new component
+        is subordinate to the current component in the assembly tree.
+
+        Parameters
+        ----------
+        name : str
+            Instance name for this child component.
+        model : str
+            Reference name of a registered ECAD model.
+
+        Returns
+        -------
+        ECADComponent
+            The created ECAD component instance, ready for configuration.
+
+        Examples
+        --------
+        Add a secondary PCB layout as a child of a connector component:
+
+        >>> connector = MCADComponent(name="connector", model="USB_Connector")
+        >>> daughter_board = connector.add_sub_ecad_component(
+        ...     name="daughter_pcb", model="DaughterBoard"
+        ... )
+        >>> daughter_board.target_coordinate_system = "Connector_CS"
+        >>> daughter_board.layout_coordinate_systems = ["PCB_Origin"]
+
+        """
         comp = ECADComponent(name=name, model=model)
         self.ecad_sub_components[name] = comp
         return comp
 
     def add_arrange_rotate(self, axis: str = "X", angle: str = "0deg") -> Arrange:
-        """Add a rotation arrange operation.
+        """Add a rotation transformation to the component.
+
+        Register a rotation operation to be applied to this component during
+        assembly. Rotations are applied in the order they are added and use
+        the component's target coordinate system as the reference.
 
         Parameters
         ----------
         axis : str, optional
-            Rotation axis. The default is ``"X"``.
+            Axis of rotation. Valid values are ``"X"``, ``"Y"``, or ``"Z"``.
+            The default is ``"X"``.
         angle : str, optional
-            Rotation angle expression. The default is ``"0deg"``.
+            Rotation angle as an expression string (e.g., ``"90deg"``, ``"45deg"``).
+            The default is ``"0deg"``.
 
         Returns
         -------
         Arrange
-            Added arrange operation.
+            The created rotation transformation object.
+
+        Examples
+        --------
+        Rotate a component 90 degrees around the Z-axis:
+
+        >>> comp.add_arrange_rotate(axis="Z", angle="90deg")
 
         """
         arrange = Arrange(operation="rotate", axis=axis, angle=angle)
@@ -289,17 +385,30 @@ class MCADComponent(BaseModel):
         return arrange
 
     def add_arrange_move(self, vector: Sequence[str | int | float] = ("0mm", "0mm", "0mm")) -> Arrange:
-        """Add a translation arrange operation.
+        """Add a translation transformation to the component.
+
+        Register a translation operation to be applied to this component during
+        assembly. Translations are applied in the order they are added and are
+        relative to the component's target coordinate system.
 
         Parameters
         ----------
         vector : Sequence[str | int | float], optional
-            Translation vector. The default is ``("0mm", "0mm", "0mm")``.
+            Translation vector as a sequence of three values [x, y, z] with units.
+            Each value can be a string expression (e.g., ``"1mm"``, ``"0.5in"``)
+            or a numeric value (interpreted as the system default unit).
+            The default is ``("0mm", "0mm", "0mm")``.
 
         Returns
         -------
         Arrange
-            Added arrange operation.
+            The created translation transformation object.
+
+        Examples
+        --------
+        Move a component 5mm in the X direction:
+
+        >>> comp.add_arrange_move(vector=("5mm", "0mm", "0mm"))
 
         """
         arrange = Arrange(operation="move", vector=list(vector))
@@ -308,10 +417,27 @@ class MCADComponent(BaseModel):
 
 
 class ECADComponent(MCADComponent):
-    """Describe an ECAD (layout) component included in an MCAD assembly.
+    """Describe an ECAD (PCB layout) component in an MCAD assembly.
 
-    Extends MCADComponent with ECAD-specific properties including layout
-    coordinate systems and library component management.
+    Extends ``MCADComponent`` with ECAD-specific properties for managing PCB layouts
+    and their integration with 3D models. This class handles layout coordinate systems,
+    library-based component population, and pin mapping for automatic placement of
+    3D models based on PCB component references.
+
+    Examples
+    --------
+    Create an ECAD component with layout coordinate systems:
+
+    >>> pcb = ECADComponent(name="main_board", model="MainPCB")
+    >>> pcb.layout_coordinate_systems = ["USB_Port", "Antenna_Mount"]
+    >>> pcb.reference_coordinate_system = "PCB_Origin"
+
+    Add 3D components from a library based on PCB reference designators:
+
+    >>> pcb.add_sub_mcad_component_from_library(  # doctest: +SKIP
+    ...     library_path="path/to/library",
+    ...     reference_designators=["U1", "U2", "J1"]
+    ... )
 
     """
 
@@ -328,28 +454,49 @@ class ECADComponent(MCADComponent):
     model_libraries: list[str] = Field(default_factory=list)
 
     # internal properties
-    _ecad_comp_info: dict[str, EcadCompInfo] = PrivateAttr(default_factory=dict)
+    _ecad_comp_info: dict[str, _EcadCompInfo] = PrivateAttr(default_factory=dict)
 
     _mcad_component_from_library: list[str] = PrivateAttr(default_factory=list)
 
     def add_sub_mcad_component_from_library(
-        self,
-        library_path: str | Path | None = None,
-        reference_designators: list[str] | None = None,
+            self,
+            library_path: str | Path | None = None,
+            reference_designators: list[str] | None = None,
     ) -> None:
-        """Add 3D subcomponents from a model library.
+        """Register 3D component library entries for automatic assembly.
 
-        Registers a library path and marks specific reference designators
-        (components) from the ECAD model to be assembled from a model library.
+        Configure the ECAD component to populate 3D models from a library based on
+        PCB reference designators. This enables automatic placement of 3D component
+        models (such as 0805 resistors or BGA packages) at positions defined by
+        their footprints in the PCB layout.
 
         Parameters
         ----------
         library_path : str | Path, optional
-            Path to the library folder containing ``model_library.toml``.
-            If not provided, must have been set on configure top level.
+            Path to the library folder containing ``model_library.toml``. This file
+            maps component part numbers/names to 3D model files and pin locations.
+            If not provided, must have been set at the assembly level.
         reference_designators : list[str], optional
-            List of reference designators from the ECAD model to include.
-            If not provided, no components are marked for assembly.
+            List of reference designators from the PCB to include in automatic assembly.
+            For example, ``["U1", "U2", "J1"]`` marks these components from the layout
+            to be automatically populated with 3D models. If not provided, no components
+            are marked for assembly (or all if ``assembly_all_from_library`` is enabled).
+
+        Examples
+        --------
+        Add specific components from a library:
+
+        >>> pcb = ECADComponent(name="main_board", model="MainPCB")
+        >>> pcb.add_sub_mcad_component_from_library(  # doctest: +SKIP
+        ...     library_path="/models/component_library",
+        ...     reference_designators=["U1", "U2", "C1", "C2"]
+        ... )
+
+        Register library without specific designators (requires global library config):
+
+        >>> pcb.add_sub_mcad_component_from_library(  # doctest: +SKIP
+        ...     reference_designators=["IC1", "J1"]
+        ... )
 
         """
         if library_path:
@@ -382,18 +529,39 @@ class MCADAssembly(BaseModel):
 
     This model holds the complete configuration for an MCAD assembly including
     coordinate systems, component models, and the hierarchy of MCAD/ECAD components.
+    It serves as the configuration object passed to the ``run()`` function to
+    orchestrate the assembly process in HFSS.
+
+    Examples
+    --------
+    Create a basic assembly with registered models:
+
+    >>> from pathlib import Path
+    >>> from ansys.aedt.core.modeler.advanced_cad.mcad_assembly import MCADAssembly
+    >>> assembly = MCADAssembly()
+    >>> assembly.add_mcad_component_model(  # doctest: +SKIP
+    ...     name="connector", path="path/to/connector.a3dcomp"
+    ... )
+    >>> assembly.add_ecad_component_model(  # doctest: +SKIP
+    ...     name="pcb", path="path/to/board.aedb"
+    ... )
+    >>> pcb = assembly.add_sub_ecad_component(name="pcb_1", model="pcb")
 
     """
 
     @property
     def sub_components(self):
-        """Return combined dictionary of all top-level components.
+        """Return a combined dictionary of all top-level subcomponents.
+
+        Provides a unified view of both ECAD and MCAD subcomponents in the
+        assembly. When keys overlap, ECAD components take precedence.
 
         Returns
         -------
         dict[str, MCADComponent | ECADComponent]
-            Dictionary combining ECAD and MCAD subcomponents, with ECAD taking
-            precedence in case of key collisions.
+            Dictionary combining ECAD and MCAD subcomponents. Keys are component
+            instance names and values are the component objects. ECAD components
+            override any MCAD components with the same key.
 
         """
         temp = {}
@@ -434,11 +602,12 @@ class MCADAssembly(BaseModel):
     @model_validator(mode="before")
     @classmethod
     def preprocess(cls, data):
-        """Normalize legacy and new component formats for MCADAssembly.
+        """Normalize and validate component configuration formats.
 
-        Handles backward compatibility by merging legacy 'assembly' and
-        'sub_components' keys into separate 'mcad_sub_components' and
-        'ecad_sub_components' dictionaries based on component type.
+        This validator handles backward compatibility by automatically converting
+        legacy assembly configuration formats. It merges the legacy 'assembly' and
+        'sub_components' keys into separate 'mcad_sub_components' and 'ecad_sub_components'
+        dictionaries based on the component's ``component_type`` field.
 
         Parameters
         ----------
@@ -448,7 +617,12 @@ class MCADAssembly(BaseModel):
         Returns
         -------
         dict
-            Normalized data with separated component types.
+            Normalized data with separated and categorized component types.
+
+        Notes
+        -----
+        This method ensures that old configuration files using the 'assembly' or
+        'sub_components' keys continue to work with the new component structure.
 
         """
         legacy_1 = data.pop("assembly", {})
@@ -467,38 +641,262 @@ class MCADAssembly(BaseModel):
         return data
 
     def add_mcad_component_model(self, name: str, path: str):
-        """Add component model."""
+        """Register an MCAD component model.
+
+        Add a named MCAD (3D) component model that can be referenced when
+        instantiating components in the assembly. This is the first step in
+        using a 3D component model - register it before creating instances.
+
+        Parameters
+        ----------
+        name : str
+            Model name used as a reference when adding components.
+            Should be unique within the assembly configuration.
+        path : str
+            File path to the MCAD component file (e.g., ``.a3dcomp``, ``.step``).
+            Can be absolute or relative to the configuration directory.
+
+        Examples
+        --------
+        Register multiple MCAD models:
+
+        >>> assembly = MCADAssembly()
+        >>> assembly.add_mcad_component_model(
+        ...     name="USB_Connector", path="models/connectors/usb_type_a.a3dcomp"
+        ... )
+        >>> assembly.add_mcad_component_model(
+        ...     name="RF_Shield", path="models/shields/rf_cage.step"
+        ... )
+
+        Create instances from registered models:
+
+        >>> connector = assembly.add_sub_mcad_component(
+        ...     name="J1", model="USB_Connector"
+        ... )
+
+        """
         self.mcad_component_models[name] = path
 
     def add_ecad_component_model(self, name: str, path: str):
-        """Add component model."""
+        """Register an ECAD component model.
+
+        Add a named ECAD (layout/PCB) component model that can be referenced when
+        instantiating components in the assembly. This is the first step in using
+        a PCB layout - register it before creating instances.
+
+        Parameters
+        ----------
+        name : str
+            Model name used as a reference when adding components.
+            Should be unique within the assembly configuration.
+        path : str
+            File path to the ECAD component file (e.g., ``.aedb``).
+            Can be absolute or relative to the configuration directory.
+
+        Examples
+        --------
+        Register PCB layout models:
+
+        >>> assembly = MCADAssembly()
+        >>> assembly.add_ecad_component_model(
+        ...     name="MainBoard", path="pcb/main_assembly.aedb"
+        ... )
+        >>> assembly.add_ecad_component_model(
+        ...     name="DaughterBoard", path="pcb/daughter_card.aedb"
+        ... )
+
+        Create instances from registered models:
+
+        >>> main_pcb = assembly.add_sub_ecad_component(
+        ...     name="PCB_1", model="MainBoard"
+        ... )
+
+        """
         self.ecad_component_models[name] = path
 
-    def add_coordinate_system(self, name: str):
-        """Add coordinate system."""
+    def add_coordinate_system(self, name: str)->CoordinateSystem:
+        """Create and register a new coordinate system.
+
+        Define a coordinate system in the global reference frame that can be
+        used as a placement target for components in the assembly. Coordinate
+        systems serve as anchors for component placement and orientation.
+
+        Parameters
+        ----------
+        name : str
+            Unique name for the coordinate system. This name is used when
+            assigning a component's ``target_coordinate_system``.
+
+        Returns
+        -------
+        CoordinateSystem
+            The created coordinate system object, positioned at the global origin
+            and using the global coordinate system as its reference.
+
+        Examples
+        --------
+        Create multiple coordinate systems for component placement:
+
+        >>> assembly = MCADAssembly()
+        >>> cs_main = assembly.add_coordinate_system(name="MainCS")
+        >>> cs_connector = assembly.add_coordinate_system(name="Connector_Mount")
+        >>> cs_antenna = assembly.add_coordinate_system(name="Antenna_Position")
+
+        Use coordinate systems to place components:
+
+        >>> pcb = assembly.add_sub_ecad_component(name="PCB_1", model="MainBoard")
+        >>> pcb.target_coordinate_system = "MainCS"
+        >>> connector = pcb.add_sub_mcad_component(
+        ...     name="USB_Port", model="USB_Connector"
+        ... )
+        >>> connector.target_coordinate_system = "Connector_Mount"
+
+        """
         cs = CoordinateSystem(name=name, reference_coordinate_system="Global")
         self.coordinate_system[name] = cs
         return cs
 
     def add_sub_mcad_component(self, name: str, model: str) -> MCADComponent:
-        """Add sub component."""
+        """Add a top-level MCAD (3D) subcomponent to the assembly.
+
+        Create and register an MCAD (3D model) subcomponent instance at the
+        top level of the assembly hierarchy. The component is ready for
+        configuration including placement, transformations, and child components.
+
+        Parameters
+        ----------
+        name : str
+            Instance name for this component in the assembly.
+            Must be unique within the assembly.
+        model : str
+            Reference name of a registered MCAD model (see ``add_mcad_component_model``).
+
+        Returns
+        -------
+        MCADComponent
+            The created MCAD component instance, ready for configuration.
+
+        Examples
+        --------
+        Add top-level MCAD components to an assembly:
+
+        >>> assembly = MCADAssembly()
+        >>> assembly.add_mcad_component_model(
+        ...     name="Enclosure", path="models/chassis.a3dcomp"
+        ... )
+        >>> assembly.add_mcad_component_model(
+        ...     name="Antenna", path="models/antenna.step"
+        ... )
+        >>> enclosure = assembly.add_sub_mcad_component(
+        ...     name="Case", model="Enclosure"
+        ... )
+        >>> antenna = assembly.add_sub_mcad_component(
+        ...     name="ANT1", model="Antenna"
+        ... )
+
+        Configure the component after creation:
+
+        >>> enclosure.target_coordinate_system = "MainCS"
+        >>> enclosure.add_arrange_rotate(axis="Z", angle="45deg")
+
+        """
         comp = MCADComponent(name=name, model=model)
         self.mcad_sub_components[name] = comp
         return comp
 
     def add_sub_ecad_component(self, name: str, model: str) -> ECADComponent:
-        """Add sub component."""
+        """Add a top-level ECAD (layout) subcomponent to the assembly.
+
+        Create and register an ECAD (layout/PCB) subcomponent instance at the
+        top level of the assembly hierarchy. The component is ready for
+        configuration including coordinate systems, transformations, and child
+        components.
+
+        Parameters
+        ----------
+        name : str
+            Instance name for this component in the assembly.
+            Must be unique within the assembly.
+        model : str
+            Reference name of a registered ECAD model (see ``add_ecad_component_model``).
+
+        Returns
+        -------
+        ECADComponent
+            The created ECAD component instance, ready for configuration.
+
+        Examples
+        --------
+        Add top-level PCB layout components to an assembly:
+
+        >>> assembly = MCADAssembly()
+        >>> assembly.add_ecad_component_model(
+        ...     name="MainBoard", path="pcb/main.aedb"
+        ... )
+        >>> assembly.add_ecad_component_model(
+        ...     name="DaughterBoard", path="pcb/daughter.aedb"
+        ... )
+        >>> main_pcb = assembly.add_sub_ecad_component(
+        ...     name="PCB_1", model="MainBoard"
+        ... )
+        >>> daughter_pcb = assembly.add_sub_ecad_component(
+        ...     name="PCB_2", model="DaughterBoard"
+        ... )
+
+        Configure the component with layout-specific settings:
+
+        >>> main_pcb.target_coordinate_system = "MainCS"
+        >>> main_pcb.layout_coordinate_systems = ["USB_Mount", "Antenna_Base"]
+        >>> main_pcb.reference_coordinate_system = "PCB_Origin"
+
+        """
         comp = ECADComponent(name=name, model=model)
         self.ecad_sub_components[name] = comp
         return comp
 
     def add_model_library(self, library_path: str | Path):
-        """Add a model library path.
+        """Register a model library for component resolution.
+
+        Add a library path that contains a ``model_library.toml`` file. This file
+        defines mappings from component reference designators to 3D component models,
+        enabling automatic population of MCAD components from ECAD layouts.
+        Libraries provide a centralized way to manage component-to-model relationships.
 
         Parameters
         ----------
         library_path : str | Path
-            Path to the library folder containing ``model_library.toml``.
+            Path to the library folder containing ``model_library.toml``. Can be
+            an absolute path or relative to the configuration file location.
+            The ``model_library.toml`` file should map component part numbers/
+            designators to 3D model files and pin location information.
+
+        Examples
+        --------
+        Register model libraries at the assembly level:
+
+        >>> assembly = MCADAssembly()
+        >>> assembly.add_model_library(
+        ...     library_path="/project/component_libraries/standard"
+        ... )
+        >>> assembly.add_model_library(
+        ...     library_path="/project/component_libraries/custom"
+        ... )
+
+        Use with ECAD components for automatic population:
+
+        >>> pcb = assembly.add_sub_ecad_component(
+        ...     name="PCB_1", model="MainBoard"
+        ... )
+        >>> pcb.add_sub_mcad_component_from_library(  # doctest: +SKIP
+        ...     reference_designators=["U1", "U2", "J1", "J2"]
+        ... )
+
+        Notes
+        -----
+        Libraries registered at the assembly level are available to all components.
+        Individual components can also register their own libraries if needed.
+        The component reference designators must match those in the ``model_library.toml``
+        mapping.
 
         """
         self.model_libraries.append(str(library_path))
@@ -513,11 +911,11 @@ class MCADAssemblyService:
     """
 
     def __init__(
-        self,
-        config: MCADAssembly,
-        project_dir: Path,
-        model_dir: Path | None,
-        app: Hfss | None,
+            self,
+            config: MCADAssembly,
+            project_dir: Path,
+            model_dir: Path | None,
+            app: Hfss | None,
     ):
         """Initialize the MCAD assembly service.
 
@@ -611,7 +1009,7 @@ class MCADAssemblyService:
                     ref: j for ref, j in edb.components.instances.items() if ref in ecad._mcad_component_from_library
                 }
             for ref, obj in edb_components.items():
-                ecad_comp_info = EcadCompInfo(refdes=ref, cs_name=None)
+                ecad_comp_info = _EcadCompInfo(refdes=ref, cs_name=None)
                 pins = obj.pins
                 if not pins:
                     continue
@@ -702,9 +1100,9 @@ class MCADAssemblyService:
         temp = self.config.sub_components
 
         def assemble_sub_components(
-            cad: ECADComponent | MCADComponent,
-            ecad_com_info: dict[str, EcadCompInfo],
-            cs_prefix: str | None = None,
+                cad: ECADComponent | MCADComponent,
+                ecad_com_info: dict[str, _EcadCompInfo],
+                cs_prefix: str | None = None,
         ):
             if cad.component_type == "mcad":
                 if cad.use_pin_mapping:
@@ -849,15 +1247,15 @@ class MCADAssemblyService:
 
 
 def run(
-    config_data: MCADAssembly | dict | str | Path,
-    project_dir: str | None = None,
-    model_dir: str | None = None,
-    version: str | None = None,
-    port: int | None = None,
-    aedt_process_id: int | None = None,
-    student_version: bool = False,
-    app: Hfss | None = None,
-):
+        config_data: MCADAssembly | dict | str | Path,
+        project_dir: str | None = None,
+        model_dir: str | None = None,
+        version: str | None = None,
+        port: int | None = None,
+        aedt_process_id: int | None = None,
+        student_version: bool = False,
+        app: Hfss | None = None,
+) -> str:
     """Build an MCAD assembly in HFSS from a configuration.
 
     Parameters
@@ -884,7 +1282,17 @@ def run(
 
     Returns
     -------
-    None
+    str
+        Path to the directory containing the generated AEDT project.
+
+    Examples
+    --------
+
+    >>> hfss = Hfss(version="2026.1")
+    >>> run(config_data="config_2.json", app=hfss)
+    >>> hfss.release_desktop(
+    ...     close_desktop=False, close_projects=False
+    ... )
 
     """
     if isinstance(config_data, MCADAssembly):
@@ -922,3 +1330,4 @@ def run(
         app.save_project()
         app.logger.info(f"Project saved to {project_dir_path}")
         app.release_desktop()
+    return str(project_dir_path)

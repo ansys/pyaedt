@@ -99,7 +99,7 @@ def test_service(test_tmp_dir, hfss_app):
     pcb = box.add_sub_ecad_component(name="pcb", model="pcb")
     pcb.assembly_all_from_library = True
 
-    service = MCADAssemblyService(config, test_tmp_dir, None, hfss=hfss_app)
+    service = MCADAssemblyService(config, test_tmp_dir, None, app=hfss_app)
     service.pre_process_config()
     assert len(service.config.mcad_sub_components["case"].ecad_sub_components["pcb"]._ecad_comp_info) == 32
     service.stage_models()
@@ -121,9 +121,9 @@ def test_case_1(mock_askopenfilename, hfss_app, test_tmp_dir) -> None:
     mock_askopenfilename.return_value = str(config_file)
     extension.root.nametowidget(".notebook.main.load").invoke()
 
-    run(config_data=extension.config_data, hfss=hfss_app, project_dir=test_tmp_dir, model_dir=test_tmp_dir)
-    assert hfss_app.modeler.layout_component_names == ["pcb1"]
-    assert set(hfss_app.modeler.user_defined_component_names) == {"case", "pcb1", "cap_r7", "cap_c4"}
+    run(config_data=extension.config_data, app=hfss_app, project_dir=test_tmp_dir, model_dir=test_tmp_dir)
+    assert hfss_app.modeler.layout_component_names == ["pcb"]
+    assert set(hfss_app.modeler.user_defined_component_names) == {"case", "pcb", "cap_r7", "cap_c4"}
 
 
 @pytest.mark.skipif(is_linux, reason="EDB load of Layout component failing in Linux.")
@@ -148,5 +148,5 @@ def test_case_2(hfss_app, test_tmp_dir) -> None:
     pcb.add_sub_mcad_component_from_library(library_path=str(Path(test_tmp_dir) / "model_library"))
     pcb.assembly_all_from_library = True
 
-    run(config_data=top_assembly.model_dump(), hfss=hfss_app, project_dir=test_tmp_dir)
+    run(config_data=top_assembly.model_dump(), app=hfss_app, project_dir=test_tmp_dir)
     assert len(hfss_app.modeler.user_defined_component_names) == 8
