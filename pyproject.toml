@@ -184,6 +184,7 @@ pyedb = false
 # TODO: Remove this line after 2026-10-26, once "1 week" covers certifi 2026.10.19, then run `uv lock`.
 certifi = false
 prek = false
+grpcio = false
 
 [tool.ruff]
 line-length = 120
