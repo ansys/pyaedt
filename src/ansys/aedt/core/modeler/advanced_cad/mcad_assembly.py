@@ -307,9 +307,7 @@ class MCADComponent(BaseModel):
         Add a connector subcomponent to a PCB component:
 
         >>> pcb = MCADComponent(name="main_pcb", model="PCB_Model")
-        >>> connector = pcb.add_sub_mcad_component(
-        ...     name="usb_connector", model="USB_TypeA"
-        ... )
+        >>> connector = pcb.add_sub_mcad_component(name="usb_connector", model="USB_TypeA")
         >>> connector.target_coordinate_system = "USB_Mount_Point"
 
         """
@@ -341,9 +339,7 @@ class MCADComponent(BaseModel):
         Add a secondary PCB layout as a child of a connector component:
 
         >>> connector = MCADComponent(name="connector", model="USB_Connector")
-        >>> daughter_board = connector.add_sub_ecad_component(
-        ...     name="daughter_pcb", model="DaughterBoard"
-        ... )
+        >>> daughter_board = connector.add_sub_ecad_component(name="daughter_pcb", model="DaughterBoard")
         >>> daughter_board.target_coordinate_system = "Connector_CS"
         >>> daughter_board.layout_coordinate_systems = ["PCB_Origin"]
 
@@ -435,8 +431,7 @@ class ECADComponent(MCADComponent):
     Add 3D components from a library based on PCB reference designators:
 
     >>> pcb.add_sub_mcad_component_from_library(  # doctest: +SKIP
-    ...     library_path="path/to/library",
-    ...     reference_designators=["U1", "U2", "J1"]
+    ...     library_path="path/to/library", reference_designators=["U1", "U2", "J1"]
     ... )
 
     """
@@ -459,9 +454,9 @@ class ECADComponent(MCADComponent):
     _mcad_component_from_library: list[str] = PrivateAttr(default_factory=list)
 
     def add_sub_mcad_component_from_library(
-            self,
-            library_path: str | Path | None = None,
-            reference_designators: list[str] | None = None,
+        self,
+        library_path: str | Path | None = None,
+        reference_designators: list[str] | None = None,
     ) -> None:
         """Register 3D component library entries for automatic assembly.
 
@@ -488,8 +483,7 @@ class ECADComponent(MCADComponent):
 
         >>> pcb = ECADComponent(name="main_board", model="MainPCB")
         >>> pcb.add_sub_mcad_component_from_library(  # doctest: +SKIP
-        ...     library_path="/models/component_library",
-        ...     reference_designators=["U1", "U2", "C1", "C2"]
+        ...     library_path="/models/component_library", reference_designators=["U1", "U2", "C1", "C2"]
         ... )
 
         Register library without specific designators (requires global library config):
@@ -661,18 +655,12 @@ class MCADAssembly(BaseModel):
         Register multiple MCAD models:
 
         >>> assembly = MCADAssembly()
-        >>> assembly.add_mcad_component_model(
-        ...     name="USB_Connector", path="models/connectors/usb_type_a.a3dcomp"
-        ... )
-        >>> assembly.add_mcad_component_model(
-        ...     name="RF_Shield", path="models/shields/rf_cage.step"
-        ... )
+        >>> assembly.add_mcad_component_model(name="USB_Connector", path="models/connectors/usb_type_a.a3dcomp")
+        >>> assembly.add_mcad_component_model(name="RF_Shield", path="models/shields/rf_cage.step")
 
         Create instances from registered models:
 
-        >>> connector = assembly.add_sub_mcad_component(
-        ...     name="J1", model="USB_Connector"
-        ... )
+        >>> connector = assembly.add_sub_mcad_component(name="J1", model="USB_Connector")
 
         """
         self.mcad_component_models[name] = path
@@ -698,23 +686,17 @@ class MCADAssembly(BaseModel):
         Register PCB layout models:
 
         >>> assembly = MCADAssembly()
-        >>> assembly.add_ecad_component_model(
-        ...     name="MainBoard", path="pcb/main_assembly.aedb"
-        ... )
-        >>> assembly.add_ecad_component_model(
-        ...     name="DaughterBoard", path="pcb/daughter_card.aedb"
-        ... )
+        >>> assembly.add_ecad_component_model(name="MainBoard", path="pcb/main_assembly.aedb")
+        >>> assembly.add_ecad_component_model(name="DaughterBoard", path="pcb/daughter_card.aedb")
 
         Create instances from registered models:
 
-        >>> main_pcb = assembly.add_sub_ecad_component(
-        ...     name="PCB_1", model="MainBoard"
-        ... )
+        >>> main_pcb = assembly.add_sub_ecad_component(name="PCB_1", model="MainBoard")
 
         """
         self.ecad_component_models[name] = path
 
-    def add_coordinate_system(self, name: str)->CoordinateSystem:
+    def add_coordinate_system(self, name: str) -> CoordinateSystem:
         """Create and register a new coordinate system.
 
         Define a coordinate system in the global reference frame that can be
@@ -746,9 +728,7 @@ class MCADAssembly(BaseModel):
 
         >>> pcb = assembly.add_sub_ecad_component(name="PCB_1", model="MainBoard")
         >>> pcb.target_coordinate_system = "MainCS"
-        >>> connector = pcb.add_sub_mcad_component(
-        ...     name="USB_Port", model="USB_Connector"
-        ... )
+        >>> connector = pcb.add_sub_mcad_component(name="USB_Port", model="USB_Connector")
         >>> connector.target_coordinate_system = "Connector_Mount"
 
         """
@@ -781,18 +761,10 @@ class MCADAssembly(BaseModel):
         Add top-level MCAD components to an assembly:
 
         >>> assembly = MCADAssembly()
-        >>> assembly.add_mcad_component_model(
-        ...     name="Enclosure", path="models/chassis.a3dcomp"
-        ... )
-        >>> assembly.add_mcad_component_model(
-        ...     name="Antenna", path="models/antenna.step"
-        ... )
-        >>> enclosure = assembly.add_sub_mcad_component(
-        ...     name="Case", model="Enclosure"
-        ... )
-        >>> antenna = assembly.add_sub_mcad_component(
-        ...     name="ANT1", model="Antenna"
-        ... )
+        >>> assembly.add_mcad_component_model(name="Enclosure", path="models/chassis.a3dcomp")
+        >>> assembly.add_mcad_component_model(name="Antenna", path="models/antenna.step")
+        >>> enclosure = assembly.add_sub_mcad_component(name="Case", model="Enclosure")
+        >>> antenna = assembly.add_sub_mcad_component(name="ANT1", model="Antenna")
 
         Configure the component after creation:
 
@@ -830,18 +802,10 @@ class MCADAssembly(BaseModel):
         Add top-level PCB layout components to an assembly:
 
         >>> assembly = MCADAssembly()
-        >>> assembly.add_ecad_component_model(
-        ...     name="MainBoard", path="pcb/main.aedb"
-        ... )
-        >>> assembly.add_ecad_component_model(
-        ...     name="DaughterBoard", path="pcb/daughter.aedb"
-        ... )
-        >>> main_pcb = assembly.add_sub_ecad_component(
-        ...     name="PCB_1", model="MainBoard"
-        ... )
-        >>> daughter_pcb = assembly.add_sub_ecad_component(
-        ...     name="PCB_2", model="DaughterBoard"
-        ... )
+        >>> assembly.add_ecad_component_model(name="MainBoard", path="pcb/main.aedb")
+        >>> assembly.add_ecad_component_model(name="DaughterBoard", path="pcb/daughter.aedb")
+        >>> main_pcb = assembly.add_sub_ecad_component(name="PCB_1", model="MainBoard")
+        >>> daughter_pcb = assembly.add_sub_ecad_component(name="PCB_2", model="DaughterBoard")
 
         Configure the component with layout-specific settings:
 
@@ -875,18 +839,12 @@ class MCADAssembly(BaseModel):
         Register model libraries at the assembly level:
 
         >>> assembly = MCADAssembly()
-        >>> assembly.add_model_library(
-        ...     library_path="/project/component_libraries/standard"
-        ... )
-        >>> assembly.add_model_library(
-        ...     library_path="/project/component_libraries/custom"
-        ... )
+        >>> assembly.add_model_library(library_path="/project/component_libraries/standard")
+        >>> assembly.add_model_library(library_path="/project/component_libraries/custom")
 
         Use with ECAD components for automatic population:
 
-        >>> pcb = assembly.add_sub_ecad_component(
-        ...     name="PCB_1", model="MainBoard"
-        ... )
+        >>> pcb = assembly.add_sub_ecad_component(name="PCB_1", model="MainBoard")
         >>> pcb.add_sub_mcad_component_from_library(  # doctest: +SKIP
         ...     reference_designators=["U1", "U2", "J1", "J2"]
         ... )
@@ -911,11 +869,11 @@ class MCADAssemblyService:
     """
 
     def __init__(
-            self,
-            config: MCADAssembly,
-            project_dir: Path,
-            model_dir: Path | None,
-            app: Hfss | None,
+        self,
+        config: MCADAssembly,
+        project_dir: Path,
+        model_dir: Path | None,
+        app: Hfss | None,
     ):
         """Initialize the MCAD assembly service.
 
@@ -1100,9 +1058,9 @@ class MCADAssemblyService:
         temp = self.config.sub_components
 
         def assemble_sub_components(
-                cad: ECADComponent | MCADComponent,
-                ecad_com_info: dict[str, _EcadCompInfo],
-                cs_prefix: str | None = None,
+            cad: ECADComponent | MCADComponent,
+            ecad_com_info: dict[str, _EcadCompInfo],
+            cs_prefix: str | None = None,
         ):
             if cad.component_type == "mcad":
                 if cad.use_pin_mapping:
@@ -1247,14 +1205,14 @@ class MCADAssemblyService:
 
 
 def run(
-        config_data: MCADAssembly | dict | str | Path,
-        project_dir: str | None = None,
-        model_dir: str | None = None,
-        version: str | None = None,
-        port: int | None = None,
-        aedt_process_id: int | None = None,
-        student_version: bool = False,
-        app: Hfss | None = None,
+    config_data: MCADAssembly | dict | str | Path,
+    project_dir: str | None = None,
+    model_dir: str | None = None,
+    version: str | None = None,
+    port: int | None = None,
+    aedt_process_id: int | None = None,
+    student_version: bool = False,
+    app: Hfss | None = None,
 ) -> str:
     """Build an MCAD assembly in HFSS from a configuration.
 
@@ -1287,12 +1245,9 @@ def run(
 
     Examples
     --------
-
     >>> hfss = Hfss(version="2026.1")
     >>> run(config_data="config_2.json", app=hfss)
-    >>> hfss.release_desktop(
-    ...     close_desktop=False, close_projects=False
-    ... )
+    >>> hfss.release_desktop(close_desktop=False, close_projects=False)
 
     """
     if isinstance(config_data, MCADAssembly):
