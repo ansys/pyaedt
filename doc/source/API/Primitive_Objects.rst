@@ -174,7 +174,7 @@ instantiated with the application object.
     Stackup3D
 
 
-MCAD Assembly
+Mcad Assembly
 ~~~~~~~~~~~~~
 
 PyAEDT provides utilities to configure and manage multi-part assemblies combining
