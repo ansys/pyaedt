@@ -25,12 +25,9 @@
 from pathlib import Path
 
 from defusedxml import ElementTree
-from defusedxml import defuse_stdlib
 import pytest
 
 from ansys.aedt.core.extensions.customize_automation_tab import add_automation_tab
-
-defuse_stdlib()
 
 
 @pytest.fixture(scope="module", autouse=True)
