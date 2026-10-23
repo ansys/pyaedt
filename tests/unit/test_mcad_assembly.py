@@ -250,6 +250,9 @@ class TestMCADAssembly:
         cs_main = self.assembly.add_coordinate_system(name="MainCS")
         cs_connector = self.assembly.add_coordinate_system(name="Connector_CS")
 
+        assert cs_main.name == "MainCS"
+        assert cs_connector.name == "Connector_CS"
+
         # Add components
         pcb = self.assembly.add_sub_ecad_component(name="PCB_1", model="MainBoard")
         pcb.target_coordinate_system = "MainCS"
@@ -331,6 +334,9 @@ class TestMCADComponent:
         """Test sub_components property."""
         mcad_child = self.component.add_sub_mcad_component(name="MCAD_Child", model="M")
         ecad_child = self.component.add_sub_ecad_component(name="ECAD_Child", model="E")
+
+        assert mcad_child.name == "MCAD_Child"
+        assert ecad_child.name == "ECAD_Child"
 
         sub_comps = self.component.sub_components
 
