@@ -31,14 +31,16 @@ from ansys.aedt.core.generic.aedt_constants import Setups
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modules.setup_templates import HFSS3DLayout_AdaptiveFrequencyData
 from ansys.aedt.core.modules.solve_setup import Setup3DLayout
+from ansys.aedt.core.modules.solve_sweeps import Sweep3DLayout
+from tests.conftest import DESKTOP_VERSION
 
-TEST_SUBFOLDER = "T11"
-TEST_COAXIAL = "coax_setup_231"
+TEST_SUBFOLDER = "TSetup"
+TEST_LAYOUT = "hfss3dlayout_setup_test"
 
 
 @pytest.fixture
-def aedtapp(add_app_example):
-    app = add_app_example(application=Hfss, project=TEST_COAXIAL, subfolder=TEST_SUBFOLDER)
+def hfss_app(add_app):
+    app = add_app(application=Hfss, solution_type="Modal")
     yield app
     app.close_project(app.project_name, save=False)
 
@@ -58,7 +60,58 @@ def layout_app(add_app):
     app.close_project(name=project_name, save=False)
 
 
+@pytest.fixture
+def layout_setup_app(add_app_example):
+    app = add_app_example(application=Hfss3dLayout, project=TEST_LAYOUT, subfolder=TEST_SUBFOLDER)
+    yield app
+    app.close_project(app.project_name, save=False)
+
+
 # HFSS 3D Layout setups
+def test_setup_layout_init(layout_setup_app):
+    assert len(layout_setup_app.setups) == 13
+
+    assert layout_setup_app.setups[0].solver_type == "AMIAnalysis"
+    assert layout_setup_app.setups[0].__repr__() == f"{layout_setup_app.setups[0].name} with 0 Sweeps"
+    assert str(layout_setup_app.setups[0]) == layout_setup_app.setups[0].name
+
+    assert layout_setup_app.setups[1].solver_type == "SIwaveEMI"
+    assert layout_setup_app.setups[1].__repr__() == f"{layout_setup_app.setups[1].name} with 0 Sweeps"
+    assert str(layout_setup_app.setups[1]) == layout_setup_app.setups[1].name
+
+    assert layout_setup_app.setups[1].solver_type == "SIwaveEMI"
+    assert layout_setup_app.setups[1].__repr__() == f"{layout_setup_app.setups[1].name} with 0 Sweeps"
+    assert str(layout_setup_app.setups[1]) == layout_setup_app.setups[1].name
+
+    assert layout_setup_app.setups[2].solver_type == "HFSSPI"
+    assert layout_setup_app.setups[2].__repr__() == f"{layout_setup_app.setups[2].name} with 1 Sweeps"
+    assert str(layout_setup_app.setups[2]) == layout_setup_app.setups[2].name
+    assert len(layout_setup_app.setups[2].sweeps) == 1
+    assert isinstance(layout_setup_app.setups[2].sweeps[0], Sweep3DLayout)
+
+    assert layout_setup_app.setups[3].solver_type == "LinearFrequency"
+    assert layout_setup_app.setups[3].__repr__() == f"{layout_setup_app.setups[3].name} with 1 Sweeps"
+    assert str(layout_setup_app.setups[3]) == layout_setup_app.setups[3].name
+    assert len(layout_setup_app.setups[3].sweeps) == 1
+    assert isinstance(layout_setup_app.setups[3].sweeps[0], Sweep3DLayout)
+
+    assert layout_setup_app.setups[4].solver_type == "QuickEye"
+    assert layout_setup_app.setups[4].__repr__() == f"{layout_setup_app.setups[4].name} with 0 Sweeps"
+    assert str(layout_setup_app.setups[4]) == layout_setup_app.setups[4].name
+    assert len(layout_setup_app.setups[4].sweeps) == 0
+
+    assert layout_setup_app.setups[5].solver_type == "HFSS"
+    assert layout_setup_app.setups[5].__repr__() == f"{layout_setup_app.setups[5].name} with 1 Sweeps"
+    assert str(layout_setup_app.setups[5]) == layout_setup_app.setups[5].name
+    assert len(layout_setup_app.setups[5].sweeps) == 1
+
+    assert layout_setup_app.setups[6].solver_type == "HFSS"
+    assert layout_setup_app.setups[6].__repr__() == f"{layout_setup_app.setups[6].name} with 1 Sweeps"
+    assert str(layout_setup_app.setups[6]) == layout_setup_app.setups[6].name
+    assert len(layout_setup_app.setups[6].sweeps) == 1
+    assert isinstance(layout_setup_app.setups[3].sweeps[0], Sweep3DLayout)
+
+
 def test_create_setup_layout_hfss(layout_app) -> None:
     adaptive_props = HFSS3DLayout_AdaptiveFrequencyData("6GHz")
     adaptive_settings = {"SingleFrequencyDataList": {"AdaptiveFrequencyData": {}}}
@@ -236,18 +289,38 @@ def test_create_setup_layout_hfss_sweep(layout_app) -> None:
         sweep.change_range(range_type="invented", start=2)
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026 R1.")
 def test_create_setup_layout_raptorx(layout_app) -> None:
     layout_app.ic_mode = True
-    layout_app.create_setup(name="setup1", setup_type="RaptorX")
-    setup = layout_app.create_setup()
-    assert setup.name == layout_app.setup_names[0]
-    assert setup.solver_type == "HFSS"
+    setup = layout_app.create_setup(name="setup1", setup_type="RaptorX")
+    name = setup.name
+
+    assert name == layout_app.setup_names[0]
+    assert setup.solver_type == "RaptorX"
+    assert len(layout_app.setups) == 1
+    assert isinstance(setup, Setup3DLayout)
+    assert str(setup) == f"{name} : LastAdaptive"
+    assert setup.__repr__() == f"{name} with 0 Sweeps"
+
+    sweep = setup.add_sweep()
+    assert sweep.name in setup.sweep_names
+    assert setup.__repr__() == f"{name} with 1 Sweeps"
 
 
 def test_create_setup_layout_hfss_auto(layout_app) -> None:
-    setup = layout_app.create_setup()
-    assert setup.name == layout_app.setup_names[0]
+    setup = layout_app.create_setup(setup_type=Setups.HFSSDrivenAuto)
+    name = setup.name
+
+    assert name == layout_app.setup_names[0]
     assert setup.solver_type == "HFSS"
+    assert len(layout_app.setups) == 1
+    assert isinstance(setup, Setup3DLayout)
+    assert str(setup) == f"{name} : LastAdaptive"
+    assert setup.__repr__() == f"{name} with 0 Sweeps"
+
+    sweep = setup.add_sweep()
+    assert sweep.name in setup.sweep_names
+    assert setup.__repr__() == f"{name} with 1 Sweeps"
 
 
 def test_create_setup_layout_hfss_pi(layout_app) -> None:
@@ -320,10 +393,10 @@ def test_create_setup_layout_siwave_verify_eye(layout_app) -> None:
     assert setup.solver_type == "HFSS"
 
 
-def test_create_hfss_setup(aedtapp) -> None:
-    setup1 = aedtapp.create_setup("My_HFSS_Setup", Setups.HFSSDrivenDefault)
+def test_create_hfss_setup(hfss_app) -> None:
+    setup1 = hfss_app.create_setup("My_HFSS_Setup", Setups.HFSSDrivenDefault)
     assert setup1.name == "My_HFSS_Setup"
-    assert aedtapp.setups[0].name == setup1.name
+    assert hfss_app.setups[0].name == setup1.name
     assert "SaveRadFieldsOnly" in setup1.props
     assert "SaveRadFieldsOnly" in setup1.available_properties
     setup1["SaveRadFieldsonly"] = True
@@ -375,18 +448,18 @@ def test_create_hfss_setup(aedtapp) -> None:
         max_delta_phase=8,
         custom_entries=[["1", "2", 0.03, 4]],
     )
-    setup2 = aedtapp.create_setup("MulitFreqSetup", MultipleAdaptiveFreqsSetup=["1GHz", "2GHz"], MaximumPasses=3)
+    setup2 = hfss_app.create_setup("MulitFreqSetup", MultipleAdaptiveFreqsSetup=["1GHz", "2GHz"], MaximumPasses=3)
     assert setup2.props["SolveType"] == "MultiFrequency"
     assert setup2.props["MaximumPasses"] == 3
 
-    setup3 = aedtapp.create_setup(Frequency=["1GHz", "2GHz"], MaximumPasses=3)
+    setup3 = hfss_app.create_setup(Frequency=["1GHz", "2GHz"], MaximumPasses=3)
     assert setup3.props["SolveType"] == "MultiFrequency"
     assert setup3.props["MaximumPasses"] == 3
 
 
-def test_create_hfss_sweep(aedtapp) -> None:
-    setup1 = aedtapp.create_setup("My_HFSS_Setup", Setups.HFSSDrivenDefault)
-    assert aedtapp.get_setups()
+def test_create_hfss_sweep(hfss_app) -> None:
+    setup1 = hfss_app.create_setup("My_HFSS_Setup", Setups.HFSSDrivenDefault)
+    assert hfss_app.get_setups()
     sweep1 = setup1.add_sweep("MyFrequencySweep")
     sweep1.props["RangeStart"] = "1Hz"
     sweep1.props["RangeEnd"] = "2GHz"
@@ -394,7 +467,7 @@ def test_create_hfss_sweep(aedtapp) -> None:
     sweep1.props["Type"] = "Fast"
     sweep1.props["SaveFields"] = True
     assert sweep1.update()
-    assert aedtapp.get_sweeps("My_HFSS_Setup")
+    assert hfss_app.get_sweeps("My_HFSS_Setup")
     sweep2 = setup1.add_sweep(name="test_sweeptype", sweep_type="invalid")
     assert sweep2.props["Type"] == "Interpolating"
     sweep3 = setup1.create_frequency_sweep(start_frequency=1, stop_frequency="500MHz")
@@ -418,14 +491,14 @@ def test_create_hfss_sweep(aedtapp) -> None:
     assert sweep5.props["RangeStep"] == range_step
 
 
-def test_create_hfss_setup_auto_open(aedtapp) -> None:
-    aedtapp.duplicate_design("auto_open")
-    for setup in aedtapp.get_setups():
-        aedtapp.delete_setup(setup)
-        assert setup not in aedtapp.setups
-    assert not aedtapp.setups
-    aedtapp.set_auto_open()
-    setup1 = aedtapp.get_setup("Auto1")
+def test_create_hfss_setup_auto_open(hfss_app) -> None:
+    hfss_app.duplicate_design("auto_open")
+    for setup in hfss_app.get_setups():
+        hfss_app.delete_setup(setup)
+        assert setup not in hfss_app.setups
+    assert not hfss_app.setups
+    hfss_app.set_auto_open()
+    setup1 = hfss_app.get_setup("Auto1")
     setup1.enable_adaptive_setup_multifrequency([1.9, 2.4], 0.02)
     assert setup1.update({"MaximumPasses": 20})
     assert setup1.props["SolveType"] == "MultiFrequency"
@@ -445,37 +518,37 @@ def test_create_circuit_setup(circuit_app) -> None:
     setup1.enable()
 
 
-def test_non_valid_setup(aedtapp) -> None:
-    aedtapp.set_active_design("HFSSDesign")
-    aedtapp.duplicate_design("non_valid")
-    setup1 = aedtapp.create_setup("My_HFSS_Setup", Setups.HFSSDrivenAuto)
+def test_non_valid_setup(hfss_app) -> None:
+    hfss_app.set_active_design("HFSSDesign")
+    hfss_app.duplicate_design("non_valid")
+    setup1 = hfss_app.create_setup("My_HFSS_Setup", Setups.HFSSDrivenAuto)
     assert not setup1.enable_adaptive_setup_multifrequency([1, 2, 3])
     assert not setup1.enable_adaptive_setup_broadband(1, 2.5, 10, 0.01)
     assert not setup1.enable_adaptive_setup_single(3.5)
-    sol = aedtapp.solution_type
-    aedtapp.solution_type = "Transient"
+    sol = hfss_app.solution_type
+    hfss_app.solution_type = "Transient"
     assert not setup1.enable_adaptive_setup_multifrequency([1, 2, 3])
     assert not setup1.enable_adaptive_setup_broadband(1, 2.5, 10, 0.01)
     assert not setup1.enable_adaptive_setup_single(3.5)
-    aedtapp.solution_type = sol
+    hfss_app.solution_type = sol
 
 
-def test_delete_setup(aedtapp) -> None:
-    setup1 = aedtapp.create_setup("My_HFSS_Setup", Setups.HFSSDrivenAuto)
-    assert len(aedtapp.setups) == 1
+def test_delete_setup(hfss_app) -> None:
+    setup1 = hfss_app.create_setup("My_HFSS_Setup", Setups.HFSSDrivenAuto)
+    assert len(hfss_app.setups) == 1
     assert setup1.delete()
-    assert len(aedtapp.setups) == 0
-    assert not aedtapp.get_setups()
+    assert len(hfss_app.setups) == 0
+    assert not hfss_app.get_setups()
 
 
-def test_sweep_auto(aedtapp) -> None:
-    setup1 = aedtapp.create_setup("My_HFSS_Setup", Setups.HFSSDrivenAuto)
+def test_sweep_auto(hfss_app) -> None:
+    setup1 = hfss_app.create_setup("My_HFSS_Setup", Setups.HFSSDrivenAuto)
     assert setup1.add_subrange("LinearStep", 1, 10, 0.1, clear=False)
     assert setup1.add_subrange("LinearCount", 10, 20, 10, clear=True)
 
 
-def test_delete_sweep(aedtapp) -> None:
-    setup1 = aedtapp.create_setup("My_HFSS_Setup", Setups.HFSSDrivenDefault)
+def test_delete_sweep(hfss_app) -> None:
+    setup1 = hfss_app.create_setup("My_HFSS_Setup", Setups.HFSSDrivenDefault)
     setup1.create_frequency_sweep("GHz", 24, 24.25, 26, "My_Sweep1", sweep_type="Fast")
     sweeps = setup1.get_sweep_names()
     assert len(sweeps) == 1
@@ -485,10 +558,10 @@ def test_delete_sweep(aedtapp) -> None:
     assert len(sweeps) == 0
 
 
-def test_sweep_sbr(aedtapp) -> None:
-    aedtapp.solution_type = "SBR+"
-    sph = aedtapp.insert_infinite_sphere()
+def test_sweep_sbr(hfss_app) -> None:
+    hfss_app.solution_type = "SBR+"
+    sph = hfss_app.insert_infinite_sphere()
     sph.props
-    setup1 = aedtapp.create_setup("My_HFSS_Setup", Setups.HFSSSBR)
+    setup1 = hfss_app.create_setup("My_HFSS_Setup", Setups.HFSSSBR)
     assert setup1.add_subrange("LinearStep", 1, 10, 0.1, clear=False)
     assert setup1.add_subrange("LinearCount", 10, 20, 10, clear=True)

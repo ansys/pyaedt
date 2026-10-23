@@ -1700,7 +1700,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_setup(
-        self, name: str = "MySetupAuto", setup_type: str | None = None, **kwargs
+        self, name: str = "MySetupAuto", setup_type: str | int | None = None, **kwargs
     ) -> SetupHFSS | SetupHFSSAuto:
         """Create an analysis setup for HFSS.
 
@@ -1728,7 +1728,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         -------
         :class:`ansys.aedt.core.modules.solve_setup.SetupHFSS`,
         :class:`ansys.aedt.core.modules.solve_setup.SetupHFSSAuto`
-            3D Solver Setup object.
+            Setup object.
 
         References
         ----------
@@ -1737,8 +1737,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.generic.constants import Setups
         >>> hfss = Hfss()
-        >>> hfss.create_setup(name="Setup1", setup_type="HFSSDriven", Frequency="10GHz")
+        >>> hfss.create_setup(name="Setup1", setup_type=Setups.HFSSDriven, Frequency="10GHz")
 
         """
         if setup_type is None:

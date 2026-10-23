@@ -34,11 +34,16 @@ import os.path
 from pathlib import Path
 import re
 import secrets
+import sys
 import time
 from typing import TYPE_CHECKING
 from typing import Any
 import warnings
 
+if sys.version_info >= (3, 13):
+    from warnings import deprecated
+else:
+    from typing_extensions import deprecated
 from ansys.aedt.core.application import _get_obj_data
 from ansys.aedt.core.application import _has_get_obj_data
 from ansys.aedt.core.base import PyAedtBase
@@ -419,7 +424,7 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
 
         """
         if self._app.design_type == "Circuit Design":
-            return True if self.omodule.ListVariations(self.name) else False
+            return True if self._app.oanalysis.ListVariations(self.name) else False
         if self._app.design_solutions.default_adaptive:
             expressions = [
                 i
@@ -439,6 +444,7 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
         return True if sol.get_solution_data() else False
 
     @property
+    @deprecated("Use onalysis from application object.")
     def omodule(self):
         """Analysis module.
 
@@ -736,13 +742,10 @@ class Setup(CommonSetup):
     ----------
     app : :class:`ansys.aedt.core.application.analysis.Analysis`
         Inherited app object.
-    solution_type : int, str
-        Type of the setup.
     name : str, optional
         Name of the setup. The default is ``"MySetupAuto"``.
-    is_new_setup : bool, optional
-        Whether to create the setup from a template. The default is ``True``.
-        If ``False``, access is to the existing setup.
+    props : dict, optional
+        Properties of the setup.
 
     Examples
     --------
@@ -756,13 +759,12 @@ class Setup(CommonSetup):
         CommonSetup.__init__(self, app=app, name=name, props=props)
 
     @pyaedt_function_handler()
-    def create(self) -> bool:
+    def create(self) -> SetupHFSSAuto:
         """Add a new setup based on class settings in AEDT.
 
         Returns
         -------
-        bool
-            Result of operation.
+        :class:`ansys.aedt.core.modules.solve_setup.SetupHFSSAuto`
 
         References
         ----------
@@ -775,10 +777,14 @@ class Setup(CommonSetup):
         >>> setup = app.create_setup()
 
         """
-        soltype = SetupKeys.SetupNames[self.setuptype]
         arg = self._setup_dict_to_arg()
-        self.omodule.InsertSetup(soltype, arg)
-        return True
+        soltype = None  # to modify
+        self._app.oanalysis.InsertSetup(soltype, arg)
+
+        # GetObjData is available for some objects in 2026R1.
+        self._has_getobject = _has_get_obj_data(self._child_object)
+
+        return self
 
     @pyaedt_function_handler()
     def update(self, properties: dict = None) -> bool:
@@ -818,7 +824,7 @@ class Setup(CommonSetup):
         arg = self._setup_dict_to_arg()
 
         self.auto_update = legacy_update
-        self.omodule.EditSetup(self.name, arg)
+        self._app.oanalysis.EditSetup(self.name, arg)
         return True
 
     @pyaedt_function_handler()
@@ -1010,7 +1016,7 @@ class Setup(CommonSetup):
             expressions, report_type, intrinsics, isconvergence, isrelativeconvergence, conv_criteria
         )
         arg.append(expression_cache)
-        self.omodule.EditSetup(self.name, arg)
+        self._app.oanalysis.EditSetup(self.name, arg)
         return True
 
     @pyaedt_function_handler()
@@ -1441,36 +1447,36 @@ class SetupCircuit(CommonSetup):
     def _setup(self, soltype, arg, newsetup: bool = True) -> bool:
         if newsetup:
             if soltype == "NexximLNA":
-                self.omodule.AddLinearNetworkAnalysis(arg)
+                self._app.oanalysis.AddLinearNetworkAnalysis(arg)
             elif soltype == "TwinbuilderAC":
-                self.omodule.AddACAnalysis(arg)
+                self._app.oanalysis.AddACAnalysis(arg)
             elif soltype in ["NexximDC", "TwinbuilderDC"]:
-                self.omodule.AddDCAnalysis(arg)
+                self._app.oanalysis.AddDCAnalysis(arg)
             elif soltype in ["NexximTransient", "TwinbuilderTR"]:
-                self.omodule.AddTransient(arg)
+                self._app.oanalysis.AddTransient(arg)
             elif soltype == "NexximQuickEye":
-                self.omodule.AddQuickEyeAnalysis(arg)
+                self._app.oanalysis.AddQuickEyeAnalysis(arg)
             elif soltype == "NexximVerifEye":
-                self.omodule.AddVerifEyeAnalysis(arg)
+                self._app.oanalysis.AddVerifEyeAnalysis(arg)
             elif soltype == "NexximAMI":
-                self.omodule.AddAMIAnalysis(arg)
+                self._app.oanalysis.AddAMIAnalysis(arg)
             else:
                 warnings.warn("Solution Not Implemented Yet")
         else:
             if soltype == "NexximLNA":
-                self.omodule.EditLinearNetworkAnalysis(self.name, arg)
+                self._app.oanalysis.EditLinearNetworkAnalysis(self.name, arg)
             elif soltype == "TwinbuilderAC":
-                self.omodule.EditACAnalysis(self.name, arg)
+                self._app.oanalysis.EditACAnalysis(self.name, arg)
             elif soltype in ["NexximDC", "TwinbuilderDC"]:
-                self.omodule.EditDCAnalysis(self.name, arg)
+                self._app.oanalysis.EditDCAnalysis(self.name, arg)
             elif soltype in ["NexximTransient", "TwinbuilderTR"]:
-                self.omodule.EditTransient(self.name, arg)
+                self._app.oanalysis.EditTransient(self.name, arg)
             elif soltype == "NexximQuickEye":
-                self.omodule.EditQuickEyeAnalysis(self.name, arg)
+                self._app.oanalysis.EditQuickEyeAnalysis(self.name, arg)
             elif soltype == "NexximVerifEye":
-                self.omodule.EditVerifEyeAnalysis(self.name, arg)
+                self._app.oanalysis.EditVerifEyeAnalysis(self.name, arg)
             elif soltype == "NexximAMI":
-                self.omodule.EditAMIAnalysis(self.name, arg)
+                self._app.oanalysis.EditAMIAnalysis(self.name, arg)
 
             else:
                 raise NotImplementedError(f"Solution type '{soltype}' is not implemented yet")
@@ -1903,7 +1909,7 @@ class SetupCircuit(CommonSetup):
             expressions, report_type, intrinsics, isconvergence, isrelativeconvergence, conv_criteria
         )
         arg.append(expression_cache)
-        self.omodule.EditSetup(self.name, arg)
+        self._app.oanalysis.EditSetup(self.name, arg)
         return True
 
     @pyaedt_function_handler()
@@ -2181,7 +2187,7 @@ class Setup3DLayout(CommonSetup):
         Inherited app object.
     name : str, optional
         Name of the setup. The default is ``"MySetupAuto"``.
-    props : dict
+    props : dict, optional
         Properties of the setup.
 
     Examples
@@ -2194,6 +2200,12 @@ class Setup3DLayout(CommonSetup):
 
     def __repr__(self) -> str:
         return self.name + " with " + str(len(self.sweep_names)) + " Sweeps"
+
+    def __str__(self) -> str:
+        if not self._app.design_solutions.default_adaptive or self.solver_type != "HFSS":
+            return self.name
+        else:
+            return f"{self.name} : {self._app.design_solutions.default_adaptive}"
 
     def __init__(self, app: FieldAnalysis3DLayout, name: str, props: dict) -> None:
         # Internal variables
@@ -2294,7 +2306,7 @@ class Setup3DLayout(CommonSetup):
         return True if sol.get_solution_data() else False
 
     @property
-    def solver_type(self) -> str:
+    def solver_type(self) -> str | None:
         """Setup type.
 
         Returns
@@ -2385,7 +2397,7 @@ class Setup3DLayout(CommonSetup):
         """
         arg = self._setup_dict_to_arg()
 
-        self.omodule.Add(arg)
+        self._app.oanalysis.Add(arg)
 
         # GetObjData is available for some objects in 2026R1.
         self._has_getobject = _has_get_obj_data(self._child_object)
@@ -2423,7 +2435,7 @@ class Setup3DLayout(CommonSetup):
 
         arg = self._setup_dict_to_arg(props=properties)
 
-        self.omodule.Edit(self.name, arg)
+        self._app.oanalysis.Edit(self.name, arg)
 
         if not self._has_getobject and not self._has_getsetupdata:
             self._legacy_props = properties
@@ -2564,7 +2576,7 @@ class Setup3DLayout(CommonSetup):
         output_file = os.path.splitext(output_file)[0] + ".aedt"
         info_messages = list(self._app.odesktop.GetMessages(self._app.project_name, self._app.design_name, 0))
         error_messages = list(self._app.odesktop.GetMessages(self._app.project_name, self._app.design_name, 2))
-        self.omodule.ExportToHfss(self.name, output_file)
+        self._app.oanalysis.ExportToHfss(self.name, output_file)
         succeeded = self._check_export_log(info_messages, error_messages, output_file)
         if succeeded and keep_net_name:
             from ansys.aedt.core import Hfss
@@ -2838,7 +2850,7 @@ class Setup3DLayout(CommonSetup):
             os.unlink(output_file)
         info_messages = list(self._app.odesktop.GetMessages(self._app.project_name, self._app.design_name, 0))
         error_messages = list(self._app.odesktop.GetMessages(self._app.project_name, self._app.design_name, 2))
-        self.omodule.ExportToQ3d(self.name, output_file)
+        self._app.oanalysis.ExportToQ3d(self.name, output_file)
         succeeded = self._check_export_log(info_messages, error_messages, output_file)
         if succeeded and keep_net_name:
             from ansys.aedt.core import Q3d
@@ -3599,7 +3611,7 @@ class SetupHFSS(Setup, PyAedtBase):
         >>> sweeps = setup.get_sweep_names()
 
         """
-        return self.omodule.GetSweeps(self.name)
+        return self._app.oanalysis.GetSweeps(self.name)
 
     @pyaedt_function_handler()
     def delete_sweep(self, name: str) -> bool:
@@ -3636,7 +3648,7 @@ class SetupHFSS(Setup, PyAedtBase):
             else:
                 self._sweeps = [sweep for sweep in self._sweeps if sweep.name != name]
 
-            self.omodule.DeleteSweep(self.name, name)
+            self._app.oanalysis.DeleteSweep(self.name, name)
 
             # Reset children to populate again the new properties
             self._children = {}
@@ -5280,7 +5292,7 @@ class SetupQ3D(Setup, PyAedtBase):
             del props1["DC"]
         arg = self._setup_dict_to_arg(props=props1)
 
-        self.omodule.EditSetup(self.name, arg)
+        self._app.oanalysis.EditSetup(self.name, arg)
         return True
 
 
