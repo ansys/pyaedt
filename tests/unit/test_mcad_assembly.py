@@ -27,7 +27,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-import pytest
 
 from ansys.aedt.core.modeler.advanced_cad.mcad_assembly import Arrange
 from ansys.aedt.core.modeler.advanced_cad.mcad_assembly import CoordinateSystem
@@ -232,12 +231,8 @@ class TestMCADAssembly:
     def test_preprocess_merges_legacy_formats(self):
         """Test that both legacy assembly and sub_components keys are merged."""
         legacy_data = {
-            "assembly": {
-                "comp1": {"component_type": "mcad", "name": "comp1", "model": "Model1"}
-            },
-            "sub_components": {
-                "comp2": {"component_type": "ecad", "name": "comp2", "model": "Model2"}
-            },
+            "assembly": {"comp1": {"component_type": "mcad", "name": "comp1", "model": "Model1"}},
+            "sub_components": {"comp2": {"component_type": "ecad", "name": "comp2", "model": "Model2"}},
         }
 
         assembly = MCADAssembly.model_validate(legacy_data)
@@ -248,9 +243,7 @@ class TestMCADAssembly:
     def test_full_workflow(self):
         """Test a complete assembly workflow."""
         # Register models
-        self.assembly.add_mcad_component_model(
-            name="Connector", path="models/usb_connector.a3dcomp"
-        )
+        self.assembly.add_mcad_component_model(name="Connector", path="models/usb_connector.a3dcomp")
         self.assembly.add_ecad_component_model(name="MainBoard", path="pcb/main.aedb")
 
         # Create coordinate systems
@@ -365,9 +358,7 @@ class TestECADComponent:
         lib_path = "/project/libraries/standard"
         refdes = ["U1", "U2", "J1"]
 
-        self.component.add_sub_mcad_component_from_library(
-            library_path=lib_path, reference_designators=refdes
-        )
+        self.component.add_sub_mcad_component_from_library(library_path=lib_path, reference_designators=refdes)
 
         assert lib_path in self.component.model_libraries
         assert set(refdes).issubset(set(self.component._mcad_component_from_library))
