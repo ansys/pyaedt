@@ -109,7 +109,7 @@ def test_service(test_tmp_dir, hfss_app):
 
 @pytest.mark.skipif(is_linux, reason="EDB load of Layout component failing in Linux.")
 @patch("tkinter.filedialog.askopenfilename")
-def test_backend(mock_askopenfilename, hfss_app, test_tmp_dir) -> None:
+def test_case_1(mock_askopenfilename, hfss_app, test_tmp_dir) -> None:
     """Test the examples provided in the via design extension."""
     shutil.copytree(MODEL_FOLDER, test_tmp_dir, dirs_exist_ok=True)
     config_file = test_tmp_dir / "config.json"
@@ -127,7 +127,7 @@ def test_backend(mock_askopenfilename, hfss_app, test_tmp_dir) -> None:
 
 
 @pytest.mark.skipif(is_linux, reason="EDB load of Layout component failing in Linux.")
-def test_backend_2(hfss_app, test_tmp_dir) -> None:
+def test_case_2(hfss_app, test_tmp_dir) -> None:
     shutil.copytree(MODEL_FOLDER, test_tmp_dir, dirs_exist_ok=True)
 
     top_assembly = MCADAssemblyBackend()
