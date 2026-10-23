@@ -165,7 +165,9 @@ class TestClass:
         assert lumped_design.topology.netlist().splitlines() == read_resource_file("high_low_pass.ckt", "Lumped")
 
     def test_lumped_high_low_pass_min_ind(self, lumped_design):
-        misspelled_error = "High Low pass with Minmum Inductors topology is not applicable for this type of filter"  # codespell:ignore  # noqa: E501
+        misspelled_error = (
+            "High Low pass with Minmum Inductors topology is not applicable for this type of filter"  # codespell:ignore  # noqa: E501
+        )
         with pytest.raises(RuntimeError) as info:
             lumped_design.topology.high_low_pass_min_ind = True
         if config["desktopVersion"] > "2025.1":
