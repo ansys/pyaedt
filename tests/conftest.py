@@ -44,6 +44,13 @@ from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.hfss import Hfss
 from tests import TESTS_PATH
 
+# NOTE: OSMnx is optional and may not be installed in all environments.
+# When unavailable, the OSMnx HTTP error filter is disabled by the None fallback.
+try:
+    from osmnx._errors import ResponseStatusCodeError
+except ImportError:
+    ResponseStatusCodeError = None
+
 # ================================
 # Category prefixes
 # ================================
@@ -197,25 +204,38 @@ def _is_tcl_init_error(exc: BaseException) -> bool:
     )
 
 
+def _is_transient_osm_error(exc: BaseException) -> bool:
+    """Identify transient OSMnx HTTP errors when the optional dependency is available."""
+    if ResponseStatusCodeError is None or not isinstance(exc, ResponseStatusCodeError):
+        return False
+
+    return bool(re.match(r"^'[^']+' responded: (429|502|503|504)\b", str(exc)))
+
+
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item, call):
-    """Mark known intermittent Tcl/Tk discovery errors as xfail on Windows for extension tests."""
+    """Mark opted-in transient Tcl/Tk extension and OSMnx HTTP failures as xfail."""
     outcome = yield
     report = outcome.get_result()
 
-    if report.passed or report.when not in {"setup", "call"}:
-        return
-    if sys.platform != "win32" or not _is_extension_test(item):
+    if not report.failed or report.when not in {"setup", "call"}:
         return
     if call.excinfo is None:
         return
 
     exc = call.excinfo.value
 
-    if _is_tcl_init_error(exc) and _env_is_truthy("PYAEDT_TCL_INIT_XFAIL"):
+    if (
+        sys.platform == "win32"
+        and _is_extension_test(item)
+        and _is_tcl_init_error(exc)
+        and _env_is_truthy("PYAEDT_TCL_INIT_XFAIL")
+    ):
         report.outcome = "skipped"
         report.wasxfail = "Intermittent tkinter Tcl/Tk discovery or load failure (Windows)"
-        return
+    elif _env_is_truthy("PYAEDT_OSM_XFAIL") and _is_transient_osm_error(exc):
+        report.outcome = "skipped"
+        report.wasxfail = f"Transient OpenStreetMap API server response failure: {exc}"
 
 
 # ================================

@@ -2246,7 +2246,7 @@ class Desktop(PyAedtBase):
             except Exception:  # nosec B110
                 # Suppress exceptions raised during cleanup in destructor
                 pass
-        except Exception:  # nosec B110
+        except Exception:
             # Defensive: ensure destructor never raises
             return
 

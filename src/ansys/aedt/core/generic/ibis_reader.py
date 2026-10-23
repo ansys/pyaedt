@@ -239,37 +239,37 @@ class Component(PyAedtBase):
 
     @property
     @deprecated_doc()
-    @deprecated("Use r_pkg instead.")
+    @deprecated("Use `r_pkg` instead.")
     def R_pkg(self) -> str | None:  # noqa: N802
         return self.r_pkg
 
     @R_pkg.setter
     @deprecated_doc()
-    @deprecated("Use r_pkg instead.")
+    @deprecated("Use `r_pkg` instead.")
     def R_pkg(self, value: str | None) -> None:  # noqa: N802
         self.r_pkg = value
 
     @property
     @deprecated_doc()
-    @deprecated("Use l_pkg instead.")
+    @deprecated("Use `l_pkg` instead.")
     def L_pkg(self) -> str | None:  # noqa: N802
         return self.l_pkg
 
     @L_pkg.setter
     @deprecated_doc()
-    @deprecated("Use l_pkg instead.")
+    @deprecated("Use `l_pkg` instead.")
     def L_pkg(self, value: str | None) -> None:  # noqa: N802
         self.l_pkg = value
 
     @property
     @deprecated_doc()
-    @deprecated("Use c_pkg instead.")
+    @deprecated("Use `c_pkg` instead.")
     def C_pkg(self) -> str | None:  # noqa: N802
         return self.c_pkg
 
     @C_pkg.setter
     @deprecated_doc()
-    @deprecated("Use c_pkg instead.")
+    @deprecated("Use `c_pkg` instead.")
     def C_pkg(self, value: str | None) -> None:  # noqa: N802
         self.c_pkg = value
 
@@ -1333,13 +1333,13 @@ class Ibis(PyAedtBase):
 
     @property
     @deprecated_doc()
-    @deprecated("Use is_ami instead.")
+    @deprecated("Use `is_ami` instead.")
     def AMI(self) -> bool:  # noqa: N802
         return self.is_ami
 
     @AMI.setter
     @deprecated_doc()
-    @deprecated("Use is_ami instead.")
+    @deprecated("Use `is_ami` instead.")
     def AMI(self, value: bool) -> None:  # noqa: N802
         self.is_ami = value
 
@@ -1506,13 +1506,13 @@ class AMI(PyAedtBase):
 
     @property
     @deprecated_doc()
-    @deprecated("Use is_ami instead.")
+    @deprecated("Use `is_ami` instead.")
     def AMI(self) -> bool:  # noqa: N802
         return self.is_ami
 
     @AMI.setter
     @deprecated_doc()
-    @deprecated("Use is_ami instead.")
+    @deprecated("Use `is_ami` instead.")
     def AMI(self, value: bool) -> None:  # noqa: N802
         self.is_ami = value
 

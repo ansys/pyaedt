@@ -32,10 +32,7 @@ import xml.etree.ElementTree as ET  # nosec
 
 from defusedxml.ElementTree import ParseError
 from defusedxml.ElementTree import parse as defused_parse
-import defusedxml.minidom
 from defusedxml.minidom import parseString
-
-defusedxml.defuse_stdlib()
 
 
 @dataclass

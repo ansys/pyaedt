@@ -61,6 +61,7 @@ from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.generic.props import Props as SetupProps
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.checks import deprecated_doc
 from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
@@ -830,13 +831,11 @@ class Analysis(Design, PyAedtBase):
                             list_output.append(value)
         return list_output
 
-    @deprecated("`list_of_variations` is deprecated. Use `available_variations.variations` instead.")
+    @deprecated_doc(version="1.5.0")
+    @deprecated("Use `available_variations.variations` instead.")
     @pyaedt_function_handler()
     def list_of_variations(self, setup: str = None, sweep: str = None) -> list[str]:
         """Retrieve a list of active variations for input setup.
-
-        .. deprecated:: 1.5.0
-           Use :meth:`available_variations.variations` instead.
 
         Parameters
         ----------
@@ -863,13 +862,6 @@ class Analysis(Design, PyAedtBase):
         >>> hfss.list_of_variations(setup="Setup1")
 
         """
-        import warnings
-
-        warnings.warn(
-            "`list_of_variations` is deprecated and will be removed in 1.5.0. Use `available_variations.variations` instead.",
-            DeprecationWarning,
-        )
-
         if not setup and ":" in self.nominal_sweep:
             setup = self.nominal_adaptive.split(":")[0].strip()
         elif not setup:
