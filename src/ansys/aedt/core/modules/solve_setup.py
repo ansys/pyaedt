@@ -34,50 +34,58 @@ import os.path
 from pathlib import Path
 import re
 import secrets
+import sys
 import time
 from typing import TYPE_CHECKING
 from typing import Any
 import warnings
 
+if sys.version_info >= (3, 13):
+    from warnings import deprecated
+else:
+    from typing_extensions import deprecated
+from ansys.aedt.core.application import _get_obj_data
+from ansys.aedt.core.application import _has_get_obj_data
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.generic.constants import AEDT_UNITS
+from ansys.aedt.core.generic.constants import Setups
+from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
-from ansys.aedt.core.generic.general_methods import PropsManager
+from ansys.aedt.core.generic.general_methods import SetupDict
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.generic.props import Props as SetupProps
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modules.profile import Profiles
 from ansys.aedt.core.modules.setup_templates import SetupKeys
-from ansys.aedt.core.modules.solve_sweeps import SetupProps
+from ansys.aedt.core.modules.setup_templates import Sweep3DLayout
 from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
 from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
 from ansys.aedt.core.modules.solve_sweeps import SweepMatrix
 from ansys.aedt.core.modules.solve_sweeps import SweepMaxwellEC
+from ansys.aedt.core.modules.solve_sweeps import get_sweep_type
 from ansys.aedt.core.modules.solve_sweeps import identify_setup
 
 if TYPE_CHECKING:
     from ansys.aedt.core.application.analysis import Analysis
+    from ansys.aedt.core.application.analysis_3d_layout import FieldAnalysis3DLayout
     from ansys.aedt.core.visualization.post.solution_data import SolutionData
     from ansys.aedt.core.visualization.report.standard import Standard
 
 
-class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
-    """Provide common setup.
+class CommonSetup(BinaryTreeNode, PyAedtBase):
+    """Common setup class.
 
     Parameters
     ----------
     app : :class:`ansys.aedt.core.application.analysis.Analysis`
         Inherited app object.
-    solution_type : int or str
-        Type of the setup.
     name : str, optional
         Name of the setup. The default is ``"MySetupAuto"``.
-    is_new_setup : bool, optional
-        Whether to create the setup from a template. The default is ``True``.
-        If ``False``, access is to the existing setup.
+    props : dict, optional
+        Properties of the setup.
 
     Examples
     --------
@@ -87,55 +95,39 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
 
     """
 
-    def __init__(
-        self, app: Analysis, solution_type: str | int, name: str = "MySetupAuto", is_new_setup: bool = True
-    ) -> None:
-        self.auto_update = False
-        self._app: Any = app
-        if solution_type is None:
-            self.setuptype = self._app.design_solutions.default_setup
-        elif isinstance(solution_type, int):
-            self.setuptype = solution_type
-        elif solution_type in SetupKeys.SetupNames:
-            self.setuptype = SetupKeys.SetupNames.index(solution_type)
+    def __repr__(self) -> str:
+        return self.name
+
+    def __str__(self) -> str:
+        if not self._app.design_solutions.default_adaptive:
+            return self.name
         else:
-            self.setuptype = self._app.design_solutions._solution_options[solution_type]["default_setup"]
+            return f"{self.name} : {self._app.design_solutions.default_adaptive}"
+
+    def __init__(
+        self,
+        app: Analysis | FieldAnalysis3DLayout,
+        name: str = "MySetupAuto",
+        props: dict | None = None,
+    ) -> None:
+
+        self._parent: Analysis | FieldAnalysis3DLayout = app
+        self._app: Any = self._parent._app
+
         self._name = name
         self._legacy_props = {}
-        self._sweeps = None
-        self._is_new_setup = is_new_setup
-        # self._init_props(is_new_setup)
-        self.auto_update = True
-        self._initialize_tree_node()
 
-    def _setup_dict_to_arg(self, name: str = None, props=None):
-        if name is None:
-            arg = ["NAME:" + self.name]
-        else:
-            arg = ["NAME:" + name]
-        if props is None:
-            props = self.props
-        _dict2arg(props, arg)
-        return arg
+        if props:
+            self._legacy_props = props
 
-    @property
-    def _child_object(self):
-        """Object-oriented properties.
+        self._has_getsetupdata = False
+        if self._app.oanalysis and "GetSetupData" in dir(self._app.oanalysis):
+            self._has_getsetupdata = True
 
-        Returns
-        -------
-        class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTreeNode`
+        self.__child_object = None
 
-        """
-        child_object = None
-        design_childs = self._app.get_oo_name(self._app.odesign)
-
-        if "Analysis" in design_childs:
-            cc = self._app.get_oo_object(self._app.odesign, "Analysis")
-            cc_names = self._app.get_oo_name(cc)
-            if self._name in cc_names:
-                child_object = self._app.get_oo_object(cc, self._name)
-        return child_object
+        # GetObjData is available for some objects in 2026R1
+        self._has_getobject = _has_get_obj_data(self._child_object)
 
     @pyaedt_function_handler()
     def _initialize_tree_node(self) -> bool:
@@ -145,49 +137,136 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
         return False
 
     @property
-    def sweeps(self) -> list | None:
-        """Retrieve sweeps.
+    def _child_object(self):
+        """Object-oriented properties.
+
+        Returns
+        -------
+        AEDT object if any or None
 
         Examples
         --------
         >>> from ansys.aedt.core import Hfss
         >>> app = Hfss()
         >>> setup = app.create_setup()
-        >>> setup.sweeps
+        >>> setup.child_object.GetChildNames()
 
         """
-        if self._sweeps is not None:
-            return self._sweeps
-        try:
-            self._sweeps = []
-            setups_data = self._app.design_properties["AnalysisSetup"]["SolveSetups"]
-            if self.name in setups_data:
-                setup_data = setups_data[self.name]
-                if "Sweeps" in setup_data and self.setuptype != 0:  # 0 represents setup HFSSDrivenAuto
-                    if self.setuptype <= 4:
-                        app = setup_data["Sweeps"]
-                        app.pop("NextUniqueID", None)
-                        app.pop("MoveBackForward", None)
-                        app.pop("MoveBackwards", None)
-                        for el in app:
-                            if isinstance(app[el], dict):
-                                self._sweeps.append(SweepHFSS(self, el, props=app[el]))
-                    else:
-                        app = setup_data["Sweeps"]
-                        for el in app:
-                            if isinstance(app[el], dict):
-                                self._sweeps.append(SweepMatrix(self, el, props=app[el]))
-                    setup_data.pop("Sweeps", None)
-                elif "SweepRanges" in setup_data:
-                    app = setup_data["SweepRanges"]
-                    if isinstance(app["Subrange"], list):
-                        for subrange in app["Subrange"]:
-                            self._sweeps.append(SweepMaxwellEC(self, props=subrange))
-                    else:
-                        self._sweeps.append(SweepMaxwellEC(self, props=app["Subrange"]))
-        except (TypeError, KeyError):
-            pass
-        return self._sweeps
+        if not self.__child_object:
+            design_childs = self._app.get_oo_name(self._app.odesign)
+
+            if "Analysis" in design_childs:
+                cc = self._app.get_oo_object(self._app.odesign, "Analysis")
+                cc_names = self._app.get_oo_name(cc)
+                if self._name in cc_names:
+                    self.__child_object = self._app.get_oo_object(cc, self._name)
+        return self.__child_object
+
+    def _setup_dict_to_arg(self, props: dict | None = None):
+        """Retrieve arguments needed to pass to AEDT API.
+
+        Parameters
+        ----------
+        props : dict, optional
+            New properties to update. The default is ``None``, in which case it uses the current properties.
+
+        Returns
+        -------
+        list
+            List of arguments for the mesh operation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> setup = hfss.create_setup()
+        >>> setup._setup_dict_to_arg()
+
+        """
+        arg = ["NAME:" + self.name]
+
+        if props is None:
+            props = dict(self.props)
+
+        _dict2arg(props, arg)
+        return arg
+
+    @property
+    def props(self) -> SetupProps:
+        """Properties of the setup.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> setup = app.create_setup()
+        >>> setup.props
+
+        """
+        if self._legacy_props and not self._has_getobject and not self._has_getsetupdata:
+            return SetupProps(self, self._legacy_props)
+
+        if self._has_getobject:
+            self._legacy_props = _get_obj_data(self.child_object)
+        elif self._has_getsetupdata and self._name in self._app.setup_names:
+            self._legacy_props = self._get_setup_data()
+
+        if not self._legacy_props:
+            # Fallback if two previous method fails. The information is retrieved from design_properties (AEDT file)
+            try:
+                if "AnalysisSetup" in self._app.design_properties.keys():
+                    setups_data = self._app.design_properties["AnalysisSetup"]["SolveSetups"]
+                    if self.name in setups_data:
+                        setup_data = setups_data[self.name]
+                        self._legacy_props = setup_data
+                elif "SimSetups" in self._app.design_properties.keys():
+                    setup_data = self._app.design_properties["SimSetups"]["SimSetup"]
+                    self._legacy_props = setup_data
+            except Exception:
+                self._legacy_props = {}
+        return SetupProps(self, self._legacy_props)
+
+    @props.setter
+    def props(self, value: dict) -> None:
+        # Merge with existing props to support partial updates
+        current_props = dict(self.props) if self._legacy_props else {}
+        current_props.update(value)
+
+        props = SetupProps(self, current_props)
+
+        # Each Setup class must have an update method
+        self.update(props)
+
+    @property
+    def name(self) -> str:
+        """Name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> setup = app.create_setup()
+        >>> setup.name
+
+        """
+        child_object = self._child_object
+        if child_object is not None and "Setup" in dir(child_object):
+            self._name = child_object.Setup
+        return self._name
+
+    @name.setter
+    def name(self, name: str) -> None:
+        if name in self._app.setup_names:
+            raise ValueError(f"Name {name} already assigned in the design.")
+
+        self._app.oanalysis.Rename(self.name, str(name))
+
+        # Reset object
+        self.__child_object = None
+        object.__setattr__(self, "_name", name)
+        object.__setattr__(self, "_tree_node_initialized", False)
+        object.__setattr__(self, "_props", None)
+        object.__setattr__(self, "_children_loaded", False)
 
     @property
     def default_intrinsics(self) -> dict:
@@ -207,17 +286,6 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
 
         """
         intrinsics = {}
-        if "HFSS 3D Layout" in self._app.design_type:  # pragma no cover
-            try:
-                intrinsics["Freq"] = (
-                    self._app.modeler.edb.setups[self.name]
-                    .adaptive_settings.adaptive_frequency_data_list[0]
-                    .adaptive_frequency
-                )
-                intrinsics["Phase"] = "0deg"
-                return intrinsics
-            except Exception:
-                settings.logger.debug("Failed to retrieve adaptive frequency.")
         if self._app.design_type in ["Twin Builder"]:
             if "Tend" in self.properties:
                 intrinsics["Time"] = "0s"
@@ -247,14 +315,26 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
                 intrinsics[i] = "0s"
         return intrinsics
 
-    def __repr__(self) -> str:
-        return self.name + " with " + str(len(self.sweeps)) + " Sweeps"
+    @pyaedt_function_handler()
+    def delete(self) -> bool:
+        """Delete actual Setup.
 
-    def __str__(self) -> str:
-        if not self._app.design_solutions.default_adaptive:
-            return self.name
-        else:
-            return f"{self.name} : {self._app.design_solutions.default_adaptive}"
+        Returns
+        -------
+        bool
+            ``True`` if setup is deleted. ``False`` if it failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> setup = app.create_setup()
+        >>> setup.delete()
+
+        """
+        name = self.name
+        self._app.oanalysis.Delete(name)
+        return True
 
     @pyaedt_function_handler()
     def analyze(
@@ -332,43 +412,6 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
         )
 
     @property
-    def props(self) -> SetupProps:
-        """Properties of the setup.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> app = Hfss()
-        >>> setup = app.create_setup()
-        >>> setup.props
-
-        """
-        if self._legacy_props:
-            return self._legacy_props
-        if self._is_new_setup:
-            setup_template = SetupKeys.get_setup_templates()[self.setuptype]
-            setup_template["Name"] = self._name
-            self._legacy_props = SetupProps(self, setup_template)
-            self._is_new_setup = False
-        else:
-            try:
-                if "AnalysisSetup" in self._app.design_properties.keys():
-                    setups_data = self._app.design_properties["AnalysisSetup"]["SolveSetups"]
-                    if self.name in setups_data:
-                        setup_data = setups_data[self.name]
-                        self._legacy_props = SetupProps(self, setup_data)
-                elif "SimSetups" in self._app.design_properties.keys():
-                    setup_data = self._app.design_properties["SimSetups"]["SimSetup"]
-                    self._legacy_props = SetupProps(self, setup_data)
-            except Exception:
-                self._legacy_props = SetupProps(self, {})
-        return self._legacy_props
-
-    @props.setter
-    def props(self, value: dict) -> None:
-        self._legacy_props = SetupProps(self, value)
-
-    @property
     def is_solved(self) -> bool:
         """Verify if solutions are available for given setup.
 
@@ -386,7 +429,7 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
 
         """
         if self._app.design_type == "Circuit Design":
-            return True if self.omodule.ListVariations(self.name) else False
+            return True if self._app.oanalysis.ListVariations(self.name) else False
         if self._app.design_solutions.default_adaptive:
             expressions = [
                 i
@@ -406,6 +449,7 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
         return True if sol.get_solution_data() else False
 
     @property
+    @deprecated("Use onalysis from application object.")
     def omodule(self):
         """Analysis module.
 
@@ -418,25 +462,6 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
 
         """
         return self._app.oanalysis
-
-    @property
-    def name(self) -> str:
-        """Name.
-
-        Examples
-        --------
-         >>> from ansys.aedt.core import Hfss
-        >>> app = Hfss()
-        >>> setup = app.create_setup()
-        >>> setup.name
-
-        """
-        return self._name
-
-    @name.setter
-    def name(self, name: str) -> None:
-        self._name = name
-        self.props["Name"] = name
 
     @pyaedt_function_handler()
     def get_profile(self) -> Profiles:
@@ -602,7 +627,7 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
         snapshot_path: str = None,
         width: int = 800,
         height: int = 450,
-    ) -> "Standard":
+    ) -> Standard:
         """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plot, or data table.
 
         Parameters
@@ -704,21 +729,29 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
             )
         return None
 
+    @pyaedt_function_handler()
+    def _get_setup_data(self):
+        legacy_props = {}
+        if self._has_getsetupdata and self._name in self._app.setup_names:
+            setup_data = self._app.oanalysis.GetSetupData(self._name)
+            _arg2dict(setup_data, legacy_props)
+            return legacy_props[self._name]
+        else:
+            return legacy_props
+
 
 class Setup(CommonSetup):
     """Initializes, creates, and updates a 3D setup.
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.application.analysis.Analysis`
-        Inherited app object.
-    solution_type : int, str
-        Type of the setup.
+    app : :class:`ansys.aedt.core.application.analysis.Analysis` or
+    :class:`ansys.aedt.core.application.analysis.FieldAnalysis3DLayout`
+        Inherited analysis object.
     name : str, optional
         Name of the setup. The default is ``"MySetupAuto"``.
-    is_new_setup : bool, optional
-        Whether to create the setup from a template. The default is ``True``.
-        If ``False``, access is to the existing setup.
+    props : dict, optional
+        Properties of the setup.
 
     Examples
     --------
@@ -728,17 +761,21 @@ class Setup(CommonSetup):
 
     """
 
-    def __init__(self, app, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True) -> None:
-        CommonSetup.__init__(self, app, solution_type, name, is_new_setup)
+    def __init__(self, app: Analysis | FieldAnalysis3DLayout, name: str, props: dict) -> None:
+        CommonSetup.__init__(self, app=app, name=name, props=props)
 
     @pyaedt_function_handler()
-    def create(self) -> bool:
-        """Add a new setup based on class settings in AEDT.
+    def create(self) -> SetupHFSSAuto | SetupHFSS | SetupSBR | SetupMaxwell | SetupQ3D | SetupIcepak:
+        """Add a new setup.
 
         Returns
         -------
-        bool
-            Result of operation.
+        :class:`ansys.aedt.core.modules.solve_setup.SetupHFSSAuto`,
+        :class:`ansys.aedt.core.modules.solve_setup.SetupHFSS`,
+        :class:`ansys.aedt.core.modules.solve_setup.SetupSBR`,
+        :class:`ansys.aedt.core.modules.solve_setup.SetupMaxwell`,
+        :class:`ansys.aedt.core.modules.solve_setup.SetupQ3D`, or
+        :class:`ansys.aedt.core.modules.solve_setup.SetupIcepak`,
 
         References
         ----------
@@ -751,10 +788,17 @@ class Setup(CommonSetup):
         >>> setup = app.create_setup()
 
         """
-        soltype = SetupKeys.SetupNames[self.setuptype]
         arg = self._setup_dict_to_arg()
-        self.omodule.InsertSetup(soltype, arg)
-        return self._initialize_tree_node()
+
+        if self._app.design_type not in ["HFSS 3D Layout Design", "HFSS3DLayout"]:
+            self._app.oanalysis.InsertSetup(self.solver_type, arg)
+        else:
+            self._app.oanalysis.Add(arg)
+
+        # GetObjData is available for some objects in 2026R1.
+        self._has_getobject = _has_get_obj_data(self._child_object)
+
+        return self
 
     @pyaedt_function_handler()
     def update(self, properties: dict = None) -> bool:
@@ -784,33 +828,17 @@ class Setup(CommonSetup):
         """
         legacy_update = self.auto_update
         self.auto_update = False
-        if properties:
-            for el in properties:
-                self.props[el] = properties[el]
-        self.auto_update = legacy_update
+        if properties is not None:
+            # Merge with existing props to support partial updates
+            current_props = dict(self.props) if self._legacy_props else {}
+            current_props.update(properties)
+
+            self._legacy_props = SetupProps(self, current_props)
+
         arg = self._setup_dict_to_arg()
 
-        self.omodule.EditSetup(self.name, arg)
-        return True
-
-    @pyaedt_function_handler()
-    def delete(self) -> bool:
-        """Delete actual Setup.
-
-        Returns
-        -------
-        bool
-            ``True`` if setup is deleted. ``False`` if it failed.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> app = Hfss()
-        >>> setup = app.create_setup()
-        >>> setup.delete()
-
-        """
-        self._app.delete_setup(self.name)
+        self.auto_update = legacy_update
+        self._app.oanalysis.EditSetup(self.name, arg)
         return True
 
     @pyaedt_function_handler()
@@ -1002,7 +1030,7 @@ class Setup(CommonSetup):
             expressions, report_type, intrinsics, isconvergence, isrelativeconvergence, conv_criteria
         )
         arg.append(expression_cache)
-        self.omodule.EditSetup(self.name, arg)
+        self._app.oanalysis.EditSetup(self.name, arg)
         return True
 
     @pyaedt_function_handler()
@@ -1067,8 +1095,8 @@ class Setup(CommonSetup):
     def add_mesh_link(
         self,
         design: str,
-        solution: str = None,
-        parameters: dict = None,
+        solution: str | None = None,
+        parameters: dict | None = None,
         project: str = "This Project*",
         force_source_to_solve: bool = True,
         preserve_partner_solution: bool = True,
@@ -1187,8 +1215,8 @@ class Setup(CommonSetup):
             mesh_link["ApplyMeshOp"] = apply_mesh_operations
             if self._app.design_type not in ["Maxwell 2D", "Maxwell 3D"]:
                 mesh_link["AdaptPort"] = adapt_port
-            self.update()
             self.auto_update = auto_update
+            self.props["MeshLink"] = mesh_link
             return True
         except Exception:
             self.auto_update = auto_update
@@ -1251,7 +1279,7 @@ class Setup(CommonSetup):
         design: str,
         solution: str,
         map_variables_by_name: bool = True,
-        parameters: dict = None,
+        parameters: dict | None = None,
         project: str = "This Project*",
         force_source_to_solve: bool = True,
         preserve_partner_solution: bool = True,
@@ -1297,32 +1325,26 @@ class Setup(CommonSetup):
         >>> setup.start_continue_from_previous_setup(design="IM", solution="Setup1 : Transient")
 
         """
-        auto_update = self.auto_update
         try:
-            self.auto_update = False
-
             params = self._parse_link_parameters(map_variables_by_name, parameters)
 
             prev_solution = self._parse_link_solution(project, design, solution)
 
-            self.props["PrevSoln"] = prev_solution
+            self._legacy_props["PrevSoln"] = prev_solution
 
-            self.props["PrevSoln"]["Params"] = params
-            self.props["ForceSourceToSolve"] = force_source_to_solve
-            self.props["PreservePartnerSoln"] = preserve_partner_solution
+            self._legacy_props["PrevSoln"]["Params"] = params
+            self._legacy_props["ForceSourceToSolve"] = force_source_to_solve
+            self._legacy_props["PreservePartnerSoln"] = preserve_partner_solution
 
-            self.props["IsGeneralTransient"] = True
-            if self.props["IsHalfPeriodicTransient"]:
+            self._legacy_props["IsGeneralTransient"] = True
+            if self._legacy_props["IsHalfPeriodicTransient"]:
                 raise UserWarning(
                     "Half periodic TDM disabled because it is not "
                     "supported with start/continue from a previously solved setup."
                 )
-
             self.update()
-            self.auto_update = auto_update
             return True
         except Exception:
-            self.auto_update = auto_update
             return False
 
 
@@ -1366,6 +1388,8 @@ class SetupCircuit(CommonSetup):
         >>> setup1.props
 
         """
+        if _has_get_obj_data(self.child_object):
+            return super().props
         if self._legacy_props:
             return self._legacy_props
         if self._is_new_setup:
@@ -1424,42 +1448,43 @@ class SetupCircuit(CommonSetup):
         arg = self._setup_dict_to_arg(name="SimSetup")
 
         self._setup(soltype, arg)
-        return self._initialize_tree_node()
+        # return self._initialize_tree_node()
+        return True
 
     @pyaedt_function_handler()
     def _setup(self, soltype, arg, newsetup: bool = True) -> bool:
         if newsetup:
             if soltype == "NexximLNA":
-                self.omodule.AddLinearNetworkAnalysis(arg)
+                self._app.oanalysis.AddLinearNetworkAnalysis(arg)
             elif soltype == "TwinbuilderAC":
-                self.omodule.AddACAnalysis(arg)
+                self._app.oanalysis.AddACAnalysis(arg)
             elif soltype in ["NexximDC", "TwinbuilderDC"]:
-                self.omodule.AddDCAnalysis(arg)
+                self._app.oanalysis.AddDCAnalysis(arg)
             elif soltype in ["NexximTransient", "TwinbuilderTR"]:
-                self.omodule.AddTransient(arg)
+                self._app.oanalysis.AddTransient(arg)
             elif soltype == "NexximQuickEye":
-                self.omodule.AddQuickEyeAnalysis(arg)
+                self._app.oanalysis.AddQuickEyeAnalysis(arg)
             elif soltype == "NexximVerifEye":
-                self.omodule.AddVerifEyeAnalysis(arg)
+                self._app.oanalysis.AddVerifEyeAnalysis(arg)
             elif soltype == "NexximAMI":
-                self.omodule.AddAMIAnalysis(arg)
+                self._app.oanalysis.AddAMIAnalysis(arg)
             else:
                 warnings.warn("Solution Not Implemented Yet")
         else:
             if soltype == "NexximLNA":
-                self.omodule.EditLinearNetworkAnalysis(self.name, arg)
+                self._app.oanalysis.EditLinearNetworkAnalysis(self.name, arg)
             elif soltype == "TwinbuilderAC":
-                self.omodule.EditACAnalysis(self.name, arg)
+                self._app.oanalysis.EditACAnalysis(self.name, arg)
             elif soltype in ["NexximDC", "TwinbuilderDC"]:
-                self.omodule.EditDCAnalysis(self.name, arg)
+                self._app.oanalysis.EditDCAnalysis(self.name, arg)
             elif soltype in ["NexximTransient", "TwinbuilderTR"]:
-                self.omodule.EditTransient(self.name, arg)
+                self._app.oanalysis.EditTransient(self.name, arg)
             elif soltype == "NexximQuickEye":
-                self.omodule.EditQuickEyeAnalysis(self.name, arg)
+                self._app.oanalysis.EditQuickEyeAnalysis(self.name, arg)
             elif soltype == "NexximVerifEye":
-                self.omodule.EditVerifEyeAnalysis(self.name, arg)
+                self._app.oanalysis.EditVerifEyeAnalysis(self.name, arg)
             elif soltype == "NexximAMI":
-                self.omodule.EditAMIAnalysis(self.name, arg)
+                self._app.oanalysis.EditAMIAnalysis(self.name, arg)
 
             else:
                 raise NotImplementedError(f"Solution type '{soltype}' is not implemented yet")
@@ -1500,10 +1525,10 @@ class SetupCircuit(CommonSetup):
         legacy_update = self.auto_update
         self.auto_update = False
         if properties:
-            for el in properties:
-                self.props[el] = properties[el]
+            arg = self._setup_dict_to_arg(name="SimSetup", props=properties)
+        else:
+            arg = self._setup_dict_to_arg()
         soltype = SetupKeys.SetupNames[self.setuptype]
-        arg = self._setup_dict_to_arg(name="SimSetup")
         self._setup(soltype, arg, False)
         self.auto_update = legacy_update
         return True
@@ -1719,11 +1744,13 @@ class SetupCircuit(CommonSetup):
             else:
                 self.props["SweepDefinition"]["Data"] += " " + equation
             return self.update()
-        if isinstance(self.props["SweepDefinition"], dict):
-            self.props["SweepDefinition"] = [self.props["SweepDefinition"]]
         prop = {"Variable": sweep_variable, "Data": equation, "OffsetF1": False, "Synchronize": 0}
-        self.props["SweepDefinition"].append(prop)
-        return self.update()
+        sw = self.props["SweepDefinition"]
+        if isinstance(sw, list):
+            self.props["SweepDefinition"] = sw + [prop]
+        else:
+            self.props["SweepDefinition"] = [dict(sw)] + [prop]
+        return True
 
     @pyaedt_function_handler()
     def _expression_cache(
@@ -1890,7 +1917,7 @@ class SetupCircuit(CommonSetup):
             expressions, report_type, intrinsics, isconvergence, isrelativeconvergence, conv_criteria
         )
         arg.append(expression_cache)
-        self.omodule.EditSetup(self.name, arg)
+        self._app.oanalysis.EditSetup(self.name, arg)
         return True
 
     @pyaedt_function_handler()
@@ -2166,13 +2193,10 @@ class Setup3DLayout(CommonSetup):
     ----------
     app : :class:`ansys.aedt.core.application.analysis_3d_layout.FieldAnalysis3DLayout`
         Inherited app object.
-    solution_type : int or str
-        Type of the setup.
     name : str, optional
         Name of the setup. The default is ``"MySetupAuto"``.
-    is_new_setup : bool, optional
-        Whether to create the setup from a template. The default is ``True.``
-        If ``False``, access is to the existing setup.
+    props : dict, optional
+        Properties of the setup.
 
     Examples
     --------
@@ -2182,12 +2206,50 @@ class Setup3DLayout(CommonSetup):
 
     """
 
-    def __init__(self, app, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True) -> None:
-        CommonSetup.__init__(self, app, solution_type, name, is_new_setup)
+    def __repr__(self) -> str:
+        return self.name + " with " + str(len(self.sweep_names)) + " Sweeps"
+
+    def __str__(self) -> str:
+        if not self._app.design_solutions.default_adaptive or self.solver_type != "HFSS":
+            return self.name
+        else:
+            return f"{self.name} : {self._app.design_solutions.default_adaptive}"
+
+    def __init__(self, app: FieldAnalysis3DLayout, name: str, props: dict) -> None:
+        # Internal variables
+        self.__sweeps = SetupDict()
+
+        CommonSetup.__init__(self, app, name, props)
 
     @property
-    def sweeps(self) -> list["SweepHFSS3DLayout"]:
+    def sweep_names(self) -> list[str]:
+        """Return the available sweep names.
+
+        Returns
+        -------
+        List
+            List of sweep names.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> setup1 = hfss.setups[0]
+        >>> setup1.sweep_names
+
+        """
+        if "GetSweeps" in dir(self._app.oanalysis):
+            return list(self._app.oanalysis.GetSweeps(self._name))
+        return []
+
+    @property
+    def sweeps(self) -> SetupDict:
         """Retrieve sweeps.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.generic.general_methods.SetupDict`
+            Sweeps in the setup.
 
         Examples
         --------
@@ -2197,56 +2259,16 @@ class Setup3DLayout(CommonSetup):
         >>> setup.sweeps
 
         """
-        if self._sweeps is not None:
-            return self._sweeps
-        try:
-            self._sweeps = []
-            setups_data = self._app.design_properties["Setup"]["Data"]
-            if self.name in setups_data:
-                setup_data = setups_data[self.name]
-                if "Data" in setup_data:  # 0 and 7 represent setup HFSSDrivenAuto
-                    app = setup_data["Data"]
-                    for el in app:
-                        if isinstance(app[el], dict):
-                            self._sweeps.append(SweepHFSS3DLayout(self, el, props=app[el]))
-        except (KeyError, TypeError):
-            pass
-        return self._sweeps
+        sweep_names = self.sweep_names
+        for operation in sweep_names:
+            if operation not in self.__sweeps:
+                self.__sweeps[operation] = SweepHFSS3DLayout(setup=self, name=operation, props={})
 
-    @property
-    def props(self) -> SetupProps:
-        """Retrieve props.
+        for sweep_name in list(self.__sweeps):
+            if sweep_name not in sweep_names:
+                del self.__sweeps[sweep_name]
 
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss3dLayout
-        >>> app = Hfss3dLayout()
-        >>> setup = app.create_setup()
-        >>> setup.props
-
-        """
-        if self._legacy_props:
-            return self._legacy_props
-        if self._is_new_setup:
-            setup_template = SetupKeys.get_setup_templates()[self.setuptype]
-            setup_template["Name"] = self.name
-            self._legacy_props = SetupProps(self, setup_template)
-            self._is_new_setup = False
-
-        else:
-            try:
-                setups_data = self._app.design_properties["Setup"]["Data"]
-                if self.name in setups_data:
-                    setup_data = setups_data[self.name]
-                    self._legacy_props = SetupProps(self, setup_data)
-            except Exception:
-                self._legacy_props = SetupProps(self, {})
-                settings.logger.error("Unable to set props.")
-        return self._legacy_props
-
-    @props.setter
-    def props(self, value: dict) -> None:
-        self._legacy_props = SetupProps(self, value)
+        return self.__sweeps
 
     @property
     def is_solved(self) -> bool:
@@ -2271,28 +2293,53 @@ class Setup3DLayout(CommonSetup):
         else:
             props = self.props
             key = "SolveSetupType"
+
         if props.get(key, "HFSS") == "HFSS":
             combined_name = f"{self.name} : Last Adaptive"
             expressions = [i for i in self._app.post.available_report_quantities(solution=combined_name)]
+            if not expressions:
+                return False
             sol = self._app.post.reports_by_category.standard(expressions=expressions[0], setup=combined_name)
         elif props.get(key, "HFSS") == "SIwave":
             combined_name = f"{self.name} : {self.sweeps[0].name}"
             expressions = [i for i in self._app.post.available_report_quantities(solution=combined_name)]
+            if not expressions:
+                return False
             sol = self._app.post.reports_by_category.standard(expressions=expressions[0], setup=combined_name)
         elif props.get(key, "HFSS") == "SIwaveDCIR":
             expressions = self._app.post.available_report_quantities(solution=self.name, is_siwave_dc=True)
+            if not expressions:
+                return False
             sol = self._app.post.reports_by_category.standard(expressions=expressions[0], setup=self.name)
             sol.domain = "DCIR"
+        elif props.get(key, "Solver") == "SIwaveEMI":
+            combined_name = f"{self.name} : {self.name}"
+            expressions = [i for i in self._app.post.available_report_quantities(solution=combined_name)]
+            if not expressions:
+                return False
+            sol = self._app.post.reports_by_category.standard(expressions=expressions[0], setup=combined_name)
+        elif props.get(key, "HFSS") == "HFSSPI":
+            if not self.sweep_names:
+                return False
+            sweep_name = self.sweep_names[0]
+            combined_name = f"{self.name} : {sweep_name}"
+            expressions = [i for i in self._app.post.available_report_quantities(solution=combined_name)]
+            if not expressions:
+                return False
+            sol = self._app.post.reports_by_category.standard(expressions=expressions[0], setup=combined_name)
         else:
             expressions = [i for i in self._app.post.available_report_quantities(solution=self.name)]
-
+            if not expressions:
+                return False
             sol = self._app.post.reports_by_category.standard(expressions=expressions[0], setup=self.name)
+
         if identify_setup(props):
             sol.domain = "Time"
+
         return True if sol.get_solution_data() else False
 
     @property
-    def solver_type(self) -> str:
+    def solver_type(self) -> str | None:
         """Setup type.
 
         Returns
@@ -2318,14 +2365,57 @@ class Setup3DLayout(CommonSetup):
             self._app.logger.debug("Cannot retrieve solver type with key 'SolveSetupType'")
         return None
 
+    @property
+    def default_intrinsics(self) -> dict:
+        """Retrieve default intrinsic for actual setup.
+
+        Returns
+        -------
+        dict
+            Dictionary which keys are typically Freq, Phase or Time.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> setup = app.create_setup()
+        >>> setup.default_intrinsics
+
+        """
+        intrinsics = {}
+        try:
+            intrinsics["Freq"] = (
+                self._app.modeler.edb.setups[self.name]
+                .adaptive_settings.adaptive_frequency_data_list[0]
+                .adaptive_frequency
+            )
+            intrinsics["Phase"] = "0deg"
+            return intrinsics
+        except Exception:  # pragma: no cover
+            self._app.logger.debug("Failed to retrieve adaptive frequency.")
+
+        props = self.props
+        for i in self._app.design_solutions.intrinsics:
+            if i == "Freq":
+                if "Frequency" in props:
+                    intrinsics[i] = props["Frequency"]
+                elif "Solution Freq" in self.properties:
+                    intrinsics[i] = self.properties["Solution Freq"]
+                else:
+                    intrinsics[i] = "All"
+            elif i == "Phase":
+                intrinsics[i] = "0deg"
+            elif i == "Time":
+                intrinsics[i] = "0s"
+        return intrinsics
+
     @pyaedt_function_handler()
-    def create(self) -> bool:
+    def create(self) -> Setup3DLayout:
         """Add a new setup based on class settings in AEDT.
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`ansys.aedt.core.modules.solve_setup.Setup3DLayout`
 
         References
         ----------
@@ -2340,11 +2430,15 @@ class Setup3DLayout(CommonSetup):
         """
         arg = self._setup_dict_to_arg()
 
-        self.omodule.Add(arg)
-        return self._initialize_tree_node()
+        self._app.oanalysis.Add(arg)
+
+        # GetObjData is available for some objects in 2026R1.
+        self._has_getobject = _has_get_obj_data(self._child_object)
+
+        return self
 
     @pyaedt_function_handler()
-    def update(self, properties: dict = None) -> bool:
+    def update(self, properties: dict | None = None) -> bool:
         """Update the setup based on the class arguments or a dictionary.
 
         Parameters
@@ -2369,12 +2463,51 @@ class Setup3DLayout(CommonSetup):
         >>> setup.update(properties={"Name": "Value"})
 
         """
-        if properties:
-            for el in properties:
-                self.props._setitem_without_update(el, properties[el])
-        arg = self._setup_dict_to_arg()
-        self.omodule.Edit(self.name, arg)
+        if properties is None:
+            properties = dict(self.props)
+
+        arg = self._setup_dict_to_arg(props=properties)
+
+        self._app.oanalysis.Edit(self.name, arg)
+
+        if not self._has_getobject and not self._has_getsetupdata:
+            self._legacy_props = properties
+
         return True
+
+    @pyaedt_function_handler()
+    def delete_sweep(self, name: str) -> bool:
+        """Delete a sweep.
+
+        Parameters
+        ----------
+        name : str
+            Name of the sweep.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.DeleteSweep
+
+        Examples
+        --------
+        Create a frequency sweep and then delete it.
+
+        >>> import ansys.aedt.core
+        >>> hfss = ansys.aedt.core.Hfss3dLayout()
+        >>> setup1 = hfss.create_setup()
+        >>> sweep = setup1.add_sweep()
+        >>> setup1.delete_sweep(sweep.name)
+
+        """
+        if name in self.sweep_names:
+            self.sweeps[name].delete()
+            return True
+        return False
 
     @pyaedt_function_handler()
     def enable(self) -> bool:
@@ -2403,7 +2536,6 @@ class Setup3DLayout(CommonSetup):
 
         """
         self.props["Properties"]["Enable"] = "true"
-        self.update()
         return True
 
     @pyaedt_function_handler()
@@ -2433,7 +2565,6 @@ class Setup3DLayout(CommonSetup):
 
         """
         self.props["Properties"]["Enable"] = "false"
-        self.update()
         return True
 
     @pyaedt_function_handler()
@@ -2476,7 +2607,7 @@ class Setup3DLayout(CommonSetup):
         output_file = os.path.splitext(output_file)[0] + ".aedt"
         info_messages = list(self._app.odesktop.GetMessages(self._app.project_name, self._app.design_name, 0))
         error_messages = list(self._app.odesktop.GetMessages(self._app.project_name, self._app.design_name, 2))
-        self.omodule.ExportToHfss(self.name, output_file)
+        self._app.oanalysis.ExportToHfss(self.name, output_file)
         succeeded = self._check_export_log(info_messages, error_messages, output_file)
         if succeeded and keep_net_name:
             from ansys.aedt.core import Hfss
@@ -2750,7 +2881,7 @@ class Setup3DLayout(CommonSetup):
             os.unlink(output_file)
         info_messages = list(self._app.odesktop.GetMessages(self._app.project_name, self._app.design_name, 0))
         error_messages = list(self._app.odesktop.GetMessages(self._app.project_name, self._app.design_name, 2))
-        self.omodule.ExportToQ3d(self.name, output_file)
+        self._app.oanalysis.ExportToQ3d(self.name, output_file)
         succeeded = self._check_export_log(info_messages, error_messages, output_file)
         if succeeded and keep_net_name:
             from ansys.aedt.core import Q3d
@@ -2759,7 +2890,7 @@ class Setup3DLayout(CommonSetup):
         return succeeded
 
     @pyaedt_function_handler()
-    def add_sweep(self, name: str = None, sweep_type: str = "Interpolating") -> SweepHFSS3DLayout | bool:
+    def add_sweep(self, name: str | None = None, sweep_type: str = "Interpolating") -> SweepHFSS3DLayout | bool:
         """Add a frequency sweep.
 
         Parameters
@@ -2791,16 +2922,21 @@ class Setup3DLayout(CommonSetup):
         """
         if not name:
             name = generate_unique_name("Sweep")
-        sweep_n = SweepHFSS3DLayout(self, name, sweep_type)
-        if sweep_n.create():
-            if self._sweeps is None:
-                self._sweeps = []
-            self._sweeps.append(sweep_n)
-            return sweep_n
-        return False
+        elif name in self.sweep_names:
+            name = generate_unique_name(name)
+
+        props = Sweep3DLayout
+
+        sweep_type = get_sweep_type(sweep_type)
+
+        props["FreqSweepType"] = sweep_type
+
+        sweep_n = SweepHFSS3DLayout(self, name, props)
+
+        return sweep_n.create()
 
     @pyaedt_function_handler()
-    def get_sweep(self, name: str = None) -> SweepHFSS3DLayout | bool:
+    def get_sweep(self, name: str | None = None) -> SweepHFSS3DLayout | bool:
         """Return frequency sweep object of a given sweep.
 
         Parameters
@@ -2815,20 +2951,20 @@ class Setup3DLayout(CommonSetup):
 
         Examples
         --------
-        >>> h3d = Hfss3dLayout()
-        >>> setup = h3d.get_setup("Pyaedt_setup")
-        >>> sweep = setup.get_sweep("Sweep1")
-        >>> sweep.add_subrange("LinearCount", 0, 10, 1, "Hz")
-        >>> sweep.add_subrange("LogScale", 10, 1e8, 100, "Hz")
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> app = Hfss3dLayout()
+        >>> setup = app.create_setup()
+        >>> sweep = setup.add_sweep()
+        >>> setup.get_sweep(sweep.name)
 
         """
         if name:
-            for sweep in self.sweeps:
-                if name == sweep.name:
-                    return sweep
-        else:
-            if self.sweeps:
-                return self.sweeps[0]
+            if name in self.sweep_names:
+                return self.sweeps[name]
+            else:
+                return False
+        elif self.sweep_names:
+            return self.sweeps[0]
         return False
 
     @pyaedt_function_handler()
@@ -2881,7 +3017,7 @@ class Setup3DLayout(CommonSetup):
         """
         if os.path.isfile(file_path):  # pragma no cover
             if not overwrite:  # pragma no cover
-                settings.logger.error(f"File {file_path} already exists. Configure file is not exported")
+                self._app.logger.error(f"File {file_path} already exists. Configure file is not exported")
                 return False
         return self.props._export_properties_to_json(file_path, overwrite=overwrite)
 
@@ -2963,7 +3099,7 @@ class Setup3DLayout(CommonSetup):
                 val.append(SetupProps(self, entry))
             self.props["MatrixConvEntry"] = val
         else:
-            self.props["MatrixConvEntry"] = []
+            MatrixConvEntry = []
             for entry_custom in custom_entries:
                 entry = {
                     "Port1": entry_custom[0],
@@ -2971,7 +3107,8 @@ class Setup3DLayout(CommonSetup):
                     "MagLimit": str(entry_custom[2]),
                     "PhaseLimit": self._app.value_with_units(entry_custom[3], "deg"),
                 }
-                self.props["MatrixConvEntry"].append(SetupProps(self, entry))
+                MatrixConvEntry.append(SetupProps(self, entry))
+            self.props["MatrixConvEntry"] = MatrixConvEntry
         self.auto_update = legacy_update
         return self.update()
 
@@ -2983,13 +3120,10 @@ class SetupHFSS(Setup, PyAedtBase):
     ----------
     app : :class:`ansys.aedt.core.application.analysis.Analysis`
         Inherited app object.
-    solution_type : int, str
-        Type of the setup.
     name : str, optional
         Name of the setup. The default is ``"MySetupAuto"``.
-    is_new_setup : bool, optional
-        Whether to create the setup from a template. The default is ``True``.
-        If ``False``, access is to the existing setup.
+    props : dict, optional
+        Properties of the setup.
 
     Examples
     --------
@@ -2999,8 +3133,9 @@ class SetupHFSS(Setup, PyAedtBase):
 
     """
 
-    def __init__(self, app, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True) -> None:
-        Setup.__init__(self, app, solution_type, name, is_new_setup)
+    def __init__(self, app: Analysis, name: str, props: dict) -> None:
+        self.solver_type = SetupKeys.SetupNames[Setups.HFSSDrivenAuto]
+        Setup.__init__(self, app, name, props)
 
     @pyaedt_function_handler()
     def get_derivative_variables(self) -> list:
@@ -3052,10 +3187,11 @@ class SetupHFSS(Setup, PyAedtBase):
         """
         if not isinstance(derivative_list, list):
             derivative_list = [derivative_list]
-        self.auto_update = False
-        self.props["VariablesForDerivatives"] = derivative_list + self.get_derivative_variables()
-        self.auto_update = True
-        return self.update()
+        # self.auto_update = False
+        new_props = self.props
+        new_props["VariablesForDerivatives"] = derivative_list + self.get_derivative_variables()
+        # self.auto_update = True
+        return self.update(new_props)
 
     @pyaedt_function_handler()
     def set_tuning_offset(self, offsets: dict) -> bool:
@@ -3436,6 +3572,7 @@ class SetupHFSS(Setup, PyAedtBase):
         """
         if not name:
             name = generate_unique_name("Sweep")
+
         if self.setuptype <= 4:
             sweep_n = SweepHFSS(self, name=name, sweep_type=sweep_type, props=props)
 
@@ -3503,7 +3640,7 @@ class SetupHFSS(Setup, PyAedtBase):
         >>> sweeps = setup.get_sweep_names()
 
         """
-        return self.omodule.GetSweeps(self.name)
+        return self._app.oanalysis.GetSweeps(self.name)
 
     @pyaedt_function_handler()
     def delete_sweep(self, name: str) -> bool:
@@ -3540,7 +3677,7 @@ class SetupHFSS(Setup, PyAedtBase):
             else:
                 self._sweeps = [sweep for sweep in self._sweeps if sweep.name != name]
 
-            self.omodule.DeleteSweep(self.name, name)
+            self._app.oanalysis.DeleteSweep(self.name, name)
 
             # Reset children to populate again the new properties
             self._children = {}
@@ -3581,7 +3718,6 @@ class SetupHFSS(Setup, PyAedtBase):
         if self.setuptype != 1 or self._app.solution_type not in ["Modal", "Terminal"]:
             self._app.logger.error("Method applies only to HFSS-driven solutions.")
             return False
-        self.auto_update = False
         self.props["SolveType"] = "Single"
         if isinstance(freq, (int, float)):
             freq = f"{freq}GHz"
@@ -3591,8 +3727,7 @@ class SetupHFSS(Setup, PyAedtBase):
             self.props["MaximumPasses"] = max_passes
         if max_delta_s:
             self.props["MaxDeltaS"] = max_delta_s
-        self.auto_update = True
-        return self.update()
+        return True
 
     @pyaedt_function_handler()
     def enable_adaptive_setup_broadband(
@@ -3632,20 +3767,19 @@ class SetupHFSS(Setup, PyAedtBase):
         if self.setuptype != 1 or self._app.solution_type not in ["Modal", "Terminal"]:
             self._app.logger.error("Method applies only to HFSS-driven solutions.")
             return False
-        self.auto_update = False
         self.props["SolveType"] = "BroadBand"
-        for el in list(self.props["MultipleAdaptiveFreqsSetup"].keys()):
-            del self.props["MultipleAdaptiveFreqsSetup"][el]
+        broad = {}
+
         if isinstance(low_frequency, (int, float)):
             low_frequency = f"{low_frequency}GHz"
         if isinstance(high_frequency, (int, float)):
             high_frequency = f"{high_frequency}GHz"
-        self.props["MultipleAdaptiveFreqsSetup"]["Low"] = low_frequency
-        self.props["MultipleAdaptiveFreqsSetup"]["High"] = high_frequency
+        broad["Low"] = low_frequency
+        broad["High"] = high_frequency
+        self.props["MultipleAdaptiveFreqsSetup"] = broad
         self.props["MaximumPasses"] = max_passes
         self.props["MaxDeltaS"] = max_delta_s
-        self.auto_update = True
-        return self.update()
+        return True
 
     @pyaedt_function_handler()
     def enable_adaptive_setup_multifrequency(self, frequencies: list, max_delta_s: float = 0.02) -> bool:
@@ -3675,30 +3809,26 @@ class SetupHFSS(Setup, PyAedtBase):
         if self.setuptype != 1 or self._app.solution_type not in ["Modal", "Terminal"]:
             self._app.logger.error("Method applies only to HFSS-driven solutions.")
             return False
-        self.auto_update = False
         self.props["SolveType"] = "MultiFrequency"
+        multi = {}
         # props["MultipleAdaptiveFreqsSetup"] could potentially be nonexistent.
         # A known case is the setup automatically created by setting auto-open region.
-        if "MultipleAdaptiveFreqsSetup" not in self.props:  # pragma no cover
-            self.props["MultipleAdaptiveFreqsSetup"] = {}
-        for el in list(self.props["MultipleAdaptiveFreqsSetup"].keys()):
-            del self.props["MultipleAdaptiveFreqsSetup"][el]
         i = 0
         for f in frequencies:
             if isinstance(max_delta_s, float):
                 if isinstance(f, (int, float)):
                     f = f"{f}GHz"
-                self.props["MultipleAdaptiveFreqsSetup"][f] = [max_delta_s]
+                multi[f] = [max_delta_s]
             else:
                 if isinstance(f, (int, float)):
                     f = f"{f}GHz"
                 try:
-                    self.props["MultipleAdaptiveFreqsSetup"][f] = [max_delta_s[i]]
+                    multi[f] = [max_delta_s[i]]
                 except IndexError:
-                    self.props["MultipleAdaptiveFreqsSetup"][f] = [0.02]
+                    multi[f] = [0.02]
             i += 1
-        self.auto_update = True
-        return self.update()
+        self.props["MultipleAdaptiveFreqsSetup"] = multi
+        return True
 
     @pyaedt_function_handler()
     def use_matrix_convergence(
@@ -3802,26 +3932,62 @@ class SetupHFSSAuto(Setup, PyAedtBase):
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.application.analysis.Analysis`
-        Inherited app object.
-    solution_type : int, str
-        Type of the setup.
+    app : :class:`ansys.aedt.core.application.analysis.Analysis` or
+    :class:`ansys.aedt.core.application.analysis.FieldAnalysis3DLayout`
+        Inherited analysis object.
     name : str, optional
         Name of the setup. The default is ``"MySetupAuto"``.
-    is_new_setup : bool, optional
-        Whether to create the setup from a template. The default is ``True``.
-        If ``False``, access is to the existing setup.
+    props : dict, optional
+        Properties of the setup.
 
     Examples
     --------
-    >>> import ansys.aedt.core
-    >>> hfss = ansys.aedt.core.Hfss()
+    >>> from ansys.aedt.core import Hfss
+    >>> from ansys.aedt.core import Hfss3dLayout
+    >>> hfss = Hfss()
     >>> setup1 = hfss.create_setup(name="Setup1", setup_type="HFSSDrivenAuto")
+    >>> hfss3dlayout = Hfss3dLayout()
+    >>> setup2 = hfss3dlayout.create_setup(name="Setup2", setup_type="HFSSDrivenAuto")
 
     """
 
-    def __init__(self, app, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True) -> None:
-        Setup.__init__(self, app, solution_type, name, is_new_setup)
+    def __repr__(self) -> str:
+        return self.name
+
+    def __str__(self) -> str:
+        return f"{self.name} : Sweep"
+
+    def __init__(self, app: Analysis | FieldAnalysis3DLayout, name: str, props: dict) -> None:
+        if app.design_type == "HFSS 3D Layout Design":
+            self.solver_type = "HFSS"
+        else:
+            self.solver_type = SetupKeys.SetupNames[Setups.HFSSDrivenAuto]
+        Setup.__init__(self, app, name, props)
+
+    @property
+    def is_solved(self) -> bool:
+        """Verify if solutions are available for given setup.
+
+        Returns
+        -------
+        bool
+            ``True`` if solutions are available, ``False`` otherwise.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> setup = app.create_setup(setup_type="HFSSDrivenAuto")
+        >>> setup.is_solved
+
+        """
+        expressions = [i for i in self._app.post.available_report_quantities(solution=str(self))]
+        if not expressions:
+            return False
+        sol = self._app.post.reports_by_category.standard(expressions=expressions[0], setup=self.name)
+        if identify_setup(self.props):
+            sol.domain = "Time"
+        return True if sol.get_solution_data() else False
 
     @pyaedt_function_handler()
     def get_derivative_variables(self) -> list:
@@ -3872,10 +4038,9 @@ class SetupHFSSAuto(Setup, PyAedtBase):
         """
         if not isinstance(derivative_list, list):
             derivative_list = [derivative_list]
-        self.auto_update = False
-        self.props["VariablesForDerivatives"] = derivative_list + self.get_derivative_variables()
-        self.auto_update = True
-        return self.update()
+        new_props = dict(self.props)
+        new_props["VariablesForDerivatives"] = derivative_list + self.get_derivative_variables()
+        return self.update(new_props)
 
     @pyaedt_function_handler()
     def set_tuning_offset(self, offsets: dict) -> bool:
@@ -4001,9 +4166,14 @@ class SetupHFSSAuto(Setup, PyAedtBase):
         if not self.props["Sweeps"]["Sweep"].get("SweepRanges") or not self.props["Sweeps"]["Sweep"]["SweepRanges"].get(
             "Subrange"
         ):
-            self.props["Sweeps"]["Sweep"]["SweepRanges"] = {"Subrange": []}
-        self.props["Sweeps"]["Sweep"]["SweepRanges"]["Subrange"].append(sweep_range)
-        return self.update()
+            cc = self.props["Sweeps"]["Sweep"]
+            cc["SweepRanges"] = {"Subrange": [sweep_range]}
+            self.props["Sweeps"]["Sweep"] = cc
+        else:
+            cc = self.props["Sweeps"]["Sweep"]["SweepRanges"]["Subrange"]
+            cc.append(sweep_range)
+            self.props["Sweeps"]["Sweep"]["SweepRanges"]["Subrange"] = cc
+        return True
 
     @pyaedt_function_handler()
     def enable_adaptive_setup_single(
@@ -4347,22 +4517,22 @@ class SetupMaxwell(Setup, PyAedtBase):
             sweep.props["RangeSamples"] = step_size
         elif sweep_type == "SinglePoints":
             sweep.props["RangeEnd"] = f"{start_frequency}{units}"
-        self.props["SaveAllFields"] = save_all_fields
-        if self.sweeps:
+        pp = dict(self.props)
+        pp["SaveAllFields"] = save_all_fields
+        if pp.get("SweepRanges"):
             if clear:
-                self.props["SweepRanges"] = {"Subrange": [SetupProps(self, sweep.props)]}
+                pp["SweepRanges"] = {"Subrange": [sweep.props]}
                 self.sweeps.clear()
             else:
                 if isinstance(self.props["SweepRanges"]["Subrange"], dict):
                     temp = self.props["SweepRanges"]["Subrange"]
-                    self.props["SweepRanges"].pop("Subrange", None)
-                    self.props["SweepRanges"]["Subrange"] = [SetupProps(self, temp)]
-                self.props["SweepRanges"]["Subrange"].append(SetupProps(self, sweep.props))
+                    pp["SweepRanges"].pop("Subrange", None)
+                    pp["SweepRanges"]["Subrange"] = [SetupProps(self, temp)]
+                pp["SweepRanges"]["Subrange"].append(SetupProps(self, sweep.props))
         else:
-            self.props["HasSweepSetup"] = True
-            self.props["SweepRanges"] = {"Subrange": [SetupProps(self, sweep.props)]}
-            sweep.create()
-        self.update()
+            pp["HasSweepSetup"] = True
+            pp["SweepRanges"] = {"Subrange": [SetupProps(self, sweep.props)]}
+        sweep.create(pp)
         self.auto_update = legacy_update
         if self._sweeps is None:
             self._sweeps = []
@@ -5187,7 +5357,7 @@ class SetupQ3D(Setup, PyAedtBase):
             del props1["DC"]
         arg = self._setup_dict_to_arg(props=props1)
 
-        self.omodule.EditSetup(self.name, arg)
+        self._app.oanalysis.EditSetup(self.name, arg)
         return True
 
 

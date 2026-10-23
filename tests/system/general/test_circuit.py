@@ -1275,7 +1275,7 @@ def test_get_component_path_and_import_sss_files(aedt_app, test_tmp_dir) -> None
     assert len(aedt_app.modeler.schematic.components) == 4
     assert t1.component_path
     nexxim_state_space = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "neximspacefile.sss"
-    sss = aedt_app.modeler.schematic.create_nexxim_state_space_component(nexxim_state_space)
+    sss = aedt_app.modeler.schematic.create_nexxim_state_space_component(nexxim_state_space, 16)
     assert len(aedt_app.modeler.schematic.components) == 5
     assert sss.component_path
 

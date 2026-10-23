@@ -539,64 +539,36 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         ports = list(self.oboundary.GetExcitationsOfType("Terminal"))
         boundary = self._create_boundary(port_name, props, "AutoIdentify")
         if boundary:
+            properties = [
+                "NAME:AllTabs",
+                [
+                    "NAME:HfssTab",
+                    ["NAME:PropServers", "BoundarySetup:" + boundary.name],
+                    [
+                        "NAME:ChangedProps",
+                        ["NAME:Renorm All Terminals", "Value:=", renorm],
+                    ],
+                ],
+            ]
+            try:
+                self.odesign.ChangeProperty(properties)
+            except Exception:  # pragma: no cover
+                self.logger.warning("Failed to change normalization.")
+
             new_ports = list(self.oboundary.GetExcitationsOfType("Terminal"))
             terminals = [i for i in new_ports if i not in ports]
             for count, terminal in enumerate(terminals, start=1):
-                props_terminal = {}
-                props_terminal["TerminalResistance"] = "50ohm"
-                props_terminal["ParentBndID"] = boundary.name
-                terminal_name = terminal
+                bound = BoundaryObject(self, terminal, props={"ParentBndID": boundary.name}, boundarytype="Terminal")
+                bound.props["ImpedanceType"] = "Impedance"
+                bound.props["ImpedanceType"] = "RLC"
 
                 if impedance:
-                    props_terminal["TerminalResistance"] = str(impedance) + "ohm"
-                    properties = [
-                        "NAME:AllTabs",
-                        [
-                            "NAME:HfssTab",
-                            ["NAME:PropServers", "BoundarySetup:" + terminal],
-                            [
-                                "NAME:ChangedProps",
-                                ["NAME:Terminal Renormalizing Impedance", "Value:=", str(impedance) + "ohm"],
-                            ],
-                        ],
-                    ]
-                    try:
-                        self.odesign.ChangeProperty(properties)
-                    except Exception:  # pragma: no cover
-                        self.logger.warning("Failed to change terminal impedance.")
-                if not renorm:
-                    properties = [
-                        "NAME:AllTabs",
-                        [
-                            "NAME:HfssTab",
-                            ["NAME:PropServers", "BoundarySetup:" + boundary.name],
-                            [
-                                "NAME:ChangedProps",
-                                ["NAME:Renorm All Terminals", "Value:=", False],
-                            ],
-                        ],
-                    ]
-                    try:
-                        self.odesign.ChangeProperty(properties)
-                    except Exception:  # pragma: no cover
-                        self.logger.warning("Failed to change normalization.")
+                    bound.props["Resistance"] = str(impedance) + "ohm"
+
                 if terminals_rename:
-                    new_name = port_name + "_T" + str(count)
-                    terminal_name = new_name
-                    properties = [
-                        "NAME:AllTabs",
-                        [
-                            "NAME:HfssTab",
-                            ["NAME:PropServers", "BoundarySetup:" + terminal],
-                            ["NAME:ChangedProps", ["NAME:Name", "Value:=", new_name]],
-                        ],
-                    ]
-                    try:
-                        self.odesign.ChangeProperty(properties)
-                    except Exception:  # pragma: no cover
-                        self.logger.warning(f"Failed to rename terminal {terminal}.")
-                bound = BoundaryObject(self, terminal_name, props_terminal, "Terminal")
-                self._boundaries[terminal_name] = bound
+                    bound.name = port_name + "_T" + str(count)
+
+                self._boundaries[bound.name] = bound
 
             if iswaveport:
                 boundary.type = "Wave Port"
@@ -1730,8 +1702,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_setup(
-        self, name: str = "MySetupAuto", setup_type: str | None = None, **kwargs
-    ) -> "SetupHFSS | SetupHFSSAuto":
+        self,
+        name: str | None = None,
+        setup_type: str | int | None = None,
+        **kwargs,
+    ) -> SetupHFSS | SetupHFSSAuto:
         """Create an analysis setup for HFSS.
 
         Optional arguments are passed along with ``setup_type`` and ``name``. Keyword
@@ -1744,7 +1719,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         Parameters
         ----------
         name : str, optional
-            Name of the setup. The default is ``"Setup1"``.
+            Name of the setup. The default is ``"MySetupAuto"``.
         setup_type : str, optional
             Type of the setup, which is based on the solution type. Options are
             ``"HFSSDrivenAuto"``, ``"HFSSDriven"``, ``"HFSSEigen"``, ``"HFSSTransient"``,
@@ -1758,7 +1733,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         -------
         :class:`ansys.aedt.core.modules.solve_setup.SetupHFSS`,
         :class:`ansys.aedt.core.modules.solve_setup.SetupHFSSAuto`
-            3D Solver Setup object.
+            Setup object.
 
         References
         ----------
@@ -1767,36 +1742,41 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.generic.constants import Setups
         >>> hfss = Hfss()
-        >>> hfss.create_setup(name="Setup1", setup_type="HFSSDriven", Frequency="10GHz")
+        >>> hfss.create_setup(name="Setup1", setup_type=Setups.HFSSDriven, Frequency="10GHz")
 
         """
+        setup_keys = SetupKeys.get_setup_templates()
+        setup_names = SetupKeys.SetupNames
+
         if setup_type is None:
+            # Default setup type
             setup_type = self.design_solutions.default_setup
-        elif setup_type in SetupKeys.SetupNames:
-            setup_type = SetupKeys.SetupNames.index(setup_type)
-        name = self.generate_unique_setup_name(name)
-        setup = self._create_setup(name=name, setup_type=setup_type)
-        setup.auto_update = False
-        if "Frequency" in kwargs.keys():
-            if type(kwargs["Frequency"]) is list:
-                if "MultipleAdaptiveFreqsSetup" not in kwargs.keys():
-                    kwargs["MultipleAdaptiveFreqsSetup"] = kwargs["Frequency"]
+        elif setup_type in setup_names:
+            setup_type = setup_names.index(setup_type)
+
+        if not name:
+            name = self.generate_unique_setup_name("MySetupAuto")
+        elif name in self.setup_names:
+            name = self.generate_unique_setup_name(name)
+            self.logger.warning(f"Name already exists. New name assigned is {name}.")
+
+        props = setup_keys[setup_type]
+
+        setup = self._create_setup(name=name, setup_type=setup_type, props=props)
+
+        if "MultipleAdaptiveFreqsSetup" in kwargs:
+            setup.enable_adaptive_setup_multifrequency(kwargs["MultipleAdaptiveFreqsSetup"])
+            del kwargs["MultipleAdaptiveFreqsSetup"]
+        elif "Frequency" in kwargs and isinstance(kwargs["Frequency"], list):
+            setup.enable_adaptive_setup_multifrequency(kwargs["Frequency"])
+            del kwargs["Frequency"]
         for arg_name, arg_value in kwargs.items():
-            if setup[arg_name] is not None:
-                if arg_name == "MultipleAdaptiveFreqsSetup":  # A list of frequency values is passed if
-                    setup[arg_name].delete_all()  # the default convergence criteria are to be
-                    if isinstance(arg_value, list):  # used.
-                        for i in arg_value:
-                            setup[arg_name][i] = [0.02]
-                    else:
-                        for i, k in arg_value.items():
-                            setup[arg_name][i] = [k]
-                    setup.props["SolveType"] = "MultiFrequency"
-                else:
-                    setup[arg_name] = arg_value
-        setup.auto_update = True
+            setup._legacy_props[arg_name] = arg_value
+
         setup.update()
+
         return setup
 
     @pyaedt_function_handler()

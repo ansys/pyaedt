@@ -24,30 +24,7 @@
 
 import copy
 
-
-def HFSS3DLayout_AdaptiveFrequencyData(freq):
-    """Update HFSS 3D adaptive frequency data.
-
-    Parameters
-    ----------
-    freq : float
-        Adaptive frequency value.
-
-
-    Returns
-    -------
-    list
-        List of frequency data.
-
-    Examples
-    --------
-    >>> from ansys.aedt.core.modules.setup_templates import HFSS3DLayout_AdaptiveFrequencyData
-    >>> HFSS3DLayout_AdaptiveFrequencyData(1.0)
-
-    """
-    value = dict({"AdaptiveFrequency": freq, "MaxDelta": "0.02", "MaxPasses": 10, "Expressions": []})
-    return value
-
+from ansys.aedt.core.generic.constants import Setups
 
 meshlink = dict({"ImportMesh": False})
 """Value for meshlink."""
@@ -1154,6 +1131,30 @@ TransientFlowOnly = dict(
 )
 """Icepak Transient Flow only setup properties and default values."""
 
+
+def HFSS3DLayout_AdaptiveFrequencyData(freq: float | str):
+    """Update HFSS 3D adaptive frequency data.
+
+    Parameters
+    ----------
+    freq : float or str
+        Adaptive frequency value.
+
+    Returns
+    -------
+    list
+        List of frequency data.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.setup_templates import HFSS3DLayout_AdaptiveFrequencyData
+    >>> HFSS3DLayout_AdaptiveFrequencyData(1.0)
+
+    """
+    value = dict({"AdaptiveFrequency": freq, "MaxDelta": "0.02", "MaxPasses": 10, "Expressions": []})
+    return value
+
+
 HFSS3DLayout_SingleFrequencyDataList = dict({"AdaptiveFrequencyData": HFSS3DLayout_AdaptiveFrequencyData("5GHz")})
 """Value for HFSS3DLayout SingleFrequencyDataList."""
 HFSS3DLayout_BroadbandFrequencyDataList = dict(
@@ -1254,7 +1255,7 @@ HFSS3DLayout = dict(
         "AdaptiveSettings": HFSS3DLayout_AdaptiveSettings,
     }
 )
-"""Value for HFSS 3 D layout."""
+"""Value for HFSS 3D layout."""
 
 HFSS3DLayout_v231 = dict(
     {
@@ -1333,6 +1334,668 @@ HFSS3DLayout_v231 = dict(
     }
 )
 """HFSS 3D Layout setup properties and default values."""
+
+HFSS3DLayoutAuto = {
+    "Properties": {"Enable": "true"},
+    "AutoSetup": True,
+    "SliderType": "Balanced",
+    "ElementType": 0,
+    "SolveSetupType": "HFSS",
+    "SolveSetupGroupType": "HFSS",
+    "PercentRefinementPerPass": 30,
+    "MinNumberOfPasses": 1,
+    "MinNumberOfConvergedPasses": 1,
+    "UseDefaultLambda": True,
+    "UseMaxRefinement": False,
+    "MaxRefinement": 1000000,
+    "UseMeshRegion": False,
+    "MeshRegionName": "",
+    "UseParallelRefinement": False,
+    "UseMeshFusionForFlex": False,
+    "UseAutoMeshFusion": False,
+    "SaveAdaptiveCurrents": False,
+    "SaveLastAdaptiveRadFields": False,
+    "UseConvergenceMatrix": False,
+    "AllEntries": False,
+    "AllDiagEntries": False,
+    "AllOffDiagEntries": False,
+    "MagMinThreshold": 0.01,
+    "ProdMajVerID": -1,
+    "ProjDesignSetup": "",
+    "ProdMinVerID": -1,
+    "Refine": False,
+    "Frequency": "10GHz",
+    "LambdaRefine": True,
+    "MeshSizeFactor": 1.5,
+    "QualityRefine": True,
+    "MinAngle": "15deg",
+    "UniformityRefine": False,
+    "MaxRatio": 2,
+    "Smooth": False,
+    "SmoothingPasses": 5,
+    "UseEdgeMesh": False,
+    "UseEdgeMeshAbsLength": False,
+    "EdgeMeshRatio": 0.1,
+    "EdgeMeshAbsLength": "1000mm",
+    "LayerProjectThickness": "0meter",
+    "UseDefeature": True,
+    "UseDefeatureAbsLength": False,
+    "DefeatureRatio": 1e-06,
+    "DefeatureAbsLength": "0mm",
+    "InfArrayDimX": 0,
+    "InfArrayDimY": 0,
+    "InfArrayOrigX": 0,
+    "InfArrayOrigY": 0,
+    "InfArraySkew": 0,
+    "ViaNumSides": 6,
+    "ViaMaterial": "",
+    "Style25DVia": "Mesh",
+    "ViaMeshPlating": False,
+    "FastTXLines": False,
+    "Replace3DTriangles": True,
+    "LayerSnapTol": "1e-05",
+    "ViaDensity": 0,
+    "HfssMesh": True,
+    "Q3dPostProc": 0,
+    "UnitFactor": 1000,
+    "Verbose": False,
+    "NumberOfProcessors": 0,
+    "SmallVoidArea": "0um2",
+    "SmallPlaneArea": "0um2",
+    "RemoveFloatingGeometry": False,
+    "HealingOption": 1,
+    "InclBBoxOption": 1,
+    "ModelType": 0,
+    "ICModeAuto": 1,
+    "ICModeLength": "50nm",
+    "WriteOptions": 0,
+    "ViaAreaCutoffCircElems": 0,
+    "SimplifyStackupPwrGndLayers": 0,
+    "AuxBlock": {},
+    "DoAdaptive": True,
+    "Color": ["R:=", 0, "G:=", 0, "B:=", 0],
+    "AdvancedSettings": {
+        "AccuracyLevel": 2,
+        "GapPortCalibration": True,
+        "ReferenceLengthRatio": 0.25,
+        "RefineAreaRatio": 4,
+        "DRCOn": False,
+        "FastSolverOn": False,
+        "StartFastSolverAt": 3000,
+        "LoopTreeOn": True,
+        "SingularElementsOn": False,
+        "UseStaticPortSolver": False,
+        "UseThinMetalPortSolver": False,
+        "ComputeBothEvenAndOddCPWModes": False,
+        "ZeroMetalLayerThickness": "0",
+        "ThinDielectric": 0,
+        "UseShellElements": False,
+        "ViaAreaCutoffCircElems": "0",
+        "SimplifyStackupPwrGndLayers": 0,
+        "SVDHighCompression": False,
+        "NumProcessors": 1,
+        "SolverType": "Auto Solver",
+        "UseHfssMUMPSSolver": True,
+        "RelativeResidual": 1e-06,
+        "EnhancedLowFreqAccuracy": False,
+        "OrderBasis": -1,
+        "SolveInsideMetalBasis": 0,
+        "MaxDeltaZo": 2,
+        "UseRadBoundaryOnPorts": False,
+        "SetTrianglesForWavePort": False,
+        "MinTrianglesForWavePort": 100,
+        "MaxTrianglesForWavePort": 500,
+        "numprocessorsdistrib": 1,
+        "CausalMaterials": True,
+        "enabledsoforopti": True,
+        "usehfsssolvelicense": False,
+        "CircuitSparamDefinition": False,
+        "CircuitIntegrationType": "FFT",
+        "DesignType": "Generic",
+        "MeshingMethod": "Auto",
+        "EnableDesignIntersectionCheck": True,
+        "UseAlternativeMeshMethodsAsFallBack": True,
+        "ModeOption": "General mode",
+        "BroadbandFreqOption": "AutoMaxFreq",
+        "BroadbandMaxNumFreq": 5,
+        "SaveADP": False,
+        "UseAdvancedDCExtrap": False,
+        "PhiMesherDeltaZRatio": 100000,
+    },
+    "CurveApproximation": {
+        "ArcAngle": "30deg",
+        "StartAzimuth": "0deg",
+        "UseError": False,
+        "Error": "0meter",
+        "MaxPoints": 8,
+        "UnionPolys": True,
+        "Replace3DTriangles": True,
+    },
+    "Q3D_DCSettings": {
+        "SolveResOnly": True,
+        "Cond": {"MaxPass": 10, "MinPass": 1, "MinConvPass": 1, "PerError": 1, "PerRefine": 30},
+        "Mult": {"MaxPass": 1, "MinPass": 1, "MinConvPass": 1, "PerError": 1, "PerRefine": 30},
+        "AccuracyLevel": "Normal",
+    },
+    "Sweep": {
+        "Properties": {"Enable": "true"},
+        "Sweeps": {
+            "Variable": "Sweep",
+            "Data": "LINC 1GHz 10GHz 501",
+            "OffsetF1": False,
+            "Synchronize": 0,
+        },
+        "GenerateSurfaceCurrent": False,
+        "SaveRadFieldsOnly": False,
+        "ZoSelected": False,
+        "SAbsError": 0.005,
+        "ZoPercentError": 1,
+        "GenerateStateSpace": False,
+        "EnforcePassivity": True,
+        "PassivityTolerance": 0.0001,
+        "UseQ3DForDC": False,
+        "UseComputeDC": False,
+        "UseAdpSolutionForAllSweepFreq": False,
+        "ResimulateDC": False,
+        "MaxSolutions": 250,
+        "InterpUseSMatrix": True,
+        "InterpUsePortImpedance": True,
+        "InterpUsePropConst": True,
+        "InterpUseFullBasis": True,
+        "AdvDCExtrapolation": False,
+        "MinSolvedFreq": "0.01GHz",
+        "AutoSMatOnlySolve": True,
+        "MinFreqSMatrixOnlySolve": "1MHz",
+        "CustomFrequencyString": "",
+        "AllEntries": False,
+        "AllDiagEntries": False,
+        "AllOffDiagEntries": False,
+        "MagMinThreshold": 0.01,
+        "InterpMinSubranges": 1,
+        "InterpMinSolutions": 0,
+        "FreqSweepType": "kInterpolating",
+    },
+}
+"""HFSS 3D Layout automatic setup properties and default values."""
+
+HFSSPI = {
+    "Properties": {"Enable": "true"},
+    "SolveSetupType": "HFSSPI",
+    "SolveSetupGroupType": "HFSS",
+    "SimSetupType": "kHFSSPI",
+    "SimSetupGroupType": "kHFSSGroup",
+    "SimulationSettings": {
+        "Enabled": True,
+        "InitialMeshSettings": {
+            "LambdaRefine": True,
+            "MeshSizefactor": 1.5,
+            "UseDefaultLambda": True,
+        },
+        "DefeatureSettings": {
+            "UnionPolygons": True,
+            "UseDefeature": True,
+            "UseDefeatureAbsLength": False,
+            "RemoveFloatingGeometry": False,
+            "DefeatureAbsLength": "0",
+            "DefeatureRatio": 1e-06,
+            "SmallVoidArea": "4mm2",
+            "SmallPlaneArea": "3mm2",
+            "HealingOption": 1,
+            "ModelType": 0,
+            "ICModeAuto": 0,
+            "ICModeLength": "50nm",
+        },
+        "ViaSettings": {
+            "ViaStyle": "kViaMesh",
+            "ViaNumSides": 6,
+            "ViaDensity": 0,
+            "ViaMaterial": "copper",
+            "ViaMeshPlating": False,
+        },
+        "CurveApproxSettings": {
+            "ArcAngle": "45.00000000deg",
+            "StartAzimuth": "0",
+            "MaxArcPoints": 8,
+            "UseArcToChordError": False,
+            "ArcToChordError": "0meter",
+        },
+        "AdvancedMeshSettings": {
+            "MeshDisplayAttributes": "",
+            "Replace3DTriangles": True,
+            "LayerSnapTol": "1e-5",
+        },
+        "ModellingSettings": {
+            "ZeroMetalLayerThickness": "0.04mm",
+            "ThinDielectric": "0",
+        },
+        "SetupOutputVariables": {},
+        "PIModelType": "PCB",
+        "HFSSAdaptiveSettings": {
+            "UseMaxRefinement": False,
+            "MaxRefinement": 1000000,
+            "UseConvergenceMatrix": False,
+            "UseMeshRegion": False,
+            "MeshRegionName": "",
+            "UseParallelRefinement": False,
+            "UseMeshFusionForFlex": False,
+            "UseAutoMeshFusion": False,
+            "AllEntries": False,
+            "AllDiagEntries": False,
+            "AllOffDiagEntries": False,
+            "MagMinThreshold": 0.01,
+            "AdaptiveSettings": {
+                "DoAdaptive": True,
+                "SaveFields": False,
+                "SaveRadFieldsOnly": False,
+                "MaxRefinePerPass": 30,
+                "MinPasses": 1,
+                "MinConvergedPasses": 1,
+                "AdaptType": "kSingle",
+                "Basic": True,
+                "SingleFrequencyDataList": {},
+                "BroadbandFrequencyDataList": {},
+                "MultiFrequencyDataList": {},
+            },
+        },
+        "HFSSSolverSettings": {
+            "OrderBasis": -1,
+            "SolveInsideMetalBasis": 0,
+            "SolverType": "kDirectSolver",
+            "RelativeResidual": 0.0001,
+            "UseShellElements": False,
+            "ViaAreaCutoffCircElems": "2.5mm2",
+            "EnhancedLowFreqAccuracy": False,
+        },
+        "MeshOperations": {},
+    },
+    "SweepDataList": {},
+    "UseMeshRegion": False,
+    "MeshRegionName": "",
+    "UseParallelRefinement": False,
+    "UseMeshFusionForFlex": False,
+    "UseAutoMeshFusion": False,
+    "ProdMajVerID": -1,
+    "ProjDesignSetup": "",
+    "ProdMinVerID": -1,
+    "Refine": False,
+    "Frequency": "10GHz",
+    "LambdaRefine": True,
+    "MeshSizeFactor": 1.5,
+    "QualityRefine": True,
+    "MinAngle": "15deg",
+    "UniformityRefine": False,
+    "MaxRatio": 2,
+    "Smooth": False,
+    "SmoothingPasses": 5,
+    "UseEdgeMesh": False,
+    "UseEdgeMeshAbsLength": False,
+    "EdgeMeshRatio": 0.1,
+    "EdgeMeshAbsLength": "1000mm",
+    "LayerProjectThickness": "0meter",
+    "UseDefeature": True,
+    "UseDefeatureAbsLength": False,
+    "DefeatureRatio": 1e-06,
+    "DefeatureAbsLength": "0mm",
+    "InfArrayDimX": 0,
+    "InfArrayDimY": 0,
+    "InfArrayOrigX": 0,
+    "InfArrayOrigY": 0,
+    "InfArraySkew": 0,
+    "ViaNumSides": 6,
+    "ViaMaterial": "copper",
+    "Style25DVia": "Mesh",
+    "ViaMeshPlating": False,
+    "FastTXLines": False,
+    "Replace3DTriangles": True,
+    "LayerSnapTol": "1e-05",
+    "ViaDensity": 0,
+    "HfssMesh": True,
+    "ElementType": 0,
+    "Q3dPostProc": 0,
+    "UnitFactor": 1000,
+    "Verbose": False,
+    "NumberOfProcessors": 0,
+    "SmallVoidArea": "4mm2",
+    "SmallPlaneArea": "3mm2",
+    "RemoveFloatingGeometry": False,
+    "HealingOption": 1,
+    "InclBBoxOption": 1,
+    "ModelType": 0,
+    "ICModeAuto": 0,
+    "ICModeLength": "50nm",
+    "WriteOptions": 0,
+    "ViaAreaCutoffCircElems": 0,
+    "SimplifyStackupPwrGndLayers": 1,
+    "AuxBlock": {},
+    "DoAdaptive": True,
+    "Color": ["R:=", 0, "G:=", 0, "B:=", 0],
+    "AdvancedSettings": {
+        "AccuracyLevel": 2,
+        "GapPortCalibration": True,
+        "ReferenceLengthRatio": 0.25,
+        "RefineAreaRatio": 4,
+        "DRCOn": False,
+        "FastSolverOn": False,
+        "StartFastSolverAt": 3000,
+        "LoopTreeOn": True,
+        "SingularElementsOn": False,
+        "UseStaticPortSolver": False,
+        "UseThinMetalPortSolver": False,
+        "ComputeBothEvenAndOddCPWModes": False,
+        "ZeroMetalLayerThickness": "0.04mm",
+        "ThinDielectric": 0,
+        "UseShellElements": False,
+        "ViaAreaCutoffCircElems": "2.5mm2",
+        "SimplifyStackupPwrGndLayers": 0,
+        "SVDHighCompression": False,
+        "NumProcessors": 1,
+        "SolverType": "Direct Solver",
+        "UseHfssMUMPSSolver": True,
+        "RelativeResidual": 1e-06,
+        "EnhancedLowFreqAccuracy": False,
+        "OrderBasis": -1,
+        "SolveInsideMetalBasis": 0,
+        "MaxDeltaZo": 2,
+        "UseRadBoundaryOnPorts": False,
+        "SetTrianglesForWavePort": False,
+        "MinTrianglesForWavePort": 100,
+        "MaxTrianglesForWavePort": 500,
+        "numprocessorsdistrib": 1,
+        "CausalMaterials": True,
+        "enabledsoforopti": True,
+        "usehfsssolvelicense": False,
+        "CircuitSparamDefinition": False,
+        "CircuitIntegrationType": "FFT",
+        "DesignType": "Generic",
+        "MeshingMethod": "Auto",
+        "EnableDesignIntersectionCheck": True,
+        "UseAlternativeMeshMethodsAsFallBack": True,
+        "ModeOption": "General mode",
+        "BroadbandFreqOption": "AutoMaxFreq",
+        "BroadbandMaxNumFreq": 5,
+        "SaveADP": False,
+        "UseAdvancedDCExtrap": False,
+        "PhiMesherDeltaZRatio": 100000,
+    },
+    "CurveApproximation": {
+        "ArcAngle": "45deg",
+        "StartAzimuth": "0deg",
+        "UseError": False,
+        "Error": "0meter",
+        "MaxPoints": 8,
+        "UnionPolys": True,
+        "Replace3DTriangles": True,
+    },
+    "AdaptiveSettings": {
+        "DoAdaptive": True,
+        "SaveFields": False,
+        "SaveRadFieldsOnly": False,
+        "MaxRefinePerPass": 30,
+        "MinPasses": 1,
+        "MinConvergedPasses": 1,
+        "AdaptType": "kSingle",
+        "Basic": True,
+        "SingleFrequencyDataList": {
+            "AdaptiveFrequencyData": {
+                "AdaptiveFrequency": "5GHz",
+                "MaxDelta": "0.02",
+                "MaxPasses": 10,
+                "Expressions": [],
+            }
+        },
+        "BroadbandFrequencyDataList": {
+            "AdaptiveFrequencyData": [
+                {"AdaptiveFrequency": "5GHz", "MaxDelta": "0.02", "MaxPasses": 10, "Expressions": []},
+                {"AdaptiveFrequency": "10GHz", "MaxDelta": "0.02", "MaxPasses": 10, "Expressions": []},
+            ]
+        },
+        "MultiFrequencyDataList": {
+            "AdaptiveFrequencyData": [
+                {"AdaptiveFrequency": "2.5GHz", "MaxDelta": "0.02", "MaxPasses": 10, "Expressions": []},
+                {"AdaptiveFrequency": "5GHz", "MaxDelta": "0.02", "MaxPasses": 10, "Expressions": []},
+                {"AdaptiveFrequency": "10GHz", "MaxDelta": "0.02", "MaxPasses": 10, "Expressions": []},
+            ]
+        },
+    },
+}
+"""HFSS PI setup properties and default values."""
+
+SIwaveEMI = {
+    "Properties": {"Enable": "true"},
+    "SolveSetupType": "SIwaveEMI",
+    "SolveSetupGroupType": "SIwave",
+    "SimSetupType": "kSIwaveEMI",
+    "SimSetupGroupType": "kSIwaveGroup",
+    "SimulationSettings": {
+        "Enabled": True,
+        "RulesXml": "",
+        "TagsXml": """<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<EMCRuleCheckerSettings>
+
+  <TagLibrary/>
+
+  <NetTags/>
+
+  <ComponentTags/>
+
+</EMCRuleCheckerSettings>
+""",
+        "Settings": """SELECTED_RULE_CATEGORY_NAME "General Settings"
+SELECTED_RULE_NAME "Current Settings"
+SELECTED_TAG_NAME ""
+SELECTED_OBJECT_SHOW_TYPE 0
+AUTO_TAG_CRITICAL_NETS 1
+AUTO_TAG_DIFFERENTIAL_NETS 1
+AUTO_TAG_POWER_GROUND_NETS 1
+AUTO_TAG_DECOUPLING_CAPS 1
+B_DECOUPLING_CAP_PREFIXES
+C
+EMC
+E_DECOUPLING_CAP_PREFIXES
+DECOUPLING_CAP_VALUE_THRESHOLD 0.000010
+AUTO_TAG_STITCHING_CAPS 1
+AUTO_TAG_ICS 1
+RETRIEVE_UNITS 1
+""",
+    },
+    "SweepDataList": {},
+}
+"""SIwave EMI setup properties and default values."""
+
+AMI = {
+    "Properties": {"Enable": "true"},
+    "SolveSetupType": "AMI",
+    "SolveSetupGroupType": "Circuit",
+    "SimSetupType": "kAMI",
+    "SimSetupGroupType": "kCircuitGroup",
+    "SimulationSettings": {
+        "Enabled": True,
+        "UseTimeStep": False,
+        "TimeStep": "5e-10",
+        "RevToLegacy": False,
+        "SamplesPerUI": 32,
+        "DataBlockSize": 10000,
+        "MinIgnoreBits": 100,
+        "AdditionalOptions": "",
+        "BaseOptionName": "(Default Options)",
+    },
+    "SweepDataList": {},
+}
+"""AMI setup properties and default values."""
+
+LNA = {
+    "Properties": {"Enable": "true"},
+    "SolveSetupType": "LNA",
+    "SolveSetupGroupType": "Circuit",
+    "SimSetupType": "kLNA",
+    "SimSetupGroupType": "kCircuitGroup",
+    "SimulationSettings": {
+        "Enabled": True,
+        "GroupDelay": False,
+        "Perturbation": 0.1,
+        "Noise": False,
+        "Skip_DC": False,
+        "AdditionalOptions": "",
+        "BaseOptionName": "(Default Options)",
+        "FilterText": "",
+    },
+    "SweepDataList": {},
+    "Data": {
+        "LNA Sweep 1": {
+            "DataId": "Sweep0",
+            "Properties": {"Enable": "true"},
+            "Sweeps": {
+                "Variable": "Freq",
+                "Data": "LINC 1MHz 500MHz 500",
+                "OffsetF1": False,
+                "Synchronize": 0,
+            },
+            "SolutionID": -1,
+        }
+    },
+}
+"""LNA setup properties and default values."""
+
+QuickEye = {
+    "Properties": {"Enable": "true"},
+    "SolveSetupType": "QuickEye",
+    "SolveSetupGroupType": "Circuit",
+    "SimSetupType": "kQEye",
+    "SimSetupGroupType": "kCircuitGroup",
+    "SimulationSettings": {
+        "Enabled": True,
+        "Delay": "1e-9",
+        "RunMissingStepResponses": True,
+        "RepeatBitPattern": "0",
+        "EyeProbeName": "",
+        "UsePDResults": False,
+        "AdditionalOptions": "",
+        "BaseOptionName": "(Default Options)",
+        "SamplesPerUI": 32,
+    },
+    "SweepDataList": {},
+}
+"""QuickEye setup properties and default values."""
+
+HFSS3DLayoutTransient = {
+    "Properties": {"Enable": "true"},
+    "SolveSetupType": "Transient",
+    "SolveSetupGroupType": "Circuit",
+    "SimSetupType": "kTransient",
+    "SimSetupGroupType": "kCircuitGroup",
+    "SimulationSettings": {
+        "Enabled": True,
+        "Accuracy": "default",
+        "EnableTransientNoise": False,
+        "NoiseFmax": "",
+        "NoiseFmin": "",
+        "NoiseTmin": 0,
+        "Perturbation": 1,
+        "NoiseScale": 0,
+        "EnableMultipleRuns": False,
+        "MultipleRuns": 1,
+        "AdditionalOptions": "",
+        "EnableUIC": False,
+        "AutoConvEnhancement": False,
+        "BaseOptionName": "(Default Options)",
+        "FilterText": "",
+    },
+    "TimeSteps": ["0.1ns:=", "10ns"],
+    "SweepDataList": {},
+}
+"""HFSS 3D Layout transient setup properties and default values."""
+
+HFSS3DLayoutVerifEye = {
+    "Properties": {"Enable": "true"},
+    "SolveSetupType": "VerifEye",
+    "SolveSetupGroupType": "Circuit",
+    "SimSetupType": "kVEye",
+    "SimSetupGroupType": "kCircuitGroup",
+    "SimulationSettings": {
+        "Enabled": True,
+        "Delay": "1e-9",
+        "RunMissingStepResponses": True,
+        "AdditionalOptions": "",
+        "BaseOptionName": "(Default Options)",
+    },
+    "SweepDataList": {},
+}
+"""HFSS 3D Layout VerifEye setup properties and default values."""
+
+SIwaveNearField = {
+    "Properties": {"Enable": "true"},
+    "SimSetupType": "kSIwaveNearField",
+    "SimSetupGroupType": "kSIwaveGroup",
+    "SimulationSettings": {
+        "Enabled": True,
+        "UseSISettings": True,
+        "UseCustomSettings": False,
+        "SISliderPos": 1,
+        "PISliderPos": 1,
+        "SIWAdvancedSettings": {
+            "IncludeCoPlaneCoupling": True,
+            "IncludeInterPlaneCoupling": False,
+            "IncludeSplitPlaneCoupling": True,
+            "IncludeFringeCoupling": True,
+            "IncludeTraceCoupling": True,
+            "XtalkThreshold": "-34",
+            "MaxCoupledLines": 12,
+            "MinVoidArea": "2mm2",
+            "MinPadAreaToMesh": "1mm2",
+            "MinPlaneAreaToMesh": "6.25e-6mm2",
+            "SnapLengthThreshold": "2.5um",
+            "MeshAutoMatic": True,
+            "MeshFrequency": "4GHz",
+            "AcDcMergeMode": 0,
+            "ReturnCurrentDistribution": False,
+            "IncludeVISources": False,
+            "IncludeInfGnd": False,
+            "InfGndLocation": "0mm",
+            "PerformERC": False,
+            "IgnoreNonFunctionalPads": True,
+        },
+        "SIWSParamSettings": {
+            "UseStateSpace": True,
+            "Interpolation": 1,
+            "Extrapolation": 3,
+            "DCBehavior": 3,
+        },
+        "SIWTemperatureSettings": {
+            "UseSitempFile": False,
+            "SitempFilePath": "",
+        },
+        "SIWNetProcessingSettings": {
+            "UseAutoNetSelection": True,
+            "IgnoreDummyNets": True,
+            "AutoSelectedNets": {},
+            "CurrentSelectedNets": {},
+        },
+        "SIWNearFieldSettings": {
+            "UseExternalSources": False,
+            "ExternalSourceFilePath": "",
+            "InterpolateSpectrum": True,
+            "IncludeInfGnd": False,
+            "PosXoffset": "1mm",
+            "NegXoffset": "1mm",
+            "PosYoffset": "1mm",
+            "NegYoffset": "1mm",
+            "PosZoffset": "1mm",
+            "NegZoffset": "1mm",
+            "MinAdaptPasses": 1,
+            "MaxAdaptPasses": 10,
+            "NewTrianglesPerPass": 20,
+            "GlobalErrorTol": 3,
+            "UseUserEdgeLength": False,
+            "MeshEdgeLength": "1mm",
+            "ExportData": False,
+            "ExportDataPath": "",
+        },
+    },
+    "SweepDataList": {},
+    "SolveSetupType": "SIwaveNearField",
+    "SolveSetupGroupType": "SIwave",
+}
+"""SIwave near-field setup properties and default values."""
 
 HFSS3DLayout_SweepDataList = {}
 """Value for HFSS3DLayout SweepDataList."""
@@ -2376,99 +3039,117 @@ class SetupKeys:
         "RaptorX",
         "TwinbuilderAC",
         "TwinbuilderDC",
+        "HFSS3DLayoutAuto",
+        "HFSSPI",
+        "SIwaveEMI",
+        "HFSS3DLayoutAMI",
+        "HFSS3DLayoutLNA",
+        "HFSS3DLayoutQuickEye",
+        "SIwaveNearField",
+        "HFSS3DLayoutTransient",
+        "HFSS3DLayoutVerifEye",
     ]
     """Value for setup names."""
 
     SetupTemplates = {
-        0: HFSSDrivenAuto,
-        1: HFSSDrivenDefault,
-        2: HFSSEigen,
-        3: HFSSTransient,
-        4: HFSSSBR,
-        5: MaxwellTransient,
-        6: Magnetostatic,
-        7: EddyCurrent,
-        8: Electrostatic,
-        9: ElectroDCConduction,
-        10: ElectricTransient,
-        11: SteadyTemperatureAndFlow,
-        12: SteadyTemperatureOnly,
-        13: SteadyFlowOnly,
-        14: Matrix,
-        15: NexximLNA,
-        16: NexximDC,
-        17: NexximTransient,
-        18: NexximQuickEye,
-        19: NexximVerifEye,
-        20: NexximAMI,
-        21: NexximOscillatorRSF,
-        22: NexximOscillator1T,
-        23: NexximOscillatorNT,
-        24: NexximHarmonicBalance1T,
-        25: NexximHarmonicBalanceNT,
-        26: NexximSystem,
-        27: NexximTVNoise,
-        28: HSPICE,
-        29: HFSS3DLayout,
-        30: Open,
-        31: Close,
-        32: MechTerm,
-        33: MechModal,
-        34: GRM,
-        35: TwinbuilderTR,
-        36: TransientTemperatureAndFlow,
-        37: TransientTemperatureOnly,
-        38: TransientFlowOnly,
-        39: MechStructural,
-        40: SiwaveDC3DLayout,
-        41: SiwaveAC3DLayout,
-        42: LNA3DLayout,
-        43: DFIG,
-        44: TPIM,
-        45: SPIM,
-        46: TPSM,
-        47: BLDC,
-        48: ASSM,
-        49: PMDC,
-        50: SRM,
-        51: LSSM,
-        52: UNIM,
-        53: DCM,
-        54: CPSM,
-        55: NSSM,
-        56: MaxwellTransient,
-        57: MechTransientThermal,
-        58: DCConduction,
-        59: ACConduction,
+        Setups.HFSSDrivenAuto: HFSSDrivenAuto,
+        Setups.HFSSDrivenDefault: HFSSDrivenDefault,
+        Setups.HFSSEigen: HFSSEigen,
+        Setups.HFSSTransient: HFSSTransient,
+        Setups.HFSSSBR: HFSSSBR,
+        Setups.MaxwellTransient: MaxwellTransient,
+        Setups.Magnetostatic: Magnetostatic,
+        Setups.EddyCurrent: EddyCurrent,
+        Setups.Electrostatic: Electrostatic,
+        Setups.ElectrostaticDC: ElectroDCConduction,
+        Setups.ElectricTransient: ElectricTransient,
+        Setups.SteadyTemperatureAndFlow: SteadyTemperatureAndFlow,
+        Setups.SteadyTemperatureOnly: SteadyTemperatureOnly,
+        Setups.SteadyFlowOnly: SteadyFlowOnly,
+        Setups.Matrix: Matrix,
+        Setups.NexximLNA: NexximLNA,
+        Setups.NexximDC: NexximDC,
+        Setups.NexximTransient: NexximTransient,
+        Setups.NexximQuickEye: NexximQuickEye,
+        Setups.NexximVerifEye: NexximVerifEye,
+        Setups.NexximAMI: NexximAMI,
+        Setups.NexximOscillatorRSF: NexximOscillatorRSF,
+        Setups.NexximOscillator1T: NexximOscillator1T,
+        Setups.NexximOscillatorNT: NexximOscillatorNT,
+        Setups.NexximHarmonicBalance1T: NexximHarmonicBalance1T,
+        Setups.NexximHarmonicBalanceNT: NexximHarmonicBalanceNT,
+        Setups.NexximSystem: NexximSystem,
+        Setups.NexximTVNoise: NexximTVNoise,
+        Setups.HSPICE: HSPICE,
+        Setups.HFSS3DLayout: HFSS3DLayout,
+        Setups.Open: Open,
+        Setups.Close: Close,
+        Setups.MechTerm: MechTerm,
+        Setups.MechModal: MechModal,
+        Setups.GRM: GRM,
+        Setups.TR: TwinbuilderTR,
+        Setups.TransientTemperatureAndFlow: TransientTemperatureAndFlow,
+        Setups.TransientTemperatureOnly: TransientTemperatureOnly,
+        Setups.TransientFlowOnly: TransientFlowOnly,
+        Setups.MechStructural: MechStructural,
+        Setups.SiwaveDC3DLayout: SiwaveDC3DLayout,
+        Setups.SiwaveAC3DLayout: SiwaveAC3DLayout,
+        Setups.LNA3DLayout: LNA3DLayout,
+        Setups.DFIG: DFIG,
+        Setups.TPIM: TPIM,
+        Setups.SPIM: SPIM,
+        Setups.TPSM: TPSM,
+        Setups.BLDC: BLDC,
+        Setups.ASSM: ASSM,
+        Setups.PMDC: PMDC,
+        Setups.SRM: SRM,
+        Setups.LSSM: LSSM,
+        Setups.UNIM: UNIM,
+        Setups.DCM: DCM,
+        Setups.CPSM: CPSM,
+        Setups.NSSM: NSSM,
+        Setups.TransientAPhiFormulation: MaxwellTransient,
+        Setups.MechTransientThermal: MechTransientThermal,
+        Setups.DCConduction: DCConduction,
+        Setups.ACConduction: ACConduction,
+        Setups.HFSS3DLayoutAuto: HFSS3DLayoutAuto,
+        Setups.HFSSPI: HFSSPI,
+        Setups.SIwaveEMI: SIwaveEMI,
+        Setups.HFSS3DLayoutAMI: AMI,
+        Setups.HFSS3DLayoutLNA: LNA,
+        Setups.HFSS3DLayoutQuickEye: QuickEye,
+        Setups.SIwaveNearField: SIwaveNearField,
+        Setups.HFSS3DLayoutTransient: HFSS3DLayoutTransient,
+        Setups.HFSS3DLayoutVerifEye: HFSS3DLayoutVerifEye,
     }
     """Value for setup templates."""
 
     SetupTemplates_231 = {
-        29: HFSS3DLayout_v231,
+        Setups.HFSS3DLayout: HFSS3DLayout_v231,
     }
     """Value for SetupTemplates 231."""
     SetupTemplates_232 = {}
     """Value for SetupTemplates 232."""
 
     SetupTemplates_241 = {
-        11: SteadyTemperatureAndFlow_241,
-        12: SteadyTemperatureOnly_241,
-        13: SteadyFlowOnly_241,
-        36: TransientTemperatureAndFlow_241,
-        37: TransientTemperatureOnly_241,
-        38: TransientFlowOnly_241,
-        62: RaptorX,
+        Setups.SteadyTemperatureAndFlow: SteadyTemperatureAndFlow_241,
+        Setups.SteadyTemperatureOnly: SteadyTemperatureOnly_241,
+        Setups.SteadyFlowOnly: SteadyFlowOnly_241,
+        Setups.TransientTemperatureAndFlow: TransientTemperatureAndFlow_241,
+        Setups.TransientTemperatureOnly: TransientTemperatureOnly_241,
+        Setups.TransientFlowOnly: TransientFlowOnly_241,
+        Setups.RaptorX: RaptorX,
     }
     """Value for SetupTemplates 241."""
     SetupTemplates_251 = {
-        60: DCBiasedEddyCurrent,
+        Setups.DCBiasedEddyCurrent: DCBiasedEddyCurrent,
     }
     """Value for SetupTemplates 251."""
 
     SetupTemplates_252 = {
-        61: ElectroDCConduction,
-        63: TwinbuilderAC,
-        64: TwinbuilderDC,
+        Setups.ElectroDCConduction: ElectroDCConduction,
+        Setups.TwinbuilderAC: TwinbuilderAC,
+        Setups.TwinbuilderDC: TwinbuilderDC,
     }
     """Value for SetupTemplates 252."""
 
@@ -2519,7 +3200,14 @@ class SetupKeys:
         >>> obj.get_default_icepak_template("Default")
 
         """
-        icepak_setups_n = [11, 12, 13, 36, 37, 38]
+        icepak_setups_n = [
+            Setups.SteadyTemperatureAndFlow,
+            Setups.SteadyTemperatureOnly,
+            Setups.SteadyFlowOnly,
+            Setups.TransientTemperatureAndFlow,
+            Setups.TransientTemperatureOnly,
+            Setups.TransientFlowOnly,
+        ]
         template = self.get_setup_templates()
         icepak_template = {self.SetupNames[i]: template[i] for i in icepak_setups_n}
         if default_type == "Default":

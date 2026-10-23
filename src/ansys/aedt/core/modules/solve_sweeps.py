@@ -22,26 +22,41 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
+import sys
+
+if sys.version_info >= (3, 13):
+    from warnings import deprecated
+else:
+    from typing_extensions import deprecated
+
 import copy
 from difflib import SequenceMatcher
-import json
 import os
+from typing import TYPE_CHECKING
+from typing import Any
 import warnings
 
+from ansys.aedt.core.application import _get_obj_data
+from ansys.aedt.core.application import _has_get_obj_data
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import Quantity
-from ansys.aedt.core.generic.numbers_utils import _units_assignment
-from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.generic.props import Props as SweepProps
 from ansys.aedt.core.internal.load_aedt_file import load_entire_aedt_file
+from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modules.setup_templates import Sweep3DLayout
 from ansys.aedt.core.modules.setup_templates import SweepEddyCurrent
 from ansys.aedt.core.modules.setup_templates import SweepHfss3D
 from ansys.aedt.core.modules.setup_templates import SweepQ3D
 from ansys.aedt.core.modules.setup_templates import SweepRaptorX
 from ansys.aedt.core.modules.setup_templates import SweepSiwave
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.modules.solve_setup import Setup3DLayout
 
 
 @pyaedt_function_handler()
@@ -85,14 +100,161 @@ def identify_setup(props: dict) -> bool:
     return False
 
 
-class SweepCommon(PyAedtBase):
-    """Provide sweep common."""
+@pyaedt_function_handler()
+def get_sweep_type(sweep_type: str) -> str:
+    """Convert sweep type to AEDT sweep type accepted key.
+
+    Parameters
+    ----------
+    sweep_type : str
+        Sweep type.
+
+    Returns
+    -------
+    str
+        AEDT sweep type accepted key.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.solve_sweeps import get_sweep_type
+    >>> get_sweep_type("interpolating")
+
+    """
+    if SequenceMatcher(None, sweep_type.lower(), "interpolating").ratio() > 0.8:
+        sweep_type = "kInterpolating"
+    elif SequenceMatcher(None, sweep_type.lower(), "discrete").ratio() > 0.8:
+        sweep_type = "kDiscrete"
+    elif SequenceMatcher(None, sweep_type.lower(), "fast").ratio() > 0.8:
+        sweep_type = "kBroadbandFast"
+    else:
+        sweep_type = "kInterpolating"
+
+    return sweep_type
+
+
+class SweepCommon(BinaryTreeNode, PyAedtBase):
+    """Common base class for sweeps.
+
+    Parameters
+    ----------
+    setup : :class 'from ansys.aedt.core.modules.solve_setup.Setup3DLayout'
+        Setup to use for the analysis.
+    name : str
+        Name of the sweep.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Hfss
+    >>> hfss = Hfss()
+    >>> s = hfss.create_setup()
+    >>> sweep = s.add_sweep()
+
+    """
 
     def __repr__(self) -> str:
         return f"{self.setup_name} : {self.name}"
 
     def __str__(self) -> str:
         return f"{self.setup_name} : {self.name}"
+
+    def __init__(self, setup: Setup3DLayout, name: str) -> None:
+        self._setup: Setup3DLayout = setup
+        self._app: Any = self._setup._app
+
+        self._name = name
+
+        self._has_getobject = _has_get_obj_data(self._child_object)
+
+    @pyaedt_function_handler()
+    def _initialize_tree_node(self) -> bool:
+        if self._child_object:
+            BinaryTreeNode.__init__(self, self._name, self._child_object, False, app=self._app)
+            return True
+        return False
+
+    @property
+    def _child_object(self) -> Any | None:
+        """Object-oriented properties.
+
+        Returns
+        -------
+        AEDT object if any or None
+
+        """
+        child_object = None
+        if self._setup.child_object:
+            cc_names = self._app.get_oo_name(self._setup.child_object)
+            if self._name in cc_names:
+                child_object = self._app.get_oo_object(self._setup.child_object, self._name)
+        return child_object
+
+    @property
+    def name(self) -> str:
+        """Name of the sweep.
+
+        Returns
+        -------
+        str
+           Name of the sweep.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> s = hfss.create_setup()
+        >>> sweep = s.add_sweep()
+        >>> sweep.name
+
+        """
+        child_object = self._child_object
+        if child_object is not None and "Sweep" in dir(child_object):
+            self._name = child_object.Sweep
+        return self._name
+
+    @name.setter
+    def name(self, name: str) -> None:
+        sweep_names = self._setup.sweep_names
+        if name in sweep_names:
+            raise ValueError(f"Name {name} already assigned in the design.")
+
+        self._app.oanalysis.RenameSweep(self.setup_name, self.name, str(name))
+
+        # Reset object
+        self.__child_object = None
+        object.__setattr__(self, "_name", name)
+        object.__setattr__(self, "_tree_node_initialized", False)
+        object.__setattr__(self, "_props", None)
+        object.__setattr__(self, "_children_loaded", False)
+
+    @property
+    def sweep_type(self) -> str | None:
+        """Sweet type.
+
+        Returns
+        -------
+        str
+           Name of the sweep.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss = Hfss3dLayout()
+        >>> s = hfss.create_setup()
+        >>> s.sweep_type
+
+        """
+        sweep_type = self.child_object.Type if "Type" in dir(self.child_object) else None
+        return sweep_type
+
+    @sweep_type.setter
+    def sweep_type(self, sweep_type):
+        sweep_type = get_sweep_type(sweep_type)
+        self.props["FreqSweepType"] = sweep_type
+
+    @property
+    def setup_name(self) -> str:
+        """Setup name."""
+        return self._setup.name
 
 
 class SweepHFSS(SweepCommon):
@@ -129,7 +291,6 @@ class SweepHFSS(SweepCommon):
 
     def __init__(self, setup, name: str, sweep_type: str = "Interpolating", props=None) -> None:
         self._app = setup
-        self.oanalysis = setup.omodule
         self.setup_name = setup.name
         self.name = name
         self.props = copy.deepcopy(SweepHfss3D)
@@ -368,7 +529,7 @@ class SweepHFSS(SweepCommon):
         >>> obj.create()
 
         """
-        self.oanalysis.InsertFrequencySweep(self.setup_name, self._get_args())
+        self._app.oanalysis.InsertFrequencySweep(self.setup_name, self._get_args())
         return True
 
     @pyaedt_function_handler()
@@ -387,7 +548,7 @@ class SweepHFSS(SweepCommon):
         >>> obj.update()
 
         """
-        self.oanalysis.EditFrequencySweep(self.setup_name, self.name, self._get_args())
+        self._app.oanalysis.EditFrequencySweep(self.setup_name, self.name, self._get_args())
 
         return True
 
@@ -419,58 +580,91 @@ class SweepHFSS3DLayout(SweepCommon):
 
     Parameters
     ----------
-    setup : :class 'from ansys.aedt.core.modules.solve_setup.Setup'
+    setup : :class 'from ansys.aedt.core.modules.solve_setup.Setup3DLayout'
         Setup to use for the analysis.
     name : str
         Name of the sweep.
-    sweep_type : str, optional
-        Type of the sweep. Options are ``"Interpolating"`` and ``"Discrete"``. The default is ``"Interpolating"``.
-    save_fields : bool, optional
-        Whether to save the fields. The default is ``True``.
     props : dict, optional
         Dictionary of the properties. The default is ``None``, in which
         case the default properties are retrieved.
 
     Examples
     --------
-    >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
-    >>> obj = SweepHFSS3DLayout()
+    >>> from ansys.aedt.core import Hfss
+    >>> hfss = Hfss()
+    >>> s = hfss.create_setup()
+    >>> sweep = s.add_sweep()
 
     """
 
-    def __init__(
-        self, setup, name: str, sweep_type: str = "Interpolating", save_fields: bool = True, props=None, **kwargs
-    ) -> None:
-        self._app = setup
-        self.oanalysis = setup.omodule
-        self.props = {}
-        self.setup_name = setup.name
-        self.name = name
+    def __init__(self, setup: Setup3DLayout, name: str, props=None) -> None:
+        self._legacy_props = {}
+
         if props:
-            self.props = props
-        else:
-            if setup.setuptype in [40, 41]:
-                self.props = copy.deepcopy(SweepSiwave)
-            elif setup.setuptype == 62:
-                self.props = copy.deepcopy(SweepRaptorX)
-                return
-            else:
-                self.props = copy.deepcopy(Sweep3DLayout)
-            # for t in props:
-            #    _tuple2dict(t, self.props)
-            if SequenceMatcher(None, sweep_type.lower(), "interpolating").ratio() > 0.8:
-                sweep_type = "kInterpolating"
-            elif SequenceMatcher(None, sweep_type.lower(), "discrete").ratio() > 0.8:
-                sweep_type = "kDiscrete"
-            elif SequenceMatcher(None, sweep_type.lower(), "fast").ratio() > 0.8:
-                sweep_type = "kBroadbandFast"
-            else:
-                warnings.warn("Sweep type is invalid. `kInterpolating` is set as the default.")
-                sweep_type = "kInterpolating"
-            self.props["FreqSweepType"] = sweep_type
-            self.props["GenerateSurfaceCurrent"] = save_fields
+            self._legacy_props = SweepProps(self, props)
+
+        SweepCommon.__init__(self, setup, name)
 
     @property
+    def props(self) -> SweepProps:
+        """Properties of the mesh operation.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.generic.props.Props`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss = Hfss3dLayout()
+        >>> setup = hfss.create_setup()
+        >>> sweep = setup.add_sweep()
+        >>> sweep.props
+
+        """
+        if self._legacy_props and not self._has_getobject:
+            return SweepProps(self, self._legacy_props)
+
+        if self._has_getobject:
+            props = _get_obj_data(self._child_object) or {}
+        else:
+            design_property_data = self._app.design_properties["Setup"]["Data"]
+            setup_name = self._setup.name
+            if (
+                setup_name in design_property_data
+                and "Data" in design_property_data[setup_name]
+                and self._name in design_property_data[setup_name]["Data"]
+            ):
+                props = design_property_data[setup_name]["Data"][self._name]
+                if "Frequencies" in props:
+                    del props["Frequencies"]
+                if "DataId" in props:
+                    del props["DataId"]
+            else:
+                setup_type = self._setup.setuptype
+                if setup_type in [40, 41]:
+                    props = copy.deepcopy(SweepSiwave)
+                elif setup_type == 62:
+                    props = copy.deepcopy(SweepRaptorX)
+                else:
+                    props = copy.deepcopy(Sweep3DLayout)
+
+        self._legacy_props = props
+
+        return SweepProps(self, self._legacy_props)
+
+    @props.setter
+    def props(self, value: dict) -> None:
+        # Merge with existing props to support partial updates
+        current_props = dict(self.props) if self._legacy_props else {}
+        current_props.update(value)
+
+        props = SweepProps(self, current_props)
+
+        self.update(props)
+
+    @property
+    @deprecated("Convert to string the object instead.")
     def combined_name(self) -> str:
         """Compute the name : sweep_name string.
 
@@ -480,12 +674,14 @@ class SweepHFSS3DLayout(SweepCommon):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
-        >>> obj = SweepHFSS3DLayout()
-        >>> obj.combined_name
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss = Hfss3dLayout()
+        >>> setup = hfss.create_setup()
+        >>> sweep = setup.add_sweep()
+        >>> sweep.combined_name
 
         """
-        return f"{self.setup_name} : {self.name}"
+        return str(self)
 
     @property
     def is_solved(self) -> bool:
@@ -498,16 +694,90 @@ class SweepHFSS3DLayout(SweepCommon):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
-        >>> obj = SweepHFSS3DLayout()
-        >>> obj.is_solved
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss = Hfss3dLayout()
+        >>> setup = hfss.create_setup()
+        >>> sweep = setup.add_sweep()
+        >>> sweep.is_solved
 
         """
-        expressions = [i for i in self._app.post.available_report_quantities(solution=self.combined_name)]
-        sol = self._app._app.post.reports_by_category.standard(expressions=expressions[0], setup=self.combined_name)
-        if identify_setup(self.props):
+        combined_name = str(self)
+        expressions = [i for i in self._app.post.available_report_quantities(solution=combined_name)]
+        if not expressions:
+            return False
+        sol = self._app.post.reports_by_category.standard(expressions=expressions[0], setup=combined_name)
+        if identify_setup(dict(self.props)):
             sol.domain = "Time"
         return True if sol.get_solution_data() else False
+
+    @pyaedt_function_handler()
+    def create(self) -> bool:
+        """Create a sweep.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
+        >>> obj = SweepHFSS3DLayout()
+        >>> obj.create()
+
+        """
+        self._app.oanalysis.AddSweep(self.setup_name, self._get_args())
+
+        # GetObjData is available for some objects in 2026R1.
+        self._has_getobject = _has_get_obj_data(self._child_object)
+
+        return self
+
+    @pyaedt_function_handler()
+    def update(self, props: dict | None = None) -> bool:
+        """Update the sweep.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
+        >>> obj = SweepHFSS3DLayout()
+        >>> obj.update()
+
+        """
+        if props is None:
+            props = dict(self.props)
+        self._app.oanalysis.EditSweep(self._setup.name, self.name, self._get_args(props))
+
+        if not self._has_getobject:
+            self._legacy_props = dict(props)
+
+        return True
+
+    @pyaedt_function_handler()
+    def delete(self) -> bool:
+        """Delete actual Setup.
+
+        Returns
+        -------
+        bool
+            ``True`` if setup is deleted. ``False`` if it failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> setup = app.create_setup()
+        >>> sweep = setup.add_sweep()
+        >>> sweep.delete()
+
+        """
+        self._app.oanalysis.DeleteSweep(self._setup.name, self.name)
+        return True
 
     @pyaedt_function_handler()
     def change_type(self, sweep_type: str) -> bool:
@@ -526,18 +796,17 @@ class SweepHFSS3DLayout(SweepCommon):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
-        >>> obj = SweepHFSS3DLayout()
-        >>> obj.change_type(sweep_type=1)
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss = Hfss3dLayout()
+        >>> setup = hfss.create_setup()
+        >>> sweep = setup.add_sweep()
+        >>> sweep.change_type(sweep_type="Interpolating")
 
         """
-        if sweep_type == "Interpolating":
-            self.props["FastSweep"] = True
-        elif sweep_type == "Discrete":
-            self.props["FastSweep"] = False
-        else:
-            raise AttributeError("Allowed sweep type options are 'Interpolating' and 'Discrete'.")
-        return self.update()
+        sweep_type = get_sweep_type(sweep_type)
+        props = dict(self.props)
+        props["FreqSweepType"] = sweep_type
+        return self.update(props)
 
     @pyaedt_function_handler()
     def set_save_fields(self, save_fields: bool, save_rad_fields: bool = False) -> bool:
@@ -557,18 +826,25 @@ class SweepHFSS3DLayout(SweepCommon):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
-        >>> obj = SweepHFSS3DLayout()
-        >>> obj.set_save_fields(save_fields=True)
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss = Hfss3dLayout()
+        >>> setup = hfss.create_setup()
+        >>> sweep = setup.add_sweep()
+        >>> sweep.set_save_fields(save_fields=True)
 
         """
         self.props["GenerateSurfaceCurrent"] = save_fields
         self.props["SaveRadFieldsOnly"] = save_rad_fields
-        return self.update()
+        return True
 
     @pyaedt_function_handler()
     def add_subrange(
-        self, range_type: str, start: float, end: float = None, count: float = None, unit: str = "GHz"
+        self,
+        range_type: str,
+        start: float | int,
+        end: float | int | None = None,
+        count: float | int | None = None,
+        unit: str = "GHz",
     ) -> bool:
         """Add a subrange to the sweep.
 
@@ -577,9 +853,9 @@ class SweepHFSS3DLayout(SweepCommon):
         range_type : str
             Type of the subrange. Options are ``"LinearCount"``, ``"SinglePoint"``,
             ``"LinearStep"``, and ``"LogScale"``.
-        start : float
+        start : float or int
             Starting frequency.
-        end : float, optional
+        end : float or int, optional
             Stopping frequency. The default is ``None``. A value is
             required for these subranges: ``"LinearCount"``, ``"LinearStep"``, and ``"LogScale"``.
         count : int or float, optional
@@ -596,38 +872,44 @@ class SweepHFSS3DLayout(SweepCommon):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
-        >>> obj = SweepHFSS3DLayout()
-        >>> obj.add_subrange(range_type=1, start=[0, 0, 0])
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss = Hfss3dLayout()
+        >>> setup = hfss.create_setup()
+        >>> sweep = setup.add_sweep()
+        >>> sweep.add_subrange(range_type="LinearCount", start=1, end=2, count=5)
 
         """
-        try:
-            if range_type == "SinglePoint" and self.props["FreqSweepType"] == "kInterpolating":
-                raise AttributeError("'SinglePoint is allowed only when sweep_type is 'Discrete'.'")
-            if range_type == "LinearCount" or range_type == "LinearStep" or range_type == "LogScale":
-                if not end or not count:
-                    raise AttributeError("Parameters 'end' and 'count' must be present.")
+        props = dict(self.props)
 
-            if range_type == "LinearCount":
-                sweep_range = " LINC " + str(start) + unit + " " + str(end) + unit + " " + str(count)
-            elif range_type == "LinearStep":
-                sweep_range = " LIN " + str(start) + unit + " " + str(end) + unit + " " + str(count) + unit
-            elif range_type == "LogScale":
-                sweep_range = " DEC " + str(start) + unit + " " + str(end) + unit + " " + str(count)
-            elif range_type == "SinglePoint":
-                sweep_range = " " + str(start) + unit
-            else:
-                raise AttributeError(
-                    'Allowed range_type are "LinearCount", "SinglePoint", "LinearStep", and "LogScale".'
-                )
-            self.props["Sweeps"]["Data"] += sweep_range
-            return self.update()
-        except Exception:
-            return False
+        if range_type == "SinglePoint" and props["FreqSweepType"] == "kInterpolating":
+            raise AttributeError("'SinglePoint' is allowed only when sweep_type is 'Discrete'.'")
+
+        if range_type == "LinearCount" or range_type == "LinearStep" or range_type == "LogScale":
+            if not end or not count:
+                raise AttributeError("Parameters 'end' and 'count' must be present.")
+
+        if range_type == "LinearCount":
+            sweep_range = " LINC " + str(start) + unit + " " + str(end) + unit + " " + str(count)
+        elif range_type == "LinearStep":
+            sweep_range = " LIN " + str(start) + unit + " " + str(end) + unit + " " + str(count) + unit
+        elif range_type == "LogScale":
+            sweep_range = " DEC " + str(start) + unit + " " + str(end) + unit + " " + str(count)
+        elif range_type == "SinglePoint":
+            sweep_range = " " + str(start) + unit
+        else:
+            raise AttributeError('Allowed range_type are "LinearCount", "SinglePoint", "LinearStep", and "LogScale".')
+        if "Sweeps" in props and "Data" in props["Sweeps"]:
+            props["Sweeps"]["Data"] += sweep_range
+        return self.update(props)
 
     @pyaedt_function_handler()
     def change_range(
-        self, range_type: str, start: float, end: float = None, count: float = None, unit: str = "GHz"
+        self,
+        range_type: str,
+        start: float | int,
+        end: float | int | None = None,
+        count: float | int | None = None,
+        unit: str = "GHz",
     ) -> bool:
         """Change the range of the sweep.
 
@@ -636,9 +918,9 @@ class SweepHFSS3DLayout(SweepCommon):
         range_type : str
             Type of the subrange. Options are ``"LinearCount"``, ``"SinglePoint"``,
             ``"LinearStep"``, and ``"LogScale"``.
-        start : float
+        start : float or int
             Starting frequency.
-        end : float, optional
+        end : float or int, optional
             Stopping frequency. The default is ``None``.  A value is required
             for these subranges: ``"LinearCount"``, ``"LinearStep"``, and ``"LogScale"``.
         count : int or float, optional
@@ -655,9 +937,11 @@ class SweepHFSS3DLayout(SweepCommon):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
-        >>> obj = SweepHFSS3DLayout()
-        >>> obj.change_range(range_type=1, start=[0, 0, 0])
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss = Hfss3dLayout()
+        >>> setup = hfss.create_setup()
+        >>> sweep = setup.add_sweep()
+        >>> sweep.change_range(range_type="LinearCount", start=1, end=2, count=5)
 
         """
         if range_type == "LinearCount":
@@ -670,46 +954,10 @@ class SweepHFSS3DLayout(SweepCommon):
             sweep_range = str(start) + unit
         else:
             raise AttributeError('Allowed range_type are "LinearCount", "SinglePoint", "LinearStep", and "LogScale".')
-        self.props["Sweeps"]["Data"] = sweep_range
-        return self.update()
 
-    @pyaedt_function_handler()
-    def create(self) -> bool:
-        """Create a sweep.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
-        >>> obj = SweepHFSS3DLayout()
-        >>> obj.create()
-
-        """
-        self.oanalysis.AddSweep(self.setup_name, self._get_args())
-        return True
-
-    @pyaedt_function_handler()
-    def update(self) -> bool:
-        """Update the sweep.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
-        >>> obj = SweepHFSS3DLayout()
-        >>> obj.update()
-
-        """
-        self.oanalysis.EditSweep(self.setup_name, self.name, self._get_args())
-        return True
+        props = dict(self.props)
+        props["Sweeps"]["Data"] = sweep_range
+        return self.update(props)
 
     @pyaedt_function_handler()
     def _get_args(self, props=None):
@@ -726,9 +974,17 @@ class SweepHFSS3DLayout(SweepCommon):
         dict
             Dictionary of the properties.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss = Hfss3dLayout()
+        >>> setup = hfss.create_setup()
+        >>> sweep = setup.add_sweep()
+        >>> sweep._get_args()
+
         """
         if props is None:
-            props = self.props
+            props = dict(self.props)
         arg = ["NAME:" + self.name]
         _dict2arg(props, arg)
         return arg
@@ -759,7 +1015,6 @@ class SweepMatrix(SweepCommon):
 
     def __init__(self, setup, name: str, sweep_type: str = "Interpolating", props=None) -> None:
         self._app = setup  # TODO: Remove sweep_type as an argument as it can be passed in props
-        self.oanalysis = setup.omodule
         self.setup_name = setup.name
         self.name = name
         self.props = copy.deepcopy(SweepQ3D)
@@ -981,7 +1236,7 @@ class SweepMatrix(SweepCommon):
         >>> obj.create()
 
         """
-        self.oanalysis.InsertSweep(self.setup_name, self._get_args())
+        self._app.oanalysis.InsertSweep(self.setup_name, self._get_args())
         return True
 
     @pyaedt_function_handler()
@@ -1000,7 +1255,7 @@ class SweepMatrix(SweepCommon):
         >>> obj.update()
 
         """
-        self.oanalysis.EditSweep(self.setup_name, self.name, self._get_args())
+        self._app.oanalysis.EditSweep(self.setup_name, self.name, self._get_args())
 
         return True
 
@@ -1052,7 +1307,6 @@ class SweepMaxwellEC(SweepCommon):
 
     def __init__(self, setup, sweep_type: str = "LinearStep", props=None) -> None:
         self._setup = setup
-        self.oanalysis = setup.omodule
         self.setup_name = setup.name
         self.props = {}
         if props:
@@ -1138,7 +1392,7 @@ class SweepMaxwellEC(SweepCommon):
         return []
 
     @pyaedt_function_handler()
-    def create(self) -> bool:
+    def create(self, properties: dict = None) -> bool:
         """Create a Maxwell Eddy Current sweep.
 
         Returns
@@ -1153,7 +1407,7 @@ class SweepMaxwellEC(SweepCommon):
         >>> obj.create()
 
         """
-        self.oanalysis.EditSetup(self.setup_name, self._get_args(self._setup.props))
+        self._app.oanalysis.EditSetup(self.setup_name, self._get_args(properties if properties else self._setup.props))
         return True
 
     @pyaedt_function_handler()
@@ -1172,7 +1426,7 @@ class SweepMaxwellEC(SweepCommon):
         >>> obj.update()
 
         """
-        self.oanalysis.EditSetup(self.setup_name, self._get_args(self._setup.props))
+        self._app.oanalysis.EditSetup(self.setup_name, self._get_args(self._setup.props))
         return True
 
     @pyaedt_function_handler()
@@ -1223,91 +1477,3 @@ class SweepMaxwellEC(SweepCommon):
         arg = ["NAME:" + self.setup_name]
         _dict2arg(props, arg)
         return arg
-
-
-class SetupProps(dict):
-    """Provides internal parameters for the AEDT boundary component.
-
-    Examples
-    --------
-    >>> from ansys.aedt.core.modules.solve_sweeps import SetupProps
-    >>> obj = SetupProps()
-
-    """
-
-    def __setitem__(self, key, value):
-        if isinstance(value, dict):
-            dict.__setitem__(self, key, SetupProps(self._pyaedt_setup, value))
-        else:
-            value = _units_assignment(value)
-            dict.__setitem__(self, key, value)
-        if self._pyaedt_setup.auto_update:
-            res = self._pyaedt_setup.update()
-            if not res:
-                self._pyaedt_setup._app.logger.warning("Update of %s failed. Check needed arguments", key)
-
-    def __init__(self, setup, props) -> None:
-        dict.__init__(self)
-        if props:
-            for key, value in props.items():
-                if isinstance(value, dict):
-                    dict.__setitem__(self, key, SetupProps(setup, value))
-                else:
-                    dict.__setitem__(self, key, value)
-        self._pyaedt_setup = setup
-
-    def _setitem_without_update(self, key, value):
-        dict.__setitem__(self, key, value)
-
-    def _export_properties_to_json(self, file_path, overwrite: bool = False) -> bool:
-        """Export all setup properties to a JSON file.
-
-        Parameters
-        ----------
-        file_path : str
-            File path for the JSON file.
-        """
-        FILTER_KEYS = {"DataId", "SimSetupID", "ProdMajVerID", "ProjDesignSetup", "ProdMinVerID", "NumberOfProcessors"}
-        if not file_path.endswith(".json"):
-            file_path = file_path + ".json"
-        export_dict = {}
-        for k, v in self.items():
-            if k not in FILTER_KEYS:
-                export_dict[k] = v
-        if os.path.isfile(file_path) and not overwrite:
-            settings.logger.warning("Unable to overwrite file: %s." % (file_path))
-            return False
-        else:
-            with open(file_path, "w", encoding="utf-8") as f:
-                f.write(json.dumps(export_dict, indent=4, ensure_ascii=False))
-            return True
-
-    def _import_properties_from_json(self, file_path) -> bool:
-        """Import setup properties from a JSON file.
-
-        Parameters
-        ----------
-        file_path : str
-            File path for the JSON file.
-        """
-
-        def set_props(target, source) -> None:
-            for k, v in source.items():
-                if k not in target:
-                    self._pyaedt_setup._app.logger.warning(f"{k} is not a valid property name.")
-                if not isinstance(v, dict):
-                    target[k] = v
-                else:
-                    if k not in target:
-                        target[k] = {}
-                    set_props(target[k], v)
-
-        with open(file_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-            set_props(self, data)
-        return True
-
-    def delete_all(self) -> None:
-        for item in list(self.keys()):
-            if item != "_pyaedt_setup":
-                dict.__delitem__(self, item)
