@@ -185,6 +185,7 @@ def load_dict(tree: ttk.Treeview, master: MCADAssemblyExtension) -> None:
         node = tree.insert("", "end", text=key, open=False)
         insert_items(tree, node, value)
 
+
 def insert_items(tree: ttk.Treeview, parent: str, dictionary: dict | list | str | int | float | None) -> None:
     """Insert items."""
     if isinstance(dictionary, dict):

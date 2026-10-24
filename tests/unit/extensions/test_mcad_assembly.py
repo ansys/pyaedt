@@ -26,7 +26,6 @@ import json
 from unittest.mock import patch
 
 from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyExtension
-from ansys.aedt.core.modeler.advanced_cad.mcad_assembly import MCADAssembly
 
 
 @patch("tkinter.filedialog.askopenfilename")
@@ -45,4 +44,3 @@ def test_main_selected_edb(mock_askopenfilename, test_tmp_dir, mock_hfss_app) ->
     assert extension._get_root_theme() != theme_color
     extension.root.nametowidget(".run").invoke()
     assert extension.data.config_file_path == str(config_file)
-
