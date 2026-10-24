@@ -165,9 +165,37 @@ instantiated with the application object.
    coil.Coil
    weave.Weave
    choke.Choke
+   mcad_assembly.MCADAssembly
 
 .. toctree::
     :maxdepth: 2
 
     MultiPartComponent
     Stackup3D
+
+
+MCAD assembly
+~~~~~~~~~~~~~
+
+PyAEDT provides utilities to configure and manage multi-part assemblies combining
+3D CAD models (MCAD) and PCB layouts (ECAD) in a hierarchical structure. The MCAD
+assembly module enables automatic placement of 3D components based on PCB layouts,
+coordinate system management, and component library resolution. Use the ``MCADAssembly``
+class to define your assembly configuration, then pass it to the ``run()`` function
+to build the assembly in HFSS.
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   mcad_assembly.run
+   mcad_assembly.MCADAssembly
+   mcad_assembly.MCADComponent
+   mcad_assembly.ECADComponent
+   mcad_assembly.CoordinateSystem
+   mcad_assembly.Arrange
+   mcad_assembly.PlacementPinMapping
+
+See examples :doc:`../User_guide/pyaedt_file_data/mcad_assembly`.

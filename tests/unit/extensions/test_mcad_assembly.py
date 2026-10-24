@@ -25,23 +25,22 @@
 import json
 from unittest.mock import patch
 
-from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyFrontend
+from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyExtension
 
 
-@patch("ansys.aedt.core.extensions.hfss.mcad_assembly.MCADAssemblyFrontend.check_design_type")
-@patch("ansys.aedt.core.extensions.hfss.mcad_assembly.run")
 @patch("tkinter.filedialog.askopenfilename")
-def test_main_selected_edb(mock_askopenfilename, mock_run, mock_check_design_type, test_tmp_dir) -> None:
-    mock_check_design_type.return_value = True
+def test_main_selected_edb(mock_askopenfilename, test_tmp_dir, mock_hfss_app) -> None:
     config_file = test_tmp_dir / "config.json"
     with open(config_file, "w") as f:
         json.dump({}, f, indent=4)
 
-    extension = MCADAssemblyFrontend(withdraw=True)
+    extension = MCADAssemblyExtension(withdraw=True)
     mock_askopenfilename.return_value = str(config_file)
     extension.root.nametowidget(".notebook.main.load").invoke()
     assert extension.root.nametowidget(".notebook.main.tree").get_children()
-    extension.root.nametowidget(".theme_button_frame.run").invoke()
-    mock_run.assert_called_once_with(extension.config_data, model_dir=extension.local_path)
-
-    extension.root.destroy()
+    assert "add_toggle_theme_button" not in MCADAssemblyExtension.__dict__
+    theme_color = extension._get_root_theme()
+    extension.root.nametowidget(".theme_button_frame.theme_toggle_button").invoke()
+    assert extension._get_root_theme() != theme_color
+    extension.root.nametowidget(".run").invoke()
+    assert extension.data.config_file_path == str(config_file)
