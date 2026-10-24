@@ -1,0 +1,6 @@
+get\_is\_component
+==================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.indoor_propagation_coupling_node
+
+.. automethod:: IndoorPropagationCouplingNode.get_is_component

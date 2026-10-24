@@ -1,0 +1,73 @@
+﻿Amplifier
+=========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.amplifier
+
+.. autoclass:: Amplifier
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      Amplifier.delete
+      
+      
+      Amplifier.duplicate
+      
+      
+      Amplifier.export_to_csv
+      
+      
+      Amplifier.get_is_component
+      
+      
+      Amplifier.get_properties
+      
+      
+      Amplifier.plot
+      
+      
+      Amplifier.props_to_dict
+      
+      
+      Amplifier.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      Amplifier.allowed_child_types
+      Amplifier.bandwidth
+      Amplifier.center_frequency
+      Amplifier.children
+      Amplifier.gain
+      Amplifier.ip3_ref_input
+      Amplifier.max_intermod_order
+      Amplifier.name
+      Amplifier.node_type
+      Amplifier.noise_figure
+      Amplifier.noise_temperature
+      Amplifier.notes
+      Amplifier.odesktop
+      Amplifier.p1_db_point_ref_input
+      Amplifier.parent_name
+      Amplifier.properties
+      Amplifier.reverse_isolation
+      Amplifier.saturation_level
+      Amplifier.shape_factor
+      Amplifier.table_data
+      Amplifier.valid
+      Amplifier.warnings
+   
+   

@@ -1,0 +1,6 @@
+receiver\_channel\_frequency
+============================
+
+.. currentmodule:: ansys.aedt.core.emit_core.results.interaction_domain
+
+.. autoattribute:: InteractionDomain.receiver_channel_frequency

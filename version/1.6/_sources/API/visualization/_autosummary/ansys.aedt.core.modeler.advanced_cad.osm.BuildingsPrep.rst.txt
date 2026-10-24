@@ -1,0 +1,34 @@
+﻿BuildingsPrep
+=============
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.osm
+
+.. autoclass:: BuildingsPrep
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      BuildingsPrep.create_building_roof
+      
+      
+      BuildingsPrep.generate_buildings
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      BuildingsPrep.public_dir
+   
+   

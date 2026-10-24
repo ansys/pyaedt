@@ -1,0 +1,6 @@
+get\_all\_top\_level\_nodes
+===========================
+
+.. currentmodule:: ansys.aedt.core.emit_core.results.revision
+
+.. automethod:: Revision.get_all_top_level_nodes

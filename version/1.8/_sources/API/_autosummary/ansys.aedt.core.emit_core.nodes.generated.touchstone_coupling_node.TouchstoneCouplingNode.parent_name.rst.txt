@@ -1,0 +1,6 @@
+parent\_name
+============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.touchstone_coupling_node
+
+.. autoproperty:: TouchstoneCouplingNode.parent_name

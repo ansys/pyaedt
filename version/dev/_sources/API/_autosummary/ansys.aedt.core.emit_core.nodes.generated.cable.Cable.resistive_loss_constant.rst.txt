@@ -1,0 +1,6 @@
+resistive\_loss\_constant
+=========================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.cable
+
+.. autoproperty:: Cable.resistive_loss_constant

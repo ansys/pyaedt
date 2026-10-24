@@ -1,0 +1,6 @@
+﻿read\_xlsx
+==========
+
+.. currentmodule:: ansys.aedt.core.generic.file_utils
+
+.. autofunction:: read_xlsx

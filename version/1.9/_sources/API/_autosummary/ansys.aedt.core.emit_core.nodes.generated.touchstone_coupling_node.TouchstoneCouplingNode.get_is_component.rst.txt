@@ -1,0 +1,6 @@
+get\_is\_component
+==================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.touchstone_coupling_node
+
+.. automethod:: TouchstoneCouplingNode.get_is_component

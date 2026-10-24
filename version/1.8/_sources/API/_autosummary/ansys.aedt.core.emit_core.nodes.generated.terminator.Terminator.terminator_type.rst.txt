@@ -1,0 +1,6 @@
+terminator\_type
+================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.terminator
+
+.. autoproperty:: Terminator.terminator_type

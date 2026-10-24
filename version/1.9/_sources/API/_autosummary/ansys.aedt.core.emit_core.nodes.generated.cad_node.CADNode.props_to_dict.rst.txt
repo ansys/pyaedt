@@ -1,0 +1,6 @@
+props\_to\_dict
+===============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.cad_node
+
+.. automethod:: CADNode.props_to_dict

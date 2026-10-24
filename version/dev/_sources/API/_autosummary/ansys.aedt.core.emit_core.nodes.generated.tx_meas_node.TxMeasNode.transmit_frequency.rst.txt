@@ -1,0 +1,6 @@
+transmit\_frequency
+===================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.tx_meas_node
+
+.. autoproperty:: TxMeasNode.transmit_frequency

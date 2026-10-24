@@ -1,0 +1,6 @@
+get\_properties
+===============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.isolator
+
+.. automethod:: Isolator.get_properties

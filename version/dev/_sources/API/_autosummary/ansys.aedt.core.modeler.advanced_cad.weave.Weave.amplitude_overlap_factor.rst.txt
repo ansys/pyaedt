@@ -1,0 +1,6 @@
+amplitude\_overlap\_factor
+==========================
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.weave
+
+.. autoproperty:: Weave.amplitude_overlap_factor

@@ -1,0 +1,6 @@
+turns\_number
+=============
+
+.. currentmodule:: ansys.aedt.core.modules.boundary.maxwell_boundary
+
+.. autoattribute:: SourceMagnetostatic.turns_number

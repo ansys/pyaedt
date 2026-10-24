@@ -1,0 +1,6 @@
+bottom\_metal\_material
+=======================
+
+.. currentmodule:: ansys.aedt.core.modules.substrate_circuit
+
+.. autoproperty:: SubstrateDataBlock.bottom_metal_material

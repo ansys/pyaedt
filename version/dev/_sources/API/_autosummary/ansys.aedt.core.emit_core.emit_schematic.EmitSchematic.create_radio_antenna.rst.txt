@@ -1,0 +1,6 @@
+create\_radio\_antenna
+======================
+
+.. currentmodule:: ansys.aedt.core.emit_core.emit_schematic
+
+.. automethod:: EmitSchematic.create_radio_antenna

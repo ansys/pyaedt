@@ -1,0 +1,23 @@
+﻿RLSourceACMagneticAPhi
+======================
+
+.. currentmodule:: ansys.aedt.core.modules.boundary.maxwell_boundary
+
+.. autoclass:: RLSourceACMagneticAPhi
+
+   
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      RLSourceACMagneticAPhi.signal_sources
+      RLSourceACMagneticAPhi.ground_sources
+   
+   

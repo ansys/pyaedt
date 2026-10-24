@@ -1,0 +1,6 @@
+create\_component
+=================
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.choke
+
+.. autoattribute:: Choke.create_component

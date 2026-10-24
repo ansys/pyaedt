@@ -1,0 +1,6 @@
+public\_dir
+===========
+
+.. currentmodule:: ansys.aedt.core.modules.solve_sweeps
+
+.. autoproperty:: SweepHFSS.public_dir

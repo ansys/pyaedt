@@ -1,0 +1,6 @@
+optimetrics\_setup
+==================
+
+.. currentmodule:: ansys.aedt.core.visualization.report.standard
+
+.. autoproperty:: Standard.optimetrics_setup

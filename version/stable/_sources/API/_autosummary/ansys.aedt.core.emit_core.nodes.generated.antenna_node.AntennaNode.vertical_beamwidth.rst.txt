@@ -1,0 +1,6 @@
+vertical\_beamwidth
+===================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.antenna_node
+
+.. autoproperty:: AntennaNode.vertical_beamwidth

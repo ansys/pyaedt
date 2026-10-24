@@ -1,0 +1,6 @@
+finite\_reverse\_isolation
+==========================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.circulator
+
+.. autoproperty:: Circulator.finite_reverse_isolation

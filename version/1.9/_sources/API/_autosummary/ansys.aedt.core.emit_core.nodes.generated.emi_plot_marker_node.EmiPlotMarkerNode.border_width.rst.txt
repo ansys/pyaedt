@@ -1,0 +1,6 @@
+border\_width
+=============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.emi_plot_marker_node
+
+.. autoproperty:: EmiPlotMarkerNode.border_width
