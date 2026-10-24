@@ -181,19 +181,9 @@ def load_dict(tree: ttk.Treeview, master: MCADAssemblyExtension) -> None:
             master.config_data = data
     tree.delete(*tree.get_children())  # clear everything
 
-    for key in ["coordinate_system", "component_models", "layout_component_models"]:
-        temp = tree.insert("", "end", text=key, open=False)
-        for key, value in master.config_data.get(key, {}).items():
-            text = f"{key}: {value}"
-            tree.insert(temp, "end", text=text, open=False)
-
-    node3 = tree.insert("", "end", text=str("assembly"), open=False)
-
-    temp = master.config_data.get("assembly", {})
-    if not temp:
-        temp = master.config_data.get("sub_components", {})
-    insert_items(tree, node3, temp)
-
+    for key, value in master.config_data.items():
+        node = tree.insert("", "end", text=key, open=False)
+        insert_items(tree, node, value)
 
 def insert_items(tree: ttk.Treeview, parent: str, dictionary: dict | list | str | int | float | None) -> None:
     """Insert items."""
@@ -238,7 +228,7 @@ def main(data: MCADAssemblyExtensionData) -> bool:
     json_text = Path(config_file_path).read_text()
 
     data = MCADAssembly.model_validate_json(json_text)
-    run(data, model_dir=str(Path(config_file_path).parent), hfss=hfss)
+    run(data, model_dir=str(Path(config_file_path).parent), app=hfss)
 
 
 if __name__ == "__main__":  # pragma: no cover
