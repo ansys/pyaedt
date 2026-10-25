@@ -32,7 +32,7 @@ from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyExtension
 def test_main_selected_edb(mock_askopenfilename, test_tmp_dir, mock_hfss_app) -> None:
     config_file = test_tmp_dir / "config.json"
     with open(config_file, "w") as f:
-        json.dump({"test":1}, f, indent=4)
+        json.dump({"test": 1}, f, indent=4)
 
     extension = MCADAssemblyExtension(withdraw=True)
     mock_askopenfilename.return_value = str(config_file)
