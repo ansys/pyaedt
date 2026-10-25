@@ -44,4 +44,3 @@ def test_main_selected_edb(mock_askopenfilename, test_tmp_dir, mock_hfss_app) ->
     assert extension._get_root_theme() != theme_color
     extension.root.nametowidget(".run").invoke()
     assert extension.data.config_file_path == str(config_file)
-
