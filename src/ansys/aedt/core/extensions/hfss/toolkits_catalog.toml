@@ -69,3 +69,10 @@ url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions
 [AntennaWizard]
 name = "Antenna Toolkit"
 url = "https://aedt.antenna.toolkit.docs.pyansys.com/version/stable/getting_started/installation.html"
+
+[WeaveDesigner]
+icon = "images/large/weave.png"
+name = "Weave Designer"
+script = "weave_designer.py"
+template = "run_pyaedt_toolkit_script"
+url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/hfss/weave_designer.html"
