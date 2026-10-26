@@ -240,7 +240,7 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
     @props.setter
     def props(self, value: dict) -> None:
         # Merge with existing props to support partial updates
-        current_props = dict(self.props) if self._legacy_props else {}
+        current_props = self.props.to_dict() if self._legacy_props else {}
         current_props.update(value)
 
         props = SetupProps(self, current_props)
@@ -296,7 +296,7 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
 
         """
         if props is None:
-            props = dict(self.props)
+            props = self.props.to_dict()
 
         if self.setup_type == "OptiParametric" and "Sweep Operations" in props and len(props["Sweep Operations"]) == 3:
             props[8] = ["NAME:Sweep Operations"]
@@ -436,7 +436,7 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         if not solution:
             solution = self._app.nominal_sweep
 
-        props = dict(self.props)
+        props = self.props.to_dict()
 
         setupname = solution.split(" ")[0]
         if setupname not in props["Sim. Setups"]:
@@ -807,7 +807,7 @@ class ParametricSetup(OptimetricsSetup):
 
         self._activate_variable(sweep_variable)
 
-        props = dict(self.props)
+        props = self.props.to_dict()
 
         sweepdefinition = {"Variable": sweep_variable, "Data": sweep_range, "OffsetF1": False, "Synchronize": 0}
         if props["Sweeps"]["SweepDefinition"] is None:
@@ -896,7 +896,7 @@ class ParametricSetup(OptimetricsSetup):
             if v not in existing_variables:
                 raise AEDTRuntimeError(f"Variable {v} is not defined in the parametric setup.")
 
-        props = dict(self.props)
+        props = self.props.to_dict()
 
         for v in variables:
             for count, sweep_def in enumerate(props["Sweeps"]["SweepDefinition"]):
@@ -998,7 +998,7 @@ class OptimizationSetup(OptimetricsSetup):
         max_step = self._app.value_with_units(max_step, self._app.variable_manager[variable_name].units)
         min_value_wuints = self._app.value_with_units(min_value, self._app.variable_manager[variable_name].units)
         max_value_wuints = self._app.value_with_units(max_value, self._app.variable_manager[variable_name].units)
-        props = dict(self.props)
+        props = self.props.to_dict()
 
         if self.setup_type == "OptiDXDOE":
             self._app.variable_manager.variables[variable_name].optimization_max_value = max_value_wuints

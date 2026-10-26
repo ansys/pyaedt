@@ -451,7 +451,7 @@ class Analysis(Design, PyAedtBase):
         >>> hfss.active_setup
 
         """
-        if self._setup:
+        if self._setup and self._setup in self.setup_names:
             self.__active_setup = self._setup
             return self.__active_setup
         elif self.setup_names:
@@ -1510,9 +1510,6 @@ class Analysis(Design, PyAedtBase):
         """
         if name in self.setup_names:
             self.oanalysis.DeleteSetups([name])
-            for s in self._setups:
-                if s.name == name:
-                    self._setups.remove(s)
             return True
         return False
 

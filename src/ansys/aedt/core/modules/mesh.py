@@ -442,13 +442,13 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         elif self.operation_type == "Curvilinear":
             self._app.omeshmodule.AssignApplyCurvlinearElementsOp(self._get_args())
         elif self.operation_type == "RotationalLayerMesh":
-            props = dict(self.props)
+            props = self.props.to_dict()
             if "Total Layer Thickness" in props:
                 props["Total Layer Thickenss"] = props["Total Layer Thickness"]
                 del props["Total Layer Thickness"]
             self._app.omeshmodule.AssignRotationalLayerOp(self._get_args(props))
         elif self.operation_type == "EdgeCutLayerMesh":
-            props = dict(self.props)
+            props = self.props.to_dict()
             if "Layer Thickness" in props:
                 props["Layer Thickenss"] = props["Layer Thickness"]
                 del props["Layer Thickness"]
@@ -519,7 +519,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         if key_name is not None and props is not None:
             raise ValueError("Specify either a property key and value or a properties dictionary, not both.")
         if props is None:
-            props = dict(self.props)
+            props = self.props.to_dict()
         else:
             props = dict(props)
 
@@ -583,7 +583,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
             elif self.operation_type == "DensityControlBased":
                 self._app.omeshmodule.EditDensityControlOp(self.name, aedt_props)
             elif self.operation_type == "EdgeCutLayerMesh":
-                props = dict(self.props)
+                props = self.props.to_dict()
                 if "Layer Thickness" in props:
                     props["Layer Thickenss"] = props["Layer Thickness"]
                     del props["Layer Thickness"]
@@ -626,7 +626,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         """
         out = []
         if properties is None:
-            properties = dict(self.props)
+            properties = self.props.to_dict()
         if "Faces" in properties:
             faces = properties.get("Faces", [])
             faces_out = []

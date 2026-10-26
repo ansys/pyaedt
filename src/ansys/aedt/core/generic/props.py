@@ -26,6 +26,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 import inspect
 import json
 import os
@@ -241,6 +242,20 @@ class Props(dict):
 
     def pop(self, key, default=None):
         return dict.pop(self, key, default)
+
+    def to_dict(self) -> dict:
+        """Return this property tree with nested Props converted to plain containers."""
+
+        def convert(value):
+            if isinstance(value, Mapping):
+                return {key: convert(item) for key, item in value.items()}
+            if isinstance(value, list):
+                return [convert(item) for item in value]
+            if isinstance(value, tuple):
+                return tuple(convert(item) for item in value)
+            return value
+
+        return convert(self)
 
     def _export_properties_to_json(self, file_path, overwrite: bool = False) -> bool:
         """Export properties to a JSON file.

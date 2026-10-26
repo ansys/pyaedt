@@ -92,6 +92,30 @@ def test_nested_dict_assignment_keeps_parent_keys() -> None:
     assert boundary.updated_with is props
 
 
+def test_to_dict_converts_nested_props_to_plain_containers() -> None:
+    props = BoundaryProps(
+        None,
+        {
+            "Parameters": {"subparameter": {"value": 1}},
+            "Entries": [{"Name": "entry", "Value": {"nested": 2}}],
+            "Objects": ["box"],
+            "Tuple": ({"value": 3},),
+        },
+    )
+
+    plain = props.to_dict()
+
+    assert type(plain) is dict
+    assert type(plain["Parameters"]) is dict
+    assert type(plain["Parameters"]["subparameter"]) is dict
+    assert type(plain["Entries"][0]) is dict
+    assert type(plain["Entries"][0]["Value"]) is dict
+    assert plain["Objects"] == ["box"]
+    assert type(plain["Objects"]) is list
+    assert plain["Tuple"] == ({"value": 3},)
+    assert type(plain["Tuple"][0]) is dict
+
+
 def test_list_of_dicts_nested_setitem_updates_root() -> None:
     boundary = DummyBoundary()
     props = BoundaryProps(boundary, {"Entries": [{"Name": "e1", "Value": 1}]})

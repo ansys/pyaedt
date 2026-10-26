@@ -26,6 +26,8 @@ from __future__ import annotations
 
 import sys
 
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
+
 if sys.version_info >= (3, 13):
     from warnings import deprecated
 else:
@@ -33,7 +35,7 @@ else:
 
 import copy
 from difflib import SequenceMatcher
-import os
+from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
 
@@ -256,8 +258,11 @@ class SweepCommon(BinaryTreeNode, PyAedtBase):
 
     @sweep_type.setter
     def sweep_type(self, sweep_type):
-        sweep_type = get_sweep_type(sweep_type)
-        self.props["FreqSweepType"] = sweep_type
+        if "FreqSweepType" in self.props:
+            sweep_type = get_sweep_type(sweep_type)
+            self.props["FreqSweepType"] = sweep_type
+        elif "Type" in self.props:
+            self.props["Type"] = sweep_type
 
     @property
     def setup_name(self) -> str:
@@ -296,19 +301,6 @@ class SweepHFSS(SweepCommon):
         self._legacy_props = {}
 
         if props:
-            if "RangeStep" in props.keys():  # LinearCount is the default sweep type. Change it if RangeStep is passed.
-                if "RangeCount" in props.keys():
-                    setup._app.logger.info("Inconsistent arguments 'RangeCount' and 'RangeStep' passed to 'SweepHFSS',")
-                    setup._app.logger.info("Default remains 'LinearCount' sweep type.")
-                else:
-                    props["RangeType"] = "LinearStep"
-            for key, value in props.items():
-                if key in props.keys():
-                    props[key] = value
-                else:
-                    error_message = f"Parameter '{key}' is invalid and will be ignored."
-                    setup._app.logger.warning(error_message)
-
             self._legacy_props = props
 
         SweepCommon.__init__(self, setup, name)
@@ -362,7 +354,7 @@ class SweepHFSS(SweepCommon):
     @props.setter
     def props(self, value: dict) -> None:
         # Merge with existing props to support partial updates
-        current_props = dict(self.props) if self._legacy_props else {}
+        current_props = self.props.to_dict() if self._legacy_props else {}
         current_props.update(value)
 
         props = SweepProps(self, current_props)
@@ -389,7 +381,7 @@ class SweepHFSS(SweepCommon):
         """
         combined_name = str(self)
         sol = self._app.post.reports_by_category.standard(setup=combined_name)
-        if identify_setup(dict(self.props)):
+        if identify_setup(self.props.to_dict()):
             sol.domain = "Time"
         return True if sol.get_solution_data() else False
 
@@ -406,12 +398,15 @@ class SweepHFSS(SweepCommon):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
-        >>> obj = SweepHFSS()
-        >>> obj.frequencies
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> setup = hfss.create_setup()
+        >>> sweep = setup.add_sweep()
+        >>> sweep.frequencies
 
         """
-        sol = self._app._app.post.reports_by_category.standard(setup=f"{self.setup_name} : {self.name}")
+        combined_name = str(self)
+        sol = self._app._app.post.reports_by_category.standard(setup=combined_name)
         soldata = sol.get_solution_data()
         if soldata and "Freq" in soldata.intrinsics:
             return [Quantity(i, soldata.units_sweeps["Freq"]) for i in soldata.intrinsics["Freq"]]
@@ -430,15 +425,17 @@ class SweepHFSS(SweepCommon):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
-        >>> obj = SweepHFSS()
-        >>> obj.basis_frequencies
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> setup = hfss.create_setup()
+        >>> sweep = setup.add_sweep()
+        >>> sweep.frequencies
 
         """
-        solutions_file = os.path.join(self._app._app.results_directory, f"{self._app._app.design_name}.asol")
+        solutions_file = Path(self._app.results_directory) / f"{self._app.design_name}.asol"
         fr = []
-        if os.path.exists(solutions_file):
-            solutions = load_entire_aedt_file(solutions_file)
+        if solutions_file.is_file():
+            solutions = load_entire_aedt_file(str(solutions_file))
             for k, v in solutions.items():
                 if "SolutionBlock" in k and "SolutionName" in v and v["SolutionName"] == self.name and "Fields" in v:
                     try:
@@ -449,42 +446,46 @@ class SweepHFSS(SweepCommon):
                             values=new_list,
                             unit_system="Freq",
                             input_units="Hz",
-                            output_units=self._app._app.units.frequency,
+                            output_units=self._app.units.frequency,
                         )
                         fr.append(new_list)
                     except (KeyError, NameError, IndexError):
                         pass
 
         count = 0
-        for el in self._app._app.setups:
-            if el.name == self.setup_name:
-                for sweep in el.sweeps:
-                    if sweep.name == self.name:
+        for setup_name, setup in self._app.setups.items():
+            if setup_name == self.setup_name:
+                for sweep in setup.sweeps:
+                    if sweep == self.name:
                         return fr[count] if len(fr) >= count + 1 else []
             else:
-                for sweep in el.sweeps:
-                    if sweep.name == self.name:
+                for sweep in setup.sweeps:
+                    if sweep == self.name:
                         count += 1
         return []
 
     @pyaedt_function_handler()
-    def create(self) -> bool:
+    def create(self) -> SweepHFSS:
         """Create a sweep.
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class 'from ansys.aedt.core.modules.solve_sweeps.SweepHFSS'
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
-        >>> obj = SweepHFSS()
-        >>> obj.create()
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss = Hfss3dLayout()
+        >>> setup = hfss.create_setup()
+        >>> sweep = setup.add_sweep()
 
         """
         self._app.oanalysis.InsertFrequencySweep(self.setup_name, self._get_args())
-        return True
+
+        # GetObjData is available for some objects in 2026R1.
+        self._has_getobject = _has_get_obj_data(self._child_object)
+
+        return self
 
     @pyaedt_function_handler()
     def update(self, props: dict | None = None) -> bool:
@@ -511,7 +512,7 @@ class SweepHFSS(SweepCommon):
 
         """
         if props is None:
-            props = dict(self.props)
+            props = self.props.to_dict()
 
         arg = self._get_args(props=props)
 
@@ -599,23 +600,25 @@ class SweepHFSS(SweepCommon):
             if not end or not count:
                 raise AttributeError("Parameters 'end' and 'count' must be present.")
 
+        props = self.props.to_dict()
+
         if clear:
-            self._legacy_props["RangeType"] = range_type
-            self._legacy_props["RangeStart"] = str(start) + unit
+            props["RangeType"] = range_type
+            props["RangeStart"] = str(start) + unit
             if range_type == "LinearCount":
-                self._legacy_props["RangeEnd"] = str(end) + unit
-                self._legacy_props["RangeCount"] = count
+                props["RangeEnd"] = str(end) + unit
+                props["RangeCount"] = count
             elif range_type == "LinearStep":
-                self._legacy_props["RangeEnd"] = str(end) + unit
-                self._legacy_props["RangeStep"] = str(count) + unit
+                props["RangeEnd"] = str(end) + unit
+                props["RangeStep"] = str(count) + unit
             elif range_type == "LogScale":
-                self._legacy_props["RangeEnd"] = str(end) + unit
-                self._legacy_props["RangeSamples"] = count
+                props["RangeEnd"] = str(end) + unit
+                props["RangeSamples"] = count
             elif range_type == "SinglePoints":
-                self._legacy_props["RangeEnd"] = str(start) + unit
-                self._legacy_props["SaveSingleField"] = save_single_fields
-            self._legacy_props["SweepRanges"] = {"Subrange": []}
-            return self.update(self._legacy_props)
+                props["RangeEnd"] = str(start) + unit
+                props["SaveSingleField"] = save_single_fields
+            props["SweepRanges"] = {"Subrange": []}
+            return self.update(props)
 
         interval = {"RangeType": range_type, "RangeStart": str(start) + unit}
         if range_type == "LinearCount":
@@ -626,19 +629,26 @@ class SweepHFSS(SweepCommon):
             interval["RangeStep"] = str(count) + unit
         elif range_type == "LogScale":
             interval["RangeEnd"] = str(end) + unit
-            interval["RangeCount"] = self.props["RangeCount"]
+            if "RangeCount" in props:
+                interval["RangeCount"] = props["RangeCount"]
+            else:
+                interval["RangeCount"] = count
             interval["RangeSamples"] = count
         elif range_type == "SinglePoints":
-            interval["RangeEnd"] = str(start) + unit
-            interval["SaveSingleField"] = save_single_fields
-        if not self.props.get("SweepRanges", None):
-            self._legacy_props["SweepRanges"] = {"Subrange": []}
+            if self.sweep_type == "Discrete":
+                interval["RangeEnd"] = str(start) + unit
+                interval["SaveSingleField"] = save_single_fields
+            else:
+                raise AEDTRuntimeError("Sweep type must be Discrete.")
 
-        if not isinstance(self.props["SweepRanges"]["Subrange"], list):
-            self._legacy_props["SweepRanges"]["Subrange"] = [self.props["SweepRanges"]["Subrange"]]
-        self._legacy_props["SweepRanges"]["Subrange"].append(interval)
+        if not props.get("SweepRanges", None):
+            props["SweepRanges"] = {"Subrange": []}
 
-        return self.update(self._legacy_props)
+        if not isinstance(props["SweepRanges"]["Subrange"], list):
+            props["SweepRanges"]["Subrange"] = [props["SweepRanges"]["Subrange"]]
+        props["SweepRanges"]["Subrange"].append(interval)
+
+        return self.update(props)
 
     @pyaedt_function_handler()
     def _get_args(self, props=None):
@@ -742,7 +752,7 @@ class SweepHFSS3DLayout(SweepCommon):
     @props.setter
     def props(self, value: dict) -> None:
         # Merge with existing props to support partial updates
-        current_props = dict(self.props) if self._legacy_props else {}
+        current_props = self.props.to_dict() if self._legacy_props else {}
         current_props.update(value)
 
         props = SweepProps(self, current_props)
@@ -792,7 +802,7 @@ class SweepHFSS3DLayout(SweepCommon):
         if not expressions:
             return False
         sol = self._app.post.reports_by_category.standard(expressions=expressions[0], setup=combined_name)
-        if identify_setup(dict(self.props)):
+        if identify_setup(self.props.to_dict()):
             sol.domain = "Time"
         return True if sol.get_solution_data() else False
 
@@ -802,8 +812,7 @@ class SweepHFSS3DLayout(SweepCommon):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class 'from ansys.aedt.core.modules.solve_sweeps.SweepHfss3DLayout'
 
         Examples
         --------
@@ -845,7 +854,7 @@ class SweepHFSS3DLayout(SweepCommon):
 
         """
         if props is None:
-            props = dict(self.props)
+            props = self.props.to_dict()
         self._app.oanalysis.EditSweep(self._setup.name, self.name, self._get_args(props))
 
         if not self._has_getobject:
@@ -899,7 +908,7 @@ class SweepHFSS3DLayout(SweepCommon):
 
         """
         sweep_type = get_sweep_type(sweep_type)
-        props = dict(self.props)
+        props = self.props.to_dict()
         props["FreqSweepType"] = sweep_type
         return self.update(props)
 
@@ -974,7 +983,7 @@ class SweepHFSS3DLayout(SweepCommon):
         >>> sweep.add_subrange(range_type="LinearCount", start=1, end=2, count=5)
 
         """
-        props = dict(self.props)
+        props = self.props.to_dict()
 
         if range_type == "SinglePoint" and props["FreqSweepType"] == "kInterpolating":
             raise AttributeError("'SinglePoint' is allowed only when sweep_type is 'Discrete'.'")
@@ -1050,7 +1059,7 @@ class SweepHFSS3DLayout(SweepCommon):
         else:
             raise AttributeError('Allowed range_type are "LinearCount", "SinglePoint", "LinearStep", and "LogScale".')
 
-        props = dict(self.props)
+        props = self.props.to_dict()
         props["Sweeps"]["Data"] = sweep_range
         return self.update(props)
 
@@ -1079,7 +1088,7 @@ class SweepHFSS3DLayout(SweepCommon):
 
         """
         if props is None:
-            props = dict(self.props)
+            props = self.props.to_dict()
         arg = ["NAME:" + self.name]
         _dict2arg(props, arg)
         return arg
@@ -1205,10 +1214,11 @@ class SweepMatrix(SweepCommon):
         >>> obj.basis_frequencies
 
         """
-        solutions_file = os.path.join(self._app._app.results_directory, f"{self._app._app.design_name}.asol")
+        solutions_file = Path(self._app.results_directory) / f"{self._app.design_name}.asol"
+
         fr = []
-        if os.path.exists(solutions_file):
-            solutions = load_entire_aedt_file(solutions_file)
+        if solutions_file.is_file():
+            solutions = load_entire_aedt_file(str(solutions_file))
             for k, v in solutions.items():
                 if "SolutionBlock" in k and "SolutionName" in v and v["SolutionName"] == self.name and "Fields" in v:
                     try:  # pragma: no cover
@@ -1218,21 +1228,21 @@ class SweepMatrix(SweepCommon):
                             values=new_list,
                             unit_system="Freq",
                             input_units="Hz",
-                            output_units=self._app._app.units.frequency,
+                            output_units=self._app.units.frequency,
                         )
                         fr.append(new_list)
                     except (KeyError, NameError, IndexError):
                         pass
 
         count = 0
-        for el in self._app._app.setups:
-            if el.name == self.setup_name:
-                for sweep in el.sweeps:
-                    if sweep.name == self.name:
+        for setup_name, setup in self._app.setups.items():
+            if setup_name == self.setup_name:
+                for sweep in setup.sweeps:
+                    if sweep == self.name:
                         return fr[count] if len(fr) >= count + 1 else []
             else:
-                for sweep in el.sweeps:
-                    if sweep.name == self.name:
+                for sweep in setup.sweeps:
+                    if sweep == self.name:
                         count += 1
         return []
 

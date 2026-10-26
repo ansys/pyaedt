@@ -822,7 +822,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         """
         out = ["Name:" + self.name]
         if properties is None:
-            properties = dict(self.props)
+            properties = self.props.to_dict()
 
         if "Faces" in properties:
             faces = properties.get("Faces", [])
