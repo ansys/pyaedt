@@ -4885,11 +4885,13 @@ class Design(AedtObjects, PyAedtBase):
         # Fast path: plain numeric values cannot be variable names, so skip the AEDT variable lookup
         if isinstance(expression, (int, float)) and not isinstance(expression, bool):
             return float(expression)
-        if isinstance(expression, str) and expression.strip()[:1] in "0123456789+-." and expression.strip():
-            try:
-                return float(expression)
-            except ValueError:
-                pass
+        if isinstance(expression, str):
+            stripped = expression.strip()
+            if stripped and stripped[0] in "0123456789+-.":
+                try:
+                    return float(stripped)
+                except ValueError:
+                    pass
 
         # Strategy 1: Direct variable lookup
         # If the expression is exactly a variable name, return its SI value directly

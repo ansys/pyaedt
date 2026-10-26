@@ -1663,9 +1663,10 @@ class GeometryModeler(Modeler, PyAedtBase):
         coord = []
         id2name = {1: "Global"}
         name2refid = {}
-        dp = copy.deepcopy(self._design_properties)
+        dp = self._design_properties
         if dp and "ModelSetup" in dp:
-            cs = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["CoordinateSystems"]
+            # Copy only the data handed to coordinate system objects instead of the whole design properties.
+            cs = copy.deepcopy(dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["CoordinateSystems"])
             for ds in cs:
                 try:
                     if isinstance(cs[ds], dict):
@@ -1694,12 +1695,12 @@ class GeometryModeler(Modeler, PyAedtBase):
                                 op = geometry_part["Operations"]["FaceCSHolderOperation"]
                                 if isinstance(op, dict):
                                     if op["ID"] == op_id:
-                                        props = op["FaceCSParameters"]
+                                        props = copy.deepcopy(op["FaceCSParameters"])
                                         coord.append(FaceCoordinateSystem(self, props, name))
                                 elif isinstance(op, list):
                                     for iop in op:
                                         if iop["ID"] == op_id:
-                                            props = iop["FaceCSParameters"]
+                                            props = copy.deepcopy(iop["FaceCSParameters"])
                                             coord.append(FaceCoordinateSystem(self, props, name))
                                             break
                             elif isinstance(geometry_part, list):
@@ -1707,12 +1708,12 @@ class GeometryModeler(Modeler, PyAedtBase):
                                     op = gp["Operations"]["FaceCSHolderOperation"]
                                     if isinstance(op, dict):
                                         if op["ID"] == op_id:
-                                            props = op["FaceCSParameters"]
+                                            props = copy.deepcopy(op["FaceCSParameters"])
                                             coord.append(FaceCoordinateSystem(self, props, name))
                                     elif isinstance(op, list):
                                         for iop in op:
                                             if iop["ID"] == op_id:
-                                                props = iop["FaceCSParameters"]
+                                                props = copy.deepcopy(iop["FaceCSParameters"])
                                                 coord.append(FaceCoordinateSystem(self, props, name))
                                                 break
                     elif isinstance(cs[ds], list):
@@ -1742,12 +1743,12 @@ class GeometryModeler(Modeler, PyAedtBase):
                                     op = geometry_part["Operations"]["FaceCSHolderOperation"]
                                     if isinstance(op, dict):
                                         if op["ID"] == op_id:
-                                            props = op["FaceCSParameters"]
+                                            props = copy.deepcopy(op["FaceCSParameters"])
                                             coord.append(FaceCoordinateSystem(self, props, name))
                                     elif isinstance(op, list):
                                         for iop in op:
                                             if iop["ID"] == op_id:
-                                                props = iop["FaceCSParameters"]
+                                                props = copy.deepcopy(iop["FaceCSParameters"])
                                                 coord.append(FaceCoordinateSystem(self, props, name))
                                                 break
                                 elif isinstance(geometry_part, list):
@@ -1758,12 +1759,12 @@ class GeometryModeler(Modeler, PyAedtBase):
                                             continue
                                         if isinstance(op, dict):
                                             if op["ID"] == op_id:
-                                                props = op["FaceCSParameters"]
+                                                props = copy.deepcopy(op["FaceCSParameters"])
                                                 coord.append(FaceCoordinateSystem(self, props, name))
                                         elif isinstance(op, list):
                                             for iop in op:
                                                 if iop["ID"] == op_id:
-                                                    props = iop["FaceCSParameters"]
+                                                    props = copy.deepcopy(iop["FaceCSParameters"])
                                                     coord.append(FaceCoordinateSystem(self, props, name))
                                                     break
                 except Exception as e:
@@ -1785,7 +1786,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         [Dict with List information]
         """
         design_lists = []
-        dp = copy.deepcopy(self._design_properties)
+        dp = self._design_properties
         if dp and dp.get("ModelSetup", None):
             key1 = "GeometryOperations"
             key2 = "GeometryEntityLists"
@@ -6677,10 +6678,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         face_selection = self.convert_to_selections(assignment, True)
         selection = {}
         for f in face_selection:
-            if self.oeditor.GetObjectNameByFaceID(f) in selection:
-                selection[self.oeditor.GetObjectNameByFaceID(f)].append(f)
-            else:
-                selection[self.oeditor.GetObjectNameByFaceID(f)] = [f]
+            selection.setdefault(self.oeditor.GetObjectNameByFaceID(f), []).append(f)
 
         arg1 = [
             "NAME:Selections",
@@ -6743,10 +6741,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         edge_selection = self.convert_to_selections(assignment, True)
         selection = {}
         for f in edge_selection:
-            if self.oeditor.GetObjectNameByEdgeID(f) in selection:
-                selection[self.oeditor.GetObjectNameByEdgeID(f)].append(f)
-            else:
-                selection[self.oeditor.GetObjectNameByEdgeID(f)] = [f]
+            selection.setdefault(self.oeditor.GetObjectNameByEdgeID(f), []).append(f)
 
         arg1 = [
             "NAME:Selections",
@@ -8765,10 +8760,12 @@ class GeometryModeler(Modeler, PyAedtBase):
             if obj is not None and obj._m_name == assignment:
                 # Validate with a single native call instead of a full object type refresh.
                 try:
-                    self.oeditor.GetObjectIDByName(assignment)
+                    oid = self.oeditor.GetObjectIDByName(assignment)
+                except (GrpcApiError, AttributeError, TypeError):
+                    oid = None
+                if oid is not None and int(oid) == obj.id:
                     return obj.id
-                except Exception:
-                    self.logger.debug(f"Object {assignment} not found in cached ids. Refreshing objects.")
+                self.logger.debug(f"Cached id of object {assignment} is stale. Refreshing objects.")
         obj = self.objects_by_name.get(assignment)
         if obj is not None:
             return obj.id
@@ -9599,7 +9596,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         ]
         list_of_bodies = list(self.oeditor.GetBodyNamesByPosition(arg_1))
         if not include_non_model:
-            non_models = [i for i in self.non_model_objects]
+            non_models = set(self.non_model_objects)
             list_of_bodies = [i for i in list_of_bodies if i not in non_models]
         return list_of_bodies
 
@@ -10360,7 +10357,9 @@ class GeometryModeler(Modeler, PyAedtBase):
     def _cached_object_types(self):
         """Reuse a single object type refresh for all queries made inside this context.
 
-        Use this context only around code that does not modify the geometry.
+        The first object type query inside the context refreshes the lists from AEDT. Later queries reuse
+        them, so the geometry must not change after that first query while the context is active.
+        This context is not thread-safe.
         """
         self._object_types_cache_depth += 1
         try:
@@ -10385,11 +10384,19 @@ class GeometryModeler(Modeler, PyAedtBase):
             self._object_types_cached = True
 
     @pyaedt_function_handler()
-    def _create_object(self, name: str, pid: int = 0, use_cached: bool = False, is_polyline: bool = False, **kwargs):
+    def _create_object(
+        self, name: str, pid: int = 0, use_cached: bool = False, is_polyline: bool | None = None, **kwargs
+    ):
+        """Create the PyAEDT object for an AEDT object name.
+
+        ``is_polyline=None`` queries AEDT for line objects. An explicit ``True`` or ``False`` skips that query.
+        """
         if use_cached:
             line_names = self._lines
-        else:
+        elif is_polyline is None:
             line_names = self.line_names
+        else:
+            line_names = []
         if name in self._points:
             o = Point(self, name)
             self.points[name] = o
@@ -10407,7 +10414,7 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         else:
             o = Object3d(self, name)
-            o.is_polyline = is_polyline
+            o.is_polyline = bool(is_polyline)
             if pid:
                 new_id = pid
             else:
@@ -10556,35 +10563,25 @@ class GeometryModeler(Modeler, PyAedtBase):
         return szList
 
     @pyaedt_function_handler()
-    def _find_object_from_edge_id(self, lval):
-        objList = []
-        objListSheets = self.sheet_names
-        if len(objListSheets) > 0:
-            objList.extend(objListSheets)
-        objListSolids = self.solid_names
-        if len(objListSolids) > 0:
-            objList.extend(objListSolids)
-        for obj in objList:
-            val = self.oeditor.GetEdgeIDsFromObject(obj)
-            if not (isinstance(val, bool)) and str(lval) in list(val):
-                return obj
+    def _find_object_name_from_entity_id(self, entity_id, method_name: str):
+        """Get the name of the solid or sheet owning a face or edge ID, or ``None`` if not found."""
+        try:
+            obj_name = getattr(self.oeditor, method_name)(int(entity_id))
+        except Exception:  # Native API raises different errors with gRPC and COM for unknown IDs.
+            self.logger.debug(f"{method_name} failed for ID {entity_id}.")
+            return None
+        if obj_name and (obj_name in self.solid_names or obj_name in self.sheet_names):
+            return obj_name
         return None
+
+    @pyaedt_function_handler()
+    def _find_object_from_edge_id(self, lval):
+        return self._find_object_name_from_entity_id(lval, "GetObjectNameByEdgeID")
 
     @pyaedt_function_handler()
     def _find_object_from_face_id(self, lval):
         if self.oeditor is not None:
-            objList = []
-            objListSheets = self.sheet_names
-            if len(objListSheets) > 0:
-                objList.extend(objListSheets)
-            objListSolids = self.solid_names
-            if len(objListSolids) > 0:
-                objList.extend(objListSolids)
-            for obj in objList:
-                face_ids = list(self.oeditor.GetFaceIDs(obj))
-                if str(lval) in face_ids:
-                    return obj
-
+            return self._find_object_name_from_entity_id(lval, "GetObjectNameByFaceID")
         return None
 
     @pyaedt_function_handler()

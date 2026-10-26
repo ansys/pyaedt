@@ -174,7 +174,7 @@ def test_face_center_non_planar_fallback() -> None:
 
 @pytest.mark.parametrize(
     ("expression", "expected"),
-    [(3, 3.0), (2.5, 2.5), ("42", 42.0), ("-1e-3", -1e-3), (".5", 0.5)],
+    [(3, 3.0), (2.5, 2.5), ("42", 42.0), ("-1e-3", -1e-3), (".5", 0.5), ("1e3", 1000.0), (" 7 ", 7.0)],
 )
 def test_evaluate_expression_numeric_fast_path(expression, expected) -> None:
     design = MagicMock()
@@ -188,3 +188,129 @@ def test_evaluate_expression_variable_lookup_still_used() -> None:
     variable = MagicMock(si_value=0.01)
     design._variable_manager.variables = {"width": variable}
     assert Design.evaluate_expression(design, "width") == 0.01
+
+
+def test_find_object_from_face_id_single_lookup(modeler) -> None:
+    modeler.oeditor.GetObjectNameByFaceID.return_value = "Box2"
+    assert modeler._find_object_from_face_id(42) == "Box2"
+    modeler.oeditor.GetObjectNameByFaceID.assert_called_once_with(42)
+    modeler.oeditor.GetFaceIDs.assert_not_called()
+
+
+def test_find_object_from_face_id_not_found(modeler) -> None:
+    modeler.oeditor.GetObjectNameByFaceID.return_value = ""
+    assert modeler._find_object_from_face_id(42) is None
+    modeler.oeditor.GetObjectNameByFaceID.return_value = "NonExisting"
+    assert modeler._find_object_from_face_id(42) is None
+
+
+def test_find_object_from_edge_id_single_lookup(modeler) -> None:
+    modeler.oeditor.GetObjectNameByEdgeID.return_value = "Box1"
+    assert modeler._find_object_from_edge_id("7") == "Box1"
+    modeler.oeditor.GetObjectNameByEdgeID.assert_called_once_with(7)
+    modeler.oeditor.GetEdgeIDsFromObject.assert_not_called()
+    modeler.oeditor.GetObjectNameByEdgeID.return_value = ""
+    assert modeler._find_object_from_edge_id(8) is None
+
+
+def test_move_face_one_lookup_per_face(modeler) -> None:
+    modeler.oeditor.GetObjectNameByFaceID.side_effect = lambda f: "Box1" if int(f) < 200 else "Box2"
+    with patch.object(GeometryModeler, "model_units", new="mm"):
+        assert modeler.move_face([101, 102, 201], offset=1.0)
+    assert modeler.oeditor.GetObjectNameByFaceID.call_count == 3
+    params = modeler.oeditor.MoveFaces.call_args[0][1]
+    assert [int(f) for f in params[1][-1]] == [101, 102]
+    assert [int(f) for f in params[2][-1]] == [201]
+
+
+@pytest.mark.parametrize("is_polyline", [False, True])
+def test_create_object_explicit_type_skips_lines_query(modeler, is_polyline) -> None:
+    modeler.oeditor.GetObjectsInGroup.reset_mock()
+    with patch.object(Object3d, "id", new=99):
+        obj = modeler._create_object("Box1", is_polyline=is_polyline)
+    assert obj.is_polyline is is_polyline
+    assert all(c.args != ("Lines",) for c in modeler.oeditor.GetObjectsInGroup.call_args_list)
+
+
+def test_create_object_default_queries_lines(modeler) -> None:
+    modeler._groups["Lines"] = ["Poly1"]
+    modeler.oeditor.GetObjectsInGroup.reset_mock()
+    with patch.object(Object3d, "id", new=99):
+        obj = modeler._create_object("Poly1")
+    assert obj.is_polyline is True
+    assert any(c.args == ("Lines",) for c in modeler.oeditor.GetObjectsInGroup.call_args_list)
+
+
+def test_function_handler_skips_logging_when_debug_disabled() -> None:
+    from ansys.aedt.core.generic import general_methods
+    from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+    from ansys.aedt.core.generic.settings import settings
+
+    @pyaedt_function_handler()
+    def add_one(value):
+        return value + 1
+
+    old = (settings.enable_debug_logger, settings.enable_debug_edb_logger)
+    try:
+        settings.enable_debug_logger = False
+        settings.enable_debug_edb_logger = False
+        with patch.object(general_methods, "_log_method") as log_method:
+            assert add_one(1) == 2
+            log_method.assert_not_called()
+        settings.enable_debug_logger = True
+        with patch.object(general_methods, "_log_method") as log_method:
+            assert add_one(1) == 2
+            log_method.assert_called_once()
+    finally:
+        settings.enable_debug_logger, settings.enable_debug_edb_logger = old
+
+
+def test_grpc_wrapper_method_lookup_is_case_insensitive() -> None:
+    from ansys.aedt.core.internal.grpc_plugin_dll_class import AedtObjWrapper
+
+    wrapper = AedtObjWrapper.__new__(AedtObjWrapper)
+    wrapper.__dict__["objectID"] = 1
+    wrapper.__dict__["__methodNames__"] = ["GetFaceIDs", "CreateBox"]
+    wrapper.__dict__["dllapi"] = MagicMock()
+    wrapper.__dict__["is_linux"] = False
+    with patch.object(AedtObjWrapper, "__Invoke__", return_value=["1"]) as invoke:
+        assert wrapper.getfaceids("Box1") == ["1"]
+        invoke.assert_called_once_with("GetFaceIDs", ("Box1",))
+    assert wrapper.__dict__["__methodMap__"]["createbox"] == "CreateBox"
+    with pytest.raises(AttributeError):
+        _ = wrapper.NotAMethod
+
+
+def test_find_object_from_face_id_native_error_returns_none(modeler) -> None:
+    modeler.oeditor.GetObjectNameByFaceID.side_effect = Exception("COM error")
+    assert modeler._find_object_from_face_id(42) is None
+    modeler.oeditor.GetObjectNameByEdgeID.side_effect = Exception("COM error")
+    assert modeler._find_object_from_edge_id(42) is None
+
+
+def test_get_obj_id_stale_cached_id_refreshes(modeler) -> None:
+    modeler.refresh_all_ids()
+    assert modeler.get_obj_id("Box1") == 10
+    # Simulate Box1 recreated outside PyAEDT with a different ID.
+    modeler.oeditor.GetObjectIDByName.side_effect = lambda name: 55 if name == "Box1" else 11
+    modeler.oeditor.GetAllObjectInfo.side_effect = lambda names: json.dumps(
+        [{"Name": n, "id": 55 if n == "Box1" else 11} for n in names]
+    )
+    modeler.oeditor.GetObjectsInGroup.reset_mock()
+    modeler.get_obj_id("Box1")
+    # The stale id triggers a refresh instead of being returned from the cache blindly.
+    assert modeler.oeditor.GetObjectsInGroup.called
+
+
+@pytest.mark.parametrize("expression", [".5mm", "-x", "1mm+2mm"])
+def test_evaluate_expression_non_numeric_strings_skip_fast_path(expression) -> None:
+    design = MagicMock()
+    variables = MagicMock()
+    variables.__contains__.return_value = False
+    design._variable_manager.variables = variables
+    try:
+        Design.evaluate_expression(design, expression)
+    except Exception:  # The mocked AEDT evaluator path is not fully emulated.
+        pass
+    # The variable lookup is reached, so the numeric fast path did not swallow the expression.
+    variables.__contains__.assert_called_with(expression)
