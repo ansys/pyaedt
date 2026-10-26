@@ -378,18 +378,16 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import Hfss3dLayout
         >>> from ansys.aedt.core.generic.constants import Setups
         >>> app = Hfss3dLayout()
-
         >>> app.create_setup(name="Setup1", setup_type=Setups.HFSS3DLayout, MeshSizeFactor=2)
 
         """
         setup_keys = SetupKeys.get_setup_templates()
-        setup_names = SetupKeys.SetupNames
+        setup_names_available = [name for name in dir(Setups) if not name.startswith("_")]
 
         if setup_type is None:
-            # Default setup type
             setup_type = self.design_solutions.default_setup
-        elif setup_type in setup_names:
-            setup_type = setup_names.index(setup_type)
+        elif isinstance(setup_type, str) and setup_type in setup_names_available:
+            setup_type = getattr(Setups, setup_type)
 
         if not name:
             name = self.generate_unique_setup_name("MySetupAuto")

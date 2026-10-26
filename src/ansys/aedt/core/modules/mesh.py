@@ -597,7 +597,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
             else:
                 return False
 
-        self._legacy_props = MeshProps(self, props)
+        self._legacy_props = props
         return True
 
     @pyaedt_function_handler()
@@ -655,8 +655,8 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
 
         self._app.omeshmodule.ReassignOp(self.name, out)
 
-        if properties != self._legacy_props:
-            self._legacy_props = properties
+        if not self._has_getobject:
+            self._legacy_props = dict(properties)
 
         return True
 

@@ -50,6 +50,7 @@ else:
 
 import numpy as np
 
+from ansys.aedt.core.generic.aedt_constants import Setups
 from ansys.aedt.core.modeler.advanced_cad.actors import Radar
 from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
 
@@ -1722,7 +1723,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             Name of the setup. The default is ``"MySetupAuto"``.
         setup_type : str, optional
             Type of the setup, which is based on the solution type. Options are
-            ``"HFSSDrivenAuto"``, ``"HFSSDriven"``, ``"HFSSEigen"``, ``"HFSSTransient"``,
+            ``"HFSSDrivenAuto"``, ``"HFSSDrivenDefault"``, ``"HFSSEigen"``, ``"HFSSTransient"``,
             and ``"HFSSSBR"``. The default is ``"HFSSDriven"``.
         **kwargs : dict, optional
             Keyword arguments from the native AEDT API.
@@ -1744,17 +1745,16 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> from ansys.aedt.core.generic.constants import Setups
         >>> hfss = Hfss()
-        >>> hfss.create_setup(name="Setup1", setup_type=Setups.HFSSDriven, Frequency="10GHz")
+        >>> hfss.create_setup(name="Setup1", setup_type=Setups.HFSSDrivenDefault, Frequency="10GHz")
 
         """
         setup_keys = SetupKeys.get_setup_templates()
-        setup_names = SetupKeys.SetupNames
+        setup_names_available = [name for name in dir(Setups) if not name.startswith("_")]
 
         if setup_type is None:
-            # Default setup type
             setup_type = self.design_solutions.default_setup
-        elif setup_type in setup_names:
-            setup_type = setup_names.index(setup_type)
+        elif isinstance(setup_type, str) and setup_type in setup_names_available:
+            setup_type = getattr(Setups, setup_type)
 
         if not name:
             name = self.generate_unique_setup_name("MySetupAuto")
@@ -1766,16 +1766,28 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         setup = self._create_setup(name=name, setup_type=setup_type, props=props)
 
-        if "MultipleAdaptiveFreqsSetup" in kwargs:
-            setup.enable_adaptive_setup_multifrequency(kwargs["MultipleAdaptiveFreqsSetup"])
-            del kwargs["MultipleAdaptiveFreqsSetup"]
-        elif "Frequency" in kwargs and isinstance(kwargs["Frequency"], list):
-            setup.enable_adaptive_setup_multifrequency(kwargs["Frequency"])
-            del kwargs["Frequency"]
-        for arg_name, arg_value in kwargs.items():
-            setup._legacy_props[arg_name] = arg_value
+        if kwargs:
+            if "MultipleAdaptiveFreqsSetup" in kwargs:
+                try:
+                    setup.enable_adaptive_setup_multifrequency(kwargs["MultipleAdaptiveFreqsSetup"])
+                except AEDTRuntimeError:
+                    setup.delete()
+                    raise AEDTRuntimeError("Method applies only to HFSS-driven solutions.")
 
-        setup.update()
+                del kwargs["MultipleAdaptiveFreqsSetup"]
+            elif "Frequency" in kwargs and isinstance(kwargs["Frequency"], list):
+                try:
+                    setup.enable_adaptive_setup_multifrequency(kwargs["Frequency"])
+                except AEDTRuntimeError:
+                    setup.delete()
+                    raise AEDTRuntimeError("Method applies only to HFSS-driven solutions.")
+                del kwargs["Frequency"]
+
+            props = dict(setup.props)
+            for arg_name, arg_value in kwargs.items():
+                props[arg_name] = arg_value
+
+            setup.update(props)
 
         return setup
 

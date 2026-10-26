@@ -28,9 +28,11 @@ from ansys.aedt.core import Circuit
 from ansys.aedt.core import Hfss
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.generic.aedt_constants import Setups
+from ansys.aedt.core.generic.constants import Axis
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modules.setup_templates import HFSS3DLayout_AdaptiveFrequencyData
 from ansys.aedt.core.modules.solve_setup import Setup3DLayout
+from ansys.aedt.core.modules.solve_setup import SetupHFSS
 from ansys.aedt.core.modules.solve_setup import SetupHFSSAuto
 from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
 from tests.conftest import DESKTOP_VERSION
@@ -162,7 +164,7 @@ def test_create_setup_layout_hfss(layout_app) -> None:
     assert str(setup) == f"{name} : LastAdaptive"
     assert setup.__repr__() == f"{name} with 0 Sweeps"
 
-    assert setup.props["MaxRatio"] == 1
+    assert setup["MaxRatio"] == 1
     assert setup.props["MeshSizeFactor"] == 2
     assert (
         setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"]
@@ -179,6 +181,8 @@ def test_create_setup_layout_hfss(layout_app) -> None:
         setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"]
         == "1GHz"
     )
+    setup["MaxRatio"] = 2
+    assert setup["MaxRatio"] == 2
 
     setup2 = layout_app.create_setup(setup_type="HFSS3DLayout")
     name2 = setup2.name
@@ -622,23 +626,75 @@ def test_create_hfss_setup(hfss_app) -> None:
     setup1 = hfss_app.create_setup("My_HFSS_Setup", Setups.HFSSDrivenDefault)
     assert setup1.name == "My_HFSS_Setup"
     assert hfss_app.setups[0].name == setup1.name
+    assert setup1.name in hfss_app.setup_names
+    assert isinstance(setup1, SetupHFSS)
+    assert len(hfss_app.setup_names) == 1
+
+    setup2 = hfss_app.create_setup(setup_type="HFSSDrivenDefault", Frequency="55GHz")
+    assert setup2.name in hfss_app.setup_names
+    assert setup2.props["Frequency"] == "55GHz"
+    assert len(hfss_app.setup_names) == 2
+
+    with pytest.raises(AEDTRuntimeError):
+        hfss_app.create_setup(name=setup2.name, MultipleAdaptiveFreqsSetup=["2GHz", "5GHz"])
+    assert len(hfss_app.setup_names) == 2
+
+    with pytest.raises(AEDTRuntimeError):
+        hfss_app.create_setup(Frequency=["85GHz", "90GHz"])
+    assert len(hfss_app.setup_names) == 2
+
+    inner, outer, _ = hfss_app.modeler.create_coaxial([0, 0, 0], Axis.X)
+    p1 = hfss_app.lumped_port(inner, outer, create_port_sheet=True)
+
+    setup3 = hfss_app.create_setup(name=setup2.name, MultipleAdaptiveFreqsSetup=["2GHz", "5GHz"], MaximumPasses=3)
+    assert setup3.name in hfss_app.setup_names
+    assert setup3.name != setup2.name
+    assert len(hfss_app.setup_names) == 3
+    assert len(setup3.props["MultipleAdaptiveFreqsSetup"]["AdaptAt"]) == 2
+    assert setup3.props["MultipleAdaptiveFreqsSetup"]["AdaptAt"][0]["Frequency"] == "2GHz"
+    assert setup3["MaximumPasses"] == 3
+
+    setup4 = hfss_app.create_setup(Frequency=["85GHz", "90GHz"], MaximumPasses=3)
+    assert setup4.name in hfss_app.setup_names
+    assert len(hfss_app.setup_names) == 4
+    assert len(setup4.props["MultipleAdaptiveFreqsSetup"]["AdaptAt"]) == 2
+    assert setup4.props["MultipleAdaptiveFreqsSetup"]["AdaptAt"][0]["Frequency"] == "85GHz"
+    assert setup4["MaximumPasses"] == 3
+
+    # Rename
+    name = setup1.name
+    setup1.name = "new_name"
+    assert "new_name" in hfss_app.setup_names
+    assert name not in hfss_app.setup_names
+    assert setup1.name == "new_name"
+    assert setup1.child_object
+
+    # Sweep
+    assert not setup1.sweep_names
+
+    # Props
     assert "SaveRadFieldsOnly" in setup1.props
-    assert "SaveRadFieldsOnly" in setup1.available_properties
-    setup1["SaveRadFieldsonly"] = True
-    assert setup1.props["SaveRadFieldsOnly"] == setup1["SaveRadFieldsonly"]
+    assert not setup1["SaveRadFieldsOnly"]
+    setup1["SaveRadFieldsOnly"] = True
+    assert setup1["SaveRadFieldsOnly"]
+
     assert setup1.enable_adaptive_setup_multifrequency([1, 2, 3])
     assert setup1.props["MultipleAdaptiveFreqsSetup"]["AdaptAt"][0]["Delta"] == 0.02
-    assert setup1.props["MultipleAdaptiveFreqsSetup"]["AdaptAt"][0]["Frequency"] == "1GHz"
+    assert setup1["MultipleAdaptiveFreqsSetup"]["AdaptAt"][0]["Frequency"] == "1GHz"
+
     assert setup1.enable_adaptive_setup_broadband(1, 2.5, 10, 0.01)
     assert setup1.props["MultipleAdaptiveFreqsSetup"]["Low"] == "1GHz"
     assert setup1.props["MaximumPasses"] == 10
     assert setup1.props["MaxDeltaS"] == 0.01
     assert setup1.enable_adaptive_setup_single(3.5)
     assert setup1.props["Frequency"] == "3.5GHz"
-    assert setup1.props["MaximumPasses"] == 10
+    assert setup1["MaximumPasses"] == 10
     assert setup1.props["MaxDeltaS"] == 0.01
+
     setup1.disable()
+    assert not setup1["IsEnabled"]
     setup1.enable()
+    assert setup1["IsEnabled"]
 
     assert setup1.use_matrix_convergence(
         entry_selection=0,
@@ -648,6 +704,8 @@ def test_create_hfss_setup(hfss_app) -> None:
         max_delta_phase=8,
         custom_entries=None,
     )
+    assert str(setup1.props["Matrix Convergence"]["MagLimit"]) == "0.03"
+
     assert setup1.use_matrix_convergence(
         entry_selection=1,
         ignore_phase_when_mag_is_less_than=0.025,
@@ -657,6 +715,8 @@ def test_create_hfss_setup(hfss_app) -> None:
         custom_entries=None,
         all_offdiagonal_entries=False,
     )
+    assert str(setup1.props["Matrix Convergence"]["DiagonalMag"]) == "0.023"
+
     assert setup1.use_matrix_convergence(
         entry_selection=1,
         ignore_phase_when_mag_is_less_than=0.025,
@@ -665,21 +725,28 @@ def test_create_hfss_setup(hfss_app) -> None:
         max_delta_phase=18,
         custom_entries=None,
     )
+    assert str(setup1.props["Matrix Convergence"]["MagMinThreshold"]) == "0.025"
+
     assert setup1.use_matrix_convergence(
         entry_selection=2,
         ignore_phase_when_mag_is_less_than=0.01,
         all_diagonal_entries=True,
         max_delta=0.01,
         max_delta_phase=8,
-        custom_entries=[["1", "2", 0.03, 4]],
+        custom_entries=[[p1.name, p1.name, 0.03, 4]],
     )
-    setup2 = hfss_app.create_setup("MulitFreqSetup", MultipleAdaptiveFreqsSetup=["1GHz", "2GHz"], MaximumPasses=3)
-    assert setup2.props["SolveType"] == "MultiFrequency"
-    assert setup2.props["MaximumPasses"] == 3
+    assert str(setup1.props["Matrix Convergence"]["Entries"]["MagLimit"]) == "0.03"
+    assert str(setup1.props["Matrix Convergence"]["Entries"]["PhaseLimit"]) == "4deg"
+    assert str(setup1.props["Matrix Convergence"]["Entries"]["Port1"]) == p1.name
 
-    setup3 = hfss_app.create_setup(Frequency=["1GHz", "2GHz"], MaximumPasses=3)
-    assert setup3.props["SolveType"] == "MultiFrequency"
-    assert setup3.props["MaximumPasses"] == 3
+    assert not setup1.use_matrix_convergence(
+        entry_selection=3,
+        ignore_phase_when_mag_is_less_than=0.01,
+        all_diagonal_entries=True,
+        max_delta=0.01,
+        max_delta_phase=8,
+        custom_entries=[[p1.name, p1.name, 0.03, 4]],
+    )
 
 
 def test_create_hfss_sweep(hfss_app) -> None:

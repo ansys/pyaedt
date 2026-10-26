@@ -74,7 +74,6 @@ HFSSDrivenAuto = dict(
 HFSSDrivenDefault = dict(
     {
         "SolveType": "Single",
-        "MultipleAdaptiveFreqsSetup": multifreq,
         "Frequency": "5GHz",
         "MaxDeltaS": 0.02,
         "PortsOnly": False,

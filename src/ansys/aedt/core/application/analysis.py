@@ -1425,7 +1425,7 @@ class Analysis(Design, PyAedtBase):
                         new_dict["MaxDeltaE"] = 0.01
                     else:
                         new_dict[k] = v
-                setup._legacy_props = SetupProps(setup, new_dict)
+                setup._legacy_props = new_dict
 
             if self.solution_type == "SBR+":
                 setup.auto_update = False
@@ -1537,9 +1537,12 @@ class Analysis(Design, PyAedtBase):
             setup = setup_by_type[self.design_type](app=self, name=name, props={})
 
             if self.design_type in ["HFSS", "HFSS 3D Layout Design"]:
-                setup_data = self.oanalysis.GetSetupData(name)
                 setup_data_dict = {}
-                _arg2dict(setup_data, setup_data_dict)
+
+                if self.design_type == "HFSS 3D Layout Design":
+                    # GetSetupData only available in HFSS 3D Layout
+                    setup_data = self.oanalysis.GetSetupData(name)
+                    _arg2dict(setup_data, setup_data_dict)
 
                 if setup.properties and "Auto Solver Setting" in setup.properties:
                     setup = SetupHFSSAuto(app=self, name=name, props={})

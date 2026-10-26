@@ -299,3 +299,4 @@ CsProps = Props
 ListsProps = Props
 UserDefinedComponentProps = Props
 HistoryProps = Props
+SweepProps = Props
