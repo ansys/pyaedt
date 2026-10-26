@@ -1986,7 +1986,7 @@ class FieldPlot(PyAedtBase):
                 and "Transient" in self._postprocessor.post_solution_type
             ):
                 self._postprocessor.ofieldsreporter.SetPlotsViewSolutionContext(
-                    [self.name], self.solution, f"Time='{self.intrinsics['Time']}'"
+                    [self.name], self.solution, f"Time:'{self.intrinsics['Time']}'"
                 )
             if self.name not in self._postprocessor.field_plot_names:
                 return False
