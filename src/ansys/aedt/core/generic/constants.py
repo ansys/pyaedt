@@ -1689,6 +1689,8 @@ class Setups(metaclass=DynamicMeta):
     """Value for HFSS 3D Layout transient."""
     HFSS3DLayoutVerifEye = 73
     """Value for HFSS 3D Layout VerifEye."""
+    HFSSCMA = 74
+    """Value for HFSS CMA."""
 
 
 class LineStyle(metaclass=DynamicMeta):

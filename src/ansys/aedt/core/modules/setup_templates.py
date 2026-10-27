@@ -156,6 +156,27 @@ HFSSSBR = dict(
 )
 """HFSS SBR+ setup properties and default values."""
 
+HFSSCMA = dict(
+    {
+        "ModalSignificance": 0.02,
+        "MaxDeltaE": 0.02,
+        "AdaptiveFreq": "1GHz",
+        "MaximumPasses": 3,
+        "MinimumPasses": 1,
+        "MinimumConvergedPasses": 1,
+        "PercentRefinement": 30,
+        "IsEnabled": True,
+        "MeshLink": meshlink,
+        "BasisOrder": 0,
+        "DoLambdaRefine": True,
+        "DoMaterialLambda": True,
+        "SetLambdaTarget": False,
+        "Target": 0.2,
+        "UseMaxTetIncrease": False,
+    }
+)
+"""HFSS Characteristic Mode properties and default values."""
+
 MaxwellTransient = dict(
     {
         "Enabled": True,
@@ -3047,6 +3068,7 @@ class SetupKeys:
         "SIwaveNearField",
         "HFSS3DLayoutTransient",
         "HFSS3DLayoutVerifEye",
+        "HFSSCMA",
     ]
     """Value for setup names."""
 
@@ -3120,6 +3142,7 @@ class SetupKeys:
         Setups.SIwaveNearField: SIwaveNearField,
         Setups.HFSS3DLayoutTransient: HFSS3DLayoutTransient,
         Setups.HFSS3DLayoutVerifEye: HFSS3DLayoutVerifEye,
+        Setups.HFSSCMA: HFSSCMA,
     }
     """Value for setup templates."""
 

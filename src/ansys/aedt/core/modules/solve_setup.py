@@ -40,6 +40,8 @@ from typing import TYPE_CHECKING
 from typing import Any
 import warnings
 
+from ansys.aedt.core.generic.constants import SolutionsHfss
+
 if sys.version_info >= (3, 13):
     from warnings import deprecated
 else:
@@ -464,6 +466,8 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
             )
         else:
             expressions = [i for i in self._app.post.available_report_quantities(solution=self.name)]
+            if not expressions:
+                return False
             sol = self._app.post.reports_by_category.standard(expressions=expressions[0], setup=self.name)
         if identify_setup(self.props):
             sol.domain = "Time"
@@ -3155,7 +3159,16 @@ class SetupHFSS(Setup, PyAedtBase):
     """
 
     def __init__(self, app: Analysis, name: str, props: dict) -> None:
-        self.solver_type = SetupKeys.SetupNames[Setups.HFSSDrivenDefault]
+        if app.solution_type == SolutionsHfss.EigenMode:
+            self.solver_type = SetupKeys.SetupNames[Setups.HFSSEigen]
+        elif app.solution_type == SolutionsHfss.CharacteristicMode:
+            self.solver_type = SetupKeys.SetupNames[Setups.HFSSCMA]
+        elif app.solution_type == SolutionsHfss.Transient:
+            self.solver_type = SetupKeys.SetupNames[Setups.HFSSTransient]
+        elif app.solution_type == SolutionsHfss.SBR:
+            self.solver_type = SetupKeys.SetupNames[Setups.HFSSSBR]
+        else:
+            self.solver_type = SetupKeys.SetupNames[Setups.HFSSDrivenDefault]
 
         # Internal variables
         self.__sweeps = SetupDict()
@@ -3179,7 +3192,7 @@ class SetupHFSS(Setup, PyAedtBase):
         >>> setup1.sweep_names
 
         """
-        if "GetSweeps" in dir(self._app.oanalysis):
+        if "GetSweeps" in dir(self._app.oanalysis) and self._app.solution_type != SolutionsHfss.EigenMode:
             return list(self._app.oanalysis.GetSweeps(self._name))
         return []
 

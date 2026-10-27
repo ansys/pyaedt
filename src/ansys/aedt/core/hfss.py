@@ -37,16 +37,8 @@ from collections import defaultdict
 import math
 from pathlib import Path
 import re
-import sys
 import tempfile
 from typing import TYPE_CHECKING
-
-from ansys.aedt.core.internal.checks import deprecated_doc
-
-if sys.version_info >= (3, 13):
-    from warnings import deprecated
-else:
-    from typing_extensions import deprecated
 
 import numpy as np
 
@@ -59,7 +51,7 @@ if TYPE_CHECKING:
     from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
     from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
     from ansys.aedt.core.modeler.cad.object_3d import Object3d
-    from ansys.aedt.core.modules.design_xploration import SetupParam
+    from ansys.aedt.core.modules.design_xploration import ParametricSetup
     from ansys.aedt.core.modules.solve_setup import SetupHFSS
     from ansys.aedt.core.modules.solve_setup import SetupHFSSAuto
     from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
@@ -5016,57 +5008,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             primary_sweep_variable=primary_sweep,
         )
 
-    @deprecated_doc(version="1.2.0")
-    @deprecated("Use `create_q_factor_report` instead.")
-    @pyaedt_function_handler()
-    def create_qfactor_report(
-        self,
-        project_dir: str = None,
-        output: list = None,
-        setup: str = None,
-        name: str = "",
-        x_axis: str | None = "X",
-    ) -> bool:  # pragma: no cover
-        """Export a CSV file of the EigenQ plot.
-
-        Parameters
-        ----------
-        project_dir : str
-            Directory to export the CSV file to.
-        output : list
-            Output quantity, which in this case is the Q-factor.
-        setup : str
-            Name of the setup to generate the report from.
-        name : str
-            Name of the plot.
-        x_axis : str, optional
-            Value for the X axis. The default is ``"X"``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oModule.CreateReport
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.hfss import Hfss
-        >>> obj = Hfss()
-        >>> obj.create_qfactor_report(name="MyObject", setup="Setup1")
-
-        """
-        # Setup arguments list for createReport function
-        args = [x_axis + ":=", ["All"]]
-        args2 = ["X Component:=", x_axis, "Y Component:=", output]
-
-        self.post.post_oreport_setup.CreateReport(
-            name, "Eigenmode Parameters", "Rectangular Plot", setup + " : LastAdaptive", [], args, args2, []
-        )
-        return True
-
     @pyaedt_function_handler()
     def _create_sbr_doppler_setup(
         self,
@@ -5084,34 +5025,34 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         include_coupling_effects: bool = False,
         doppler_ad_sampling_rate: int = 20,
     ):
-        setup1 = self.create_setup(setup_name, 4)
-        setup1.auto_update = False
-        setup1.props["IsSbrRangeDoppler"] = True
-        del setup1.props["PTDUTDSimulationSettings"]
-        del setup1.props["ComputeFarFields"]
-        del setup1.props["Sweeps"]
+        setup1 = self.create_setup(name=setup_name, setup_type=Setups.HFSSSBR)
+        props = setup1.props.to_dict()
+        props["IsSbrRangeDoppler"] = True
+        if "PTDUTDSimulationSettings" in props:
+            del props["PTDUTDSimulationSettings"]
+        if "ComputeFarFields" in props:
+            del props["ComputeFarFields"]
         if setup_type == "ChirpIQ":
-            setup1.props["SbrRangeDopplerWaveformType"] = "ChirpSeqFmcw"
-            setup1.props["ChannelConfiguration"] = "IQChannels"
+            props["SbrRangeDopplerWaveformType"] = "ChirpSeqFmcw"
+            props["ChannelConfiguration"] = "IQChannels"
         elif setup_type == "ChirpI":
-            setup1.props["SbrRangeDopplerWaveformType"] = "ChirpSeqFmcw"
-            setup1.props["ChannelConfiguration"] = "IChannelOnly"
+            props["SbrRangeDopplerWaveformType"] = "ChirpSeqFmcw"
+            props["ChannelConfiguration"] = "IChannelOnly"
         else:
-            setup1.props["SbrRangeDopplerWaveformType"] = setup_type
-        setup1.props["SbrRangeDopplerTimeVariable"] = time_var
-        setup1.props["SbrRangeDopplerCenterFreq"] = self.value_with_units(center_freq, "GHz")
-        setup1.props["SbrRangeDopplerRangeResolution"] = self.value_with_units(resolution, "meter")
-        setup1.props["SbrRangeDopplerRangePeriod"] = self.value_with_units(period, "meter")
-        setup1.props["SbrRangeDopplerVelocityResolution"] = self.value_with_units(velocity_resolution, "m_per_sec")
-        setup1.props["SbrRangeDopplerVelocityMin"] = self.value_with_units(min_velocity, "m_per_sec")
-        setup1.props["SbrRangeDopplerVelocityMax"] = self.value_with_units(max_velocity, "m_per_sec")
-        setup1.props["DopplerRayDensityPerWavelength"] = ray_density_per_wavelength
-        setup1.props["MaxNumberOfBounces"] = max_bounces
+            props["SbrRangeDopplerWaveformType"] = setup_type
+        props["SbrRangeDopplerTimeVariable"] = time_var
+        props["SbrRangeDopplerCenterFreq"] = self.value_with_units(center_freq, "GHz")
+        props["SbrRangeDopplerRangeResolution"] = self.value_with_units(resolution, "meter")
+        props["SbrRangeDopplerRangePeriod"] = self.value_with_units(period, "meter")
+        props["SbrRangeDopplerVelocityResolution"] = self.value_with_units(velocity_resolution, "m_per_sec")
+        props["SbrRangeDopplerVelocityMin"] = self.value_with_units(min_velocity, "m_per_sec")
+        props["SbrRangeDopplerVelocityMax"] = self.value_with_units(max_velocity, "m_per_sec")
+        props["DopplerRayDensityPerWavelength"] = ray_density_per_wavelength
+        props["MaxNumberOfBounces"] = max_bounces
         if setup_type != "PulseDoppler":
-            setup1.props["IncludeRangeVelocityCouplingEffect"] = include_coupling_effects
-            setup1.props["SbrRangeDopplerA/DSamplingRate"] = self.value_with_units(doppler_ad_sampling_rate, "MHz")
-        setup1.update()
-        setup1.auto_update = True
+            props["IncludeRangeVelocityCouplingEffect"] = include_coupling_effects
+            props["SbrRangeDopplerA/DSamplingRate"] = self.value_with_units(doppler_ad_sampling_rate, "MHz")
+        setup1.update(props)
         return setup1
 
     @pyaedt_function_handler()
@@ -5123,19 +5064,19 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     def create_sbr_chirp_i_doppler_setup(
         self,
         time_variable: str | None = None,
-        sweep_time_duration: float | None = 0.0,
-        center_freq: float | None = 76.5,
-        resolution: float | None = 1,
-        period: float | None = 200,
-        velocity_resolution: float | None = 0.4,
-        min_velocity: float | None = -20,
-        max_velocity: float | None = 20,
-        ray_density_per_wavelength: float | None = 0.2,
-        max_bounces: int | None = 5,
-        include_coupling_effects: bool | None = False,
-        doppler_ad_sampling_rate: int | None = 20,
+        sweep_time_duration: float | int = 0.0,
+        center_freq: float | int = 76.5,
+        resolution: float | int = 1,
+        period: float | int = 200,
+        velocity_resolution: float | int = 0.4,
+        min_velocity: float | int = -20,
+        max_velocity: float | int = 20,
+        ray_density_per_wavelength: float | int = 0.2,
+        max_bounces: int = 5,
+        include_coupling_effects: bool = False,
+        doppler_ad_sampling_rate: int = 20,
         setup: str | None = None,
-    ) -> "tuple[SetupHFSS | SetupHFSSAuto, SetupParam | bool]":
+    ) -> tuple[SetupHFSS | SetupHFSSAuto, ParametricSetup | bool]:
         """Create an SBR+ Chirp I setup.
 
         Parameters
@@ -5175,7 +5116,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         tuple
             The tuple contains: (:class:`ansys.aedt.core.modules.solve_setup.SetupHFSS`
             or :class:`ansys.aedt.core.modules.solve_setup.SetupHFSSAuto`,
-            :class:`ansys.aedt.core.modules.design_xploration.SetupParam`) or bool.
+            :class:`ansys.aedt.core.modules.design_xploration.ParametricSetup`) or bool.
 
         References
         ----------
@@ -5185,6 +5126,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         --------
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(solution_type="SBR+")
+        >>> hfss["time_var"] = "1s"
         >>> setup, sweep = hfss.create_sbr_chirp_i_doppler_setup(sweep_time_duration=20)
 
         """
@@ -5233,19 +5175,19 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     def create_sbr_chirp_iq_doppler_setup(
         self,
         time_variable: str | None = None,
-        sweep_time_duration: float | None = 0.0,
-        center_freq: float | None = 76.5,
-        resolution: float | None = 1,
-        period: float | None = 200,
-        velocity_resolution: float | None = 0.4,
-        min_velocity: float | None = -20,
-        max_velocity: float | None = 20,
-        ray_density_per_wavelength: float | None = 0.2,
-        max_bounces: int | None = 5,
-        include_coupling_effects: bool | None = False,
-        doppler_ad_sampling_rate: int | None = 20,
+        sweep_time_duration: float | int = 0.0,
+        center_freq: float | int = 76.5,
+        resolution: float | int = 1,
+        period: float | int = 200,
+        velocity_resolution: float | int = 0.4,
+        min_velocity: float | int = -20,
+        max_velocity: float | int = 20,
+        ray_density_per_wavelength: float | int = 0.2,
+        max_bounces: int = 5,
+        include_coupling_effects: bool = False,
+        doppler_ad_sampling_rate: int = 20,
         setup: str | None = None,
-    ) -> "tuple[SetupHFSS | SetupHFSSAuto, SetupParam | bool]":
+    ) -> tuple[SetupHFSS | SetupHFSSAuto, ParametricSetup | bool]:
         """Create an SBR+ Chirp IQ setup.
 
         Parameters
@@ -5286,7 +5228,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         tuple
             The tuple contains: (:class:`ansys.aedt.core.modules.solve_setup.SetupHFSS`
             or :class:`ansys.aedt.core.modules.solve_setup.SetupHFSSAuto`,
-            :class:`ansys.aedt.core.modules.design_xploration.SetupParam`) or bool.
+            :class:`ansys.aedt.core.modules.design_xploration.ParametricSetup`) or bool.
 
         References
         ----------
@@ -5296,6 +5238,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         --------
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(solution_type="SBR+")
+        >>> hfss["time_var"] = "1s"
         >>> setup, sweep = hfss.create_sbr_chirp_iq_doppler_setup(sweep_time_duration=20)
 
         """
@@ -5341,17 +5284,17 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     def create_sbr_pulse_doppler_setup(
         self,
         time_variable: str | None = None,
-        sweep_time_duration: float | None = 0.0,
-        frequency: float | None = 76.5,
-        resolution: float | None = 1.0,
-        period: float | None = 200.0,
-        velocity_resolution: float | None = 0.4,
-        min_velocity: float | None = -20.0,
-        max_velocity: float | None = 20.0,
-        ray_density_per_wavelength: float | None = 0.2,
+        sweep_time_duration: float | int | None = 0.0,
+        frequency: float | int | None = 76.5,
+        resolution: float | int | None = 1.0,
+        period: float | int | None = 200.0,
+        velocity_resolution: float | int | None = 0.4,
+        min_velocity: float | int | None = -20.0,
+        max_velocity: float | int | None = 20.0,
+        ray_density_per_wavelength: float | int | None = 0.2,
         max_bounces: int | None = 5,
         setup: str | None = None,
-    ) -> "tuple[SetupHFSS | SetupHFSSAuto, SetupParam | bool]":
+    ) -> tuple[SetupHFSS | SetupHFSSAuto, ParametricSetup | bool]:
         """Create an SBR+ pulse Doppler setup.
 
         Parameters
@@ -5360,7 +5303,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             Name of the time variable. The default is ``None``, in which case
             a search for the first time variable is performed.
         sweep_time_duration : float, optional
-            Duration of the sweep time. The default is ``0``. If a value greater
+            Duration of the sweep time in seconds. The default is ``0``. If a value greater
             than ``0`` is specified, a parametric sweep is created.
         frequency : float, optional
             Center frequency in gigahertz (GHz). The default is ``76.5``.
@@ -5400,6 +5343,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         --------
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(solution_type="SBR+")
+        >>> hfss["time_var"] = "1s"
         >>> setup, sweep = hfss.create_sbr_pulse_doppler_setup(sweep_time_duration=30)
 
         """
@@ -5409,6 +5353,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         if not setup:
             setup = generate_unique_name("PulseSetup")
             parametric_name = generate_unique_name("PulseSweep")
+        elif setup in self.setup_names:
+            setup = generate_unique_name(setup)
+            parametric_name = generate_unique_name(setup)
         else:
             parametric_name = generate_unique_name(setup)
 
@@ -5419,6 +5366,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                     break
             if not time_variable:
                 raise ValueError("No Time Variable Found")
+
         setup = self._create_sbr_doppler_setup(
             "PulseDoppler",
             time_var=time_variable,

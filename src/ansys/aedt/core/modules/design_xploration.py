@@ -810,7 +810,7 @@ class ParametricSetup(OptimetricsSetup):
         props = self.props.to_dict()
 
         sweepdefinition = {"Variable": sweep_variable, "Data": sweep_range, "OffsetF1": False, "Synchronize": 0}
-        if props["Sweeps"]["SweepDefinition"] is None:
+        if "SweepDefinition" not in props["Sweeps"] or props["Sweeps"]["SweepDefinition"] is None:
             props["Sweeps"]["SweepDefinition"] = sweepdefinition
         elif type(props["Sweeps"]["SweepDefinition"]) is not list:
             props["Sweeps"]["SweepDefinition"] = [props["Sweeps"]["SweepDefinition"]]

@@ -50,6 +50,7 @@ from ansys.aedt.core.application.job_manager import update_hpc_option
 from ansys.aedt.core.application.variables import Variable
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import Gravity
+from ansys.aedt.core.generic.constants import SolutionsHfss
 from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
@@ -60,7 +61,6 @@ from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.numbers_utils import is_number
-from ansys.aedt.core.generic.props import Props as SetupProps
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.checks import deprecated_doc
 from ansys.aedt.core.internal.checks import min_aedt_version
@@ -1402,9 +1402,9 @@ class Analysis(Design, PyAedtBase):
     @pyaedt_function_handler()
     def _create_setup(self, name, setup_type, props):
         if setup_type == 0:
-            setup = SetupHFSSAuto(self, name, props=props)
+            setup = SetupHFSSAuto(app=self, name=name, props=props)
         elif setup_type == 4:
-            setup = SetupSBR(self, setup_type, name)
+            setup = SetupSBR(app=self, name=name, props=props)
         elif setup_type in [5, 6, 7, 8, 9, 10, 56, 58, 59, 60]:
             setup = SetupMaxwell(self, setup_type, name)
         elif setup_type in [14, 30]:
@@ -1416,19 +1416,12 @@ class Analysis(Design, PyAedtBase):
 
         if self.design_type == "HFSS":
             # Handle the situation when ports have not been defined.
+            props = setup.props.to_dict()
 
-            if not self.excitation_names and "MaxDeltaS" in setup._legacy_props:
-                new_dict = {}
-
-                for k, v in setup._legacy_props.items():
-                    if k == "MaxDeltaS":
-                        new_dict["MaxDeltaE"] = 0.01
-                    else:
-                        new_dict[k] = v
-                setup._legacy_props = new_dict
+            if not self.excitation_names and "MaxDeltaS" in props:
+                props["MaxDeltaE"] = 0.01
 
             if self.solution_type == "SBR+":
-                setup.auto_update = False
                 default_sbr_setup = {
                     "RayDensityPerWavelength": 4,
                     "MaxNumberOfBounces": 5,
@@ -1444,10 +1437,11 @@ class Analysis(Design, PyAedtBase):
                 if settings.aedt_version >= "2024.2":
                     default_sbr_setup["IsMonostaticRCS"] = True
                     default_sbr_setup["FastFrequencyLooping"] = False
+
                 user_domain = None
-                if props:
-                    if "RadiationSetup" in props:
-                        user_domain = props["RadiationSetup"]
+                if props and "RadiationSetup" in props:
+                    user_domain = props["RadiationSetup"]
+
                 if self.field_setups:
                     for field_setup in self.field_setups:
                         if user_domain and user_domain in field_setup.name:
@@ -1457,21 +1451,33 @@ class Analysis(Design, PyAedtBase):
                     if not user_domain and self.field_setups:
                         domain = self.field_setups[0].name
                         default_sbr_setup["RadiationSetup"] = domain
-
                 elif user_domain:
                     domain = user_domain
                     default_sbr_setup["RadiationSetup"] = domain
-
                 else:
-                    self.logger.warning("Field Observation Domain not defined")
+                    self.logger.warning("Field observation domain not defined.")
                     default_sbr_setup["RadiationSetup"] = ""
                     default_sbr_setup["ComputeFarFields"] = False
 
-                new_dict = setup.props
                 for k, v in default_sbr_setup.items():
-                    new_dict[k] = v
-                setup.props = SetupProps(setup, new_dict)
-                setup.auto_update = True
+                    props[k] = v
+
+            elif self.hybrid:
+                boundaries = self.boundaries_by_type
+                if "Hybrid" in boundaries:
+                    has_sbr = False
+                    for b in boundaries["Hybrid"]:
+                        if b.props["Type"] == "SBR+":
+                            has_sbr = True
+                            break
+                    if has_sbr:
+                        if self.field_setups:
+                            props["SkipSBRSolveDuringAdaptivePasses"] = False
+                            props["RadiationSetup"] = self.field_setups[0].name
+                        else:
+                            raise AEDTRuntimeError("Field observation domain not defined.")
+
+            setup._legacy_props = props
 
         setup.create()
 
@@ -1531,12 +1537,16 @@ class Analysis(Design, PyAedtBase):
             "SetupCircuit": SetupCircuit,
         }
         if self.design_type in setup_by_type:
-            setup = setup_by_type[self.design_type](app=self, name=name, props={})
+            design_type = self.design_type
+            if design_type == "HFSS" and self.solution_type == SolutionsHfss.SBR:
+                design_type = SolutionsHfss.SBR
 
-            if self.design_type in ["HFSS", "HFSS 3D Layout Design"]:
+            setup = setup_by_type[design_type](app=self, name=name, props={})
+
+            if design_type in ["HFSS", "HFSS 3D Layout Design"]:
                 setup_data_dict = {}
 
-                if self.design_type == "HFSS 3D Layout Design":
+                if design_type == "HFSS 3D Layout Design":
                     # GetSetupData only available in HFSS 3D Layout
                     setup_data = self.oanalysis.GetSetupData(name)
                     _arg2dict(setup_data, setup_data_dict)

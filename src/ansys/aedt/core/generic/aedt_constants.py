@@ -106,14 +106,14 @@ class HfssConstants(metaclass=DynamicMeta):
             "name": "Characteristic Mode",
             "options": None,
             "report_type": None,
-            "default_setup": None,
+            "default_setup": Setups.HFSSCMA,
             "default_adaptive": None,
         },
         "Characteristic Mode": {
             "name": "Characteristic Mode",
             "options": None,
             "report_type": None,
-            "default_setup": None,
+            "default_setup": Setups.HFSSCMA,
             "default_adaptive": None,
         },
         "SBR+": {

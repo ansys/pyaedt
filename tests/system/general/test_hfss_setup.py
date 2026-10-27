@@ -22,15 +22,17 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
 import pytest
 
 from ansys.aedt.core import Hfss
 from ansys.aedt.core.generic.aedt_constants import Setups
 from ansys.aedt.core.generic.constants import Axis
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from ansys.aedt.core.modules.design_xploration import ParametricSetup
+from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.modules.solve_setup import SetupHFSS
 from ansys.aedt.core.modules.solve_setup import SetupHFSSAuto
+from ansys.aedt.core.modules.solve_setup import SetupSBR
 from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
 
 TEST_SUBFOLDER = "TSetup"
@@ -51,55 +53,48 @@ def hfss_setup_app(add_app_example):
     app.close_project(app.project_name, save=False)
 
 
-# HFSS setups
-# def test_setup_hfss_init(hfss_setup_app):
-#     hfss_setup_app.set_active_design("HFSS")
-#
-#     assert len(hfss_setup_app.setups) == 2
-#
-#     assert isinstance(hfss_setup_app.setups[0], SetupHFSSAuto)
-#     assert str(hfss_setup_app.setups[0]) == f"{hfss_setup_app.setups[0].name} : Sweep"
-#     assert hfss_setup_app.setups[0].__repr__() == hfss_setup_app.setups[0].name
-#
-#     assert isinstance(hfss_setup_app.setups[1], SetupHFSS)
-#     assert str(hfss_setup_app.setups[1]) == {hfss_setup_app.setups[1].name}
-#     assert hfss_setup_app.setups[1].__repr__() == hfss_setup_app.setups[1].name
-#
-#     hfss_setup_app.set_active_design("HFSSCMA")
-#
-#     assert len(hfss_setup_app.setups) == 1
-#
-#     assert isinstance(hfss_setup_app.setups[0], SetupHFSS)
-#     assert str(hfss_setup_app.setups[0]) == {hfss_setup_app.setups[0].name}
-#     assert hfss_setup_app.setups[0].__repr__() == hfss_setup_app.setups[0].name
-#     hfss_setup_app.is_solved
-#
-#     hfss_setup_app.set_active_design("HFSSEigenmode")
-#
-#     assert len(hfss_setup_app.setups) == 1
-#
-#     assert isinstance(hfss_setup_app.setups[0], SetupHFSS)
-#     assert str(hfss_setup_app.setups[0]) == {hfss_setup_app.setups[0].name}
-#     assert hfss_setup_app.setups[0].__repr__() == hfss_setup_app.setups[0].name
-#     hfss_setup_app.is_solved
-#
-#     hfss_setup_app.set_active_design("Transient")
-#
-#     assert len(hfss_setup_app.setups) == 1
-#
-#     assert isinstance(hfss_setup_app.setups[0], SetupHFSS)
-#     assert str(hfss_setup_app.setups[0]) == {hfss_setup_app.setups[0].name}
-#     assert hfss_setup_app.setups[0].__repr__() == hfss_setup_app.setups[0].name
-#     hfss_setup_app.is_solved
-#
-#     hfss_setup_app.set_active_design("SBR")
-#
-#     assert len(hfss_setup_app.setups) == 1
-#
-#     assert isinstance(hfss_setup_app.setups[0], SetupSBR)
-#     assert str(hfss_setup_app.setups[0]) == {hfss_setup_app.setups[0].name}
-#     assert hfss_setup_app.setups[0].__repr__() == hfss_setup_app.setups[0].name
-#     hfss_setup_app.is_solved
+def test_setup_hfss_init(hfss_setup_app):
+    hfss_setup_app.set_active_design("HFSS")
+
+    assert len(hfss_setup_app.setups) == 2
+    assert isinstance(hfss_setup_app.setups[0], SetupHFSSAuto)
+    assert str(hfss_setup_app.setups[0]) == f"{hfss_setup_app.setups[0].name} : Sweep"
+    assert hfss_setup_app.setups[0].__repr__() == hfss_setup_app.setups[0].name
+    assert hfss_setup_app.setups[0].solver_type == SetupKeys.SetupNames[Setups.HFSSDrivenAuto]
+
+    assert isinstance(hfss_setup_app.setups[1], SetupHFSS)
+    assert str(hfss_setup_app.setups[1]) == f"{hfss_setup_app.setups[1].name} : LastAdaptive"
+    assert hfss_setup_app.setups[1].__repr__() == hfss_setup_app.setups[1].name
+    assert hfss_setup_app.setups[1].solver_type == SetupKeys.SetupNames[Setups.HFSSDrivenDefault]
+    assert len(hfss_setup_app.setups[1].sweep_names) == 1
+
+    hfss_setup_app.set_active_design("HFSSCMA")
+    assert len(hfss_setup_app.setups) == 1
+    assert isinstance(hfss_setup_app.setups[0], SetupHFSS)
+    assert str(hfss_setup_app.setups[0]) == hfss_setup_app.setups[0].name
+    assert hfss_setup_app.setups[0].__repr__() == hfss_setup_app.setups[0].name
+    assert hfss_setup_app.setups[0].solver_type == SetupKeys.SetupNames[Setups.HFSSCMA]
+
+    hfss_setup_app.set_active_design("HFSSEigenmode")
+    assert len(hfss_setup_app.setups) == 1
+    assert isinstance(hfss_setup_app.setups[0], SetupHFSS)
+    assert str(hfss_setup_app.setups[0]) == f"{hfss_setup_app.setups[0].name} : LastAdaptive"
+    assert hfss_setup_app.setups[0].__repr__() == hfss_setup_app.setups[0].name
+    assert hfss_setup_app.setups[0].solver_type == SetupKeys.SetupNames[Setups.HFSSEigen]
+
+    hfss_setup_app.set_active_design("HFSSTransient")
+    assert len(hfss_setup_app.setups) == 1
+    assert isinstance(hfss_setup_app.setups[0], SetupHFSS)
+    assert str(hfss_setup_app.setups[0]) == f"{hfss_setup_app.setups[0].name} : Transient"
+    assert hfss_setup_app.setups[0].__repr__() == hfss_setup_app.setups[0].name
+    assert hfss_setup_app.setups[0].solver_type == SetupKeys.SetupNames[Setups.HFSSTransient]
+
+    hfss_setup_app.set_active_design("SBR")
+    assert len(hfss_setup_app.setups) == 1
+    assert isinstance(hfss_setup_app.setups[0], SetupSBR)
+    assert str(hfss_setup_app.setups[0]) == f"{hfss_setup_app.setups[0].name} : Sweep"
+    assert hfss_setup_app.setups[0].__repr__() == hfss_setup_app.setups[0].name
+    assert hfss_setup_app.setups[0].solver_type == SetupKeys.SetupNames[Setups.HFSSSBR]
 
 
 def test_setup(hfss_app) -> None:
@@ -680,11 +675,27 @@ def test_auto_derivatives(hfss_app) -> None:
 
 def test_sweep_sbr(hfss_app) -> None:
     hfss_app.solution_type = "SBR+"
-    _ = hfss_app.insert_infinite_sphere()
 
     setup1 = hfss_app.create_setup("My_HFSS_Setup", Setups.HFSSSBR)
+    assert setup1.name in hfss_app.setup_names
+    assert not setup1.props["ComputeFields"]
 
-    _ = hfss_app.create_setup(name=setup1.name, setup_type=Setups.HFSSSBR)
+    p1 = hfss_app.insert_infinite_sphere()
+    setup2 = hfss_app.create_setup(name=setup1.name)
+    assert setup2.name in hfss_app.setup_names
+    assert setup2.props["ComputeFields"]
+    assert setup2.props["RadiationSetup"] == p1.name
+
+    # Edit
+    setup2["RayDensityPerWavelength"] = 1
+    assert setup2.props["RayDensityPerWavelength"] == 1
+
+    # Add Subrange
+    assert setup2.add_subrange("LinearStep", 1, 10, 0.1, clear=False)
+    assert setup2.props["Sweeps"]["Sweep"]["SweepRanges"]["Subrange"]["RangeStart"] == "1GHz"
+    assert setup2.add_subrange("LinearCount", 10, 20, 10, clear=True)
+    assert setup2.props["Sweeps"]["Sweep"]["RangeEnd"] == "20GHz"
+    assert "SweepRanges" not in setup2.props["Sweeps"]["Sweep"]
 
     # Rename
     name = setup1.name
@@ -695,16 +706,264 @@ def test_sweep_sbr(hfss_app) -> None:
     assert setup1.child_object
 
     # Delete
-    _ = hfss_app.create_setup(Setups.HFSSDrivenAuto)
+    assert hfss_app.delete_setup(name=setup1.name)
+    assert "new_name" not in hfss_app.setup_names
+
+    hfss_app.solution_type = "Modal"
+    hfss_app.hybrid = True
+    box = hfss_app.modeler.create_box([0, 0, 0], [10, 10, 10])
+    hfss_app.assign_hybrid_region(box, hybrid_region="SBR+")
+
+    with pytest.raises(AEDTRuntimeError):
+        hfss_app.create_setup(setup_type=Setups.HFSSDrivenDefault)
+
+    hfss_app.insert_infinite_sphere()
+    setup3 = hfss_app.create_setup(setup_type=Setups.HFSSDrivenDefault)
+    assert setup3.name in hfss_app.setup_names
+    setup3["RayDensityPerWavelength"] = 1
+    assert setup3.props["RayDensityPerWavelength"] == 1
+
+
+def test_add_doppler_sweep(hfss_app) -> None:
+    compfile = hfss_app.components3d["Male_Arm_Left"]
+    hfss_app.modeler.insert_3d_component(compfile)
+
+    with pytest.raises(AEDTRuntimeError):
+        hfss_app.create_sbr_pulse_doppler_setup(sweep_time_duration=1e-5)
+
+    hfss_app.solution_type = "SBR+"
+    with pytest.raises(ValueError):
+        hfss_app.create_sbr_pulse_doppler_setup(sweep_time_duration=1e-5)
+
+    hfss_app["time_pyaedt"] = "500ms"
+
+    setup, sweep = hfss_app.create_sbr_pulse_doppler_setup(sweep_time_duration=1e-5)
+    assert setup.name in hfss_app.setup_names
+    assert isinstance(setup, SetupSBR)
+    assert sweep.name in hfss_app.parametrics.setup_names
+    assert isinstance(sweep, ParametricSetup)
+
+    assert setup.props["SbrRangeDopplerWaveformType"] == "PulseDoppler"
+    assert sweep.props["Sim. Setups"] == [setup.name]
+
+    setup2, sweep2 = hfss_app.create_sbr_pulse_doppler_setup(
+        setup=setup.name, sweep_time_duration=1e-5, time_variable="time_pyaedt"
+    )
+    assert setup2.name in hfss_app.setup_names
+    assert isinstance(setup2, SetupSBR)
+    assert sweep2.name in hfss_app.parametrics.setup_names
+    assert isinstance(sweep2, ParametricSetup)
+
+    setup3, sweep3 = hfss_app.create_sbr_pulse_doppler_setup(
+        setup="new", sweep_time_duration=0, time_variable="time_pyaedt"
+    )
+    assert setup3.name in hfss_app.setup_names
+    assert isinstance(setup3, SetupSBR)
+    assert not sweep3
+
+
+def test_add_doppler_chirp_i(hfss_app) -> None:
+    compfile = hfss_app.components3d["Male_Arm_Left"]
+    hfss_app.modeler.insert_3d_component(compfile)
+
+    with pytest.raises(AEDTRuntimeError):
+        hfss_app.create_sbr_chirp_i_doppler_setup(sweep_time_duration=1e-5)
+
+    hfss_app.solution_type = "SBR+"
+    with pytest.raises(ValueError):
+        hfss_app.create_sbr_chirp_i_doppler_setup(sweep_time_duration=1e-5)
+
+    hfss_app["time_pyaedt"] = "500ms"
+
+    setup, sweep = hfss_app.create_sbr_chirp_i_doppler_setup(sweep_time_duration=1e-5)
+    assert setup.name in hfss_app.setup_names
+    assert isinstance(setup, SetupSBR)
+    assert sweep.name in hfss_app.parametrics.setup_names
+    assert isinstance(sweep, ParametricSetup)
+
+    assert setup.props["SbrRangeDopplerWaveformType"] == "ChirpSeqFmcw"
+    assert setup.props["ChannelConfiguration"] == "IChannelOnly"
+    assert sweep.props["Sim. Setups"] == [setup.name]
+
+    setup2, sweep2 = hfss_app.create_sbr_chirp_i_doppler_setup(
+        setup=setup.name, sweep_time_duration=1e-5, time_variable="time_pyaedt"
+    )
+    assert setup2.name in hfss_app.setup_names
+    assert isinstance(setup2, SetupSBR)
+    assert sweep2.name in hfss_app.parametrics.setup_names
+    assert isinstance(sweep2, ParametricSetup)
+
+    setup3, sweep3 = hfss_app.create_sbr_chirp_i_doppler_setup(
+        setup="new", sweep_time_duration=0, time_variable="time_pyaedt"
+    )
+    assert setup3.name in hfss_app.setup_names
+    assert isinstance(setup3, SetupSBR)
+    assert not sweep3
+
+
+def test_add_doppler_chirp_iq(hfss_app) -> None:
+    compfile = hfss_app.components3d["Male_Arm_Left"]
+    hfss_app.modeler.insert_3d_component(compfile)
+
+    with pytest.raises(AEDTRuntimeError):
+        hfss_app.create_sbr_chirp_iq_doppler_setup(sweep_time_duration=1e-5)
+
+    hfss_app.solution_type = "SBR+"
+    with pytest.raises(ValueError):
+        hfss_app.create_sbr_chirp_iq_doppler_setup(sweep_time_duration=1e-5)
+
+    hfss_app["time_pyaedt"] = "500ms"
+
+    setup, sweep = hfss_app.create_sbr_chirp_iq_doppler_setup(sweep_time_duration=1e-5)
+    assert setup.name in hfss_app.setup_names
+    assert isinstance(setup, SetupSBR)
+    assert sweep.name in hfss_app.parametrics.setup_names
+    assert isinstance(sweep, ParametricSetup)
+
+    assert setup.props["SbrRangeDopplerWaveformType"] == "ChirpSeqFmcw"
+    assert setup.props["ChannelConfiguration"] == "IQChannels"
+    assert sweep.props["Sim. Setups"] == [setup.name]
+
+    setup2, sweep2 = hfss_app.create_sbr_chirp_iq_doppler_setup(
+        setup=setup.name, sweep_time_duration=1e-5, time_variable="time_pyaedt"
+    )
+    assert setup2.name in hfss_app.setup_names
+    assert isinstance(setup2, SetupSBR)
+    assert sweep2.name in hfss_app.parametrics.setup_names
+    assert isinstance(sweep2, ParametricSetup)
+
+    setup3, sweep3 = hfss_app.create_sbr_chirp_iq_doppler_setup(
+        setup="new", sweep_time_duration=0, time_variable="time_pyaedt"
+    )
+    assert setup3.name in hfss_app.setup_names
+    assert isinstance(setup3, SetupSBR)
+    assert not sweep3
+
+
+def test_eigen(hfss_app) -> None:
+    hfss_app.solution_type = "Eigenmode"
+
+    setup1 = hfss_app.create_setup("My_HFSS_Setup")
+    assert setup1.solver_type == SetupKeys.SetupNames[Setups.HFSSEigen]
+
+    assert isinstance(setup1, SetupHFSS)
+
+    assert not setup1.is_solved
+
+    # Rename
+    name = setup1.name
+    setup1.name = "new_name"
+    assert "new_name" in hfss_app.setup_names
+    assert name not in hfss_app.setup_names
+    assert setup1.name == "new_name"
+    assert setup1.child_object
+
+    # Sweep
+    assert not setup1.sweep_names
+
+    # Props
+    assert "NumModes" in setup1.props
+    setup1["NumModes"] = 5
+    assert setup1["NumModes"] == 5
+
+    setup1.disable()
+    assert not setup1["IsEnabled"]
+    setup1.enable()
+    assert setup1["IsEnabled"]
+
+    # Delete
     assert hfss_app.delete_setup(name=setup1.name)
     assert "new_name" not in hfss_app.setup_names
     assert not hfss_app.delete_setup(name="invented")
 
-    assert setup1.add_subrange("LinearStep", 1, 10, 0.1, clear=False)
-    assert setup1.add_subrange("LinearCount", 10, 20, 10, clear=True)
+    setup2 = hfss_app.create_setup(setup_type=Setups.HFSSEigen)
+    name2 = setup2.name
+    assert setup2.name in hfss_app.setup_names
+    setup2.delete()
+    assert name2 not in hfss_app.setup_names
 
-    hfss_app.solution_type = "Hybrid"
-    box = hfss_app.modeler.create_box([0, 0, 0], [10, 10, 10])
-    hfss_app.assign_hybrid_region(box, hybrid_region="SBR+")
 
-    _ = hfss_app.create_setup(setup_type=0)
+def test_transient(hfss_app) -> None:
+    hfss_app.solution_type = "Transient"
+
+    setup1 = hfss_app.create_setup("My_HFSS_Setup")
+    assert setup1.solver_type == SetupKeys.SetupNames[Setups.HFSSTransient]
+
+    assert isinstance(setup1, SetupHFSS)
+
+    assert not setup1.is_solved
+
+    # Rename
+    name = setup1.name
+    setup1.name = "new_name"
+    assert "new_name" in hfss_app.setup_names
+    assert name not in hfss_app.setup_names
+    assert setup1.name == "new_name"
+    assert setup1.child_object
+
+    # Sweep
+    assert len(setup1.sweep_names) == 1
+
+    # Props
+    assert "Transient" in setup1.props
+    setup1["Transient"]["SweepMaxFreq"] = "2GHz"
+    assert setup1.props["Transient"]["SweepMaxFreq"] == "2GHz"
+
+    setup1.disable()
+    assert not setup1["IsEnabled"]
+    setup1.enable()
+    assert setup1["IsEnabled"]
+
+    # Delete
+    assert hfss_app.delete_setup(name=setup1.name)
+    assert "new_name" not in hfss_app.setup_names
+    assert not hfss_app.delete_setup(name="invented")
+
+    setup2 = hfss_app.create_setup(setup_type=Setups.HFSSTransient)
+    name2 = setup2.name
+    assert name2 in hfss_app.setup_names
+    setup2.delete()
+    assert name2 not in hfss_app.setup_names
+
+
+def test_cma(hfss_app) -> None:
+    hfss_app.solution_type = "Characteristic"
+
+    setup1 = hfss_app.create_setup("My_HFSS_Setup")
+    assert setup1.solver_type == SetupKeys.SetupNames[Setups.HFSSCMA]
+
+    assert isinstance(setup1, SetupHFSS)
+
+    assert not setup1.is_solved
+
+    # Rename
+    name = setup1.name
+    setup1.name = "new_name"
+    assert "new_name" in hfss_app.setup_names
+    assert name not in hfss_app.setup_names
+    assert setup1.name == "new_name"
+    assert setup1.child_object
+
+    # Sweep
+    assert not len(setup1.sweep_names)
+
+    # Props
+    assert "MaxDeltaE" in setup1.props
+    setup1["MaxDeltaE"] = 1
+    assert setup1.props["MaxDeltaE"] == 1
+
+    setup1.disable()
+    assert not setup1["IsEnabled"]
+    setup1.enable()
+    assert setup1["IsEnabled"]
+
+    # Delete
+    assert hfss_app.delete_setup(name=setup1.name)
+    assert "new_name" not in hfss_app.setup_names
+    assert not hfss_app.delete_setup(name="invented")
+
+    setup2 = hfss_app.create_setup(setup_type=Setups.HFSSCMA)
+    name2 = setup2.name
+    assert name2 in hfss_app.setup_names
+    setup2.delete()
+    assert name2 not in hfss_app.setup_names
