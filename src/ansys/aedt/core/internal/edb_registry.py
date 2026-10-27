@@ -56,11 +56,11 @@ class _Entry:
     opened_at: float
 
 
-def _key(edb_folder) -> str:
-    return os.path.normcase(os.path.abspath(str(edb_folder)))
+def _key(edb_folder: str | Path) -> str:
+    return os.path.normcase(str(Path(edb_folder).resolve()))
 
 
-def _stamp(edb_folder) -> tuple | None:
+def _stamp(edb_folder: str | Path) -> tuple[int, int] | None:
     try:
         st = (Path(edb_folder) / "edb.def").stat()
     except OSError:
@@ -68,17 +68,16 @@ def _stamp(edb_folder) -> tuple | None:
     return st.st_mtime_ns, st.st_size
 
 
-def _is_open(edb) -> bool:
+def _is_open(edb: Any) -> bool:
     # PyEDB has no public "is open". Both backends reset ``_active_cell`` on close; the .NET one leaves ``_db`` set.
     return getattr(edb, "_active_cell", None) is not None
 
 
-def _server_alive(edb) -> bool:
-    if not type(edb).__module__.startswith("pyedb.grpc"):
-        return True
-    try:
-        from pyedb.grpc.rpc_session import RpcSession
-    except ImportError:  # pragma: no cover
+def _server_alive(edb: Any) -> bool:
+    from pyedb.grpc.edb import Edb as EdbGrpc
+    from pyedb.grpc.rpc_session import RpcSession
+
+    if not isinstance(edb, EdbGrpc):
         return True
     return RpcSession._is_server_alive()
 
@@ -90,7 +89,13 @@ class EdbSessionRegistry:
         self._entries: dict[str, _Entry] = {}
         self._lock = threading.RLock()
 
-    def get(self, edb_folder, cell: str | None, version: str | None, oproject=None):
+    def get(
+        self,
+        edb_folder: str | Path,
+        cell: str | None,
+        version: str | None,
+        oproject: Any = None,
+    ) -> Any:
         """Return the read-only handle for ``edb_folder`` with ``cell`` active, opening it if needed."""
         key = _key(edb_folder)
         with self._lock:
@@ -116,7 +121,7 @@ class EdbSessionRegistry:
             self._entries[key] = entry
             return entry.edb
 
-    def close(self, edb_folder) -> bool:
+    def close(self, edb_folder: str | Path) -> bool:
         """Close the handle for ``edb_folder``, if any. The EDB RPC server keeps running."""
         with self._lock:
             return self._close_entry(_key(edb_folder))
@@ -127,7 +132,7 @@ class EdbSessionRegistry:
             for key in list(self._entries):
                 self._close_entry(key)
 
-    def is_open(self, edb_folder) -> bool:
+    def is_open(self, edb_folder: str | Path) -> bool:
         """Whether a live handle is held for ``edb_folder``."""
         entry = self._entries.get(_key(edb_folder))
         return entry is not None and _is_open(entry.edb)
@@ -146,7 +151,13 @@ class EdbSessionRegistry:
                 for key, e in self._entries.items()
             ]
 
-    def _open(self, edb_folder, cell, version, oproject) -> _Entry:
+    def _open(
+        self,
+        edb_folder: str | Path,
+        cell: str | None,
+        version: str | None,
+        oproject: Any,
+    ) -> _Entry:
         from ansys.aedt.core import Edb
 
         stamp = _stamp(edb_folder)
@@ -165,7 +176,7 @@ class EdbSessionRegistry:
         logger.info(f"Opened the EDB of {edb_folder} read-only (design {cell}).")
         return _Entry(edb=edb, cell=cell, stamp=stamp, opened_at=time.time())
 
-    def _close_entry(self, key) -> bool:
+    def _close_entry(self, key: str) -> bool:
         entry = self._entries.pop(key, None)
         if entry is None:
             return False
