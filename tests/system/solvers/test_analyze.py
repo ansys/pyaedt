@@ -638,6 +638,17 @@ def test_export_maxwell_fields(m3dtransient, test_tmp_dir) -> None:
     new_setup.update()
 
 
+def test_create_fieldplot_surface_transient(m3dtransient) -> None:
+    fieldplot = m3dtransient.post.create_fieldplot_surface(
+        quantity="Mag_B",
+        setup=m3dtransient.nominal_sweep,
+        assignment="Coil_A2",
+        intrinsics={"Time": "10ms"},
+    )
+    assert fieldplot
+    assert fieldplot.intrinsics["Time"] == "10ms"
+
+
 def test_compute_erl(circuit_erl) -> None:
     sp = circuit_erl.export_touchstone()
     spisim = SpiSim(sp)
