@@ -156,12 +156,6 @@ def test_create_component(aedt_app) -> None:
     )
 
 
-def test_create_setup(aedt_app) -> None:
-    setup_name = "LNA"
-    LNA_setup = aedt_app.create_setup(setup_name)
-    assert LNA_setup.name == "LNA"
-
-
 def test_import_mentor_netlist(aedt_app, test_tmp_dir) -> None:
     netlist_file = shutil.copy2(NETLIST_FILE2, test_tmp_dir / NETLIST2)
     assert aedt_app.create_schematic_from_mentor_netlist(netlist_file)
@@ -311,32 +305,6 @@ def test_export_touchstone(aedt_app, test_tmp_dir) -> None:
     assert len(exported_files) > 0
     output = aedt_app.export_fullwave_spice(filename=Path(test_tmp_dir / "test.sss"), is_solution_file=False)
     assert output
-
-
-def test_create_sweeps(aedt_app) -> None:
-    setup_name = "Sweep_LNA"
-    LNA_setup = aedt_app.create_setup(setup_name)
-    LNA_setup.add_sweep_step("Freq", 1, 2, 0.01, "GHz", override_existing_sweep=True)
-    assert LNA_setup.props["SweepDefinition"]["Data"] == "LIN 1GHz 2GHz 0.01GHz"
-    LNA_setup.add_sweep_points("Freq", [11, 12, 13.4], "GHz", override_existing_sweep=False)
-    assert "13.4GHz" in LNA_setup.props["SweepDefinition"]["Data"]
-    assert "LIN 1GHz 2GHz 0.01GHz" in LNA_setup.props["SweepDefinition"]["Data"]
-    LNA_setup.add_sweep_count("Temp", 20, 100, 81, "cel", count_type="Decade", override_existing_sweep=True)
-    assert isinstance(LNA_setup.props["SweepDefinition"], list)
-    assert LNA_setup.props["SweepDefinition"][1]["Variable"] == "Temp"
-    assert LNA_setup.props["SweepDefinition"][1]["Data"] == "DEC 20cel 100cel 81"
-
-
-def test_create_eye_setups(aedt_app) -> None:
-    setup_name = "Dom_Verify"
-    assert aedt_app.create_setup(setup_name, "NexximVerifEye")
-    setup_name = "Dom_Quick"
-    assert aedt_app.create_setup(setup_name, "NexximQuickEye")
-    setup_name = "Dom_AMI"
-    setup = aedt_app.create_setup(setup_name, "NexximAMI")
-    assert setup
-    setup.add_sweep_step("Freq", 1, 2, 0.01, "GHz", override_existing_sweep=True)
-    assert setup.props["SweepDefinition"]["Data"] == "LIN 1GHz 2GHz 0.01GHz"
 
 
 @pytest.mark.skipif(

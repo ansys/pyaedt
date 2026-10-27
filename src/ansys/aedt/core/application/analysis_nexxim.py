@@ -26,12 +26,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from ansys.aedt.core.modeler.schematic import ModelerNexxim
-
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.configurations import ConfigurationsNexxim
+from ansys.aedt.core.generic.constants import Setups
+from ansys.aedt.core.generic.general_methods import SetupDict
+from ansys.aedt.core.generic.general_methods import _merge_props
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
@@ -47,6 +47,7 @@ from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.modules.solve_setup import SetupCircuit
 
 if TYPE_CHECKING:
+    from ansys.aedt.core.modeler.schematic import ModelerNexxim
     from ansys.aedt.core.modules.boundary.common import BoundaryObject
     from ansys.aedt.core.visualization.post.post_circuit import PostProcessorCircuit
 
@@ -125,15 +126,15 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         project: str,
         design: str,
         solution_type: str,
-        setup: str = None,
-        version: str = None,
+        setup: str | None = None,
+        version: str | None = None,
         non_graphical: bool = False,
         new_desktop: bool = False,
         close_on_exit: bool = False,
         student_version: bool = False,
         machine: str = "",
         port: int = 0,
-        aedt_process_id: int = None,
+        aedt_process_id: int | None = None,
         remove_lock: bool = False,
     ):
         Analysis.__init__(
@@ -159,9 +160,67 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         self._internal_excitations = {}
         self._internal_sources = None
         self._configurations = ConfigurationsNexxim(self)
+
+        self.__active_setup = None
+        if setup:
+            self.__active_setup = setup
+        self.__setups = SetupDict()
+
         if not settings.lazy_load:
             self._modeler = self.modeler
             self._post = self.post
+            self.__setups = self.setups
+
+    @property
+    def setups(self) -> SetupDict:
+        """Setups in the project.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.generic.general_methods.SetupDict`
+            Setups in the project.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> app = Circuit()
+        >>> circuit.setups
+
+        """
+        setup_names = self.setup_names
+
+        for setup_name in setup_names:
+            if setup_name not in self.__setups:
+                self.__setups[setup_name] = self._get_setup(setup_name)
+
+        if self.__setups and not self.__active_setup:
+            self.__active_setup = self.__setups[0].name
+
+        for setup_name in list(self.__setups):
+            if setup_name not in setup_names:
+                del self.__setups[setup_name]
+
+        return self.__setups
+
+    @property
+    def setup_names(self) -> list:
+        """Setup names.
+
+        References
+        ----------
+        >>> oModule.GetAllSolutionSetups
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> circuit.setup_names
+
+        """
+        setup_names = []
+        if self.oanalysis and "GetAllSolutionSetups" in self.oanalysis.__dir__():
+            setup_names = [i.split(" : ")[0] for i in self.oanalysis.GetAllSolutionSetups()]
+        return setup_names
 
     @property
     def configurations(self) -> ConfigurationsNexxim:
@@ -206,10 +265,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
 
         """
         if name in self.setup_names:
-            self.oanalysis.RemoveSimSetup([name])
-            for s in self.setups:
-                if s.name == name:
-                    self.setups.remove(s)
+            self.setups[name].delete()
             return True
         return False
 
@@ -321,23 +377,6 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
             self.logger.info_timer("Modeler class has been initialized!")
 
         return self._modeler
-
-    @property
-    def setup_names(self) -> list:
-        """Setup names.
-
-        References
-        ----------
-        >>> oModule.GetAllSolutionSetups
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Circuit
-        >>> circuit = Circuit()
-        >>> circuit.setup_names
-
-        """
-        return [i.split(" : ")[0] for i in self.oanalysis.GetAllSolutionSetups()]
 
     @property
     def source_names(self) -> list:
@@ -503,7 +542,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         return props
 
     @pyaedt_function_handler()
-    def create_setup(self, name: str = "MySetupAuto", setup_type: str | None = None, **kwargs) -> SetupCircuit:
+    def create_setup(self, name: str | None = None, setup_type: str | None = None, **kwargs) -> SetupCircuit:
         """Create a setup.
 
         Parameters
@@ -543,28 +582,32 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         >>> app.create_setup(name="Setup1", setup_type=Setups.NexximLNA, Data="LINC 0GHz 4GHz 501")
 
         """
+        setup_keys = SetupKeys.get_setup_templates()
+        setup_names_available = [name for name in dir(Setups) if not name.startswith("_")]
+
         if setup_type is None:
             setup_type = self.design_solutions.default_setup
-        elif setup_type in SetupKeys.SetupNames:
-            setup_type = SetupKeys.SetupNames.index(setup_type)
-        name = self.generate_unique_setup_name(name)
-        setup = SetupCircuit(self, setup_type, name)
-        tmp_setups = self.setups
-        setup.create()
-        setup.auto_update = False
+        elif isinstance(setup_type, str) and setup_type in setup_names_available:
+            setup_type = getattr(Setups, setup_type)
 
-        if "props" in kwargs:
-            for el in kwargs["props"]:
-                setup.props[el] = kwargs["props"][el]
-        for arg_name, arg_value in kwargs.items():
-            if arg_name == "props":
-                continue
-            if setup[arg_name] is not None:
-                setup[arg_name] = arg_value
-        setup.auto_update = True
-        setup.update()
-        self._setups = tmp_setups + [setup]
-        return setup
+        if not name:
+            name = self.generate_unique_setup_name("MySetupAuto")
+        elif name in self.setup_names:
+            name = self.generate_unique_setup_name(name)
+            self.logger.warning(f"Name already exists. New name assigned is {name}.")
+
+        props = setup_keys[setup_type]
+
+        setup = SetupCircuit(app=self, name=name, props=props)
+
+        if kwargs:
+            if "props" in kwargs:
+                _merge_props(props, kwargs.pop("props"))
+            for arg_name, arg_value in kwargs.items():
+                if props[arg_name] is not None:
+                    props[arg_name] = arg_value
+
+        return setup.create()
 
     @pyaedt_function_handler()
     def change_properties(
@@ -574,7 +617,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         property_object: str,
         property_names: list,
         property_values: list,
-        property_types: list = None,
+        property_types: list | None = None,
     ) -> bool:
         """Change multiple properties.
 

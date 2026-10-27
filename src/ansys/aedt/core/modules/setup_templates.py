@@ -667,6 +667,7 @@ NexximQuickEye = dict(
     }
 )
 """Value for nexxim quick eye."""
+
 NexximVerifEye = dict(
     {
         "DataBlockID": 27,
@@ -682,6 +683,7 @@ NexximVerifEye = dict(
     }
 )
 """Value for nexxim verif eye."""
+
 NexximAMI = dict(
     {
         "DataBlockID": 29,
@@ -699,16 +701,103 @@ NexximAMI = dict(
     }
 )
 """Value for nexxim AMI."""
-NexximOscillatorRSF = {}
-"""Value for nexxim oscillator rsf."""
-NexximOscillator1T = {}
+
+NexximOscillatorRSF = dict(
+    {
+        "DataBlockID": 24,
+        "OptionName": "Default Options",
+        "AdditionalOptions": "",
+        "AlterBlockName": "",
+        "FilterText": "",
+        "AnalysisEnabled": 1,
+        "HasTDRComp": 0,
+        "OutputQuantities": OutputQuantities,
+        "NoiseOutputQuantities": NoiseOutputQuantities,
+        "Name": "OscResonantFrequency",
+        "OscResonantFrequencyData": [1000, "1000000000", "5000000000", False, 1],
+        "OscMaxkValues": ["F1", "7"],
+        "OscTonesValues": ["1Ghz"],
+    }
+)
+"""Value for nexxim oscillator resonance frequency search."""
+
+NexximOscillator1T = dict(
+    {
+        "DataBlockID": 21,
+        "OptionName": "Default Options",
+        "AdditionalOptions": "",
+        "AlterBlockName": "",
+        "FilterText": "",
+        "AnalysisEnabled": 1,
+        "HasTDRComp": 0,
+        "OutputQuantities": OutputQuantities,
+        "NoiseOutputQuantities": NoiseOutputQuantities,
+        "Name": "Oscillator",
+        "OscillatorData": [7, "1GHz", False, 1],
+        "HarmonicsText": "2F1 3F1 4F1 DC F1",
+    }
+)
 """Value for nexxim oscillator 1 T."""
-NexximOscillatorNT = {}
+
+NexximOscillatorNT = dict(
+    {
+        "DataBlockID": 23,
+        "OptionName": "Default Options",
+        "AdditionalOptions": "",
+        "AlterBlockName": "",
+        "FilterText": "",
+        "AnalysisEnabled": 1,
+        "HasTDRComp": 0,
+        "OutputQuantities": OutputQuantities,
+        "NoiseOutputQuantities": NoiseOutputQuantities,
+        "Name": "OscillatorNtone",
+        "OscillatorNtoneData": [1, 1, False, 1],
+        "OscMaxkValues": ["F1", "7"],
+        "OscTonesValues": ["1Ghz"],
+        "DrivenMaxkValues": ["RF1", "7"],
+        "DrivenTonesValues": ["1Ghz"],
+        "HarmonicsText": "2F2 3F2 4F2 DC F2",
+    }
+)
 """Value for nexxim oscillator nt."""
-NexximHarmonicBalance1T = {}
+
+NexximHarmonicBalance1T = dict(
+    {
+        "DataBlockID": 9,
+        "OptionName": "Default Options",
+        "AdditionalOptions": "",
+        "AlterBlockName": "",
+        "FilterText": "",
+        "AnalysisEnabled": 1,
+        "HasTDRComp": 0,
+        "OutputQuantities": OutputQuantities,
+        "NoiseOutputQuantities": NoiseOutputQuantities,
+        "Name": "HB1Tone",
+        "HB1ToneData": [7, "1GHz", "HB", "No", "0.0"],
+        "HarmonicsText": "2F1 3F1 4F1 DC F1",
+    }
+)
 """Value for nexxim harmonic balance 1 T."""
-NexximHarmonicBalanceNT = {}
+
+NexximHarmonicBalanceNT = dict(
+    {
+        "DataBlockID": 17,
+        "OptionName": "Default Options",
+        "AdditionalOptions": "",
+        "AlterBlockName": "",
+        "FilterText": "",
+        "AnalysisEnabled": 1,
+        "HasTDRComp": 0,
+        "OutputQuantities": OutputQuantities,
+        "NoiseOutputQuantities": NoiseOutputQuantities,
+        "Name": "HBnTone",
+        "HBnTone": [1, "HB", "No", "0.0", "0.0", "F1", "7"],
+        "HBnValues": ["1Ghz"],
+        "HarmonicsText": "2F1 3F1 4F1 DC F1",
+    }
+)
 """Value for nexxim harmonic balance nt."""
+
 NexximSystem = dict(
     {
         "DataBlockID": 32,
@@ -717,16 +806,37 @@ NexximSystem = dict(
         "AlterBlockName": "",
         "FilterText": "",
         "AnalysisEnabled": 1,
+        "HasTDRComp": 0,
         "OutputQuantities": OutputQuantities,
         "NoiseOutputQuantities": NoiseOutputQuantities,
-        "Name": "HSPICETransient",
-        "HSPICETransientData": ["0.1ns", "10ns"],
-        "HSPICETransientOtherData": [3],
+        "Name": "SystemFDAnalysis",
+        "SystemFDAnalysis": [False],
     }
 )
 """Value for nexxim system."""
-NexximTVNoise = {}
+
+NexximTVNoise = dict(
+    {
+        "DataBlockID": 20,
+        "OptionName": "Default Options",
+        "AdditionalOptions": "",
+        "AlterBlockName": "",
+        "FilterText": "",
+        "AnalysisEnabled": 1,
+        "HasTDRComp": 0,
+        "OutputQuantities": OutputQuantities,
+        "NoiseOutputQuantities": NoiseOutputQuantities,
+        "Name": "TVNoise",
+        "TVNoiseData": [1, "", "", "", "", "HB", False, "HB", "No", 0],
+        "TVNoiseMaxkValues": ["F1", "7"],
+        "TVNoiseTonesValues": ["1Ghz"],
+        "HarmonicsText": "2F1 3F1 4F1 DC F1",
+        "SweepDefinition": SweepDefinition,
+        "FSweep": SweepDefinition,
+    }
+)
 """Value for nexxim tv noise."""
+
 HSPICE = dict(
     {
         "DataBlockID": 30,
@@ -735,16 +845,64 @@ HSPICE = dict(
         "AlterBlockName": "",
         "FilterText": "",
         "AnalysisEnabled": 1,
+        "HasTDRComp": 1,
         "OutputQuantities": OutputQuantities,
         "NoiseOutputQuantities": NoiseOutputQuantities,
-        "Name": "SystemFDAnalysis",
-        "SystemFDAnalysis": [False],
+        "Name": "HSPICETransient",
+        "HSPICETransientData": ["0.1ns", "10ns"],
+        "HSPICETransientOtherData": [3],
     }
 )
 """Hspice."""
 
+NexximEnvelope = dict(
+    {
+        "DataBlockID": 26,
+        "OptionName": "Default Options",
+        "AdditionalOptions": "",
+        "AlterBlockName": "",
+        "FilterText": "",
+        "AnalysisEnabled": 1,
+        "HasTDRComp": 1,
+        "OutputQuantities": OutputQuantities,
+        "NoiseOutputQuantities": NoiseOutputQuantities,
+        "Name": "Envelope",
+        "EnvelopeData": [1, "0", "1e-08", "", "", "trap", "HB", "No", 0],
+        "EnvelopeMaxkValues": ["F1", "7"],
+        "EnvelopeTonesValues": ["1Ghz"],
+        "HarmonicsText": "2F1 3F1 4F1 DC F1",
+    }
+)
+"""Value for nexxim envelope."""
+
+NexximPFX = dict(
+    {
+        "DataBlockID": 25,
+        "OptionName": "Default Options",
+        "AdditionalOptions": "",
+        "AlterBlockName": "",
+        "FilterText": "",
+        "AnalysisEnabled": 1,
+        "HasTDRComp": 1,
+        "OutputQuantities": OutputQuantities,
+        "NoiseOutputQuantities": NoiseOutputQuantities,
+        "Name": "PXF",
+        "PXFData": [1, "HB", False, "HB", "No", 0],
+        "PXFMaxkValues": ["F1", "7"],
+        "PXFTonesValues": ["1Ghz"],
+        "PXFRelHarmNums": [],
+        "PXFMaxSideband": ["0"],
+        "PXFSideband": ["0"],
+        "HarmonicsText": "2F1 3F1 4F1 DC F1",
+        "SweepDefinition": SweepDefinition,
+        "FSweep": SweepDefinition,
+    }
+)
+"""Value for nexxim periodic transfer function."""
+
 HFSS3DLayout_Properties = dict({"Enable": "true"})
 """Value for HFSS3DLayout properties."""
+
 HFSS3DLayout_AdvancedSettings = dict(
     {
         "AccuracyLevel": 2,
@@ -796,6 +954,7 @@ HFSS3DLayout_AdvancedSettings = dict(
     }
 )
 """Value for HFSS3DLayout AdvancedSettings."""
+
 HFSS3DLayout_CurveApproximation = dict(
     {
         "ArcAngle": "30deg",
@@ -808,6 +967,7 @@ HFSS3DLayout_CurveApproximation = dict(
     }
 )
 """Value for HFSS3DLayout CurveApproximation."""
+
 HFSS3DLayout_Q3D_DCSettings = dict(
     {
         "SolveResOnly": True,
@@ -3069,6 +3229,8 @@ class SetupKeys:
         "HFSS3DLayoutTransient",
         "HFSS3DLayoutVerifEye",
         "HFSSCMA",
+        "NexximEnvelope",
+        "NexximPFX",
     ]
     """Value for setup names."""
 
@@ -3078,6 +3240,7 @@ class SetupKeys:
         Setups.HFSSEigen: HFSSEigen,
         Setups.HFSSTransient: HFSSTransient,
         Setups.HFSSSBR: HFSSSBR,
+        Setups.HFSSCMA: HFSSCMA,
         Setups.MaxwellTransient: MaxwellTransient,
         Setups.Magnetostatic: Magnetostatic,
         Setups.EddyCurrent: EddyCurrent,
@@ -3101,6 +3264,8 @@ class SetupKeys:
         Setups.NexximHarmonicBalanceNT: NexximHarmonicBalanceNT,
         Setups.NexximSystem: NexximSystem,
         Setups.NexximTVNoise: NexximTVNoise,
+        Setups.NexximEnvelope: NexximEnvelope,
+        Setups.NexximPFX: NexximPFX,
         Setups.HSPICE: HSPICE,
         Setups.HFSS3DLayout: HFSS3DLayout,
         Setups.Open: Open,
@@ -3142,7 +3307,6 @@ class SetupKeys:
         Setups.SIwaveNearField: SIwaveNearField,
         Setups.HFSS3DLayoutTransient: HFSS3DLayoutTransient,
         Setups.HFSS3DLayoutVerifEye: HFSS3DLayoutVerifEye,
-        Setups.HFSSCMA: HFSSCMA,
     }
     """Value for setup templates."""
 

@@ -1493,6 +1493,8 @@ class SolutionsCircuit(metaclass=DynamicMeta):
         NexximTVNoise,
         HSPICE,
         TR,
+        NexximEnvelope,
+        NexximPFX,
     ) = (
         "NexximLNA",
         "NexximDC",
@@ -1509,6 +1511,8 @@ class SolutionsCircuit(metaclass=DynamicMeta):
         "NexximTVNoise",
         "HSPICE",
         "TR",
+        "NexximEnvelope",
+        "NexximPFX",
     )
 
 
@@ -1691,6 +1695,10 @@ class Setups(metaclass=DynamicMeta):
     """Value for HFSS 3D Layout VerifEye."""
     HFSSCMA = 74
     """Value for HFSS CMA."""
+    NexximEnvelope = 75
+    """Value for Nexxim Envelope."""
+    NexximPFX = 76
+    """Value for Nexxim periodic transfer function."""
 
 
 class LineStyle(metaclass=DynamicMeta):

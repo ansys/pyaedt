@@ -74,6 +74,7 @@ from ansys.aedt.core.modules.solve_sweeps import identify_setup
 if TYPE_CHECKING:
     from ansys.aedt.core.application.analysis import Analysis
     from ansys.aedt.core.application.analysis_3d_layout import FieldAnalysis3DLayout
+    from ansys.aedt.core.application.analysis_nexxim import FieldAnalysisCircuit
     from ansys.aedt.core.visualization.post.solution_data import SolutionData
     from ansys.aedt.core.visualization.report.standard import Standard
 
@@ -198,6 +199,8 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
 
         if props is None:
             props = self.props.to_dict()
+        elif hasattr(props, "to_dict"):
+            props = props.to_dict()
 
         _dict2arg(props, arg)
         return arg
@@ -350,10 +353,11 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
             self._app.oanalysis.Delete(self.name)
         elif "DeleteSetups" in dir(self._app.oanalysis):
             self._app.oanalysis.DeleteSetups(self.name)
+        elif "RemoveSimSetup" in dir(self._app.oanalysis):
+            self._app.oanalysis.RemoveSimSetup([self.name])
         else:  # pragma: no cover
             self._app.warning("No API method to delete the setup.")
             return False
-
         return True
 
     @pyaedt_function_handler()
@@ -760,9 +764,10 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
         if self._has_getsetupdata and self._name in self._app.setup_names:
             setup_data = self._app.oanalysis.GetSetupData(self._name)
             _arg2dict(setup_data, legacy_props)
-            return legacy_props[self._name]
-        else:
-            return legacy_props
+            if legacy_props:
+                first_key = next(iter(legacy_props))
+                return legacy_props[first_key]
+        return legacy_props
 
 
 class Setup(CommonSetup):
@@ -860,8 +865,8 @@ class Setup(CommonSetup):
 
         self._app.oanalysis.EditSetup(self.name, arg)
 
-        if not self._has_getobject:
-            self._legacy_props = dict(properties)
+        if not self._has_getobject and not self._has_getsetupdata:
+            self._legacy_props = properties
 
         return True
 
@@ -1381,13 +1386,10 @@ class SetupCircuit(CommonSetup):
     ----------
     app : :class:`ansys.aedt.core.application.analysis_nexxim.FieldAnalysisCircuit`
         Inherited app object.
-    solution_type : str, int
-        Type of the setup.
     name : str, optional
         Name of the setup. The default is ``"MySetupAuto"``.
-    is_new_setup : bool, optional
-      Whether to create the setup from a template. The default is ``True.``
-      If ``False``, access is to the existing setup.
+    props : dict
+        Properties of the setup.
 
     Examples
     --------
@@ -1398,59 +1400,57 @@ class SetupCircuit(CommonSetup):
 
     """
 
-    def __init__(self, app, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True) -> None:
-        CommonSetup.__init__(self, app, solution_type, name, is_new_setup)
+    def __repr__(self) -> str:
+        return self.name
+
+    def __str__(self) -> str:
+        return self.name
+
+    def __init__(self, app: FieldAnalysisCircuit, name: str, props: dict) -> None:
+        setup_keys = SetupKeys.get_setup_templates()
+        setup_names = SetupKeys.SetupNames
+        self.solver_type = None
+
+        CommonSetup.__init__(self, app, name, props)
+
+        circuit_setups = (
+            Setups.NexximLNA,
+            Setups.NexximQuickEye,
+            Setups.NexximAMI,
+            Setups.NexximTransient,
+            Setups.NexximVerifEye,
+            Setups.NexximDC,
+            Setups.NexximHarmonicBalance1T,
+            Setups.NexximHarmonicBalanceNT,
+            Setups.NexximOscillator1T,
+            Setups.NexximOscillatorNT,
+            Setups.NexximOscillatorRSF,
+            Setups.NexximSystem,
+            Setups.NexximTVNoise,
+            Setups.HSPICE,
+            Setups.NexximEnvelope,
+            Setups.NexximPFX,
+        )
+        data_block_id = self.props.get("DataBlockID")
+        for setup_type in circuit_setups:
+            template_datablock = setup_keys.get(setup_type, {}).get("DataBlockID")
+            if template_datablock == data_block_id:
+                self.solver_type = setup_names[setup_type]
+                break
 
     @property
-    def props(self) -> SetupProps:
-        """Retrieve props.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Circuit
-        >>> from ansys.aedt.core.generic.constants import Setups
-        >>> circuit_app = Circuit()
-        >>> setup1 = circuit_app.create_setup("circuit", Setups.NexximLNA)
-        >>> setup1.props
-
-        """
-        if _has_get_obj_data(self.child_object):
-            return super().props
-        if self._legacy_props:
-            return self._legacy_props
-        if self._is_new_setup:
-            setup_template = SetupKeys.get_setup_templates()[self.setuptype]
-            setup_template["Name"] = self.name
-            self._legacy_props = SetupProps(self, setup_template)
-            self._is_new_setup = False
-        else:
-            self._legacy_props = SetupProps(self, {})
-            try:
-                setups_data = self._app.design_properties["SimSetups"]["SimSetup"]
-                if not isinstance(setups_data, list):
-                    setups_data = [setups_data]
-                for setup in setups_data:
-                    if self.name == setup["Name"]:
-                        setup_data = setup
-                        setup_data.pop("Sweeps", None)
-                        self._legacy_props = SetupProps(self, setup_data)
-            except Exception:
-                self._legacy_props = SetupProps(self, {})
-        return self._legacy_props
-
-    @property
+    @deprecated("Use odesign from application instead.")
     def _odesign(self):
         """Design."""
         return self._app._odesign
 
     @pyaedt_function_handler()
-    def create(self) -> bool:
+    def create(self) -> SetupCircuit:
         """Add a new setup based on class settings in AEDT.
 
         Returns
         -------
-        bool
-            Result of operation.
+        :class:`ansys.aedt.core.modules.solve_setup.SetupCircuit`.
 
         References
         ----------
@@ -1469,55 +1469,93 @@ class SetupCircuit(CommonSetup):
         >>> setup1 = circuit_app.create_setup("circuit", Setups.NexximLNA)
 
         """
-        soltype = SetupKeys.SetupNames[self.setuptype]
+        arg = self._setup_dict_to_arg()
 
-        arg = self._setup_dict_to_arg(name="SimSetup")
-
-        self._setup(soltype, arg)
-        # return self._initialize_tree_node()
-        return True
+        self._setup(self.solver_type, arg, newsetup=True)
+        return self
 
     @pyaedt_function_handler()
     def _setup(self, soltype, arg, newsetup: bool = True) -> bool:
-        if newsetup:
-            if soltype == "NexximLNA":
-                self._app.oanalysis.AddLinearNetworkAnalysis(arg)
-            elif soltype == "TwinbuilderAC":
-                self._app.oanalysis.AddACAnalysis(arg)
-            elif soltype in ["NexximDC", "TwinbuilderDC"]:
-                self._app.oanalysis.AddDCAnalysis(arg)
-            elif soltype in ["NexximTransient", "TwinbuilderTR"]:
-                self._app.oanalysis.AddTransient(arg)
-            elif soltype == "NexximQuickEye":
-                self._app.oanalysis.AddQuickEyeAnalysis(arg)
-            elif soltype == "NexximVerifEye":
-                self._app.oanalysis.AddVerifEyeAnalysis(arg)
-            elif soltype == "NexximAMI":
-                self._app.oanalysis.AddAMIAnalysis(arg)
-            else:
-                warnings.warn("Solution Not Implemented Yet")
-        else:
-            if soltype == "NexximLNA":
-                self._app.oanalysis.EditLinearNetworkAnalysis(self.name, arg)
-            elif soltype == "TwinbuilderAC":
-                self._app.oanalysis.EditACAnalysis(self.name, arg)
-            elif soltype in ["NexximDC", "TwinbuilderDC"]:
-                self._app.oanalysis.EditDCAnalysis(self.name, arg)
-            elif soltype in ["NexximTransient", "TwinbuilderTR"]:
-                self._app.oanalysis.EditTransient(self.name, arg)
-            elif soltype == "NexximQuickEye":
-                self._app.oanalysis.EditQuickEyeAnalysis(self.name, arg)
-            elif soltype == "NexximVerifEye":
-                self._app.oanalysis.EditVerifEyeAnalysis(self.name, arg)
-            elif soltype == "NexximAMI":
-                self._app.oanalysis.EditAMIAnalysis(self.name, arg)
+        setup_names = SetupKeys.SetupNames
 
+        if newsetup:
+            if soltype == setup_names[Setups.NexximLNA]:
+                self._app.oanalysis.AddLinearNetworkAnalysis(arg)
+            elif soltype == setup_names[Setups.TwinbuilderAC]:
+                self._app.oanalysis.AddACAnalysis(arg)
+            elif soltype in [setup_names[Setups.NexximDC], setup_names[Setups.TwinbuilderDC]]:
+                self._app.oanalysis.AddDCAnalysis(arg)
+            elif soltype in [setup_names[Setups.NexximTransient], "TwinbuilderTR"]:
+                self._app.oanalysis.AddTransient(arg)
+            elif soltype == setup_names[Setups.NexximQuickEye]:
+                self._app.oanalysis.AddQuickEyeAnalysis(arg)
+            elif soltype == setup_names[Setups.NexximVerifEye]:
+                self._app.oanalysis.AddVerifEyeAnalysis(arg)
+            elif soltype == setup_names[Setups.NexximAMI]:
+                self._app.oanalysis.AddAMIAnalysis(arg)
+            elif soltype == setup_names[Setups.NexximSystem]:
+                self._app.oanalysis.AddSystemFDAnalysis(arg)
+            elif soltype == setup_names[Setups.HSPICE]:
+                self._app.oanalysis.AddHSPICETransient(arg)
+            elif soltype == setup_names[Setups.NexximHarmonicBalanceNT]:
+                self._app.oanalysis.AddHBnTone(arg)
+            elif soltype == setup_names[Setups.NexximHarmonicBalance1T]:
+                self._app.oanalysis.AddHB1Tone(arg)
+            elif soltype == setup_names[Setups.NexximOscillatorRSF]:
+                self._app.oanalysis.AddOscResonantFrequencySearch(arg)
+            elif soltype == setup_names[Setups.NexximOscillator1T]:
+                self._app.oanalysis.AddOscillatorAnalysis(arg)
+            elif soltype == setup_names[Setups.NexximOscillatorNT]:
+                self._app.oanalysis.AddOscillatorNtoneAnalysis(arg)
+            elif soltype == setup_names[Setups.NexximTVNoise]:
+                self._app.oanalysis.AddTVNoise(arg)
+            elif soltype == setup_names[Setups.NexximEnvelope]:
+                self._app.oanalysis.AddEnvelopeSetup(arg)
+            elif soltype == setup_names[Setups.NexximPFX]:
+                self._app.oanalysis.AddPXFSetup(arg)
             else:
-                raise NotImplementedError(f"Solution type '{soltype}' is not implemented yet")
+                warnings.warn("Solution not implemented yet.")
+        else:
+            if soltype == setup_names[Setups.NexximLNA]:
+                self._app.oanalysis.EditLinearNetworkAnalysis(self.name, arg)
+            elif soltype == setup_names[Setups.TwinbuilderAC]:
+                self._app.oanalysis.EditACAnalysis(self.name, arg)
+            elif soltype in [setup_names[Setups.NexximDC], setup_names[Setups.TwinbuilderDC]]:
+                self._app.oanalysis.EditDCAnalysis(self.name, arg)
+            elif soltype in [setup_names[Setups.NexximTransient], "TwinbuilderTR"]:
+                self._app.oanalysis.EditTransient(self.name, arg)
+            elif soltype == setup_names[Setups.NexximQuickEye]:
+                self._app.oanalysis.EditQuickEyeAnalysis(self.name, arg)
+            elif soltype == setup_names[Setups.NexximVerifEye]:
+                self._app.oanalysis.EditVerifEyeAnalysis(self.name, arg)
+            elif soltype == setup_names[Setups.NexximAMI]:
+                self._app.oanalysis.EditAMIAnalysis(self.name, arg)
+            elif soltype == setup_names[Setups.NexximSystem]:
+                self._app.oanalysis.EditSystemFDAnalysis(self.name, arg)
+            elif soltype == setup_names[Setups.HSPICE]:
+                self._app.oanalysis.EditHSPICETransient(self.name, arg)
+            elif soltype == setup_names[Setups.NexximHarmonicBalanceNT]:
+                self._app.oanalysis.EditHBnTone(self.name, arg)
+            elif soltype == setup_names[Setups.NexximHarmonicBalance1T]:
+                self._app.oanalysis.EditHB1Tone(self.name, arg)
+            elif soltype == setup_names[Setups.NexximOscillatorRSF]:
+                self._app.oanalysis.EditOscResonantFrequencySearch(self.name, arg)
+            elif soltype == setup_names[Setups.NexximOscillator1T]:
+                self._app.oanalysis.EditOscillatorAnalysis(self.name, arg)
+            elif soltype == setup_names[Setups.NexximOscillatorNT]:
+                self._app.oanalysis.EditOscillatorNtoneAnalysis(self.name, arg)
+            elif soltype == setup_names[Setups.NexximTVNoise]:
+                self._app.oanalysis.EditTVNoise(self.name, arg)
+            elif soltype == setup_names[Setups.NexximEnvelope]:
+                self._app.oanalysis.EditEnvelopeSetup(self.name, arg)
+            elif soltype == setup_names[Setups.NexximPFX]:
+                self._app.oanalysis.EditPXFSetup(self.name, arg)
+            else:
+                raise NotImplementedError(f"Solution type '{soltype}' is not implemented yet.")
         return True
 
     @pyaedt_function_handler()
-    def update(self, properties: dict = None) -> bool:
+    def update(self, properties: dict | None = None) -> bool:
         """Update the setup based on the class arguments or a dictionary.
 
         Parameters
@@ -1548,16 +1586,43 @@ class SetupCircuit(CommonSetup):
         >>> setup1.update(properties={"Name": "Value"})
 
         """
-        legacy_update = self.auto_update
-        self.auto_update = False
-        if properties:
-            arg = self._setup_dict_to_arg(name="SimSetup", props=properties)
-        else:
-            arg = self._setup_dict_to_arg()
-        soltype = SetupKeys.SetupNames[self.setuptype]
-        self._setup(soltype, arg, False)
-        self.auto_update = legacy_update
+        arg = self._setup_dict_to_arg(properties)
+
+        self._setup(self.solver_type, arg, newsetup=False)
         return True
+
+    def _setup_dict_to_arg(self, props: dict | None = None):
+        """Retrieve arguments needed to pass to AEDT API.
+
+        Parameters
+        ----------
+        props : dict, optional
+            New properties to update. The default is ``None``, in which case it uses the current properties.
+
+        Returns
+        -------
+        list
+            List of arguments for the mesh operation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> setup = circuit.create_setup()
+        >>> setup._setup_dict_to_arg()
+
+        """
+        arg = ["NAME:SimSetup"]
+
+        if props is None:
+            props = self.props.to_dict()
+        elif hasattr(props, "to_dict"):
+            props = props.to_dict()
+
+        props["Name"] = self.name
+
+        _dict2arg(props, arg)
+        return arg
 
     @pyaedt_function_handler()
     def add_sweep_points(
@@ -1591,11 +1656,6 @@ class SetupCircuit(CommonSetup):
         References
         ----------
         >>> oModule.EditLinearNetworkAnalysis
-        >>> oModule.EditDCAnalysis
-        >>> oModule.EditTransient
-        >>> oModule.EditQuickEyeAnalysis
-        >>> oModule.EditVerifEyeAnalysis
-        >>> oModule.EditAMIAnalysis
 
         Examples
         --------
@@ -1657,11 +1717,6 @@ class SetupCircuit(CommonSetup):
         References
         ----------
         >>> oModule.EditLinearNetworkAnalysis
-        >>> oModule.EditDCAnalysis
-        >>> oModule.EditTransient
-        >>> oModule.EditQuickEyeAnalysis
-        >>> oModule.EditVerifEyeAnalysis
-        >>> oModule.EditAMIAnalysis
 
         Examples
         --------
@@ -1722,11 +1777,6 @@ class SetupCircuit(CommonSetup):
         References
         ----------
         >>> oModule.EditLinearNetworkAnalysis
-        >>> oModule.EditDCAnalysis
-        >>> oModule.EditTransient
-        >>> oModule.EditQuickEyeAnalysis
-        >>> oModule.EditVerifEyeAnalysis
-        >>> oModule.EditAMIAnalysis
 
         Examples
         --------
@@ -1748,206 +1798,42 @@ class SetupCircuit(CommonSetup):
 
     @pyaedt_function_handler()
     def _add_sweep(self, sweep_variable, equation, override_existing_sweep):
-        if "SweepDefinition" not in self.props:
-            self.props["SweepDefinition"] = {
+        props = self.props.to_dict()
+
+        if "SweepDefinition" not in props:
+            props["SweepDefinition"] = {
                 "Variable": sweep_variable,
                 "Data": equation,
                 "OffsetF1": False,
                 "Synchronize": 0,
             }
-            return self.update()
-        if isinstance(self.props["SweepDefinition"], list):
-            for sw in self.props["SweepDefinition"]:
+            return self.update(props)
+
+        if isinstance(props["SweepDefinition"], list):
+            for sw in props["SweepDefinition"]:
                 if sw["Variable"] == sweep_variable:
                     if override_existing_sweep:
                         sw["Data"] = equation
                     else:
                         sw["Data"] += " " + equation
-                    return self.update()
-        elif self.props["SweepDefinition"]["Variable"] == sweep_variable:
+                    return self.update(props)
+        elif props["SweepDefinition"]["Variable"] == sweep_variable:
             if override_existing_sweep:
-                self.props["SweepDefinition"]["Data"] = equation
+                props["SweepDefinition"]["Data"] = equation
             else:
-                self.props["SweepDefinition"]["Data"] += " " + equation
-            return self.update()
+                props["SweepDefinition"]["Data"] += " " + equation
+            return self.update(props)
+
         prop = {"Variable": sweep_variable, "Data": equation, "OffsetF1": False, "Synchronize": 0}
-        sw = self.props["SweepDefinition"]
+        sw = props["SweepDefinition"]
         if isinstance(sw, list):
-            self.props["SweepDefinition"] = sw + [prop]
+            props["SweepDefinition"] = sw + [prop]
         else:
-            self.props["SweepDefinition"] = [dict(sw)] + [prop]
-        return True
+            props["SweepDefinition"] = [dict(sw)] + [prop]
+        return self.update(props)
 
     @pyaedt_function_handler()
-    def _expression_cache(
-        self,
-        expression_list,
-        report_type_list,
-        intrinsics_list,
-        isconvergence_list,
-        isrelativeconvergence,
-        conv_criteria,
-    ):
-        """Retrieve data from the expression setup cache.
-
-        Parameters
-        ----------
-        expressions_list : list
-            List of formulas to retrieve.
-        report_type_list : list
-            List of report types for the expressions.
-        intrinsics_list : list
-            List of intrinsic functions for the expressions.
-        isconvergence_list : list
-            List of Boolean values indicating whether the expressions are in
-            the convergence criteria.
-        isrelativeconvergence :
-
-        conv_criteria:
-
-        Returns
-        -------
-        list
-            List of the data.
-        """
-        if isrelativeconvergence:
-            userelative = 1
-        else:
-            userelative = 0
-
-        list_data = ["NAME:ExpressionCache"]
-        if isinstance(expression_list, list):
-            i = 0
-            while i < len(expression_list):
-                expression = expression_list[i]
-                name = expression.replace("(", "_") + "1"
-                name = name.replace(")", "_")
-                name = name.replace(" ", "_")
-                if isinstance(report_type_list, list):
-                    report_type = report_type_list[i]
-                else:
-                    report_type = report_type_list
-                if isinstance(isconvergence_list, list):
-                    isconvergence = isconvergence_list[i]
-                else:
-                    isconvergence = isconvergence_list
-                if isinstance(intrinsics_list, list):
-                    intrinsics = intrinsics_list[i]
-                else:
-                    intrinsics = intrinsics_list
-                list_data.append(
-                    [
-                        "NAME:CacheItem",
-                        "Title:=",
-                        name,
-                        "Expression:=",
-                        expression,
-                        "Intrinsics:=",
-                        intrinsics,
-                        "IsConvergence:=",
-                        isconvergence,
-                        "UseRelativeConvergence:=",
-                        1,
-                        "MaxConvergenceDelta:=",
-                        1,
-                        "MaxConvergeValue:=",
-                        "0.01",
-                        "ReportType:=",
-                        report_type,
-                        ["NAME:ExpressionContext"],
-                    ]
-                )
-                i += 1
-
-        else:
-            name = expression_list.replace("(", "") + "1"
-            name = name.replace(")", "")
-            name = name.replace(" ", "")
-            name = name.replace(",", "_")
-            list_data.append(
-                [
-                    "NAME:CacheItem",
-                    "Title:=",
-                    name,
-                    "Expression:=",
-                    expression_list,
-                    "Intrinsics:=",
-                    intrinsics_list,
-                    "IsConvergence:=",
-                    isconvergence_list,
-                    "UseRelativeConvergence:=",
-                    userelative,
-                    "MaxConvergenceDelta:=",
-                    conv_criteria,
-                    "MaxConvergeValue:=",
-                    str(conv_criteria),
-                    "ReportType:=",
-                    report_type_list,
-                    ["NAME:ExpressionContext"],
-                ]
-            )
-
-        return list_data
-
-    @pyaedt_function_handler()
-    def enable_expression_cache(
-        self,
-        expressions: str | list,
-        report_type: str = "Fields",
-        intrinsics: str = "",
-        isconvergence: bool = True,
-        isrelativeconvergence: bool = True,
-        conv_criteria: int = 1,
-    ) -> bool:
-        """Enable a setup expression cache.
-
-        Parameters
-        ----------
-        expressions : str or list
-            One or more formulas to add to the expression cache.
-        report_type : str or list, optional
-            Type of the report for the expression. The default is ``"Fields"``. If a list of expressions
-            is supplied, a corresponding list of report types must be supplied.
-        intrinsics : str or list, optional
-            Intrinsic functions for the expressions. The default is ``""``. If a list of expressions
-            is supplied, a corresponding list of intrinsic expressesions must be supplied.
-        isconvergence : bool, str, or list, optional
-            Whether the expression is in the convergence criteria. The  default is ``True``.
-            If a list of expressions is supplied, a corresponding list of Boolean values must be
-            supplied.
-        isrelativeconvergence : bool, optional
-            The default is ``True``.
-        conv_criteria
-            The default is ``1``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oModule.EditSetup
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Circuit
-        >>> from ansys.aedt.core.generic.constants import Setups
-        >>> circuit_app = Circuit()
-        >>> setup1 = circuit_app.create_setup("circuit", Setups.NexximLNA)
-        >>> setup1.enable_expression_cache(expressions=["dB(S(1,1))"])
-
-        """
-        arg = self._setup_dict_to_arg(name="SimSetup")
-        expression_cache = self._expression_cache(
-            expressions, report_type, intrinsics, isconvergence, isrelativeconvergence, conv_criteria
-        )
-        arg.append(expression_cache)
-        self._app.oanalysis.EditSetup(self.name, arg)
-        return True
-
-    @pyaedt_function_handler()
-    def enable(self, name: str = None) -> bool:
+    def enable(self, name: str | None = None) -> bool:
         """Enable a setup.
 
         Parameters
@@ -1975,11 +1861,11 @@ class SetupCircuit(CommonSetup):
         """
         if not name:
             name = self.name
-        self._odesign.EnableSolutionSetup(name, True)
+        self._app._odesign.EnableSolutionSetup(name, True)
         return True
 
     @pyaedt_function_handler()
-    def disable(self, name: str = None) -> bool:
+    def disable(self, name: str | None = None) -> bool:
         """Disable a setup.
 
         Parameters

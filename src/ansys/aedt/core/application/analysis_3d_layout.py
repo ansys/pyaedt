@@ -418,8 +418,8 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
             setup = Setup3DLayout(app=self, name=name, props=props)
 
         if kwargs:
-            _merge_props(props, kwargs.pop("props"))
-
+            if "props" in kwargs:
+                _merge_props(props, kwargs.pop("props"))
             for arg_name, arg_value in kwargs.items():
                 if props[arg_name] is not None:
                     props[arg_name] = arg_value
