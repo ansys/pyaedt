@@ -52,7 +52,7 @@ def layout_setup_app(add_app_example):
     app.close_project(app.project_name, save=False)
 
 
-# HFSS 3D Layout setups
+@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
 def test_layout_init(layout_setup_app):
     assert len(layout_setup_app.setups) == 13
 
@@ -351,6 +351,7 @@ def test_layout_hfss_auto(layout_app) -> None:
     assert setup.child_object
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
 def test_layout_hfss_pi(layout_app) -> None:
     setup = layout_app.create_setup(setup_type=Setups.HFSSPI)
     name = setup.name
@@ -378,6 +379,7 @@ def test_layout_hfss_pi(layout_app) -> None:
     assert "new_sweep" in setup.sweep_names
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
 def test_layout_emi(layout_app) -> None:
     setup = layout_app.create_setup(setup_type=Setups.SIwaveEMI)
     name = setup.name
@@ -403,7 +405,7 @@ def test_layout_ami(layout_app) -> None:
     name = setup.name
 
     assert name == layout_app.setup_names[0]
-    assert setup.solver_type == "AMIAnalysis"
+    assert setup.solver_type in ["AMIAnalysis", "AMI"]
     assert name == layout_app.setup_names[0]
     assert len(layout_app.setups) == 1
     assert isinstance(setup, Setup3DLayout)
@@ -418,7 +420,7 @@ def test_layout_ami(layout_app) -> None:
     assert setup.child_object
 
     setup2 = layout_app.create_setup(setup_type=Setups.NexximAMI)
-    assert setup2.solver_type == "AMIAnalysis"
+    assert setup2.solver_type in ["AMIAnalysis", "AMI"]
 
 
 def test_layout_lna(layout_app) -> None:
@@ -426,7 +428,7 @@ def test_layout_lna(layout_app) -> None:
     name = setup.name
 
     assert name == layout_app.setup_names[0]
-    assert setup.solver_type == "LinearFrequency"
+    assert setup.solver_type in ["LinearFrequency", "LNA"]
     assert name == layout_app.setup_names[0]
     assert len(layout_app.setups) == 1
     assert isinstance(setup, Setup3DLayout)
@@ -441,7 +443,7 @@ def test_layout_lna(layout_app) -> None:
     assert setup.child_object
 
     setup2 = layout_app.create_setup(setup_type=Setups.NexximLNA)
-    assert setup2.solver_type == "LinearFrequency"
+    assert setup2.solver_type in ["LinearFrequency", "LNA"]
 
 
 def test_layout_quickeye(layout_app) -> None:
@@ -499,7 +501,7 @@ def test_layout_siwave_dcir(layout_app) -> None:
     name = setup.name
 
     assert name == layout_app.setup_names[0]
-    assert setup.solver_type == "SIwaveDCIR"
+    assert setup.solver_type in ["SIwaveDCIR", "SIwave"]
     assert name == layout_app.setup_names[0]
     assert len(layout_app.setups) == 1
     assert isinstance(setup, Setup3DLayout)
@@ -514,6 +516,7 @@ def test_layout_siwave_dcir(layout_app) -> None:
     assert setup.child_object
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
 def test_layout_siwave_nearfield(layout_app) -> None:
     setup = layout_app.create_setup(setup_type=Setups.SIwaveNearField)
     name = setup.name
@@ -546,7 +549,7 @@ def test_layout_siwave_transient(layout_app) -> None:
     name = setup.name
 
     assert name == layout_app.setup_names[0]
-    assert setup.solver_type == "NexximTransient"
+    assert setup.solver_type in ["NexximTransient", "Transient"]
     assert name == layout_app.setup_names[0]
     assert len(layout_app.setups) == 1
     assert isinstance(setup, Setup3DLayout)
@@ -561,7 +564,7 @@ def test_layout_siwave_transient(layout_app) -> None:
     assert setup.child_object
 
     setup2 = layout_app.create_setup(setup_type=Setups.NexximTransient)
-    assert setup2.solver_type == "NexximTransient"
+    assert setup2.solver_type in ["NexximTransient", "Transient"]
 
 
 def test_layout_siwave_verify_eye(layout_app) -> None:
@@ -569,7 +572,7 @@ def test_layout_siwave_verify_eye(layout_app) -> None:
     name = setup.name
 
     assert name == layout_app.setup_names[0]
-    assert setup.solver_type == "VerifEyeAnalysis"
+    assert setup.solver_type in ["VerifEyeAnalysis", "VerifEye"]
     assert name == layout_app.setup_names[0]
     assert len(layout_app.setups) == 1
     assert isinstance(setup, Setup3DLayout)
@@ -584,7 +587,7 @@ def test_layout_siwave_verify_eye(layout_app) -> None:
     assert setup.child_object
 
     setup2 = layout_app.create_setup(setup_type=Setups.NexximVerifEye)
-    assert setup2.solver_type == "VerifEyeAnalysis"
+    assert setup2.solver_type in ["VerifEyeAnalysis", "VerifEye"]
 
 
 def test_layout_disable_enable(layout_app) -> None:

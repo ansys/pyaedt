@@ -34,6 +34,7 @@ if sys.version_info >= (3, 13):
     from warnings import deprecated
 else:
     from typing_extensions import deprecated
+import copy
 
 from ansys.aedt.core.application import _get_obj_data
 from ansys.aedt.core.application import _has_get_obj_data
@@ -186,7 +187,8 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         if new_name in self._app.optimetrics.setup_names:
             raise ValueError(f"Name {new_name} already assigned in the design.")
 
-        self._app.ooptimetrics.Rename(self.name, str(new_name))
+        # RenameSetup method is not working well, using Object oriented method
+        self.child_object.Rename(str(new_name))
 
         self.__child_object = None
         object.__setattr__(self, "_name", new_name)
@@ -1521,7 +1523,7 @@ class Parametrics(PyAedtBase):
         elif name in self.setup_names:
             raise AEDTRuntimeError(f"Name {name} already exists.")
 
-        props = defaultparametricSetup
+        props = copy.deepcopy(defaultparametricSetup)
 
         setup = ParametricSetup(app=self, name=name, props=props)
 
@@ -1642,7 +1644,7 @@ class Parametrics(PyAedtBase):
 
         setup = ParametricSetup(app=self, name=name, props={})
 
-        setup._legacy_props["Sim. Setups"] = [setup_defined.name for setup_defined in self._app.setups]
+        setup._legacy_props["Sim. Setups"] = [setup_defined for setup_defined in self._app.setups]
 
         file_path = Path(input_file)
         if file_path.suffix not in [".csv", ".txt"]:
@@ -1966,19 +1968,19 @@ class Optimizations(PyAedtBase):
         if optimization_type != "optiSLang":
             optimization_type = "Opti" + optimization_type
 
-        props = defaultoptiSetup
+        props = copy.deepcopy(defaultoptiSetup)
 
         if optimization_type == "OptiStatistical":
-            props = defaultstatisticalSetup
+            props = copy.deepcopy(defaultstatisticalSetup)
         elif optimization_type == "OptiSensitivity":
-            props = defaultsensitivitySetup
+            props = copy.deepcopy(defaultsensitivitySetup)
         elif optimization_type == "OptiDXDOE":
-            props = defaultdoeSetup
+            props = copy.deepcopy(defaultdoeSetup)
         elif optimization_type == "OptiDesignExplorer":
-            props = defaultdxSetup
+            props = copy.deepcopy(defaultdxSetup)
             props["is_optislang"] = False
         elif optimization_type == "optiSLang":
-            props = defaultdxSetup
+            props = copy.deepcopy(defaultdxSetup)
             props["is_optislang"] = True
 
         setup = OptimizationSetup(self, name, props=props)

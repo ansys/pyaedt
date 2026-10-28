@@ -48,6 +48,7 @@ transienthfss = dict(
         "HfssFrequency": "5GHz",
         "MinFreq": "100MHz",
         "MaxFreq": "1GHz",
+        "Magnitude": "1",
         "NumFreqsExtracted": 401,
         "SweepMinFreq": "100MHz",
         "SweepMaxFreq": "1GHz",

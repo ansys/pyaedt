@@ -46,6 +46,7 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import SetupDict
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.props import Props as MeshProps
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import MethodNotSupportedError
 from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
@@ -404,7 +405,12 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         if meshop_name in operation_names:
             raise ValueError(f"Name {meshop_name} already assigned in the design.")
         if self.operation_type != "InitialMeshSettings":
-            self._app.omeshmodule.Rename(self.name, str(meshop_name))
+            if "Rename" in dir(self._app.omeshmodule):
+                self._app.omeshmodule.Rename(self.name, str(meshop_name))
+            elif "RenameOp" in dir(self._app.omeshmodule):
+                self._app.omeshmodule.RenameOp(self.name, str(meshop_name))
+            else:  # pragma: no cover
+                raise AEDTRuntimeError("AEDT API does not support mesh operation rename.")
 
             self.__child_object = None
             object.__setattr__(self, "_name", meshop_name)

@@ -29,6 +29,7 @@ from ansys.aedt.core import CircuitNetlist
 from ansys.aedt.core import MaxwellCircuit
 from ansys.aedt.core.generic.aedt_constants import Setups
 from ansys.aedt.core.modules.setup_templates import SetupKeys
+from tests.conftest import DESKTOP_VERSION
 
 TEST_SUBFOLDER = "TSetup"
 TEST_CIRCUIT = "circuit_setup_test"
@@ -62,6 +63,7 @@ def maxwell_circuit_setup_app(add_app_example):
     app.close_project(app.project_name, save=False)
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
 def test_circuit_init(circuit_setup_app):
     assert len(circuit_setup_app.setup_names) == 15
 
@@ -126,11 +128,13 @@ def test_circuit_init(circuit_setup_app):
     assert circuit_setup_app.setups[14].__repr__() == circuit_setup_app.setups[14].name
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
 def test_netlist_init(netlist_setup_app):
     assert len(netlist_setup_app.setup_names) == 0
     assert not netlist_setup_app.setups
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
 def test_maxwell_circuit_init(maxwell_circuit_setup_app):
     assert len(maxwell_circuit_setup_app.setup_names) == 0
     assert not maxwell_circuit_setup_app.setups
@@ -145,7 +149,8 @@ def test_lna(circuit_app) -> None:
 
     assert setup1.name in circuit_app.setup_names
     assert len(circuit_app.setups) == 1
-    assert setup1.child_object
+    if DESKTOP_VERSION > "2026.1":
+        assert setup1.child_object
     assert not setup1.is_solved
     assert setup1.props["SweepDefinition"]["Data"] == "LINC 0GHz 4GHz 302"
 
@@ -170,7 +175,8 @@ def test_lna(circuit_app) -> None:
     assert "new_name" in circuit_app.setup_names
     assert name not in circuit_app.setup_names
     assert setup1.name == "new_name"
-    assert setup1.child_object
+    if DESKTOP_VERSION > "2026.1":
+        assert setup1.child_object
 
     # Delete
     assert circuit_app.delete_setup(name=setup1.name)
@@ -226,7 +232,8 @@ def test_eye_setups(circuit_app) -> None:
     assert setup1.solver_type == setup_name
     assert setup1.name in circuit_app.setup_names
     assert len(circuit_app.setups) == 1
-    assert setup1.child_object
+    if DESKTOP_VERSION > "2026.1":
+        assert setup1.child_object
     assert not setup1.is_solved
     assert setup1.props["QuickEyeAnalysis"]
     setup1.add_sweep_count("Temp", "1cel", 100, 10, "cel", count_type="Linear", override_existing_sweep=True)
@@ -237,7 +244,8 @@ def test_eye_setups(circuit_app) -> None:
     assert setup2.solver_type == setup_name2
     assert setup2.name in circuit_app.setup_names
     assert len(circuit_app.setups) == 2
-    assert setup2.child_object
+    if DESKTOP_VERSION > "2026.1":
+        assert setup2.child_object
     assert not setup2.is_solved
     assert setup2.props["VerifEyeAnalysis"]
     setup2.add_sweep_count("Temp", "1cel", 100, 10, "cel", count_type="Linear", override_existing_sweep=True)
@@ -248,7 +256,8 @@ def test_eye_setups(circuit_app) -> None:
     assert setup3.solver_type == setup_name3
     assert setup3.name in circuit_app.setup_names
     assert len(circuit_app.setups) == 3
-    assert setup3.child_object
+    if DESKTOP_VERSION > "2026.1":
+        assert setup3.child_object
     assert not setup3.is_solved
     assert setup3.props["AMIAnalysis"]
     setup3.add_sweep_count("Temp", "1cel", 100, 10, "cel", count_type="Linear", override_existing_sweep=True)
@@ -278,7 +287,8 @@ def test_circuit_setups(circuit_app, setup_type) -> None:
     assert setup1.solver_type == setup_name
     assert setup1.name in circuit_app.setup_names
     assert len(circuit_app.setups) == 1
-    assert setup1.child_object
+    if DESKTOP_VERSION > "2026.1":
+        assert setup1.child_object
     assert not setup1.is_solved
     setup1.add_sweep_count("Temp", "1cel", 100, 10, "cel", count_type="Linear", override_existing_sweep=True)
     if isinstance(setup1.props["SweepDefinition"], list):

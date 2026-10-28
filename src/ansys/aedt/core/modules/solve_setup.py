@@ -2267,15 +2267,20 @@ class Setup3DLayout(CommonSetup):
         >>> setup.solver_type
 
         """
+        solver_type = None
         try:
-            return self.properties["Solver"]
-        except Exception:
-            self._app.logger.debug("Cannot retrieve solver type with key 'Solver'")
-        try:
-            return self.props["SolveSetupType"]
-        except Exception:
-            self._app.logger.debug("Cannot retrieve solver type with key 'SolveSetupType'")
-        return None
+            if self.properties and "Solver" in self.properties:
+                solver_type = self.properties["Solver"]
+        except Exception:  # pragma: no cover
+            self._app.logger.debug("Cannot retrieve solver type with key 'Solver'.")
+
+        if not solver_type:
+            try:
+                if self.props and "SolveSetupType" in self.props:
+                    return self.props["SolveSetupType"]
+            except Exception:  # pragma: no cover
+                self._app.logger.debug("Cannot retrieve solver type with key 'SolveSetupType'.")
+        return solver_type
 
     @property
     def default_intrinsics(self) -> dict:
@@ -3524,7 +3529,8 @@ class SetupHFSS(Setup, PyAedtBase):
             Name of the sweep. The default is ``None``, in which
             case a name is automatically assigned.
         sweep_type : str, optional
-            Type of the sweep. The default is ``"Interpolating"``.
+            Type of the sweep. Options are ``"Fast"``,
+            ``"Interpolating"``, and ``"Discrete"``. The default is ``"Interpolating"``.
         **props : Optional context-dependent keyword arguments can be passed
             to the sweep setup
 
@@ -3545,6 +3551,9 @@ class SetupHFSS(Setup, PyAedtBase):
         >>> setup.add_sweep()
 
         """
+        if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
+            raise AttributeError("Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'")
+
         if not name:
             name = generate_unique_name("Sweep")
         elif name in self.sweep_names:

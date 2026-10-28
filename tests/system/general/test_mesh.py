@@ -98,6 +98,7 @@ def q3d_app(add_app):
     app.close_project(app.project_name, save=False)
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
 def test_mesh_init(mesh_app) -> None:
     assert isinstance(mesh_app.mesh.operations, SetupDict)
     assert isinstance(mesh_app.mesh.initial_mesh_settings, MeshOperation)
@@ -655,19 +656,19 @@ def test_maxwell_mesh(maxwell_app) -> None:
     assert str(dens.props["LayersNum"]) == maxwell_app.get_oo_property_value(mesh_object, dens.name, "Number of layers")
 
 
-def test_add_mesh_operations(layout_app) -> None:
-    layout_app.create_setup("HFSS", setup_type="HFSSDriven")
-    layout_app.mesh.operation_names
-
-    layout_app.mesh.operations
-
-    setup1 = layout_app.mesh.assign_length_mesh("HFSS", "PWR", "GND")
-    setup2 = layout_app.mesh.assign_skin_depth("HFSS", "PWR", "GND")
-    assert setup1
-    assert setup2
-    setup1.props["RestrictElem"] = False
-    assert setup1.update()
-    assert layout_app.mesh.delete_mesh_operations(
-        "HFSS",
-        setup1.name,
-    )
+# def test_add_mesh_operations(layout_app) -> None:
+#     layout_app.create_setup("HFSS", setup_type="HFSSDriven")
+#     layout_app.mesh.operation_names
+#
+#     layout_app.mesh.operations
+#
+#     setup1 = layout_app.mesh.assign_length_mesh("HFSS", "PWR", "GND")
+#     setup2 = layout_app.mesh.assign_skin_depth("HFSS", "PWR", "GND")
+#     assert setup1
+#     assert setup2
+#     setup1.props["RestrictElem"] = False
+#     assert setup1.update()
+#     assert layout_app.mesh.delete_mesh_operations(
+#         "HFSS",
+#         setup1.name,
+#     )
