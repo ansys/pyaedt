@@ -519,6 +519,66 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         return self._create_boundary(port_name, props, "Lumped Port")
 
     @pyaedt_function_handler()
+    def _assign_terminal(
+        self,
+        port_name: str,
+        face_ids: list,
+        terminal_name: str | None = None,
+        impedance: float = 50,
+    ) -> BoundaryObject:
+        """Assign faces as the signal terminal of an existing port.
+
+        Used for ports created with ``AutoIdentifyPorts`` when the signal and the
+        reference conductor belong to the same (united) object, so the terminal
+        cannot be identified automatically.
+
+        Parameters
+        ----------
+        port_name : str
+            Name of the parent port created by auto-identify.
+        face_ids : list
+            Face IDs that form the signal terminal.
+        terminal_name : str, optional
+            Terminal name. The default is ``"<port_name>_T1"``.
+        impedance : float, optional
+            Terminal resistance in ohms. The default is ``50``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
+            Terminal boundary object.
+
+        References
+        ----------
+        >>> oModule.AssignTerminal
+        """
+        terminal_name = terminal_name or f"{port_name}_T1"
+        face_ids = list(face_ids)
+
+        self.oboundary.AssignTerminal(
+            [
+                f"NAME:{terminal_name}",
+                "Faces:=",
+                face_ids,
+                "ParentBndID:=",
+                port_name,
+                "ImpedanceType:=",
+                "Impedance",
+                "TerminalResistance:=",
+                f"{impedance}ohm",
+            ]
+        )
+
+        props = {
+            "Faces": face_ids,
+            "ParentBndID": port_name,
+            "TerminalResistance": f"{impedance}ohm",
+        }
+        bound = BoundaryObject(self, terminal_name, props, "Terminal")
+        self._boundaries[terminal_name] = bound
+        return bound
+
+    @pyaedt_function_handler()
     def _create_port_terminal(
         self,
         assignment: str | list,
@@ -529,6 +589,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         iswaveport: bool = False,
         impedance: float | None = None,
         terminals_rename: bool = True,
+        signal_faces: list | None = None,
     ) -> NearFieldSetup:
         ref_conductors = self.modeler.convert_to_selections(int_line_stop, True)
         props = {}
@@ -597,6 +658,16 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                         self.logger.warning(f"Failed to rename terminal {terminal}.")
                 bound = BoundaryObject(self, terminal_name, props_terminal, "Terminal")
                 self._boundaries[terminal_name] = bound
+
+            # United conductor: auto-identify creates no separate signal terminal, so assign it explicitly.
+            if signal_faces and not terminals:
+                for idx, face in enumerate(signal_faces, start=1):
+                    self._assign_terminal(
+                        boundary.name,
+                        [face],
+                        f"{port_name}_T{idx}" if terminals_rename else None,
+                        impedance or 50,
+                    )
 
             if iswaveport:
                 boundary.type = "Wave Port"
@@ -6815,6 +6886,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         deembed: bool = False,
         terminals_rename: bool = True,
         auto_identify: bool = False,
+        signal_faces: list | None = None,
     ) -> BoundaryObject:
         """Create a waveport taking the closest edges of two objects.
 
@@ -6849,6 +6921,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             Whether to auto-identify port terminal when ``assignment`` is a sheet object and only one conductor object
             is touching ``assignment``, as in when creating a "conductor-to-boundary" terminal port. The default is
             ``False``.
+        signal_faces : list, optional
+            Face IDs of ``reference`` that carry the signal. Use this when signal and ground belong to the
+            same (united) object. The remaining faces of ``reference`` act as ground. The default is ``None``.
 
         Returns
         -------
@@ -6930,6 +7005,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                 iswaveport=False,
                 impedance=impedance,
                 terminals_rename=terminals_rename,
+                signal_faces=signal_faces,
             )
 
     @pyaedt_function_handler()
@@ -6951,6 +7027,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         hfactor: int | None = 5,
         terminals_rename: bool | None = True,
         characteristic_impedance: str | list | None = "Zpi",
+        signal_faces: list | None = None,
     ) -> BoundaryObject:
         """Create a waveport from a sheet (``start_object``) or taking the closest edges of two objects.
 
@@ -6999,6 +7076,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         characteristic_impedance : str or list, optional
             Characteristic impedance for each mode. Available options are `"Zpi"``,`"Zpv"``, `"Zvi"``, and `"Zwave"``.
             The default is ``"Zpi"``.
+        signal_faces : list, optional
+            Face IDs of ``reference`` that carry the signal. Use this when signal and ground belong to the
+            same (united) object. The remaining faces of ``reference`` act as ground. The default is ``None``.
 
         Returns
         -------
@@ -7147,6 +7227,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                 iswaveport=True,
                 impedance=impedance,
                 terminals_rename=terminals_rename,
+                signal_faces=signal_faces,
             )
 
         else:  # pragma: no cover
