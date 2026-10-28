@@ -25,6 +25,8 @@
 import pytest
 
 from ansys.aedt.core import Circuit
+from ansys.aedt.core import CircuitNetlist
+from ansys.aedt.core import MaxwellCircuit
 from ansys.aedt.core.generic.aedt_constants import Setups
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 
@@ -46,7 +48,21 @@ def circuit_setup_app(add_app_example):
     app.close_project(app.project_name, save=False)
 
 
-def test_setup_circuit_init(circuit_setup_app):
+@pytest.fixture
+def netlist_setup_app(add_app_example):
+    app = add_app_example(application=CircuitNetlist, project=TEST_CIRCUIT, subfolder=TEST_SUBFOLDER)
+    yield app
+    app.close_project(app.project_name, save=False)
+
+
+@pytest.fixture
+def maxwell_circuit_setup_app(add_app_example):
+    app = add_app_example(application=MaxwellCircuit, project=TEST_CIRCUIT, subfolder=TEST_SUBFOLDER)
+    yield app
+    app.close_project(app.project_name, save=False)
+
+
+def test_circuit_init(circuit_setup_app):
     assert len(circuit_setup_app.setup_names) == 15
 
     assert circuit_setup_app.setups[0].solver_type == SetupKeys.SetupNames[Setups.NexximDC]
@@ -108,6 +124,16 @@ def test_setup_circuit_init(circuit_setup_app):
     assert circuit_setup_app.setups[14].solver_type == SetupKeys.SetupNames[Setups.NexximSystem]
     assert str(circuit_setup_app.setups[14]) == circuit_setup_app.setups[14].name
     assert circuit_setup_app.setups[14].__repr__() == circuit_setup_app.setups[14].name
+
+
+def test_netlist_init(netlist_setup_app):
+    assert len(netlist_setup_app.setup_names) == 0
+    assert not netlist_setup_app.setups
+
+
+def test_maxwell_circuit_init(maxwell_circuit_setup_app):
+    assert len(maxwell_circuit_setup_app.setup_names) == 0
+    assert not maxwell_circuit_setup_app.setups
 
 
 def test_lna(circuit_app) -> None:
