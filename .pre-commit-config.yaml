@@ -18,7 +18,7 @@ repos:
 
 # NOTE: Whenever this version is updated, please align the version in the lock file.
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: 44b5042edab9382aba712eed4f9c7bab7a3d6a3e  # frozen: v0.17.0
+  rev: 38bfb07c0c64c304f47eb52090f8288150c77730  # frozen: v0.17.1
   hooks:
     - id: ruff-check
       name: Ruff linting check
@@ -107,7 +107,7 @@ repos:
 
 # NOTE: Whenever this version is updated, please align the version in the lock file.
 - repo: https://github.com/astral-sh/ty-pre-commit
-  rev: 6972e4c5a7e9f45f05a2f30b668f221f43b770c9  # frozen: v0.0.84
+  rev: 033aa05ea3f6f5f7cd39bcb6a31fd66f6efbed2f  # frozen: v0.0.89
   hooks:
     - id: ty
       name: Type check with Ty
