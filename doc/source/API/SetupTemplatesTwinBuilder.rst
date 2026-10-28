@@ -19,7 +19,5 @@ You can edit a setup after it is created. Here is an example:
 
 
 .. pprint:: ansys.aedt.core.modules.setup_templates.TwinbuilderTR
-
 .. pprint:: ansys.aedt.core.modules.setup_templates.TwinbuilderAC
-
 .. pprint:: ansys.aedt.core.modules.setup_templates.TwinbuilderDC

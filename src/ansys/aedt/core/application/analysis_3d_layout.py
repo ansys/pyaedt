@@ -404,15 +404,15 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
             setup = SetupHFSSAuto(app=self, name=name, props=props)
         else:
             if setup_type == Setups.NexximAMI:
-                setup_type = Setups.HFSS3DLayoutAMI
+                setup_type = Setups.AMI3DLayout
             elif setup_type == Setups.NexximLNA:
-                setup_type = Setups.HFSS3DLayoutLNA
+                setup_type = Setups.LNA3DLayout
             elif setup_type == Setups.NexximQuickEye:
-                setup_type = Setups.HFSS3DLayoutQuickEye
+                setup_type = Setups.QuickEye3DLayout
             elif setup_type == Setups.NexximTransient:
-                setup_type = Setups.HFSS3DLayoutTransient
+                setup_type = Setups.Transient3DLayout
             elif setup_type == Setups.NexximVerifEye:
-                setup_type = Setups.HFSS3DLayoutVerifEye
+                setup_type = Setups.VerifEye3DLayout
 
             props = setup_keys[setup_type]
             setup = Setup3DLayout(app=self, name=name, props=props)

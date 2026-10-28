@@ -15,3 +15,15 @@ You can edit a setup after it is created. Here is an example:
 
 
 .. pprint:: ansys.aedt.core.modules.setup_templates.HFSS3DLayout
+.. pprint:: ansys.aedt.core.modules.setup_templates.HFSS3DLayoutAuto
+.. pprint:: ansys.aedt.core.modules.setup_templates.SiwaveAC3DLayout
+.. pprint:: ansys.aedt.core.modules.setup_templates.SiwaveDC3DLayout
+.. pprint:: ansys.aedt.core.modules.setup_templates.HFSSPI
+.. pprint:: ansys.aedt.core.modules.setup_templates.SiwaveEMI
+.. pprint:: ansys.aedt.core.modules.setup_templates.AMI3DLayout
+.. pprint:: ansys.aedt.core.modules.setup_templates.LNA3DLayout
+.. pprint:: ansys.aedt.core.modules.setup_templates.QuickEye3DLayout
+.. pprint:: ansys.aedt.core.modules.setup_templates.Transient3DLayout
+.. pprint:: ansys.aedt.core.modules.setup_templates.VerifEye3DLayout
+.. pprint:: ansys.aedt.core.modules.setup_templates.SiwaveNearField
+.. pprint:: ansys.aedt.core.modules.setup_templates.RaptorX

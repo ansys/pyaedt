@@ -2475,10 +2475,9 @@ class Optimetrics(PyAedtBase):
         if not self.setups:
             return False
 
-        for setup_name, setup in self.setups.items():
-            if setup_name == name:
-                setup.delete()
-                return True
+        if name == self.setup_names:
+            self.setups[name].delete()
+            return True
         return False
 
     @pyaedt_function_handler()

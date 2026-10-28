@@ -377,7 +377,7 @@ class TwinbuilderConstants(metaclass=DynamicMeta):
             "name": None,
             "options": None,
             "report_type": "Standard",
-            "default_setup": Setups.TR,
+            "default_setup": Setups.TwinbuilderTR,
             "default_adaptive": None,
             "intrinsics": ["Time"],
         },

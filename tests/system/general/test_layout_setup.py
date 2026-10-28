@@ -60,7 +60,7 @@ def test_layout_init(layout_setup_app):
     assert layout_setup_app.setups[0].__repr__() == f"{layout_setup_app.setups[0].name} with 0 Sweeps"
     assert str(layout_setup_app.setups[0]) == layout_setup_app.setups[0].name
 
-    assert layout_setup_app.setups[1].solver_type == "SIwaveEMI"
+    assert layout_setup_app.setups[1].solver_type == "SiwaveEMI"
     assert layout_setup_app.setups[1].__repr__() == f"{layout_setup_app.setups[1].name} with 0 Sweeps"
     assert str(layout_setup_app.setups[1]) == layout_setup_app.setups[1].name
 
@@ -100,7 +100,7 @@ def test_layout_init(layout_setup_app):
     assert len(layout_setup_app.setups[8].sweeps) == 1
     assert isinstance(layout_setup_app.setups[8].sweeps[0], SweepHFSS3DLayout)
 
-    assert layout_setup_app.setups[9].solver_type == "SIwaveNearField"
+    assert layout_setup_app.setups[9].solver_type == "SiwaveNearField"
     assert layout_setup_app.setups[9].__repr__() == f"{layout_setup_app.setups[9].name} with 1 Sweeps"
     assert str(layout_setup_app.setups[9]) == layout_setup_app.setups[9].name
     assert len(layout_setup_app.setups[9].sweeps) == 1
@@ -381,11 +381,11 @@ def test_layout_hfss_pi(layout_app) -> None:
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
 def test_layout_emi(layout_app) -> None:
-    setup = layout_app.create_setup(setup_type=Setups.SIwaveEMI)
+    setup = layout_app.create_setup(setup_type=Setups.SiwaveEMI)
     name = setup.name
 
     assert name == layout_app.setup_names[0]
-    assert setup.solver_type == "SIwaveEMI"
+    assert setup.solver_type == "SiwaveEMI"
     assert name == layout_app.setup_names[0]
     assert len(layout_app.setups) == 1
     assert isinstance(setup, Setup3DLayout)
@@ -401,7 +401,7 @@ def test_layout_emi(layout_app) -> None:
 
 
 def test_layout_ami(layout_app) -> None:
-    setup = layout_app.create_setup(setup_type=Setups.HFSS3DLayoutAMI)
+    setup = layout_app.create_setup(setup_type=Setups.AMI3DLayout)
     name = setup.name
 
     assert name == layout_app.setup_names[0]
@@ -424,7 +424,7 @@ def test_layout_ami(layout_app) -> None:
 
 
 def test_layout_lna(layout_app) -> None:
-    setup = layout_app.create_setup(setup_type=Setups.HFSS3DLayoutLNA)
+    setup = layout_app.create_setup(setup_type=Setups.LNA3DLayout)
     name = setup.name
 
     assert name == layout_app.setup_names[0]
@@ -447,7 +447,7 @@ def test_layout_lna(layout_app) -> None:
 
 
 def test_layout_quickeye(layout_app) -> None:
-    setup = layout_app.create_setup(setup_type=Setups.HFSS3DLayoutQuickEye)
+    setup = layout_app.create_setup(setup_type=Setups.QuickEye3DLayout)
     name = setup.name
 
     assert name == layout_app.setup_names[0]
@@ -518,11 +518,11 @@ def test_layout_siwave_dcir(layout_app) -> None:
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
 def test_layout_siwave_nearfield(layout_app) -> None:
-    setup = layout_app.create_setup(setup_type=Setups.SIwaveNearField)
+    setup = layout_app.create_setup(setup_type=Setups.SiwaveNearField)
     name = setup.name
 
     assert name == layout_app.setup_names[0]
-    assert setup.solver_type == "SIwaveNearField"
+    assert setup.solver_type == "SiwaveNearField"
     assert name == layout_app.setup_names[0]
     assert len(layout_app.setups) == 1
     assert isinstance(setup, Setup3DLayout)
@@ -545,7 +545,7 @@ def test_layout_siwave_nearfield(layout_app) -> None:
 
 
 def test_layout_siwave_transient(layout_app) -> None:
-    setup = layout_app.create_setup(setup_type=Setups.HFSS3DLayoutTransient)
+    setup = layout_app.create_setup(setup_type=Setups.Transient3DLayout)
     name = setup.name
 
     assert name == layout_app.setup_names[0]
@@ -568,7 +568,7 @@ def test_layout_siwave_transient(layout_app) -> None:
 
 
 def test_layout_siwave_verify_eye(layout_app) -> None:
-    setup = layout_app.create_setup(setup_type=Setups.HFSS3DLayoutVerifEye)
+    setup = layout_app.create_setup(setup_type=Setups.VerifEye3DLayout)
     name = setup.name
 
     assert name == layout_app.setup_names[0]

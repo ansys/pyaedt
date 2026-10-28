@@ -362,7 +362,6 @@ DCBiasedEddyCurrent = dict(
 )
 """Value for dc biased eddy current."""
 
-
 ElectricTransient = dict(
     {
         "Enabled": True,
@@ -565,11 +564,14 @@ SteadyFlowOnly = dict(
 """Icepak steady flow setup properties and default values."""
 
 Q3DCond = dict({"MaxPass": 10, "MinPass": 1, "MinConvPass": 1, "PerError": 1, "PerRefine": 30})
-"""Value for Q 3 D cond."""
+"""Value for Q3D cond."""
+
 Q3DMult = dict({"MaxPass": 1, "MinPass": 1, "MinConvPass": 1, "PerError": 1, "PerRefine": 30})
-"""Value for Q 3 D mult."""
+"""Value for Q3D mult."""
+
 Q3DDC = dict({"SolveResOnly": False, "Cond": Q3DCond, "Mult": Q3DMult})
-"""Q 3 ddc."""
+"""Q3d dc."""
+
 Q3DCap = dict(
     {
         "MaxPass": 10,
@@ -599,10 +601,13 @@ Matrix = dict(
 
 OutputQuantities = {}
 """Value for output quantities."""
+
 NoiseOutputQuantities = {}
 """Value for noise output quantities."""
+
 SweepDefinition = dict({"Variable": "Freq", "Data": "LINC 1GHz 5GHz 501", "OffsetF1": False, "Synchronize": 0})
 """Value for sweep definition."""
+
 NexximLNA = dict(
     {
         "DataBlockID": 16,
@@ -995,6 +1000,7 @@ CGDataBlock = dict(
     }
 )
 """Value for cg data block."""
+
 RLDataBlock = dict(
     {
         "MaxPass": 10,
@@ -1011,6 +1017,7 @@ RLDataBlock = dict(
     }
 )
 """Value for rl data block."""
+
 Open = dict(
     {
         "AdaptiveFreq": "1GHz",
@@ -1941,7 +1948,7 @@ HFSSPI = {
 }
 """HFSS PI setup properties and default values."""
 
-SIwaveEMI = {
+SiwaveEMI = {
     "Properties": {"Enable": "true"},
     "SolveSetupType": "SIwaveEMI",
     "SolveSetupGroupType": "SIwave",
@@ -1983,7 +1990,7 @@ RETRIEVE_UNITS 1
 }
 """SIwave EMI setup properties and default values."""
 
-AMI = {
+AMI3DLayout = {
     "Properties": {"Enable": "true"},
     "SolveSetupType": "AMI",
     "SolveSetupGroupType": "Circuit",
@@ -2004,40 +2011,7 @@ AMI = {
 }
 """AMI setup properties and default values."""
 
-LNA = {
-    "Properties": {"Enable": "true"},
-    "SolveSetupType": "LNA",
-    "SolveSetupGroupType": "Circuit",
-    "SimSetupType": "kLNA",
-    "SimSetupGroupType": "kCircuitGroup",
-    "SimulationSettings": {
-        "Enabled": True,
-        "GroupDelay": False,
-        "Perturbation": 0.1,
-        "Noise": False,
-        "Skip_DC": False,
-        "AdditionalOptions": "",
-        "BaseOptionName": "(Default Options)",
-        "FilterText": "",
-    },
-    "SweepDataList": {},
-    "Data": {
-        "LNA Sweep 1": {
-            "DataId": "Sweep0",
-            "Properties": {"Enable": "true"},
-            "Sweeps": {
-                "Variable": "Freq",
-                "Data": "LINC 1MHz 500MHz 500",
-                "OffsetF1": False,
-                "Synchronize": 0,
-            },
-            "SolutionID": -1,
-        }
-    },
-}
-"""LNA setup properties and default values."""
-
-QuickEye = {
+QuickEye3DLayout = {
     "Properties": {"Enable": "true"},
     "SolveSetupType": "QuickEye",
     "SolveSetupGroupType": "Circuit",
@@ -2058,7 +2032,7 @@ QuickEye = {
 }
 """QuickEye setup properties and default values."""
 
-HFSS3DLayoutTransient = {
+Transient3DLayout = {
     "Properties": {"Enable": "true"},
     "SolveSetupType": "Transient",
     "SolveSetupGroupType": "Circuit",
@@ -2086,7 +2060,7 @@ HFSS3DLayoutTransient = {
 }
 """HFSS 3D Layout transient setup properties and default values."""
 
-HFSS3DLayoutVerifEye = {
+VerifEye3DLayout = {
     "Properties": {"Enable": "true"},
     "SolveSetupType": "VerifEye",
     "SolveSetupGroupType": "Circuit",
@@ -2103,7 +2077,7 @@ HFSS3DLayoutVerifEye = {
 }
 """HFSS 3D Layout VerifEye setup properties and default values."""
 
-SIwaveNearField = {
+SiwaveNearField = {
     "Properties": {"Enable": "true"},
     "SimSetupType": "kSIwaveNearField",
     "SimSetupGroupType": "kSIwaveGroup",
@@ -2361,7 +2335,7 @@ SiwaveAC3DLayout = dict(
         "SweepDataList": HFSS3DLayout_SweepDataList,
     }
 )
-"""Value for siwave ac 3 D layout."""
+"""Value for SIwave AC 3D layout."""
 
 SiwaveDC3DLayout = dict(
     {
@@ -2374,7 +2348,7 @@ SiwaveDC3DLayout = dict(
         "SweepDataList": HFSS3DLayout_SweepDataList,
     }
 )
-"""Value for siwave dc 3 D layout."""
+"""Value for SIwave dc 3D layout."""
 
 HFSS3DLayout_LNASimulationSettings = dict(
     {
@@ -2389,6 +2363,7 @@ HFSS3DLayout_LNASimulationSettings = dict(
     }
 )
 """Value for HFSS3DLayout LNASimulationSettings."""
+
 LNA_Sweep = dict(
     {
         "DataId": "Sweep0",
@@ -2398,8 +2373,10 @@ LNA_Sweep = dict(
     }
 )
 """Value for lna sweep."""
+
 HFSS3DLayout_LNAData = dict({"LNA Sweep 1": LNA_Sweep})
 """Value for HFSS3DLayout LNAData."""
+
 LNA3DLayout = dict(
     {
         "Properties": HFSS3DLayout_Properties,
@@ -2412,7 +2389,8 @@ LNA3DLayout = dict(
         "Data": HFSS3DLayout_LNAData,
     }
 )
-"""Value for lna 3 D layout."""
+"""Value for LNA 3D layout."""
+
 MechTerm = dict(
     {
         "Enabled": True,
@@ -3222,13 +3200,12 @@ class SetupKeys:
         "TwinbuilderDC",
         "HFSS3DLayoutAuto",
         "HFSSPI",
-        "SIwaveEMI",
-        "HFSS3DLayoutAMI",
-        "HFSS3DLayoutLNA",
-        "HFSS3DLayoutQuickEye",
-        "SIwaveNearField",
-        "HFSS3DLayoutTransient",
-        "HFSS3DLayoutVerifEye",
+        "SiwaveEMI",
+        "AMI3DLayout",
+        "QuickEye3DLayout",
+        "SiwaveNearField",
+        "Transient3DLayout",
+        "VerifEye3DLayout",
         "HFSSCMA",
         "NexximEnvelope",
         "NexximPFX",
@@ -3274,7 +3251,7 @@ class SetupKeys:
         Setups.MechTerm: MechTerm,
         Setups.MechModal: MechModal,
         Setups.GRM: GRM,
-        Setups.TR: TwinbuilderTR,
+        Setups.TwinbuilderTR: TwinbuilderTR,
         Setups.TransientTemperatureAndFlow: TransientTemperatureAndFlow,
         Setups.TransientTemperatureOnly: TransientTemperatureOnly,
         Setups.TransientFlowOnly: TransientFlowOnly,
@@ -3282,6 +3259,7 @@ class SetupKeys:
         Setups.SiwaveDC3DLayout: SiwaveDC3DLayout,
         Setups.SiwaveAC3DLayout: SiwaveAC3DLayout,
         Setups.LNA3DLayout: LNA3DLayout,
+        Setups.HFSS3DLayoutAuto: HFSS3DLayoutAuto,
         Setups.DFIG: DFIG,
         Setups.TPIM: TPIM,
         Setups.SPIM: SPIM,
@@ -3299,15 +3277,13 @@ class SetupKeys:
         Setups.MechTransientThermal: MechTransientThermal,
         Setups.DCConduction: DCConduction,
         Setups.ACConduction: ACConduction,
-        Setups.HFSS3DLayoutAuto: HFSS3DLayoutAuto,
         Setups.HFSSPI: HFSSPI,
-        Setups.SIwaveEMI: SIwaveEMI,
-        Setups.HFSS3DLayoutAMI: AMI,
-        Setups.HFSS3DLayoutLNA: LNA,
-        Setups.HFSS3DLayoutQuickEye: QuickEye,
-        Setups.SIwaveNearField: SIwaveNearField,
-        Setups.HFSS3DLayoutTransient: HFSS3DLayoutTransient,
-        Setups.HFSS3DLayoutVerifEye: HFSS3DLayoutVerifEye,
+        Setups.SiwaveEMI: SiwaveEMI,
+        Setups.AMI3DLayout: AMI3DLayout,
+        Setups.QuickEye3DLayout: QuickEye3DLayout,
+        Setups.SiwaveNearField: SiwaveNearField,
+        Setups.Transient3DLayout: Transient3DLayout,
+        Setups.VerifEye3DLayout: VerifEye3DLayout,
     }
     """Value for setup templates."""
 
@@ -3315,6 +3291,7 @@ class SetupKeys:
         Setups.HFSS3DLayout: HFSS3DLayout_v231,
     }
     """Value for SetupTemplates 231."""
+
     SetupTemplates_232 = {}
     """Value for SetupTemplates 232."""
 

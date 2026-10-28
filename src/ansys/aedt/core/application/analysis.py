@@ -1515,7 +1515,7 @@ class Analysis(Design, PyAedtBase):
 
         """
         if name in self.setup_names:
-            self.oanalysis.DeleteSetups([name])
+            self.setups[name].delete()
             return True
         return False
 

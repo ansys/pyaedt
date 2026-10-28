@@ -72,9 +72,11 @@ from ansys.aedt.core.modules.solve_sweeps import get_sweep_type
 from ansys.aedt.core.modules.solve_sweeps import identify_setup
 
 if TYPE_CHECKING:
-    from ansys.aedt.core.application.analysis import Analysis
-    from ansys.aedt.core.application.analysis_3d_layout import FieldAnalysis3DLayout
-    from ansys.aedt.core.application.analysis_nexxim import FieldAnalysisCircuit
+    from ansys.aedt.core import Circuit
+    from ansys.aedt.core import Hfss
+    from ansys.aedt.core import Hfss3dLayout
+    from ansys.aedt.core import Maxwell3d
+    from ansys.aedt.core import TwinBuilder
     from ansys.aedt.core.visualization.post.solution_data import SolutionData
     from ansys.aedt.core.visualization.report.standard import Standard
 
@@ -84,7 +86,7 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.application.analysis.Analysis`
+    app : :class:`ansys.aedt.core.Hfss`
         Inherited app object.
     name : str, optional
         Name of the setup. The default is ``"MySetupAuto"``.
@@ -118,13 +120,11 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
 
     def __init__(
         self,
-        app: Analysis | FieldAnalysis3DLayout,
+        app: Hfss | Hfss3dLayout | Circuit | TwinBuilder,
         name: str = "MySetupAuto",
         props: dict | None = None,
     ) -> None:
-
-        self._parent: Analysis | FieldAnalysis3DLayout = app
-        self._app: Any = self._parent._app
+        self._app: Any = app
 
         self._name = name
         self._legacy_props = {}
@@ -355,6 +355,8 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
             self._app.oanalysis.DeleteSetups(self.name)
         elif "RemoveSimSetup" in dir(self._app.oanalysis):
             self._app.oanalysis.RemoveSimSetup([self.name])
+        elif "Remove" in dir(self._app.oanalysis):
+            self._app.oanalysis.Remove(self.name)
         else:  # pragma: no cover
             self._app.warning("No API method to delete the setup.")
             return False
@@ -791,7 +793,7 @@ class Setup(CommonSetup):
 
     """
 
-    def __init__(self, app: Analysis | FieldAnalysis3DLayout, name: str, props: dict) -> None:
+    def __init__(self, app: Hfss | Hfss3dLayout, name: str, props: dict) -> None:
         CommonSetup.__init__(self, app=app, name=name, props=props)
 
     @pyaedt_function_handler()
@@ -1384,7 +1386,7 @@ class SetupCircuit(CommonSetup):
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.application.analysis_nexxim.FieldAnalysisCircuit`
+    app : :class:`ansys.aedt.core.Circuit`, or :class:`ansys.aedt.core.TwinBuilder`
         Inherited app object.
     name : str, optional
         Name of the setup. The default is ``"MySetupAuto"``.
@@ -1406,37 +1408,45 @@ class SetupCircuit(CommonSetup):
     def __str__(self) -> str:
         return self.name
 
-    def __init__(self, app: FieldAnalysisCircuit, name: str, props: dict) -> None:
+    def __init__(self, app: Circuit | TwinBuilder, name: str, props: dict) -> None:
         setup_keys = SetupKeys.get_setup_templates()
         setup_names = SetupKeys.SetupNames
         self.solver_type = None
 
         CommonSetup.__init__(self, app, name, props)
 
-        circuit_setups = (
-            Setups.NexximLNA,
-            Setups.NexximQuickEye,
-            Setups.NexximAMI,
-            Setups.NexximTransient,
-            Setups.NexximVerifEye,
-            Setups.NexximDC,
-            Setups.NexximHarmonicBalance1T,
-            Setups.NexximHarmonicBalanceNT,
-            Setups.NexximOscillator1T,
-            Setups.NexximOscillatorNT,
-            Setups.NexximOscillatorRSF,
-            Setups.NexximSystem,
-            Setups.NexximTVNoise,
-            Setups.HSPICE,
-            Setups.NexximEnvelope,
-            Setups.NexximPFX,
-        )
-        data_block_id = self.props.get("DataBlockID")
-        for setup_type in circuit_setups:
-            template_datablock = setup_keys.get(setup_type, {}).get("DataBlockID")
-            if template_datablock == data_block_id:
-                self.solver_type = setup_names[setup_type]
-                break
+        if app.design_type in ["TwinBuilder", "Twin Builder"]:
+            if "LinearFrequencyData" in self.props:
+                self.solver_type = setup_names[Setups.TwinbuilderAC]
+            elif "TransientData" in self.props:
+                self.solver_type = setup_names[Setups.TwinbuilderTR]
+            else:
+                self.solver_type = setup_names[Setups.TwinbuilderDC]
+        else:
+            circuit_setups = (
+                Setups.NexximLNA,
+                Setups.NexximQuickEye,
+                Setups.NexximAMI,
+                Setups.NexximTransient,
+                Setups.NexximVerifEye,
+                Setups.NexximDC,
+                Setups.NexximHarmonicBalance1T,
+                Setups.NexximHarmonicBalanceNT,
+                Setups.NexximOscillator1T,
+                Setups.NexximOscillatorNT,
+                Setups.NexximOscillatorRSF,
+                Setups.NexximSystem,
+                Setups.NexximTVNoise,
+                Setups.HSPICE,
+                Setups.NexximEnvelope,
+                Setups.NexximPFX,
+            )
+            data_block_id = self.props.get("DataBlockID")
+            for setup_type in circuit_setups:
+                template_datablock = setup_keys.get(setup_type, {}).get("DataBlockID")
+                if template_datablock == data_block_id:
+                    self.solver_type = setup_names[setup_type]
+                    break
 
     @property
     @deprecated("Use odesign from application instead.")
@@ -1522,7 +1532,7 @@ class SetupCircuit(CommonSetup):
                 self._app.oanalysis.EditACAnalysis(self.name, arg)
             elif soltype in [setup_names[Setups.NexximDC], setup_names[Setups.TwinbuilderDC]]:
                 self._app.oanalysis.EditDCAnalysis(self.name, arg)
-            elif soltype in [setup_names[Setups.NexximTransient], "TwinbuilderTR"]:
+            elif soltype in [setup_names[Setups.NexximTransient], setup_names[Setups.TwinbuilderTR]]:
                 self._app.oanalysis.EditTransient(self.name, arg)
             elif soltype == setup_names[Setups.NexximQuickEye]:
                 self._app.oanalysis.EditQuickEyeAnalysis(self.name, arg)
@@ -1589,6 +1599,10 @@ class SetupCircuit(CommonSetup):
         arg = self._setup_dict_to_arg(properties)
 
         self._setup(self.solver_type, arg, newsetup=False)
+
+        if not self._has_getobject:
+            self._legacy_props = dict(properties)
+
         return True
 
     def _setup_dict_to_arg(self, props: dict | None = None):
@@ -1861,8 +1875,13 @@ class SetupCircuit(CommonSetup):
         """
         if not name:
             name = self.name
-        self._app._odesign.EnableSolutionSetup(name, True)
-        return True
+        if "EnableSolutionSetup" in dir(self._odesign):
+            self._odesign.EnableSolutionSetup(name, True)
+            return True
+        elif self.properties and "Enabled" in self.properties:
+            self.properties["Enabled"] = True
+            return True
+        return False
 
     @pyaedt_function_handler()
     def disable(self, name: str | None = None) -> bool:
@@ -1893,8 +1912,13 @@ class SetupCircuit(CommonSetup):
         """
         if not name:
             name = self.name
-        self._odesign.EnableSolutionSetup(name, False)
-        return True
+        if "EnableSolutionSetup" in dir(self._odesign):
+            self._odesign.EnableSolutionSetup(name, False)
+            return True
+        elif self.properties and "Enabled" in self.properties:
+            self.properties["Enabled"] = False
+            return True
+        return False
 
     @pyaedt_function_handler()
     def get_solution_data(
@@ -2127,7 +2151,7 @@ class Setup3DLayout(CommonSetup):
         else:
             return f"{self.name} : {self._app.design_solutions.default_adaptive}"
 
-    def __init__(self, app: FieldAnalysis3DLayout, name: str, props: dict) -> None:
+    def __init__(self, app: Hfss3dLayout, name: str, props: dict) -> None:
         # Internal variables
         self.__sweeps = SetupDict()
 
@@ -3049,7 +3073,7 @@ class SetupHFSS(Setup, PyAedtBase):
 
     """
 
-    def __init__(self, app: Analysis, name: str, props: dict) -> None:
+    def __init__(self, app: Hfss, name: str, props: dict) -> None:
         if app.solution_type == SolutionsHfss.EigenMode:
             self.solver_type = SetupKeys.SetupNames[Setups.HFSSEigen]
         elif app.solution_type == SolutionsHfss.CharacteristicMode:
@@ -3951,7 +3975,7 @@ class SetupHFSSAuto(Setup, PyAedtBase):
     def __str__(self) -> str:
         return f"{self.name} : Sweep"
 
-    def __init__(self, app: Analysis | FieldAnalysis3DLayout, name: str, props: dict) -> None:
+    def __init__(self, app: Hfss | Hfss3dLayout, name: str, props: dict) -> None:
         if app.design_type == "HFSS 3D Layout Design":
             self.solver_type = "HFSS"
         else:
@@ -4224,7 +4248,7 @@ class SetupSBR(Setup, PyAedtBase):
 
     """
 
-    def __init__(self, app: Analysis, name: str, props: dict) -> None:
+    def __init__(self, app: Hfss, name: str, props: dict) -> None:
         self.solver_type = SetupKeys.SetupNames[Setups.HFSSSBR]
 
         Setup.__init__(self, app, name, props)
@@ -4329,7 +4353,7 @@ class SetupMaxwell(Setup, PyAedtBase):
 
     """
 
-    def __init__(self, app, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True) -> None:
+    def __init__(self, app: Maxwell3d, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True) -> None:
         Setup.__init__(self, app, solution_type, name, is_new_setup)
 
     @pyaedt_function_handler()

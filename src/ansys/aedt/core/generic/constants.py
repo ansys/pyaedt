@@ -1615,8 +1615,8 @@ class Setups(metaclass=DynamicMeta):
     """Value for mech modal."""
     GRM = 34
     """Grm."""
-    TR = 35
-    """Tr."""
+    TwinbuilderTR = 35
+    """Value for Twinbuilder Transient."""
     TransientTemperatureAndFlow = 36
     """Value for transient temperature and flow."""
     TransientTemperatureOnly = 37
@@ -1679,25 +1679,23 @@ class Setups(metaclass=DynamicMeta):
     """Value for Hfss 3D Layout Auto."""
     HFSSPI = 66
     """Value for HFSS PI."""
-    SIwaveEMI = 67
+    SiwaveEMI = 67
     """Value for SIwave EMI."""
-    HFSS3DLayoutAMI = 68
+    AMI3DLayout = 68
     """Value for AMI."""
-    HFSS3DLayoutLNA = 69
-    """Value for LNA."""
-    HFSS3DLayoutQuickEye = 70
+    QuickEye3DLayout = 69
     """Value for QuickEye."""
-    SIwaveNearField = 71
+    SiwaveNearField = 70
     """Value for SIwave near-field."""
-    HFSS3DLayoutTransient = 72
+    Transient3DLayout = 71
     """Value for HFSS 3D Layout transient."""
-    HFSS3DLayoutVerifEye = 73
+    VerifEye3DLayout = 72
     """Value for HFSS 3D Layout VerifEye."""
-    HFSSCMA = 74
+    HFSSCMA = 73
     """Value for HFSS CMA."""
-    NexximEnvelope = 75
+    NexximEnvelope = 74
     """Value for Nexxim Envelope."""
-    NexximPFX = 76
+    NexximPFX = 75
     """Value for Nexxim periodic transfer function."""
 
 
