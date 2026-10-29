@@ -444,6 +444,7 @@ SteadyTemperatureOnly = dict(
         "Flow Regime": "Laminar",
         "Turbulent Model Eqn": "ZeroEquation",
         "Include Temperature": True,
+        "Include Flow": False,
         "Include Gravity": False,
         "Solution Initialization - X Velocity": "0m_per_sec",
         "Solution Initialization - Y Velocity": "0m_per_sec",
@@ -506,6 +507,7 @@ SteadyFlowOnly = dict(
         "Flow Regime": "Laminar",
         "Turbulent Model Eqn": "ZeroEquation",
         "Include Flow": True,
+        "Include Temperature": False,
         "Include Gravity": False,
         "Solution Initialization - X Velocity": "0m_per_sec",
         "Solution Initialization - Y Velocity": "0m_per_sec",
@@ -3307,6 +3309,7 @@ class SetupKeys:
         Setups.RaptorX: RaptorX,
     }
     """Value for SetupTemplates 241."""
+
     SetupTemplates_251 = {
         Setups.DCBiasedEddyCurrent: DCBiasedEddyCurrent,
     }

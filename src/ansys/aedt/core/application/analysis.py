@@ -1407,10 +1407,6 @@ class Analysis(Design, PyAedtBase):
             setup = SetupSBR(app=self, name=name, props=props)
         elif setup_type in [5, 6, 7, 8, 9, 10, 56, 58, 59, 60]:
             setup = SetupMaxwell(self, setup_type, name)
-        elif setup_type in [14, 30]:
-            setup = SetupQ3D(self, setup_type, name)
-        elif setup_type in [11, 36]:
-            setup = SetupIcepak(self, setup_type, name)
         else:
             setup = SetupHFSS(app=self, name=name, props=props)
 

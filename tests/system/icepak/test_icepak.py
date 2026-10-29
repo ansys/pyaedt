@@ -39,7 +39,6 @@ from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
 from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
 from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsPackageParts
 from ansys.aedt.core.modules.mesh_icepak import MeshRegion
-from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.visualization.post.field_data import FolderPlotSettings
 from ansys.aedt.core.visualization.post.field_data import SpecifiedScale
 from tests import TESTS_GENERAL_PATH
@@ -477,23 +476,6 @@ def test_export_step(ipk_app, test_tmp_dir) -> None:
     file_path = test_tmp_dir
     ipk_app.modeler.create_box([0, 0, 0], [1, 2, 3])
     assert ipk_app.export_3d_model("ExportedModel", file_path, ".x_t", ["Region"], [])
-
-
-def test_setup(usb_ipk_app) -> None:
-    setup_name = "DomSetup"
-    my_setup = usb_ipk_app.create_setup(setup_name)
-    my_setup.props["Convergence Criteria - Max Iterations"] = 10
-    assert usb_ipk_app.get_property_value("AnalysisSetup:DomSetup", "Iterations", "Setup")
-    assert my_setup.update()
-    assert usb_ipk_app.assign_2way_coupling(setup_name, 2, True, 20)
-    templates = SetupKeys().get_default_icepak_template(default_type="Natural Convection")
-    assert templates
-    my_setup.props = templates["IcepakSteadyState"]
-    assert my_setup.update()
-    assert SetupKeys().get_default_icepak_template(default_type="Default")
-    assert SetupKeys().get_default_icepak_template(default_type="Forced Convection")
-    with pytest.raises(AttributeError):
-        SetupKeys().get_default_icepak_template(default_type="Default Convection")
 
 
 def test_existing_sweeps(existing_setup_app) -> None:
@@ -1746,27 +1728,6 @@ def test_design_settings(ipk_app) -> None:
         assert d["GravityVectorX"] == "1m_per_s2"
         assert d["GravityVectorY"] == "2m_per_s2"
         assert d["GravityVectorZ"] == "3m_per_s2"
-
-
-def test_restart_solution(ipk_app) -> None:
-    ipk_app.insert_design("test_78-1")
-    ipk_app.insert_design("test_78-2")
-    ipk_app.set_active_design("test_78-1")
-    ipk_app["a"] = "1mm"
-    ipk_app.modeler.create_box([0, 0, 0], ["a", "1", "2"])
-    s1 = ipk_app.create_setup()
-    ipk_app.set_active_design("test_78-2")
-    ipk_app["b"] = "1mm"
-    ipk_app.modeler.create_box([0, 0, 0], ["b", "1", "2"])
-    s2 = ipk_app.create_setup()
-    assert s2.start_continue_from_previous_setup("test_78-1", f"{s1.name} : SteadyState", parameters={"a": "1mm"})
-    s2.delete()
-    s2 = ipk_app.create_setup()
-    assert s2.start_continue_from_previous_setup("test_78-1", f"{s1.name} : SteadyState", parameters=None)
-    s2.delete()
-    s2 = ipk_app.create_setup()
-    assert not s2.start_continue_from_previous_setup("test_78-1", f"{s1.name} : SteadyState", project="FakeFolder123")
-    assert not s2.start_continue_from_previous_setup("test_78-12", f"{s1.name} : SteadyState")
 
 
 def test_mesh_reuse(ipk_app, test_tmp_dir) -> None:

@@ -3074,7 +3074,7 @@ class SetupHFSS(Setup, PyAedtBase):
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.Hfss3d`
+    app : :class:`ansys.aedt.core.Hfss`
         Application object.
     name : str
         Name of the setup.
@@ -5460,7 +5460,7 @@ class SetupIcepak(Setup, PyAedtBase):
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.Icepak`
+    app : :class:`ansys.aedt.core.Hfss`
         Application object.
     name : str
         Name of the setup.
@@ -5476,15 +5476,17 @@ class SetupIcepak(Setup, PyAedtBase):
 
     """
 
-    def __init__(self, app: Icepak, solution_type, setup_name, is_new_setup: bool = True) -> None:
-        Setup.__init__(self, app, solution_type, setup_name, is_new_setup)
+    def __init__(self, app: Icepak, name: str, props: dict) -> None:
+        self.solver_type = f"Icepak{app.solution_type}"
+
+        Setup.__init__(self, app, name, props)
 
     def start_continue_from_previous_setup(
         self,
         design: str,
         solution: str,
         map_variables_by_name: bool = True,
-        parameters: dict = None,
+        parameters: dict | None = None,
         project: str = "This Project*",
         force_source_to_solve: bool = True,
         preserve_partner_solution: bool = True,
@@ -5533,24 +5535,17 @@ class SetupIcepak(Setup, PyAedtBase):
         >>> setup.start_continue_from_previous_setup(design="IcepakDesign1", solution="Setup1 : SteadyState")
 
         """
-        auto_update = self.auto_update
-        try:
-            self.auto_update = False
+        params = self._parse_link_parameters(map_variables_by_name, parameters)
 
-            params = self._parse_link_parameters(map_variables_by_name, parameters)
+        prev_solution = self._parse_link_solution(project, design, solution)
 
-            prev_solution = self._parse_link_solution(project, design, solution)
+        props = self.props.to_dict()
 
-            self.props["RestartSoln"] = prev_solution
+        props["RestartSoln"] = prev_solution
 
-            self.props["RestartSoln"]["Params"] = params
-            self.props["RestartSoln"]["ForceSourceToSolve"] = force_source_to_solve
-            self.props["RestartSoln"]["PreservePartnerSoln"] = preserve_partner_solution
-            self.props["Frozen Flow Simulation"] = frozen_flow
+        props["RestartSoln"]["Params"] = params
+        props["RestartSoln"]["ForceSourceToSolve"] = force_source_to_solve
+        props["RestartSoln"]["PreservePartnerSoln"] = preserve_partner_solution
+        props["Frozen Flow Simulation"] = frozen_flow
 
-            self.update()
-            self.auto_update = auto_update
-            return True
-        except Exception:
-            self.auto_update = auto_update
-            return False
+        return self.update(props)

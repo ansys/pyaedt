@@ -33,13 +33,15 @@ import re
 from typing import TYPE_CHECKING
 from typing import Literal
 
+from ansys.aedt.core.generic.general_methods import _merge_props
+
 if TYPE_CHECKING:
     from ansys.aedt.core.modules.mesh import MeshOperation
-    from ansys.aedt.core.modules.solve_setup import SetupIcepak
 
 from ansys.aedt.core.application.analysis_icepak import FieldAnalysisIcepak
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import Plane
+from ansys.aedt.core.generic.constants import Setups
 from ansys.aedt.core.generic.constants import SolutionsIcepak
 from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.data_handlers import _dict2arg
@@ -68,6 +70,7 @@ from ansys.aedt.core.modules.boundary.icepak_boundary import SquareWaveDictionar
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
 from ansys.aedt.core.modules.setup_templates import SetupKeys
+from ansys.aedt.core.modules.solve_setup import SetupIcepak
 
 
 class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
@@ -3405,8 +3408,9 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         name : str, optional
             Name of the setup.
         setup_type : int, str, optional
-            Type of the setup. Options are ``"IcepakSteadyState"``
-            and ``"IcepakTransient"``. The default is ``"IcepakSteadyState"``.
+            Type of the setup. Options are ``"SteadyTemperatureAndFlow"``, ``"SteadyTemperatureOnly"``,
+            ``"SteadyFlowOnly"``, ``"TransientTemperatureAndFlow``", ``"TransientTemperatureOnly"``,
+            ``"TransientFlowOnly"``. The default is ``"SteadyTemperatureAndFlow"``.
         **kwargs : dict, optional
             Available keys depend on setup chosen.
             For more information, see
@@ -3428,20 +3432,33 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> app.create_setup(setup_type="Transient", name="Setup1", MaxIterations=20)
 
         """
+        setup_keys = SetupKeys.get_setup_templates()
+
+        setup_names_available = [name for name in dir(Setups) if not name.startswith("_")]
+
         if setup_type is None:
             setup_type = self.design_solutions.default_setup
-        elif setup_type in SetupKeys.SetupNames:
-            setup_type = SetupKeys.SetupNames.index(setup_type)
+        elif isinstance(setup_type, str) and setup_type in setup_names_available:
+            setup_type = getattr(Setups, setup_type)
+
+        if not name:
+            name = self.generate_unique_setup_name("MySetupAuto")
+        elif name in self.setup_names:
+            name = self.generate_unique_setup_name(name)
+            self.logger.warning(f"Name already exists. New name assigned is {name}.")
+
+        props = setup_keys[setup_type]
+
+        setup = SetupIcepak(app=self, name=name, props=props)
+
         if "props" in kwargs:
-            return self._create_setup(name=name, setup_type=setup_type, props=kwargs["props"])
-        else:
-            setup = self._create_setup(name=name, setup_type=setup_type)
-        setup.auto_update = False
+            _merge_props(props, kwargs.pop("props"))
         for arg_name, arg_value in kwargs.items():
-            if setup[arg_name] is not None:
-                setup[arg_name] = arg_value
-        setup.auto_update = True
-        setup.update()
+            if props[arg_name] is not None:
+                props[arg_name] = arg_value
+
+        setup.create()
+
         return setup
 
     @pyaedt_function_handler()
