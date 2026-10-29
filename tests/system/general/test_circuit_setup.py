@@ -63,7 +63,7 @@ def maxwell_circuit_setup_app(add_app_example):
     app.close_project(app.project_name, save=False)
 
 
-@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
+@pytest.mark.skipif(DESKTOP_VERSION < "2023.1", reason="Skipped on versions earlier than 2023.1")
 def test_circuit_init(circuit_setup_app):
     assert len(circuit_setup_app.setup_names) == 15
 
@@ -128,13 +128,13 @@ def test_circuit_init(circuit_setup_app):
     assert circuit_setup_app.setups[14].__repr__() == circuit_setup_app.setups[14].name
 
 
-@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
+@pytest.mark.skipif(DESKTOP_VERSION < "2023.1", reason="Skipped on versions earlier than 2023.1")
 def test_netlist_init(netlist_setup_app):
     assert len(netlist_setup_app.setup_names) == 0
     assert not netlist_setup_app.setups
 
 
-@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
+@pytest.mark.skipif(DESKTOP_VERSION < "2023.1", reason="Skipped on versions earlier than 2023.1")
 def test_maxwell_circuit_init(maxwell_circuit_setup_app):
     assert len(maxwell_circuit_setup_app.setup_names) == 0
     assert not maxwell_circuit_setup_app.setups

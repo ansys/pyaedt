@@ -55,7 +55,7 @@ def optimetrics_app(add_app_example):
     app.close_project(app.project_name, save=False)
 
 
-@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
+@pytest.mark.skipif(DESKTOP_VERSION < "2023.1", reason="Skipped on versions earlier than 2023.1")
 def test_optimetrics_init(optimetrics_app):
     assert isinstance(optimetrics_app.optimetrics, Optimetrics)
     assert isinstance(optimetrics_app.optimizations, Optimizations)

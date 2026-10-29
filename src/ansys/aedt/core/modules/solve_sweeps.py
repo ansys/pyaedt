@@ -58,6 +58,7 @@ from ansys.aedt.core.modules.setup_templates import SweepSiwave
 if TYPE_CHECKING:
     from ansys.aedt.core.modules.solve_setup import Setup3DLayout
     from ansys.aedt.core.modules.solve_setup import SetupHFSS
+    from ansys.aedt.core.modules.solve_setup import SetupQ3D
 
 
 @pyaedt_function_handler()
@@ -138,9 +139,8 @@ class SweepCommon(BinaryTreeNode, PyAedtBase):
 
     Parameters
     ----------
-    setup : :class 'from ansys.aedt.core.modules.solve_setup.Setup3DLayout',
-    :class 'from ansys.aedt.core.modules.solve_setup.SetupHFSS'
-        Setup to use for the analysis.
+    setup : Setup3DLayout, SetupHFSS, or SetupQ3D
+        Setup that owns the sweep.
     name : str
         Name of the sweep.
 
@@ -167,8 +167,8 @@ class SweepCommon(BinaryTreeNode, PyAedtBase):
     def __str__(self) -> str:
         return f"{self.setup_name} : {self.name}"
 
-    def __init__(self, setup: Setup3DLayout | SetupHFSS, name: str) -> None:
-        self._setup: Setup3DLayout | SetupHFSS = setup
+    def __init__(self, setup: Setup3DLayout | SetupHFSS | SetupQ3D, name: str) -> None:
+        self._setup: Setup3DLayout | SetupHFSS | SetupQ3D = setup
         self._app: Any = self._setup._app
 
         self._name = name
@@ -205,7 +205,7 @@ class SweepCommon(BinaryTreeNode, PyAedtBase):
         Returns
         -------
         str
-           Name of the sweep.
+            Sweep type.
 
         Examples
         --------
@@ -238,7 +238,7 @@ class SweepCommon(BinaryTreeNode, PyAedtBase):
 
     @property
     def sweep_type(self) -> str | None:
-        """Sweet type.
+        """Sweep type.
 
         Returns
         -------
@@ -298,12 +298,8 @@ class SweepHFSS(SweepCommon):
     """
 
     def __init__(self, setup: SetupHFSS, name: str, props=None) -> None:
-        self._legacy_props = {}
-
-        if props:
-            self._legacy_props = props
-
-        SweepCommon.__init__(self, setup, name)
+        self._legacy_props = copy.deepcopy(props) if props else {}
+        super().__init__(setup, name)
 
     @property
     def props(self) -> SweepProps:
@@ -696,12 +692,8 @@ class SweepHFSS3DLayout(SweepCommon):
     """
 
     def __init__(self, setup: Setup3DLayout, name: str, props=None) -> None:
-        self._legacy_props = {}
-
-        if props:
-            self._legacy_props = props
-
-        SweepCommon.__init__(self, setup, name)
+        self._legacy_props = copy.deepcopy(props) if props else {}
+        super().__init__(setup, name)
 
     @property
     def props(self) -> SweepProps:
@@ -1095,164 +1087,123 @@ class SweepHFSS3DLayout(SweepCommon):
 
 
 class SweepMatrix(SweepCommon):
-    """Initializes, creates, and updates sweeps in Q3D.
+    """Create and manage frequency sweeps in Q3D and Q2D.
 
     Parameters
     ----------
-    setup : :class 'from ansys.aedt.core.modules.solve_setup.Setup'
-        Setup used for the analysis.
+    setup : :class:`ansys.aedt.core.modules.solve_setup.SetupQ3D`
+        Setup that owns the sweep.
     name : str
         Name of the sweep.
-    sweep_type : str, optional
-        Type of the sweep. Options are ``"Fast"``, ``"Interpolating"``,
-        and ``"Discrete"``. The default is ``"Interpolating"``.
-    props : dict
-        Dictionary of the properties.  The default is ``None``, in which case
-        the default properties are retrieved.
+    props : dict, optional
+        Dictionary of the properties. The default is ``None``, in which
+        case the default properties are retrieved.
 
     Examples
     --------
-    >>> from ansys.aedt.core.modules.solve_sweeps import SweepMatrix
-    >>> obj = SweepMatrix()
+    >>> from ansys.aedt.core import Q3d
+    >>> q3d = Q3d()
+    >>> setup = q3d.create_setup()
+    >>> sweep = setup.add_sweep(name="MySweep")
 
     """
 
-    def __init__(self, setup, name: str, sweep_type: str = "Interpolating", props=None) -> None:
-        self._app = setup  # TODO: Remove sweep_type as an argument as it can be passed in props
-        self.setup_name = setup.name
-        self.name = name
-        self.props = copy.deepcopy(SweepQ3D)
-        if props:
-            for key, value in props.items():
-                if key in self.props:
-                    self.props[key] = value
+    def __init__(self, setup: SetupQ3D, name: str, props: dict | None = None) -> None:
+        self._legacy_props = copy.deepcopy(props) if props else {}
+        super().__init__(setup, name)
+
+    @property
+    def props(self) -> SweepProps:
+        """Properties of the sweep.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.generic.props.Props`
+            Sweep properties.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Q3d
+        >>> q3d = Q3d()
+        >>> setup = q3d.create_setup()
+        >>> sweep = setup.add_sweep()
+        >>> sweep.props
+
+        """
+        if self._legacy_props and not self._has_getobject:
+            return SweepProps(self, self._legacy_props)
+
+        if self._has_getobject:
+            props = _get_obj_data(self._child_object) or copy.deepcopy(SweepQ3D)
         else:
-            self.props["Type"] = sweep_type
-            if sweep_type == "Discrete":
-                self.props["IsEnabled"] = True
-                self.props["RangeType"] = "LinearCount"
-                self.props["RangeStart"] = "2.5GHz"
-                self.props["RangeStep"] = "1GHz"
-                self.props["RangeEnd"] = "7.5GHz"
-                self.props["SaveSingleField"] = False
-                self.props["RangeSamples"] = 3
-                self.props["RangeCount"] = 401
-                self.props["SaveFields"] = False
-                self.props["SaveRadFields"] = False
-                self.props["SweepRanges"] = []
-            else:
-                self.props["IsEnabled"] = True
-                self.props["RangeType"] = "LinearStep"
-                self.props["RangeStart"] = "1GHz"
-                self.props["RangeStep"] = "1GHz"
-                self.props["RangeEnd"] = "20GHz"
-                self.props["SaveFields"] = False
-                self.props["SaveRadFields"] = False
-                self.props["InterpTolerance"] = 0.5
-                self.props["InterpMaxSolns"] = 50
-                self.props["InterpMinSolns"] = 0
-                self.props["InterpMinSubranges"] = 1
+            design_properties = self._app.design_properties or {}
+            setup_data = design_properties.get("AnalysisSetup", {}).get("SolveSetups", {})
+            sweep_data = setup_data.get(self._setup.name, {}).get("Sweeps", {}).get(self._name)
+            props = copy.deepcopy(sweep_data) if sweep_data else copy.deepcopy(SweepQ3D)
+            props.pop("ID", None)
+
+        self._legacy_props = props
+        return SweepProps(self, self._legacy_props)
+
+    @props.setter
+    def props(self, value: dict) -> None:
+        """Update the sweep properties."""
+        current_props = self.props.to_dict() if self._legacy_props else {}
+        current_props.update(value)
+        self.update(current_props)
 
     @property
     def is_solved(self) -> bool:
-        """Verify if solutions are available for given sweep.
+        """Check whether solutions are available for the sweep.
 
         Returns
         -------
         bool
-            `True` if solutions are available.
+            ``True`` if solutions are available, ``False`` otherwise.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.solve_sweeps import SweepMatrix
-        >>> obj = SweepMatrix()
-        >>> obj.is_solved
+        >>> from ansys.aedt.core import Q3d
+        >>> q3d = Q3d()
+        >>> sweep = q3d.create_setup().add_sweep()
+        >>> sweep.is_solved
 
         """
-        sol = self._app._app.post.reports_by_category.standard(setup=f"{self.setup_name} : {self.name}")
-        return True if sol.get_solution_data() else False
+        sol = self._app.post.reports_by_category.standard(setup=str(self))
+        return bool(sol.get_solution_data())
 
     @property
     def frequencies(self) -> list[float]:
-        """List of all frequencies of the active sweep.
+        """List the frequency points of the sweep.
 
-        To see values, the project must be saved and solved.
+        The project must be saved and solved for frequency values to be available.
 
         Returns
         -------
         list of float
-            Frequency points.
+            Frequencies, or an empty list when no frequency data is available.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.solve_sweeps import SweepMatrix
-        >>> obj = SweepMatrix()
-        >>> obj.frequencies
+        >>> from ansys.aedt.core import Q3d
+        >>> q3d = Q3d()
+        >>> sweep = q3d.create_setup().add_sweep()
+        >>> sweep.frequencies
 
         """
-        sol = self._app._app.post.reports_by_category.standard(setup=f"{self.setup_name} : {self.name}")
+        sol = self._app.post.reports_by_category.standard(setup=str(self))
         soldata = sol.get_solution_data()
         if soldata and "Freq" in soldata.intrinsics:
             return [Quantity(i, soldata.units_sweeps["Freq"]) for i in soldata.intrinsics["Freq"]]
-        return []
-
-    @property
-    def basis_frequencies(self) -> list[float]:
-        """Get the list of all frequencies that have fields available.
-
-        The project has to be saved and solved to see values.
-
-        Returns
-        -------
-        list of float
-            Frequency points.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.solve_sweeps import SweepMatrix
-        >>> obj = SweepMatrix()
-        >>> obj.basis_frequencies
-
-        """
-        solutions_file = Path(self._app.results_directory) / f"{self._app.design_name}.asol"
-
-        fr = []
-        if solutions_file.is_file():
-            solutions = load_entire_aedt_file(str(solutions_file))
-            for k, v in solutions.items():
-                if "SolutionBlock" in k and "SolutionName" in v and v["SolutionName"] == self.name and "Fields" in v:
-                    try:  # pragma: no cover
-                        new_list = [float(i) for i in v["Fields"]["IDDblMap"][1::2]]
-                        new_list.sort()
-                        new_list = unit_converter(
-                            values=new_list,
-                            unit_system="Freq",
-                            input_units="Hz",
-                            output_units=self._app.units.frequency,
-                        )
-                        fr.append(new_list)
-                    except (KeyError, NameError, IndexError):
-                        pass
-
-        count = 0
-        for setup_name, setup in self._app.setups.items():
-            if setup_name == self.setup_name:
-                for sweep in setup.sweeps:
-                    if sweep == self.name:
-                        return fr[count] if len(fr) >= count + 1 else []
-            else:
-                for sweep in setup.sweeps:
-                    if sweep == self.name:
-                        count += 1
         return []
 
     @pyaedt_function_handler()
     def add_subrange(
         self,
         range_type: str,
-        start: float,
-        end: float = None,
-        count: float = None,
+        start: float | int,
+        end: float | int | None = None,
+        count: float | int | None = None,
         unit: str = "GHz",
         clear: bool = False,
         save_single_fields: bool = False,
@@ -1262,50 +1213,63 @@ class SweepMatrix(SweepCommon):
         Parameters
         ----------
         range_type : str
-            Type of the subrange. Options are ``"LinearCount"``,
-            ``"LinearStep"``, and ``"LogScale"``.
-        start : float
+            Type of the subrange. Options are ``"LinearCount"``, ``"LinearStep"``,
+            ``"LogScale"``, and ``"SinglePoints"``.
+        start : float or int
             Starting frequency.
-        end : float
-            Stopping frequency. The default is ``None``.
-        count : int or float
-            Frequency count or frequency step. The default is ``None``.
+        end : float or int, optional
+            Stopping frequency. Required for ``"LinearCount"``, ``"LinearStep"``,
+            and ``"LogScale"`` ranges.
+        count : float or int, optional
+            Frequency count, frequency step, or number of samples, depending on
+            ``range_type``. Required for ``"LinearCount"``, ``"LinearStep"``,
+            and ``"LogScale"`` ranges.
         unit : str, optional
-            Frequency units.
+            Frequency unit. The default is ``"GHz"``.
         clear : bool, optional
-            Whether to replace the subrange. The default is ``False``, in which case
-            subranges are appended.
+            Whether to replace existing subranges. The default is ``False``, which
+            appends the new subrange.
         save_single_fields : bool, optional
-            Whether to save the fields of the single point. The default is ``False``.
-            This parameter is used only for ``range_type="SinglePoints"``.
+            Whether to save fields for a single point. Used only for
+            ``range_type="SinglePoints"``. The default is ``False``.
 
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` if the sweep update succeeds, ``False`` otherwise.
 
         Examples
         --------
         >>> from ansys.aedt.core import Q3d
-        >>> app = Q3d()
-        >>> setup = app.create_setup()
-        >>> setup.create_single_point_sweep(save_single_field=[True, False, False], freq=[6, 10, 12], unit="GHz")
+        >>> q3d = Q3d()
+        >>> setup = q3d.create_setup()
+        >>> sweep = setup.add_sweep()
+        >>> sweep.add_subrange("LinearCount", 1, 1.5, 5, "GHz")
 
         """
+        if range_type in ("LinearCount", "LinearStep", "LogScale") and (end is None or count is None):
+            raise AttributeError("Parameters 'end' and 'count' must be present.")
+
+        props = self.props.to_dict()
+
         if clear:
-            self.props["RangeType"] = range_type
-            self.props["RangeStart"] = str(start) + unit
+            props["RangeType"] = range_type
+            props["RangeStart"] = str(start) + unit
             if range_type == "LinearCount":
-                self.props["RangeEnd"] = str(end) + unit
-                self.props["RangeCount"] = count
+                props["RangeEnd"] = str(end) + unit
+                props["RangeCount"] = count
             elif range_type == "LinearStep":
-                self.props["RangeEnd"] = str(end) + unit
-                self.props["RangeStep"] = str(count) + unit
+                props["RangeEnd"] = str(end) + unit
+                props["RangeStep"] = str(count) + unit
             elif range_type == "LogScale":
-                self.props["RangeEnd"] = str(end) + unit
-                self.props["RangeSamples"] = count
-            self.props["SweepRanges"] = {"Subrange": []}
-            return self.update()
+                props["RangeEnd"] = str(end) + unit
+                props["RangeSamples"] = count
+            elif range_type == "SinglePoints":
+                props["RangeEnd"] = str(start) + unit
+                props["SaveSingleField"] = save_single_fields
+            props["SweepRanges"] = {"Subrange": []}
+            return self.update(props)
+
         sweep_range = {"RangeType": range_type, "RangeStart": str(start) + unit}
         if range_type == "LinearCount":
             sweep_range["RangeEnd"] = str(end) + unit
@@ -1320,68 +1284,110 @@ class SweepMatrix(SweepCommon):
             sweep_range["RangeEnd"] = str(start) + unit
             sweep_range["SaveSingleField"] = save_single_fields
 
-        if not self.props.get("SweepRanges") or not self.props["SweepRanges"].get("Subrange"):
-            self.props["SweepRanges"] = {"Subrange": []}
-        self.props["SweepRanges"]["Subrange"].append(sweep_range)
-        return self.update()
+        if not props.get("SweepRanges") or not props["SweepRanges"].get("Subrange"):
+            props["SweepRanges"] = {"Subrange": []}
+
+        if (
+            "SweepRanges" in props
+            and "Subrange" in props["SweepRanges"]
+            and not isinstance(props["SweepRanges"]["Subrange"], list)
+        ):
+            props["SweepRanges"]["Subrange"] = [props["SweepRanges"]["Subrange"]]
+
+        props["SweepRanges"]["Subrange"].append(sweep_range)
+        return self.update(props)
 
     @pyaedt_function_handler()
-    def create(self) -> bool:
+    def create(self) -> SweepMatrix:
         """Create a sweep.
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepMatrix`
+            The created sweep.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.solve_sweeps import SweepMatrix
-        >>> obj = SweepMatrix()
-        >>> obj.create()
+        >>> from ansys.aedt.core import Q3d
+        >>> q3d = Q3d()
+        >>> sweep = q3d.create_setup().add_sweep()
+        >>> sweep.create()
 
         """
         self._app.oanalysis.InsertSweep(self.setup_name, self._get_args())
-        return True
+        self._has_getobject = _has_get_obj_data(self._child_object)
+        return self
 
     @pyaedt_function_handler()
-    def update(self) -> bool:
+    def update(self, props: dict | SweepProps | None = None) -> bool:
         """Update the sweep.
+
+        Parameters
+        ----------
+        props : dict, optional
+            Properties to apply. If omitted, the current sweep properties are used.
 
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` if the sweep update succeeds, ``False`` otherwise.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.solve_sweeps import SweepMatrix
-        >>> obj = SweepMatrix()
-        >>> obj.update()
-
-        """
-        self._app.oanalysis.EditSweep(self.setup_name, self.name, self._get_args())
-
-        return True
-
-    @pyaedt_function_handler()
-    def _get_args(self, props=None):
-        """Get properties.
-
-        Parameters
-        ----------
-        props : dict
-             Dictionary of the properties. The default is ``None``, in which case
-             the default properties are retrieved.
-
-        Returns
-        -------
-        dict
-            Dictionary of the properties.
+        >>> from ansys.aedt.core import Q3d
+        >>> q3d = Q3d()
+        >>> sweep = q3d.create_setup().add_sweep()
+        >>> sweep.update()
 
         """
         if props is None:
-            props = self.props
+            props = self.props.to_dict()
+        elif isinstance(props, SweepProps):
+            props = props.to_dict()
+        self._app.oanalysis.EditSweep(self.setup_name, self.name, self._get_args(props))
+        if not self._has_getobject:
+            self._legacy_props = copy.deepcopy(props)
+        return True
+
+    @pyaedt_function_handler()
+    def delete(self) -> bool:
+        """Delete the sweep from the design.
+
+        Returns
+        -------
+        bool
+            ``True`` if the sweep is deleted.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Q3d
+        >>> q3d = Q3d()
+        >>> sweep = q3d.create_setup().add_sweep()
+        >>> sweep.delete()
+
+        """
+        self._app.oanalysis.DeleteSweep(self.setup_name, self.name)
+        return True
+
+    @pyaedt_function_handler()
+    def _get_args(self, props: dict | SweepProps | None = None) -> list[Any]:
+        """Convert sweep properties to AEDT arguments.
+
+        Parameters
+        ----------
+        props : dict, optional
+            Properties to convert. If omitted, the current sweep properties are used.
+
+        Returns
+        -------
+        list
+            AEDT argument list for the sweep.
+
+        """
+        if props is None:
+            props = self.props.to_dict()
+        elif isinstance(props, SweepProps):
+            props = props.to_dict()
         arg = ["NAME:" + self.name]
         _dict2arg(props, arg)
         return arg

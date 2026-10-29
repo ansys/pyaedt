@@ -54,7 +54,7 @@ def hfss_setup_app(add_app_example):
     app.close_project(app.project_name, save=False)
 
 
-@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
+@pytest.mark.skipif(DESKTOP_VERSION < "2023.1", reason="Skipped on versions earlier than 2023.1")
 def test_setup_hfss_init(hfss_setup_app):
     hfss_setup_app.set_active_design("HFSS")
 
@@ -924,7 +924,7 @@ def test_eigen(hfss_app) -> None:
     assert name2 not in hfss_app.setup_names
 
 
-@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
+@pytest.mark.skipif(DESKTOP_VERSION < "2023.1", reason="Skipped on versions earlier than 2023.1")
 def test_transient(hfss_app) -> None:
     hfss_app.solution_type = "Transient"
 

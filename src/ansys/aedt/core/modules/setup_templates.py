@@ -2692,7 +2692,7 @@ SweepHfss3D = dict(
         "SMatrixOnlySolveAbove": "1MHz",
     }
 )
-"""Value for sweep HFSS 3 D."""
+"""Value for sweep HFSS 3D."""
 
 enabled = dict({"Enable": "true"})
 """Value for enabled."""

@@ -98,7 +98,7 @@ def q3d_app(add_app):
     app.close_project(app.project_name, save=False)
 
 
-@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
+@pytest.mark.skipif(DESKTOP_VERSION < "2023.1", reason="Skipped on versions earlier than 2023.1")
 def test_mesh_init(mesh_app) -> None:
     assert isinstance(mesh_app.mesh.operations, SetupDict)
     assert isinstance(mesh_app.mesh.initial_mesh_settings, MeshOperation)

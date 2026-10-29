@@ -26,9 +26,8 @@ import pytest
 
 from ansys.aedt.core import Q2d
 from ansys.aedt.core import Q3d
-from ansys.aedt.core.generic.aedt_constants import Setups
-from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.modules.solve_setup import SetupQ3D
+from ansys.aedt.core.modules.solve_sweeps import SweepMatrix
 from tests.conftest import DESKTOP_VERSION
 
 TEST_SUBFOLDER = "TSetup"
@@ -63,7 +62,7 @@ def q2d_setup_app(add_app_example):
     app.close_project(app.project_name, save=False)
 
 
-@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
+@pytest.mark.skipif(DESKTOP_VERSION < "2023.1", reason="Skipped on versions earlier than 2023.1")
 def test_setup_q3d_init(q3d_setup_app):
     assert len(q3d_setup_app.setups) == 1
     assert isinstance(q3d_setup_app.setups[0], SetupQ3D)
@@ -73,15 +72,30 @@ def test_setup_q3d_init(q3d_setup_app):
 
     assert len(q3d_setup_app.setups[0].sweep_names) == 1
     assert len(q3d_setup_app.setups[0].sweeps) == 1
+    assert isinstance(q3d_setup_app.setups[0].sweeps[0], SweepMatrix)
+
+    assert q3d_setup_app.setups[0].sweeps[0].is_solved
+    assert len(q3d_setup_app.setups[0].sweeps[0].frequencies) == 1
+    assert q3d_setup_app.setups[0].sweeps[0].sweep_type == "Discrete"
+    assert q3d_setup_app.setups[0].sweeps[0].setup_name == q3d_setup_app.setups[0].name
 
 
-@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
+@pytest.mark.skipif(DESKTOP_VERSION < "2023.1", reason="Skipped on versions earlier than 2026.1")
 def test_setup_q2d_init(q2d_setup_app):
-    assert len(q2d_setup_app.setups) == 2
+    assert len(q2d_setup_app.setups) == 1
     assert isinstance(q2d_setup_app.setups[0], SetupQ3D)
-    assert str(q2d_setup_app.setups[0]) == f"{q2d_setup_app.setups[0].name} : Sweep"
+    assert str(q2d_setup_app.setups[0]) == f"{q2d_setup_app.setups[0].name} : LastAdaptive"
     assert q2d_setup_app.setups[0].__repr__() == q2d_setup_app.setups[0].name
-    assert q2d_setup_app.setups[0].solver_type == SetupKeys.SetupNames[Setups.HFSSDrivenAuto]
+    assert q2d_setup_app.setups[0].solver_type == "2DMatrix"
+
+    assert len(q2d_setup_app.setups[0].sweep_names) == 1
+    assert len(q2d_setup_app.setups[0].sweeps) == 1
+    assert isinstance(q2d_setup_app.setups[0].sweeps[0], SweepMatrix)
+
+    assert q2d_setup_app.setups[0].sweeps[0].is_solved
+    assert q2d_setup_app.setups[0].sweeps[0].frequencies
+    assert q2d_setup_app.setups[0].sweeps[0].sweep_type == "Discrete"
+    assert q2d_setup_app.setups[0].sweeps[0].setup_name == q2d_setup_app.setups[0].name
 
 
 def test_setup_q3d(q3d_app) -> None:
@@ -294,85 +308,160 @@ def test_setup_q2d(q2d_app) -> None:
     assert name2 not in q2d_app.setup_names
 
 
-def test_create_discrete_sweep(aedt_app) -> None:
-    setup = aedt_app.create_setup()
-    setup.props["SaveFields"] = True
-    assert setup.update()
-    assert setup.dc_enabled
-    setup.dc_resistance_only = True
-    assert setup.dc_resistance_only
-    setup.dc_enabled = False
-    setup.dc_enabled = True
-    sweep = setup.create_frequency_sweep(name="mysweep", start_frequency=1, unit="GHz")
-    assert sweep
+@pytest.mark.parametrize("app_fixture", ["q3d_app", "q2d_app"])
+def test_add_subrange(request, app_fixture) -> None:
+    app = request.getfixturevalue(app_fixture)
+    setup = app.create_setup("SweepSetup")
+    sweep = setup.add_sweep("SubrangeSweep")
+    assert isinstance(sweep, SweepMatrix)
+
+    with pytest.raises(AttributeError):
+        sweep.add_subrange(range_type="LinearCount", start=1)
+
+    assert sweep.add_subrange("LinearCount", 1, 2, 10, unit="MHz")
+    assert sweep.add_subrange("LinearStep", 2, 3, 0.25, unit="GHz")
+    assert sweep.add_subrange("LogScale", 1, 10, 5, unit="GHz")
+    subranges = sweep.props["SweepRanges"]["Subrange"]
+    assert subranges[0] == {
+        "RangeType": "LinearCount",
+        "RangeStart": "1MHz",
+        "RangeEnd": "2MHz",
+        "RangeCount": 10,
+    }
+    assert subranges[1] == {
+        "RangeType": "LinearStep",
+        "RangeStart": "2GHz",
+        "RangeEnd": "3GHz",
+        "RangeStep": "0.25GHz",
+    }
+    assert subranges[2]["RangeType"] == "LogScale"
+
+    assert sweep.add_subrange("LinearCount", 1, 2, 10, clear=True)
+    assert sweep.props["RangeType"] == "LinearCount"
     assert sweep.props["RangeStart"] == "1GHz"
-    assert setup.children[sweep.name].properties["Start"] == "1GHz"
-    sweep2 = setup.create_linear_step_sweep(
-        name="StepFast",
+    assert sweep.props["RangeEnd"] == "2GHz"
+    assert sweep.props["RangeCount"] == 10
+
+    sweep.sweep_type = "Discrete"
+    assert sweep.add_subrange("SinglePoints", start=2.4, clear=True, save_single_fields=True)
+    assert sweep.props["RangeType"] == "SinglePoints"
+    assert sweep.props["RangeStart"] == "2.4GHz"
+    assert sweep.props["RangeEnd"] == "2.4GHz"
+
+
+@pytest.mark.parametrize("app_fixture", ["q3d_app", "q2d_app"])
+def test_frequency_sweep(request, app_fixture) -> None:
+    app = request.getfixturevalue(app_fixture)
+    setup = app.create_setup("FrequencySweepSetup")
+
+    with pytest.raises(AttributeError):
+        setup.create_frequency_sweep(start_frequency=1, stop_frequency=2, sweep_type="invented")
+
+    discrete = setup.create_frequency_sweep(unit="GHz", start_frequency=1, stop_frequency=2)
+    assert discrete.name in setup.sweep_names
+    assert discrete.props["RangeType"] == "LinearCount"
+    assert discrete.props["RangeStart"] == "1GHz"
+    assert discrete.props["RangeEnd"] == "2GHz"
+    assert discrete.props["RangeCount"] == 5
+    assert discrete.props["Type"] == "Discrete"
+
+    interpolating = setup.create_frequency_sweep(
+        unit="GHz",
+        start_frequency=2,
+        stop_frequency=4,
+        sweep_type="Interpolating",
+        interpolation_tol=0.25,
+        interpolation_max_solutions=120,
+    )
+    assert interpolating.props["RangeCount"] == 401
+    assert interpolating.props["Type"] == "Interpolating"
+    assert interpolating.props["InterpTolerance"] == 0.25
+    assert interpolating.props["InterpMaxSolns"] == 120
+    assert interpolating.props["InterpMinSolns"] == 0
+    assert interpolating.props["InterpMinSubranges"] == 1
+
+    fast = setup.create_frequency_sweep(
+        unit="GHz", start_frequency=3, stop_frequency=5, sweep_type="Fast", num_of_freq_points=50
+    )
+    assert fast.props["RangeCount"] == 50
+    assert fast.props["Type"] == "Fast"
+
+    named = setup.create_frequency_sweep(unit="GHz", name="NamedSweep")
+    duplicate_name = setup.create_frequency_sweep(unit="GHz", name="NamedSweep")
+    assert named.name == "NamedSweep"
+    assert duplicate_name.name != named.name
+    assert duplicate_name.name in setup.sweep_names
+
+
+@pytest.mark.parametrize("app_fixture", ["q3d_app", "q2d_app"])
+def test_linear_step_sweep(request, app_fixture) -> None:
+    app = request.getfixturevalue(app_fixture)
+    setup = app.create_setup("LinearStepSetup")
+
+    with pytest.raises(AttributeError):
+        setup.create_linear_step_sweep(sweep_type="invented")
+
+    discrete = setup.create_linear_step_sweep(unit="MHz", start_frequency=100, stop_frequency=300, step_size=25)
+    assert discrete.name in setup.sweep_names
+    assert discrete.props["RangeType"] == "LinearStep"
+    assert discrete.props["RangeStart"] == "100MHz"
+    assert discrete.props["RangeEnd"] == "300MHz"
+    assert discrete.props["RangeStep"] == "25MHz"
+    assert discrete.props["Type"] == "Discrete"
+    assert discrete.props["SaveFields"]
+    assert not discrete.props["SaveRadFields"]
+
+    interpolating = setup.create_linear_step_sweep(
         unit="GHz",
         start_frequency=1,
-        stop_frequency=20,
-        step_size=0.1,
+        stop_frequency=3,
+        step_size=0.5,
+        name="InterpolatingStep",
         sweep_type="Interpolating",
+        save_fields=False,
     )
-    assert setup.children[sweep2.name].properties["Start"] == "1GHz"
-    assert setup.children[sweep2.name].properties["Stop"] == "20GHz"
+    assert interpolating.props["Type"] == "Interpolating"
+    assert interpolating.props["InterpTolerance"] == 0.5
+    assert interpolating.props["InterpMaxSolns"] == 250
+    assert interpolating.props["InterpMinSolns"] == 0
+    assert interpolating.props["InterpMinSubranges"] == 1
+    assert not interpolating.props["SaveFields"]
 
-
-def test_create_linear_sweep(aedt_app) -> None:
-    setup = aedt_app.create_setup()
-    assert setup.create_linear_step_sweep(
-        unit="GHz",
-        start_frequency=1,
-        stop_frequency=20,
-        step_size=0.1,
-        sweep_type="Interpolating",
+    duplicate_name = setup.create_linear_step_sweep(
+        unit="GHz", name="InterpolatingStep", start_frequency=1, stop_frequency=2, step_size=0.1
     )
-    with pytest.raises(AttributeError) as execinfo:
-        setup.create_linear_step_sweep(
-            name="invalid_sweep",
-            unit="GHz",
-            start_frequency=1,
-            stop_frequency=20,
-            step_size=0.1,
-            sweep_type="Invalid",
-        )
-        assert execinfo.args[0] == "Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'"
+    assert duplicate_name.name != interpolating.name
+    assert duplicate_name.name in setup.sweep_names
 
 
-def test_create_single_point_sweep(aedt_app) -> None:
-    setup = aedt_app.create_setup()
-    setup.props["SaveFields"] = True
+@pytest.mark.parametrize("app_fixture", ["q3d_app", "q2d_app"])
+def test_single_point_sweep(request, app_fixture) -> None:
+    app = request.getfixturevalue(app_fixture)
+    setup = app.create_setup("SinglePointSetup")
 
-    sweep = setup.create_single_point_sweep(save_fields=True, freq=5, unit="GHz")
-    assert setup.children[sweep.name].properties["Start"] == "5GHz"
+    with pytest.raises(AttributeError):
+        setup.create_single_point_sweep(freq=[1, 2], save_single_field=[True])
+    with pytest.raises(AttributeError):
+        setup.create_single_point_sweep(freq=[])
 
-    sweep2 = setup.create_single_point_sweep(save_single_field=[True, False, False], freq=[6, 10, 12], unit="GHz")
-    assert setup.children[sweep2.name].properties["Start"] == "6GHz"
-    assert setup.children[sweep2.name].properties["Stop"] == "12GHz"
-
-
-def test_create_frequency_sweep(aedt_app) -> None:
-    setup = aedt_app.create_setup()
-    setup.props["SaveFields"] = True
-    assert setup.update()
-    assert setup.create_frequency_sweep(
-        unit="GHz",
-        name="Sweep1",
-        start_frequency=9.5,
-        stop_frequency="10.5GHz",
-        sweep_type="Interpolating",
+    single = setup.create_single_point_sweep(
+        unit="MHz", freq=1200, name="SinglePoint", save_single_field=False, save_fields=True
     )
-    sweep2 = setup.create_frequency_sweep(name="mysweep2", unit="GHz", start_frequency=1, stop_frequency=4)
-    assert sweep2
-    sweep2_1 = setup.create_frequency_sweep(name="mysweep2", unit="GHz", start_frequency=1, stop_frequency=4)
-    assert sweep2_1
-    assert sweep2.name != sweep2_1.name
-    assert sweep2.props["RangeEnd"] == "4GHz"
-    sweep3 = setup.create_frequency_sweep(unit="GHz", start_frequency=1, stop_frequency=4)
-    assert sweep3
-    with pytest.raises(AttributeError) as execinfo:
-        setup.create_frequency_sweep(
-            name="mysweep4", unit="GHz", start_frequency=1, stop_frequency=4, sweep_type="Invalid"
-        )
-        assert execinfo.args[0] == "Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'"
+    assert single.name in setup.sweep_names
+    assert single.props["RangeType"] == "SinglePoints"
+    assert single.props["RangeStart"] == "1200MHz"
+    assert single.props["RangeEnd"] == "1200MHz"
+    assert not single.props["SaveSingleField"]
+    assert single.props["Type"] == "Discrete"
+
+    duplicate_name = setup.create_single_point_sweep(unit="GHz", freq=2, name="SinglePoint")
+    assert duplicate_name.name != single.name
+    assert duplicate_name.name in setup.sweep_names
+
+    multiple = setup.create_single_point_sweep(
+        unit="GHz", freq=[1.1, 1.2, 1.3], name="MultiplePoints", save_single_field=[True, False, True]
+    )
+    assert multiple.props["RangeStart"] == "1.1GHz"
+    assert multiple.props["RangeEnd"] == "1.1GHz"
+    subranges = multiple.props["SweepRanges"]["Subrange"]
+    assert [subrange["RangeStart"] for subrange in subranges] == ["1.2GHz", "1.3GHz"]

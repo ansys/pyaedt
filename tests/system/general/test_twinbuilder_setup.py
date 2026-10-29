@@ -51,7 +51,7 @@ def tb_setup_app(add_app_example):
     app.close_project(app.project_name, save=False)
 
 
-@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
+@pytest.mark.skipif(DESKTOP_VERSION < "2023.1", reason="Skipped on versions earlier than 2023.1")
 def test_twinbuilder_init(tb_setup_app):
     assert len(tb_setup_app.setup_names) == 3
 
