@@ -26,13 +26,16 @@
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.base import PyAedtBase
+from ansys.aedt.core.generic.aedt_constants import Setups
 from ansys.aedt.core.generic.constants import SolutionsMechanical
 from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.general_methods import _merge_props
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.setup_templates import SetupKeys
+from ansys.aedt.core.modules.solve_setup import SetupIcepakFEA
 
 
 class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
@@ -806,29 +809,85 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
         )
         return True
 
-    @pyaedt_function_handler()
-    def create_setup(self, name: str = "MySetupAuto", setup_type: int | str | None = None, **kwargs):
-        """Create an analysis setup for Mechanical.
+    # @pyaedt_function_handler()
+    # def create_setup(self, name: str = "MySetupAuto", setup_type: int | str | None = None, **kwargs):
+    #     """Create an analysis setup for Mechanical.
+    #
+    #     Optional arguments are passed along with ``setup_type`` and ``name``. Keyword
+    #     names correspond to the ``setup_type`` corresponding to the native AEDT API.  The list of
+    #     keywords here is not exhaustive.
+    #
+    #     Parameters
+    #     ----------
+    #     name : str, optional
+    #         Name of the setup. The default is ``"Setup1"``.
+    #     setup_type : int, str, optional
+    #         Type of the setup. Options are  ``"IcepakSteadyState"`` and
+    #         ``"IcepakTransient"``. The default is ``"IcepakSteadyState"``.
+    #     **kwargs : dict, optional
+    #         Available keys depend on the setup chosen.
+    #         For more information, see :doc:`../SetupTemplatesMechanical`.
+    #
+    #     Returns
+    #     -------
+    #     :class:`ansys.aedt.core.modules.solve_setup.SetupHFSS`
+    #         Solver Setup object.
+    #
+    #     References
+    #     ----------
+    #     >>> oModule.InsertSetup
+    #
+    #     Examples
+    #     --------
+    #     >>> from ansys.aedt.core import Mechanical
+    #     >>> app = Mechanical()
+    #     >>> app.create_setup(name="Setup1", MaxModes=6)
+    #
+    #     """
+    #     if setup_type is None:
+    #         setup_type = self.design_solutions.default_setup
+    #     elif setup_type in SetupKeys.SetupNames:
+    #         setup_type = SetupKeys.SetupNames.index(setup_type)
+    #     if "props" in kwargs:
+    #         return self._create_setup(name=name, setup_type=setup_type, props=kwargs["props"])
+    #     else:
+    #         setup = self._create_setup(name=name, setup_type=setup_type)
+    #     setup.auto_update = False
+    #     for arg_name, arg_value in kwargs.items():
+    #         if setup[arg_name] is not None:
+    #             setup[arg_name] = arg_value
+    #     setup.auto_update = True
+    #     setup.update()
+    #     return setup
 
-        Optional arguments are passed along with ``setup_type`` and ``name``. Keyword
-        names correspond to the ``setup_type`` corresponding to the native AEDT API.  The list of
+    @pyaedt_function_handler()
+    def create_setup(self, name: str | None = None, setup_type: int | str | None = None, **kwargs) -> SetupIcepakFEA:
+        """Create an analysis setup for Icepak.
+        Optional arguments are passed along with ``setup_type`` and ``name``.  Keyword
+        names correspond to the ``setup_type``
+        corresponding to the native AEDT API.  The list of
         keywords here is not exhaustive.
+
+        .. note::
+           This method overrides the ``Analysis.setup()`` method for the HFSS app.
 
         Parameters
         ----------
         name : str, optional
-            Name of the setup. The default is ``"Setup1"``.
+            Name of the setup.
         setup_type : int, str, optional
-            Type of the setup. Options are  ``"IcepakSteadyState"`` and
-            ``"IcepakTransient"``. The default is ``"IcepakSteadyState"``.
+            Type of the setup. Options are ``"SteadyTemperatureAndFlow"``, ``"SteadyTemperatureOnly"``,
+            ``"SteadyFlowOnly"``, ``"TransientTemperatureAndFlow``", ``"TransientTemperatureOnly"``,
+            ``"TransientFlowOnly"``. The default is ``"SteadyTemperatureAndFlow"``.
         **kwargs : dict, optional
-            Available keys depend on the setup chosen.
-            For more information, see :doc:`../SetupTemplatesMechanical`.
+            Available keys depend on setup chosen.
+            For more information, see
+            :doc:`../SetupTemplatesIcepak`.
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.solve_setup.SetupHFSS`
-            Solver Setup object.
+        :class:`ansys.aedt.core.modules.solve_setup.SetupIcepak`
+            3D Solver Setup object.
 
         References
         ----------
@@ -836,23 +895,36 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core import Mechanical
-        >>> app = Mechanical()
-        >>> app.create_setup(name="Setup1", MaxModes=6)
+        >>> from ansys.aedt.core import Icepak
+        >>> app = Icepak()
+        >>> app.create_setup(setup_type="Transient", name="Setup1", MaxIterations=20)
 
         """
+        setup_keys = SetupKeys.get_setup_templates()
+
+        setup_names_available = [name for name in dir(Setups) if not name.startswith("_")]
+
         if setup_type is None:
             setup_type = self.design_solutions.default_setup
-        elif setup_type in SetupKeys.SetupNames:
-            setup_type = SetupKeys.SetupNames.index(setup_type)
+        elif isinstance(setup_type, str) and setup_type in setup_names_available:
+            setup_type = getattr(Setups, setup_type)
+
+        if not name:
+            name = self.generate_unique_setup_name("MySetupAuto")
+        elif name in self.setup_names:
+            name = self.generate_unique_setup_name(name)
+            self.logger.warning(f"Name already exists. New name assigned is {name}.")
+
+        props = setup_keys[setup_type]
+
+        setup = SetupIcepakFEA(app=self, name=name, props=props)
+
         if "props" in kwargs:
-            return self._create_setup(name=name, setup_type=setup_type, props=kwargs["props"])
-        else:
-            setup = self._create_setup(name=name, setup_type=setup_type)
-        setup.auto_update = False
+            _merge_props(props, kwargs.pop("props"))
         for arg_name, arg_value in kwargs.items():
-            if setup[arg_name] is not None:
-                setup[arg_name] = arg_value
-        setup.auto_update = True
-        setup.update()
+            if props[arg_name] is not None:
+                props[arg_name] = arg_value
+
+        setup.create()
+
         return setup

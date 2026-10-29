@@ -5456,7 +5456,7 @@ class SetupQ3D(Setup, PyAedtBase):
 
 
 class SetupIcepak(Setup, PyAedtBase):
-    """Initializes, creates, and updates an HFSS SBR+ or HFSS Auto setup.
+    """Initializes, creates, and updates an Icepak setup.
 
     Parameters
     ----------
@@ -5549,3 +5549,30 @@ class SetupIcepak(Setup, PyAedtBase):
         props["Frozen Flow Simulation"] = frozen_flow
 
         return self.update(props)
+
+
+class SetupIcepakFEA(Setup, PyAedtBase):
+    """Initializes, creates, and updates an IcepakFEA setup.
+
+    Parameters
+    ----------
+    app : :class:`ansys.aedt.core.Hfss`
+        Application object.
+    name : str
+        Name of the setup.
+    props : dict
+        Properties of the setup.
+
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Icepak
+    >>> app = Icepak()
+    >>> setup = app.create_setup()
+
+    """
+
+    def __init__(self, app: Icepak, name: str, props: dict) -> None:
+        self.solver_type = f"Icepak{app.solution_type}"
+
+        Setup.__init__(self, app, name, props)
