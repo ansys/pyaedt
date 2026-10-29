@@ -35,7 +35,7 @@ PYTHON_EOL_WARNING = (
     "in an upcoming PyAEDT release. Please upgrade to a supported Python version."
 )
 """Python end-of-life warning."""
-LATEST_DEPRECATED_PYTHON_VERSION = (3, 12)
+LATEST_DEPRECATED_PYTHON_VERSION = (3, 11)
 """Latest deprecated python version."""
 PYTHON_VERSION_WARNING = (
     "As part of our ongoing efforts to align with the Python Scientific Community's "
