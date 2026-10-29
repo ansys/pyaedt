@@ -76,6 +76,7 @@ from ansys.aedt.core.modules.solve_setup import SetupCircuit
 from ansys.aedt.core.modules.solve_setup import SetupHFSS
 from ansys.aedt.core.modules.solve_setup import SetupHFSSAuto
 from ansys.aedt.core.modules.solve_setup import SetupIcepak
+from ansys.aedt.core.modules.solve_setup import SetupIcepakFEA
 from ansys.aedt.core.modules.solve_setup import SetupMaxwell
 from ansys.aedt.core.modules.solve_setup import SetupQ3D
 from ansys.aedt.core.modules.solve_setup import SetupSBR
@@ -1531,6 +1532,8 @@ class Analysis(Design, PyAedtBase):
             "Circuit Design": SetupCircuit,
             "Circuit Netlist": SetupCircuit,
             "SetupCircuit": SetupCircuit,
+            "IcepakFEA": SetupIcepakFEA,
+            "Mechanical": SetupIcepakFEA,
         }
         if self.design_type in setup_by_type:
             design_type = self.design_type

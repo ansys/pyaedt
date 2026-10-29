@@ -2610,7 +2610,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.modules.solve_setup.SetupMaxwell`
-            3D Solver Setup object.
+            Setup object.
 
         References
         ----------

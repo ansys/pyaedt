@@ -5573,6 +5573,12 @@ class SetupIcepakFEA(Setup, PyAedtBase):
     """
 
     def __init__(self, app: Icepak, name: str, props: dict) -> None:
-        self.solver_type = f"Icepak{app.solution_type}"
+        solution_type = app.solution_type
+        if solution_type.lower() in ["steady-state thermal", "steadystate thermal"]:
+            solution_type = "SteadyStateThermal"
+        elif solution_type.lower() in ["transient thermal"]:
+            solution_type = "TransientThermal"
+
+        self.solver_type = f"Mech{solution_type}"
 
         Setup.__init__(self, app, name, props)

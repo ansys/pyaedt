@@ -2425,7 +2425,7 @@ MechTransientThermal = dict(
         "SaveFieldsType": "None",
     }
 )
-"""Value for mech transient thermal."""
+"""Value for mechanical transient thermal."""
 
 MechModal = dict(
     {

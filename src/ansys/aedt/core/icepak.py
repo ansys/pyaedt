@@ -3395,13 +3395,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def create_setup(self, name: str | None = None, setup_type: int | str | None = None, **kwargs) -> SetupIcepak:
         """Create an analysis setup for Icepak.
-        Optional arguments are passed along with ``setup_type`` and ``name``.  Keyword
-        names correspond to the ``setup_type``
-        corresponding to the native AEDT API.  The list of
-        keywords here is not exhaustive.
-
-        .. note::
-           This method overrides the ``Analysis.setup()`` method for the HFSS app.
 
         Parameters
         ----------
@@ -3419,7 +3412,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.modules.solve_setup.SetupIcepak`
-            3D Solver Setup object.
+            Setup object.
 
         References
         ----------
@@ -3433,7 +3426,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
 
         """
         setup_keys = SetupKeys.get_setup_templates()
-
         setup_names_available = [name for name in dir(Setups) if not name.startswith("_")]
 
         if setup_type is None:

@@ -125,6 +125,53 @@ def test_setup_icepak(icepak_app) -> None:
     assert name2 not in icepak_app.setup_names
 
 
+def test_setup_transient(icepak_app) -> None:
+    icepak_app.solution_type = "Transient"
+    props = {"Include Flow": False}
+
+    setup1 = icepak_app.create_setup(setup_type="TransientTemperatureOnly", props=props)
+
+    assert setup1.name == "MySetupAuto"
+    assert icepak_app.setups[0].name == setup1.name
+    assert setup1.name in icepak_app.setup_names
+    assert isinstance(setup1, SetupIcepak)
+    assert len(icepak_app.setup_names) == 1
+    assert setup1.solver_type == "IcepakTransient"
+    assert setup1["Flow Regime"] == "Laminar"
+    assert not setup1["Include Flow"]
+
+    # Properties
+    setup2 = icepak_app.create_setup()
+    assert setup2.name in icepak_app.setup_names
+    assert len(icepak_app.setup_names) == 2
+
+    # Rename
+    name = setup1.name
+    setup1.name = "new_name"
+    assert "new_name" in icepak_app.setup_names
+    assert name not in icepak_app.setup_names
+    assert setup1.name == "new_name"
+    assert setup1.child_object
+
+    # Edit
+    setup1["Include Flow"] = True
+    assert setup1["Include Flow"]
+
+    setup1.disable()
+    assert not setup1["Enabled"]
+    setup1.enable()
+    assert setup1["Enabled"]
+
+    # Delete
+    assert icepak_app.delete_setup(name=setup1.name)
+    assert "new_name" not in icepak_app.setup_names
+    assert not icepak_app.delete_setup(name="invented")
+
+    name2 = setup2.name
+    setup2.delete()
+    assert name2 not in icepak_app.setup_names
+
+
 def test_icepak_setup_templates(icepak_app) -> None:
     setup = icepak_app.create_setup(setup_type="SteadyTemperatureOnly")
     templates = SetupKeys().get_default_icepak_template(default_type="Natural Convection")
