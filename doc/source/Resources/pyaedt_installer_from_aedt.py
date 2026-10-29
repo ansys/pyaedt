@@ -82,7 +82,7 @@ def run_pyinstaller_from_c_python(oDesktop):
     # From AEDT 2023.2 the installed CPython version is 3.10
     # From AEDT 2027.1 the installed CPython version is 3.13
     if version <= "231":
-        oDesktop.AddMessage("", "", 2, "Python version is no longer supported")
+        oDesktop.AddMessage("", "", 2, "This script is no longer support for versions previous to 2023R2")
         return
     if "271" > version > "231":
         python_version = "3.10"
@@ -353,7 +353,7 @@ def install_pyaedt():
 
     python_version = "3_13"
     if args.version <= "231":
-        print("Python version is no longer supported")
+        print("This script is no longer support for versions previous to 2023R2")
         return
     elif args.version <= "261":
         python_version = "3_10"
