@@ -61,6 +61,11 @@ from ansys.aedt.core.generic.props import Props as SetupProps
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modules.profile import Profiles
+from ansys.aedt.core.modules.setup_templates import Q3DAC
+from ansys.aedt.core.modules.setup_templates import Q3DDC
+from ansys.aedt.core.modules.setup_templates import CGDataBlock
+from ansys.aedt.core.modules.setup_templates import Q3DCap
+from ansys.aedt.core.modules.setup_templates import RLDataBlock
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.modules.setup_templates import Sweep3DLayout
 from ansys.aedt.core.modules.setup_templates import SweepHfss3D
@@ -75,7 +80,11 @@ if TYPE_CHECKING:
     from ansys.aedt.core import Circuit
     from ansys.aedt.core import Hfss
     from ansys.aedt.core import Hfss3dLayout
+    from ansys.aedt.core import Icepak
+    from ansys.aedt.core import Maxwell2d
     from ansys.aedt.core import Maxwell3d
+    from ansys.aedt.core import Q2d
+    from ansys.aedt.core import Q3d
     from ansys.aedt.core import TwinBuilder
     from ansys.aedt.core.visualization.post.solution_data import SolutionData
     from ansys.aedt.core.visualization.report.standard import Standard
@@ -86,8 +95,10 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.Hfss`
-        Inherited app object.
+    app : :class:`ansys.aedt.core.Hfss`, :class:`ansys.aedt.core.Circuit`, :class:`ansys.aedt.core.Hfss3dLayout`,
+     :class:`ansys.aedt.core.Maxwell3d`, :class:`ansys.aedt.core.TwinBuilder`, :class:`ansys.aedt.core.Q3d`,
+      :class:`ansys.aedt.core.Q2d, :class:`ansys.aedt.core.Maxwell2d`, :class:`ansys.aedt.core.Icepak`
+        Application object.
     name : str, optional
         Name of the setup. The default is ``"MySetupAuto"``.
     props : dict, optional
@@ -120,7 +131,7 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
 
     def __init__(
         self,
-        app: Hfss | Hfss3dLayout | Circuit | TwinBuilder,
+        app: Hfss | Circuit | Hfss3dLayout | Maxwell3d | TwinBuilder | Q3d | Q2d | Maxwell2d | Icepak,
         name: str = "MySetupAuto",
         props: dict | None = None,
     ) -> None:
@@ -777,9 +788,10 @@ class Setup(CommonSetup):
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.application.analysis.Analysis` or
-    :class:`ansys.aedt.core.application.analysis.FieldAnalysis3DLayout`
-        Inherited analysis object.
+    app : :class:`ansys.aedt.core.Hfss`, :class:`ansys.aedt.core.Circuit`, :class:`ansys.aedt.core.Hfss3dLayout`,
+     :class:`ansys.aedt.core.Maxwell3d`, :class:`ansys.aedt.core.TwinBuilder`, :class:`ansys.aedt.core.Q3d`,
+     :class:`ansys.aedt.core.Q2d, :class:`ansys.aedt.core.Maxwell2d`, :class:`ansys.aedt.core.Icepak`
+        Application object.
     name : str, optional
         Name of the setup. The default is ``"MySetupAuto"``.
     props : dict, optional
@@ -793,7 +805,9 @@ class Setup(CommonSetup):
 
     """
 
-    def __init__(self, app: Hfss | Hfss3dLayout, name: str, props: dict) -> None:
+    def __init__(
+        self, app: Hfss | Hfss3dLayout | Maxwell3d | Maxwell2d | Q3d | Q2d | Icepak, name: str, props: dict
+    ) -> None:
         CommonSetup.__init__(self, app=app, name=name, props=props)
 
     @pyaedt_function_handler()
@@ -1387,7 +1401,7 @@ class SetupCircuit(CommonSetup):
     Parameters
     ----------
     app : :class:`ansys.aedt.core.Circuit`, or :class:`ansys.aedt.core.TwinBuilder`
-        Inherited app object.
+        Application object.
     name : str, optional
         Name of the setup. The default is ``"MySetupAuto"``.
     props : dict
@@ -1600,7 +1614,7 @@ class SetupCircuit(CommonSetup):
 
         self._setup(self.solver_type, arg, newsetup=False)
 
-        if not self._has_getobject:
+        if not self._has_getobject and not self._has_getsetupdata:
             self._legacy_props = dict(properties)
 
         return True
@@ -2127,8 +2141,8 @@ class Setup3DLayout(CommonSetup):
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.application.analysis_3d_layout.FieldAnalysis3DLayout`
-        Inherited app object.
+    app : :class:`ansys.aedt.core.Hfss3dLayout`
+        Application object.
     name : str
         Name of the setup.
     props : dict
@@ -3058,8 +3072,8 @@ class SetupHFSS(Setup, PyAedtBase):
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.application.analysis.Analysis`
-        Inherited app object.
+    app : :class:`ansys.aedt.core.Hfss3d`
+        Application object.
     name : str
         Name of the setup.
     props : dict
@@ -3950,9 +3964,8 @@ class SetupHFSSAuto(Setup, PyAedtBase):
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.application.analysis.Analysis` or
-    :class:`ansys.aedt.core.application.analysis.FieldAnalysis3DLayout`
-        Inherited analysis object.
+    app : :class:`ansys.aedt.core.Hfss`, or :class:`ansys.aedt.core.Hfss3dLayout`
+        Application object.
     name : str
         Name of the setup.
     props : dict
@@ -4231,8 +4244,8 @@ class SetupSBR(Setup, PyAedtBase):
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.application.analysis.Analysis`
-        Inherited app object.
+    app : :class:`ansys.aedt.core.Hfss3d`
+        Application object.
     name : str
         Name of the setup.
     props : dict
@@ -4336,8 +4349,8 @@ class SetupMaxwell(Setup, PyAedtBase):
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.application.analysis.Analysis`
-        Inherited app object.
+    app : :class:`ansys.aedt.core.Maxwell3d`, or :class:`ansys.aedt.core.Maxwell2d`
+        Application object.
     solution_type : int, str
         Type of the setup.
     name : str, optional
@@ -4353,7 +4366,9 @@ class SetupMaxwell(Setup, PyAedtBase):
 
     """
 
-    def __init__(self, app: Maxwell3d, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True) -> None:
+    def __init__(
+        self, app: Maxwell3d | Maxwell2d, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True
+    ) -> None:
         Setup.__init__(self, app, solution_type, name, is_new_setup)
 
     @pyaedt_function_handler()
@@ -4749,32 +4764,300 @@ class SetupMaxwell(Setup, PyAedtBase):
 
 
 class SetupQ3D(Setup, PyAedtBase):
-    """Initializes, creates, and updates an Q3D setup.
+    """Initializes, creates, and updates an Q3D or Q2D setup.
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.application.analysis_3d.FieldAnalysis3D`
-        Inherited app object.
-    solution_type : int, str
-        Type of the setup.
-    name : str, optional
-        Name of the setup. The default is ``"MySetupAuto"``.
-    is_new_setup : bool, optional
-        Whether to create the setup from a template. The default is ``True``.
-        If ``False``, access is to the existing setup.
+    app : :class:`ansys.aedt.core.Q3d`, or :class:`ansys.aedt.core.Q2d`
+        Application object.
+    name : str
+        Name of the setup.
+    props : dict
+        Properties of the setup.
 
     Examples
     --------
-    >>> from ansys.aedt.core.modules.solve_setup import SetupQ3D
-    >>> obj = SetupQ3D()
+    >>> from ansys.aedt.core import Q3d
+    >>> app = Q3d()
+    >>> setup = app.create_setup()
+
+    >>> from ansys.aedt.core import Q2d
+    >>> app = Q2d()
+    >>> setup = app.create_setup()
 
     """
 
-    def __init__(self, app, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True) -> None:
-        Setup.__init__(self, app, solution_type, name, is_new_setup)
-        self._dc_enabled = True
-        self._ac_rl_enbled = True
-        self._capacitance_enabled = True
+    def __init__(self, app: Q3d | Q2d, name: str, props: dict) -> None:
+
+        # Internal variables
+        self.__is_q3d = True
+        if app.design_type == "2D Extractor":
+            self.__is_q3d = False
+
+        self.__sweeps = SetupDict()
+
+        if app.solution_type == "Q3D Extractor":
+            self.solver_type = "Matrix"
+        else:
+            self.solver_type = "2DMatrix"
+
+        Setup.__init__(self, app, name, props)
+
+    @property
+    def sweep_names(self) -> list[str]:
+        """Return the available sweep names.
+
+        Returns
+        -------
+        List
+            List of sweep names.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> setup1 = hfss.setups[0]
+        >>> setup1.sweep_names
+
+        """
+        if "GetSweeps" in dir(self._app.oanalysis) and self._app.solution_type != SolutionsHfss.EigenMode:
+            return list(self._app.oanalysis.GetSweeps(self._name))
+        return []
+
+    @property
+    def sweeps(self) -> SetupDict:
+        """Retrieve sweeps.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.generic.general_methods.SetupDict`
+            Sweeps in the setup.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> app = Hfss3dLayout()
+        >>> setup = app.create_setup()
+        >>> setup.sweeps
+
+        """
+        sweep_names = self.sweep_names
+        for operation in sweep_names:
+            if operation not in self.__sweeps:
+                self.__sweeps[operation] = SweepMatrix(setup=self, name=operation, props={})
+
+        for sweep_name in list(self.__sweeps):
+            if sweep_name not in sweep_names:
+                del self.__sweeps[sweep_name]
+
+        return self.__sweeps
+
+    @property
+    def ac_rl_enabled(self) -> bool:
+        """Enable AC resistance and inductance.
+
+        Returns
+        -------
+        bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import SetupQ3D
+        >>> obj = SetupQ3D()
+        >>> obj.ac_rl_enabled
+
+        """
+        if "AC" in self.props or "RLDataBlock" in self.props:
+            return True
+        else:
+            return False
+
+    @ac_rl_enabled.setter
+    def ac_rl_enabled(self, value: bool) -> None:
+        if not self.__is_q3d:
+            solutions_activated = self.capacitance_enabled
+        else:
+            solutions_activated = self.dc_enabled or self.capacitance_enabled
+
+        if solutions_activated:
+            if value and not self.ac_rl_enabled:
+                properties = self.props.to_dict()
+                if self.__is_q3d:
+                    properties["AC"] = Q3DAC
+                else:
+                    properties["RLDataBlock"] = RLDataBlock
+                self.update(properties)
+            elif not value and self.ac_rl_enabled:
+                properties = self.props.to_dict()
+                if self.__is_q3d:
+                    del properties["AC"]
+                else:
+                    del properties["RLDataBlock"]
+                self.update(properties)
+        else:
+            self._app.logger.error("Need to select at least one solution.")
+
+    @property
+    def capacitance_enabled(self) -> bool:
+        """Enable AC capacitance and conductance.
+
+        Returns
+        -------
+        bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import SetupQ3D
+        >>> obj = SetupQ3D()
+        >>> obj.capacitance_enabled
+
+        """
+        if "Cap" in self.props or "CGDataBlock" in self.props:
+            return True
+        else:
+            return False
+
+    @capacitance_enabled.setter
+    def capacitance_enabled(self, value: bool) -> None:
+        if not self.__is_q3d:
+            solutions_activated = self.ac_rl_enabled
+        else:
+            solutions_activated = self.dc_enabled or self.ac_rl_enabled
+
+        if solutions_activated:
+            if value and not self.capacitance_enabled:
+                properties = self.props.to_dict()
+                if self.__is_q3d:
+                    properties["Cap"] = Q3DCap
+                else:
+                    properties["CGDataBlock"] = CGDataBlock
+                self.update(properties)
+            elif not value and self.capacitance_enabled:
+                properties = self.props.to_dict()
+                if self.__is_q3d:
+                    del properties["Cap"]
+                else:
+                    del properties["CGDataBlock"]
+                self.update(properties)
+        else:
+            self._app.logger.error("Need to select at least one solution.")
+
+    @property
+    def dc_enabled(self) -> bool | None:
+        """Enable DC. This is only valid ofr Q3D designs.
+
+        Returns
+        -------
+        bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import SetupQ3D
+        >>> obj = SetupQ3D()
+        >>> obj.dc_enabled
+
+        """
+        # Not valid por Q2D
+        if not self.__is_q3d:
+            return None
+
+        if "DC" in self.props:
+            return True
+        else:
+            return False
+
+    @dc_enabled.setter
+    def dc_enabled(self, value: bool) -> None:
+        if self.__is_q3d:
+            solutions_activated = self.capacitance_enabled or self.ac_rl_enabled
+
+            if solutions_activated:
+                if value and not self.dc_enabled:
+                    properties = self.props.to_dict()
+                    properties["DC"] = Q3DDC
+
+                    self.update(properties)
+                elif not value and self.dc_enabled:
+                    properties = self.props.to_dict()
+                    del properties["DC"]
+                    self.update(properties)
+            else:
+                self._app.logger.error("Need to select at least one solution.")
+
+    @property
+    def dc_resistance_only(self) -> bool | None:
+        """Enable DC resistance only or resistance/inductance calculation. This is only valid ofr Q3D designs.
+
+        Returns
+        -------
+        bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import SetupQ3D
+        >>> obj = SetupQ3D()
+        >>> obj.dc_resistance_only
+
+        """
+        if not self.__is_q3d:
+            return None
+
+        if "DC" in self.props:
+            if "SolveResOnly" in self.props["DC"]:
+                return self.props["DC"]["SolveResOnly"]
+            else:
+                return False
+        else:
+            return False
+
+    @dc_resistance_only.setter
+    def dc_resistance_only(self, value: bool) -> None:
+        if self.__is_q3d:
+            solutions_activated = self.dc_enabled
+
+            if solutions_activated:
+                self.props["DC"]["SolveResOnly"] = value
+            else:
+                self._app.logger.error("DC solution must be activated.")
+
+    @pyaedt_function_handler()
+    def update(self, properties: dict | None = None) -> bool:
+        """Update the setup based on either the class argument or a dictionary.
+
+        Parameters
+        ----------
+        properties : optional
+            Dictionary to use to update the setup. The default is ``None``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.EditSetup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Q3d
+        >>> app = Q3d()
+        >>> setup = app.create_setup()
+        >>> props = dict(setup.props)
+        >>> setup.update(properties=props)
+
+        """
+        if properties is None:
+            properties = self.props.to_dict()
+
+        arg = self._setup_dict_to_arg(props=properties)
+
+        self._app.oanalysis.EditSetup(self.name, arg)
+
+        if not self._has_getobject and not self._has_getsetupdata:
+            self._legacy_props = properties
+
+        return True
 
     @pyaedt_function_handler()
     def create_frequency_sweep(
@@ -5132,148 +5415,29 @@ class SetupQ3D(Setup, PyAedtBase):
                 return self.sweeps[0]
         return False
 
-    @property
-    def ac_rl_enabled(self) -> bool:
-        """Get/Set the AC RL solution in active Q3D setup.
-
-        Returns
-        -------
-        bool
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.solve_setup import SetupQ3D
-        >>> obj = SetupQ3D()
-        >>> obj.ac_rl_enabled
-
-        """
-        return self._ac_rl_enbled
-
-    @ac_rl_enabled.setter
-    def ac_rl_enabled(self, value: bool) -> None:
-        if value or (self._dc_enabled or self._capacitance_enabled):
-            self._ac_rl_enbled = value
-            self.update()
-
-    @property
-    def capacitance_enabled(self) -> bool:
-        """Get/Set the Capacitance solution in active Q3D setup.
-
-        Returns
-        -------
-        bool
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.solve_setup import SetupQ3D
-        >>> obj = SetupQ3D()
-        >>> obj.capacitance_enabled
-
-        """
-        return self._capacitance_enabled
-
-    @capacitance_enabled.setter
-    def capacitance_enabled(self, value: bool) -> None:
-        if value or (self._dc_enabled or self._ac_rl_enbled):
-            self._capacitance_enabled = value
-            self.update()
-
-    @property
-    def dc_enabled(self) -> bool:
-        """Get/Set the DC solution in active Q3D setup.
-
-        Returns
-        -------
-        bool
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.solve_setup import SetupQ3D
-        >>> obj = SetupQ3D()
-        >>> obj.dc_enabled
-
-        """
-        return self._dc_enabled
-
-    @dc_enabled.setter
-    def dc_enabled(self, value: bool) -> None:
-        if value or (self._ac_rl_enbled or self._capacitance_enabled):
-            self._dc_enabled = value
-            self.update()
-
-    @property
-    def dc_resistance_only(self) -> bool:
-        """Get/Set the DC Resistance Only or Resistance/Inductance calculatio in active Q3D setup.
-
-        Returns
-        -------
-        bool
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.solve_setup import SetupQ3D
-        >>> obj = SetupQ3D()
-        >>> obj.dc_resistance_only
-
-        """
-        try:
-            return self.props["DC"]["SolveResOnly"]
-        except KeyError:
-            return False
-
-    @dc_resistance_only.setter
-    def dc_resistance_only(self, value: bool) -> None:
-        if self.dc_enabled:
-            self.props["DC"]["SolveResOnly"] = value
-
-    @pyaedt_function_handler()
-    def update(self, properties: dict = None) -> bool:
-        """Update the setup based on either the class argument or a dictionary.
-
-        Parameters
-        ----------
-        properties : optional
-            Dictionary to use to update the setup. The default is ``None``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oModule.EditSetup
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.solve_setup import SetupQ3D
-        >>> obj = SetupQ3D()
-        >>> obj.update(properties={"Name": "Value"})
-
-        """
-        legacy_update = self.auto_update
-        self.auto_update = False
-        if properties:
-            for el in properties:
-                self.props[el] = properties[el]
-        self.auto_update = legacy_update
-        props1 = {i: v for i, v in self.props.items()}
-        if not self.capacitance_enabled:
-            del props1["Cap"]
-        if not self.ac_rl_enabled:
-            del props1["AC"]
-        if not self.dc_enabled:
-            del props1["DC"]
-        arg = self._setup_dict_to_arg(props=props1)
-
-        self._app.oanalysis.EditSetup(self.name, arg)
-        return True
-
 
 class SetupIcepak(Setup, PyAedtBase):
-    """Provide setup icepak."""
+    """Initializes, creates, and updates an HFSS SBR+ or HFSS Auto setup.
 
-    def __init__(self, app, solution_type, setup_name, is_new_setup: bool = True) -> None:
+    Parameters
+    ----------
+    app : :class:`ansys.aedt.core.Icepak`
+        Application object.
+    name : str
+        Name of the setup.
+    props : dict
+        Properties of the setup.
+
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Icepak
+    >>> app = Icepak()
+    >>> setup = app.create_setup()
+
+    """
+
+    def __init__(self, app: Icepak, solution_type, setup_name, is_new_setup: bool = True) -> None:
         Setup.__init__(self, app, solution_type, setup_name, is_new_setup)
 
     def start_continue_from_previous_setup(

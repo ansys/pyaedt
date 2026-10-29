@@ -107,9 +107,11 @@ def test_setup(hfss_app) -> None:
     assert isinstance(setup1, SetupHFSS)
     assert len(hfss_app.setup_names) == 1
 
-    setup2 = hfss_app.create_setup(setup_type="HFSSDrivenDefault", Frequency="55GHz")
+    props = {"MaximumPasses": 1}
+    setup2 = hfss_app.create_setup(setup_type="HFSSDrivenDefault", Frequency="55GHz", props=props)
     assert setup2.name in hfss_app.setup_names
     assert setup2.props["Frequency"] == "55GHz"
+    assert setup2.props["MaximumPasses"] == 1
     assert len(hfss_app.setup_names) == 2
 
     with pytest.raises(ValueError):

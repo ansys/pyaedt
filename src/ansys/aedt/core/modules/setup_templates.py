@@ -584,9 +584,11 @@ Q3DCap = dict(
         "Solver Type": "Iterative",
     }
 )
-"""Value for Q 3 D cap."""
+"""Value for Q3D cap."""
+
 Q3DAC = dict({"MaxPass": 10, "MinPass": 1, "MinConvPass": 1, "PerError": 1, "PerRefine": 30})
-"""Q 3 dac."""
+"""Q3D AC."""
+
 Matrix = dict(
     {
         "AdaptiveFreq": "1GHz",

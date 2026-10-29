@@ -74,7 +74,7 @@ def test_tr(tb_app) -> None:
 
     props = {"TransientData": ["40ms", "10us", "1ms", False, ""]}
 
-    setup1 = tb_app.create_setup(setup_type=setup_name, props=props, EnableContSolve=True)
+    setup1 = tb_app.create_setup(props=props, EnableContSolve=True)
 
     assert setup1.name in tb_app.setup_names
     assert len(tb_app.setups) == 1 + initial_setups

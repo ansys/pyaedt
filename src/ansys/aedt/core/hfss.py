@@ -43,6 +43,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from ansys.aedt.core.generic.aedt_constants import Setups
+from ansys.aedt.core.generic.general_methods import _merge_props
 from ansys.aedt.core.modeler.advanced_cad.actors import Radar
 from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
 
@@ -1775,9 +1776,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                     raise AEDTRuntimeError("Method applies only to HFSS-driven solutions.")
                 del kwargs["Frequency"]
 
-            props = dict(setup.props)
+            if "props" in kwargs:
+                _merge_props(props, kwargs.pop("props"))
             for arg_name, arg_value in kwargs.items():
-                props[arg_name] = arg_value
+                if props[arg_name] is not None:
+                    props[arg_name] = arg_value
 
             setup.update(props)
 
