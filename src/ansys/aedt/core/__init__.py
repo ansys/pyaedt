@@ -29,7 +29,13 @@ import warnings
 if os.name == "nt":
     os.environ["PYTHONMALLOC"] = "malloc"
 
-LATEST_DEPRECATED_PYTHON_VERSION = (3, 9)
+LATEST_EOL_PYTHON_VERSION = (3, 10)
+PYTHON_EOL_WARNING = (
+    "Python 3.10 has reached its end of life. Support for Python 3.10 will be removed "
+    "in an upcoming PyAEDT release. Please upgrade to a supported Python version."
+)
+"""Python end-of-life warning."""
+LATEST_DEPRECATED_PYTHON_VERSION = (3, 12)
 """Latest deprecated python version."""
 PYTHON_VERSION_WARNING = (
     "As part of our ongoing efforts to align with the Python Scientific Community's "
@@ -55,14 +61,16 @@ def deprecation_warning() -> None:
     existing_showwarning = warnings.showwarning
 
     # Define and use custom showwarning
-    def custom_show_warning(message, category) -> None:
+    def custom_show_warning(message, category, filename, lineno, file=None, line=None) -> None:
         """Define and use custom warning to remove <stdin>:loc: pattern."""
         print(f"{category.__name__}: {message}")
 
     warnings.showwarning = custom_show_warning
 
     current_python_version = sys.version_info[:2]
-    if current_python_version <= LATEST_DEPRECATED_PYTHON_VERSION:
+    if current_python_version <= LATEST_EOL_PYTHON_VERSION:
+        warnings.warn(PYTHON_EOL_WARNING, FutureWarning)
+    elif current_python_version <= LATEST_DEPRECATED_PYTHON_VERSION:
         warnings.warn(PYTHON_VERSION_WARNING, FutureWarning)
 
     # Restore warnings showwarning
