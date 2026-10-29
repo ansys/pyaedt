@@ -237,7 +237,7 @@ def parse_arguments_for_pyaedt_installer(args=None):
     return args
 
 
-def _upgrade_pip_for_secure_downloads(pip_exe, env, python_version):
+def _upgrade_pip_for_secure_downloads(python_exe, env, python_version):
     """Install a pip version with the eMudhra CA fix using a pinned wheel hash."""
     if tuple(map(int, python_version.split("_"))) < (3, 10):
         raise RuntimeError(
@@ -251,7 +251,9 @@ def _upgrade_pip_for_secure_downloads(pip_exe, env, python_version):
     )
     subprocess.run(
         [
-            str(pip_exe),
+            str(python_exe),
+            "-m",
+            "pip",
             "--isolated",
             "--disable-pip-version-check",
             "install",
@@ -358,10 +360,12 @@ def install_pyaedt():
 
     if is_windows:
         venv_dir = Path(VENV_DIR, python_version)
+        python_exe = venv_dir / "Scripts" / "python.exe"
         pip_exe = venv_dir / "Scripts" / "pip.exe"
         uv_exe = venv_dir / "Scripts" / "uv.exe"
     else:
         venv_dir = Path(VENV_DIR, python_version)
+        python_exe = venv_dir / "bin" / "python"
         pip_exe = venv_dir / "bin" / "pip"
         uv_exe = venv_dir / "bin" / "uv"
         os.environ["ANSYSEM_ROOT{}".format(args.version)] = args.edt_root
@@ -386,7 +390,7 @@ def install_pyaedt():
             subprocess.run([sys.executable, "-m", "venv", str(venv_dir)], check=True)  # nosec
 
         # Patch the venv's pip before either online or wheelhouse installation.
-        _upgrade_pip_for_secure_downloads(pip_exe, env, python_version)
+        _upgrade_pip_for_secure_downloads(python_exe, env, python_version)
 
         if args.wheel and Path(args.wheel).exists():
             unzipped_path = unzip_if_zip(Path(args.wheel))
@@ -436,7 +440,9 @@ def install_pyaedt():
                 print("uv installation failed with error: {}".format(e))
                 print("Falling back to pip for package installation...")
                 subprocess.run(
-                    [str(pip_exe), "--default-timeout=1000", "install", "--upgrade", "pip"], check=True, env=env
+                    [str(python_exe), "-m", "pip", "--default-timeout=1000", "install", "--upgrade", "pip"],
+                    check=True,
+                    env=env,
                 )  # nosec
                 subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "wheel"], check=True, env=env)  # nosec
                 if args.version <= "231":
@@ -473,7 +479,7 @@ def install_pyaedt():
     else:
         print("Using existing virtual environment in {}".format(venv_dir))
         # Existing environments need the same pip security update before reuse.
-        _upgrade_pip_for_secure_downloads(pip_exe, env, python_version)
+        _upgrade_pip_for_secure_downloads(python_exe, env, python_version)
 
         if args.wheel and Path(args.wheel).exists():
             unzipped_path = unzip_if_zip(Path(args.wheel))
