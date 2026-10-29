@@ -25,9 +25,21 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from typing import TYPE_CHECKING
 from typing import Iterable
 from typing import Protocol
 from typing import TypeAlias
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.aedt_logger import AedtLogger
+
+
+class _OAnsoftApp(Protocol):
+    """Interface definition for the AnsoftApp object."""
+
+    objectID: int
+
+    def GetAppDesktop(self) -> _ODesktop: ...
 
 
 class _ODesktop(Protocol):
@@ -74,12 +86,6 @@ class _ODesign(Protocol):
     def GetDesignType(self) -> str: ...
 
 
-class _Logger(Protocol):
-    def warning(self, msg: object, *args: object) -> object: ...
-    def info(self, msg: object, *args: object) -> object: ...
-    def error(self, msg: object, *args: object) -> object: ...
-
-
 class _AppWithOProject(Protocol):
     """Interface definition for PyAEDT app instances."""
 
@@ -87,7 +93,7 @@ class _AppWithOProject(Protocol):
     odesktop: object
     oeditor: object
     oproject: _OProject
-    logger: _Logger
+    logger: AedtLogger
 
 
 AppType: TypeAlias = Callable[..., _AppWithOProject]

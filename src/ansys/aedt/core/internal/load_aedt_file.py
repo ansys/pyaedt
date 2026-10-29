@@ -29,6 +29,7 @@ import re
 
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import settings
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 # --------------------------------------------------------------------
 # public interface
@@ -53,10 +54,13 @@ def load_entire_aedt_file(filename: str | Path) -> dict:
     >>> load_entire_aedt_file(r"C:\\Projects\\filter_design.aedt")
 
     """
-    settings.logger.reset_timer()
-    settings.logger.info(f"Parsing {filename}.")
+    logger = settings.logger
+    if logger is None:
+        raise AEDTRuntimeError("PyAEDT logger is not initialized.")
+    logger.reset_timer()
+    logger.info(f"Parsing {filename}.")
     f_d = _load_entire_aedt_file(Path(filename).resolve(strict=False))
-    settings.logger.info_timer(f"File {filename} correctly loaded.")
+    logger.info_timer(f"File {filename} correctly loaded.")
     return f_d
 
 
@@ -286,6 +290,11 @@ def _decode_recognized_key(keyword, line, d) -> bool:
     elif keyword == _recognized_keywords[2]:  # PropDisplayMap
         pattern = r".+\((.+) Text\((.+) ExtentRect\((.+)\)\)\)"
         match = re.search(pattern, line)
+        if not match:  # pragma: no cover
+            logger = settings.logger
+            if logger is not None:
+                logger.warning("Failed to match PropDisplayMap pattern.")
+            return False
         d["Name"] = []
         for i in match.group(1).split(", "):
             d["Name"].append(_parse_value(i))
@@ -303,9 +312,16 @@ def _decode_recognized_key(keyword, line, d) -> bool:
         line_n = _all_lines[li]
         if line_m[:2] != "m=" or line_n[:2] != "n=":  # pragma: no cover
             return False
-        m = int(re.search(r"[m|n]=(\d+)", line_m).group(1))
+        match_m = re.search(r"[m|n]=(\d+)", line_m)
+        match_n = re.search(r"[m|n]=(\d+)", line_n)
+        if not match_m or not match_n:  # pragma: no cover
+            logger = settings.logger
+            if logger is not None:
+                logger.warning("Failed to match 'm' or 'n' pattern.")
+            return False
+        m = int(match_m.group(1))
         d["rows"] = m
-        n = int(re.search(r"[m|n]=(\d+)", line_n).group(1))
+        n = int(match_n.group(1))
         d["columns"] = n
         d["matrix"] = []
         for i in range(m):
@@ -503,7 +519,10 @@ def _read_aedt_file(filename: str | Path) -> None:
     global _count
 
     # read the AEDT file
-    with open_file(filename, "rb") as aedt_fh:
+    aedt_fh = open_file(filename, "rb")
+    if aedt_fh is None:
+        raise FileNotFoundError(f"Unable to open the AEDT file {filename}.")
+    with aedt_fh:
         raw_lines = aedt_fh.read().splitlines()
     ascii_lines = []
     for raw_line in raw_lines:

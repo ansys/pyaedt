@@ -33,11 +33,13 @@ from pathlib import Path
 import re
 import types
 from typing import TYPE_CHECKING
+from typing import cast
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.general_methods import _retry_ntimes
 from ansys.aedt.core.generic.general_methods import inclusion_list
 from ansys.aedt.core.generic.general_methods import settings
+from ansys.aedt.core.generic.protocols import _OAnsoftApp
 from ansys.aedt.core.internal.errors import GrpcApiError
 
 if TYPE_CHECKING:
@@ -217,29 +219,29 @@ class AedtPropServer(AedtObjWrapper):
             ret.append(attrName)
         return ret
 
-    def __getattr__(self, attrName):
+    def __getattr__(self, funcName):
         try:
-            return super().__getattr__(attrName)
+            return super().__getattr__(funcName)
         except AttributeError:
-            # if AedtAPI.IsAedtObjPropName(self.objectID, attrName, False):
-            #    return self.GetPropValue(attrName)
+            # if AedtAPI.IsAedtObjPropName(self.objectID, funcName, False):
+            #    return self.GetPropValue(funcName)
             propMap = self.__GetPropAttributes()
-            if attrName in propMap:
-                return self.GetPropValue(propMap[attrName])
-            raise GrpcApiError(f"Failed to retrieve attribute {attrName} from gRPC API")
+            if funcName in propMap:
+                return self.GetPropValue(propMap[funcName])
+            raise GrpcApiError(f"Failed to retrieve attribute {funcName} from gRPC API")
 
-    def __setattr__(self, attr, val):
-        if attr in self.__dict__:
-            self.__dict__[attr] = val
+    def __setattr__(self, attrName, val):
+        if attrName in self.__dict__:
+            self.__dict__[attrName] = val
             return
         propMap = self.__GetPropAttributes()
         try:
-            if attr not in ["dllapi", "is_linux"] and attr in propMap:
-                self.SetPropValue(propMap[attr], val)
+            if attrName not in ["dllapi", "is_linux"] and attrName in propMap:
+                self.SetPropValue(propMap[attrName], val)
                 return
         except Exception:
-            pyaedt_logger.debug(f"Failed to update attribute {attr} of AedtPropServer instance.")
-        super().__setattr__(attr, val)
+            pyaedt_logger.debug(f"Failed to update attribute {attrName} of AedtPropServer instance.")
+        super().__setattr__(attrName, val)
 
     def GetName(self):
         return self.__Invoke__("GetName", ())
@@ -310,6 +312,9 @@ class AEDT:
                     version = line.split("=")[1].strip('\n"')
                     break
 
+        if version is None:
+            raise GrpcApiError(f"Unable to determine the AEDT product version from {self.pathDir / 'product.info'}.")
+
         if version >= "24.1":
             AedtAPI.CreateAedtApplication.argtypes = c_wchar_p, py_object, c_bool, c_bool
         else:
@@ -324,7 +329,7 @@ class AEDT:
         AedtAPI.ReleaseAedtObject.restype = None
         self.AedtAPI = AedtAPI
         self.SetPyObjCalbacks()
-        self.aedt = None
+        self.aedt: _OAnsoftApp | None = None
         self.non_graphical = False
 
     def SetPyObjCalbacks(self) -> None:
@@ -371,9 +376,10 @@ class AEDT:
         """Retrieve odesktop."""
         return self.recreate_application()
 
-    def recreate_application(self, force: bool = False):
-        def run():
-            self.ReleaseAedtObject(self.aedt.objectID)
+    def recreate_application(self, force: bool = False) -> "_ODesktop":
+        def run() -> "_ODesktop":
+            if self.aedt is not None:
+                self.ReleaseAedtObject(self.aedt.objectID)
             port = self.port
             machine = self.machine
             self.__init__(self.original_path)
@@ -386,9 +392,8 @@ class AEDT:
             return run()
         else:
             try:
-                odesktop = self.aedt.GetAppDesktop()
-                if odesktop:
-                    return odesktop
+                odesktop = cast("_OAnsoftApp", self.aedt).GetAppDesktop()
+                return odesktop
             except Exception:
                 return run()
 
