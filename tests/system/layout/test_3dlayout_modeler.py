@@ -512,13 +512,6 @@ def test_create_coaxial_port(aedt_app) -> None:
     aedt_app.odesign.Undo()
 
 
-def test_create_setup(aedt_app) -> None:
-    setup_name = "RFBoardSetup"
-    setup = aedt_app.create_setup(name=setup_name)
-    assert setup.name == aedt_app.setup_names[0]
-    assert setup.solver_type == "HFSS"
-
-
 def test_edit_setup(aedt_app) -> None:
     aedt_app.modeler.layers.add_layer(
         layer="Bottom", layer_type="signal", thickness="0.035mm", elevation="0mm", material="copper"

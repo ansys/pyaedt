@@ -54,8 +54,6 @@ if TYPE_CHECKING:
     from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
     from ansys.aedt.core.modeler.cad.object_3d import Object3d
     from ansys.aedt.core.modules.design_xploration import ParametricSetup
-    from ansys.aedt.core.modules.solve_setup import SetupHFSS
-    from ansys.aedt.core.modules.solve_setup import SetupHFSSAuto
     from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
     from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
     from ansys.aedt.core.visualization.advanced.hdm_plot import HDMPlotter
@@ -92,6 +90,9 @@ from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
 from ansys.aedt.core.modules.boundary.hfss_boundary import NearFieldSetup
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from ansys.aedt.core.modules.setup_templates import SetupKeys
+from ansys.aedt.core.modules.solve_setup import SetupHFSS
+from ansys.aedt.core.modules.solve_setup import SetupHFSSAuto
+from ansys.aedt.core.modules.solve_setup import SetupSBR
 
 
 class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
@@ -707,7 +708,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         return self._create_boundary(port_name, props, "Wave Port")
 
     # Boundaries
-
     @pyaedt_function_handler()
     def assign_finite_conductivity(
         self,
@@ -1695,6 +1695,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             rad_name = generate_unique_name("Rad_")
         return self.create_boundary(self.BoundaryType.Radiation, faces_list, rad_name)
 
+    # Setup and sweep
     @pyaedt_function_handler()
     def create_setup(
         self,
@@ -1769,6 +1770,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                     raise AEDTRuntimeError("Method applies only to HFSS-driven solutions.")
 
                 del kwargs["MultipleAdaptiveFreqsSetup"]
+                props = setup.props.to_dict()
             elif "Frequency" in kwargs and isinstance(kwargs["Frequency"], list):
                 try:
                     setup.enable_adaptive_setup_multifrequency(kwargs["Frequency"])
@@ -1776,6 +1778,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                     setup.delete()
                     raise AEDTRuntimeError("Method applies only to HFSS-driven solutions.")
                 del kwargs["Frequency"]
+                props = setup.props.to_dict()
 
             if "props" in kwargs:
                 _merge_props(props, kwargs.pop("props"))
@@ -1784,6 +1787,84 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                     props[arg_name] = arg_value
 
             setup.update(props)
+
+        return setup
+
+    @pyaedt_function_handler()
+    def _create_setup(self, name, setup_type, props):
+        if setup_type == 0:
+            setup = SetupHFSSAuto(app=self, name=name, props=props)
+        elif setup_type == 4:
+            setup = SetupSBR(app=self, name=name, props=props)
+        else:
+            setup = SetupHFSS(app=self, name=name, props=props)
+
+        # Handle the situation when ports have not been defined.
+        props = setup.props.to_dict()
+
+        if not self.excitation_names and "MaxDeltaS" in props:
+            props["MaxDeltaE"] = 0.01
+
+        if self.solution_type == "SBR+":
+            default_sbr_setup = {
+                "RayDensityPerWavelength": 4,
+                "MaxNumberOfBounces": 5,
+                "EnableCWRays": False,
+                "EnableSBRSelfCoupling": False,
+                "UseSBRAdvOptionsGOBlockage": False,
+                "UseSBRAdvOptionsWedges": False,
+                "PTDUTDSimulationSettings": "None",
+                "SkipSBRSolveDuringAdaptivePasses": True,
+                "UseSBREnhancedRadiatedPowerCalculation": False,
+                "AdaptFEBIWithRadiation": False,
+            }
+            if settings.aedt_version >= "2024.2":
+                default_sbr_setup["IsMonostaticRCS"] = True
+                default_sbr_setup["FastFrequencyLooping"] = False
+
+            user_domain = None
+            if props and "RadiationSetup" in props:
+                user_domain = props["RadiationSetup"]
+
+            if self.field_setups:
+                for field_setup in self.field_setups:
+                    if user_domain and user_domain in field_setup.name:
+                        domain = user_domain
+                        default_sbr_setup["RadiationSetup"] = domain
+                        break
+                if not user_domain and self.field_setups:
+                    domain = self.field_setups[0].name
+                    default_sbr_setup["RadiationSetup"] = domain
+            elif user_domain:
+                domain = user_domain
+                default_sbr_setup["RadiationSetup"] = domain
+            else:
+                self.logger.warning("Field observation domain not defined.")
+                default_sbr_setup["RadiationSetup"] = ""
+                default_sbr_setup["ComputeFarFields"] = False
+
+            for k, v in default_sbr_setup.items():
+                props[k] = v
+        elif self.hybrid:
+            boundaries = self.boundaries_by_type
+            if "Hybrid" in boundaries:
+                has_sbr = False
+                for b in boundaries["Hybrid"]:
+                    if b.props["Type"] == "SBR+":
+                        has_sbr = True
+                        break
+                if has_sbr:
+                    if self.field_setups:
+                        props["SkipSBRSolveDuringAdaptivePasses"] = False
+                        props["RadiationSetup"] = self.field_setups[0].name
+                    else:
+                        raise AEDTRuntimeError("Field observation domain not defined.")
+
+        setup._legacy_props = props
+
+        setup.create()
+
+        self.active_setup = name
 
         return setup
 

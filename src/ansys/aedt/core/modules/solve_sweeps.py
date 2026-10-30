@@ -50,7 +50,6 @@ from ansys.aedt.core.generic.props import Props as SweepProps
 from ansys.aedt.core.internal.load_aedt_file import load_entire_aedt_file
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modules.setup_templates import Sweep3DLayout
-from ansys.aedt.core.modules.setup_templates import SweepEddyCurrent
 from ansys.aedt.core.modules.setup_templates import SweepHfss3D
 from ansys.aedt.core.modules.setup_templates import SweepQ3D
 from ansys.aedt.core.modules.setup_templates import SweepSiwave
@@ -58,6 +57,7 @@ from ansys.aedt.core.modules.setup_templates import SweepSiwave
 if TYPE_CHECKING:
     from ansys.aedt.core.modules.solve_setup import Setup3DLayout
     from ansys.aedt.core.modules.solve_setup import SetupHFSS
+    from ansys.aedt.core.modules.solve_setup import SetupMaxwell
     from ansys.aedt.core.modules.solve_setup import SetupQ3D
 
 
@@ -139,7 +139,7 @@ class SweepCommon(BinaryTreeNode, PyAedtBase):
 
     Parameters
     ----------
-    setup : Setup3DLayout, SetupHFSS, or SetupQ3D
+    setup : Setup3DLayout, SetupHFSS, SetupMaxwell, or SetupQ3D
         Setup that owns the sweep.
     name : str
         Name of the sweep.
@@ -167,8 +167,8 @@ class SweepCommon(BinaryTreeNode, PyAedtBase):
     def __str__(self) -> str:
         return f"{self.setup_name} : {self.name}"
 
-    def __init__(self, setup: Setup3DLayout | SetupHFSS | SetupQ3D, name: str) -> None:
-        self._setup: Setup3DLayout | SetupHFSS | SetupQ3D = setup
+    def __init__(self, setup: Setup3DLayout | SetupHFSS | SetupQ3D | SetupMaxwell, name: str) -> None:
+        self._setup: Setup3DLayout | SetupHFSS | SetupQ3D | SetupMaxwell = setup
         self._app: Any = self._setup._app
 
         self._name = name
@@ -1389,202 +1389,5 @@ class SweepMatrix(SweepCommon):
         elif isinstance(props, SweepProps):
             props = props.to_dict()
         arg = ["NAME:" + self.name]
-        _dict2arg(props, arg)
-        return arg
-
-
-class SweepMaxwellEC(SweepCommon):
-    """Initializes, creates, and updates sweeps in Maxwell Eddy Current.
-
-    Parameters
-    ----------
-    setup : :class 'from ansys.aedt.core.modules.solve_setup.Setup'
-        Setup used for the analysis.
-    name : str
-        Name of the sweep.
-    sweep_type : str, optional
-        Type of the sweep. Options are ``"LinearStep"``, ``"LinearCount"``,
-         ``"LogScale"`` and ``"SinglePoints"``. The default is ``"LinearStep"``.
-    props : dict
-        Dictionary of the properties.  The default is ``None``, in which case
-        the default properties are retrieved.
-
-    Examples
-    --------
-    >>> from ansys.aedt.core.modules.solve_sweeps import SweepMaxwellEC
-    >>> obj = SweepMaxwellEC()
-
-    """
-
-    def __init__(self, setup, sweep_type: str = "LinearStep", props=None) -> None:
-        self._setup = setup
-        self.setup_name = setup.name
-        self.props = {}
-        if props:
-            self.props = props
-        else:
-            self.props = copy.deepcopy(SweepEddyCurrent)
-            self.props["RangeType"] = sweep_type
-            if sweep_type == "LinearStep":
-                self.props["RangeStep"] = "10Hz"
-            elif sweep_type == "LinearCount":
-                self.props["RangeCount"] = "10"
-            elif sweep_type == "LogScale":
-                self.props["RangeSamples"] = "2"
-            elif sweep_type == "SinglePoints":
-                self.props["RangeEnd"] = self.props["RangeStart"]
-
-    @property
-    def name(self) -> str:
-        """Setup name.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.solve_sweeps import SweepMaxwellEC
-        >>> obj = SweepMaxwellEC()
-        >>> obj.name
-
-        """
-        return self.setup_name
-
-    @property
-    def is_solved(self) -> bool:
-        """Verify if solutions are available for the sweep.
-
-        Returns
-        -------
-        bool
-            `True` if solutions are available.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.solve_sweeps import SweepMaxwellEC
-        >>> obj = SweepMaxwellEC()
-        >>> obj.is_solved
-
-        """
-        expressions = [
-            i for i in self._setup._app.post.available_report_quantities(solution=self._setup._app.nominal_sweep)
-        ]
-        sol = self._setup._app.post.reports_by_category.standard(
-            expressions=expressions[0], setup=self._setup._app.nominal_sweep
-        )
-        if identify_setup(self.props):
-            sol.domain = "Time"
-        return True if sol.get_solution_data() else False
-
-    @property
-    def frequencies(self) -> list[float]:
-        """List of all frequencies of the active sweep.
-
-        To see values, the project must be saved and solved.
-
-        Returns
-        -------
-        list of float
-            Frequency points.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.solve_sweeps import SweepMaxwellEC
-        >>> obj = SweepMaxwellEC()
-        >>> obj.frequencies
-
-        """
-        expressions = [
-            i for i in self._setup._app.post.available_report_quantities(solution=self._setup._app.nominal_sweep)
-        ]
-        sol = self._setup._app.post.reports_by_category.standard(
-            expressions=expressions[0], setup=self._setup._app.nominal_sweep
-        )
-        soldata = sol.get_solution_data()
-        if soldata and "Freq" in soldata.intrinsics:
-            return [Quantity(i, soldata.units_sweeps["Freq"]) for i in soldata.intrinsics["Freq"]]
-        return []
-
-    @pyaedt_function_handler()
-    def create(self, properties: dict = None) -> bool:
-        """Create a Maxwell Eddy Current sweep.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.solve_sweeps import SweepMaxwellEC
-        >>> obj = SweepMaxwellEC()
-        >>> obj.create()
-
-        """
-        self._app.oanalysis.EditSetup(self.setup_name, self._get_args(properties if properties else self._setup.props))
-        return True
-
-    @pyaedt_function_handler()
-    def update(self) -> bool:
-        """Update a Maxwell Eddy Current sweep.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.solve_sweeps import SweepMaxwellEC
-        >>> obj = SweepMaxwellEC()
-        >>> obj.update()
-
-        """
-        self._app.oanalysis.EditSetup(self.setup_name, self._get_args(self._setup.props))
-        return True
-
-    @pyaedt_function_handler()
-    def delete(self) -> bool:
-        """Delete a Maxwell Eddy Current sweep.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.solve_sweeps import SweepMaxwellEC
-        >>> obj = SweepMaxwellEC()
-        >>> obj.delete()
-
-        """
-        setup_sweeps = self._setup.props["SweepRanges"]["Subrange"].copy()
-        if isinstance(self._setup.props["SweepRanges"]["Subrange"], list):
-            for sweep in setup_sweeps:
-                if self.props == sweep:
-                    self._setup.props["SweepRanges"]["Subrange"].remove(self.props)
-                    [self._setup._sweeps.remove(s) for s in self._setup._sweeps if s.props == sweep]
-        else:
-            pass
-        self._setup.update()
-        return True
-
-    @pyaedt_function_handler()
-    def _get_args(self, props=None):
-        """Get arguments.
-
-        Parameters
-        ----------
-        props : dict, optional
-             Dictionary of the properties. The default is ``None``, in which
-             case the default properties are retrieved.
-
-        Returns
-        -------
-        dict
-            Dictionary of the properties.
-
-        """
-        if props is None:
-            props = self.props
-        arg = ["NAME:" + self.setup_name]
         _dict2arg(props, arg)
         return arg

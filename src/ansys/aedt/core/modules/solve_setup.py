@@ -42,6 +42,7 @@ from typing import Any
 import warnings
 
 from ansys.aedt.core.generic.constants import SolutionsHfss
+from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
 
 if sys.version_info >= (3, 13):
     from warnings import deprecated
@@ -53,6 +54,7 @@ from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import Setups
+from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
 from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -74,7 +76,6 @@ from ansys.aedt.core.modules.setup_templates import SweepQ3D
 from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
 from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
 from ansys.aedt.core.modules.solve_sweeps import SweepMatrix
-from ansys.aedt.core.modules.solve_sweeps import SweepMaxwellEC
 from ansys.aedt.core.modules.solve_sweeps import get_sweep_type
 from ansys.aedt.core.modules.solve_sweeps import identify_setup
 
@@ -4356,45 +4357,45 @@ class SetupMaxwell(Setup, PyAedtBase):
     ----------
     app : :class:`ansys.aedt.core.Maxwell3d`, or :class:`ansys.aedt.core.Maxwell2d`
         Application object.
-    solution_type : int, str
-        Type of the setup.
     name : str, optional
         Name of the setup. The default is ``"MySetupAuto"``.
-    is_new_setup : bool, optional
-        Whether to create the setup from a template. The default is ``True``.
-        If ``False``, access is to the existing setup.
+    props : dict
+        Properties of the setup.
 
     Examples
     --------
-    >>> from ansys.aedt.core.modules.solve_setup import SetupMaxwell
-    >>> obj = SetupMaxwell()
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> app = Maxwell3d()
+        >>> setup = app.create_setup()
 
     """
 
-    def __init__(
-        self, app: Maxwell3d | Maxwell2d, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True
-    ) -> None:
-        Setup.__init__(self, app, solution_type, name, is_new_setup)
+    def __init__(self, app: Maxwell3d | Maxwell2d, name: str, props: dict) -> None:
+        self.__sweeps = SetupDict()
+
+        self.solver_type = app.solution_type
+
+        Setup.__init__(self, app, name, props)
 
     @pyaedt_function_handler()
     def add_eddy_current_sweep(
         self,
         sweep_type: str = "LinearStep",
-        start_frequency: float = 0.1,
+        start_frequency: float | int = 0.1,
         stop_frequency: int = 100,
-        step_size: float = 0.1,
+        step_size: float | int = 0.1,
         units: str = "Hz",
         clear: bool = True,
         save_all_fields: bool = True,
-    ) -> SweepMaxwellEC | bool:
-        """Create a Maxwell Eddy Current Sweep.
+    ) -> bool:
+        """Create a Maxwell AC sweep.
 
         Parameters
         ----------
-        sweep_type : str
+        sweep_type : str, optional
             Type of the subrange. Options are ``"LinearCount"``,
             ``"LinearStep"``, ``"LogScale"`` and ``"SinglePoints"``.
-        start_frequency : float
+        start_frequency : float, or int, optional
             Starting frequency.
         stop_frequency : float, optional
             Stopping frequency. Required for ``range_type="LinearCount"|"LinearStep"|"LogScale"``.
@@ -4411,62 +4412,70 @@ class SetupMaxwell(Setup, PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.solve_sweeps.SweepMaxwellEC`
-            Sweep object.
+        bool
 
         Examples
         --------
-        >>> import ansys.aedt.core
+        >>> from ansys.aedt.core import Maxwell2d
         >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
-        >>> m2d = ansys.aedt.core.Maxwell2d(version="2026.1")
+        >>> m2d = Maxwell2d(version="2026.1")
         >>> m2d.solution_type = SolutionsMaxwell2D.EddyCurrentXY
         >>> setup = m2d.create_setup()
         >>> sweep = setup.add_eddy_current_sweep(
         ...     sweep_type="LinearStep", start_frequency=1, stop_frequency=20, step_size=2, units="Hz", clear=False
         ... )
         >>> sweep.props["RangeStart"] = "0.1Hz"
-        >>> sweep.update()
-        >>> m2d.desktop_class.close_desktop()
 
         """
-        if self.setuptype not in [7, 60]:
-            self._app.logger.warning("This method only applies to Maxwell Eddy Current Solution.")
+        allowed_solutions = [
+            SolutionsMaxwell3D.ACMagnetic,
+            SolutionsMaxwell3D.ACMagneticAPhi,
+            SolutionsMaxwell3D.ACMagneticwithDC,
+            SolutionsMaxwell3D.ACConduction,
+            SolutionsMaxwell2D.ACMagneticXY,
+            SolutionsMaxwell2D.ACMagneticZ,
+            SolutionsMaxwell2D.ACMagnetic,
+            SolutionsMaxwell2D.ACConduction,
+        ]
+        if self.solver_type not in allowed_solutions:
+            self._app.logger.warning("This method only applies to Maxwell AC solutions.")
             return False
-        sweep = SweepMaxwellEC(self, sweep_type=sweep_type)
-        legacy_update = self.auto_update
-        self.auto_update = False
-        sweep.props["RangeType"] = sweep_type
-        sweep.props["RangeStart"] = f"{start_frequency}{units}"
-        sweep.props["RangeEnd"] = f"{stop_frequency}{units}"
+
+        props = self.props.to_dict()
+
+        subrange = {
+            "RangeType": sweep_type,
+            "RangeStart": f"{start_frequency}{units}",
+            "RangeEnd": f"{stop_frequency}{units}",
+        }
         if sweep_type == "LinearStep":
-            sweep.props["RangeStep"] = f"{step_size}{units}"
+            subrange["RangeStep"] = f"{step_size}{units}"
         elif sweep_type == "LinearCount":
-            sweep.props["RangeCount"] = step_size
+            subrange["RangeCount"] = step_size
         elif sweep_type == "LogScale":
-            sweep.props["RangeSamples"] = step_size
+            subrange["RangeSamples"] = step_size
         elif sweep_type == "SinglePoints":
-            sweep.props["RangeEnd"] = f"{start_frequency}{units}"
-        pp = self.props.to_dict()
-        pp["SaveAllFields"] = save_all_fields
-        if pp.get("SweepRanges"):
+            subrange["RangeEnd"] = f"{start_frequency}{units}"
+
+        props["SaveAllFields"] = save_all_fields
+
+        if props.get("SweepRanges"):
             if clear:
-                pp["SweepRanges"] = {"Subrange": [sweep.props]}
-                self.sweeps.clear()
+                props["SweepRanges"] = {"Subrange": [subrange]}
             else:
-                if isinstance(self.props["SweepRanges"]["Subrange"], dict):
-                    temp = self.props["SweepRanges"]["Subrange"]
-                    pp["SweepRanges"].pop("Subrange", None)
-                    pp["SweepRanges"]["Subrange"] = [SetupProps(self, temp)]
-                pp["SweepRanges"]["Subrange"].append(SetupProps(self, sweep.props))
+                if isinstance(props["SweepRanges"]["Subrange"], dict):
+                    temp = props["SweepRanges"]["Subrange"]
+                    props["SweepRanges"].pop("Subrange", None)
+                    props["SweepRanges"]["Subrange"] = [temp]
+                props["SweepRanges"]["Subrange"].append(subrange)
         else:
-            pp["HasSweepSetup"] = True
-            pp["SweepRanges"] = {"Subrange": [SetupProps(self, sweep.props)]}
-        sweep.create(pp)
-        self.auto_update = legacy_update
-        if self._sweeps is None:
-            self._sweeps = []
-        self._sweeps.append(sweep)
-        return sweep
+            props["SweepRanges"] = {"Subrange": [subrange]}
+
+        props["HasSweepSetup"] = True
+
+        self.update(props)
+
+        return True
 
     @pyaedt_function_handler()
     def delete_all_eddy_current_sweeps(self) -> bool:
@@ -4485,15 +4494,27 @@ class SetupMaxwell(Setup, PyAedtBase):
         >>> setup.delete_all_eddy_current_sweeps()
 
         """
-        if self.setuptype not in [7, 60]:
-            self._app.logger.warning("This method only applies to Maxwell Eddy Current Solution.")
+        allowed_solutions = [
+            SolutionsMaxwell3D.ACMagnetic,
+            SolutionsMaxwell3D.ACMagneticAPhi,
+            SolutionsMaxwell3D.ACMagneticwithDC,
+            SolutionsMaxwell3D.ACConduction,
+            SolutionsMaxwell2D.ACMagneticXY,
+            SolutionsMaxwell2D.ACMagneticZ,
+            SolutionsMaxwell2D.ACMagnetic,
+            SolutionsMaxwell2D.ACConduction,
+        ]
+        if self.solver_type not in allowed_solutions:
+            self._app.logger.warning("This method only applies to Maxwell AC solutions.")
             return False
-        self.props.pop("SweepRanges")
-        if self._sweeps:
-            self._sweeps.clear()
-        else:
-            self._sweeps = []
-        self.update()
+
+        props = self.props.to_dict()
+        if "SweepRanges" in props:
+            props.pop("SweepRanges")
+
+        props["HasSweepSetup"] = True
+
+        self.update(props)
         return True
 
     @pyaedt_function_handler()
@@ -4541,7 +4562,15 @@ class SetupMaxwell(Setup, PyAedtBase):
         >>> setup.enable_control_program(control_program_path="example.py")
 
         """
-        if self._app.solution_type not in ["Transient", "TransientXY", "TransientZ"]:
+        allowed_solutions = [
+            SolutionsMaxwell3D.Transient,
+            SolutionsMaxwell3D.TransientAPhi,
+            SolutionsMaxwell3D.TransientAPhi,
+            SolutionsMaxwell2D.Transient,
+            SolutionsMaxwell2D.TransientZ,
+            SolutionsMaxwell2D.TransientXY,
+        ]
+        if self._app.solution_type not in allowed_solutions:
             self._app.logger.error("Control Program is only available in Maxwell 2D and 3D Transient solutions.")
             return False
 
@@ -4553,15 +4582,13 @@ class SetupMaxwell(Setup, PyAedtBase):
             self._app.logger.error("Control Program arguments have to be a string.")
             return False
 
-        self.auto_update = False
-        self.props["UseControlProgram"] = True
-        self.props["ControlProgramName"] = str(control_program_path)
-        self.props["ControlProgramArg"] = control_program_args
-        self.props["CallCtrlProgAfterLastStep"] = call_after_last_step
-        self.auto_update = True
-        self.update()
+        props = self.props.to_dict()
 
-        return True
+        props["UseControlProgram"] = True
+        props["ControlProgramName"] = str(control_program_path)
+        props["ControlProgramArg"] = control_program_args
+        props["CallCtrlProgAfterLastStep"] = call_after_last_step
+        return self.update(props)
 
     @pyaedt_function_handler()
     def set_save_fields(
@@ -4609,32 +4636,35 @@ class SetupMaxwell(Setup, PyAedtBase):
 
         Examples
         --------
-        >>> import ansys.aedt.core
-        >>> m2d = ansys.aedt.core.Maxwell2d(version="2026.1")
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d()
         >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
         >>> m2d.solution_type = SolutionsMaxwell2D.TransientXY
         >>> setup = m2d.create_setup()
         >>> setup.set_save_fields(
         ...     enable=True, range_type="Custom", subrange_type="LinearStep", start=0, stop=8, count=2, units="ms"
         ... )
-        >>> m2d.desktop_class.close_desktop()
 
         """
-        if self.setuptype != 5 and self.setuptype != 56:
+        props = self.props.to_dict()
+
+        if (
+            self.solver_type != SolutionsMaxwell3D.Transient
+            and self.solver_type != SolutionsMaxwell3D.TransientAPhiFormulation
+        ):
             if enable:
-                self.props["SolveFieldOnly"] = True
+                props["SolveFieldOnly"] = True
             else:
-                self.props["SolveFieldOnly"] = False
-            self.update()
-            return True
+                props["SolveFieldOnly"] = False
+            return self.update(props)
         else:
             if enable:
                 if range_type == "Custom":
-                    if self.props["SaveFieldsType"] == "Every N Steps":
-                        self.props.pop("Steps From", None)
-                        self.props.pop("Steps To", None)
-                        self.props.pop("N Steps", None)
-                    self.props["SaveFieldsType"] = range_type
+                    if props["SaveFieldsType"] == "Every N Steps":
+                        props.pop("Steps From", None)
+                        props.pop("Steps To", None)
+                        props.pop("N Steps", None)
+                    props["SaveFieldsType"] = range_type
                     range_props = {
                         "RangeType": subrange_type,
                         "RangeStart": f"{start}{units}",
@@ -4646,44 +4676,41 @@ class SetupMaxwell(Setup, PyAedtBase):
                         range_props["RangeCount"] = count
                     elif subrange_type == "SinglePoints":
                         range_props["RangeEnd"] = f"{start}{units}"
-                    if "SweepRanges" in self.props.keys():
-                        if isinstance(self.props["SweepRanges"]["Subrange"], dict):
-                            temp = self.props["SweepRanges"]["Subrange"]
-                            self.props["SweepRanges"].pop("Subrange", None)
-                            self.props["SweepRanges"]["Subrange"] = [temp]
-                        self.props["SweepRanges"]["Subrange"].append(range_props)
+                    if "SweepRanges" in props.keys():
+                        if isinstance(props["SweepRanges"]["Subrange"], dict):
+                            temp = props["SweepRanges"]["Subrange"]
+                            props["SweepRanges"].pop("Subrange", None)
+                            props["SweepRanges"]["Subrange"] = [temp]
+                        props["SweepRanges"]["Subrange"].append(range_props)
                     else:
-                        self.props["SweepRanges"] = {"Subrange": [range_props]}
-                    self.update()
-                    return True
+                        props["SweepRanges"] = {"Subrange": [range_props]}
+                    return self.update(props)
                 elif range_type == "Every N Steps":
-                    if self.props["SaveFieldsType"] == "Custom":
-                        self.props.pop("SweepRanges", None)
-                    self.auto_update = False
-                    self.props["SaveFieldsType"] = "Every N Steps"
-                    self.props["N Steps"] = f"{count}"
-                    self.props["Steps From"] = f"{start}{units}"
-                    self.props["Steps To"] = f"{stop}{units}"
-                    self.update()
-                    return True
+                    if props["SaveFieldsType"] == "Custom":
+                        props.pop("SweepRanges", None)
+                    props["SaveFieldsType"] = "Every N Steps"
+                    props["N Steps"] = f"{count}"
+                    props["Steps From"] = f"{start}{units}"
+                    props["Steps To"] = f"{stop}{units}"
+
+                    return self.update(props)
                 elif range_type == "None":
-                    if self.props["SaveFieldsType"] == "Custom":
-                        self.props.pop("SweepRanges", None)
-                    elif self.props["SaveFieldsType"] == "Every N Steps":
-                        self.props.pop("N Steps", None)
-                        self.props.pop("Steps From", None)
-                        self.props.pop("Steps To", None)
-                    self.props["SaveFieldsType"] = "None"
-                    self.update()
-                    return True
+                    if props["SaveFieldsType"] == "Custom":
+                        props.pop("SweepRanges", None)
+                    elif props["SaveFieldsType"] == "Every N Steps":
+                        props.pop("N Steps", None)
+                        props.pop("Steps From", None)
+                        props.pop("Steps To", None)
+                    props["SaveFieldsType"] = "None"
+                    return self.update(props)
                 else:
                     self._app.logger.error("Invalid range type. It has to be either 'Custom' or 'Every N Steps'.")
                     return False
             else:
-                self.props["SaveFieldsType"] = "None"
-                self.props.pop("SweepRanges", None)
-                self.update()
-                return True
+                props["SaveFieldsType"] = "None"
+                props.pop("SweepRanges", None)
+
+                return self.update(props)
 
     @pyaedt_function_handler()
     def export_matrix(
@@ -4695,10 +4722,10 @@ class SetupMaxwell(Setup, PyAedtBase):
         width: int = 8,
         precision: int = 2,
         is_exponential: bool = False,
-        setup: str = None,
+        setup: str | None = None,
         default_adaptive: str = "LastAdaptive",
         is_post_processed: bool = False,
-    ) -> bool:
+    ) -> bool | None:
         """Export R/L or Capacitance matrix after solving.
 
         Parameters

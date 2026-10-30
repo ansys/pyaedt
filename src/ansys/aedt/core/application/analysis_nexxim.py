@@ -608,7 +608,12 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
                 if props[arg_name] is not None:
                     props[arg_name] = arg_value
 
-        return setup.create()
+        result = setup.create()
+
+        if not isinstance(result, SetupCircuit):  # pragma: no cover
+            raise RuntimeError("Failed to create setup.")
+
+        return result
 
     @pyaedt_function_handler()
     def change_properties(

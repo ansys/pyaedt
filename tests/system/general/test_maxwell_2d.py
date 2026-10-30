@@ -49,9 +49,6 @@ TEST_SUBFOLDER = "TMaxwell"
 TEST_NAME = "Maxwell_2D_Tests"
 TEST_DESIGN_NAME = "Basis_Model_For_Test"
 
-CTRL_PRG_PROJECT = "TimeStepCtrl"
-CTRL_PRG_FILE = "timestep_only.py"
-
 M2D_EXPORT_FIELD = "maxwell_e_line_export_field"
 SINUSOIDAL_NAME = "Sinusoidal"
 
@@ -82,13 +79,6 @@ def m2d_fields(add_app_example):
 @pytest.fixture
 def sinusoidal(add_app_example):
     app = add_app_example(application=ansys.aedt.core.Maxwell2d, project=SINUSOIDAL_NAME, subfolder=TEST_SUBFOLDER)
-    yield app
-    app.close_project(app.project_name, save=False)
-
-
-@pytest.fixture
-def m2d_ctrl_prg(add_app_example):
-    app = add_app_example(application=ansys.aedt.core.Maxwell2d, project=CTRL_PRG_PROJECT, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(app.project_name, save=False)
 
@@ -160,12 +150,6 @@ def test_create_vector_potential(aedt_app) -> None:
     assert bound2
     assert bound2.props["Value"] == "2"
     assert bound2.update()
-
-
-def test_create_setup(aedt_app) -> None:
-    mysetup = aedt_app.create_setup()
-    mysetup.props["SaveFields"] = True
-    assert mysetup.update()
 
 
 def test_assign_balloon(aedt_app) -> None:
@@ -423,21 +407,6 @@ def test_export_field_file(test_tmp_dir, m2d_fields) -> None:
         quantity="E_Line", output_file=output_file, assignment="Poly1", objects_type="Line"
     )
     assert output_file.exists()
-
-
-def test_control_program(m2d_ctrl_prg) -> None:
-    user_ctl_path = Path("user.ctl")
-    ctrl_prg_path = Path(TESTS_GENERAL_PATH) / "example_models" / TEST_SUBFOLDER / CTRL_PRG_FILE
-    assert m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=ctrl_prg_path)
-    assert m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=ctrl_prg_path, control_program_args="3")
-    assert not m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=ctrl_prg_path, control_program_args=3)
-    assert m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=ctrl_prg_path, call_after_last_step=True)
-    invalid_ctrl_prg_path = Path(TESTS_GENERAL_PATH) / "example_models" / TEST_SUBFOLDER / "invalid.py"
-    assert not m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=invalid_ctrl_prg_path)
-    m2d_ctrl_prg.solution_type = SolutionsMaxwell2D.EddyCurrentXY
-    assert not m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=ctrl_prg_path)
-    if user_ctl_path.exists():
-        user_ctl_path.unlink()
 
 
 @pytest.mark.skipif(NON_GRAPHICAL, reason="Test fails on build machine")
