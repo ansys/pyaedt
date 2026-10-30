@@ -157,7 +157,13 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
 
     @property
     def edb(self) -> "Edb":
-        """EBD. Supported only in IronPython.
+        """Read-only EDB of the active design, as of the last save of the project.
+
+        The handle is shared by every app object of the project in this process and is reopened
+        when AEDT saves the project or another design is requested. Unsaved changes in AEDT are not
+        visible; ``edb.aedt_saved_at`` gives the time of the save it shows. After ``close()``, the
+        next access reopens it. The database is opened read-only, so
+        ``save()`` and ``save_as()`` fail; make edits with AEDT commands.
 
         Returns
         -------
@@ -173,20 +179,14 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         """
         if settings.remote_api or settings.remote_rpc_session:
             return self._edb
-        if not self._edb:
-            from ansys.aedt.core import Edb
-
+        if not (Path(self._edb_file).exists() or inside_desktop_ironpython_console):
             self._edb = None
-            if Path(self._edb_file).exists() or inside_desktop_ironpython_console:
-                self._edb = Edb(
-                    str(self._edb_folder),
-                    self._app.design_name,
-                    True,
-                    self._app._aedt_version,
-                    isaedtowned=True,
-                    oproject=self._app.oproject,
-                )
+            return None
+        from ansys.aedt.core.internal.edb_registry import edb_registry
 
+        self._edb = edb_registry.get(
+            self._edb_folder, self._app.design_name, self._app._aedt_version, oproject=self._app.oproject
+        )
         return self._edb
 
     @property
