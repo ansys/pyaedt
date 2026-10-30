@@ -4882,6 +4882,17 @@ class Design(AedtObjects, PyAedtBase):
         >>> result = hfss.evaluate_expression("sqrt(width^2 + height^2)")
 
         """
+        # Fast path: plain numeric values cannot be variable names, so skip the AEDT variable lookup
+        if isinstance(expression, (int, float)) and not isinstance(expression, bool):
+            return float(expression)
+        if isinstance(expression, str):
+            stripped = expression.strip()
+            if stripped and stripped[0] in "0123456789+-.":
+                try:
+                    return float(stripped)
+                except ValueError:
+                    pass
+
         # Strategy 1: Direct variable lookup
         # If the expression is exactly a variable name, return its SI value directly
         if expression in self._variable_manager.variables:
