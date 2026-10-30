@@ -84,7 +84,9 @@ class AedtVersions(PyAedtBase):
             version_list = sorted([x for x in os.environ if x.startswith(aedt_env_var_prefix)], reverse=True)
 
             for version_env_var in version_list:
-                product_dir = os.getenv(version_env_var)
+                product_dir = os.getenv(version_env_var, "")
+                if not product_dir:
+                    continue
                 parent_dir = os.path.join(product_dir, "..")
                 _script_dir = Path(script_dir).resolve()
 
