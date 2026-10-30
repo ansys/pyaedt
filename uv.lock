@@ -5347,20 +5347,20 @@ dev = [
     { name = "cryptography" },
     { name = "mock", specifier = ">=5.1.0" },
     { name = "numpydoc", specifier = ">=1.10.0" },
-    { name = "prek", specifier = ">=0.5.0" },
+    { name = "prek" },
     { name = "pytest", specifier = ">=7.4.0" },
     { name = "pytest-cov", specifier = ">=4.0.0" },
     { name = "pytest-testmon", specifier = ">=2.0.0" },
     { name = "pytest-timeout", specifier = ">=2.3.0" },
     { name = "pytest-xdist", specifier = ">=3.5.0" },
     { name = "recommonmark" },
-    { name = "ruff", specifier = ">=0.16.0" },
+    { name = "ruff" },
     { name = "sphinx", specifier = ">=7.1.0" },
     { name = "sphinx-autobuild", specifier = ">=2024.10.3" },
     { name = "sphinx-copybutton", specifier = ">=0.5.0" },
     { name = "sphinx-design", specifier = ">=0.4.0" },
     { name = "sphinx-gallery", specifier = ">=0.14.0" },
-    { name = "ty", specifier = ">=0.0.49" },
+    { name = "ty" },
 ]
 doc = [
     { name = "ansys-sphinx-theme", marker = "python_full_version < '3.12'", specifier = "==1.0.0" },
@@ -5374,9 +5374,9 @@ doc = [
     { name = "sphinx-gallery", specifier = ">=0.14.0" },
 ]
 quality = [
-    { name = "prek", specifier = ">=0.5.0" },
-    { name = "ruff", specifier = ">=0.16.0" },
-    { name = "ty", specifier = ">=0.0.49" },
+    { name = "prek" },
+    { name = "ruff" },
+    { name = "ty" },
 ]
 tests = [
     { name = "cryptography" },
