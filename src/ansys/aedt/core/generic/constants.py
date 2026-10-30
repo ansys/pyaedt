@@ -1373,7 +1373,7 @@ class SolutionsMaxwell3D(metaclass=DynamicMeta):
             "ElectricTransient": "ElectricTransient",
             "DCBiasedEddyCurrent": "DCBiasedEddyCurrent",
         }
-        for version in ["2025.2", "2025.1", "2024.2", "2024.1", "2023.2", "2023.1", "2022.2"]
+        for version in ["2025.1", "2024.2", "2024.1", "2023.2", "2023.1", "2022.2"]
     }
 
 
@@ -1447,7 +1447,7 @@ class SolutionsMaxwell2D(metaclass=DynamicMeta):
             "ACConductionZ": "ACConductionZ",
             "ACConduction": "ACConduction",
         }
-        for version in ["2025.2", "2025.1", "2024.2", "2024.1", "2023.2", "2023.1", "2022.2"]
+        for version in ["2025.1", "2024.2", "2024.1", "2023.2", "2023.1", "2022.2"]
     }
 
 
