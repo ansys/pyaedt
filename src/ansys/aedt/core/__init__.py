@@ -31,10 +31,11 @@ if os.name == "nt":
 
 LATEST_EOL_PYTHON_VERSION = (3, 10)
 PYTHON_EOL_WARNING = (
-    "Python 3.10 has reached its end of life. Support for Python 3.10 will be removed "
-    "in an upcoming PyAEDT release. Please upgrade to a supported Python version. For "
-    "more information on Python versions, please refer to the official Python "
-    "documentation (https://devguide.python.org/versions/#status-of-python-versions)"
+LATEST_EOL_PYTHON_VERSION = (3, 10)
+_eol = ".".join(map(str, LATEST_EOL_PYTHON_VERSION))
+PYTHON_EOL_WARNING = (
+    f"Python {_eol} has reached its end of life. Support for Python {_eol} will be removed "
+    "in an upcoming PyAEDT release. Please upgrade to a supported Python version."
 )
 """Python end-of-life warning."""
 LATEST_DEPRECATED_PYTHON_VERSION = (3, 11)
