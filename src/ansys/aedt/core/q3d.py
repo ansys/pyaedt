@@ -26,6 +26,7 @@
 
 from __future__ import annotations
 
+import copy
 from pathlib import Path
 import re
 import sys
@@ -207,7 +208,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
             name = self.generate_unique_setup_name(name)
             self.logger.warning(f"Name already exists. New name assigned is {name}.")
 
-        props = setup_keys[setup_type]
+        props = copy.deepcopy(setup_keys[setup_type])
 
         if kwargs:
             if "props" in kwargs:

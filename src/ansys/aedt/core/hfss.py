@@ -34,6 +34,7 @@ Examples
 from __future__ import annotations
 
 from collections import defaultdict
+import copy
 import math
 from pathlib import Path
 import re
@@ -1755,7 +1756,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             name = self.generate_unique_setup_name(name)
             self.logger.warning(f"Name already exists. New name assigned is {name}.")
 
-        props = setup_keys[setup_type]
+        props = copy.deepcopy(setup_keys[setup_type])
 
         setup = self._create_setup(name=name, setup_type=setup_type, props=props)
 

@@ -87,6 +87,7 @@ if TYPE_CHECKING:
     from ansys.aedt.core import Maxwell3d
     from ansys.aedt.core import Q2d
     from ansys.aedt.core import Q3d
+    from ansys.aedt.core import Rmxprt
     from ansys.aedt.core import TwinBuilder
     from ansys.aedt.core.visualization.post.solution_data import SolutionData
     from ansys.aedt.core.visualization.report.standard import Standard
@@ -98,8 +99,9 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
     Parameters
     ----------
     app : :class:`ansys.aedt.core.Hfss`, :class:`ansys.aedt.core.Circuit`, :class:`ansys.aedt.core.Hfss3dLayout`,
-     :class:`ansys.aedt.core.Maxwell3d`, :class:`ansys.aedt.core.TwinBuilder`, :class:`ansys.aedt.core.Q3d`,
-      :class:`ansys.aedt.core.Q2d, :class:`ansys.aedt.core.Maxwell2d`, :class:`ansys.aedt.core.Icepak`
+    :class:`ansys.aedt.core.Maxwell3d`, :class:`ansys.aedt.core.TwinBuilder`, :class:`ansys.aedt.core.Q3d`,
+    :class:`ansys.aedt.core.Q2d, :class:`ansys.aedt.core.Maxwell2d`, :class:`ansys.aedt.core.Icepak`,
+    :class:`ansys.aedt.core.Rmxprt`
         Application object.
     name : str, optional
         Name of the setup. The default is ``"MySetupAuto"``.
@@ -133,7 +135,7 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
 
     def __init__(
         self,
-        app: Hfss | Circuit | Hfss3dLayout | Maxwell3d | TwinBuilder | Q3d | Q2d | Maxwell2d | Icepak,
+        app: Hfss | Circuit | Hfss3dLayout | Maxwell3d | TwinBuilder | Q3d | Q2d | Maxwell2d | Icepak | Rmxprt,
         name: str = "MySetupAuto",
         props: dict | None = None,
     ) -> None:
@@ -808,7 +810,7 @@ class Setup(CommonSetup):
     """
 
     def __init__(
-        self, app: Hfss | Hfss3dLayout | Maxwell3d | Maxwell2d | Q3d | Q2d | Icepak, name: str, props: dict
+        self, app: Hfss | Hfss3dLayout | Maxwell3d | Maxwell2d | Q3d | Q2d | Icepak | Rmxprt, name: str, props: dict
     ) -> None:
         CommonSetup.__init__(self, app=app, name=name, props=props)
 
@@ -5580,5 +5582,32 @@ class SetupIcepakFEA(Setup, PyAedtBase):
             solution_type = "TransientThermal"
 
         self.solver_type = f"Mech{solution_type}"
+
+        Setup.__init__(self, app, name, props)
+
+
+class SetupRmxprt(Setup, PyAedtBase):
+    """Initializes, creates, and updates an Rmxprt setup.
+
+    Parameters
+    ----------
+    app : :class:`ansys.aedt.core.Hfss`
+        Application object.
+    name : str
+        Name of the setup.
+    props : dict
+        Properties of the setup.
+
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Rmxprt
+    >>> app = Rmxprt()
+    >>> setup = app.create_setup()
+
+    """
+
+    def __init__(self, app: Rmxprt, name: str, props: dict) -> None:
+        self.solver_type = app.solution_type
 
         Setup.__init__(self, app, name, props)

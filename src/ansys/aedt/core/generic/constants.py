@@ -1604,7 +1604,7 @@ class Setups(metaclass=DynamicMeta):
     HSPICE = 28
     """Hspice."""
     HFSS3DLayout = 29
-    """Value for HFSS 3 D layout."""
+    """Value for HFSS 3D layout."""
     Open = 30
     """Value for open."""
     Close = 31

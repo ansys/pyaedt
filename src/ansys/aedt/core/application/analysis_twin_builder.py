@@ -24,6 +24,7 @@
 
 from __future__ import annotations
 
+import copy
 from typing import TYPE_CHECKING
 
 from ansys.aedt.core.application.analysis import Analysis
@@ -242,7 +243,7 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
             name = self.generate_unique_setup_name(name)
             self.logger.warning(f"Name already exists. New name assigned is {name}.")
 
-        props = setup_keys[setup_type]
+        props = copy.deepcopy(setup_keys[setup_type])
 
         setup = SetupCircuit(app=self, name=name, props=props)
 

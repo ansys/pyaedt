@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import copy
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -400,7 +401,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
 
         if setup_type in [Setups.HFSSDrivenAuto, Setups.HFSS3DLayoutAuto]:
             setup_type = Setups.HFSS3DLayoutAuto
-            props = setup_keys[setup_type]
+            props = copy.deepcopy(setup_keys[setup_type])
             setup = SetupHFSSAuto(app=self, name=name, props=props)
         else:
             if setup_type == Setups.NexximAMI:
@@ -414,7 +415,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
             elif setup_type == Setups.NexximVerifEye:
                 setup_type = Setups.VerifEye3DLayout
 
-            props = setup_keys[setup_type]
+            props = copy.deepcopy(setup_keys[setup_type])
             setup = Setup3DLayout(app=self, name=name, props=props)
 
         if kwargs:

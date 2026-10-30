@@ -38,6 +38,8 @@ from ansys.aedt.core.generic.general_methods import _merge_props
 if TYPE_CHECKING:
     from ansys.aedt.core.modules.mesh import MeshOperation
 
+import copy
+
 from ansys.aedt.core.application.analysis_icepak import FieldAnalysisIcepak
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import Plane
@@ -3439,7 +3441,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             name = self.generate_unique_setup_name(name)
             self.logger.warning(f"Name already exists. New name assigned is {name}.")
 
-        props = setup_keys[setup_type]
+        props = copy.deepcopy(setup_keys[setup_type])
 
         setup = SetupIcepak(app=self, name=name, props=props)
 

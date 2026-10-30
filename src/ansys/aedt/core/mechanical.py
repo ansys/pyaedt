@@ -24,6 +24,8 @@
 
 """The module contains the ``Mechanical`` class."""
 
+import copy
+
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import SolutionsMechanical
@@ -846,7 +848,7 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
             name = self.generate_unique_setup_name(name)
             self.logger.warning(f"Name already exists. New name assigned is {name}.")
 
-        props = setup_keys[setup_type]
+        props = copy.deepcopy(setup_keys[setup_type])
 
         setup = SetupIcepakFEA(app=self, name=name, props=props)
 

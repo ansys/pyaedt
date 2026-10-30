@@ -79,6 +79,7 @@ from ansys.aedt.core.modules.solve_setup import SetupIcepak
 from ansys.aedt.core.modules.solve_setup import SetupIcepakFEA
 from ansys.aedt.core.modules.solve_setup import SetupMaxwell
 from ansys.aedt.core.modules.solve_setup import SetupQ3D
+from ansys.aedt.core.modules.solve_setup import SetupRmxprt
 from ansys.aedt.core.modules.solve_setup import SetupSBR
 
 if TYPE_CHECKING:
@@ -1534,6 +1535,7 @@ class Analysis(Design, PyAedtBase):
             "SetupCircuit": SetupCircuit,
             "IcepakFEA": SetupIcepakFEA,
             "Mechanical": SetupIcepakFEA,
+            "RMxprtSolution": SetupRmxprt,
         }
         if self.design_type in setup_by_type:
             design_type = self.design_type
