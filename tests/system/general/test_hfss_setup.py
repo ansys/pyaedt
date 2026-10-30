@@ -756,6 +756,7 @@ def test_sweep_sbr(hfss_app) -> None:
     assert setup3.props["RayDensityPerWavelength"] == 1
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.2", reason="Skipped on versions earlier than 2025.2")
 def test_add_doppler_sweep(hfss_app) -> None:
     compfile = hfss_app.components3d["Male_Arm_Left"]
     hfss_app.modeler.insert_3d_component(compfile)
@@ -797,6 +798,7 @@ def test_add_doppler_sweep(hfss_app) -> None:
     assert not sweep3
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.2", reason="Skipped on versions earlier than 2025.2")
 def test_add_doppler_chirp_i(hfss_app) -> None:
     compfile = hfss_app.components3d["Male_Arm_Left"]
     hfss_app.modeler.insert_3d_component(compfile)
@@ -839,6 +841,7 @@ def test_add_doppler_chirp_i(hfss_app) -> None:
     assert not sweep3
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.2", reason="Skipped on versions earlier than 2025.2")
 def test_add_doppler_chirp_iq(hfss_app) -> None:
     compfile = hfss_app.components3d["Male_Arm_Left"]
     hfss_app.modeler.insert_3d_component(compfile)
@@ -924,7 +927,7 @@ def test_eigen(hfss_app) -> None:
     assert name2 not in hfss_app.setup_names
 
 
-@pytest.mark.skipif(DESKTOP_VERSION < "2023.1", reason="Skipped on versions earlier than 2023.1")
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.2", reason="Skipped on versions earlier than 2025.2")
 def test_transient(hfss_app) -> None:
     hfss_app.solution_type = "Transient"
 
