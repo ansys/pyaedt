@@ -2800,6 +2800,10 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                         for key in ("model", "Model1", "Model2"):
                             if key in j["properties"]:
                                 new_comp.parameters[key] = j["properties"].pop(key)
+                        if "buffer_mode" in j["properties"]:
+                            new_comp._change_property(
+                                "buffer_mode", j["properties"].pop("buffer_mode"), value_name="IbisText"
+                            )
                     new_comp_params = {
                         i: k[1:-1] if isinstance(k, str) and k.startswith('"') else k
                         for i, k in new_comp.parameters.items()
