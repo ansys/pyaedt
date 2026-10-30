@@ -481,10 +481,7 @@ class Object3d(PyAedtBase):
         if set(face_ids) == set(self._face_ids):
             return self._faces
         self._face_ids = face_ids
-        self._faces = []
-        for face in list(self._oeditor.GetFaceIDs(self.name)):
-            face = int(face)
-            self._faces.append(FacePrimitive(self, face))
+        self._faces = [FacePrimitive(self, int(face)) for face in face_ids]
         return self._faces
 
     @property
@@ -1373,8 +1370,9 @@ class Object3d(PyAedtBase):
             vOut = ["NAME:AllTabs", vGeo3d]
             self._primitives.oeditor.ChangeProperty(vOut)
             self._m_name = obj_name
-            self._primitives.add_new_objects()
-            self._primitives.cleanup_objects()
+            with self._primitives._cached_object_types():
+                self._primitives.add_new_objects()
+                self._primitives.cleanup_objects()
         else:
             self.logger.warning(f"{obj_name} is already used in current design.")
 
