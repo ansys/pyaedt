@@ -29,6 +29,8 @@ import warnings
 import pytest
 
 from ansys.aedt.core import LATEST_DEPRECATED_PYTHON_VERSION
+from ansys.aedt.core import LATEST_EOL_PYTHON_VERSION
+from ansys.aedt.core import PYTHON_EOL_WARNING
 from ansys.aedt.core import PYTHON_VERSION_WARNING
 from ansys.aedt.core import deprecation_warning
 
@@ -39,6 +41,17 @@ VALID_PYTHON_VERSION = (LATEST_DEPRECATED_PYTHON_VERSION[0], LATEST_DEPRECATED_P
 def desktop() -> None:
     """Override the desktop fixture to DO NOT open the Desktop when running this test class"""
     return
+
+
+@pytest.mark.parametrize("python_version", [(3, 10), LATEST_EOL_PYTHON_VERSION])
+@patch.object(warnings, "warn")
+def test_deprecation_warning_with_eol_python_version(mock_warn, monkeypatch, python_version) -> None:
+    """Test that EOL versions trigger only the end-of-life warning."""
+    monkeypatch.setattr(sys, "version_info", python_version)
+
+    deprecation_warning()
+
+    mock_warn.assert_called_once_with(PYTHON_EOL_WARNING, FutureWarning)
 
 
 @patch.object(warnings, "warn")
