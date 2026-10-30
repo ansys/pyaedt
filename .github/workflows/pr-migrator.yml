@@ -1,6 +1,6 @@
 name: Pull request migrator
 on:
-  issue_comment:
+  issue_comment: # zizmor: ignore[dangerous-triggers] temporary exclusion
     types: [created]
 
 permissions: {}
