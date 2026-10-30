@@ -30,8 +30,6 @@ if os.name == "nt":
     os.environ["PYTHONMALLOC"] = "malloc"
 
 LATEST_EOL_PYTHON_VERSION = (3, 10)
-PYTHON_EOL_WARNING = (
-LATEST_EOL_PYTHON_VERSION = (3, 10)
 _eol = ".".join(map(str, LATEST_EOL_PYTHON_VERSION))
 PYTHON_EOL_WARNING = (
     f"Python {_eol} has reached its end of life. Support for Python {_eol} will be removed "
