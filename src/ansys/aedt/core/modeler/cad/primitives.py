@@ -4275,6 +4275,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.generic.constants import Axis
         >>> app = Hfss()
         >>> c1 = app.modeler.create_cylinder(Axis.X, [0, 0, 0], 10.0, 200)
         >>> c2 = app.modeler.create_cylinder(Axis.X, [0, 0, 0], 3.0, 200)
