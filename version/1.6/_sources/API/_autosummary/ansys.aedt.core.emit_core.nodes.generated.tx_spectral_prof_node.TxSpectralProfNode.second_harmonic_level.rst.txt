@@ -1,0 +1,6 @@
+second\_harmonic\_level
+=======================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.tx_spectral_prof_node
+
+.. autoproperty:: TxSpectralProfNode.second_harmonic_level

@@ -1,0 +1,6 @@
+major\_grid\_line\_style
+========================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.result_plot_node
+
+.. autoproperty:: ResultPlotNode.major_grid_line_style

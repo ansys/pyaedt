@@ -1,0 +1,6 @@
+use\_envelope
+=============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.waveform
+
+.. autoproperty:: Waveform.use_envelope

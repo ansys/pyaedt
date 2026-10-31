@@ -1,0 +1,133 @@
+﻿ScalarReal
+==========
+
+.. currentmodule:: ansys.aedt.core.visualization.post.field_calculator_expressions
+
+.. autoclass:: ScalarReal
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      ScalarReal.absolute
+      
+      
+      ScalarReal.acos
+      
+      
+      ScalarReal.add
+      
+      
+      ScalarReal.as_complex_imag
+      
+      
+      ScalarReal.as_complex_real
+      
+      
+      ScalarReal.as_vector_x
+      
+      
+      ScalarReal.as_vector_y
+      
+      
+      ScalarReal.as_vector_z
+      
+      
+      ScalarReal.asin
+      
+      
+      ScalarReal.atan
+      
+      
+      ScalarReal.checkpoint
+      
+      
+      ScalarReal.cos
+      
+      
+      ScalarReal.derivative
+      
+      
+      ScalarReal.evaluate
+      
+      
+      ScalarReal.export
+      
+      
+      ScalarReal.gradient
+      
+      
+      ScalarReal.integrate
+      
+      
+      ScalarReal.ln
+      
+      
+      ScalarReal.log10
+      
+      
+      ScalarReal.max_position
+      
+      
+      ScalarReal.maximum
+      
+      
+      ScalarReal.mean
+      
+      
+      ScalarReal.min_position
+      
+      
+      ScalarReal.minimum
+      
+      
+      ScalarReal.power
+      
+      
+      ScalarReal.sin
+      
+      
+      ScalarReal.smooth
+      
+      
+      ScalarReal.sqrt
+      
+      
+      ScalarReal.stack_depth
+      
+      
+      ScalarReal.std
+      
+      
+      ScalarReal.tan
+      
+      
+      ScalarReal.to_dict
+      
+      
+      ScalarReal.value
+      
+      
+      ScalarReal.verify
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      ScalarReal.is_complex
+      ScalarReal.is_vector
+      ScalarReal.operations
+      ScalarReal.public_dir
+   
+   

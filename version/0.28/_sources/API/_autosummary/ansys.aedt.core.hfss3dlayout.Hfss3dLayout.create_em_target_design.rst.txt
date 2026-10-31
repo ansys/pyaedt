@@ -1,0 +1,6 @@
+create\_em\_target\_design
+==========================
+
+.. currentmodule:: ansys.aedt.core.hfss3dlayout
+
+.. automethod:: Hfss3dLayout.create_em_target_design

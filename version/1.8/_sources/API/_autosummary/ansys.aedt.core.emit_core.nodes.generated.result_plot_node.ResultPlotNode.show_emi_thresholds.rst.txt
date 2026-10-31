@@ -1,0 +1,6 @@
+show\_emi\_thresholds
+=====================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.result_plot_node
+
+.. autoproperty:: ResultPlotNode.show_emi_thresholds

@@ -1,0 +1,6 @@
+apply\_solved\_variation
+========================
+
+.. currentmodule:: ansys.aedt.core.q3d
+
+.. automethod:: Q2d.apply_solved_variation

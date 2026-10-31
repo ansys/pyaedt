@@ -1,0 +1,6 @@
+page\_names
+===========
+
+.. currentmodule:: ansys.aedt.core.modeler.schematic
+
+.. autoproperty:: ModelerNexxim.page_names

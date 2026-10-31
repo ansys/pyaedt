@@ -1,0 +1,6 @@
+get\_fresnel\_floquet\_ports
+============================
+
+.. currentmodule:: ansys.aedt.core.hfss
+
+.. automethod:: Hfss.get_fresnel_floquet_ports

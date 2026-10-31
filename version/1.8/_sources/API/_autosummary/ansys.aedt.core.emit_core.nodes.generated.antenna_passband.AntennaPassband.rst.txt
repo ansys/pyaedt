@@ -1,0 +1,69 @@
+﻿AntennaPassband
+===============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.antenna_passband
+
+.. autoclass:: AntennaPassband
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      AntennaPassband.delete
+      
+      
+      AntennaPassband.duplicate
+      
+      
+      AntennaPassband.export_to_csv
+      
+      
+      AntennaPassband.get_is_component
+      
+      
+      AntennaPassband.get_properties
+      
+      
+      AntennaPassband.plot
+      
+      
+      AntennaPassband.props_to_dict
+      
+      
+      AntennaPassband.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      AntennaPassband.allowed_child_types
+      AntennaPassband.children
+      AntennaPassband.enabled
+      AntennaPassband.higher_cutoff
+      AntennaPassband.higher_stop_band
+      AntennaPassband.lower_cutoff
+      AntennaPassband.lower_stop_band
+      AntennaPassband.name
+      AntennaPassband.node_type
+      AntennaPassband.notes
+      AntennaPassband.odesktop
+      AntennaPassband.out_of_band_attenuation
+      AntennaPassband.parent
+      AntennaPassband.parent_name
+      AntennaPassband.passband_loss
+      AntennaPassband.properties
+      AntennaPassband.valid
+      AntennaPassband.warnings
+   
+   

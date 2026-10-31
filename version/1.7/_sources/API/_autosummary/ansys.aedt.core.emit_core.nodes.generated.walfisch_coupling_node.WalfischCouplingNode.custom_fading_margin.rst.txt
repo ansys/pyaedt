@@ -1,0 +1,6 @@
+custom\_fading\_margin
+======================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.walfisch_coupling_node
+
+.. autoproperty:: WalfischCouplingNode.custom_fading_margin

@@ -1,0 +1,6 @@
+water\_vapor\_concentration
+===========================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.walfisch_coupling_node
+
+.. autoproperty:: WalfischCouplingNode.water_vapor_concentration

@@ -1,0 +1,6 @@
+assign\_fresnel
+===============
+
+.. currentmodule:: ansys.aedt.core.hfss
+
+.. automethod:: Hfss.assign_fresnel

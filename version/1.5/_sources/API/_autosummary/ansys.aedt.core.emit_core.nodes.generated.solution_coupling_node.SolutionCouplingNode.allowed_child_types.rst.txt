@@ -1,0 +1,6 @@
+allowed\_child\_types
+=====================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.solution_coupling_node
+
+.. autoproperty:: SolutionCouplingNode.allowed_child_types

@@ -1,0 +1,6 @@
+total\_air\_pressure
+====================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.five_g_channel_model
+
+.. autoproperty:: FiveGChannelModel.total_air_pressure

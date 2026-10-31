@@ -1,0 +1,55 @@
+﻿MaxwellTorque
+=============
+
+.. currentmodule:: ansys.aedt.core.modules.boundary.maxwell_boundary
+
+.. autoclass:: MaxwellTorque
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      MaxwellTorque.create
+      
+      
+      MaxwellTorque.delete
+      
+      
+      MaxwellTorque.jsonalize_tree
+      
+      
+      MaxwellTorque.suppress_all
+      
+      
+      MaxwellTorque.unsuppress_all
+      
+      
+      MaxwellTorque.update
+      
+      
+      MaxwellTorque.update_property
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      MaxwellTorque.available_properties
+      MaxwellTorque.children
+      MaxwellTorque.command
+      MaxwellTorque.name
+      MaxwellTorque.properties
+      MaxwellTorque.props
+      MaxwellTorque.public_dir
+   
+   

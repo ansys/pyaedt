@@ -1,0 +1,63 @@
+﻿Weave
+=====
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.weave
+
+.. autoclass:: Weave
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      Weave.create_weave
+      
+      
+      Weave.create_weave_homogenized
+      
+      
+      Weave.export_to_json
+      
+      
+      Weave.from_dict
+      
+      
+      Weave.load_from_json
+      
+      
+      Weave.set_weave_style
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      Weave.facet_ellipse_segments
+      Weave.facet_path_segments_per_half
+      Weave.fill_width
+      Weave.public_dir
+      Weave.ratio_fill
+      Weave.ratio_warp
+      Weave.rotation
+      Weave.sectors_per_pitch
+      Weave.shift_y
+      Weave.subtract_from_substrate
+      Weave.target_amplitude
+      Weave.target_pitch_x
+      Weave.target_pitch_y
+      Weave.warp_width
+      Weave.weave_parameters
+      Weave.yarn_loss_tangent
+      Weave.yarn_material
+      Weave.yarn_permittivity
+   
+   

@@ -1,0 +1,6 @@
+vswr
+====
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.terminator
+
+.. autoproperty:: Terminator.vswr
