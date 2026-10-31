@@ -405,13 +405,13 @@ class VariableManager(PyAedtBase):
         All dependent variable names within the project.
     independent_variable_names : list of str
         All independent variable names within the project. These can
-        be sweep variables for optimetrics.
+        be sweep variables for Optimetrics.
     independent_project_variable_names : str or list
         All independent project variable names within the
-        project. These can be sweep variables for optimetrics.
+        project. These can be sweep variables for Optimetrics.
     independent_design_variable_names : str or list
         All independent design properties (local variables) within the
-        project. These can be sweep variables for optimetrics.
+        project. These can be sweep variables for Optimetrics.
 
     See Also
     --------
@@ -1929,10 +1929,13 @@ class Variable(PyAedtBase):
         prop = prop or self.name
         app = self._aedt_obj
 
-        app_type = app.GetObjType()
+        app_type = None
+
+        if "GetObjType" in dir(app):
+            app_type = app.GetObjType()
 
         # DefinitionParameters only available in circuit and HFSS 3D Layout design type
-        if app_type.lower() == "design" and self.has_definition_parameters:
+        if app_type and app_type.lower() == "design" and self.has_definition_parameters:
             inst_name = f"Instance:{app.GetName()}"
 
             if self.is_circuit_parameter:

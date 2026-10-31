@@ -22,21 +22,25 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import copy
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.configurations import Configurations3DLayout
+from ansys.aedt.core.generic.constants import Setups
+from ansys.aedt.core.generic.general_methods import _merge_props
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from ansys.aedt.core.modules.mesh_3d_layout import Mesh3dLayout
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.modules.solve_setup import Setup3DLayout
+from ansys.aedt.core.modules.solve_setup import SetupHFSSAuto
 
 if TYPE_CHECKING:
     from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
-    from ansys.aedt.core.modules.mesh_3d_layout import Mesh3d
     from ansys.aedt.core.visualization.post.post_3dlayout import PostProcessor3DLayout
     from ansys.aedt.core.visualization.post.post_circuit import PostProcessorCircuit
     from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
@@ -200,12 +204,12 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         return self._post
 
     @property
-    def mesh(self) -> "Mesh3d":
+    def mesh(self) -> Mesh3dLayout | None:
         """Mesh.
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.mesh_3d_layout.Mesh3d`
+        :class:`ansys.aedt.core.modules.mesh_3d_layout.Mesh3dLayout`
 
         Examples
         --------
@@ -215,9 +219,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
 
         """
         if self._mesh is None and self._odesign:
-            from ansys.aedt.core.modules.mesh_3d_layout import Mesh3d
-
-            self._mesh = Mesh3d(self)
+            self._mesh = Mesh3dLayout(self)
         return self._mesh
 
     @property
@@ -346,14 +348,16 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         return self.oexcitation.GetAllPortsList()
 
     @pyaedt_function_handler()
-    def create_setup(self, name: str = "MySetupAuto", setup_type: str | None = None, **kwargs) -> Setup3DLayout:
+    def create_setup(
+        self, name: str | None = None, setup_type: str | int | None = None, **kwargs
+    ) -> Setup3DLayout | SetupHFSSAuto:
         """Create a setup.
 
         Parameters
         ----------
         name : str, optional
             Name of the new setup. The default is ``"MySetupAuto"``.
-        setup_type : str, optional
+        setup_type : str or int, optional
             Type of the setup. The default is ``None``, in which case
             the default type is applied.
         **kwargs : dict, optional
@@ -363,6 +367,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
 
         Returns
         -------
+        :class:`ansys.aedt.core.modules.solve_setup.Setup3DLayout`, or
         :class:`ansys.aedt.core.modules.solve_setup.Setup3DLayout`
 
         References
@@ -372,34 +377,60 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core import Hfss3dLayout
+        >>> from ansys.aedt.core.generic.constants import Setups
         >>> app = Hfss3dLayout()
-        >>> app.create_setup(name="Setup1", MeshSizeFactor=2, SingleFrequencyDataList__AdaptiveFrequency="5GHZ")
+        >>> app.create_setup(name="Setup1", setup_type=Setups.HFSS3DLayout, MeshSizeFactor=2)
 
         """
+        setup_keys = SetupKeys.get_setup_templates()
+        setup_names_available = [name for name in dir(Setups) if not name.startswith("_")]
+
         if setup_type is None:
             setup_type = self.design_solutions.default_setup
-        elif setup_type in SetupKeys.SetupNames:
-            setup_type = SetupKeys.SetupNames.index(setup_type)
-        name = self.generate_unique_setup_name(name)
-        if setup_type == 62 and not self.ic_mode:
-            raise AEDTRuntimeError("RaptorX is supported only in 'IC' mode.")
-        setup = Setup3DLayout(self, setup_type, name)
-        tmp_setups = self.setups
-        setup.create()
-        setup.auto_update = False
+        elif isinstance(setup_type, str) and setup_type in setup_names_available:
+            setup_type = getattr(Setups, setup_type)
 
-        if "props" in kwargs:
-            for el in kwargs["props"]:
-                setup.props[el] = kwargs["props"][el]
-        for arg_name, arg_value in kwargs.items():
-            if arg_name == "props":
-                continue
-            if setup[arg_name] is not None:
-                setup[arg_name] = arg_value
-        setup.auto_update = True
-        setup.update()
-        self._setups = tmp_setups + [setup]
-        return setup
+        if not name:
+            name = self.generate_unique_setup_name("MySetupAuto")
+        elif name in self.setup_names:
+            name = self.generate_unique_setup_name(name)
+            self.logger.warning(f"Name already exists. New name assigned is {name}.")
+
+        if setup_type == Setups.RaptorX and not self.ic_mode:
+            raise AEDTRuntimeError("RaptorX is supported only in 'IC' mode.")
+
+        if setup_type in [Setups.HFSSDrivenAuto, Setups.HFSS3DLayoutAuto]:
+            setup_type = Setups.HFSS3DLayoutAuto
+            props = copy.deepcopy(setup_keys[setup_type])
+            setup = SetupHFSSAuto(app=self, name=name, props=props)
+        else:
+            if setup_type == Setups.NexximAMI:
+                setup_type = Setups.AMI3DLayout
+            elif setup_type == Setups.NexximLNA:
+                setup_type = Setups.LNA3DLayout
+            elif setup_type == Setups.NexximQuickEye:
+                setup_type = Setups.QuickEye3DLayout
+            elif setup_type == Setups.NexximTransient:
+                setup_type = Setups.Transient3DLayout
+            elif setup_type == Setups.NexximVerifEye:
+                setup_type = Setups.VerifEye3DLayout
+
+            props = copy.deepcopy(setup_keys[setup_type])
+            setup = Setup3DLayout(app=self, name=name, props=props)
+
+        if kwargs:
+            if "props" in kwargs:
+                _merge_props(props, kwargs.pop("props"))
+            for arg_name, arg_value in kwargs.items():
+                if props[arg_name] is not None:
+                    props[arg_name] = arg_value
+
+        result = setup.create()
+
+        if not isinstance(result, Setup3DLayout):  # pragma: no cover
+            raise RuntimeError("Failed to create setup.")
+
+        return result
 
     @pyaedt_function_handler()
     def delete_setup(self, name: str) -> bool:
@@ -427,13 +458,9 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         >>> hfss3dlayout = ansys.aedt.core.Hfss3dLayout()
         >>> setup1 = hfss3dlayout.create_setup(name="Setup1")
         >>> hfss3dlayout.delete_setup()
-        PyAEDT INFO: Sweep was deleted correctly.
 
         """
-        if name in self.setup_names:
-            self.osolution.Delete(name)
-            for s in self.setups:
-                if s.name == name:
-                    self.setups.remove(s)
+        if name in self._app.setup_names:
+            self.setups[name].delete()
             return True
         return False

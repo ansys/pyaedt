@@ -1707,12 +1707,12 @@ class Primitives3D(GeometryModeler, PyAedtBase):
     def insert_3d_component(
             self,
             input_file: str | Path,
-            geometry_parameters: dict = None,
+            geometry_parameters: dict | None = None,
             material_parameters: str = "",
             design_parameters: str = "",
             coordinate_system: str = "Global",
-            name: str = None,
-            password = None,
+            name: str | None = None,
+            password: str | None = None,
             auxiliary_parameters: bool = False,
     ) -> UserDefinedComponent | bool:
         """Insert a new 3D component.

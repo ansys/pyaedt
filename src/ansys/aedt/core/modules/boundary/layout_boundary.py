@@ -24,6 +24,8 @@
 
 from __future__ import annotations
 
+from ansys.aedt.core.application import _get_obj_data
+from ansys.aedt.core.application import _has_get_obj_data
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.data_handlers import random_string
@@ -110,7 +112,7 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         self.native_properties = self.__props["NativeComponentDefinitionProvider"]
         self.auto_update = True
 
-        self._initialize_tree_node()
+        # self._initialize_tree_node()
 
     @property
     def _child_object(self):
@@ -258,10 +260,11 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
             self.excitation_name = a[0].split(":")[0]
         except (GrpcApiError, IndexError):
             self.excitation_name = self._name
-        return self._initialize_tree_node()
+        # return self._initialize_tree_node()
+        return True
 
     @pyaedt_function_handler()
-    def update(self) -> bool:
+    def update(self, properties: dict = None) -> bool:
         """Update the Native Component in AEDT.
 
         Returns
@@ -276,24 +279,25 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> obj.update()
 
         """
-        self.update_props = {}
-        self.update_props["DefinitionName"] = self.props["SubmodelDefinitionName"]
-        self.update_props["GeometryDefinitionParameters"] = self.props["GeometryDefinitionParameters"]
-        self.update_props["DesignDefinitionParameters"] = self.props["DesignDefinitionParameters"]
-        self.update_props["MaterialDefinitionParameters"] = self.props["MaterialDefinitionParameters"]
-        self.update_props["NextUniqueID"] = self.props["NextUniqueID"]
-        self.update_props["MoveBackwards"] = self.props["MoveBackwards"]
-        self.update_props["DatasetType"] = self.props["DatasetType"]
-        self.update_props["DatasetDefinitions"] = self.props["DatasetDefinitions"]
-        self.update_props["NativeComponentDefinitionProvider"] = self.props["NativeComponentDefinitionProvider"]
-        self.update_props["ComponentName"] = self.props["BasicComponentInfo"]["ComponentName"]
-        self.update_props["Company"] = self.props["BasicComponentInfo"]["Company"]
-        self.update_props["Model Number"] = self.props["BasicComponentInfo"]["Model Number"]
-        self.update_props["Help URL"] = self.props["BasicComponentInfo"]["Help URL"]
-        self.update_props["Version"] = self.props["BasicComponentInfo"]["Version"]
-        self.update_props["Notes"] = self.props["BasicComponentInfo"]["Notes"]
-        self.update_props["IconType"] = self.props["BasicComponentInfo"]["IconType"]
-        self._app.modeler.oeditor.EditNativeComponentDefinition(self._get_args(self.update_props))
+        if not properties:
+            properties = {}
+            properties["DefinitionName"] = self.props["SubmodelDefinitionName"]
+            properties["GeometryDefinitionParameters"] = self.props["GeometryDefinitionParameters"]
+            properties["DesignDefinitionParameters"] = self.props["DesignDefinitionParameters"]
+            properties["MaterialDefinitionParameters"] = self.props["MaterialDefinitionParameters"]
+            properties["NextUniqueID"] = self.props["NextUniqueID"]
+            properties["MoveBackwards"] = self.props["MoveBackwards"]
+            properties["DatasetType"] = self.props["DatasetType"]
+            properties["DatasetDefinitions"] = self.props["DatasetDefinitions"]
+            properties["NativeComponentDefinitionProvider"] = self.props["NativeComponentDefinitionProvider"]
+            properties["ComponentName"] = self.props["BasicComponentInfo"]["ComponentName"]
+            properties["Company"] = self.props["BasicComponentInfo"]["Company"]
+            properties["Model Number"] = self.props["BasicComponentInfo"]["Model Number"]
+            properties["Help URL"] = self.props["BasicComponentInfo"]["Help URL"]
+            properties["Version"] = self.props["BasicComponentInfo"]["Version"]
+            properties["Notes"] = self.props["BasicComponentInfo"]["Notes"]
+            properties["IconType"] = self.props["BasicComponentInfo"]["IconType"]
+        self._app.modeler.oeditor.EditNativeComponentDefinition(self._get_args(properties))
 
         return True
 
@@ -352,7 +356,7 @@ class BoundaryObject3dLayout(BoundaryCommon, BinaryTreeNode, PyAedtBase):
             self.__props = BoundaryProps(self, props)
         self.type = boundarytype
         self.auto_update = True
-        self._initialize_tree_node()
+        # self._initialize_tree_node()
 
     @property
     def _child_object(self):
@@ -405,13 +409,24 @@ class BoundaryObject3dLayout(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> obj.props
 
         """
-        if self.__props:
+        has_obj_data = _has_get_obj_data(self._child_object)
+        if self.__props and not (has_obj_data and self.auto_update):
             return self.__props
-        props = self._get_boundary_data(self.name)
+        child_object = self._child_object
+        if has_obj_data:
+            props = _get_obj_data(child_object)
+        else:
+            boundary_data = self._get_boundary_data(self.name)
+            props = boundary_data[0] if boundary_data else {}
 
         if props:
-            self.__props = BoundaryProps(self, props[0])
-            self._type = props[1]
+            self.__props = BoundaryProps(self, props)
+            if has_obj_data:
+                boundary_type = props.get("Type") or props.get("BoundType")
+            else:
+                boundary_type = boundary_data[1]
+            if boundary_type:
+                self._type = boundary_type
         return self.__props
 
     @pyaedt_function_handler()
@@ -445,7 +460,7 @@ class BoundaryObject3dLayout(BoundaryCommon, BinaryTreeNode, PyAedtBase):
             self.__props = BoundaryProps(self, props)
 
     @pyaedt_function_handler()
-    def update(self) -> bool:
+    def update(self, properties: dict = None) -> bool:
         """Update the boundary.
 
         Returns

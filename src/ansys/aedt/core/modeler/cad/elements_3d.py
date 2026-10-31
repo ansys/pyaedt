@@ -29,7 +29,7 @@ from ansys.aedt.core.generic.general_methods import clamp
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import rgb_color_codes
 from ansys.aedt.core.generic.general_methods import settings
-from ansys.aedt.core.generic.numbers_utils import _units_assignment
+from ansys.aedt.core.generic.props import Props as HistoryProps
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
@@ -1870,40 +1870,13 @@ class Plane(PyAedtBase):
         return self._primitives._change_plane_property(vPropChange, self.name)
 
 
-class HistoryProps(dict):
-    """Manages an object's history properties.
-
-    Examples
-    --------
-    >>> from ansys.aedt.core.modeler.cad.elements_3d import HistoryProps
-    >>> obj = HistoryProps()
-
-    """
-
-    def __setitem__(self, key, value):
-        value = _units_assignment(value)
-        if self._pyaedt_child._app:
-            value = _units_assignment(value)
-        dict.__setitem__(self, key, value)
-        if "auto_update" in dir(self._pyaedt_child) and self._pyaedt_child.auto_update:
-            self._pyaedt_child.update_property(key, value)
-
-    def __init__(self, child_object, props) -> None:
-        dict.__init__(self)
-        if props:
-            for key, value in props.items():
-                dict.__setitem__(self, key, value)
-        self._pyaedt_child = child_object
-
-    def _setitem_without_update(self, key, value):
-        dict.__setitem__(self, key, value)
-
-    def pop(self, key, default=None):
-        dict.pop(self, key, default)
-
-
 class BinaryTreeNode:
     """Manages an object's history structure.
+
+    Children, properties, and the AEDT child object are resolved lazily on
+    first access so constructing a node (or a subclass) does not query AEDT.
+    Subclasses that defer ``BinaryTreeNode.__init__`` should implement
+    ``_initialize_tree_node``; it is invoked at most once.
 
     Examples
     --------
@@ -1911,6 +1884,11 @@ class BinaryTreeNode:
     >>> obj = BinaryTreeNode()
 
     """
+
+    _tree_node_initialized = False
+    _tree_node_initializing = False
+    _children_loading = False
+    _children_loaded = False
 
     def __init__(
         self, node, child_object, first_level: bool = False, get_child_obj_arg=None, root_name=None, app=None
@@ -1922,23 +1900,86 @@ class BinaryTreeNode:
         self._saved_root_name = node if first_level else root_name
         self._get_child_obj_arg = get_child_obj_arg
         self._node = node
-        self.child_object = child_object
+        self.__child_object = child_object
         self.auto_update = True
         self._children = {}
         self.__first_level = first_level
-        if first_level:
+        self._children_loaded = False
+        self._tree_node_initialized = True
+
+    def __setattr__(self, name, value):
+        # Callers invalidate the child cache with ``self._children = {}``.
+        if name == "_children" and value == {} and not self._children_loading:
+            object.__setattr__(self, "_children_loaded", False)
+        object.__setattr__(self, name, value)
+
+    def _initialize_tree_node(self) -> bool:
+        """Initialize the AEDT tree node.
+
+        Subclasses override this method to resolve the AEDT child object and
+        call ``BinaryTreeNode.__init__``. Direct instances are already
+        initialized in ``__init__``.
+
+        Returns
+        -------
+        bool
+            ``True`` when the tree node is ready, ``False`` otherwise.
+
+        """
+        return True
+
+    def _ensure_tree_node(self) -> bool:
+        """Run deferred tree initialization at most once."""
+        if self._tree_node_initialized:
+            return True
+        if self._tree_node_initializing:
+            return False
+        object.__setattr__(self, "_tree_node_initializing", True)
+        try:
+            result = bool(self._initialize_tree_node())
+            if result:
+                object.__setattr__(self, "_tree_node_initialized", True)
+            return result
+        finally:
+            object.__setattr__(self, "_tree_node_initializing", False)
+
+    @property
+    def child_object(self):
+        """AEDT child object associated with this node."""
+        self._ensure_tree_node()
+        return getattr(self, "_BinaryTreeNode__child_object", None)
+
+    @child_object.setter
+    def child_object(self, value) -> None:
+        self.__child_object = value
+
+    def _ensure_children(self) -> None:
+        if self._children_loading:
+            return
+        if getattr(self, "_children", None) or self._children_loaded:
+            return
+        if not self._ensure_tree_node():
+            return
+        object.__setattr__(self, "_children_loading", True)
+        try:
             self._update_children()
+            object.__setattr__(self, "_children_loaded", True)
+        finally:
+            object.__setattr__(self, "_children_loading", False)
 
     def _update_children(self) -> None:
         self._children = {}
         name = None
+        child_object = getattr(self, "_BinaryTreeNode__child_object", None)
+        if not child_object:
+            return
         try:
             if self._get_child_obj_arg is None:
-                child_names = [i for i in list(self.child_object.GetChildNames()) if not i.startswith("CachedBody")]
+                child_names = [i for i in list(child_object.GetChildNames()) if not i.startswith("CachedBody")]
             else:
                 child_names = [
                     i
-                    for i in list(self.child_object.GetChildNames(self._get_child_obj_arg))
+                    for i in list(child_object.GetChildNames(self._get_child_obj_arg))
                     if not i.startswith("CachedBody")
                 ]
         except Exception:  # pragma: no cover
@@ -1951,16 +1992,16 @@ class BinaryTreeNode:
             elif not i.startswith("OperandPart_"):
                 try:
                     self._children[i] = BinaryTreeNode(
-                        i, self.child_object.GetChildObject(i), root_name=self._saved_root_name, app=self._app
+                        i, child_object.GetChildObject(i), root_name=self._saved_root_name, app=self._app
                     )
                 except Exception:
                     settings.logger.debug(f"Failed to instantiate BinaryTreeNode for {i}")
             else:
-                names = self.child_object.GetChildObject(i).GetChildNames()
+                names = child_object.GetChildObject(i).GetChildNames()
                 for name in names:
                     self._children[name] = BinaryTreeNode(
                         name,
-                        self.child_object.GetChildObject(i).GetChildObject(name),
+                        child_object.GetChildObject(i).GetChildObject(name),
                         root_name=self._saved_root_name,
                         app=self._app,
                     )
@@ -1969,15 +2010,21 @@ class BinaryTreeNode:
             self._children[name].properties["Command"] = self.properties.get("Command", "")
             self._props = self._children[name].properties
             if name == "CreatePolyline:1":
-                self.segments = self._children[name].children
+                self._segments = self._children[name].children
             del self._children[name]
 
     @property
     def children(self) -> dict:
         """Retrieve children."""
-        if not self._children:
-            self._update_children()
-        return self._children
+        self._ensure_children()
+        return getattr(self, "_children", {})
+
+    @property
+    def segments(self):
+        """Polyline segment nodes when this is a polyline history tree."""
+        if getattr(self, "_BinaryTreeNode__first_level", False):
+            self._ensure_children()
+        return getattr(self, "_segments", None)
 
     @property
     def properties(self) -> "HistoryProps":
@@ -1994,29 +2041,34 @@ class BinaryTreeNode:
         >>> obj.properties
 
         """
-        self._props = {}
-        if not getattr(self, "child_object", None):
-            return self._props
-        if settings.aedt_version >= "2024.2":
-            try:
-                from ansys.aedt.core.application import _get_data_model
-
-                props = _get_data_model(self.child_object)
-                for p in self.child_object.GetPropNames():
-                    self._props[p] = props.get(p, None)
-            except Exception:
-                for p in self.child_object.GetPropNames():
-                    try:
-                        self._props[p] = self.child_object.GetPropValue(p)
-                    except Exception:
-                        self._props[p] = None
-        else:
-            for p in self.child_object.GetPropNames():
+        initialized = self._ensure_tree_node()
+        if not initialized:
+            return HistoryProps(self, {})
+        if getattr(self, "_BinaryTreeNode__first_level", False):
+            self._ensure_children()
+        props = {}
+        child_object = getattr(self, "_BinaryTreeNode__child_object", None)
+        if child_object:
+            if settings.aedt_version >= "2024.2":
                 try:
-                    self._props[p] = self.child_object.GetPropValue(p)
+                    from ansys.aedt.core.application import _get_data_model
+
+                    data_model = _get_data_model(child_object)
+                    for p in child_object.GetPropNames():
+                        props[p] = data_model.get(p, None)
                 except Exception:
-                    self._props[p] = None
-        self._props = HistoryProps(self, self._props)
+                    for p in child_object.GetPropNames():
+                        try:
+                            props[p] = child_object.GetPropValue(p)
+                        except Exception:
+                            props[p] = None
+            else:
+                for p in child_object.GetPropNames():
+                    try:
+                        props[p] = child_object.GetPropValue(p)
+                    except Exception:
+                        props[p] = None
+        self._props = HistoryProps(self, props)
         return self._props
 
     @property
@@ -2058,14 +2110,21 @@ class BinaryTreeNode:
         >>> obj.update_property(prop_name=1, prop_value=1)
 
         """
+        if prop_name == "Command":
+            return
         if prop_value is None:
             settings.logger.warning(f"Property {prop_name} set to None ignored.")
             return
         try:
             result = self.child_object.SetPropValue(prop_name, prop_value)
             if result:
-                if prop_name == "Name" and getattr(self, "_name", False):
-                    setattr(self, "_name", prop_value)
+                if prop_name == "Name" and hasattr(self, "_name"):
+                    # Bypass BinaryTreeNode.__setattr__ and drop the stale COM handle so
+                    # ``_child_object`` is resolved again from the new name.
+                    object.__setattr__(self, "_name", prop_value)
+                    object.__setattr__(self, "_tree_node_initialized", False)
+                    object.__setattr__(self, "_props", None)
+                    object.__setattr__(self, "_children_loaded", False)
             else:
                 settings.logger.warning(f"Property {prop_name} is read-only.")
                 # Property Name duplicated

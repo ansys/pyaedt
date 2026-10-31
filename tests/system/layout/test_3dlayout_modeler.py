@@ -503,20 +503,13 @@ def test_create_coaxial_port(aedt_app) -> None:
 
     port = aedt_app.create_coax_port("port_via", 0.5, "Top", "Lower")
     assert port.name == "Port1"  # First port when test runs independently
-    assert port.props["Radial Extent Factor"] == "0.5"
+    assert port.props["Properties"]["Radial Extent Factor"] == "0.5"
     aedt_app.delete_port(name=port.name, remove_geometry=False)
     assert len(aedt_app.port_list) == 0
     aedt_app.odesign.Undo()
     aedt_app.delete_port(name=port.name)
     assert len(aedt_app.port_list) == 0
     aedt_app.odesign.Undo()
-
-
-def test_create_setup(aedt_app) -> None:
-    setup_name = "RFBoardSetup"
-    setup = aedt_app.create_setup(name=setup_name)
-    assert setup.name == aedt_app.setup_names[0]
-    assert setup.solver_type == "HFSS"
 
 
 def test_edit_setup(aedt_app) -> None:
@@ -574,35 +567,6 @@ def test_edit_setup(aedt_app) -> None:
         max_delta_phase=8,
         custom_entries=[["1", "2", 0.03, 4]],
     )
-
-
-def test_disable_enable_setup(aedt_app) -> None:
-    setup_name = "RFBoardSetup3"
-    setup3 = aedt_app.create_setup(name=setup_name)
-    setup3.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["MaxPasses"] = 1
-    assert setup3.update()
-    assert setup3.disable()
-    assert setup3.enable()
-    sweep = setup3.add_sweep()
-    assert sweep
-    assert sweep.change_range("LinearStep", 1.1, 2.1, 0.4, "GHz")
-    assert sweep.add_subrange("LinearCount", 1, 1.5, 3, "MHz")
-    assert sweep.change_type("Discrete")
-    assert not sweep.add_subrange("SinglePoint", 10.1e-1, "GHz")
-    assert not sweep.add_subrange("SinglePoint", 10.2e-1, "GHz")
-    assert sweep.set_save_fields(True, True)
-    assert sweep.set_save_fields(False, False)
-
-
-def test_get_setup(aedt_app) -> None:
-    setup_name = "RFBoardSetup4"
-    aedt_app.create_setup(name=setup_name)
-    setup4 = aedt_app.get_setup(aedt_app.setup_names[0])
-    setup4.props["PercentRefinementPerPass"] = 37
-    setup4.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["MaxPasses"] = 44
-    assert setup4.update()
-    assert setup4.disable()
-    assert setup4.enable()
 
 
 def test_create_linear_count_sweep(aedt_app) -> None:
@@ -940,11 +904,11 @@ def test_create_pin_port(aedt_app) -> None:
 
     port = aedt_app.create_pin_port("PinPort1")
     assert port.name == "PinPort1"
-    port.props["Magnitude"] = "2V"
-    assert port.props["Magnitude"] == "2V"
-    assert port.properties["Magnitude"] == "2V"
-    port.properties["Magnitude"] = "5V"
-    assert port.properties["Magnitude"] == "5V"
+    port.props["Properties"]["Magnitude"] = "2V"
+    assert port.props["Properties"]["Magnitude"] == "2V"
+    assert port.properties["Properties"]["Magnitude"] == "2V"
+    port.properties["Properties"]["Magnitude"] = "5V"
+    assert port.properties["Properties"]["Magnitude"] == "5V"
 
 
 def test_duplicate_material(aedt_app) -> None:

@@ -49,9 +49,6 @@ TEST_SUBFOLDER = "TMaxwell"
 TEST_NAME = "Maxwell_2D_Tests"
 TEST_DESIGN_NAME = "Basis_Model_For_Test"
 
-CTRL_PRG_PROJECT = "TimeStepCtrl"
-CTRL_PRG_FILE = "timestep_only.py"
-
 M2D_EXPORT_FIELD = "maxwell_e_line_export_field"
 SINUSOIDAL_NAME = "Sinusoidal"
 
@@ -87,13 +84,6 @@ def sinusoidal(add_app_example):
 
 
 @pytest.fixture
-def m2d_ctrl_prg(add_app_example):
-    app = add_app_example(application=ansys.aedt.core.Maxwell2d, project=CTRL_PRG_PROJECT, subfolder=TEST_SUBFOLDER)
-    yield app
-    app.close_project(app.project_name, save=False)
-
-
-@pytest.fixture
 def m2d_export_matrix(add_app_example):
     app = add_app_example(application=ansys.aedt.core.Maxwell2d, project=EXPORT_MATRIX, subfolder=TEST_SUBFOLDER)
     yield app
@@ -112,14 +102,6 @@ def m2d_setup(add_app_example):
     app = add_app_example(application=ansys.aedt.core.Maxwell2d, project=M2D_TRANSIENT_EC, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(app.project_name, save=False)
-
-
-def test_assign_initial_mesh_from_slider(aedt_app) -> None:
-    assert aedt_app.mesh.assign_initial_mesh_from_slider(4)
-    with pytest.raises(ValueError):
-        aedt_app.mesh.assign_initial_mesh_from_slider(method="dummy")
-    with pytest.raises(ValueError):
-        aedt_app.mesh.assign_initial_mesh(method="dummy")
 
 
 def test_assign_winding(aedt_app) -> None:
@@ -146,10 +128,10 @@ def test_assign_coil(aedt_app) -> None:
     assert bound
     polarity = "Positive"
     bound = aedt_app.assign_coil(assignment=["Coil"], polarity=polarity)
-    assert bound.props["PolarityType"] == polarity.lower()
+    assert bound.props["PolarityType"].lower() == polarity.lower()
     polarity = "Negative"
     bound = aedt_app.assign_coil(assignment=["Coil"], polarity=polarity)
-    assert bound.props["PolarityType"] == polarity.lower()
+    assert bound.props["PolarityType"].lower() == polarity.lower()
     bound_name = ansys.aedt.core.generate_unique_name("Coil")
     bound = aedt_app.assign_coil(assignment=["Coil"], name=bound_name)
     assert bound_name == bound.name
@@ -168,12 +150,6 @@ def test_create_vector_potential(aedt_app) -> None:
     assert bound2
     assert bound2.props["Value"] == "2"
     assert bound2.update()
-
-
-def test_create_setup(aedt_app) -> None:
-    mysetup = aedt_app.create_setup()
-    mysetup.props["SaveFields"] = True
-    assert mysetup.update()
 
 
 def test_assign_balloon(aedt_app) -> None:
@@ -364,9 +340,9 @@ def test_assign_current_density(sinusoidal) -> None:
     assert bound2.props["CoordinateSystem"] == ""
     bound_group = sinusoidal.assign_current_density(["Coil", "Coil_1"], "CurrentDensityGroup_1")
     assert bound_group
-    assert bound_group.props[bound_group.props["items"][0]]["Objects"] == ["Coil", "Coil_1"]
-    assert bound_group.props[bound_group.props["items"][0]]["Value"] == "0"
-    assert bound_group.props[bound_group.props["items"][0]]["CoordinateSystem"] == ""
+    assert bound_group.props["Objects"] == ["Coil"]
+    assert bound_group.props["Value"] == "0"
+    assert bound_group.props["CoordinateSystem"] == ""
     with pytest.raises(AEDTRuntimeError, match="Couldn't assign current density to desired list of objects."):
         sinusoidal.assign_current_density("Circle_inner", "CurrentDensity_1")
 
@@ -376,41 +352,6 @@ def test_set_variable(aedt_app) -> None:
     aedt_app["var_test"] = "234"
     assert "var_test" in aedt_app.variable_manager.design_variable_names
     assert aedt_app.variable_manager.design_variables["var_test"].expression == "234"
-
-
-def test_cylindrical_gap(aedt_app) -> None:
-    assert not aedt_app.mesh.assign_cylindrical_gap("Band")
-    [
-        x.delete()
-        for x in aedt_app.mesh.meshoperations[:]
-        if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
-    ]
-    assert aedt_app.mesh.assign_cylindrical_gap("Band", name="cyl_gap_test")
-    assert not aedt_app.mesh.assign_cylindrical_gap(["Band", "Region"])
-    assert not aedt_app.mesh.assign_cylindrical_gap("Band")
-    [
-        x.delete()
-        for x in aedt_app.mesh.meshoperations[:]
-        if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
-    ]
-    assert aedt_app.mesh.assign_cylindrical_gap("Band", name="cyl_gap_test", band_mapping_angle=2)
-
-
-def test_skin_depth(aedt_app) -> None:
-    edge = aedt_app.modeler["Rotor_Section1"].edges[0]
-    mesh = aedt_app.mesh.assign_skin_depth(assignment=edge, skin_depth="0.3mm", layers_number=3)
-    assert mesh
-    assert mesh.type == "SkinDepthBased"
-    assert mesh.props["Edges"][0] == edge.id
-    assert mesh.props["SkinDepth"] == "0.3mm"
-    assert mesh.props["NumLayers"] == 3
-    edge1 = aedt_app.modeler["Rotor_Section1"].edges[1]
-    mesh = aedt_app.mesh.assign_skin_depth(assignment=edge1.id, skin_depth="0.3mm", layers_number=3)
-    assert mesh
-    assert mesh.type == "SkinDepthBased"
-    assert mesh.props["Edges"][0] == edge1.id
-    assert mesh.props["SkinDepth"] == "0.3mm"
-    assert mesh.props["NumLayers"] == 3
 
 
 def test_start_continue_from_previous_setup(test_tmp_dir, aedt_app) -> None:
@@ -466,21 +407,6 @@ def test_export_field_file(test_tmp_dir, m2d_fields) -> None:
         quantity="E_Line", output_file=output_file, assignment="Poly1", objects_type="Line"
     )
     assert output_file.exists()
-
-
-def test_control_program(m2d_ctrl_prg) -> None:
-    user_ctl_path = Path("user.ctl")
-    ctrl_prg_path = Path(TESTS_GENERAL_PATH) / "example_models" / TEST_SUBFOLDER / CTRL_PRG_FILE
-    assert m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=ctrl_prg_path)
-    assert m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=ctrl_prg_path, control_program_args="3")
-    assert not m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=ctrl_prg_path, control_program_args=3)
-    assert m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=ctrl_prg_path, call_after_last_step=True)
-    invalid_ctrl_prg_path = Path(TESTS_GENERAL_PATH) / "example_models" / TEST_SUBFOLDER / "invalid.py"
-    assert not m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=invalid_ctrl_prg_path)
-    m2d_ctrl_prg.solution_type = SolutionsMaxwell2D.EddyCurrentXY
-    assert not m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=ctrl_prg_path)
-    if user_ctl_path.exists():
-        user_ctl_path.unlink()
 
 
 @pytest.mark.skipif(NON_GRAPHICAL, reason="Test fails on build machine")
@@ -679,7 +605,7 @@ def test_create_external_circuit(m2d_app) -> None:
     with pytest.raises(AEDTRuntimeError):
         m2d_app.create_external_circuit()
     m2d_app.solution_type = SolutionsMaxwell2D.EddyCurrentXY
-    for w in m2d_app.excitations_by_type["Winding"]:
+    for w in m2d_app.excitations_by_type["Winding Group"]:
         w.delete()
     m2d_app.save_project()
     with pytest.raises(

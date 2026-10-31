@@ -24,10 +24,13 @@
 
 from __future__ import annotations
 
+import copy
 from typing import TYPE_CHECKING
 
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
+from ansys.aedt.core.generic.aedt_constants import Setups
+from ansys.aedt.core.generic.general_methods import _merge_props
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modules.setup_templates import SetupKeys
@@ -198,8 +201,8 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
         return self._post
 
     @pyaedt_function_handler()
-    def create_setup(self, name: str = "MySetupAuto", setup_type: str | None = None, **kwargs) -> SetupCircuit:
-        """Create a setup.
+    def create_setup(self, name: str | None = None, setup_type: str | None = None, **kwargs) -> SetupCircuit:
+        """Create a setup for Twin Builder.
 
         Parameters
         ----------
@@ -226,27 +229,34 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
         >>> tb.create_setup(name="Setup1")
 
         """
+        setup_keys = SetupKeys.get_setup_templates()
+        setup_names_available = [name for name in dir(Setups) if not name.startswith("_")]
+
         if setup_type is None:
             setup_type = self.design_solutions.default_setup
-        elif setup_type in SetupKeys.SetupNames:
-            setup_type = SetupKeys.SetupNames.index(setup_type)
-        setup_type_name = SetupKeys.SetupNames[setup_type]
-        name = self.generate_unique_setup_name(name)
-        setup = SetupCircuit(self, setup_type, name)
-        tmp_setups = self.setups
-        setup.create()
-        setup.auto_update = False
+        elif isinstance(setup_type, str) and setup_type in setup_names_available:
+            setup_type = getattr(Setups, setup_type)
 
-        if "props" in kwargs:
-            for el in kwargs["props"]:
-                setup.props[el] = kwargs["props"][el]
-        for arg_name, arg_value in kwargs.items():
-            if arg_name == "props":
-                continue
-            if setup[arg_name] is not None:
-                setup[arg_name] = arg_value
-        setup.auto_update = True
-        setup.update()
-        self.design_solutions.solution_type = setup_type_name
-        self._setups = tmp_setups + [setup]
-        return setup
+        if not name:
+            name = self.generate_unique_setup_name("MySetupAuto")
+        elif name in self.setup_names:
+            name = self.generate_unique_setup_name(name)
+            self.logger.warning(f"Name already exists. New name assigned is {name}.")
+
+        props = copy.deepcopy(setup_keys[setup_type])
+
+        setup = SetupCircuit(app=self, name=name, props=props)
+
+        if kwargs:
+            if "props" in kwargs:
+                _merge_props(props, kwargs.pop("props"))
+            for arg_name, arg_value in kwargs.items():
+                if props[arg_name] is not None:
+                    props[arg_name] = arg_value
+
+        result = setup.create()
+
+        if not isinstance(result, SetupCircuit):  # pragma: no cover
+            raise RuntimeError("Failed to create setup.")
+
+        return result

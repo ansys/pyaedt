@@ -25,7 +25,6 @@
 from __future__ import annotations
 
 import datetime
-import difflib
 from functools import update_wrapper
 from functools import wraps
 import inspect
@@ -47,7 +46,6 @@ from typing import ParamSpec
 from typing import TypeVar
 from typing import cast
 
-from ansys.aedt.core.generic.protocols import _AppWithOProject
 from ansys.aedt.core.generic.protocols import _ODesktop
 
 if TYPE_CHECKING:
@@ -58,8 +56,6 @@ import warnings
 import psutil
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger
-from ansys.aedt.core.base import PyAedtBase
-from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.checks import deprecated_doc
@@ -1833,151 +1829,6 @@ def conversion_function(data: "list | ndarray", function: str | None = None):  #
     return data
 
 
-class PropsManager(PyAedtBase):
-    """Manage props manager."""
-
-    # NOTE: props and _app are provided by subclasses; declared here so this mixin type-checks.
-    props: dict
-    _app: _AppWithOProject
-
-    def __getitem__(self, item):
-        """Get the `self.props` key value.
-
-        Parameters
-        ----------
-        item : str
-            Key to search
-        """
-        item_split = item.split("/")
-        if len(item_split) == 1:
-            item_split = item_split[0].split("__")
-        props = self.props
-        found_el = []
-        matching_percentage = 1
-        while matching_percentage >= 0.4:
-            for item_value in item_split:
-                found_el = self._recursive_search(props, item_value, matching_percentage)
-                # found_el = difflib.get_close_matches(item_value, list(props.keys()), 1, matching_percentage)
-                if found_el:
-                    props = found_el[1][found_el[2]]
-                    # props = props[found_el[0]]
-            if found_el:
-                return props
-            else:
-                matching_percentage -= 0.02
-        self._app.logger.warning("Key %s not found.Check one of available keys in self.available_properties", item)
-        return None
-
-    def __setitem__(self, key, value):
-        """Set the `self.props` key value.
-
-        Parameters
-        ----------
-        key : str
-            Key to apply.
-        value : int, float, bool, str, dict
-            Value to apply.
-        """
-        item_split = key.split("/")
-        if len(item_split) == 1:
-            item_split = item_split[0].split("__")
-        found_el = []
-        props = self.props
-        matching_percentage = 1
-        key_path = []
-        while matching_percentage >= 0.4:
-            for item_value in item_split:
-                found_el = self._recursive_search(props, item_value, matching_percentage)
-                if found_el:
-                    props = found_el[1][found_el[2]]
-                    key_path.append(found_el[2])
-            if found_el:
-                if matching_percentage < 1:
-                    self._app.logger.info(
-                        "Key %s matched internal key '%s' with confidence of %s.",
-                        key,
-                        "/".join(key_path),
-                        round(matching_percentage * 100),
-                    )
-                matching_percentage = 0
-
-            else:
-                matching_percentage -= 0.02
-        value = _units_assignment(value)
-        if found_el:
-            found_el[1][found_el[2]] = value
-            self.update()
-        else:
-            props[key] = value
-            self.update()
-            self._app.logger.warning("Key %s not found. Trying to applying new key ", key)
-
-    @pyaedt_function_handler()
-    def _recursive_search(self, dict_in, key: str = "", matching_percentage: float = 0.8):
-        f = difflib.get_close_matches(key, list(dict_in.keys()), 1, matching_percentage)
-        if f:
-            return True, dict_in, f[0]
-        else:
-            for v in list(dict_in.values()):
-                if isinstance(v, dict):
-                    out_val = self._recursive_search(v, key, matching_percentage)
-                    if out_val:
-                        return out_val
-                elif isinstance(v, list) and isinstance(v[0], dict):
-                    for val in v:
-                        out_val = self._recursive_search(val, key, matching_percentage)
-                        if out_val:
-                            return out_val
-        return False
-
-    @pyaedt_function_handler()
-    def _recursive_list(self, dict_in, prefix: str = ""):
-        available_list = []
-        for k, v in dict_in.items():
-            if prefix:
-                name = prefix + "/" + k
-            else:
-                name = k
-            available_list.append(name)
-            if isinstance(v, dict):
-                available_list.extend(self._recursive_list(v, name))
-        return available_list
-
-    @property
-    def available_properties(self):
-        """Available properties.
-
-        Returns
-        -------
-        list
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> setup = hfss.create_setup(name="Setup1")
-        >>> setup.available_properties
-
-        """
-        if self.props:
-            return self._recursive_list(self.props)
-        return []
-
-    @pyaedt_function_handler()
-    def update(self) -> None:
-        """Update method.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> setup = hfss.create_setup(name="Setup1")
-        >>> setup.update()
-
-        """
-        pass
-
-
 def clamp(n, minn, maxn):
     """Return clamp."""
     return max(min(maxn, n), minn)
@@ -2087,3 +1938,35 @@ def install_with_pip(
             subprocess.run(command, check=True)  # nosec
         except subprocess.CalledProcessError as e:  # nosec
             raise AEDTRuntimeError("An error occurred while installing with pip") from e
+
+
+def _merge_props(target, updates):
+    """Recursively merge property updates into a target dictionary in place.
+
+    Nested dictionaries are merged recursively when both dictionaries contain
+    the same key. Otherwise, the value from ``updates`` replaces the value in
+    ``target``.
+
+    Parameters
+    ----------
+    target : dict
+        Dictionary to update.
+    updates : dict
+        Property values to merge into ``target``.
+
+    """
+    for key, value in updates.items():
+        if isinstance(value, dict) and isinstance(target.get(key), dict):
+            _merge_props(target[key], value)
+        else:
+            target[key] = value
+
+
+class SetupDict(dict):
+    """Dictionary that supports accessing values by their insertion-order index."""
+
+    def __getitem__(self, item):
+        if type(item) is int:
+            return list(self.values())[item]
+        else:
+            return super().__getitem__(item)
