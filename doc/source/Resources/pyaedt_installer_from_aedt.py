@@ -82,7 +82,8 @@ def run_pyinstaller_from_c_python(oDesktop):
     # From AEDT 2023.2 the installed CPython version is 3.10
     # From AEDT 2027.1 the installed CPython version is 3.13
     if version <= "231":
-        python_version = "3.7"
+        oDesktop.AddMessage("", "", 2, "This script is no longer support for versions previous to 2023R2")
+        return
     if "271" > version > "231":
         python_version = "3.10"
     else:
@@ -236,6 +237,37 @@ def parse_arguments_for_pyaedt_installer(args=None):
     return args
 
 
+def _upgrade_pip_for_secure_downloads(python_exe, env, python_version):
+    """Install a pip version with the eMudhra CA fix using a pinned wheel hash."""
+    if tuple(map(int, python_version.split("_"))) < (3, 10):
+        raise RuntimeError(
+            "Online installation is disabled for Python versions older than 3.10 because they cannot run the "
+            "security-fixed pip 26.2.2. Use a trusted wheelhouse or a supported AEDT/Python version."
+        )
+
+    pip_bootstrap_wheel = (
+        "pip @ https://files.pythonhosted.org/packages/3f/06/3e4420302363fbb71be3c7f35ce042f54bfca330e3e66b3a2e3c4cca579f/"
+        "pip-26.2.2-py3-none-any.whl#sha256=fd7f4dfa8190e014013b9f08f3e973f4e4c26ffd179a204895533a7254813a70"
+    )
+    subprocess.run(
+        [
+            str(python_exe),
+            "-m",
+            "pip",
+            "--isolated",
+            "--disable-pip-version-check",
+            "install",
+            "--no-index",
+            "--no-deps",
+            "--upgrade",
+            "--force-reinstall",
+            pip_bootstrap_wheel,
+        ],
+        check=True,
+        env=env,
+    )  # nosec
+
+
 def unzip_if_zip(path):
     """Unzip path if it is a ZIP file into a temporary directory.
 
@@ -321,16 +353,19 @@ def install_pyaedt():
 
     python_version = "3_13"
     if args.version <= "231":
-        python_version = "3_7"
+        print("This script is no longer support for versions previous to 2023R2")
+        return
     elif args.version <= "261":
         python_version = "3_10"
 
     if is_windows:
         venv_dir = Path(VENV_DIR, python_version)
+        python_exe = venv_dir / "Scripts" / "python.exe"
         pip_exe = venv_dir / "Scripts" / "pip.exe"
         uv_exe = venv_dir / "Scripts" / "uv.exe"
     else:
         venv_dir = Path(VENV_DIR, python_version)
+        python_exe = venv_dir / "bin" / "python"
         pip_exe = venv_dir / "bin" / "pip"
         uv_exe = venv_dir / "bin" / "uv"
         os.environ["ANSYSEM_ROOT{}".format(args.version)] = args.edt_root
@@ -354,6 +389,9 @@ def install_pyaedt():
         else:
             subprocess.run([sys.executable, "-m", "venv", str(venv_dir)], check=True)  # nosec
 
+        # Patch the venv's pip before either online or wheelhouse installation.
+        _upgrade_pip_for_secure_downloads(python_exe, env, python_version)
+
         if args.wheel and Path(args.wheel).exists():
             unzipped_path = unzip_if_zip(Path(args.wheel))
             print("Installing PyAEDT using provided wheels argument with pip")
@@ -374,8 +412,14 @@ def install_pyaedt():
         else:
             # Try to install uv and use it, fallback to pip if it fails
             try:
+                # Upgrade certifi as well as pip's separately vendored CA bundle.
+                subprocess.run(
+                    [str(pip_exe), "--default-timeout=1000", "install", "--upgrade", "certifi>=2026.10.19"],
+                    check=True,
+                    env=env,
+                )  # nosec
                 print("Installing uv in the virtual environment...")
-                subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "uv"], check=True, env=env)  # nosec
+                subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "uv>=0.13.4"], check=True, env=env)  # nosec
                 print("Installing PyAEDT using online sources with uv...")
                 subprocess.run([str(uv_exe), "pip", "install", "--upgrade", "pip"], check=True, env=env)  # nosec
                 subprocess.run([str(uv_exe), "pip", "install", "wheel"], check=True, env=env)  # nosec
@@ -396,7 +440,9 @@ def install_pyaedt():
                 print("uv installation failed with error: {}".format(e))
                 print("Falling back to pip for package installation...")
                 subprocess.run(
-                    [str(pip_exe), "--default-timeout=1000", "install", "--upgrade", "pip"], check=True, env=env
+                    [str(python_exe), "-m", "pip", "--default-timeout=1000", "install", "--upgrade", "pip"],
+                    check=True,
+                    env=env,
                 )  # nosec
                 subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "wheel"], check=True, env=env)  # nosec
                 if args.version <= "231":
@@ -432,6 +478,8 @@ def install_pyaedt():
 
     else:
         print("Using existing virtual environment in {}".format(venv_dir))
+        # Existing environments need the same pip security update before reuse.
+        _upgrade_pip_for_secure_downloads(python_exe, env, python_version)
 
         if args.wheel and Path(args.wheel).exists():
             unzipped_path = unzip_if_zip(Path(args.wheel))
@@ -453,8 +501,14 @@ def install_pyaedt():
         else:
             # Try to use uv for package installation, fallback to pip if it fails
             try:
+                # Existing environments may still have the vulnerable standalone certifi bundle.
+                subprocess.run(
+                    [str(pip_exe), "--default-timeout=1000", "install", "--upgrade", "certifi>=2026.10.19"],
+                    check=True,
+                    env=env,
+                )  # nosec
                 # Ensure uv is installed in the venv
-                subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "uv"], check=True, env=env)  # nosec
+                subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "uv>=0.13.4"], check=True, env=env)  # nosec
                 subprocess.run([str(uv_exe), "pip", "uninstall", "pyaedt"], check=True, env=env)  # nosec
 
                 print("Installing PyAEDT using online sources with uv...")
