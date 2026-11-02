@@ -67,7 +67,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.10','3.11','3.12','3.13', '3.14']
+        python-version: ["3.10", ">=3.11.18 <3.12.0", ">=3.12.16 <3.13.0", ">=3.13.18 <3.14.0", ">=3.14.10 <3.15.0"]
     steps:
       - name: Clone PyAEDT using specified input branch
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -112,7 +112,7 @@ jobs:
           checkout: false
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: ubuntu-latest
-          python-version: ${{ github.event.inputs.python-version }}
+          python-version: ${{ github.event.inputs.python-version == '3.11' && '>=3.11.18 <3.12.0' || github.event.inputs.python-version == '3.12' && '>=3.12.16 <3.13.0' || github.event.inputs.python-version == '3.13' && '>=3.13.18 <3.14.0' || github.event.inputs.python-version == '3.14' && '>=3.14.10 <3.15.0' || github.event.inputs.python-version }}
           target: ${{ github.event.inputs.target }}
           use-python-cache: false
 
@@ -131,7 +131,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.10','3.11','3.12','3.13', '3.14']
+        python-version: ["3.10", ">=3.11.18 <3.12.0", ">=3.12.16 <3.13.0", ">=3.13.18 <3.14.0", ">=3.14.10 <3.15.0"]
     steps:
       - name: Clone PyAEDT using specified input branch
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -176,7 +176,7 @@ jobs:
           checkout: false
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: windows-latest
-          python-version: ${{ github.event.inputs.python-version }}
+          python-version: ${{ github.event.inputs.python-version == '3.11' && '>=3.11.18 <3.12.0' || github.event.inputs.python-version == '3.12' && '>=3.12.16 <3.13.0' || github.event.inputs.python-version == '3.13' && '>=3.13.18 <3.14.0' || github.event.inputs.python-version == '3.14' && '>=3.14.10 <3.15.0' || github.event.inputs.python-version }}
           target: ${{ github.event.inputs.target }}
           use-python-cache: false
 
@@ -197,7 +197,7 @@ jobs:
       id-token: write       # Required for OIDC token generation (for provenance signing)
     uses: $/.github/workflows/reusable-smoke-tests-rocky.yml
     with:
-      python-versions: '["3.10", "3.11", "3.12", "3.13", "3.14"]'
+      python-version: '["3.10", ">=3.11.18 <3.12.0", ">=3.12.16 <3.13.0", ">=3.13.18 <3.14.0", ">=3.14.10 <3.15.0"]'
       extras: ${{ format('["{0}"]', github.event.inputs.target) }}
       checkout-ref: ${{ github.event.inputs.pyaedt-branch }}
 
@@ -210,6 +210,6 @@ jobs:
       id-token: write       # Required for OIDC token generation (for provenance signing)
     uses: $/.github/workflows/reusable-smoke-tests-rocky.yml
     with:
-      python-versions: ${{ format('["{0}"]', github.event.inputs.python-version) }}
+      python-versions: ${{ format('["{0}"]', github.event.inputs.python-version == '3.11' && '>=3.11.18 <3.12.0' || github.event.inputs.python-version == '3.12' && '>=3.12.16 <3.13.0' || github.event.inputs.python-version == '3.13' && '>=3.13.18 <3.14.0' || github.event.inputs.python-version == '3.14' && '>=3.14.10 <3.15.0' || github.event.inputs.python-version) }}
       extras: ${{ format('["{0}"]', github.event.inputs.target) }}
       checkout-ref: ${{ github.event.inputs.pyaedt-branch }}
