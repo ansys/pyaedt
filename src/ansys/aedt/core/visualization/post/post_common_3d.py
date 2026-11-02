@@ -262,9 +262,11 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
                     intrinsics["Freq"] = v
                 elif k in ["Phase", "phase"]:
                     intrinsics["Phase"] = v
-                elif k in ["Time", "time"]:
+                elif k in ["Time", "time", "Time0"]:
                     if self._app.solution_type == "SteadyState":
                         continue
+                    if k == "Time0":
+                        intrinsics["Time0"] = v
                     intrinsics["Time"] = v
                 if "Phase" in self._app.design_solutions.intrinsics and "Phase" not in intrinsics:
                     intrinsics["Phase"] = "0deg"
