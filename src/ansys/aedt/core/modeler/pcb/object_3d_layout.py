@@ -28,8 +28,12 @@ objects (points, lines, sheeets, and solids) within the AEDT 3D Layout Modeler.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 import math
 import re
+from typing import TYPE_CHECKING
+from typing import cast
+import warnings
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import unit_converter
@@ -38,28 +42,63 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import Quantity
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
+if TYPE_CHECKING:
+    from ansys.aedt.core.generic.protocols import _OEditor
+    from ansys.aedt.core.generic.protocols import _OPadstackManager
+
 
 class Object3DLayout(PyAedtBase):
-    """Manages properties of objects in HFSS 3D Layout.
+    """Base class for objects in HFSS 3D Layout.
 
     Parameters
     ----------
     primitives : :class:`ansys.aedt.core.modeler.Model3DLayout.Modeler3dLayout`
+        Modeler that owns the object.
+    prim_type : str, optional
+        AEDT primitive type.
+    name : str, optional
+        Name of the object.
+
+    Notes
+    -----
+    Direct instantiation is deprecated. Use a concrete object created by or
+    obtained from the modeler instead.
 
     Examples
     --------
-    >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Object3DLayout
-    >>> obj = Object3DLayout()
+    Define a concrete subclass and pass its owner, AEDT primitive type, and name
+    to the base initializer:
+
+    >>> class CustomLayoutObject(Object3DLayout):
+    ...     def __init__(self, primitives, name, prim_type):
+    ...         super().__init__(primitives, prim_type=prim_type, name=name)
 
     """
 
-    def __init__(self, primitives, prim_type=None) -> None:
+    def __init__(self, primitives, prim_type: str | None = None, name: str = "") -> None:
+        if type(self) is Object3DLayout:
+            warnings.warn(
+                "Object3DLayout is a base class and should not be instantiated directly. "
+                "Use a concrete object returned by the modeler instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
         self._primitives = primitives
         self.logger = self._primitives.logger
         self._oeditor = self._primitives.oeditor
         self._n = 10
         self.prim_type = prim_type
         self._points = []
+        self._name = name
+
+    @property
+    def name(self) -> str:
+        """Name of the object."""
+        return self._name
+
+    @name.setter
+    def name(self, value: str) -> None:
+        self._name = value
 
     @property
     def object_units(self) -> str:
@@ -69,17 +108,11 @@ class Object3DLayout(PyAedtBase):
         -------
         str
 
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Object3DLayout
-        >>> obj = Object3DLayout()
-        >>> obj.object_units
-
         """
         return self._primitives.model_units
 
     @pyaedt_function_handler()
-    def change_property(self, value: list, names: list = None) -> bool:
+    def change_property(self, value: Sequence[object], names: list[str] | None = None) -> bool:
         """Modify a property.
 
         Parameters
@@ -97,13 +130,6 @@ class Object3DLayout(PyAedtBase):
         References
         ----------
         >>> oEditor.ChangeProperty
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Object3DLayout
-        >>> value = ["NAME:ChangedProps", ["NAME:Demo"]]
-        >>> obj = Object3DLayout.__new__(Object3DLayout)
-        >>> obj.change_property(value, names=["U1"])
 
         """
         vChangedProps = ["NAME:ChangedProps", value]
@@ -139,12 +165,6 @@ class Object3DLayout(PyAedtBase):
         ----------
         >>> oEditor.ChangeProperty
 
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Object3DLayout
-        >>> obj = Object3DLayout()
-        >>> obj.set_property_value(name="MyObject", value=1)
-
         """
         if "Pt" in name:
             coordinates = [value_split.strip() for value_split in value.split(",")]
@@ -166,12 +186,6 @@ class Object3DLayout(PyAedtBase):
         ----------
         >>> oEditor.GetPropertyValue
 
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Object3DLayout
-        >>> obj = Object3DLayout()
-        >>> obj.angle
-
         """
         if self.prim_type in ["component", "pin", "via"]:
             return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Angle")
@@ -189,12 +203,6 @@ class Object3DLayout(PyAedtBase):
         Returns
         -------
         float
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Object3DLayout
-        >>> obj = Object3DLayout()
-        >>> obj.absolute_angle
 
         """
         if self.prim_type != "component":
@@ -224,7 +232,7 @@ class Object3DLayout(PyAedtBase):
         return 0.0
 
     @property
-    def net_name(self) -> str:
+    def net_name(self) -> str | None:
         """Get/Set the net name.
 
         Returns
@@ -235,12 +243,6 @@ class Object3DLayout(PyAedtBase):
         References
         ----------
         >>> oEditor.GetPropertyValue
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Object3DLayout
-        >>> obj = Object3DLayout()
-        >>> obj.net_name
 
         """
         if self.prim_type not in ["component"]:
@@ -253,7 +255,7 @@ class Object3DLayout(PyAedtBase):
             self.change_property(vMaterial)
 
     @property
-    def placement_layer(self) -> str:
+    def placement_layer(self) -> str | None:
         """Get/Set the placement layer of the object.
 
         Returns
@@ -264,12 +266,6 @@ class Object3DLayout(PyAedtBase):
         References
         ----------
         >>> oEditor.GetPropertyValue
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Object3DLayout
-        >>> obj = Object3DLayout()
-        >>> obj.placement_layer
 
         """
         if self.prim_type not in ["pin", "via"]:
@@ -290,12 +286,6 @@ class Object3DLayout(PyAedtBase):
         list
             [BB_lower_left_X, BB_lower_left_Y, BB_upper_right_X, BB_upper_right_Y].
 
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Object3DLayout
-        >>> obj = Object3DLayout()
-        >>> obj.bounding_box
-
         """
         info = self._oeditor.GetComponentInfo(self.name)
         bbllx = bblly = bburx = bbury = 0
@@ -308,10 +298,10 @@ class Object3DLayout(PyAedtBase):
                 bburx = float(i.split("=")[1])
             elif "BBoxURy" in i:
                 bbury = float(i.split("=")[1])
-        bbllx = round(unit_converter(bbllx, output_units=self._primitives.model_units), 9)
-        bblly = round(unit_converter(bblly, output_units=self._primitives.model_units), 9)
-        bburx = round(unit_converter(bburx, output_units=self._primitives.model_units), 9)
-        bbury = round(unit_converter(bbury, output_units=self._primitives.model_units), 9)
+        bbllx = round(cast(float, unit_converter(bbllx, output_units=self._primitives.model_units)), 9)
+        bblly = round(cast(float, unit_converter(bblly, output_units=self._primitives.model_units)), 9)
+        bburx = round(cast(float, unit_converter(bburx, output_units=self._primitives.model_units)), 9)
+        bbury = round(cast(float, unit_converter(bbury, output_units=self._primitives.model_units)), 9)
         return [bbllx, bblly, bburx, bbury]
 
     @pyaedt_function_handler()
@@ -326,12 +316,6 @@ class Object3DLayout(PyAedtBase):
         Returns
         -------
             bool
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Object3DLayout
-        >>> obj = Object3DLayout()
-        >>> obj.create_clearance_on_component(extra_soldermask_clearance=1.0)
 
         """
         if self.prim_type != "component":
@@ -381,12 +365,6 @@ class Object3DLayout(PyAedtBase):
         ----------
         >>> oEditor.GetPropertyValue
 
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Object3DLayout
-        >>> obj = Object3DLayout()
-        >>> obj.location
-
         """
         if self.prim_type == "component":
             info = self._oeditor.GetComponentInfo(self.name)
@@ -402,8 +380,8 @@ class Object3DLayout(PyAedtBase):
                     bbury = float(i.split("=")[1])
             loc_x = (bburx + bbllx) / 2
             loc_y = (bbury + bblly) / 2
-            loc_x = round(unit_converter(loc_x, output_units=self._primitives.model_units), 9)
-            loc_y = round(unit_converter(loc_y, output_units=self._primitives.model_units), 9)
+            loc_x = round(cast(float, unit_converter(loc_x, output_units=self._primitives.model_units)), 9)
+            loc_y = round(cast(float, unit_converter(loc_y, output_units=self._primitives.model_units)), 9)
             return [loc_x, loc_y]
         elif self.prim_type in ["pin", "via"]:
             location = self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Location")
@@ -441,11 +419,12 @@ class Object3DLayout(PyAedtBase):
                     bburx = float(i.split("=")[1])
                 elif "BBoxURy" in i:
                     bbury = float(i.split("=")[1])
-            position[0] -= self.location[0] - unit_converter(
-                (bburx + bbllx) / 2, output_units=self._primitives.model_units
+            location = cast(list[float], self.location)
+            position[0] -= location[0] - cast(
+                float, unit_converter((bburx + bbllx) / 2, output_units=self._primitives.model_units)
             )
-            position[1] -= self.location[1] - unit_converter(
-                (bbury + bblly) / 2, output_units=self._primitives.model_units
+            position[1] -= location[1] - cast(
+                float, unit_converter((bbury + bblly) / 2, output_units=self._primitives.model_units)
             )
             if abs(position[0]) > 1e-12 or abs(position[1]) > 1e-12:
                 props = [
@@ -474,12 +453,6 @@ class Object3DLayout(PyAedtBase):
         ----------
         >>> oEditor.ChangeProperty
 
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Object3DLayout
-        >>> obj = Object3DLayout()
-        >>> obj.lock_position
-
         """
         return (
             True
@@ -501,7 +474,7 @@ class ModelInfoRlc(PyAedtBase):
         self._name = name
 
     @property
-    def rlc_model_type(self) -> list:
+    def rlc_model_type(self) -> list[str | bool]:
         """Retrieve rlc model type."""
         props = self._comp._oeditor.GetComponentInfo(self._name)
         model = ""
@@ -523,25 +496,25 @@ class ModelInfoRlc(PyAedtBase):
         return vals
 
     @property
-    def res(self) -> str:
+    def res(self) -> str | bool | None:
         """Retrieve res."""
         if self.rlc_model_type:
             return self.rlc_model_type[0]
 
     @property
-    def cap(self) -> str:
+    def cap(self) -> str | bool | None:
         """Retrieve cap."""
         if self.rlc_model_type:
             return self.rlc_model_type[4]
 
     @property
-    def ind(self) -> str:
+    def ind(self) -> str | bool | None:
         """Retrieve ind."""
         if self.rlc_model_type:
             return self.rlc_model_type[2]
 
     @property
-    def is_parallel(self) -> bool:
+    def is_parallel(self) -> str | bool | None:
         """Flag indicating whether parallel is enabled."""
         if self.rlc_model_type:
             return self.rlc_model_type[6]
@@ -558,8 +531,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
     """
 
     def __init__(self, primitives, name: str = "", edb_object=None) -> None:
-        Object3DLayout.__init__(self, primitives, "component")
-        self.name = name
+        Object3DLayout.__init__(self, primitives, "component", name)
         self.edb_object = edb_object
         self._pins = {}
 
@@ -674,9 +646,9 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
         return True
 
     @enabled.setter
-    def enabled(self, status: bool) -> bool:
+    def enabled(self, status: bool) -> None:
         if self.__part_type_id() in [0, 4, 5]:
-            return False
+            return
         self._oeditor.EnableComponents(["NAME:Components", self.name], status)
 
     @property
@@ -750,7 +722,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
             ],
         ]
         if self.__part_type_id() == 4:
-            dt, do, dh, lid = self.die_properties
+            dt, do, dh, lid = cast(tuple[int, int, str, int], self.die_properties)
             args[1] = [
                 "NAME:Model",
                 prop_name,
@@ -1056,7 +1028,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
         return self._pins
 
     @property
-    def model(self) -> "ModelInfoRlc":
+    def model(self) -> ModelInfoRlc | None:
         """RLC model if available.
 
         Returns
@@ -1091,7 +1063,7 @@ class Nets3DLayout(PyAedtBase):
         self.name = name
 
     @property
-    def components(self) -> "Components3DLayout":
+    def components(self) -> dict[str, Components3DLayout]:
         """Components that belongs to the Nets.
 
         Returns
@@ -1133,10 +1105,10 @@ class Nets3DLayout(PyAedtBase):
     @pyaedt_function_handler()
     def plot(
         self,
-        layers: str | list = None,
+        layers: str | list[str] | None = None,
         show_legend: bool = True,
-        save_plot: str = None,
-        outline: list = None,
+        save_plot: str | None = None,
+        outline: list[float] | None = None,
         size: tuple = (1920, 1440),
         plot_components_on_top: bool = False,
         plot_components_on_bottom: bool = False,
@@ -1201,9 +1173,8 @@ class Pins3DLayout(Object3DLayout, PyAedtBase):
     """
 
     def __init__(self, primitives, name: str = "", component_name=None, is_pin: bool = True) -> None:
-        Object3DLayout.__init__(self, primitives, "pin" if is_pin else "via")
+        Object3DLayout.__init__(self, primitives, "pin" if is_pin else "via", name)
         self.componentname = "-".join(name.split("-")[:-1]) if not component_name else component_name
-        self.name = name
         self.is_pin = is_pin
 
     @property
@@ -1284,9 +1255,8 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
     """
 
     def __init__(self, primitives, name: str, prim_type: str = "poly", is_void: bool = False) -> None:
-        Object3DLayout.__init__(self, primitives, prim_type)
+        Object3DLayout.__init__(self, primitives, prim_type, name)
         self.is_void = is_void
-        self._name = name
 
     @property
     def obounding_box(self):
@@ -1311,7 +1281,7 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
         return self._primitives.obounding_box(self.name)
 
     @property
-    def name(self):
+    def name(self) -> str:
         """Name of Primitive.
 
         Examples
@@ -2261,8 +2231,9 @@ class Line3dLayout(Geometries3DLayout, PyAedtBase):
             arg2.append(a[1])
             i += 1
         arg.append(arg2)
-        arg_edit = ["NAME:items", ["NAME:item", "name:" + self.name]]
-        arg_edit[1].append(arg)
+        item: list[object] = ["NAME:item", "name:" + self.name]
+        item.append(arg)
+        arg_edit: list[object] = ["NAME:items", item]
         self._oeditor.Edit(arg_edit)
 
 
@@ -2318,7 +2289,7 @@ class Points3dLayout(PyAedtBase):
             return [self.point.GetX(), self.point.GetY()]
 
     @pyaedt_function_handler()
-    def move(self, location) -> bool:
+    def move(self, location) -> bool | None:
         """Move actual point to new location.
 
         Parameters
@@ -2360,8 +2331,7 @@ class ComponentsSubCircuit3DLayout(Object3DLayout, PyAedtBase):
     """
 
     def __init__(self, primitives, name: str = "") -> None:
-        Object3DLayout.__init__(self, primitives, "component")
-        self.name = name
+        Object3DLayout.__init__(self, primitives, "component", name)
 
     @property
     def component_info(self):
@@ -2615,7 +2585,9 @@ class Padstack(PyAedtBase):
 
     """
 
-    def __init__(self, name: str = "Padstack", padstackmanager=None, units: str = "mm") -> None:
+    def __init__(
+        self, name: str = "Padstack", padstackmanager: _OPadstackManager | None = None, units: str = "mm"
+    ) -> None:
         self.name = name
         self.padstackmgr = padstackmanager
         self.units = units
@@ -2947,6 +2919,9 @@ class Padstack(PyAedtBase):
         hole.rot = str(Quantity(rotation, "deg"))
         return hole
 
+    # NOTE: Return value needs to be aligned with other calls to padstack manager.
+    # Currently, the return value is a boolean, but it could be a None value.
+    # Hanchor for 2.0.0 release
     @pyaedt_function_handler()
     def create(self) -> bool:
         """Create a padstack in AEDT.
@@ -2967,9 +2942,12 @@ class Padstack(PyAedtBase):
         >>> obj.create()
 
         """
-        self.padstackmgr.Add(self.pads_args)
+        cast("_OPadstackManager", self.padstackmgr).Add(self.pads_args)
         return True
 
+    # NOTE: Return value needs to be aligned with other calls to padstack manager.
+    # Currently, the return value is None, but it could be a boolean to indicate success or failure.
+    # Hanchor for 2.0.0 release
     @pyaedt_function_handler()
     def update(self) -> None:
         """Update the padstack in AEDT.
@@ -2990,8 +2968,11 @@ class Padstack(PyAedtBase):
         >>> obj.update()
 
         """
-        self.padstackmgr.Edit(self.name, self.pads_args)
+        cast("_OPadstackManager", self.padstackmgr).Edit(self.name, self.pads_args)
 
+    # NOTE: Return value needs to be aligned with other calls to padstack manager.
+    # Currently, the return value is None, but it could be a boolean to indicate success or failure.
+    # Hanchor for 2.0.0 release
     @pyaedt_function_handler()
     def remove(self) -> None:
         """Remove the padstack in AEDT.
@@ -3012,7 +2993,7 @@ class Padstack(PyAedtBase):
         >>> obj.remove()
 
         """
-        self.padstackmgr.Remove(self.name, True, "", "Project")
+        cast("_OPadstackManager", self.padstackmgr).Remove(self.name, True, "", "Project")
 
 
 class CoordinateSystems3DLayout(PyAedtBase):
@@ -3025,20 +3006,20 @@ class CoordinateSystems3DLayout(PyAedtBase):
 
     """
 
-    def __repr__(self) -> str:
-        return self.name
-
-    def __str__(self) -> str:
-        return self.name
-
     def __init__(self, primitives) -> None:
         self._primitives = primitives
-        self._oeditor = self._primitives.oeditor
+        self._oeditor: "_OEditor" = self._primitives.oeditor
         self.logger = self._primitives.logger
 
         # Private properties
         self.__name = None
         self.__origin = None
+
+    def __repr__(self) -> str:
+        return self.name
+
+    def __str__(self) -> str:
+        return self.name
 
     def __getitem__(self, key):
         return self.get_property_value(key)
@@ -3129,7 +3110,7 @@ class CoordinateSystems3DLayout(PyAedtBase):
         return self.__origin
 
     @origin.setter
-    def origin(self, value) -> None:
+    def origin(self, value: list[float]) -> None:
         if not isinstance(value, list) or len(value) != 2:
             self.logger.warning("Origin is not a list of two elements.")
         vName = ["NAME:Location", "X:=", value[0], "Y:=", value[1]]
@@ -3166,7 +3147,7 @@ class CoordinateSystems3DLayout(PyAedtBase):
             "NAME:Contents",
             ["NAME:full_definition", "type:=", "CS", "N:=", self.name],
             "placement:=",
-            ["x:=", self._origin[0], "y:=", self._origin[1]],
+            ["x:=", cast(list[float], self.__origin)[0], "y:=", cast(list[float], self.__origin)[1]],
             "layer:=",
             "Postprocessing",
             "Clf:=",

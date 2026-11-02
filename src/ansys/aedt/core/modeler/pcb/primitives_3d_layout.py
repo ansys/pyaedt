@@ -22,28 +22,40 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from collections.abc import Callable
 from pathlib import Path
+import sys
 from typing import TYPE_CHECKING
+from typing import cast
+from warnings import deprecated
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import _uname
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.internal.checks import deprecated_doc
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modeler.pcb.object_3d_layout import Circle3dLayout
 from ansys.aedt.core.modeler.pcb.object_3d_layout import Components3DLayout
 from ansys.aedt.core.modeler.pcb.object_3d_layout import ComponentsSubCircuit3DLayout
 from ansys.aedt.core.modeler.pcb.object_3d_layout import CoordinateSystems3DLayout
+from ansys.aedt.core.modeler.pcb.object_3d_layout import Geometries3DLayout
 from ansys.aedt.core.modeler.pcb.object_3d_layout import Line3dLayout
 from ansys.aedt.core.modeler.pcb.object_3d_layout import Nets3DLayout
 from ansys.aedt.core.modeler.pcb.object_3d_layout import Object3DLayout
-from ansys.aedt.core.modeler.pcb.object_3d_layout import Padstack
+from ansys.aedt.core.modeler.pcb.object_3d_layout import Padstack as PadstackDefinition
 from ansys.aedt.core.modeler.pcb.object_3d_layout import Pins3DLayout
 from ansys.aedt.core.modeler.pcb.object_3d_layout import Polygons3DLayout
 from ansys.aedt.core.modeler.pcb.object_3d_layout import Rect3dLayout
 
 if TYPE_CHECKING:
     from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
+
+
+if sys.version_info >= (3, 13):
+    from warnings import deprecated
+else:
+    from typing_extensions import deprecated
 
 
 class Primitives3DLayout(PyAedtBase):
@@ -94,30 +106,30 @@ class Primitives3DLayout(PyAedtBase):
 
     def __init__(self, app) -> None:
         self._app = app
-        self._padstacks = {}
-        self._components3d = {}
+        self._padstacks: dict[str, PadstackDefinition] = {}
+        self._components3d: dict[str, Components3DLayout | ComponentsSubCircuit3DLayout] = {}
         self._init_prims()
 
     @pyaedt_function_handler()
     def _init_prims(self) -> None:
-        self._components = {}
-        self._rectangles = {}
-        self._lines = {}
-        self._circles = {}
-        self._polygons = {}
-        self._rectangles_voids = {}
-        self._lines_voids = {}
-        self._circles_voids = {}
-        self._polygons_voids = {}
-        self._pins = {}
-        self._nets = {}
-        self._power_nets = {}
-        self._signal_nets = {}
-        self._no_nets = {}
-        self._vias = {}
+        self._components: dict[str, Components3DLayout] = {}
+        self._rectangles: dict[str, Rect3dLayout] = {}
+        self._lines: dict[str, Line3dLayout] = {}
+        self._circles: dict[str, Circle3dLayout] = {}
+        self._polygons: dict[str, Polygons3DLayout] = {}
+        self._rectangles_voids: dict[str, Rect3dLayout] = {}
+        self._lines_voids: dict[str, Line3dLayout] = {}
+        self._circles_voids: dict[str, Circle3dLayout] = {}
+        self._polygons_voids: dict[str, Polygons3DLayout] = {}
+        self._pins: dict[str, Pins3DLayout] = {}
+        self._nets: dict[str, Nets3DLayout] = {}
+        self._power_nets: dict[str, Nets3DLayout] = {}
+        self._signal_nets: dict[str, Nets3DLayout] = {}
+        self._no_nets: dict[str, Nets3DLayout] = {}
+        self._vias: dict[str, Pins3DLayout] = {}
 
     @property
-    def _modeler(self):
+    def _modeler(self) -> "Modeler3DLayout":
         return self._app.modeler
 
     @property
@@ -293,7 +305,9 @@ class Primitives3DLayout(PyAedtBase):
         return self.modeler.oeditor.FindObjectsByPolygon(p, layer)
 
     @pyaedt_function_handler()
-    def objects_by_layer(self, layer: str, object_filter: str | list = None, include_voids: bool = False) -> list:
+    def objects_by_layer(
+        self, layer: str, object_filter: str | list[str] | None = None, include_voids: bool = False
+    ) -> list:
         """Retrieve the list of objects that belongs to a specific layer.
 
         Parameters
@@ -337,7 +351,9 @@ class Primitives3DLayout(PyAedtBase):
         return objs
 
     @pyaedt_function_handler()
-    def objects_by_net(self, net: str, object_filter: str | list = None, include_voids: bool = False) -> list:
+    def objects_by_net(
+        self, net: str, object_filter: str | list[str] | None = None, include_voids: bool = False
+    ) -> list:
         """Retrieve the list of objects that belongs to a specific net.
 
         Parameters
@@ -557,24 +573,50 @@ class Primitives3DLayout(PyAedtBase):
         >>> obj.cleanup_objects()
 
         """
-        families = [
-            [["poly", "plg"], self._polygons, Polygons3DLayout],
-            [["line", "arc"], self._lines, Line3dLayout],
-            [["circle"], self._circles, Circle3dLayout],
-            [
-                [
-                    "rect",
-                ],
-                self._rectangles,
-                Rect3dLayout,
-            ],
-            [["poly void", "plg void"], self._polygons, Polygons3DLayout],
-            [["line void", "arc void"], self._lines, Line3dLayout],
-            [["circle void"], self._circles, Circle3dLayout],
-            [["rect void"], self._rectangles, Rect3dLayout],
+        families: list[tuple[list[str], dict[str, Geometries3DLayout], Callable[..., Geometries3DLayout]]] = [
+            (
+                ["poly", "plg"],
+                cast(dict[str, Geometries3DLayout], self._polygons),
+                cast(Callable[..., Geometries3DLayout], Polygons3DLayout),
+            ),
+            (
+                ["line", "arc"],
+                cast(dict[str, Geometries3DLayout], self._lines),
+                cast(Callable[..., Geometries3DLayout], Line3dLayout),
+            ),
+            (
+                ["circle"],
+                cast(dict[str, Geometries3DLayout], self._circles),
+                cast(Callable[..., Geometries3DLayout], Circle3dLayout),
+            ),
+            (
+                ["rect"],
+                cast(dict[str, Geometries3DLayout], self._rectangles),
+                cast(Callable[..., Geometries3DLayout], Rect3dLayout),
+            ),
+            (
+                ["poly void", "plg void"],
+                cast(dict[str, Geometries3DLayout], self._polygons),
+                cast(Callable[..., Geometries3DLayout], Polygons3DLayout),
+            ),
+            (
+                ["line void", "arc void"],
+                cast(dict[str, Geometries3DLayout], self._lines),
+                cast(Callable[..., Geometries3DLayout], Line3dLayout),
+            ),
+            (
+                ["circle void"],
+                cast(dict[str, Geometries3DLayout], self._circles),
+                cast(Callable[..., Geometries3DLayout], Circle3dLayout),
+            ),
+            (
+                ["rect void"],
+                cast(dict[str, Geometries3DLayout], self._rectangles),
+                cast(Callable[..., Geometries3DLayout], Rect3dLayout),
+            ),
         ]
-        obj_to_add = []
-        obj_removed = []
+        obj_to_add: list[Geometries3DLayout] = []
+        obj_removed: list[str] = []
         for element in families:
             poly_types = element[0]
             dict_in = element[1]
@@ -589,11 +631,13 @@ class Primitives3DLayout(PyAedtBase):
                 names_to_remove = [i for i in set.difference(names, objs) if not dict_in[i].is_void]
             for obj in names_to_add:
                 if obj not in names:
+                    is_void = "void" in poly
                     if class_name == Polygons3DLayout:
-                        dict_in[obj] = Polygons3DLayout(self, obj, poly, True if "void" in poly else False)
+                        geom_obj = Polygons3DLayout(self, obj, poly, is_void)
                     else:
-                        dict_in[obj] = class_name(self, obj, True if "void" in poly else False)
-                    obj_to_add.append(dict_in[obj])
+                        geom_obj = class_name(self, obj, is_void)
+                    dict_in[obj] = geom_obj
+                    obj_to_add.append(geom_obj)
             for obj in names_to_remove:
                 del dict_in[obj]
                 obj_removed.append(obj)
@@ -777,7 +821,7 @@ class Primitives3DLayout(PyAedtBase):
         return self._rectangles
 
     @property
-    def components_3d(self) -> dict[str, Components3DLayout]:
+    def components_3d(self) -> dict[str, Components3DLayout | ComponentsSubCircuit3DLayout]:
         """Components.
 
         Returns
@@ -794,7 +838,7 @@ class Primitives3DLayout(PyAedtBase):
         """
         if not self._components3d:
             for i in range(1, 1000):
-                cmp_info = self.oeditor.GetComponentInfo(str(i))
+                cmp_info = self.modeler.oeditor.GetComponentInfo(str(i))
                 if cmp_info and "ComponentName" in cmp_info[0]:
                     self._components3d[str(i)] = Components3DLayout(self, str(i))
         return self._components3d
@@ -1041,7 +1085,9 @@ class Primitives3DLayout(PyAedtBase):
         return self.modeler.model_units
 
     @property
-    def Padstack(self) -> "Padstack":
+    @deprecated_doc()
+    @deprecated("`Use `new_padstack` instead.")
+    def Padstack(self) -> "PadstackDefinition":
         """Padstack.
 
         Examples
@@ -1051,10 +1097,10 @@ class Primitives3DLayout(PyAedtBase):
         >>> obj.Padstack
 
         """
-        return Padstack()
+        return PadstackDefinition()
 
     @pyaedt_function_handler()
-    def new_padstack(self, name: str = "Padstack") -> "Padstack | None":
+    def new_padstack(self, name: str = "Padstack") -> "PadstackDefinition | None":
         """Create a `Padstack` object that can be used to create a padstack.
 
         Parameters
@@ -1077,11 +1123,11 @@ class Primitives3DLayout(PyAedtBase):
         if name in self.padstacks:
             return None
         else:
-            self.padstacks[name] = Padstack(name, self.opadstack_manager, self.model_units)
+            self.padstacks[name] = PadstackDefinition(name, self.opadstack_manager, self.model_units)
             return self.padstacks[name]
 
     @property
-    def padstacks(self) -> dict[str, "Padstack"]:
+    def padstacks(self) -> dict[str, "PadstackDefinition"]:
         """Read all definitions from HFSS 3D Layout.
 
         Returns
@@ -1111,7 +1157,7 @@ class Primitives3DLayout(PyAedtBase):
                         props = p
                 except Exception:
                     self.logger.debug("Couldn't access first property.")
-            self._padstacks[name] = Padstack(name, self.opadstack_manager, self.model_units)
+            self._padstacks[name] = PadstackDefinition(name, self.opadstack_manager, self.model_units)
 
             for prop in props:
                 if isinstance(prop, str):
@@ -1166,7 +1212,11 @@ class Primitives3DLayout(PyAedtBase):
         return self._padstacks
 
     @pyaedt_function_handler()
-    def change_net_visibility(self, assignment: str | list = None, visible: bool = False) -> bool:
+    def change_net_visibility(
+        self,
+        assignment: str | list[str] | dict[str, Nets3DLayout] | None = None,
+        visible: bool | str = False,
+    ) -> bool:
         """Change the visibility of one or more nets.
 
         Parameters
@@ -1194,7 +1244,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> obj.change_net_visibility(assignment="Box1", visible=True)
 
         """
-        nets_dictionary = {}
+        nets_dictionary: dict[str, bool] = {}
         if not assignment:
             assignment = self.nets
         elif [x for x in assignment if x not in self.nets]:
@@ -1221,14 +1271,14 @@ class Primitives3DLayout(PyAedtBase):
             else:
                 nets_dictionary[net] = visible
 
-        args = ["NAME:Args"]
+        args: list[object] = ["NAME:Args"]
         try:
             for key in nets_dictionary:
                 args.append("Name:=")
                 args.append(key)
                 args.append("Vis:=")
                 args.append(nets_dictionary[key])
-            self.oeditor.SetNetVisible(args)
+            self.modeler.oeditor.SetNetVisible(args)
             return True
         except Exception:
             self.logger.error("Couldn't change nets visibility.")
@@ -1241,13 +1291,12 @@ class Primitives3DLayout(PyAedtBase):
         x: int = 0,
         y: int = 0,
         rotation: int = 0,
-        hole_diam: float = None,
-        top_layer: str = None,
-        bot_layer: str = None,
-        name: str = None,
-        net: str = None,
+        hole_diam: float | None = None,
+        top_layer: str | None = None,
+        bot_layer: str | None = None,
+        name: str | None = None,
+        net: str | None = None,
     ) -> "Pins3DLayout | bool":
-        # type: (str, float | str, float | str, float, float, str, str, str, str) -> Pins3DLayout
         """Create a via based on an existing padstack.
 
         Parameters
@@ -1297,11 +1346,11 @@ class Primitives3DLayout(PyAedtBase):
         if not name:
             name = generate_unique_name("via")
         else:
-            listnames = self.oeditor.FindObjects("Name", name)
+            listnames = self.modeler.oeditor.FindObjects("Name", name)
             if listnames:
                 name = _uname(name)
         try:
-            arg = ["NAME:Contents"]
+            arg: list[object] = ["NAME:Contents"]
             arg.append("name:="), arg.append(name)
             (
                 arg.append("ReferencedPadstack:="),
@@ -1322,9 +1371,9 @@ class Primitives3DLayout(PyAedtBase):
             arg.append("highest_layer:="), arg.append(top_layer)
             arg.append("lowest_layer:="), arg.append(bot_layer)
 
-            self.oeditor.CreateVia(arg)
+            self.modeler.oeditor.CreateVia(arg)
             if net:
-                self.oeditor.ChangeProperty(
+                self.modeler.oeditor.ChangeProperty(
                     [
                         "NAME:AllTabs",
                         [
@@ -1342,7 +1391,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_circle(
-        self, layer: str, x: float, y: float, radius: float, name: str = None, net: str = None, **kwargs
+        self, layer: str, x: float, y: float, radius: float, name: str | None = None, net: str | None = None, **kwargs
     ) -> Circle3dLayout:
         """Create a circle on a layer.
 
@@ -1382,7 +1431,7 @@ class Primitives3DLayout(PyAedtBase):
         if not name:
             name = _uname()
         else:
-            listnames = self.oeditor.FindObjects("Name", name)
+            listnames = self.modeler.oeditor.FindObjects("Name", name)
             if listnames:
                 name = _uname(name)
 
@@ -1395,7 +1444,7 @@ class Primitives3DLayout(PyAedtBase):
         vArg2.append("y:="), vArg2.append(self._app.value_with_units(y))
         vArg2.append("r:="), vArg2.append(self._app.value_with_units(radius))
         vArg1.append(vArg2)
-        self.oeditor.CreateCircle(vArg1)
+        self.modeler.oeditor.CreateCircle(vArg1)
         primitive = Circle3dLayout(self, name, False)
         self._circles[name] = primitive
 
@@ -1412,8 +1461,8 @@ class Primitives3DLayout(PyAedtBase):
         sizes: list,
         corner_radius: int = 0,
         angle: int = 0,
-        name: str = None,
-        net: str = None,
+        name: str | None = None,
+        net: str | None = None,
         **kwargs,
     ) -> Rect3dLayout:
         """Create a rectangle on a layer.
@@ -1455,7 +1504,7 @@ class Primitives3DLayout(PyAedtBase):
         if not name:
             name = _uname()
         else:
-            listnames = self.oeditor.FindObjects("Name", name)
+            listnames = self.modeler.oeditor.FindObjects("Name", name)
             if listnames:
                 name = _uname(name)
 
@@ -1478,7 +1527,7 @@ class Primitives3DLayout(PyAedtBase):
         vArg2.append("ang:=")
         vArg2.append(self._app.value_with_units(angle, "deg"))
         vArg1.append(vArg2)
-        self.oeditor.CreateRectangle(vArg1)
+        self.modeler.oeditor.CreateRectangle(vArg1)
         primitive = Rect3dLayout(self, name, False)
         self._rectangles[name] = primitive
 
@@ -1489,7 +1538,12 @@ class Primitives3DLayout(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_polygon(
-        self, layer: str, point_list: list, units: str = None, name: str = None, net: str = None
+        self,
+        layer: str,
+        point_list: list,
+        units: str | None = None,
+        name: str | None = None,
+        net: str | None = None,
     ) -> Polygons3DLayout:
         """Create a polygon on a specified layer.
 
@@ -1527,7 +1581,7 @@ class Primitives3DLayout(PyAedtBase):
         if not name:
             name = _uname()
         else:
-            listnames = self.oeditor.FindObjects("Name", name)
+            listnames = self.modeler.oeditor.FindObjects("Name", name)
             if listnames:
                 name = _uname(name)
 
@@ -1542,7 +1596,7 @@ class Primitives3DLayout(PyAedtBase):
             vArg2.append("x:="), vArg2.append(point[0])
             vArg2.append("y:="), vArg2.append(point[1])
         vArg1.append(vArg2)
-        self.oeditor.CreatePolygon(vArg1)
+        self.modeler.oeditor.CreatePolygon(vArg1)
         primitive = Polygons3DLayout(self, name, is_void=False)
         self._polygons[name] = primitive
 
@@ -1553,8 +1607,8 @@ class Primitives3DLayout(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_polygon_void(
-        self, layer: str, points: list, assignment: str, units: str = None, name: str = None
-    ) -> Polygons3DLayout:
+        self, layer: str, points: list, assignment: str, units: str | None = None, name: str | None = None
+    ) -> Polygons3DLayout | bool:
         """Create a polygon void on a specified layer.
 
         Parameters
@@ -1590,10 +1644,10 @@ class Primitives3DLayout(PyAedtBase):
         if not name:
             name = _uname()
         else:
-            listnames = self.oeditor.FindObjects("Name", name)
+            listnames = self.modeler.oeditor.FindObjects("Name", name)
             if listnames:
                 name = _uname(name)
-        if not self.oeditor.FindObjects("Name", assignment):
+        if not self.modeler.oeditor.FindObjects("Name", assignment):
             self._app.logger.error("Owner Polygon not found.")
             return False
 
@@ -1608,7 +1662,7 @@ class Primitives3DLayout(PyAedtBase):
             vArg2.append("x:="), vArg2.append(point[0])
             vArg2.append("y:="), vArg2.append(point[1])
         vArg1.append(vArg2)
-        self.oeditor.CreatePolygonVoid(vArg1)
+        self.modeler.oeditor.CreatePolygonVoid(vArg1)
         primitive = Polygons3DLayout(self, name, is_void=True)
         self._polygons[name] = primitive
 
@@ -1622,8 +1676,8 @@ class Primitives3DLayout(PyAedtBase):
         lw: int = 1,
         start_style: int = 0,
         end_style: int = 0,
-        name: str = None,
-        net: str = None,
+        name: str | None = None,
+        net: str | None = None,
         **kwargs,
     ) -> Line3dLayout:
         # type: (str, list, float|str, int, int, str, str, any) -> Line3dLayout
@@ -1674,7 +1728,7 @@ class Primitives3DLayout(PyAedtBase):
         if not name:
             name = _uname()
         else:
-            listnames = self.oeditor.FindObjects("Name", name)
+            listnames = self.modeler.oeditor.FindObjects("Name", name)
             if listnames:
                 name = _uname(name)
         arg = ["NAME:Contents", "lineGeometry:="]
@@ -1700,7 +1754,7 @@ class Primitives3DLayout(PyAedtBase):
             arg2.append("y:=")
             arg2.append(a[1])
         arg.append(arg2)
-        self.oeditor.CreateLine(arg)
+        self.modeler.oeditor.CreateLine(arg)
         primitive = Line3dLayout(self, name, False)
         self._lines[name] = primitive
 
@@ -1713,8 +1767,8 @@ class Primitives3DLayout(PyAedtBase):
         self,
         component_path: str | Path,
         number_of_terminals: int = 1,
-        placement_layer: str = None,
-        component_name: str = None,
+        placement_layer: str | None = None,
+        component_name: str | None = None,
         pos_x: float = 0.0,
         pos_y: float = 0.0,
         create_ports: bool = True,
@@ -1857,14 +1911,14 @@ class Primitives3DLayout(PyAedtBase):
                 comp.location = [arg_x, arg_y, self._app.value_with_units(pos_z)]
         self.components_3d[comp_name.split(";")[-1]] = comp
         if create_ports:
-            self.oeditor.CreatePortsOnComponentsByNet(["NAME:Components", comp.name], [], "Port", "0", "0", "0")
+            self.modeler.oeditor.CreatePortsOnComponentsByNet(["NAME:Components", comp.name], [], "Port", "0", "0", "0")
         return comp  #
 
     @pyaedt_function_handler()
     def create_component_on_pins(
         self,
         pins: list,
-        definition_name: str = None,
+        definition_name: str | None = None,
         component_type: str = "Other",
         ref_des: str = "U100",
     ) -> Components3DLayout:
@@ -1895,7 +1949,7 @@ class Primitives3DLayout(PyAedtBase):
         """
         if not definition_name:
             definition_name = generate_unique_name("COMP")
-        placement_layer = list(self.layers.signals.keys())[0]
+        placement_layer = list(self.modeler.layers.signals.keys())[0]
         for pin in self.pins.items():
             if pin[0] == pins[0]:
                 placement_layer = pin[1].start_layer
@@ -1985,7 +2039,9 @@ class Primitives3DLayout(PyAedtBase):
         return self.modeler.oeditor.CreateText(args)
 
     @pyaedt_function_handler()
-    def create_coordinate_system(self, origin: list = None, name: str = None) -> CoordinateSystems3DLayout:
+    def create_coordinate_system(
+        self, origin: list[float] | None = None, name: str | None = None
+    ) -> CoordinateSystems3DLayout:
         """Create a coordinate system.
 
         Parameters
@@ -2021,6 +2077,6 @@ class Primitives3DLayout(PyAedtBase):
             origin = [0, 0]
         cs = CoordinateSystems3DLayout(self)
         cs.name = name
-        cs._origin = origin
+        cs.origin = origin
         cs.create()
         return cs
