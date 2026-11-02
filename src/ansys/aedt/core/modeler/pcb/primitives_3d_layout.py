@@ -27,7 +27,6 @@ from pathlib import Path
 import sys
 from typing import TYPE_CHECKING
 from typing import cast
-from warnings import deprecated
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import _uname
