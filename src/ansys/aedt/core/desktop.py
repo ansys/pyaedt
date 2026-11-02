@@ -56,6 +56,7 @@ import time
 import traceback
 from types import TracebackType
 from typing import TYPE_CHECKING
+from typing import cast
 import warnings
 
 from ansys.aedt.core import __version__
@@ -87,6 +88,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
 
 if TYPE_CHECKING:
+    from ansys.aedt.core.generic.protocols import _OAnsoftApp
     from ansys.aedt.core.generic.protocols import _ODesktop
 
 ON_CI = os.getenv("ON_CI", "false").lower() == "true"
@@ -2988,9 +2990,10 @@ class Desktop(PyAedtBase):
         time.sleep(5)
 
     def __dispatch_win32(self, version):  # pragma: no cover
+        from ansys.aedt.core.generic.protocols import _OAnsoftApp
         from ansys.aedt.core.internal.clr_module import win32_client
 
-        o_ansoft_app = win32_client.Dispatch(version)
+        o_ansoft_app: _OAnsoftApp = cast(_OAnsoftApp, win32_client.Dispatch(version))
         self.odesktop = o_ansoft_app.GetAppDesktop()
 
     def __init_dotnet(
