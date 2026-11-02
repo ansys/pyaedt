@@ -68,6 +68,48 @@ def maxwell_2d_setup_app(add_app_example):
     app.close_project(app.project_name, save=False)
 
 
+MAXWELL_AC_SOLUTIONS = [
+    ("maxwell_3d_app", SolutionsMaxwell3D.ACMagnetic),
+    ("maxwell_3d_app", SolutionsMaxwell3D.ACMagneticAPhi),
+    ("maxwell_3d_app", SolutionsMaxwell3D.ACMagneticwithDC),
+    ("maxwell_3d_app", SolutionsMaxwell3D.ACConduction),
+    ("maxwell_2d_app", SolutionsMaxwell2D.EddyCurrentXY),
+    ("maxwell_2d_app", SolutionsMaxwell2D.EddyCurrentZ),
+    ("maxwell_2d_app", SolutionsMaxwell2D.ACConductionXY),
+    ("maxwell_2d_app", SolutionsMaxwell2D.ACConductionZ),
+]
+
+MAXWELL_NON_AC_SOLUTIONS = [
+    ("maxwell_3d_app", SolutionsMaxwell3D.Magnetostatic),
+    ("maxwell_3d_app", SolutionsMaxwell3D.Transient),
+    ("maxwell_3d_app", SolutionsMaxwell3D.TransientAPhi),
+    ("maxwell_3d_app", SolutionsMaxwell3D.ElectroStatic),
+    ("maxwell_3d_app", SolutionsMaxwell3D.DCConduction),
+    ("maxwell_3d_app", SolutionsMaxwell3D.ElectricTransient),
+    ("maxwell_2d_app", SolutionsMaxwell2D.MagnetostaticXY),
+    ("maxwell_2d_app", SolutionsMaxwell2D.TransientZ),
+    ("maxwell_2d_app", SolutionsMaxwell2D.ElectroStaticXY),
+    ("maxwell_2d_app", SolutionsMaxwell2D.DCConductionZ),
+]
+
+MAXWELL_TRANSIENT_SOLUTIONS = [
+    ("maxwell_3d_app", SolutionsMaxwell3D.Transient),
+    ("maxwell_3d_app", SolutionsMaxwell3D.TransientAPhi),
+    ("maxwell_2d_app", SolutionsMaxwell2D.Transient),
+    ("maxwell_2d_app", SolutionsMaxwell2D.TransientXY),
+    ("maxwell_2d_app", SolutionsMaxwell2D.TransientZ),
+]
+
+MAXWELL_NON_TRANSIENT_SOLUTIONS = [
+    ("maxwell_3d_app", SolutionsMaxwell3D.Magnetostatic),
+    ("maxwell_3d_app", SolutionsMaxwell3D.ACMagnetic),
+    ("maxwell_3d_app", SolutionsMaxwell3D.ElectricTransient),
+    ("maxwell_2d_app", SolutionsMaxwell2D.MagnetostaticXY),
+    ("maxwell_2d_app", SolutionsMaxwell2D.EddyCurrentXY),
+    ("maxwell_2d_app", SolutionsMaxwell2D.ElectroStaticXY),
+]
+
+
 @pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
 def test_setup_maxwell3d_init(maxwell_3d_setup_app):
     maxwell_3d_setup_app.set_active_design("Maxwell3DACMagnetic")
@@ -165,28 +207,38 @@ def test_setup_maxwell2d_init(maxwell_2d_setup_app):
     assert maxwell_2d_setup_app.setups[0].solver_type == SolutionsMaxwell2D.Transient
 
 
-def test_setup_m3d(maxwell_3d_app) -> None:
-    maxwell_3d_app.solution_type = SolutionsMaxwell3D.ACMagnetic
+@pytest.mark.parametrize(
+    ("app_fixture", "solution_type"),
+    [
+        ("maxwell_3d_app", SolutionsMaxwell3D.ACMagnetic),
+        ("maxwell_2d_app", SolutionsMaxwell2D.EddyCurrentXY),
+    ],
+)
+def test_setup_maxwell(request, app_fixture, solution_type) -> None:
+    app = request.getfixturevalue(app_fixture)
+    app.solution_type = solution_type
 
     props = {"PercentError": 2, "MaximumPasses": 2}
-    setup1 = maxwell_3d_app.create_setup(RelativeResidual=1.0, props=props)
+    setup1 = app.create_setup(RelativeResidual=1.0, props=props)
     assert setup1.name == "MySetupAuto"
-    assert maxwell_3d_app.setups[0].name == setup1.name
-    assert setup1.name in maxwell_3d_app.setup_names
+    assert app.setups[0].name == setup1.name
+    assert setup1.name in app.setup_names
     assert isinstance(setup1, SetupMaxwell)
-    assert len(maxwell_3d_app.setup_names) == 1
+    assert setup1.solver_type == app.solution_type
+    assert len(app.setup_names) == 1
     assert setup1["PercentError"] == 2
     assert setup1["MaximumPasses"] == 2
 
-    setup2 = maxwell_3d_app.create_setup(setup_type="EddyCurrent", name=setup1.name)
-    assert setup2.name in maxwell_3d_app.setup_names
-    assert len(maxwell_3d_app.setup_names) == 2
+    setup2 = app.create_setup(setup_type="EddyCurrent", name=setup1.name)
+    assert setup2.name != setup1.name
+    assert setup2.name in app.setup_names
+    assert len(app.setup_names) == 2
 
     # Rename
     name = setup1.name
     setup1.name = "new_name"
-    assert "new_name" in maxwell_3d_app.setup_names
-    assert name not in maxwell_3d_app.setup_names
+    assert "new_name" in app.setup_names
+    assert name not in app.setup_names
     assert setup1.name == "new_name"
     assert setup1.child_object
 
@@ -201,33 +253,30 @@ def test_setup_m3d(maxwell_3d_app) -> None:
     assert setup1["Enabled"]
 
     # Delete
-    assert maxwell_3d_app.delete_setup(name=setup1.name)
-    assert "new_name" not in maxwell_3d_app.setup_names
-    assert not maxwell_3d_app.delete_setup(name="invented")
+    assert app.delete_setup(name=setup1.name)
+    assert "new_name" not in app.setup_names
+    assert not app.delete_setup(name="invented")
 
     name2 = setup2.name
-    setup2.delete()
-    assert name2 not in maxwell_3d_app.setup_names
+    assert setup2.delete()
+    assert name2 not in app.setup_names
+    assert not app.setup_names
 
 
-def test_add_maxwell_3d_sweep(maxwell_3d_app) -> None:
-    maxwell_3d_app.solution_type = SolutionsMaxwell3D.DCConduction
-    setup = maxwell_3d_app.create_setup()
-    assert not setup.add_eddy_current_sweep()
+@pytest.mark.parametrize(("app_fixture", "solution_type"), MAXWELL_AC_SOLUTIONS)
+def test_add_eddy_current_sweep(request, app_fixture, solution_type) -> None:
+    app = request.getfixturevalue(app_fixture)
+    app.solution_type = solution_type
+    setup = app.create_setup()
 
-    maxwell_3d_app.solution_type = SolutionsMaxwell3D.ACMagnetic
-    setup1 = maxwell_3d_app.create_setup()
-    assert setup1.add_eddy_current_sweep()
-    subranges = setup1["SweepRanges"]["Subrange"]
-    if isinstance(subranges, list):
-        assert subranges[0]["RangeType"] == "LinearStep"
-    else:
-        assert subranges["RangeType"] == "LinearStep"
+    assert setup.add_eddy_current_sweep()
+    subranges = setup["SweepRanges"]["Subrange"]
+    subrange = subranges[0] if isinstance(subranges, list) else subranges
+    assert subrange["RangeType"] == "LinearStep"
+    assert setup["HasSweepSetup"]
+    assert setup["SaveAllFields"]
 
-    assert setup1["HasSweepSetup"]
-    assert setup1["SaveAllFields"]
-
-    assert setup1.add_eddy_current_sweep(
+    assert setup.add_eddy_current_sweep(
         sweep_type="LinearCount",
         start_frequency=1,
         stop_frequency=5,
@@ -236,81 +285,88 @@ def test_add_maxwell_3d_sweep(maxwell_3d_app) -> None:
         clear=False,
         save_all_fields=False,
     )
-    subranges = setup1["SweepRanges"]["Subrange"]
+    subranges = setup["SweepRanges"]["Subrange"]
     assert len(subranges) == 2
+    assert subranges[1]["RangeType"] == "LinearCount"
     assert subranges[1]["RangeStart"] == "1kHz"
-    assert not setup1["SaveAllFields"]
+    assert subranges[1]["RangeEnd"] == "5kHz"
+    assert subranges[1]["RangeCount"] == 3
+    assert not setup["SaveAllFields"]
 
     # Appending to a single existing range also normalizes the dict to a list.
-    setup1["SweepRanges"]["Subrange"] = subranges[0]
-    assert setup1.add_eddy_current_sweep(
-        sweep_type="LogScale",
-        start_frequency=1,
-        stop_frequency=100,
-        step_size=5,
-        units="MHz",
-        clear=False,
+    setup["SweepRanges"]["Subrange"] = subranges[0]
+    assert setup.add_eddy_current_sweep(
+        sweep_type="LogScale", start_frequency=1, stop_frequency=100, step_size=5, units="MHz", clear=False
     )
-    subranges = setup1["SweepRanges"]["Subrange"]
+    subranges = setup["SweepRanges"]["Subrange"]
     assert len(subranges) == 2
     assert subranges[1]["RangeType"] == "LogScale"
     assert subranges[1]["RangeStart"] == "1MHz"
     assert subranges[1]["RangeEnd"] == "100MHz"
     assert subranges[1]["RangeSamples"] == 5
 
-    assert setup1.add_eddy_current_sweep(sweep_type="SinglePoints", start_frequency=10, units="GHz", clear=False)
-    subranges = setup1["SweepRanges"]["Subrange"]
+    assert setup.add_eddy_current_sweep(sweep_type="SinglePoints", start_frequency=10, units="GHz", clear=False)
+    subranges = setup["SweepRanges"]["Subrange"]
     assert len(subranges) == 3
     assert subranges[2]["RangeType"] == "SinglePoints"
     assert subranges[2]["RangeStart"] == "10GHz"
     assert subranges[2]["RangeEnd"] == "10GHz"
 
-    assert setup1.add_eddy_current_sweep(
-        sweep_type="LinearStep",
-        start_frequency=2,
-        stop_frequency=8,
-        step_size=2,
-        clear=True,
-    )
-    if isinstance(setup1["SweepRanges"]["Subrange"], list):
-        assert setup1["SweepRanges"]["Subrange"][0] == {
-            "RangeType": "LinearStep",
-            "RangeStart": "2Hz",
-            "RangeEnd": "8Hz",
-            "RangeStep": "2Hz",
-        }
-    else:
-        assert setup1["SweepRanges"]["Subrange"] == {
-            "RangeType": "LinearStep",
-            "RangeStart": "2Hz",
-            "RangeEnd": "8Hz",
-            "RangeStep": "2Hz",
-        }
+    assert setup.add_eddy_current_sweep(start_frequency=2, stop_frequency=8, step_size=2, clear=True)
+    subranges = setup["SweepRanges"]["Subrange"]
+    assert not isinstance(subranges, list) or len(subranges) == 1
+    subrange = subranges[0] if isinstance(subranges, list) else subranges
+    assert subrange == {"RangeType": "LinearStep", "RangeStart": "2Hz", "RangeEnd": "8Hz", "RangeStep": "2Hz"}
 
-    assert setup1.delete_all_eddy_current_sweeps()
-    assert "SweepRanges" not in setup1.props
-
-    maxwell_3d_app.solution_type = SolutionsMaxwell3D.DCConduction
-    setup3 = maxwell_3d_app.create_setup()
-    assert not setup3.delete_all_eddy_current_sweeps()
+    assert setup.delete_all_eddy_current_sweeps()
+    assert "SweepRanges" not in setup.props
 
 
-def test_control_program(maxwell_2d_app) -> None:
+@pytest.mark.parametrize(("app_fixture", "solution_type"), MAXWELL_NON_AC_SOLUTIONS)
+def test_add_eddy_current_sweep_invalid_solution(request, app_fixture, solution_type) -> None:
+    app = request.getfixturevalue(app_fixture)
+    app.solution_type = solution_type
+    setup = app.create_setup()
+    before = setup.props.to_dict()
+    assert not setup.add_eddy_current_sweep()
+    assert not setup.delete_all_eddy_current_sweeps()
+    assert setup.props.to_dict() == before
+
+
+@pytest.mark.parametrize(("app_fixture", "solution_type"), MAXWELL_TRANSIENT_SOLUTIONS)
+def test_control_program(request, app_fixture, solution_type) -> None:
+    app = request.getfixturevalue(app_fixture)
     user_ctl_path = Path("user.ctl")
     ctrl_prg_path = Path(TESTS_GENERAL_PATH) / "example_models" / TEST_SUBFOLDER / CTRL_PRG_FILE
-    maxwell_2d_app.solution_type = SolutionsMaxwell2D.Transient
-    setup = maxwell_2d_app.create_setup()
+    app.solution_type = solution_type
+    setup = app.create_setup()
+
     assert setup.enable_control_program(control_program_path=ctrl_prg_path)
     assert setup.props["UseControlProgram"]
+    assert setup.props["ControlProgramName"] == str(ctrl_prg_path)
+    assert not setup.props["CallCtrlProgAfterLastStep"]
+
     assert setup.enable_control_program(control_program_path=ctrl_prg_path, control_program_args="3")
+    assert setup.props["ControlProgramArg"] == "3"
     assert not setup.enable_control_program(control_program_path=ctrl_prg_path, control_program_args=3)
-    assert setup.enable_control_program(control_program_path=ctrl_prg_path, call_after_last_step=True)
+
+    assert setup.enable_control_program(control_program_path=str(ctrl_prg_path), call_after_last_step=True)
+    assert setup.props["CallCtrlProgAfterLastStep"]
+
     invalid_ctrl_prg_path = Path(TESTS_GENERAL_PATH) / "example_models" / TEST_SUBFOLDER / "invalid.py"
     assert not setup.enable_control_program(control_program_path=invalid_ctrl_prg_path)
-    maxwell_2d_app.solution_type = SolutionsMaxwell2D.EddyCurrentXY
-    assert not setup.enable_control_program(control_program_path=ctrl_prg_path)
     if user_ctl_path.exists():
         user_ctl_path.unlink()
+
+
+@pytest.mark.parametrize(("app_fixture", "solution_type"), MAXWELL_NON_TRANSIENT_SOLUTIONS)
+def test_control_program_invalid_solution(request, app_fixture, solution_type) -> None:
+    app = request.getfixturevalue(app_fixture)
+    ctrl_prg_path = Path(TESTS_GENERAL_PATH) / "example_models" / TEST_SUBFOLDER / CTRL_PRG_FILE
+    app.solution_type = solution_type
+    setup = app.create_setup()
+    assert not setup.enable_control_program(control_program_path=ctrl_prg_path)
+    assert not setup.props.get("UseControlProgram", False)
 
 
 def test_set_save_fields(maxwell_2d_app) -> None:
