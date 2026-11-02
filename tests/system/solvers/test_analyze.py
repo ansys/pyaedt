@@ -687,17 +687,6 @@ def test_export_maxwell_transient_fields(m3dtransient, test_tmp_dir) -> None:
     )
     assert fld_file_line.exists()
     line.delete()
-    with pytest.raises(AEDTRuntimeError):
-        m3dtransient.post.export_transient_field_file(quantity="Mag_B", time="10ms", field_type="invalid")
-    with pytest.raises(AEDTRuntimeError):
-        m3dtransient.post.export_transient_field_file(quantity="Mag_B", time="10ms", objects_type="invalid")
-    with pytest.raises(AEDTRuntimeError):
-        m3dtransient.post.export_transient_field_file(
-            quantity="Loss_Density", time="10ms", assignment="Coil_A2", objects_type="Surf", field_type="Fields"
-        )
-
-
-def test_export_maxwell_transient_fields_on_points(m3dtransient, test_tmp_dir) -> None:
     fld_file_points = test_tmp_dir / "test_fld_transient_points.fld"
     assert m3dtransient.post.export_transient_field_file_on_points(
         quantity="Mag_B",
@@ -725,6 +714,14 @@ def test_export_maxwell_transient_fields_on_points(m3dtransient, test_tmp_dir) -
     with pytest.raises(AEDTRuntimeError):
         m3dtransient.post.export_transient_field_file_on_points(
             quantity="Mag_B", time="10ms", sample_points=points_file, field_type="invalid"
+        )
+    with pytest.raises(AEDTRuntimeError):
+        m3dtransient.post.export_transient_field_file(quantity="Mag_B", time="10ms", field_type="invalid")
+    with pytest.raises(AEDTRuntimeError):
+        m3dtransient.post.export_transient_field_file(quantity="Mag_B", time="10ms", objects_type="invalid")
+    with pytest.raises(AEDTRuntimeError):
+        m3dtransient.post.export_transient_field_file(
+            quantity="Loss_Density", time="10ms", assignment="Coil_A2", objects_type="Surf", field_type="Fields"
         )
 
 
