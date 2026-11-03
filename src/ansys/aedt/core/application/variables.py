@@ -971,8 +971,19 @@ class VariableManager(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def _cleanup_variables(self) -> None:
-        variables = self._get_var_list_from_aedt(self._app.odesign) + self._get_var_list_from_aedt(self._app.oproject)
+    def _cleanup_variables(self, variables: list[str] | None = None) -> None:
+        """Remove cached variables that no longer exist in AEDT.
+
+        Parameters
+        ----------
+        variables : list[str], optional
+            Design and project variable names already retrieved from AEDT. If ``None``, they are retrieved.
+        """
+        if variables is None:
+            variables = self._get_var_list_from_aedt(self._app.odesign) + self._get_var_list_from_aedt(
+                self._app.oproject
+            )
+        variables = set(variables)
         all_dicts = [
             self.__independent_project_variables,
             self.__independent_design_variables,
@@ -985,18 +996,22 @@ class VariableManager(PyAedtBase):
                     del dict_var[var_name]
 
     @pyaedt_function_handler()
-    def _update_variable_dict(self, object_list):
+    def _update_variable_dict(self, object_list, var_lists: list[list[str]] | None = None):
         """Update variable dictionary.
 
         Parameters
         ----------
         object_list : list
             List of objects.
+        var_lists : list[list[str]], optional
+            Variable names already retrieved for each object in ``object_list``.
 
         """
         all_names = {}
-        for obj in object_list:
-            variables = [i for i in self._get_var_list_from_aedt(obj) if i not in list(self._all_variables.keys())]
+        known_variables = set(self._all_variables.keys())
+        for idx, obj in enumerate(object_list):
+            obj_vars = var_lists[idx] if var_lists is not None else self._get_var_list_from_aedt(obj)
+            variables = [i for i in obj_vars if i not in known_variables]
             for variable_name in variables:
                 variable_expression = self.get_expression(variable_name)
                 if variable_expression:
@@ -1032,19 +1047,32 @@ class VariableManager(PyAedtBase):
             Dictionary of the specified variables.
 
         """
-        self._update_variable_dict(object_list)
-        self._cleanup_variables()
+        odesign = self._app.odesign
+        oproject = self._app.oproject
+        design_vars = self._get_var_list_from_aedt(odesign)
+        project_vars = self._get_var_list_from_aedt(oproject)
+        var_lists = []
+        for obj in object_list:
+            if obj is odesign:
+                var_lists.append(design_vars)
+            elif obj is oproject:
+                var_lists.append(project_vars)
+            else:
+                var_lists.append(self._get_var_list_from_aedt(obj))
+        self._update_variable_dict(object_list, var_lists)
+        self._cleanup_variables(design_vars + project_vars)
+
         vars_to_output = {}
         dicts_to_add = []
         if independent:
-            if self._app.odesign in object_list:
+            if odesign in object_list:
                 dicts_to_add.append(self.__independent_design_variables)
-            if self._app.oproject in object_list:
+            if oproject in object_list:
                 dicts_to_add.append(self.__independent_project_variables)
         if dependent:
-            if self._app.odesign in object_list:
+            if odesign in object_list:
                 dicts_to_add.append(self.__dependent_design_variables)
-            if self._app.oproject in object_list:
+            if oproject in object_list:
                 dicts_to_add.append(self.__dependent_project_variables)
         for dict_var in dicts_to_add:
             for k, v in dict_var.items():
