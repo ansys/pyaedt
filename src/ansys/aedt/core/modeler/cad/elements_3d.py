@@ -999,7 +999,18 @@ class FacePrimitive(PyAedtBase):
         >>> obj.center
 
         """
-        if self.is_planar:
+        if self._is_planar is None:
+            # First access: a single GetFaceCenter call both detects planarity and returns the center.
+            try:
+                c = self.oeditor.GetFaceCenter(self.id)
+            except Exception:
+                if self.logger and hasattr(self.logger, "clear_messages"):
+                    self.logger.clear_messages()
+                self._is_planar = False
+            else:
+                self._is_planar = True
+                return [float(i) for i in c]
+        if self._is_planar:
             return [float(i) for i in self.oeditor.GetFaceCenter(self.id)]
         else:  # pragma: no cover
             # self.logger.clear_messages()
@@ -1344,7 +1355,8 @@ class FacePrimitive(PyAedtBase):
 
         """
         vertices_ids = self.vertices
-        if len(vertices_ids) < 2 or not self.center:
+        fc = self.center if len(vertices_ids) >= 2 else None
+        if len(vertices_ids) < 2 or not fc:
             self._object3d.logger.warning("Not enough vertices or non-planar face")
             return None
         # elif len(vertices_ids)<2:
@@ -1354,7 +1366,6 @@ class FacePrimitive(PyAedtBase):
         else:
             v1 = vertices_ids[0].position
             v2 = vertices_ids[1].position
-        fc = self.center
         cv1 = GeometryOperators.v_points(fc, v1)
         cv2 = GeometryOperators.v_points(fc, v2)
         if cv2[0] == cv1[0] == 0.0 and cv2[1] == cv1[1] == 0.0:
@@ -1372,7 +1383,8 @@ class FacePrimitive(PyAedtBase):
         inv_norm = [-i for i in normal]
         mv1 = GeometryOperators.v_sum(fc, normal)
         mv2 = GeometryOperators.v_sum(fc, inv_norm)
-        bb_center = GeometryOperators.get_mid_point(self._object3d.bounding_box[0:3], self._object3d.bounding_box[3:6])
+        bounding_box = self._object3d.bounding_box
+        bb_center = GeometryOperators.get_mid_point(bounding_box[0:3], bounding_box[3:6])
         d1 = GeometryOperators.points_distance(mv1, bb_center)
         d2 = GeometryOperators.points_distance(mv2, bb_center)
         if d1 > d2:

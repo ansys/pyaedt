@@ -32,6 +32,7 @@ import pytest
 
 from ansys.aedt.core.application.design import Design
 from ansys.aedt.core.application.variables import VariableManager
+from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
 
 
@@ -84,6 +85,36 @@ def test_refresh_planes_reuses_cached_handles(modeler) -> None:
     mdl._refresh_planes()
     assert mdl._planes == {"plane2": "handle_plane2"}
     assert mdl._app.get_oo_object.call_count == 2
+
+
+def test_face_center_single_call_on_first_access() -> None:
+    obj = MagicMock()
+    face = FacePrimitive(obj, 7)
+    obj._oeditor.GetFaceCenter.return_value = ["1", "2", "3"]
+
+    assert face.center == [1.0, 2.0, 3.0]
+    assert obj._oeditor.GetFaceCenter.call_count == 1
+    assert face.is_planar is True
+    assert obj._oeditor.GetFaceCenter.call_count == 1
+
+
+def test_face_normal_queries_bounding_box_once() -> None:
+    obj = MagicMock()
+    bounding_box = PropertyMock(return_value=[0.0, 0.0, 0.0, 2.0, 2.0, 2.0])
+    type(obj).bounding_box = bounding_box
+    face = FacePrimitive(obj, 1)
+    v1 = MagicMock(position=[0.0, 0.0, 0.0])
+    v2 = MagicMock(position=[2.0, 0.0, 0.0])
+    with (
+        patch.object(FacePrimitive, "vertices", new_callable=PropertyMock, return_value=[v1, v2]),
+        patch.object(FacePrimitive, "center", new_callable=PropertyMock, return_value=[1.0, 1.0, 0.0]) as center,
+    ):
+        normal = face.normal
+
+    # Bottom face of the box: the normal points away from the bounding box center.
+    assert [abs(i) if i == 0 else i for i in normal] == [0.0, 0.0, -1.0]
+    assert bounding_box.call_count == 1
+    assert center.call_count == 1
 
 
 def test_variable_dict_fetches_variable_lists_once() -> None:
@@ -153,6 +184,19 @@ def test_evaluate_expression_units_fall_through_to_evaluator() -> None:
 
     assert design.evaluate_expression("1e3mm") == 1.0
     manager.set_variable.assert_called_once()
+
+
+def test_face_center_non_planar_falls_back_to_centroid() -> None:
+    obj = MagicMock()
+    obj._oeditor.GetFaceCenter.side_effect = Exception("non planar")
+    face = FacePrimitive(obj, 3)
+    vertices = [MagicMock(position=[0.0, 0.0, 0.0]), MagicMock(position=[2.0, 2.0, 0.0])]
+    with patch.object(FacePrimitive, "vertices", new_callable=PropertyMock, return_value=vertices):
+        assert face.center == [1.0, 1.0, 0.0]
+
+    assert face._is_planar is False
+    obj.logger.clear_messages.assert_called_once()
+    assert obj._oeditor.GetFaceCenter.call_count == 1
 
 
 @pytest.mark.parametrize("cached", [False, None, "plane_object"])
