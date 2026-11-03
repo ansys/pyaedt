@@ -25,9 +25,8 @@
 """Module containing the `Materials` class."""
 
 import copy
-import fnmatch
 import math
-import os
+from pathlib import Path
 import re
 import sys
 
@@ -44,6 +43,44 @@ from ansys.aedt.core.modules.material import Material
 from ansys.aedt.core.modules.material import MatProperties
 from ansys.aedt.core.modules.material import SurfaceMaterial
 from ansys.aedt.core.modules.material_workbench import MaterialWorkbench
+
+_AMAT_BEGIN_RE = re.compile(r"^\$begin '(.+)'")
+_AMAT_NAMES_CACHE: dict[str, tuple[tuple[float, int], tuple[str, ...]]] = {}
+
+
+def _read_amat_material_names(file_name: str | Path) -> tuple[str, ...]:
+    """Return the material names defined in an ``.amat`` library file.
+
+    Results are cached per file and invalidated when the file modification time or size changes,
+    so library files are parsed only once per session.
+    """
+    file_name = str(file_name)
+    try:
+        stat = Path(file_name).stat()
+        key = (stat.st_mtime, stat.st_size)
+    except OSError:
+        key = None
+    cached = _AMAT_NAMES_CACHE.get(file_name)
+    if key is not None and cached is not None and cached[0] == key:
+        return cached[1]
+    with open_file(file_name, "rb") as aedt_fh:
+        content = aedt_fh.read()
+    names = []
+    for line in content.splitlines():
+        # Cheap prefix check first: only lines starting with ``$begin '`` can match.
+        if not line.startswith(b"$begin '"):
+            continue
+        try:
+            ascii_line = line.decode("utf-8")
+        except UnicodeDecodeError:
+            continue
+        match = _AMAT_BEGIN_RE.search(ascii_line)
+        if match:
+            names.append(match.group(1))
+    result = tuple(names)
+    if key is not None:
+        _AMAT_NAMES_CACHE[file_name] = (key, result)
+    return result
 
 
 class Materials(PyAedtBase):
@@ -230,39 +267,12 @@ class Materials(PyAedtBase):
 
     @pyaedt_function_handler()
     def _read_materials(self):
-        def get_mat_list(file_name: str):
-            mats = []
-            _begin_search = re.compile(r"^\$begin '(.+)'")
-            with open_file(file_name, "rb") as aedt_fh:
-                raw_lines = aedt_fh.read().splitlines()
-                for line in raw_lines:
-                    try:
-                        ascii_line = line.decode("utf-8")
-                    except UnicodeDecodeError:
-                        continue
-                    b = _begin_search.search(ascii_line)
-                    if b:  # walk down a level
-                        mats.append(b.group(1))
-            return mats
+        def get_mat_list(file_name: str | Path):
+            return list(_read_amat_material_names(file_name))
 
-        amat_sys = [
-            os.path.join(dirpath, filename)
-            for dirpath, _, filenames in os.walk(self._app.syslib)
-            for filename in filenames
-            if fnmatch.fnmatch(filename, "*.amat")
-        ]
-        amat_personal = [
-            os.path.join(dirpath, filename)
-            for dirpath, _, filenames in os.walk(self._app.personallib)
-            for filename in filenames
-            if fnmatch.fnmatch(filename, "*.amat")
-        ]
-        amat_user = [
-            os.path.join(dirpath, filename)
-            for dirpath, _, filenames in os.walk(self._app.userlib)
-            for filename in filenames
-            if fnmatch.fnmatch(filename, "*.amat")
-        ]
+        amat_sys = list(Path(self._app.syslib).rglob("*.amat"))
+        amat_personal = list(Path(self._app.personallib).rglob("*.amat"))
+        amat_user = list(Path(self._app.userlib).rglob("*.amat"))
         amat_libs = amat_sys + amat_personal + amat_user
         mats = []
         for amat in amat_libs:
@@ -876,11 +886,11 @@ class Materials(PyAedtBase):
         >>> obj.import_materials_from_file(input_file="example.txt")
 
         """
-        if input_file is None or not os.path.exists(input_file):
+        if input_file is None or not Path(input_file).exists():
             self.logger.error("Incorrect path provided.")
             return False
 
-        _, file_extension = os.path.splitext(input_file)
+        file_extension = Path(input_file).suffix
         json_flag = True
         datasets = {}
         if file_extension.casefold() == ".json":
@@ -990,9 +1000,9 @@ class Materials(PyAedtBase):
             return False
         materials_added = []
         props = {}
-        if os.path.splitext(input_file)[1] == ".csv":
+        if Path(input_file).suffix == ".csv":
             df = pd.read_csv(input_file, index_col=0)
-        elif os.path.splitext(input_file)[1] == ".xlsx":
+        elif Path(input_file).suffix == ".xlsx":
             df = pd.read_excel(input_file, index_col=0)
         else:
             self.logger.error("Only csv and xlsx are supported.")
@@ -1074,7 +1084,7 @@ class Materials(PyAedtBase):
         if name_suffix:
             mat_wb.mat_name_suffix = name_suffix
         # check if the xml file exists
-        if not os.path.isfile(input_file):
+        if not Path(input_file).is_file():
             self.logger.error(f"The file specified does not exist: {input_file}")
             return False
         # import the materials in the xml
