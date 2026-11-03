@@ -2,7 +2,7 @@ Configuration file for MCAD assembly
 ====================================
 
 Example 1, assembly RLC components on a PCB in HFSS 3D
------------------------------------------------------------------------
+------------------------------------------------------
 
 .. code:: python
 
