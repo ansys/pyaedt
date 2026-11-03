@@ -995,6 +995,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         field_type : str, optional
             Type of field to export as in AEDT Fields Calculator.
             Options are ``"Fields"`` and ``"Time Averaged Fields"``. The default is ``"Fields"``.
+            ``"Time Averaged Fields"`` is available only in Maxwell 3D and Maxwell 2D designs.
         start_time : str, optional
             Start time of the averaging range, with units. It is used only when
             ``field_type="Time Averaged Fields"``. The default is ``"0s"``.
@@ -1084,6 +1085,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         field_type : str, optional
             Type of field to export as in AEDT Fields Calculator.
             Options are ``"Fields"`` and ``"Time Averaged Fields"``. The default is ``"Fields"``.
+            ``"Time Averaged Fields"`` is available only in Maxwell 3D and Maxwell 2D designs.
         start_time : str, optional
             Start time of the averaging range, with units. It is used only when
             ``field_type="Time Averaged Fields"``. The default is ``"0s"``.
@@ -1192,6 +1194,11 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         if field_type not in ["Fields", "Time Averaged Fields"]:
             raise AEDTRuntimeError(
                 f"Invalid field type '{field_type}'. Options are 'Fields' and 'Time Averaged Fields'."
+            )
+        if field_type == "Time Averaged Fields" and self._app.design_type not in ["Maxwell 3D", "Maxwell 2D"]:
+            raise AEDTRuntimeError(
+                f"Time averaged fields are not available in {self._app.design_type} designs. "
+                "They are available only in Maxwell 3D and Maxwell 2D designs."
             )
         available_expressions = self.fields_calculator.get_expressions(field_type=field_type)
         if quantity not in available_expressions:
