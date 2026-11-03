@@ -1348,19 +1348,13 @@ class Cable(PyAedtBase):
                 else:
                     self.twist_angle_along_route = json_dict["CableHarness_prop"]["TwistAngleAlongRoute"]
 
-                if not [
-                    x
-                    for x in self._app.modeler.object_names
-                    if json_dict["CableHarness_prop"]["Polyline"].lower() == x.lower()
-                ]:
+                polyline_name = json_dict["CableHarness_prop"]["Polyline"].lower()
+                matching_polylines = [x for x in self._app.modeler.object_names if polyline_name == x.lower()]
+                if not matching_polylines:
                     msg = "Polyline doesn't exist in the current project."
                     raise ValueError(msg)
                 else:
-                    self.cable_harness_polyline = [
-                        x
-                        for x in self._app.modeler.object_names
-                        if json_dict["CableHarness_prop"]["Polyline"].lower() == x.lower()
-                    ][0]
+                    self.cable_harness_polyline = matching_polylines[0]
 
                 if (
                     json_dict["CableHarness_prop"]["AutoOrient"].lower() == "true"
