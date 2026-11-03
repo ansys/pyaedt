@@ -568,10 +568,14 @@ class Design(AedtObjects, PyAedtBase):
 
         current_boundaries = bb[::2]
         current_types = bb[1::2]
-        if hasattr(self, "excitation_names"):
-            check_boundaries = list(current_boundaries[:]) + list(self.ports[:]) + self.excitation_names[:]
-            if hasattr(self, "net_names"):
-                check_boundaries += self.net_names
+        # ``getattr`` evaluates each property once (``hasattr`` would evaluate it and then it would be re-read).
+        excitation_names = getattr(self, "excitation_names", None)
+        if excitation_names is not None:
+            check_boundaries = list(current_boundaries[:]) + list(self.ports[:]) + excitation_names[:]
+            net_names = getattr(self, "net_names", None)
+            if net_names is not None:
+                check_boundaries += net_names
+            check_boundaries = set(check_boundaries)
             for k in list(self._boundaries.keys())[:]:
                 if k not in check_boundaries:
                     del self._boundaries[k]
