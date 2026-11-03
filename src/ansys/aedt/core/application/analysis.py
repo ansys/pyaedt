@@ -1485,7 +1485,7 @@ class Analysis(Design, PyAedtBase):
         return setup
 
     @pyaedt_function_handler()
-    def get_setup(self, name: str) -> Setup:
+    def get_setup(self, name: str) -> Setup | None:
         """Get the setup from the current design.
 
         Parameters
@@ -1504,7 +1504,11 @@ class Analysis(Design, PyAedtBase):
         >>> hfss.get_setup("Setup1")
 
         """
-        return self.design_setups[name]
+        if name in self.setup_names:
+            if name not in self.__setups:
+                self.__setups[name] = self._get_setup(name)
+            return self.__setups[name]
+        return None
 
     @pyaedt_function_handler()
     def create_output_variable(
