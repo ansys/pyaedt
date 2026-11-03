@@ -3006,14 +3006,19 @@ class CoordinateSystems3DLayout(PyAedtBase):
 
     """
 
-    def __init__(self, primitives) -> None:
+    def __init__(self, primitives, name: str | None = None, origin: list[float] | None = None) -> None:
         self._primitives = primitives
         self._oeditor: "_OEditor" = self._primitives.oeditor
         self.logger = self._primitives.logger
 
         # Private properties
-        self.__name = None
-        self.__origin = None
+        if name not in self._primitives.coordinate_systems:
+            self.__name = name
+        else:
+            self.__name = None
+            self.logger.warning(f"{name} is already used in current design. Coordinate system name set to None.")
+
+        self.__origin = origin
 
     def __repr__(self) -> str:
         return self.name
@@ -3084,7 +3089,7 @@ class CoordinateSystems3DLayout(PyAedtBase):
             self.logger.warning(f"{obj_name} is already used in current design.")
 
     @property
-    def origin(self):
+    def origin(self) -> list[float]:
         """Location of the coordinate system.
 
         Returns
