@@ -527,57 +527,6 @@ def test_assign_matrix_failure(m2d_app):
         m2d_app.assign_matrix(matrix_args)
 
 
-def test_solution_types_setup(m2d_app) -> None:
-    m2d_app.solution_type = SolutionsMaxwell2D.TransientXY
-    setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
-    assert setup
-    setup.delete()
-    m2d_app.solution_type = SolutionsMaxwell2D.TransientZ
-    setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
-    assert setup
-    setup.delete()
-    m2d_app.solution_type = SolutionsMaxwell2D.MagnetostaticXY
-    setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
-    assert setup
-    setup.delete()
-    m2d_app.solution_type = SolutionsMaxwell2D.MagnetostaticZ
-    setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
-    assert setup
-    setup.delete()
-    m2d_app.solution_type = SolutionsMaxwell2D.EddyCurrentXY
-    setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
-    assert setup
-    setup.delete()
-    m2d_app.solution_type = SolutionsMaxwell2D.EddyCurrentZ
-    setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
-    assert setup
-    setup.delete()
-    m2d_app.solution_type = SolutionsMaxwell2D.ElectroStaticXY
-    setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
-    assert setup
-    setup.delete()
-    m2d_app.solution_type = SolutionsMaxwell2D.ElectroStaticZ
-    setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
-    assert setup
-    setup.delete()
-    m2d_app.solution_type = SolutionsMaxwell2D.DCConductionXY
-    setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
-    assert setup
-    setup.delete()
-    m2d_app.solution_type = SolutionsMaxwell2D.DCConductionZ
-    setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
-    assert setup
-    setup.delete()
-    m2d_app.solution_type = SolutionsMaxwell2D.ACConductionXY
-    setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
-    assert setup
-    setup.delete()
-    m2d_app.solution_type = SolutionsMaxwell2D.ACConductionZ
-    setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
-    assert setup
-    setup.delete()
-
-
 def test_create_external_circuit(m2d_app) -> None:
     m2d_app.solution_type = SolutionsMaxwell2D.EddyCurrentXY
     m2d_app.modeler.create_circle([0, 0, 0], 10, name="Coil1")

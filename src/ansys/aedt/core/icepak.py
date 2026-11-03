@@ -3433,10 +3433,10 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         setup_keys = SetupKeys.get_setup_templates()
         setup_names_available = [name for name in dir(Setups) if not name.startswith("_")]
 
-        if setup_type is None:
-            setup_type = self.design_solutions.default_setup
-        elif isinstance(setup_type, str) and setup_type in setup_names_available:
+        if setup_type is not None and isinstance(setup_type, str) and setup_type in setup_names_available:
             setup_type = getattr(Setups, setup_type)
+        else:
+            setup_type = self.design_solutions.default_setup
 
         if not name:
             name = self.generate_unique_setup_name("MySetupAuto")

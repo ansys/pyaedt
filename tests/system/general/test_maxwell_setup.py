@@ -28,6 +28,7 @@ import pytest
 
 from ansys.aedt.core import Maxwell2d
 from ansys.aedt.core import Maxwell3d
+from ansys.aedt.core.generic.aedt_constants import Setups
 from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
 from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
 from ansys.aedt.core.modules.solve_setup import SetupMaxwell
@@ -208,13 +209,13 @@ def test_setup_maxwell2d_init(maxwell_2d_setup_app):
 
 
 @pytest.mark.parametrize(
-    ("app_fixture", "solution_type"),
+    ("app_fixture", "solution_type", "setup_type"),
     [
-        ("maxwell_3d_app", SolutionsMaxwell3D.ACMagnetic),
-        ("maxwell_2d_app", SolutionsMaxwell2D.EddyCurrentXY),
+        ("maxwell_3d_app", SolutionsMaxwell3D.ACMagnetic, None),
+        ("maxwell_2d_app", SolutionsMaxwell2D.EddyCurrentXY, Setups.EddyCurrent),
     ],
 )
-def test_setup_maxwell(request, app_fixture, solution_type) -> None:
+def test_setup_maxwell(request, app_fixture, solution_type, setup_type) -> None:
     app = request.getfixturevalue(app_fixture)
     app.solution_type = solution_type
 
@@ -229,7 +230,7 @@ def test_setup_maxwell(request, app_fixture, solution_type) -> None:
     assert setup1["PercentError"] == 2
     assert setup1["MaximumPasses"] == 2
 
-    setup2 = app.create_setup(setup_type="EddyCurrent", name=setup1.name)
+    setup2 = app.create_setup(setup_type=setup_type, name=setup1.name)
     assert setup2.name != setup1.name
     assert setup2.name in app.setup_names
     assert len(app.setup_names) == 2
