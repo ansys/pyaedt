@@ -481,7 +481,10 @@ class Object3d(PyAedtBase):
         if set(face_ids) == set(self._face_ids):
             return self._faces
         self._face_ids = face_ids
-        self._faces = [FacePrimitive(self, int(face)) for face in face_ids]
+        self._faces = []
+        for face in face_ids:
+            face = int(face)
+            self._faces.append(FacePrimitive(self, face))
         return self._faces
 
     @property
