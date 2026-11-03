@@ -76,9 +76,9 @@ def test_batch_update_defers_object_cleanup(mock_hfss_app) -> None:
     gm.cleanup_solids = MagicMock()
     gm.cleanup_points = MagicMock()
 
-    with gm.batch_update():
+    with gm.batch_geometry_operations():
         gm.cleanup_objects()
-        with gm.batch_update():
+        with gm.batch_geometry_operations():
             gm.cleanup_objects()
         gm.cleanup_solids.assert_not_called()
         gm.cleanup_points.assert_not_called()

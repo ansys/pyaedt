@@ -10392,7 +10392,7 @@ class GeometryModeler(Modeler, PyAedtBase):
                 self._object_types_cached = False
 
     @contextmanager
-    def batch_update(self):
+    def batch_geometry_operations(self):
         """Defer object cleanup until a group of geometry operations is complete.
 
         Operations inside this context can leave the Python object dictionaries out of sync with AEDT.
@@ -10404,7 +10404,7 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> with modeler.batch_update():
+        >>> with modeler.batch_geometry_operations():
         ...     for cutter in cutters:
         ...         modeler.subtract(target.name, cutter.name, keep_originals=False)
         """

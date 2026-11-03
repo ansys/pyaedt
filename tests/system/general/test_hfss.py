@@ -151,7 +151,7 @@ def test_batch_update_defers_cleanup(aedt_app, monkeypatch) -> None:
 
     monkeypatch.setattr(modeler, "_cleanup_objects_now", count_cleanup_objects_now)
 
-    with modeler.batch_update():
+    with modeler.batch_geometry_operations():
         for cutter_name in cutter_names:
             assert modeler.subtract(target.name, cutter_name, keep_originals=False)
         assert cleanup_calls == 0
