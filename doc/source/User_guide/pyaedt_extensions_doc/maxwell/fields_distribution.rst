@@ -2,37 +2,59 @@ Fields distribution
 ===================
 
 This extensions allows to export fields distribution in generic formats such as CSV, TAB, or NPY on a defined grid of points or on mesh nodes.
-The user can import a PTS file or generate a point cloud thanks to the **Point Cloud Generator** extension.
+
+The extension works with Maxwell 2D and Maxwell 3D designs, for both frequency domain and all transient solution types.
 
 You can access the extension from the icon created on the **Automation** tab using the Extension Manager.
 
-The following image shows the extension user interface:
+The following image shows the extension user interface for a transient design:
 
 .. image:: ../../../_static/extensions/fields_distribution.png
   :width: 600
   :alt: Fields Distribution UI
 
-The user can select the field to export from the **Export options** list. This list displays all the available named expressions in the fields calculator.
-The **Objects list** option allows the user to select the object or multiple objects on which the field is exported.
+The user interface is organized in the following sections:
 
-In the **Sample points file** field, the user can specify a PTS file containing the points where the field is exported
-or generate a point cloud using the **Point Cloud Generator** extension by clicking on the button.
-In the latter case a new window appears:
+- **Quantity**: Select the field to export. This list displays all the available named expressions in the fields calculator.
+- **Objects**: Select one or more objects on which the field is exported.
+- **Solution**: Select the setup and sweep in the **Setup** drop-down list. The list contains all the analysis sweeps
+  of the design, so you can switch between them when the design has more than one setup.
+  For transient designs, this section also contains the time settings described in the next section.
+- **Files**: Specify the sample points file and the output file.
 
-.. image:: ../../../_static/extensions/fields_distribution_pop_up.png
-  :width: 300
-  :alt: PTS import options
+Transient designs
+-----------------
 
-In case the user has a PTS file, the browse file window appears:
+For transient designs, you can export either the instantaneous field at a given time or the field averaged over a time range:
 
-.. image:: ../../../_static/extensions/fields_distribution_browse.png
-  :width: 600
-  :alt: Browse PTS file
+- **Instantaneous field**: Leave the **Time averaged fields** check box cleared and provide the **Time** value,
+  with units, such as ``10ms``. The field is exported at this time step.
+- **Time averaged field**: Select the **Time averaged fields** check box and provide both the **Start time**
+  and the **Stop time**, with units, such as ``0s`` and ``10ms``. The field is averaged over the time
+  steps between these two values. Both values are required.
 
-The **Save as** button allows to browse the location to save the output file in the selected format (CSV, TAB, or NPY).
+The **Quantity** list changes dynamically with the **Time averaged fields** check box. When the check box is selected,
+the list displays only the time averaged named expressions available in the fields calculator.
+When it is cleared, the list displays the instantaneous named expressions again.
+The **Start time** field is visible only when the check box is selected, and the **Time** field is renamed **Stop time**.
 
-Finally, the user has the option to preview the field distribution on the selected object surface with PyVista or simply export
-the field in the desired location both in the selected format and as a FLD file.
+Files
+-----
+
+The **Sample points** field is optional:
+
+- If it is empty, the field is exported on the mesh nodes of the surfaces of the selected objects,
+  or of all objects if no object is selected.
+- To export the field on a given set of points instead, click the **...** button and select an existing PTS file.
+
+To create a sample points file, first run the :doc:`../project/point_cloud_generator` extension
+on the objects of interest. It generates a PTS file with a point cloud conforming to the selected objects.
+Then, select the resulting PTS file in the **Sample points** field of the Fields distribution extension.
+
+In the **Output file** field, the **Save as...** button allows to browse the location to save the output file
+in the selected format (CSV, TAB, or NPY).
+
+Finally, the **Export** button exports the field to the desired location both in the selected format and as a FLD file.
 
 You can also launch the extension user interface from the terminal. An example can be found here:
 
