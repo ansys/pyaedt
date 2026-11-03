@@ -262,3 +262,37 @@ def test_add_message_skips_desktop_when_desktop_logs_disabled() -> None:
 
 
 # Round 2 optimizations
+
+
+def test_read_amat_material_names_matches_line_parser_and_caches(tmp_path) -> None:
+    from ansys.aedt.core.modules import material_lib
+
+    amat = tmp_path / "lib.amat"
+    amat.write_bytes(
+        b"$begin 'a'\r\n  $begin 'nested'\r$begin 'b'\n\xff$begin 'bad'\n$begin '\xff'\n$begin 'c\xc3\xa9'\n$end 'a'\n"
+    )
+    material_lib._AMAT_NAMES_CACHE.clear()
+
+    assert material_lib._read_amat_material_names(amat) == ("a", "b", "c\u00e9")
+    with patch("ansys.aedt.core.modules.material_lib.open_file") as open_file:
+        assert material_lib._read_amat_material_names(str(amat)) == ("a", "b", "c\u00e9")
+    open_file.assert_not_called()
+
+    # Cache is invalidated when the file changes.
+    amat.write_bytes(b"$begin 'z'\n$begin 'zz'\n")
+    assert material_lib._read_amat_material_names(amat) == ("z", "zz")
+
+
+def test_read_amat_material_names_without_stat_does_not_cache(tmp_path) -> None:
+    from ansys.aedt.core.modules import material_lib
+
+    amat = tmp_path / "lib.amat"
+    amat.write_bytes(b"$begin 'a'\n")
+    material_lib._AMAT_NAMES_CACHE.clear()
+    broken_path = MagicMock()
+    broken_path.return_value.stat.side_effect = OSError("no stat")
+    with patch("ansys.aedt.core.modules.material_lib.Path", broken_path):
+        assert material_lib._read_amat_material_names(amat) == ("a",)
+        amat.write_bytes(b"$begin 'b'\n")
+        assert material_lib._read_amat_material_names(amat) == ("b",)
+    assert material_lib._AMAT_NAMES_CACHE == {}

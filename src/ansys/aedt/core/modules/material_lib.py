@@ -28,6 +28,7 @@ import copy
 import fnmatch
 import math
 import os
+from pathlib import Path
 import re
 import sys
 
@@ -44,6 +45,44 @@ from ansys.aedt.core.modules.material import Material
 from ansys.aedt.core.modules.material import MatProperties
 from ansys.aedt.core.modules.material import SurfaceMaterial
 from ansys.aedt.core.modules.material_workbench import MaterialWorkbench
+
+_AMAT_BEGIN_RE = re.compile(r"^\$begin '(.+)'")
+_AMAT_NAMES_CACHE: dict[str, tuple[tuple[float, int], tuple[str, ...]]] = {}
+
+
+def _read_amat_material_names(file_name: str | Path) -> tuple[str, ...]:
+    """Return the material names defined in an ``.amat`` library file.
+
+    Results are cached per file and invalidated when the file modification time or size changes,
+    so library files are parsed only once per session.
+    """
+    file_name = str(file_name)
+    try:
+        stat = Path(file_name).stat()
+        key = (stat.st_mtime, stat.st_size)
+    except OSError:
+        key = None
+    cached = _AMAT_NAMES_CACHE.get(file_name)
+    if key is not None and cached is not None and cached[0] == key:
+        return cached[1]
+    with open_file(file_name, "rb") as aedt_fh:
+        content = aedt_fh.read()
+    names = []
+    for line in content.splitlines():
+        # Cheap prefix check first: only lines starting with ``$begin '`` can match.
+        if not line.startswith(b"$begin '"):
+            continue
+        try:
+            ascii_line = line.decode("utf-8")
+        except UnicodeDecodeError:
+            continue
+        match = _AMAT_BEGIN_RE.search(ascii_line)
+        if match:
+            names.append(match.group(1))
+    result = tuple(names)
+    if key is not None:
+        _AMAT_NAMES_CACHE[file_name] = (key, result)
+    return result
 
 
 class Materials(PyAedtBase):
@@ -231,19 +270,7 @@ class Materials(PyAedtBase):
     @pyaedt_function_handler()
     def _read_materials(self):
         def get_mat_list(file_name: str):
-            mats = []
-            _begin_search = re.compile(r"^\$begin '(.+)'")
-            with open_file(file_name, "rb") as aedt_fh:
-                raw_lines = aedt_fh.read().splitlines()
-                for line in raw_lines:
-                    try:
-                        ascii_line = line.decode("utf-8")
-                    except UnicodeDecodeError:
-                        continue
-                    b = _begin_search.search(ascii_line)
-                    if b:  # walk down a level
-                        mats.append(b.group(1))
-            return mats
+            return list(_read_amat_material_names(file_name))
 
         amat_sys = [
             os.path.join(dirpath, filename)
