@@ -4895,8 +4895,9 @@ class Design(AedtObjects, PyAedtBase):
 
         # Strategy 1: Direct variable lookup
         # If the expression is exactly a variable name, return its SI value directly
-        if expression in self._variable_manager.variables:
-            return self._variable_manager.variables[expression].si_value
+        variables = self._variable_manager.variables
+        if expression in variables:
+            return variables[expression].si_value
 
         # Strategy 2: Check for PWL (Piecewise Linear) dataset references
         # PWL expressions reference datasets and should be returned as-is
