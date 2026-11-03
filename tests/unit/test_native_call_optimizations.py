@@ -30,6 +30,7 @@ from unittest.mock import patch
 
 import pytest
 
+from ansys.aedt.core.application.variables import VariableManager
 from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
 
 
@@ -82,6 +83,27 @@ def test_refresh_planes_reuses_cached_handles(modeler) -> None:
     mdl._refresh_planes()
     assert mdl._planes == {"plane2": "handle_plane2"}
     assert mdl._app.get_oo_object.call_count == 2
+
+
+def test_variable_dict_fetches_variable_lists_once() -> None:
+    app = MagicMock()
+    manager = VariableManager(app)
+    with patch.object(VariableManager, "_get_var_list_from_aedt", return_value=[]) as get_list:
+        manager._variable_dict([app.odesign, app.oproject])
+
+    # One call per AEDT object, shared by the update and cleanup steps.
+    assert get_list.call_count == 2
+
+
+def test_cleanup_variables_uses_provided_list() -> None:
+    app = MagicMock()
+    manager = VariableManager(app)
+    manager._VariableManager__independent_design_variables = {"keep": 1, "drop": 2}
+    with patch.object(VariableManager, "_get_var_list_from_aedt") as get_list:
+        manager._cleanup_variables(["keep"])
+
+    get_list.assert_not_called()
+    assert manager._VariableManager__independent_design_variables == {"keep": 1}
 
 
 @pytest.mark.parametrize("cached", [False, None, "plane_object"])
