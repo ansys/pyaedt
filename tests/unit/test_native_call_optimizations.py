@@ -301,6 +301,30 @@ def test_materials_hash_lookup_preserves_first_match() -> None:
     assert mats._get_aedt_case_name("gold") == "Gold"
 
 
+def test_find_object_from_face_id_uses_single_native_call(modeler) -> None:
+    mdl, oeditor = modeler
+    oeditor.GetObjectNameByFaceID.return_value = "box1"
+
+    assert mdl._find_object_from_face_id(42) == "box1"
+    oeditor.GetFaceIDs.assert_not_called()
+
+
+def test_find_object_from_face_id_falls_back_to_scan(modeler) -> None:
+    mdl, oeditor = modeler
+    oeditor.GetObjectNameByFaceID.side_effect = AttributeError("not supported")
+    oeditor.GetFaceIDs.side_effect = lambda name: ["7"] if name == "box2" else ["1"]
+
+    assert mdl._find_object_from_face_id(7) == "box2"
+
+
+def test_find_object_from_face_id_non_face_id_returns_none(modeler) -> None:
+    mdl, oeditor = modeler
+    oeditor.GetObjectNameByFaceID.return_value = ""
+
+    assert mdl._find_object_from_face_id(16) is None
+    oeditor.GetFaceIDs.assert_not_called()
+
+
 def test_read_amat_material_names_without_stat_does_not_cache(tmp_path) -> None:
     from ansys.aedt.core.modules import material_lib
 

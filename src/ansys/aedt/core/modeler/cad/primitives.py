@@ -10530,6 +10530,14 @@ class GeometryModeler(Modeler, PyAedtBase):
     @pyaedt_function_handler()
     def _find_object_from_face_id(self, lval):
         if self.oeditor is not None:
+            try:
+                # Single native call instead of one GetFaceIDs call per object.
+                obj_name = self.oeditor.GetObjectNameByFaceID(int(lval))
+            except (ValueError, TypeError, AttributeError, GrpcApiError):
+                obj_name = None
+            else:
+                # AEDT returns an empty name for ids that are not faces, which the scan would not match either.
+                return obj_name or None
             objList = []
             objListSheets = self.sheet_names
             if len(objListSheets) > 0:
