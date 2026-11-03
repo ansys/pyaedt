@@ -398,6 +398,30 @@ def test_boundary_child_object_reads_excitations_once() -> None:
     assert app.get_oo_name.call_count == 2
 
 
+def test_name_getter_reads_single_property() -> None:
+    with patch.object(BoundaryObject, "__init__", lambda self: None):
+        boundary = BoundaryObject()
+    boundary._name = "Old"
+    boundary.child_object = MagicMock()
+    boundary.child_object.GetPropNames.return_value = ["Name", "Type"]
+    boundary.child_object.GetPropValue.return_value = "New"
+    with patch.object(BoundaryObject, "properties", new_callable=PropertyMock) as properties:
+        assert boundary.name == "New"
+    properties.assert_not_called()
+
+
+def test_name_getter_stale_object_matches_properties_behavior() -> None:
+    with patch.object(BoundaryObject, "__init__", lambda self: None):
+        boundary = BoundaryObject()
+    boundary._name = "Deleted"
+    boundary.child_object = MagicMock()
+    # Deleted AEDT object: property names are still listed, but values can no longer be read.
+    boundary.child_object.GetPropNames.return_value = ["Name"]
+    boundary.child_object.GetPropValue.side_effect = Exception("Failed to execute gRPC AEDT command")
+    with patch.object(BoundaryObject, "properties", new_callable=PropertyMock, return_value={"Name": None}):
+        assert boundary.name == "None"
+
+
 def test_get_object_dict_by_material_queries_object_list_once(modeler) -> None:
     mdl, _ = modeler
     objs = [MagicMock(material_name="copper"), MagicMock(material_name="fr4"), None]
