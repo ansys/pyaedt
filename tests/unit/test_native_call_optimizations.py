@@ -422,6 +422,35 @@ def test_name_getter_stale_object_matches_properties_behavior() -> None:
         assert boundary.name == "None"
 
 
+def test_set_variable_skips_variable_refresh_for_non_circuit_designs() -> None:
+    app = MagicMock(design_type="HFSS")
+    manager = VariableManager(app)
+    with (
+        patch.object(VariableManager, "variables", new_callable=PropertyMock) as variables,
+        patch.object(VariableManager, "_set_variables_single_call", return_value=True) as single_call,
+    ):
+        assert manager.set_variable(["a", "b"], ["1mm", "2mm"])
+
+    variables.assert_not_called()
+    single_call.assert_called_once()
+    assert single_call.call_args.kwargs["circuit_parameter"] is False
+
+
+def test_set_variable_checks_existing_variables_for_circuit_designs() -> None:
+    app = MagicMock(design_type="Circuit Design")
+    manager = VariableManager(app)
+    existing = {"a": MagicMock(is_circuit_parameter=False)}
+    with (
+        patch.object(VariableManager, "variables", new_callable=PropertyMock, return_value=existing) as variables,
+        patch.object(VariableManager, "_set_variables_single_call", return_value=True) as single_call,
+    ):
+        assert manager.set_variable(["a", "b"], ["1mm", "2mm"])
+
+    assert variables.call_count == 1
+    flags = sorted(c.kwargs["circuit_parameter"] for c in single_call.call_args_list)
+    assert flags == [False, True]
+
+
 def test_variable_prop_getter_skips_obj_type_for_non_circuit_designs() -> None:
     from ansys.aedt.core.application.variables import Variable
 
