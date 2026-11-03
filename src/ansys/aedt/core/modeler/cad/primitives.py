@@ -10343,8 +10343,10 @@ class GeometryModeler(Modeler, PyAedtBase):
 
     @pyaedt_function_handler()
     def _create_object(self, name: str, pid: int = 0, use_cached: bool = False, is_polyline: bool = False, **kwargs):
-        if use_cached:
-            line_names = self._lines
+        # Solid primitives are never lines, so the caller can skip the Lines group query.
+        is_solid = kwargs.pop("_is_solid", False)
+        if use_cached or is_solid:
+            line_names = self._lines if not is_solid else []
         else:
             line_names = self.line_names
         if name in self._points:

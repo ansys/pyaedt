@@ -317,6 +317,17 @@ def test_find_object_from_face_id_falls_back_to_scan(modeler) -> None:
     assert mdl._find_object_from_face_id(7) == "box2"
 
 
+def test_create_object_solid_skips_lines_query(modeler) -> None:
+    mdl, oeditor = modeler
+    mdl.objects = MagicMock()
+    mdl.points = {}
+    with patch.object(GeometryModeler, "planes", new_callable=PropertyMock, return_value={}):
+        mdl._create_object("box1", pid=5, _is_solid=True)
+        oeditor.GetObjectsInGroup.assert_not_called()
+        mdl._create_object("box1", pid=5)
+    oeditor.GetObjectsInGroup.assert_called_once_with("Lines")
+
+
 def test_find_object_from_face_id_non_face_id_returns_none(modeler) -> None:
     mdl, oeditor = modeler
     oeditor.GetObjectNameByFaceID.return_value = ""
