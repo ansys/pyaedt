@@ -85,7 +85,7 @@ class Object3DLayout(PyAedtBase):
             )
         self._primitives = primitives
         self.logger = self._primitives.logger
-        self._oeditor = self._primitives.oeditor
+        self._oeditor = self._primitives.modeler.oeditor
         self._n = 10
         self.prim_type = prim_type
         self._points = []
@@ -1058,7 +1058,7 @@ class Nets3DLayout(PyAedtBase):
 
     def __init__(self, primitives, name: str = "") -> None:
         self._primitives = primitives
-        self._oeditor = self._primitives.oeditor
+        self._oeditor = self._primitives.modeler.oeditor
         self._n = 10
         self.name = name
 
@@ -2163,7 +2163,7 @@ class Line3dLayout(Geometries3DLayout, PyAedtBase):
         points.insert(position, [self._primitives._app.value_with_units(j, self.object_units) for j in point])
         line = self._primitives.create_line(self.placement_layer, points)
         line_name = self.name
-        self._primitives.oeditor.Delete([self.name])
+        self._primitives.modeler.oeditor.Delete([self.name])
         line.name = line_name
         self._primitives._lines[self.name] = line
         return line
@@ -2198,7 +2198,7 @@ class Line3dLayout(Geometries3DLayout, PyAedtBase):
         ]
         line = self._primitives.create_line(self.placement_layer, points)
         line_name = self.name
-        self._primitives.oeditor.Delete([self.name])
+        self._primitives.modeler.oeditor.Delete([self.name])
         line.name = line_name
         self._primitives._lines[self.name] = line
         return line
@@ -2309,7 +2309,7 @@ class Points3dLayout(PyAedtBase):
         >>> obj.move(location=1)
 
         """
-        if self.point.Move(self._primitives.oeditor.Point().Set(location[0], location[1])):
+        if self.point.Move(self._primitives.modeler.oeditor.Point().Set(location[0], location[1])):
             return True
 
 
@@ -3006,19 +3006,15 @@ class CoordinateSystems3DLayout(PyAedtBase):
 
     """
 
-    def __init__(self, primitives, name: str | None = None, origin: list[float] | None = None) -> None:
+    def __init__(self, primitives, is_created: bool = False) -> None:
         self._primitives = primitives
-        self._oeditor: "_OEditor" = self._primitives.oeditor
+        self._oeditor: "_OEditor" = self._primitives.modeler.oeditor
         self.logger = self._primitives.logger
 
         # Private properties
-        if name not in self._primitives.coordinate_systems:
-            self.__name = name
-        else:
-            self.__name = None
-            self.logger.warning(f"{name} is already used in current design. Coordinate system name set to None.")
-
-        self.__origin = origin
+        self.__name = None
+        self.__origin = None
+        self.__is_created = is_created
 
     def __repr__(self) -> str:
         return self.name
@@ -3083,7 +3079,7 @@ class CoordinateSystems3DLayout(PyAedtBase):
             v_prop_servers = ["NAME:PropServers", self.__name]
             v_element_tab = ["NAME:BaseElementTab", v_prop_servers, v_changed_props]
             v_out = ["NAME:AllTabs", v_element_tab]
-            self._primitives.oeditor.ChangeProperty(v_out)
+            self._primitives.modeler.oeditor.ChangeProperty(v_out)
             self.__name = obj_name
         else:
             self.logger.warning(f"{obj_name} is already used in current design.")
@@ -3110,16 +3106,20 @@ class CoordinateSystems3DLayout(PyAedtBase):
 
         """
         if self.__origin is None:
-            location = self.get_property_value("Location")
-            self.__origin = [float(x.strip()) for x in location.split(",")]
+            if self.__is_created:
+                location = self.get_property_value("Location")
+                self.__origin = [float(x.strip()) for x in location.split(",")]
+            else:
+                self.__origin = [0.0, 0.0]
         return self.__origin
 
     @origin.setter
     def origin(self, value: list[float]) -> None:
         if not isinstance(value, list) or len(value) != 2:
             self.logger.warning("Origin is not a list of two elements.")
-        vName = ["NAME:Location", "X:=", value[0], "Y:=", value[1]]
-        self.change_property(vName)
+        if self.__is_created:
+            vName = ["NAME:Location", "X:=", value[0], "Y:=", value[1]]
+            self.change_property(vName)
         self.__origin = value
 
     @pyaedt_function_handler()
@@ -3148,11 +3148,12 @@ class CoordinateSystems3DLayout(PyAedtBase):
         # Set Global CS
         self._oeditor.SetCS("")
 
+        origin = self.origin
         args = [
             "NAME:Contents",
             ["NAME:full_definition", "type:=", "CS", "N:=", self.name],
             "placement:=",
-            ["x:=", cast(list[float], self.__origin)[0], "y:=", cast(list[float], self.__origin)[1]],
+            ["x:=", origin[0], "y:=", origin[1]],
             "layer:=",
             "Postprocessing",
             "Clf:=",
@@ -3161,6 +3162,7 @@ class CoordinateSystems3DLayout(PyAedtBase):
             8421504,
         ]
         self._oeditor.CreateCS(args)
+        self.__is_created = True
         return True
 
     @pyaedt_function_handler()
@@ -3244,6 +3246,7 @@ class CoordinateSystems3DLayout(PyAedtBase):
         """
         try:
             self._oeditor.Delete(self.name)
+            self.__is_created = False
             return True
         except Exception:
             self.logger.warning(f"{self.__name} can not be deleted.")
