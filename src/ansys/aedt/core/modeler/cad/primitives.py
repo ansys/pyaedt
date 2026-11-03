@@ -4195,7 +4195,9 @@ class GeometryModeler(Modeler, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def rotate(self, assignment: str | int | list | Object3d, axis, angle: float = 90.0, units: str = "deg") -> bool:
+    def rotate(
+        self, assignment: str | int | list | Object3d, axis: str, angle: float | int | str = 90.0, units: str = "deg"
+    ) -> bool:
         """Rotate the selection.
 
         Parameters
