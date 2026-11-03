@@ -320,6 +320,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         self._all_object_names = []
         self._model_units = None
         self._object_names_to_ids = {}
+        self._planes = {}
         self.objects = Objects(self, "o")
         self.user_defined_components = Objects(self, "u")
         self.points = Objects(self, "p")
@@ -10358,17 +10359,16 @@ class GeometryModeler(Modeler, PyAedtBase):
 
     @pyaedt_function_handler()
     def _refresh_planes(self) -> None:
-        old_planes = self._planes if isinstance(self._planes, dict) else {}
+        cached = self._planes if isinstance(self._planes, dict) else {}
         try:
-            # Reuse plane handles already retrieved to avoid one ``GetChildObject`` call per plane.
-            self._planes = {
-                plane_name: (
-                    old_planes[plane_name]
-                    if old_planes.get(plane_name) is not None
-                    else self._app.get_oo_object(self.oeditor, plane_name)
-                )
-                for plane_name in self.oeditor.GetChildNames("Planes")
-            }
+            planes = {}
+            for plane_name in self.oeditor.GetChildNames("Planes"):
+                # Reuse handles already retrieved to avoid one GetChildObject call per plane on every refresh.
+                handle = cached.get(plane_name)
+                if not handle or isinstance(handle, Plane):
+                    handle = self._app.get_oo_object(self.oeditor, plane_name)
+                planes[plane_name] = handle
+            self._planes = planes
         except (TypeError, AttributeError):
             self._planes = {}
         self._all_object_names = self._solids + self._sheets + self._lines + self._points + list(self._planes.keys())
