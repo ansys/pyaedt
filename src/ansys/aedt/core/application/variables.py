@@ -1264,15 +1264,32 @@ class VariableManager(PyAedtBase):
         design_indices: list[int] = []
         design_circuit_indices: list[int] = []
         design_local_indices: list[int] = []
+        existing_variables = None
+        # ``is_circuit_parameter`` can only be True for these design types, so the
+        # variable refresh below is skipped for the rest.
+        circuit_design = self._app.design_type in [
+            "HFSS 3D Layout Design",
+            "Circuit Design",
+            "Maxwell Circuit",
+            "Twin Builder",
+        ]
+
         for i, (nm, is_circuit) in enumerate(zip(names, circuit_parameter)):
             if nm.startswith("$"):
                 project_indices.append(i)
                 continue
 
             design_indices.append(i)
-            if nm in self.variables:
-                # Update circuit_parameter based on existing variables
-                is_circuit = self.variables[nm].is_circuit_parameter
+            if not circuit_design:
+                # The circuit parameter flag only affects circuit-like designs (tab and prop server selection),
+                # so all design variables are processed together without refreshing the variable cache.
+                is_circuit = False
+            else:
+                if existing_variables is None:
+                    existing_variables = self.variables
+                if nm in existing_variables:
+                    # Update circuit_parameter based on existing variables
+                    is_circuit = existing_variables[nm].is_circuit_parameter
 
             if is_circuit:
                 design_circuit_indices.append(i)
