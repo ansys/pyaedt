@@ -132,6 +132,41 @@ def test_create_primitive(aedt_app) -> None:
     assert aedt_app.modeler.subtract(outer_1, inner_1, keep_originals=True)
 
 
+def test_batch_update_defers_cleanup(aedt_app, monkeypatch) -> None:
+    """Test multiple subtract operations are cleaned up once after the batch."""
+    modeler = aedt_app.modeler
+    target = modeler.create_box([0, 0, 0], [10, 10, 10], name="batch_target")
+    cutters = [
+        modeler.create_cylinder(Axis.Z, [x, 5, -1], 1, 12, name=f"batch_cutter_{index}")
+        for index, x in enumerate([3, 7])
+    ]
+    cutter_names = [cutter.name for cutter in cutters]
+    cleanup_calls = {"solids": 0, "points": 0}
+    cleanup_solids = modeler.cleanup_solids
+    cleanup_points = modeler.cleanup_points
+
+    def count_cleanup_solids():
+        cleanup_calls["solids"] += 1
+        cleanup_solids()
+
+    def count_cleanup_points():
+        cleanup_calls["points"] += 1
+        cleanup_points()
+
+    monkeypatch.setattr(modeler, "cleanup_solids", count_cleanup_solids)
+    monkeypatch.setattr(modeler, "cleanup_points", count_cleanup_points)
+
+    with modeler.batch_update():
+        for cutter_name in cutter_names:
+            assert modeler.subtract(target.name, cutter_name, keep_originals=False)
+        assert cleanup_calls == {"solids": 0, "points": 0}
+
+    assert cleanup_calls == {"solids": 1, "points": 1}
+    object_names = set(modeler.object_names)
+    assert target.name in object_names
+    assert not set(cutter_names) & object_names
+
+
 def test_assign_material(aedt_app) -> None:
     udp = aedt_app.modeler.Position(0, 0, 0)
     coax_length = 80

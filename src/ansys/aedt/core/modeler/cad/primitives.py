@@ -306,6 +306,8 @@ class GeometryModeler(Modeler, PyAedtBase):
         self._app = app
         self._model_data = {}
         Modeler.__init__(self, app)
+        self._batch_update_depth = 0
+        self._cleanup_pending = False
         self._coordinate_systems = []
         self._user_lists = []
         self._planes = []
@@ -1318,6 +1320,10 @@ class GeometryModeler(Modeler, PyAedtBase):
         >>> app.modeler.cleanup_objects()
 
         """
+        if self._batch_update_depth > 0:
+            self._cleanup_pending = True
+            return
+
         with self._cached_object_types():
             self.cleanup_solids()
             self.cleanup_points()
@@ -10380,6 +10386,32 @@ class GeometryModeler(Modeler, PyAedtBase):
             self._object_types_cache_depth -= 1
             if self._object_types_cache_depth == 0:
                 self._object_types_cached = False
+
+    @contextmanager
+    def batch_update(self):
+        """Defer object cleanup until a group of geometry operations is complete.
+
+        Operations inside this context can leave the Python object dictionaries out of sync with AEDT.
+        Any ``cleanup_objects`` calls are combined into one cleanup when the outermost context exits.
+        Use names or other stable selections inside the context instead of relying on object references
+        for objects that may be removed or changed.
+
+        This context is not thread-safe.
+
+        Examples
+        --------
+        >>> with modeler.batch_update():
+        ...     for cutter in cutters:
+        ...         modeler.subtract(target.name, cutter.name, keep_originals=False)
+        """
+        self._batch_update_depth += 1
+        try:
+            yield
+        finally:
+            self._batch_update_depth -= 1
+            if self._batch_update_depth == 0 and self._cleanup_pending:
+                self._cleanup_pending = False
+                self.cleanup_objects()
 
     @pyaedt_function_handler()
     def _refresh_object_types(self) -> None:
