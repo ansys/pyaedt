@@ -1569,17 +1569,19 @@ class GeometryModeler(Modeler, PyAedtBase):
         """
         obj_lst = []
         if material is not None:
+            material_lower = material.lower()
+            modeler_oo = None
             for obj in self.object_list:
-                if obj and ("[" in obj.material_name or "(" in obj.material_name) and obj.object_type == "Solid":
-                    found_material = (
-                        self._app.odesign.GetChildObject("3D Modeler")
-                        .GetChildObject(obj.name)
-                        .GetPropEvaluatedValue("Material")
-                        .lower()
-                    )
-                    if found_material.lower() == material.lower():
+                if not obj:
+                    continue
+                material_name = obj.material_name
+                if ("[" in material_name or "(" in material_name) and obj.object_type == "Solid":
+                    if modeler_oo is None:
+                        modeler_oo = self._app.odesign.GetChildObject("3D Modeler")
+                    found_material = modeler_oo.GetChildObject(obj.name).GetPropEvaluatedValue("Material").lower()
+                    if found_material == material_lower:
                         obj_lst.append(obj)
-                elif obj and (obj.material_name.lower() == material.lower()):
+                elif material_name.lower() == material_lower:
                     obj_lst.append(obj)
         else:
             obj_lst = [
@@ -10671,19 +10673,24 @@ class GeometryModeler(Modeler, PyAedtBase):
     @pyaedt_function_handler()
     def _get_object_dict_by_material(self, material: str):
         obj_dict = {}
+        # Evaluate the object list and parametric materials once, not once per material.
+        object_list = [obj for obj in self.object_list if obj]
+        evaluated_materials = {}
+        modeler_oo = None
+        for obj in object_list:
+            if "[" in obj.material_name or "(" in obj.material_name:
+                if modeler_oo is None:
+                    modeler_oo = self._app.odesign.GetChildObject("3D Modeler")
+                evaluated_materials[obj.name] = (
+                    modeler_oo.GetChildObject(obj.name).GetPropEvaluatedValue("Material").lower()
+                )
         for mat in material:
             objs = []
-            for obj in self.object_list:
-                if obj and ("[" in obj.material_name or "(" in obj.material_name):
-                    if (
-                        mat
-                        == self._app.odesign.GetChildObject("3D Modeler")
-                        .GetChildObject(obj.name)
-                        .GetPropEvaluatedValue("Material")
-                        .lower()
-                    ):
+            for obj in object_list:
+                if obj.name in evaluated_materials:
+                    if mat == evaluated_materials[obj.name]:
                         objs.append(obj)
-                elif obj and (obj.material_name == mat or obj.material_name == mat.lower()):
+                elif obj.material_name == mat or obj.material_name == mat.lower():
                     objs.append(obj)
             obj_dict[mat] = objs
         return obj_dict
