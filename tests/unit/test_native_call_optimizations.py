@@ -283,6 +283,24 @@ def test_read_amat_material_names_matches_line_parser_and_caches(tmp_path) -> No
     assert material_lib._read_amat_material_names(amat) == ("z", "zz")
 
 
+def test_materials_hash_lookup_preserves_first_match() -> None:
+    from ansys.aedt.core.modules.material_lib import Materials
+
+    with patch.object(Materials, "__init__", lambda self: None):
+        mats = Materials()
+    mats._mats = ["Copper", "copper", "FR4"]
+    mats._mats_lower = []
+    mats._mats_lower_index = {}
+    mats._Materials__material_keys = {}
+
+    assert mats._is_aedt_material_name("copper")
+    assert not mats._is_aedt_material_name("gold")
+    assert mats._get_aedt_case_name("COPPER") == "Copper"
+    # New materials appended later are indexed too.
+    mats._mats.append("Gold")
+    assert mats._get_aedt_case_name("gold") == "Gold"
+
+
 def test_read_amat_material_names_without_stat_does_not_cache(tmp_path) -> None:
     from ansys.aedt.core.modules import material_lib
 

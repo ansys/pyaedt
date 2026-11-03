@@ -106,6 +106,7 @@ class Materials(PyAedtBase):
         self._color_id = 0
         self._mats = []
         self._mats_lower = []
+        self._mats_lower_index = {}
         self._desktop = self._app.odesktop
         self._oproject = self._app.oproject
         self.logger = self._app.logger
@@ -239,7 +240,15 @@ class Materials(PyAedtBase):
     def _mat_names_aedt_lower(self):
         if len(self._mats_lower) < len(self._mat_names_aedt):
             self._mats_lower = [i.casefold() for i in self._mat_names_aedt]
+            self._mats_lower_index = {}
+            for idx, name in enumerate(self._mats_lower):
+                self._mats_lower_index.setdefault(name, idx)
         return self._mats_lower
+
+    def _is_aedt_material_name(self, material_casefold: str) -> bool:
+        """Check whether a casefolded name is in the AEDT material names using a hash lookup."""
+        self._mat_names_aedt_lower
+        return material_casefold in self._mats_lower_index
 
     @property
     def mat_names_aedt(self) -> list[str]:
@@ -311,8 +320,8 @@ class Materials(PyAedtBase):
     def _get_aedt_case_name(self, material_name):
         if material_name.casefold() in self.material_keys:
             return self.material_keys[material_name.casefold()].name
-        if material_name.casefold() in self.mat_names_aedt_lower:
-            return self._mat_names_aedt[self.mat_names_aedt_lower.index(material_name.casefold())]
+        if self._is_aedt_material_name(material_name.casefold()):
+            return self._mat_names_aedt[self._mats_lower_index[material_name.casefold()]]
         return False
 
     @pyaedt_function_handler()
@@ -362,13 +371,14 @@ class Materials(PyAedtBase):
                 return material
             else:
                 return False
-        if material.casefold() in self.material_keys:
-            if material.casefold() in self.mat_names_aedt_lower:
-                return self.material_keys[material.casefold()]
-            if material.casefold() not in list(self.odefinition_manager.GetProjectMaterialNames()):
-                self.material_keys[material.casefold()].update()
-            return self.material_keys[material.casefold()]
-        elif material.casefold() in self.mat_names_aedt_lower:
+        material_casefold = material.casefold()
+        if material_casefold in self.material_keys:
+            if self._is_aedt_material_name(material_casefold):
+                return self.material_keys[material_casefold]
+            if material_casefold not in list(self.odefinition_manager.GetProjectMaterialNames()):
+                self.material_keys[material_casefold].update()
+            return self.material_keys[material_casefold]
+        elif self._is_aedt_material_name(material_casefold):
             return self._aedmattolibrary(material)
         elif settings.remote_api or settings.remote_rpc_session:
             return self._aedmattolibrary(material)
