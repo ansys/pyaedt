@@ -1390,7 +1390,7 @@ class VariableManager(PyAedtBase):
             self._clear_variable_from_cache(nm)
 
         var_list = self._get_var_list_from_aedt(desktop_object)
-        lower_case_vars = [v.lower() for v in var_list]
+        lower_case_vars = {v.lower() for v in var_list}
 
         # Separate new and existing variables
         new_indices = [i for i, nm in enumerate(names) if nm.lower() not in lower_case_vars]
@@ -1444,11 +1444,12 @@ class VariableManager(PyAedtBase):
                 self._logger.debug("Failed to update variables in batch.")
                 return False
 
-            self._cleanup_variables()
-
         # Verify all variables were created (skip separators, they don't appear in var_list)
         var_list = self._get_var_list_from_aedt(desktop_object)
-        lower_case_vars = [v.lower() for v in var_list]
+        if existing_indices:
+            other_object = self._odesign if is_project else self._oproject
+            self._cleanup_variables(var_list + self._get_var_list_from_aedt(other_object))
+        lower_case_vars = {v.lower() for v in var_list}
         for i, nm in enumerate(names):
             if expressions[i] and nm.lower() not in lower_case_vars:
                 return False
