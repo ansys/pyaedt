@@ -2215,9 +2215,9 @@ class Setup3DLayout(CommonSetup):
 
         """
         sweep_names = self.sweep_names
-        for operation in sweep_names:
-            if operation not in self.__sweeps:
-                self.__sweeps[operation] = SweepHFSS3DLayout(setup=self, name=operation, props={})
+        for sweep_name in sweep_names:
+            if sweep_name not in self.__sweeps:
+                self.__sweeps[sweep_name] = SweepHFSS3DLayout(setup=self, name=sweep_name, props={})
 
         for sweep_name in list(self.__sweeps):
             if sweep_name not in sweep_names:
@@ -2918,13 +2918,16 @@ class Setup3DLayout(CommonSetup):
         >>> setup.get_sweep(sweep.name)
 
         """
-        if name:
-            if name in self.sweep_names:
-                return self.sweeps[name]
-            else:
-                return False
-        elif self.sweep_names:
-            return self.sweeps[0]
+        if name and name in self.sweep_names:
+            if name not in self.__sweeps:
+                self.__sweeps[name] = SweepHFSS3DLayout(setup=self, name=name, props={})
+            return self.__sweeps[name]
+        else:
+            if self.sweep_names:
+                sweep_name = self.sweep_names[0]
+                if not self.__sweeps:
+                    self.__sweeps[sweep_name] = SweepHFSS3DLayout(setup=self, name=sweep_name, props={})
+                return self.__sweeps[sweep_name]
         return False
 
     @pyaedt_function_handler()
@@ -3646,13 +3649,16 @@ class SetupHFSS(Setup, PyAedtBase):
         >>> setup.get_sweep(sweep.name)
 
         """
-        if name:
-            for sweep in self.sweeps:
-                if name == sweep.name:
-                    return sweep
+        if name and name in self.sweep_names:
+            if name not in self.__sweeps:
+                self.__sweeps[name] = SweepHFSS(setup=self, name=name, props={})
+            return self.__sweeps[name]
         else:
-            if self.sweeps:
-                return self.sweeps[0]
+            if self.sweep_names:
+                sweep_name = self.sweep_names[0]
+                if not self.__sweeps:
+                    self.__sweeps[sweep_name] = SweepHFSS(setup=self, name=sweep_name, props={})
+                return self.__sweeps[sweep_name]
         return False
 
     @pyaedt_function_handler()
@@ -5368,13 +5374,16 @@ class SetupQ3D(Setup, PyAedtBase):
         >>> sweep2 = setup.get_sweep(sweep1.name)
 
         """
-        if name:
-            if name in self.sweep_names:
-                return self.sweeps[name]
-            else:
-                return False
-        elif self.sweep_names:
-            return self.sweeps[0]
+        if name and name in self.sweep_names:
+            if name not in self.__sweeps:
+                self.__sweeps[name] = SweepMatrix(setup=self, name=name, props={})
+            return self.__sweeps[name]
+        else:
+            if self.sweep_names:
+                sweep_name = self.sweep_names[0]
+                if not self.__sweeps:
+                    self.__sweeps[sweep_name] = SweepMatrix(setup=self, name=sweep_name, props={})
+                return self.__sweeps[sweep_name]
         return False
 
 
