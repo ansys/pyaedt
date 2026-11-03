@@ -92,3 +92,19 @@ def test_aedt_property_server_falls_back_to_properties(dll_api):
         assert prop_server.Property_Name == "value of Property Name"
         with pytest.raises(GrpcApiError, match="MissingProperty"):
             prop_server.MissingProperty
+
+
+def test_aedt_object_method_lookup_is_case_insensitive_and_cached(dll_api):
+    wrapper = AedtObjWrapper(1, ["GetName", "getname"], dll_api)
+
+    with patch(
+        "ansys.aedt.core.internal.grpc_plugin_dll_class._retry_ntimes",
+        side_effect=lambda retries, method, *args: method(*args),
+    ):
+        wrapper.getNAME()
+        wrapper.GetName()
+
+    # First registered name wins, as with the previous linear scan.
+    calls = dll_api.AedtAPI.InvokeAedtObjMethod.call_args_list
+    assert [c.args[1] for c in calls] == ["GetName", "GetName"]
+    assert wrapper.__dict__["_method_map"] == {"getname": "GetName"}
