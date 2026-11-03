@@ -328,6 +328,17 @@ def test_create_object_solid_skips_lines_query(modeler) -> None:
     oeditor.GetObjectsInGroup.assert_called_once_with("Lines")
 
 
+def test_get_object_dict_by_material_queries_object_list_once(modeler) -> None:
+    mdl, _ = modeler
+    objs = [MagicMock(material_name="copper"), MagicMock(material_name="fr4"), None]
+    objs[0].name, objs[1].name = "a", "b"
+    with patch.object(GeometryModeler, "object_list", new_callable=PropertyMock, return_value=objs) as object_list:
+        result = mdl._get_object_dict_by_material(["copper", "fr4", "gold"])
+
+    assert object_list.call_count == 1
+    assert result == {"copper": [objs[0]], "fr4": [objs[1]], "gold": []}
+
+
 def test_find_object_from_face_id_non_face_id_returns_none(modeler) -> None:
     mdl, oeditor = modeler
     oeditor.GetObjectNameByFaceID.return_value = ""
