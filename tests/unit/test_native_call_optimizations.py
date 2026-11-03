@@ -35,6 +35,7 @@ from ansys.aedt.core.application.variables import VariableManager
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
+from ansys.aedt.core.modules.boundary.common import BoundaryObject
 
 
 @pytest.fixture
@@ -177,6 +178,18 @@ def test_evaluate_expression_variable_lookup_once() -> None:
 
     assert design.evaluate_expression("width") == 0.01
     assert variables.call_count == 1
+
+
+def test_boundary_initialize_tree_node_evaluates_child_object_once() -> None:
+    with patch.object(BoundaryObject, "__init__", lambda self: None):
+        boundary = BoundaryObject()
+    boundary._name = "Current1"
+    boundary._app = MagicMock()
+    child = PropertyMock(return_value=MagicMock())
+    with patch.object(BoundaryObject, "_child_object", new_callable=lambda: child):
+        assert boundary._initialize_tree_node() is True
+
+    assert child.call_count == 1
 
 
 @pytest.mark.parametrize(("expression", "expected"), [(True, 1.0), ("inf", float("inf"))])
