@@ -1970,3 +1970,6 @@ class SetupDict(dict):
             return list(self.values())[item]
         else:
             return super().__getitem__(item)
+
+    def __iter__(self):
+        return iter(self.values())

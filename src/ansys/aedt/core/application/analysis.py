@@ -326,9 +326,9 @@ class Analysis(Design, PyAedtBase):
         if self.__setups and not self.__active_setup:
             self.__active_setup = self.__setups[0].name
 
-        for setup_name in list(self.__setups):
-            if setup_name not in setup_names:
-                del self.__setups[setup_name]
+        for setup in list(self.__setups):
+            if setup.name not in setup_names:
+                del self.__setups[setup.name]
 
         return self.__setups
 
