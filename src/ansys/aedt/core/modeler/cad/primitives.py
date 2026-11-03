@@ -10241,11 +10241,12 @@ class GeometryModeler(Modeler, PyAedtBase):
                         self._app.variable_manager.delete_variable(name=condition_name)
                 else:
                     self.logger.debug(f"Design variable {array[0]} does not exist.")
-            if self._app.materials[material]:
+            material_obj = self._app.materials[material]
+            if material_obj:
                 if self._app.design_type == "HFSS":
-                    return self._app.materials[material].name, self._app.materials[material].is_dielectric(threshold)
+                    return material_obj.name, material_obj.is_dielectric(threshold)
                 else:
-                    return self._app.materials[material].name, True
+                    return material_obj.name, True
             else:
                 self.logger.warning("Material %s does not exists. Assigning default material", material)
         if self._app.design_type == "HFSS":
