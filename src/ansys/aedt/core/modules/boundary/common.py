@@ -285,48 +285,52 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTreeNode`
 
         """
-        design_childs = self._app.get_oo_name(self._app.odesign)
+        app = self._app
+        odesign = app.odesign
+        design_childs = app.get_oo_name(odesign)
 
         if "Nets" in design_childs:
-            cc = self._app.get_oo_object(self._app.odesign, "Nets")
-            cc_names = self._app.get_oo_name(cc)
+            cc = app.get_oo_object(odesign, "Nets")
+            cc_names = app.get_oo_name(cc)
             if self._name in cc_names:
-                return self._app.get_oo_object(cc, self._name)
+                return app.get_oo_object(cc, self._name)
             for name in cc_names:
-                cc = self._app.get_oo_object(self._app.odesign, f"Nets\\{name}")
-                cc_names = self._app.get_oo_name(cc)
+                cc = app.get_oo_object(odesign, f"Nets\\{name}")
+                cc_names = app.get_oo_name(cc)
                 if self._name in cc_names:
-                    return self._app.get_oo_object(cc, self._name)
+                    return app.get_oo_object(cc, self._name)
 
         if "Thermal" in design_childs:
-            cc = self._app.get_oo_object(self._app.odesign, "Thermal")
-            cc_names = self._app.get_oo_name(cc)
+            cc = app.get_oo_object(odesign, "Thermal")
+            cc_names = app.get_oo_name(cc)
             if self._name in cc_names:
-                return self._app.get_oo_object(cc, self._name)
+                return app.get_oo_object(cc, self._name)
 
         if "Boundaries" in design_childs:
-            cc = self._app.get_oo_object(self._app.odesign, "Boundaries")
-            if self._name in self._app.get_oo_name(cc):
-                return self._app.get_oo_object(cc, self._name)
+            cc = app.get_oo_object(odesign, "Boundaries")
+            if self._name in app.get_oo_name(cc):
+                return app.get_oo_object(cc, self._name)
 
         if "Excitations" in design_childs:
-            if self._name in self._app.get_oo_name(self._app.odesign, "Excitations"):
-                return self._app.get_oo_object(self._app.get_oo_object(self._app.odesign, "Excitations"), self._name)
-            elif self._app.get_oo_name(self._app.odesign, "Excitations"):
-                for port in self._app.get_oo_name(self._app.odesign, "Excitations"):
-                    terminals = self._app.get_oo_name(self._app.odesign, f"Excitations\\{port}")
+            excitations = app.get_oo_object(odesign, "Excitations")
+            excitation_names = app.get_oo_name(excitations) if excitations else []
+            if self._name in excitation_names:
+                return app.get_oo_object(excitations, self._name)
+            elif excitation_names:
+                for port in excitation_names:
+                    terminals = app.get_oo_name(odesign, f"Excitations\\{port}")
                     if self._name in terminals:
-                        return self._app.get_oo_object(self._app.odesign, f"Excitations\\{port}\\{self._name}")
+                        return app.get_oo_object(odesign, f"Excitations\\{port}\\{self._name}")
 
-        if self._app.design_type in ["Maxwell 3D", "Maxwell 2D"] and "Model" in design_childs:
-            model = self._app.get_oo_object(self._app.odesign, "Model")
-            if self._name in self._app.get_oo_name(model):
-                return self._app.get_oo_object(model, self._name)
+        if app.design_type in ["Maxwell 3D", "Maxwell 2D"] and "Model" in design_childs:
+            model = app.get_oo_object(odesign, "Model")
+            if self._name in app.get_oo_name(model):
+                return app.get_oo_object(model, self._name)
 
-        if "Conductors" in design_childs and self._app.get_oo_name(self._app.odesign, "Conductors"):
-            for port in self._app.get_oo_name(self._app.odesign, "Conductors"):
-                if self._name == port:
-                    return self._app.get_oo_object(self._app.odesign, f"Conductors\\{port}")
+        if "Conductors" in design_childs:
+            conductors = app.get_oo_name(odesign, "Conductors")
+            if self._name in conductors:
+                return app.get_oo_object(odesign, f"Conductors\\{self._name}")
 
         return None
 

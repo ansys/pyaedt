@@ -372,6 +372,32 @@ def test_nominal_sweep_evaluates_setup_sweeps_once() -> None:
         assert sweeps.call_count == 2
 
 
+def test_boundary_child_object_reads_excitations_once() -> None:
+    with patch.object(BoundaryObject, "__init__", lambda self: None):
+        boundary = BoundaryObject()
+    boundary._name = "Port1"
+    app = MagicMock(design_type="HFSS")
+    excitations = MagicMock()
+    port = MagicMock()
+
+    def get_oo_name(obj, path=None):
+        if obj is app.odesign and path is None:
+            return ["Excitations"]
+        if obj is excitations:
+            return ["Port1"]
+        raise AssertionError(f"unexpected get_oo_name({path})")
+
+    def get_oo_object(obj, path):
+        return excitations if path == "Excitations" else port
+
+    app.get_oo_name.side_effect = get_oo_name
+    app.get_oo_object.side_effect = get_oo_object
+    boundary._app = app
+
+    assert boundary._child_object is port
+    assert app.get_oo_name.call_count == 2
+
+
 def test_get_object_dict_by_material_queries_object_list_once(modeler) -> None:
     mdl, _ = modeler
     objs = [MagicMock(material_name="copper"), MagicMock(material_name="fr4"), None]
