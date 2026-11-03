@@ -799,7 +799,8 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         """
         self._refresh_object_types()
-        return [v for name, v in self.objects_by_name.items() if name is not None and name not in self.point_names]
+        point_names = set(self._points)
+        return [v for name, v in self.objects_by_name.items() if name is not None and name not in point_names]
 
     @property
     def solid_names(self) -> list:
@@ -889,7 +890,8 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         """
         self._refresh_object_types()
-        return [i for i in self._all_object_names if i not in self._unclassified and i not in self._points]
+        excluded = set(self._unclassified).union(self._points)
+        return [i for i in self._all_object_names if i not in excluded]
 
     @property
     def point_names(self) -> list:

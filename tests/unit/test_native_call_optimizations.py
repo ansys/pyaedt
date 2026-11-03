@@ -58,6 +58,16 @@ def modeler():
         yield mdl, oeditor
 
 
+def test_object_list_queries_points_once(modeler) -> None:
+    mdl, oeditor = modeler
+    objects = {name: MagicMock(_m_name=name) for name in ["box1", "box2", "rect1", "pt1"]}
+    with patch.object(GeometryModeler, "objects_by_name", new_callable=PropertyMock, return_value=objects):
+        result = mdl.object_list
+
+    assert [o._m_name for o in result] == ["box1", "box2", "rect1"]
+    assert oeditor.GetPoints.call_count == 1
+
+
 def test_add_message_skips_desktop_when_desktop_logs_disabled() -> None:
     from ansys.aedt.core.aedt_logger import AedtLogger
     from ansys.aedt.core.generic.settings import settings
