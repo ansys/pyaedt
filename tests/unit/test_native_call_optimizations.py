@@ -328,6 +328,50 @@ def test_create_object_solid_skips_lines_query(modeler) -> None:
     oeditor.GetObjectsInGroup.assert_called_once_with("Lines")
 
 
+def test_setup_sweeps_names_evaluates_solution_type_once() -> None:
+    from ansys.aedt.core.application.analysis import Analysis
+
+    with patch.object(Analysis, "__init__", lambda self: None):
+        app = Analysis()
+    oanalysis = MagicMock()
+    oanalysis.GetSweeps.side_effect = lambda setup: [f"{setup}_sweep"]
+    solution_type = PropertyMock(return_value="Modal")
+    app.design_solutions = MagicMock(default_adaptive="LastAdaptive")
+    with (
+        patch.object(Analysis, "setup_names", new_callable=PropertyMock, return_value=["S1", "S2", "S3"]) as names,
+        patch.object(Analysis, "solution_type", new_callable=lambda: solution_type),
+        patch.object(Analysis, "oanalysis", new_callable=PropertyMock, return_value=oanalysis),
+        patch.object(Analysis, "oreportsetup", new_callable=PropertyMock, return_value=MagicMock()),
+        patch.object(Analysis, "get_oo_name", return_value=["S1", "Imported"]),
+    ):
+        result = app.setup_sweeps_names
+
+    assert result == {
+        "S1": {"Nominal": "LastAdaptive", "Sweeps": ["S1_sweep"]},
+        "S2": {"Nominal": "LastAdaptive", "Sweeps": ["S2_sweep"]},
+        "S3": {"Nominal": "LastAdaptive", "Sweeps": ["S3_sweep"]},
+        "Imported": {"Nominal": "Table", "Sweeps": []},
+    }
+    assert solution_type.call_count == 1
+    assert names.call_count == 1
+
+
+def test_nominal_sweep_evaluates_setup_sweeps_once() -> None:
+    from ansys.aedt.core.application.analysis import Analysis
+
+    with patch.object(Analysis, "__init__", lambda self: None):
+        app = Analysis()
+    sweeps = PropertyMock(return_value={"S1": {"Nominal": "LastAdaptive", "Sweeps": ["Sw1"]}})
+    with (
+        patch.object(Analysis, "active_setup", new_callable=PropertyMock, return_value="S1"),
+        patch.object(Analysis, "setup_sweeps_names", new_callable=lambda: sweeps),
+    ):
+        assert app.nominal_sweep == "S1 : Sw1"
+        assert sweeps.call_count == 1
+        assert app.nominal_adaptive == "S1 : LastAdaptive"
+        assert sweeps.call_count == 2
+
+
 def test_get_object_dict_by_material_queries_object_list_once(modeler) -> None:
     mdl, _ = modeler
     objs = [MagicMock(material_name="copper"), MagicMock(material_name="fr4"), None]
