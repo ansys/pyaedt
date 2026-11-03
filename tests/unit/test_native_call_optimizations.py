@@ -68,6 +68,36 @@ def test_object_list_queries_points_once(modeler) -> None:
     assert oeditor.GetPoints.call_count == 1
 
 
+def test_refresh_planes_reuses_cached_handles(modeler) -> None:
+    mdl, oeditor = modeler
+    mdl._app.get_oo_object.side_effect = lambda editor, name: f"handle_{name}"
+
+    mdl._refresh_planes()
+    mdl._refresh_planes()
+    assert mdl._planes == {"plane1": "handle_plane1"}
+    assert mdl._app.get_oo_object.call_count == 1
+
+    # Deleted planes are dropped and new planes are fetched.
+    oeditor.GetChildNames.return_value = ["plane2"]
+    mdl._refresh_planes()
+    assert mdl._planes == {"plane2": "handle_plane2"}
+    assert mdl._app.get_oo_object.call_count == 2
+
+
+@pytest.mark.parametrize("cached", [False, None, "plane_object"])
+def test_refresh_planes_refetches_invalid_cached_handles(modeler, cached) -> None:
+    mdl, _ = modeler
+    from ansys.aedt.core.modeler.cad.elements_3d import Plane
+
+    mdl._planes = {"plane1": MagicMock(spec=Plane) if cached == "plane_object" else cached}
+    mdl._app.get_oo_object.return_value = "handle"
+
+    mdl._refresh_planes()
+
+    assert mdl._planes == {"plane1": "handle"}
+    mdl._app.get_oo_object.assert_called_once()
+
+
 def test_add_message_skips_desktop_when_desktop_logs_disabled() -> None:
     from ansys.aedt.core.aedt_logger import AedtLogger
     from ansys.aedt.core.generic.settings import settings

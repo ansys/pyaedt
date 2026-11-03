@@ -1125,6 +1125,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         self._unclassified = []
         self._all_object_names = []
         self._object_names_to_ids = {}
+        self._planes = {}
         self.objects = Objects(self, "o")
         self.user_defined_components = Objects(self, "u")
         self._refresh_object_types()
@@ -10315,12 +10316,16 @@ class GeometryModeler(Modeler, PyAedtBase):
 
     @pyaedt_function_handler()
     def _refresh_planes(self) -> None:
-        self._planes = {}
+        cached = self._planes if isinstance(self._planes, dict) else {}
         try:
-            self._planes = {
-                plane_name: self._app.get_oo_object(self.oeditor, plane_name)
-                for plane_name in self.oeditor.GetChildNames("Planes")
-            }
+            planes = {}
+            for plane_name in self.oeditor.GetChildNames("Planes"):
+                # Reuse handles already retrieved to avoid one GetChildObject call per plane on every refresh.
+                handle = cached.get(plane_name)
+                if not handle or isinstance(handle, Plane):
+                    handle = self._app.get_oo_object(self.oeditor, plane_name)
+                planes[plane_name] = handle
+            self._planes = planes
         except (TypeError, AttributeError):
             self._planes = {}
         self._all_object_names = self._solids + self._sheets + self._lines + self._points + list(self._planes.keys())
