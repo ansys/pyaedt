@@ -4882,10 +4882,20 @@ class Design(AedtObjects, PyAedtBase):
         >>> result = hfss.evaluate_expression("sqrt(width^2 + height^2)")
 
         """
+        # Fast path: plain numeric values cannot be variable names, so skip the variable lookup.
+        if isinstance(expression, (int, float)) and not isinstance(expression, bool):
+            return float(expression)
+        if isinstance(expression, str) and expression[:1] and not (expression[0].isalpha() or expression[0] in "$_"):
+            try:
+                return float(expression)
+            except ValueError:
+                pass
+
         # Strategy 1: Direct variable lookup
         # If the expression is exactly a variable name, return its SI value directly
-        if expression in self._variable_manager.variables:
-            return self._variable_manager.variables[expression].si_value
+        variables = self._variable_manager.variables
+        if expression in variables:
+            return variables[expression].si_value
 
         # Strategy 2: Check for PWL (Piecewise Linear) dataset references
         # PWL expressions reference datasets and should be returned as-is

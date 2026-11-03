@@ -30,6 +30,7 @@ from unittest.mock import patch
 
 import pytest
 
+from ansys.aedt.core.application.design import Design
 from ansys.aedt.core.application.variables import VariableManager
 from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
 
@@ -104,6 +105,54 @@ def test_cleanup_variables_uses_provided_list() -> None:
 
     get_list.assert_not_called()
     assert manager._VariableManager__independent_design_variables == {"keep": 1}
+
+
+@pytest.mark.parametrize(
+    ("expression", "expected"), [(5, 5.0), (2.5, 2.5), ("1e3", 1000.0), ("-4", -4.0), (" 5", 5.0), ("+.5", 0.5)]
+)
+def test_evaluate_expression_numeric_skips_variable_lookup(expression, expected) -> None:
+    with patch.object(Design, "__init__", lambda self: None):
+        design = Design()
+    design._variable_manager = MagicMock()
+    type(design._variable_manager).variables = PropertyMock(side_effect=AssertionError("unexpected lookup"))
+
+    assert design.evaluate_expression(expression) == expected
+
+
+def test_evaluate_expression_variable_lookup_once() -> None:
+    with patch.object(Design, "__init__", lambda self: None):
+        design = Design()
+    design._variable_manager = MagicMock()
+    variables = PropertyMock(return_value={"width": MagicMock(si_value=0.01)})
+    type(design._variable_manager).variables = variables
+
+    assert design.evaluate_expression("width") == 0.01
+    assert variables.call_count == 1
+
+
+@pytest.mark.parametrize(("expression", "expected"), [(True, 1.0), ("inf", float("inf"))])
+def test_evaluate_expression_non_fast_path_still_looks_up_variables(expression, expected) -> None:
+    with patch.object(Design, "__init__", lambda self: None):
+        design = Design()
+    design._variable_manager = MagicMock()
+    variables = PropertyMock(return_value={})
+    type(design._variable_manager).variables = variables
+
+    assert design.evaluate_expression(expression) == expected
+    assert variables.call_count == 1
+
+
+def test_evaluate_expression_units_fall_through_to_evaluator() -> None:
+    with patch.object(Design, "__init__", lambda self: None):
+        design = Design()
+    manager = MagicMock()
+    manager.set_variable.return_value = True
+    variables = PropertyMock(side_effect=[{}, {"pyaedt_evaluator": MagicMock(si_value=1.0)}])
+    type(manager).variables = variables
+    design._variable_manager = manager
+
+    assert design.evaluate_expression("1e3mm") == 1.0
+    manager.set_variable.assert_called_once()
 
 
 @pytest.mark.parametrize("cached", [False, None, "plane_object"])
