@@ -4315,6 +4315,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         vArg2 = ["NAME:SubtractParameters", "KeepOriginals:=", keep_originals]
 
         self.oeditor.Subtract(vArg1, vArg2)
+
         if not keep_originals:
             self.cleanup_objects()
 
