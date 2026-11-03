@@ -422,6 +422,22 @@ def test_name_getter_stale_object_matches_properties_behavior() -> None:
         assert boundary.name == "None"
 
 
+def test_variable_prop_getter_skips_obj_type_for_non_circuit_designs() -> None:
+    from ansys.aedt.core.application.variables import Variable
+
+    app = MagicMock(design_type="HFSS", _aedt_version="2026.1")
+    var_obj = MagicMock()
+    var_obj.GetPropEvaluatedValue.return_value = "3mm"
+    app.get_oo_object.return_value = var_obj
+    app.get_oo_name.return_value = ["w"]
+    variable = Variable("3mm", name="w", app=app)
+
+    assert variable._get_prop_generic(None, evaluated=True) == "3mm"
+    app._odesign.GetObjType.assert_not_called()
+    # Name list is still checked first, so AEDT does not log errors for missing variables.
+    app.get_oo_name.assert_called_once_with(app._odesign, "Variables")
+
+
 def test_get_object_dict_by_material_queries_object_list_once(modeler) -> None:
     mdl, _ = modeler
     objs = [MagicMock(material_name="copper"), MagicMock(material_name="fr4"), None]

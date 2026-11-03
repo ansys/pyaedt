@@ -1956,10 +1956,9 @@ class Variable(PyAedtBase):
         prop = prop or self.name
         app = self._aedt_obj
 
-        app_type = app.GetObjType()
-
-        # DefinitionParameters only available in circuit and HFSS 3D Layout design type
-        if app_type.lower() == "design" and self.has_definition_parameters:
+        # DefinitionParameters only available in circuit and HFSS 3D Layout design type.
+        # Check the design type first to avoid a GetObjType call for the other design types.
+        if self.has_definition_parameters and app.GetObjType().lower() == "design":
             inst_name = f"Instance:{app.GetName()}"
 
             if self.is_circuit_parameter:
