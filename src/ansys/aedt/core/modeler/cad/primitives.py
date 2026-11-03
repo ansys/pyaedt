@@ -10365,11 +10365,13 @@ class GeometryModeler(Modeler, PyAedtBase):
 
     @contextmanager
     def _cached_object_types(self):
-        """Reuse a single object type refresh for all queries made inside this context.
+        """Reuse one AEDT object-type refresh for grouped queries.
 
-        The first object type query inside the context refreshes the lists from AEDT. Later queries reuse
-        them, so the geometry must not change after that first query while the context is active.
-        This context is not thread-safe.
+        The first call to ``_refresh_object_types`` inside the context fetches the object lists from AEDT,
+        later calls reuse those lists instead of repeating the (potentially expensive) AEDT queries. The
+        geometry must not change after that first refresh while the context is active. Direct calls to
+        individual refresh methods, such as ``_refresh_solids``, do not use this cache. This context is
+        not thread-safe.
         """
         self._object_types_cache_depth += 1
         try:
