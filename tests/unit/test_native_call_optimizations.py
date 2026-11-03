@@ -33,6 +33,7 @@ import pytest
 from ansys.aedt.core.application.design import Design
 from ansys.aedt.core.application.variables import VariableManager
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
+from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
 
 
@@ -115,6 +116,23 @@ def test_face_normal_queries_bounding_box_once() -> None:
     assert [abs(i) if i == 0 else i for i in normal] == [0.0, 0.0, -1.0]
     assert bounding_box.call_count == 1
     assert center.call_count == 1
+
+
+def test_object3d_faces_calls_get_face_ids_once() -> None:
+    with patch.object(Object3d, "__init__", lambda self: None):
+        obj = Object3d()
+    obj._object_type = "Solid"
+    obj._m_name = "box1"
+    obj._face_ids = []
+    obj._faces = []
+    oeditor = MagicMock()
+    oeditor.GetFaceIDs.return_value = ["1", "2"]
+    obj._primitives = MagicMock(oeditor=oeditor)
+
+    faces = obj.faces
+
+    assert [f.id for f in faces] == [1, 2]
+    assert oeditor.GetFaceIDs.call_count == 1
 
 
 def test_variable_dict_fetches_variable_lists_once() -> None:

@@ -482,7 +482,7 @@ class Object3d(PyAedtBase):
             return self._faces
         self._face_ids = face_ids
         self._faces = []
-        for face in list(self._oeditor.GetFaceIDs(self.name)):
+        for face in face_ids:
             face = int(face)
             self._faces.append(FacePrimitive(self, face))
         return self._faces
