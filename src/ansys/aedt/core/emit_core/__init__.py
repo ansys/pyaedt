@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 from importlib import import_module
+from importlib.util import find_spec
 import os
 import sys
 
@@ -32,13 +33,6 @@ from ansys.aedt.core.emit_core.emit_constants import InterfererType
 from ansys.aedt.core.emit_core.emit_constants import ResultType
 from ansys.aedt.core.emit_core.emit_constants import TxRxMode
 from ansys.aedt.core.emit_core.emit_constants import UnitType
-
-# TODO: Remove once IronPython compatibility is removed
-if sys.version_info < (3, 12):
-    import imp
-else:  # pragma: no cover
-    from importlib.util import find_spec
-
 
 EMIT_API_PYTHON = None
 """EMIT api python."""
@@ -139,17 +133,12 @@ def _set_api(aedt_version) -> None:
         if override_path_key in os.environ:
             path = os.environ.get(override_path_key)
         sys.path.insert(0, path)
-        # TODO: Remove once IronPython compatibility is removed
-        if sys.version_info < (3, 12):
-            module_path = imp.find_module("EmitApiPython")[1]
+        spec = find_spec("EmitApiPython")
+        if spec is None:
+            logger.warning(f"Module {'EmitApiPython'} not found")
+        else:
+            module_path = spec.origin
             logger.info(f"Importing EmitApiPython from: {module_path}")
-        else:  # pragma: no cover
-            spec = find_spec("EmitApiPython")
-            if spec is None:
-                logger.warning(f"Module {'EmitApiPython'} not found")
-            else:
-                module_path = spec.origin
-                logger.info(f"Importing EmitApiPython from: {module_path}")
         global EMIT_API_PYTHON
         EMIT_API_PYTHON = import_module("EmitApiPython")
         logger.info(f"Loaded {EMIT_API_PYTHON.EmitApi().get_version(True)}")

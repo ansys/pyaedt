@@ -26,6 +26,7 @@ import os
 from pathlib import Path
 import pkgutil
 import sys
+from typing import TextIO
 import warnings
 
 import ansys.aedt.core
@@ -35,7 +36,14 @@ existing_showwarning = warnings.showwarning
 """Value for existing showwarning."""
 
 
-def custom_show_warning(message, category, filename, lineno, file=None, line=None) -> None:
+def custom_show_warning(
+    message: Warning | str,
+    category: type[Warning],
+    filename: str,
+    lineno: int,
+    file: TextIO | None = None,
+    line: str | None = None,
+) -> None:
     """Custom warning used to remove <stdin>:loc: pattern.
 
     Examples
@@ -47,7 +55,7 @@ def custom_show_warning(message, category, filename, lineno, file=None, line=Non
     print(f"{category.__name__}: {message}", file=file or sys.stderr)
 
 
-warnings.showwarning = custom_show_warning
+warnings.showwarning = custom_show_warning  # ty: ignore[invalid-assignment]
 """Warnings hook used while configuring CLR integration."""
 
 modules = [tup[1] for tup in pkgutil.iter_modules()]

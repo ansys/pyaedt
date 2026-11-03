@@ -48,6 +48,7 @@ import logging
 import os
 from pathlib import Path
 import time
+from typing import TYPE_CHECKING
 from typing import Any
 import uuid
 
@@ -55,6 +56,9 @@ from ansys.aedt.core import pyaedt_path
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.scheduler import DEFAULT_CUSTOM_SUBMISSION_STRING
 from ansys.aedt.core.generic.scheduler import DEFAULT_NUM_CORES
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.aedt_logger import AedtLogger
 
 is_linux = os.name == "posix"
 """Flag indicating whether linux is enabled."""
@@ -192,7 +196,7 @@ class Settings(PyAedtBase):
     def __init__(self) -> None:
         # Setup default values then load values from PersoalLib' settings_config.yaml if it exists.
         # Settings related to logging
-        self.__logger: logging.Logger | None = None
+        self.__logger: AedtLogger | None = None
         self.__enable_logger: bool = True
         self.__enable_desktop_logs: bool = False
         self.__enable_screen_logs: bool = True
@@ -372,21 +376,30 @@ class Settings(PyAedtBase):
 
     # ########################## Logging properties ##########################
 
+    # NOTE: We might want to update the mechanism to set the logger.
+    # Currently the logger is automatically set when an user imports `ansys.aedt.core.aedt_logger`
+    # which is also why importing the current module leads to setting the logger automatically.
+    # Python resolves parent module before reaching settings.py: ansys -> ansys.aedt ->
+    # ansys.aedt.core which executes __init__.py -> ... -> ansys.aedt.core.generic.general_methods
+    # which finally imports aedt_logger.py which sets settings.logger.
     @property
-    def logger(self) -> logging.Logger | None:
+    def logger(self) -> AedtLogger | None:
         """Active logger.
+
+        This is the global :class:`ansys.aedt.core.aedt_logger.AedtLogger` instance used by
+        PyAEDT. It is automatically assigned when ``ansys.aedt.core.aedt_logger`` is imported
+        and should not normally be replaced with a different logger implementation.
 
         Examples
         --------
-        >>> import logging
         >>> from ansys.aedt.core.generic.settings import settings
-        >>> settings.logger = logging.getLogger("pyaedt")
+        >>> settings.logger.info("message")
 
         """
         return self.__logger
 
     @logger.setter
-    def logger(self, val: logging.Logger | None) -> None:
+    def logger(self, val: AedtLogger | None) -> None:
         self.__logger = val
 
     @property

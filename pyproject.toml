@@ -135,9 +135,9 @@ doc = [
     "sphinx_design>=0.4.0",
 ]
 quality = [
-  "prek>=0.5.0",
-  "ruff>=0.16.0",
-  "ty>=0.0.49",
+  "prek",
+  "ruff",
+  "ty",
 ]
 tests = [
     "cryptography",
@@ -342,13 +342,6 @@ exclude = [
     "src/ansys/aedt/core/filtersolutions_core",
     # TODO: Shouldn't we remove the python_optimizers module ?
     "src/ansys/aedt/core/generic/python_optimizers.py",
-    "src/ansys/aedt/core/internal/aedt_versions.py",
-    "src/ansys/aedt/core/internal/clr_module.py",
-    "src/ansys/aedt/core/internal/desktop_sessions.py",
-    "src/ansys/aedt/core/internal/errors.py",
-    "src/ansys/aedt/core/internal/filesystem.py",
-    "src/ansys/aedt/core/internal/grpc_plugin_dll_class.py",
-    "src/ansys/aedt/core/internal/load_aedt_file.py",
     "src/ansys/aedt/core/misc",
     "src/ansys/aedt/core/modeler",
     "src/ansys/aedt/core/modules",
