@@ -1153,6 +1153,32 @@ def test_assign_solid_block(ipk_app) -> None:
         ipk_app.assign_solid_block("BlockBox3", "1W", boundary_name=boundary_name)
 
 
+def test_assign_block_from_sherlock_file(ipk_app) -> None:
+    ipk_app.modeler.create_box([0, 0, 0], [1, 1, 1], "COMP_U1", "copper")
+    ipk_app.modeler.create_box([2, 0, 0], [1, 1, 1], "U2", "copper")
+    not_solved_inside = ipk_app.modeler.create_box([4, 0, 0], [1, 1, 1], "U3", "copper")
+    not_solved_inside.solve_inside = False
+    # U1 matches "COMP_U1", U3 is not solved inside, U4 does not exist and U5 has an invalid power
+    csv_file = TESTS_ICEPAK_PATH / "example_models" / TEST_SUBFOLDER / "sherlock_components.csv"
+
+    total_power = ipk_app.assign_block_from_sherlock_file(csv_file)
+
+    assert total_power == pytest.approx(2.0)
+    blocks = {boundary.name: boundary for boundary in ipk_app.boundaries if boundary.type == "Block"}
+    assert set(blocks) == {"COMP_U1", "U2"}
+    assert blocks["COMP_U1"].props["Objects"] == ["COMP_U1"]
+    assert blocks["COMP_U1"].props["Total Power"] == "1.5W"
+    assert blocks["U2"].props["Total Power"] == "0.5W"
+
+
+def test_assign_block_from_sherlock_file_errors(ipk_app, test_tmp_dir) -> None:
+    with pytest.raises(FileNotFoundError):
+        ipk_app.assign_block_from_sherlock_file(test_tmp_dir / "missing.csv")
+    csv_file = TESTS_ICEPAK_PATH / "example_models" / TEST_SUBFOLDER / "sherlock_wrong_columns.csv"
+    with pytest.raises(ValueError, match="Applied Power"):
+        ipk_app.assign_block_from_sherlock_file(csv_file)
+
+
 def test_assign_network_from_matrix(ipk_app) -> None:
     box = ipk_app.modeler.create_box([0, 0, 0], [20, 50, 80])
     faces_ids = [face.id for face in box.faces]

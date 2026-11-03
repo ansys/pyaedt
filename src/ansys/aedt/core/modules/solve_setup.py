@@ -3656,30 +3656,6 @@ class SetupHFSS(Setup, PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    @deprecated("Use sweep_names instead.")
-    def get_sweep_names(self) -> list:
-        """Get the names of all sweeps in a given analysis setup.
-
-        Returns
-        -------
-        list of str
-            List of names of all sweeps for the setup.
-
-        References
-        ----------
-        >>> oModules.GetSweeps
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> setup = hfss.create_setup(setup_type="HFSSDriven")
-        >>> sweeps = setup.get_sweep_names()
-
-        """
-        return self.sweep_names
-
-    @pyaedt_function_handler()
     def delete_sweep(self, name: str) -> bool:
         """Delete a sweep.
 
