@@ -404,7 +404,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
         """
         if getattr(self, "child_object", None):
-            self._name = str(self.properties["Name"])
+            self._name = str(self._get_property_value("Name"))
         return self._name
 
     @name.setter

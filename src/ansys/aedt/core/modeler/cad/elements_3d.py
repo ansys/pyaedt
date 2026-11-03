@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 from typing import TYPE_CHECKING
+from typing import Any
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import clamp
@@ -2030,6 +2031,21 @@ class BinaryTreeNode:
                     self._props[p] = None
         self._props = HistoryProps(self, self._props)
         return self._props
+
+    def _get_property_value(self, prop_name: str) -> Any:
+        """Read a single property, avoiding the cost of loading the full data model.
+
+        Falls back to :attr:`properties` if the direct read fails, so the result is the same
+        as ``self.properties[prop_name]``.
+        """
+        child_object = getattr(self, "child_object", None)
+        if child_object:
+            try:
+                if prop_name in child_object.GetPropNames():
+                    return child_object.GetPropValue(prop_name)
+            except Exception:
+                pass
+        return self.properties[prop_name]
 
     @property
     def command(self) -> str:
