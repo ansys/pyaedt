@@ -141,27 +141,22 @@ def test_batch_update_defers_cleanup(aedt_app, monkeypatch) -> None:
         for index, x in enumerate([3, 7])
     ]
     cutter_names = [cutter.name for cutter in cutters]
-    cleanup_calls = {"solids": 0, "points": 0}
-    cleanup_solids = modeler.cleanup_solids
-    cleanup_points = modeler.cleanup_points
+    cleanup_calls = 0
+    cleanup_objects_now = modeler._cleanup_objects_now
 
-    def count_cleanup_solids():
-        cleanup_calls["solids"] += 1
-        cleanup_solids()
+    def count_cleanup_objects_now():
+        nonlocal cleanup_calls
+        cleanup_calls += 1
+        cleanup_objects_now()
 
-    def count_cleanup_points():
-        cleanup_calls["points"] += 1
-        cleanup_points()
-
-    monkeypatch.setattr(modeler, "cleanup_solids", count_cleanup_solids)
-    monkeypatch.setattr(modeler, "cleanup_points", count_cleanup_points)
+    monkeypatch.setattr(modeler, "_cleanup_objects_now", count_cleanup_objects_now)
 
     with modeler.batch_update():
         for cutter_name in cutter_names:
             assert modeler.subtract(target.name, cutter_name, keep_originals=False)
-        assert cleanup_calls == {"solids": 0, "points": 0}
+        assert cleanup_calls == 0
 
-    assert cleanup_calls == {"solids": 1, "points": 1}
+    assert cleanup_calls == 1
     object_names = set(modeler.object_names)
     assert target.name in object_names
     assert not set(cutter_names) & object_names

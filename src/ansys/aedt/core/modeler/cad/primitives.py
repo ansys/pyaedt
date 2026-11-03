@@ -1324,6 +1324,10 @@ class GeometryModeler(Modeler, PyAedtBase):
             self._cleanup_pending = True
             return
 
+        self._cleanup_objects_now()
+
+    def _cleanup_objects_now(self) -> None:
+        """Synchronize object and point collections with the current AEDT geometry."""
         with self._cached_object_types():
             self.cleanup_solids()
             self.cleanup_points()
@@ -10411,7 +10415,7 @@ class GeometryModeler(Modeler, PyAedtBase):
             self._batch_update_depth -= 1
             if self._batch_update_depth == 0 and self._cleanup_pending:
                 self._cleanup_pending = False
-                self.cleanup_objects()
+                self._cleanup_objects_now()
 
     @pyaedt_function_handler()
     def _refresh_object_types(self) -> None:
