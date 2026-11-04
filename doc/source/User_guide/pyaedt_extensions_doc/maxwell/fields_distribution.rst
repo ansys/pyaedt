@@ -45,13 +45,13 @@ The **Sample points** field is optional:
 
 - If it is empty, the field is exported on the mesh nodes of the surfaces of the selected objects,
   or of all objects if no object is selected.
-- To export the field on a given set of points instead, click the **...** button and select an existing PTS file.
+- To export the field on a given set of points instead, click the browse button next to the field and select an existing PTS file.
 
 To create a sample points file, first run the :doc:`../project/point_cloud_generator` extension
 on the objects of interest. It generates a PTS file with a point cloud conforming to the selected objects.
 Then, select the resulting PTS file in the **Sample points** field of the Fields distribution extension.
 
-In the **Output file** field, the **Save as...** button allows to browse the location to save the output file
+In the **Output file** field, the **Save as** button allows to browse the location to save the output file
 in the selected format (CSV, TAB, or NPY).
 
 Finally, the **Export** button exports the field to the desired location both in the selected format and as a FLD file.
