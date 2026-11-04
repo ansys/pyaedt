@@ -10397,20 +10397,28 @@ class GeometryModeler(Modeler, PyAedtBase):
 
     @contextmanager
     def batch_geometry_operations(self):
-        """Defer object cleanup until a group of geometry operations is complete.
+        """Batch geometry operations in a single cleanup phase.
 
-        Operations inside this context can leave the Python object dictionaries out of sync with AEDT.
-        Any ``cleanup_objects`` calls are combined into one cleanup when the outermost context exits.
-        Use names or other stable selections inside the context instead of relying on object references
-        for objects that may be removed or changed.
+        This context manager is useful when several modeler operations are applied in sequence and
+        intermediate ``cleanup_objects`` calls would otherwise make Python object references stale.
+        It can also improve performance for large geometries by deferring repeated cleanup work until
+        the batch completes. Operations inside the context may temporarily leave the Python object
+        dictionaries out of sync with AEDT. Any ``cleanup_objects`` calls are combined into one
+        cleanup when the outermost context exits, so names or other stable selections should be used
+        for objects that may be removed or changed during the batch.
 
         This context is not thread-safe.
 
         Examples
         --------
-        >>> with modeler.batch_geometry_operations():
-        ...     for cutter in cutters:
-        ...         modeler.subtract(target.name, cutter.name, keep_originals=False)
+        >>> from ansys.aedt.core.hfss import Hfss
+        >>> from ansys.aedt.core.generic.constants import Axis
+        >>> app = Hfss()
+        >>> target = app.modeler.create_box(origin=[0, 0, 0], sizes=[100, 100, 20])
+        >>> cutter = app.modeler.create_cylinder(orientation=Axis.Z, origin=[0, 0, -1], radius=1, height=22)
+        >>> with app.modeler.batch_geometry_operations():
+        ...     app.modeler.subtract(target.name, cutter.name, keep_originals=False)
+
         """
         self._batch_update_depth += 1
         try:

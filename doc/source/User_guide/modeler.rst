@@ -17,7 +17,6 @@ The following code creates a box and changes the color to red:
      box.color = "Red"
 
 
-
 .. image:: ../Resources/aedt_box.png
   :width: 800
   :alt: Modeler Object
@@ -27,6 +26,10 @@ Similarly, you can change other properties, such as the material and transparenc
 
 .. code:: python
 
+    from ansys.aedt.core.hfss import Hfss
+
+    app = Hfss()
+    box = app.modeler.create_box(origin=[0, 0, 0], sizes=[100, 100, 20], name="mybox")
     box.material_name = "copper"
     box.transparency = 0.4
     print(box.material_name)
@@ -40,7 +43,10 @@ This example shows how easily you can go deeper into edges and vertices of faces
 
 .. code:: python
 
-     box = hfss.modeler["mybox"]
+     from ansys.aedt.core.hfss import Hfss
+
+     app = Hfss()
+     box = app.modeler.create_box(origin=[0, 0, 0], sizes=[100, 100, 20], name="mybox")
      for face in box.faces:
          print(face.center)
          for edge in face.edges:
@@ -55,21 +61,44 @@ All objects support executing any modeler operation, such as union or subtractio
 
 .. code:: python
 
-     box = hfss.modeler["mybox2"]
-     cyl = hfss.modeler["mycyl"]
+     from ansys.aedt.core.hfss import Hfss
+     from ansys.aedt.core.generic.constants import Axis
+
+     app = Hfss()
+     app.modeler.create_box(origin=[0, 0, 0], sizes=[100, 100, 20], name="mybox2")
+     app.modeler.create_cylinder(
+         orientation=Axis.Z, origin=[0, 0, -1], radius=1, height=22, name="mycyl"
+     )
+     box = app.modeler["mybox2"]
+     cyl = app.modeler["mycyl"]
      box.unite(cyl)
      box.subtract(cyl)
 
 
-.. only:: latex
+Batch geometry operations for large models
+-----------------------------------------
 
-    The following demo is presented as an animated GIF.
-    `View online <https://aedt.docs.pyansys.com/version/stable/_images/objects_operations.gif>`_
-    if you are reading the PDF version of this documentation.
+When you perform a group of geometry edits that repeatedly create, delete, or replace objects,
+wrap the operations in ``with modeler.batch_geometry_operations():`` to defer object cleanup until
+all operations in the batch complete. This is especially useful for large geometries because it
+reduces the overhead of repeated refresh and cleanup calls while several modeler operations are
+executed in sequence.
 
-.. only:: html
+.. code:: python
 
-  .. image:: ../Resources/objects_operations.gif
-    :width: 800
-    :alt: Object Modeler Operations
+     from ansys.aedt.core.hfss import Hfss
+     from ansys.aedt.core.generic.constants import Axis
 
+     app = Hfss()
+     target = app.modeler.create_box(origin=[0, 0, 0], sizes=[100, 100, 20])
+     cutter = app.modeler.create_cylinder(
+         orientation=Axis.Z, origin=[0, 0, -1], radius=1, height=22
+     )
+     with app.modeler.batch_geometry_operations():
+         for cutter in cutters:
+             app.modeler.subtract(target.name, cutter.name, keep_originals=False)
+             app.modeler.unite(target.name, cutter.name)
+
+
+This pattern improves performance when processing many Boolean operations, such as repeated cuts,
+joins, or intersections over the same design.
