@@ -1786,53 +1786,6 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def analyze_from_zero(self) -> bool:
-        """Force the next solve to start from time 0 for a given setup.
-
-        This method applies only to the Transient solution type.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oModule.ResetSetupToTimeZero
-
-        Examples
-        --------
-        Create a simple conductor model and analyze it starting from 0s.
-
-        >>> from ansys.aedt.core import Maxwell2d
-        >>> m2d = Maxwell2d(version=2026.1, solution_type="TransientXY", new_desktop=False)
-        >>> conductor = m2d.modeler.create_circle(origin=[0, 0, 0], radius=10, material="Copper")
-        >>> m2d.assign_winding(assignment=conductor.name, is_solid=False, current="5*cos(2*PI*50*time)")
-        >>> region = m2d.modeler.create_region(pad_percent=100)
-        >>> m2d.assign_vector_potential(assignment=region.edges)
-        >>> setup = m2d.create_setup()
-        >>> setup.props["StopTime"] = "2/50s"
-        >>> setup.props["TimeStep"] = "1/500s"
-        >>> m2d.analyze_from_zero()
-        >>> m2d.desktop_class.close_desktop()
-
-        """
-        if self.solution_type != SolutionsMaxwell3D.Transient:
-            raise AEDTRuntimeError("This methods work only with Maxwell Transient Analysis.")
-
-        self.oanalysis.ResetSetupToTimeZero(self._setup)
-        if any(boundary.type == "Balloon" for boundary in self.boundaries):
-            self.logger.warning(
-                "With Balloon boundary, it is not possible to parallelize the simulation "
-                "using the Time Decomposition Method (TDM). "
-                "Running the simulation without HPC auto settings and using one single core."
-            )
-            self.analyze(use_auto_settings=False, cores=1)
-        else:
-            self.analyze()
-        return True
-
-    @pyaedt_function_handler()
     def set_initial_angle(self, motion_setup: str, angle: float) -> bool:
         """Set the initial angle for motion setup.
 

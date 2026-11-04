@@ -4621,7 +4621,6 @@ class Design(AedtObjects, PyAedtBase):
         if refresh_ids:
             self.modeler.refresh_all_ids()
             self.modeler._refresh_all_ids_wrapper()
-            self.mesh._refresh_mesh_operations()
         self._project_name = None
         self._project_path = None
         msg_text = f"Project {self.project_name} Saved correctly"

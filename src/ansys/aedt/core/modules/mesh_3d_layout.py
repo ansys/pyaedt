@@ -204,8 +204,6 @@ class Mesh3dLayout(PyAedtBase):
         # Available mesh operations
         self.__operations = SetupDict()
 
-        # self.meshoperations = self._get_design_mesh_operations()
-
         app.logger.info_timer("Mesh class has been initialized!")
 
     @property

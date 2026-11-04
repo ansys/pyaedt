@@ -2144,13 +2144,13 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def globalMeshSettings(
+    def global_mesh_settings(
         self,
-        meshtype: int,
-        gap_min_elements: str | None = "1",
-        noOgrids: bool | None = False,
+        mesh_type: str | int | float = 3,
+        gap_min_elements: str | None = None,
+        no_ogrids: bool | None = None,
         MLM_en: bool | None = True,
-        MLM_Type: str | None = "3D",
+        MLM_type: str | None = "3D",
         stairStep_en: bool | None = False,
         edge_min_elements: str | None = "1",
         object: str | None = "Region",
@@ -2159,16 +2159,16 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
 
         Parameters
         ----------
-        meshtype : int
+        mesh_type : int
             Type of the mesh. Options are ``1``, ``2``, and ``3``, which represent
             respectively a coarse, standard, and very accurate mesh.
         gap_min_elements : str, optional
-            The default is ``"1"``.
-        noOgrids : bool, optional
-            The default is ``False``.
+            Specifies the minimum number of elements between adjacent objects. The default is ``"1"``.
+        no_ogrids : bool, optional
+            Specifies whether or not objects will have O-grids around them. The default is ``False``.
         MLM_en : bool, optional
             The default is ``True``.
-        MLM_Type : str, optional
+        MLM_type : str, optional
             The default is ``"3D"``.
         stairStep_en : bool, optional
             The default is ``False``.
@@ -2194,10 +2194,10 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
 
         """
         bounding_box = self.modeler.oeditor.GetModelBoundingBox()
-        xsize = abs(float(bounding_box[0]) - float(bounding_box[3])) / (15 * meshtype * meshtype)
-        ysize = abs(float(bounding_box[1]) - float(bounding_box[4])) / (15 * meshtype * meshtype)
-        zsize = abs(float(bounding_box[2]) - float(bounding_box[5])) / (10 * meshtype)
-        MaxSizeRatio = 1 + (meshtype / 2)
+        xsize = abs(float(bounding_box[0]) - float(bounding_box[3])) / (15 * mesh_type * mesh_type)
+        ysize = abs(float(bounding_box[1]) - float(bounding_box[4])) / (15 * mesh_type * mesh_type)
+        zsize = abs(float(bounding_box[2]) - float(bounding_box[5])) / (10 * mesh_type)
+        MaxSizeRatio = 1 + (mesh_type / 2)
 
         self.omeshmodule.EditGlobalMeshRegion(
             [
@@ -2221,11 +2221,11 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
                 "MaxSizeRatio:=",
                 str(MaxSizeRatio),
                 "NoOGrids:=",
-                noOgrids,
+                no_ogrids,
                 "EnableMLM:=",
                 MLM_en,
                 "EnforeMLMType:=",
-                MLM_Type,
+                MLM_type,
                 "MaxLevels:=",
                 "0",
                 "BufferLayers:=",

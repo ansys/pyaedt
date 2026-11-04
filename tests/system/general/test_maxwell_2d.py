@@ -133,7 +133,7 @@ def test_create_vector_potential(aedt_app) -> None:
     bounds = aedt_app.assign_vector_potential(edge_object.id, 3)
     assert bounds
     assert bounds.props["Value"] == "3"
-    bounds["Value"] = "2"
+    bounds.props["Value"] = "2"
     assert bounds.props["Value"] == "2"
     line = aedt_app.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="myline")
     bound2 = aedt_app.assign_vector_potential(line.id, 2)
@@ -593,20 +593,20 @@ def test_export_matrix(test_tmp_dir, m2d_export_matrix) -> None:
     )
 
 
-def test_analyze_from_zero(m2d_app) -> None:
+def test_reset_to_zero(m2d_app) -> None:
     m2d_app.solution_type = SolutionsMaxwell2D.TransientXY
     conductor = m2d_app.modeler.create_circle(origin=[0, 0, 0], radius=10, material="Copper")
-    m2d_app.assign_winding(assignment=conductor.name, is_solid=False, current="5*cos(2*PI*50*time)")
-    region = m2d_app.modeler.create_region(pad_percent=100)
-    bound = m2d_app.assign_balloon(region.edges)
     setup1 = m2d_app.create_setup()
     setup1.props["StopTime"] = "2/50s"
     setup1.props["TimeStep"] = "1/500s"
-    assert m2d_app.analyze_from_zero()
-    bound.delete()
-    m2d_app.assign_vector_potential(assignment=region.edges)
-    assert m2d_app.analyze_from_zero()
+
+    assert setup1.reset_to_zero()
+    m2d_app.assign_winding(assignment=conductor.name, is_solid=False, current="5*cos(2*PI*50*time)")
+    region = m2d_app.modeler.create_region(pad_percent=100)
+    m2d_app.assign_balloon(region.edges)
+    assert setup1.reset_to_zero()
+
     m2d_app.solution_type = SolutionsMaxwell2D.MagnetostaticXY
     m2d_app.create_setup()
     with pytest.raises(AEDTRuntimeError):
-        m2d_app.analyze_from_zero()
+        setup1.reset_to_zero()

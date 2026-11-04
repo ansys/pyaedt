@@ -26,10 +26,12 @@ from __future__ import annotations
 
 from abc import abstractmethod
 import os.path
+from typing import TYPE_CHECKING
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.general_methods import SetupDict
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.generic.settings import settings
@@ -39,12 +41,15 @@ from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modules.mesh import MeshOperation
 
+if TYPE_CHECKING:
+    from ansys.aedt.core.application.analysis_icepak import FieldAnalysisIcepak
+
 
 class CommonRegion(PyAedtBase):
     """Provide common region."""
 
-    def __init__(self, app, name: str) -> None:
-        self._app = app
+    def __init__(self, mesh, name: str) -> None:
+        self._app = mesh
         self._name = name
         self._padding_type = None  # ["Percentage Offset"] * 6
         self._padding_value = None  # [50] * 6
@@ -452,8 +457,8 @@ class Region(CommonRegion):
 
     """
 
-    def __init__(self, app) -> None:
-        super(Region, self).__init__(app, None)
+    def __init__(self, mesh) -> None:
+        super(Region, self).__init__(mesh=mesh, name=None)
         try:
             self._update_region_data()
         except AttributeError:
@@ -799,15 +804,6 @@ class MeshSettings(PyAedtBase):
 class MeshRegionCommon(BinaryTreeNode, PyAedtBase):
     """Manages Icepak mesh region settings.
 
-    Attributes
-    ----------
-        name : str
-            Name of the mesh region.
-        manual_settings : bool
-            Whether to use manual settings. If ``False``, automatic settings are used.
-        settings : :class:`modules.mesh_icepak.MeshSettings`
-            Dictionary-like object to handle settings.
-
     Examples
     --------
     >>> from ansys.aedt.core.modules.mesh_icepak import MeshRegionCommon
@@ -815,13 +811,12 @@ class MeshRegionCommon(BinaryTreeNode, PyAedtBase):
 
     """
 
-    def __init__(self, units, app, name: str) -> None:
+    def __init__(self, mesh: IcepakMesh, units: str, name: str) -> None:
         self.manual_settings = False
-        self.settings = MeshSettings(self, app)
+        self.settings = MeshSettings(self, mesh)
         self._name = name
         self._model_units = units
-        self._app = app
-        # self._initialize_tree_node()
+        self._app = mesh
 
     @property
     def _child_object(self):
@@ -953,13 +948,9 @@ class GlobalMeshRegion(MeshRegionCommon):
 
     """
 
-    def __init__(self, app) -> None:
-        self.global_region = Region(app)
-        super(GlobalMeshRegion, self).__init__(
-            app.modeler.model_units,
-            app,
-            name="Settings",
-        )
+    def __init__(self, mesh: IcepakMesh) -> None:
+        self.global_region = Region(mesh)
+        super(GlobalMeshRegion, self).__init__(mesh=mesh, units=mesh._app.modeler.model_units, name="Settings")
 
     @property
     def name(self) -> str:
@@ -1044,7 +1035,6 @@ class GlobalMeshRegion(MeshRegionCommon):
         self.delete()
         self.global_region = Region(self._app)
         self.global_region.create(self.padding_types, self.padding_values)
-        # return self._initialize_tree_node()
         return True
 
 
@@ -1291,46 +1281,67 @@ class MeshRegion(MeshRegionCommon):
 
 
 class IcepakMesh(PyAedtBase):
-    """Manages Icepak meshes.
+    """Manages Icepak mesh functions.
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.application.analysis_3d.FieldAnalysis3D`
+    app : :class:`ansys.aedt.core.application.analysis_icepak.FieldAnalysisIcepak`
 
     Examples
     --------
-    >>> from ansys.aedt.core.modules.mesh_icepak import IcepakMesh
-    >>> obj = IcepakMesh()
+    >>> from ansys.aedt.core import Icepak
+    >>> icepak = Icepak()
+    >>> cylinder = icepak.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+    >>> model_resolution = icepak.mesh.assign_model_resolution(cylinder, 1e-4, "ModelRes1")
 
     """
 
-    def __init__(self, app) -> None:
+    def __init__(self, app: FieldAnalysisIcepak) -> None:
         self._app = app
 
-        self._odesign = self._app._odesign
-        design_type = self._odesign.GetDesignType()
-        if not hasattr(self._app._design_type, "mesher"):
-            raise RuntimeError(f"Invalid design type {design_type}")  # pragma: no cover
-        self.id = 0
-        self.meshoperations = self._get_design_mesh_operations()
-        self.meshregions = self._get_design_mesh_regions()
-        try:
-            self.global_mesh_region = [mo for mo in self.meshregions if isinstance(mo, GlobalMeshRegion)][0]
-        except IndexError:
-            self.global_mesh_region = GlobalMeshRegion(app)
+        design_type = self._app._odesign.GetDesignType()
+        if not hasattr(self._app._design_type, "mesher"):  # pragma: no cover
+            raise RuntimeError(f"Invalid design type {design_type}.")
+
+        self._odesign = self._app.odesign
+
+        self.__operations = SetupDict()
+        self.__mesh_regions = SetupDict()
+
+        self.__global_mesh_region = None
+        # self.meshoperations = self._get_design_mesh_operations()
+        # self.meshregions = self._get_design_mesh_regions()
+        self.__child_object = None
+
+        # try:
+        #     self.global_mesh_region = [mo for mo in self.meshregions if isinstance(mo, GlobalMeshRegion)][0]
+        # except IndexError:
+        #     self.global_mesh_region = GlobalMeshRegion(app)
         self._priorities_args = []
 
     @property
-    def _modeler(self):
-        return self._app.modeler
+    def global_mesh_region(self) -> GlobalMeshRegion:
+        """Return the global mesh region.
 
-    @property
-    def _oeditor(self):
-        return self._app.oeditor
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.mesh.GlobalMeshRegion`
+            Global mesh region object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Icepak
+        >>> icepak = Icepak()
+        >>> icepak.mesh.global_mesh_region
+
+        """
+        if not self.__global_mesh_region:
+            self.__global_mesh_region = GlobalMeshRegion(self._app)
+        return self.__global_mesh_region
 
     @property
     def _model_units(self):
-        return self._modeler.model_units
+        return self._app.modeler.model_units
 
     @property
     def meshregions_dict(self) -> dict:
@@ -1350,29 +1361,6 @@ class IcepakMesh(PyAedtBase):
         """
         return {mr.name: mr for mr in self.meshregions}
 
-    @pyaedt_function_handler()
-    def _refresh_mesh_operations(self):
-        """Refresh all mesh operations."""
-        self._meshoperations = self._get_design_mesh_operations()
-        return len(self.meshoperations)
-
-    @property
-    def omeshmodule(self):
-        """Icepak Mesh Module.
-
-        References
-        ----------
-        >>> oDesign.GetModule("MeshRegion")
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.mesh_icepak import IcepakMesh
-        >>> obj = IcepakMesh()
-        >>> obj.omeshmodule
-
-        """
-        return self._app.omeshmodule
-
     @property
     def boundingdimension(self) -> list:
         """Bounding dimension.
@@ -1384,7 +1372,7 @@ class IcepakMesh(PyAedtBase):
         >>> obj.boundingdimension
 
         """
-        return self._modeler.get_bounding_dimension()
+        return self._app.modeler.get_bounding_dimension()
 
     @pyaedt_function_handler()
     def _get_design_mesh_operations(self):

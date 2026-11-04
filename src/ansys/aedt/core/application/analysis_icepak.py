@@ -164,7 +164,7 @@ class FieldAnalysisIcepak(FieldAnalysis3D, PyAedtBase):
         return self._post
 
     @property
-    def mesh(self) -> IcepakMesh:
+    def mesh(self) -> IcepakMesh | None:
         """Mesh.
 
         Returns

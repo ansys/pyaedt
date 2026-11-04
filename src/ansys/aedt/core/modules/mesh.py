@@ -28,14 +28,8 @@ from __future__ import annotations
 
 import os
 import shutil
-import sys
 from typing import TYPE_CHECKING
 from typing import Any
-
-if sys.version_info >= (3, 13):
-    from warnings import deprecated
-else:
-    from typing_extensions import deprecated
 
 from ansys.aedt.core.application import _get_obj_data
 from ansys.aedt.core.application import _has_get_obj_data
@@ -184,29 +178,6 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         if not self.__operation_type:
             self.__operation_type = self.props.get("Type", None)
         return self.__operation_type
-
-    @property
-    @deprecated("Use operation_type instead.")
-    def type(self) -> str | None:
-        """Retrieve type.
-
-        Deprecated. Use :attr:`operation_type` instead.
-
-        Returns
-        -------
-        str
-            Type of the mesh operation.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
-        >>> surface = hfss.mesh.assign_surface_mesh(o.name, 3, "Surface")
-        >>> surface.type
-
-        """
-        return self.operation_type
 
     @property
     def assignment(self) -> list:
@@ -401,7 +372,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         if isinstance(self._mesh, Mesh):
             operation_names = self._mesh.operation_names
         else:
-            operation_names = [operation.name for operation in self._mesh.meshoperations]
+            operation_names = [operation.name for operation in self._mesh.operations]
         if meshop_name in operation_names:
             raise ValueError(f"Name {meshop_name} already assigned in the design.")
         if self.operation_type != "InitialMeshSettings":
@@ -710,7 +681,6 @@ class Mesh(PyAedtBase):
     """
 
     def __init__(self, app: FieldAnalysis3D) -> None:
-        app.logger.reset_timer()
         self._app: Any = app
         self.logger = self._app.logger
 
@@ -720,8 +690,6 @@ class Mesh(PyAedtBase):
         self.__operations = SetupDict()
         self.__initial_mesh_settings = None
         self.__child_object = None
-
-        app.logger.info_timer("Mesh class has been initialized!")
 
     @pyaedt_function_handler()
     def __getitem__(self, part_id) -> MeshOperation | None:
@@ -760,11 +728,6 @@ class Mesh(PyAedtBase):
         return self.__operations[part_id]
 
     @property
-    @deprecated("Use modeler from PyAEDT application instead.")
-    def _modeler(self):
-        return self._app.modeler
-
-    @property
     def _child_object(self) -> object | None:
         """Object-oriented properties.
 
@@ -785,30 +748,6 @@ class Mesh(PyAedtBase):
             if "Mesh" in design_childs:
                 self.__child_object = self._app.get_oo_object(self._app.odesign, "Mesh")
         return self.__child_object
-
-    @property
-    @deprecated("Use operation_names instead.")
-    def meshoperation_names(self) -> list[str]:
-        """Return the available mesh operation names.
-
-        Deprecated. Use :attr:`operation_names` instead.
-
-        Returns
-        -------
-        List
-            List of mesh operation names.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
-        >>> mr1 = hfss.mesh.assign_model_resolution(o, 1e-4, "ModelRes1")
-        >>> mr2 = hfss.mesh.assign_model_resolution(o, 1e-2, "ModelRes2")
-        >>> mesh_operations_names = hfss.mesh.meshoperation_names
-
-        """
-        return self.operation_names
 
     @property
     def operation_names(self) -> list[str]:
@@ -887,60 +826,6 @@ class Mesh(PyAedtBase):
         if not self.__initial_mesh_settings:
             self.__initial_mesh_settings = MeshOperation(mesh=self, name="InitialMeshSettings", props={})
         return self.__initial_mesh_settings
-
-    @property
-    @deprecated("Use operations instead.")
-    def meshoperations(self) -> SetupDict:
-        """Return the available mesh operations.
-
-        Deprecated. Use :attr:`operations` instead.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.generic.general_methods.SetupDict`
-            List of mesh operation object.
-
-        Examples
-        --------
-        Basic usage demonstrated with an HFSS design:
-
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
-        >>> mr1 = hfss.mesh.assign_model_resolution(o, 1e-4, "ModelRes1")
-        >>> mesh_operations_list = hfss.mesh.meshoperations
-
-        """
-        return self.operations
-
-    @property
-    @deprecated("Use omeshmodule from application instead.")
-    def omeshmodule(self):
-        """AEDT Mesh Module.
-
-        References
-        ----------
-        >>> oDesign.GetModule("MeshSetup")
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> hfss.omeshmodule
-
-        """
-        return
-
-    @pyaedt_function_handler()
-    @deprecated("Use operations instead.")
-    def _refresh_mesh_operations(self):
-        """Refresh all mesh operations."""
-        return len(self.operations)
-
-    @pyaedt_function_handler()
-    @deprecated("Use operations instead.")
-    def _get_design_mesh_operations(self):
-        return self.operations
 
     @pyaedt_function_handler()
     def assign_initial_mesh_from_slider(

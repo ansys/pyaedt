@@ -25,6 +25,7 @@
 """The module contains these classes: ``BoundaryCommon`` and ``BoundaryObject``."""
 
 import re
+from typing import Any
 
 from ansys.aedt.core.application import _get_obj_data
 from ansys.aedt.core.application import _has_get_obj_data
@@ -125,8 +126,9 @@ class BoundaryCommon(PyAedtBase):
 
     @pyaedt_function_handler()
     def _initialize_tree_node(self) -> bool:
-        if self._child_object:
-            BinaryTreeNode.__init__(self, self._name, self._child_object, False, app=self._app)
+        child_object = self._child_object
+        if child_object:
+            BinaryTreeNode.__init__(self, self._name, child_object, False, app=self._app)
             return True
         return False
 
@@ -264,14 +266,22 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
     """
 
     def __init__(self, app, name: str, props=None, boundarytype=None, auto_update: bool = True) -> None:
-        self.auto_update = False
-        self._app = app
+        self._app: Any = app
+
         self._name = name
-        self.__props = None
-        self.__props = BoundaryProps(self, props) if props else {}
+
+        self._legacy_props = {}
+
         self._type = boundarytype
-        self.auto_update = auto_update
-        # self._initialize_tree_node()
+
+        self.__child_object = None
+
+        if props:
+            self._legacy_props = props
+            self._has_getobject = False
+        else:
+            # GetObjData is available for some objects in 2026R1
+            self._has_getobject = _has_get_obj_data(self._child_object)
 
     @property
     def _child_object(self):
@@ -279,53 +289,75 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
         Returns
         -------
-        class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTreeNode`
+        AEDT object if any or None
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> r = app.modeler.create_rectangle(orientation=1, origin=[0, 0, 0], sizes=["Box1"]))
+        >>> boundary = app.assign_perfect_e(r)
+        >>> boundary.child_object.GetChildNames()
         """
-        design_childs = self._app.get_oo_name(self._app.odesign)
+        if not self.__child_object:
+            design_childs = self._app.get_oo_name(self._app.odesign)
 
-        if "Nets" in design_childs:
-            cc = self._app.get_oo_object(self._app.odesign, "Nets")
-            cc_names = self._app.get_oo_name(cc)
-            if self._name in cc_names:
-                return self._app.get_oo_object(cc, self._name)
-            for name in cc_names:
-                cc = self._app.get_oo_object(self._app.odesign, f"Nets\\{name}")
+            if "Nets" in design_childs:
+                cc = self._app.get_oo_object(self._app.odesign, "Nets")
                 cc_names = self._app.get_oo_name(cc)
                 if self._name in cc_names:
-                    return self._app.get_oo_object(cc, self._name)
+                    self.__child_object = self._app.get_oo_object(cc, self._name)
+                    return self.__child_object
+                for name in cc_names:
+                    cc = self._app.get_oo_object(self._app.odesign, f"Nets\\{name}")
+                    cc_names = self._app.get_oo_name(cc)
+                    if self._name in cc_names:
+                        self.__child_object = self._app.get_oo_object(cc, self._name)
+                        return self.__child_object
 
-        if "Thermal" in design_childs:
-            cc = self._app.get_oo_object(self._app.odesign, "Thermal")
-            cc_names = self._app.get_oo_name(cc)
-            if self._name in cc_names:
-                return self._app.get_oo_object(cc, self._name)
+            if "Thermal" in design_childs:
+                cc = self._app.get_oo_object(self._app.odesign, "Thermal")
+                cc_names = self._app.get_oo_name(cc)
+                if self._name in cc_names:
+                    self.__child_object = self._app.get_oo_object(cc, self._name)
+                    return self.__child_object
 
-        if "Boundaries" in design_childs:
-            cc = self._app.get_oo_object(self._app.odesign, "Boundaries")
-            if self._name in self._app.get_oo_name(cc):
-                return self._app.get_oo_object(cc, self._name)
+            if "Boundaries" in design_childs:
+                cc = self._app.get_oo_object(self._app.odesign, "Boundaries")
+                if self._name in self._app.get_oo_name(cc):
+                    self.__child_object = self._app.get_oo_object(cc, self._name)
+                    return self.__child_object
 
-        if "Excitations" in design_childs:
-            if self._name in self._app.get_oo_name(self._app.odesign, "Excitations"):
-                return self._app.get_oo_object(self._app.get_oo_object(self._app.odesign, "Excitations"), self._name)
-            elif self._app.get_oo_name(self._app.odesign, "Excitations"):
-                for port in self._app.get_oo_name(self._app.odesign, "Excitations"):
-                    terminals = self._app.get_oo_name(self._app.odesign, f"Excitations\\{port}")
-                    if self._name in terminals:
-                        return self._app.get_oo_object(self._app.odesign, f"Excitations\\{port}\\{self._name}")
+            if "Excitations" in design_childs:
+                if self._name in self._app.get_oo_name(self._app.odesign, "Excitations"):
+                    self.__child_object = self._app.get_oo_object(
+                        self._app.get_oo_object(self._app.odesign, "Excitations"), self._name
+                    )
+                    return self.__child_object
+                elif self._app.get_oo_name(self._app.odesign, "Excitations"):
+                    for port in self._app.get_oo_name(self._app.odesign, "Excitations"):
+                        terminals = self._app.get_oo_name(self._app.odesign, f"Excitations\\{port}")
+                        if self._name in terminals:
+                            self.__child_object = self._app.get_oo_object(
+                                self._app.odesign, f"Excitations\\{port}\\{self._name}"
+                            )
+                            return self.__child_object
 
-        if self._app.design_type in ["Maxwell 3D", "Maxwell 2D"] and "Model" in design_childs:
-            model = self._app.get_oo_object(self._app.odesign, "Model")
-            if self._name in self._app.get_oo_name(model):
-                return self._app.get_oo_object(model, self._name)
+            if self._app.design_type in ["Maxwell 3D", "Maxwell 2D"] and "Model" in design_childs:
+                model = self._app.get_oo_object(self._app.odesign, "Model")
+                if self._name in self._app.get_oo_name(model):
+                    self.__child_object = self._app.get_oo_object(model, self._name)
+                    return self.__child_object
 
-        if "Conductors" in design_childs and self._app.get_oo_name(self._app.odesign, "Conductors"):
-            for port in self._app.get_oo_name(self._app.odesign, "Conductors"):
-                if self._name == port:
-                    return self._app.get_oo_object(self._app.odesign, f"Conductors\\{port}")
+            if "Conductors" in design_childs and self._app.get_oo_name(self._app.odesign, "Conductors"):
+                for port in self._app.get_oo_name(self._app.odesign, "Conductors"):
+                    if self._name == port:
+                        self.__child_object = self._app.get_oo_object(self._app.odesign, f"Conductors\\{port}")
+                        return self.__child_object
 
-        return None
+            return None
+
+        return self.__child_object
 
     @property
     def props(self) -> BoundaryProps:
@@ -342,27 +374,29 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> obj.props
 
         """
-        has_obj_data = _has_get_obj_data(self._child_object)
-        if self.__props and not (has_obj_data and self.auto_update):
-            return self.__props
-        child_object = self._child_object
-        has_obj_data = _has_get_obj_data(child_object)
-        if has_obj_data:
-            props = _get_obj_data(child_object)
+        if self._legacy_props and not self._has_getobject:
+            return BoundaryProps(self, self._legacy_props)
+
+        boundary_data = None
+        boundary_type = None
+
+        if self._has_getobject:
+            props = _get_obj_data(self.child_object)
         else:
             boundary_data = self._get_boundary_data(self.name)
             props = boundary_data[0] if boundary_data else {}
 
         if props:
-            self.__props = BoundaryProps(self, props)
-            if has_obj_data:
-                boundary_type = child_object.Type if "Type" in dir(child_object) else props.get("Type", "")
-            else:
+            self._legacy_props = props
+            if self._has_getobject:
+                boundary_type = self.child_object.Type if "Type" in dir(self.child_object) else props.get("Type", "")
+            elif boundary_data:
                 boundary_type = boundary_data[1]
 
             if boundary_type:
                 self._type = boundary_type
-        return self.__props
+
+        return BoundaryProps(self, self._legacy_props)
 
     @property
     def type(self) -> str:
@@ -381,12 +415,13 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
         """
         if not self._type:
-            if self.available_properties:
-                if "Type" in self.available_properties:
-                    self._type = self.props["Type"]
-                elif "BoundType" in self.available_properties:
-                    self._type = self.props["BoundType"]
-            elif self.properties and self.properties["Type"]:
+            props = self.props.to_dict()
+            if self.props:
+                if "Type" in props:
+                    self._type = props["Type"]
+                elif "BoundType" in props:
+                    self._type = props["BoundType"]
+            elif self.properties and "Type" in self.properties:
                 self._type = self.properties["Type"]
 
         if self._app.design_type == "Icepak" and self._type == "Source":
@@ -409,10 +444,9 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> obj.name
 
         """
-        if self._child_object:
-            current_name = self.properties.get("Name")
-            if current_name:
-                object.__setattr__(self, "_name", str(current_name))
+        child_object = self._child_object
+        if child_object is not None and "Name" in dir(child_object):
+            self._name = str(child_object.Name)
         return self._name
 
     @name.setter
@@ -649,8 +683,9 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         else:
             return False
 
-        # return self._initialize_tree_node()
-        return True
+        # GetObjData is available for some objects in 2026R1.
+        self._has_getobject = _has_get_obj_data(self._child_object)
+        return self
 
     @pyaedt_function_handler()
     def update(self, props: dict = None) -> bool:
@@ -801,6 +836,9 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
             self._app.oboundary.EditResistiveSheet(self.name, self._get_args(props))
         else:
             return False  # pragma: no cover
+
+        if not self._has_getobject:
+            self._legacy_props = props
 
         return True
 

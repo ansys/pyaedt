@@ -905,7 +905,7 @@ class Setup(CommonSetup):
 
         Parameters
         ----------
-        expressions_list : list
+        expression_list : list
             List of formulas to retrieve.
         report_type_list : list
             List of report types for the expressions.
@@ -1069,11 +1069,11 @@ class Setup(CommonSetup):
         >>> obj.enable_expression_cache(expressions=["dB(S(1,1))"])
 
         """
-        self.props["UseCacheFor"] = []
+        self._legacy_props["UseCacheFor"] = []
         if use_cache_for_pass:
-            self.props["UseCacheFor"].append("Pass")
+            self._legacy_props["UseCacheFor"].append("Pass")
         if use_cache_for_freq:
-            self.props["UseCacheFor"].append("Freq")
+            self._legacy_props["UseCacheFor"].append("Freq")
         arg = self._setup_dict_to_arg()
 
         expression_cache = self._expression_cache(
@@ -4693,6 +4693,56 @@ class SetupMaxwell(Setup, PyAedtBase):
                 props.pop("SweepRanges", None)
 
                 return self.update(props)
+
+    @pyaedt_function_handler()
+    def reset_to_zero(self) -> bool:
+        """Force the next solve to start from time 0.
+
+        This method applies only to the Transient solution type.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.ResetSetupToTimeZero
+
+        Examples
+        --------
+        Create a simple conductor model and analyze it starting from 0s.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(solution_type="TransientXY")
+        >>> conductor = m2d.modeler.create_circle(origin=[0, 0, 0], radius=10, material="Copper")
+        >>> m2d.assign_winding(assignment=conductor.name, is_solid=False, current="5*cos(2*PI*50*time)")
+        >>> region = m2d.modeler.create_region(pad_percent=100)
+        >>> m2d.assign_vector_potential(assignment=region.edges)
+        >>> setup = m2d.create_setup()
+        >>> setup.props["StopTime"] = "2/50s"
+        >>> setup.props["TimeStep"] = "1/500s"
+        >>> setup.reset_to_zero()
+
+        """
+        if self._app.solution_type not in [
+            SolutionsMaxwell3D.Transient,
+            SolutionsMaxwell2D.Transient,
+            SolutionsMaxwell2D.TransientZ,
+            SolutionsMaxwell2D.TransientXY,
+        ]:
+            raise AEDTRuntimeError("This methods work only with Maxwell transient analysis.")
+
+        self._app.oanalysis.ResetSetupToTimeZero(self.name)
+
+        if any(boundary.type == "Balloon" for boundary in self._app.boundaries):
+            self._app.logger.warning(
+                "With Balloon boundary, it is not possible to parallelize the simulation "
+                "using the Time Decomposition Method (TDM). "
+                "Run the simulation without HPC auto settings and using one single core."
+            )
+
+        return True
 
 
 class SetupQ3D(Setup, PyAedtBase):
