@@ -197,24 +197,6 @@ class Analysis(Design, PyAedtBase):
             self._available_variations = self.available_variations
 
     @property
-    @deprecated("Use setups instead.")
-    def design_setups(self) -> SetupDict:
-        """All design setups ordered by name.
-
-        Returns
-        -------
-        dict[str, :class:`ansys.aedt.core.modules.solve_setup.Setup`]
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> hfss.design_setups
-
-        """
-        return self.setups
-
-    @property
     def native_components(self) -> dict[str, NativeComponentObject]:
         """Native Component dictionary.
 
@@ -326,9 +308,9 @@ class Analysis(Design, PyAedtBase):
         if self.__setups and not self.__active_setup:
             self.__active_setup = self.__setups[0].name
 
-        for setup in list(self.__setups):
-            if setup.name not in setup_names:
-                del self.__setups[setup.name]
+        for setup in list(self.__setups.keys()):
+            if setup not in setup_names:
+                del self.__setups[setup]
 
         return self.__setups
 

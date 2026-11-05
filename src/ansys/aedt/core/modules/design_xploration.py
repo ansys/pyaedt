@@ -1360,7 +1360,7 @@ class Parametrics(PyAedtBase):
                 self.__setups[setup_name] = ParametricSetup(app=self, name=setup_name, props={})
 
         active_names = set(self.setup_names)
-        for setup_name in list(self.__setups):
+        for setup_name in list(self.__setups.keys()):
             if setup_name not in active_names:
                 del self.__setups[setup_name]
 
@@ -1384,27 +1384,6 @@ class Parametrics(PyAedtBase):
 
         """
         return self.__setups_by_type
-
-    @property
-    @deprecated("Use setups instead.")
-    def design_setups(self) -> SetupDict:
-        """Return parametric setups ordered by name.
-
-        Deprecated. Use :attr:`setups` instead.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.generic.general_methods.SetupDict`
-            Mapping of setup names to :class:`ParametricSetup` objects.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> app = Hfss()
-        >>> app.parametrics.design_setups
-
-        """
-        return self.setups
 
     @property
     @deprecated("Use the PyAEDT application object directly.")
@@ -1781,32 +1760,11 @@ class Optimizations(PyAedtBase):
                 self.__setups[setup_name] = OptimizationSetup(app=self, name=setup_name, props={})
 
         active_names = set(self.setup_names)
-        for setup_name in list(self.__setups):
+        for setup_name in list(self.__setups.keys()):
             if setup_name not in active_names:
                 del self.__setups[setup_name]
 
         return self.__setups
-
-    @property
-    @deprecated("Use setups instead.")
-    def design_setups(self) -> SetupDict:
-        """Return parametric setups ordered by name.
-
-        Deprecated. Use :attr:`setups` instead.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.generic.general_methods.SetupDict`
-            Mapping of setup names to :class:`ParametricSetup` objects.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> app = Hfss()
-        >>> app.optimizations.design_setups
-
-        """
-        return self.setups
 
     @property
     @deprecated("Use the PyAEDT application object directly.")
@@ -2274,7 +2232,7 @@ class Optimetrics(PyAedtBase):
                 self.__setups[setup_name] = setup
 
         active_names = set(self.setup_names)
-        for setup_name in list(self.__setups):
+        for setup_name in list(self.__setups.keys()):
             if setup_name not in active_names:
                 del self.__setups[setup_name]
 

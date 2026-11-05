@@ -197,7 +197,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         if self.__setups and not self.__active_setup:
             self.__active_setup = self.__setups[0].name
 
-        for setup in list(self.__setups):
+        for setup in list(self.__setups.keys()):
             if setup.name not in setup_names:
                 del self.__setups[setup.name]
 

@@ -1788,17 +1788,17 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                     return mesh_el.update()
         try:
             if self._app.settings.aedt_version < "2024.1":
-                objs = props.get("Objects", []) + props.get("Submodels", [])
+                props.get("Objects", []) + props.get("Submodels", [])
             else:
                 subregion = SubRegion(self._app, props["_subregion_information"]["parts"])
                 subregion.padding_values = props["_subregion_information"]["pad_vals"]
                 subregion.padding_types = props["_subregion_information"]["pad_types"]
-                objs = subregion.name
-            bound = MeshRegion(app=self._app, name=name, assignment=objs)
+                # objs = subregion.name
+            bound = MeshRegion(mesh=self._app, name=name, props=props)
             bound.manual_settings = props["UserSpecifiedSettings"]
             for el in props:
-                if el in bound.settings:
-                    bound.settings[el] = props[el]
+                if el in bound.props:
+                    bound.props[el] = props[el]
             self._app.mesh.meshregions.append(bound)
             self._app.logger.info(f"Mesh Operation {name} added.")
         except GrpcApiError:

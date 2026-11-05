@@ -2219,7 +2219,7 @@ class Setup3DLayout(CommonSetup):
             if sweep_name not in self.__sweeps:
                 self.__sweeps[sweep_name] = SweepHFSS3DLayout(setup=self, name=sweep_name, props={})
 
-        for sweep_name in list(self.__sweeps):
+        for sweep_name in list(self.__sweeps.keys()):
             if sweep_name not in sweep_names:
                 del self.__sweeps[sweep_name]
 
@@ -3155,7 +3155,7 @@ class SetupHFSS(Setup, PyAedtBase):
             if operation not in self.__sweeps:
                 self.__sweeps[operation] = SweepHFSS(setup=self, name=operation, props={})
 
-        for sweep_name in list(self.__sweeps):
+        for sweep_name in list(self.__sweeps.keys()):
             if sweep_name not in sweep_names:
                 del self.__sweeps[sweep_name]
 
@@ -4828,7 +4828,7 @@ class SetupQ3D(Setup, PyAedtBase):
             if operation not in self.__sweeps:
                 self.__sweeps[operation] = SweepMatrix(setup=self, name=operation, props={})
 
-        for sweep_name in list(self.__sweeps):
+        for sweep_name in list(self.__sweeps.keys()):
             if sweep_name not in sweep_names:
                 del self.__sweeps[sweep_name]
 

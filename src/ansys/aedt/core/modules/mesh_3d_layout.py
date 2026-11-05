@@ -276,7 +276,7 @@ class Mesh3dLayout(PyAedtBase):
                 self.__operations[operation] = Mesh3dLayoutOperation(mesh=self, name=operation, props={})
 
         active_names = set(self.operation_names)
-        for setup_name in list(self.__operations):
+        for setup_name in list(self.__operations.keys()):
             if setup_name not in active_names:
                 del self.__operations[setup_name]
 

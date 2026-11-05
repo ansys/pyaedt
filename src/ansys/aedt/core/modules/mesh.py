@@ -291,60 +291,6 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
                 "Initial mesh settings props can not be set.Use assign_initial_mesh_from_slider or assign_initial_mesh."
             )
 
-    @pyaedt_function_handler()
-    def _get_initial_mesh_settings(self) -> MeshProps:
-        try:
-            self._legacy_props = self._app.design_properties["MeshSetup"]["MeshSettings"]
-        except Exception:
-            temp_name = generate_unique_name("temp_prj")
-            temp_proj = os.path.join(self._app.working_directory, temp_name + ".aedt")
-            oproject_target = self._app.odesktop.NewProject(temp_name)
-            if self._app.solution_type == "Modal":
-                sol = "HFSS Modal Network"
-            elif self._app.solution_type == "Terminal":
-                sol = "HFSS Terminal Network"
-            else:
-                sol = self._app.solution_type
-            oproject_target.InsertDesign(self._app.design_type, temp_name, sol, "")
-            oproject_target.SaveAs(temp_proj, True)
-            self._app.odesktop.CloseProject(temp_name)
-            _project_dictionary = load_keyword_in_aedt_file(temp_proj, "AnsoftProject")
-            try:
-                self._legacy_props = _project_dictionary["AnsoftProject"][self._app._design_type.model_name][
-                    "MeshSetup"
-                ]["MeshSettings"]
-            except Exception:
-                self._app.logger.debug("An error occurred while accessing design global mesh.")  # pragma: no cover
-            if os.path.exists(temp_proj):
-                os.remove(temp_proj)
-            if os.path.exists(temp_proj + "results"):
-                shutil.rmtree(temp_proj + "results", True)
-
-        return MeshProps(self, self._legacy_props)
-
-    @pyaedt_function_handler()
-    def _get_args(self, props: dict | None = None) -> list:
-        """Retrieve arguments.
-
-        Returns
-        -------
-        list
-            List of arguments for the mesh operation.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
-        >>> surface = hfss.mesh.assign_surface_mesh(o.name, 3, "Surface")
-        >>> surface._get_args()
-
-        """
-        props = self.props if not props else props
-        arg = ["NAME:" + self._name]
-        _dict2arg(props, arg)
-        return arg
-
     @property
     def name(self) -> str:
         """Name of the mesh operation.
@@ -529,56 +475,6 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
 
         return self._update_properties(props)
 
-    def _update_properties(self, props: dict, new_name: str | None = None) -> bool:
-        """Send a complete mesh operation property dictionary to AEDT."""
-        aedt_props = self._get_args(props)
-
-        if new_name is not None:
-            aedt_props[0] = "NAME:" + new_name
-
-        if self.operation_type in ["InitialMeshSettings", "MeshSettings"]:
-            self._app.omeshmodule.InitialMeshSettings(aedt_props)
-        elif hasattr(self._app.omeshmodule, "Edit"):
-            self._app.omeshmodule.Edit(self.name, aedt_props)
-        else:  # pragma: no cover
-            if self.operation_type in ["SurfApproxBased", "Surface Approximation Based"]:
-                self._app.omeshmodule.EditTrueSurfOp(self.name, aedt_props)
-            elif self.operation_type == "DefeatureBased":
-                self._app.omeshmodule.EditModelResolutionOp(self.name, aedt_props)
-            elif self.operation_type == "SurfaceRepPriority":
-                self._app.omeshmodule.EditSurfPriorityOp(self.name, aedt_props)
-            elif self.operation_type == "LengthBased":
-                self._app.omeshmodule.EditLengthOp(self.name, aedt_props)
-            elif self.operation_type == "SkinDepthBased":
-                self._app.omeshmodule.EditSkinDepthOp(self.name, aedt_props)
-            elif self.operation_type == "Curvilinear":
-                self._app.omeshmodule.EditApplyCurvlinearElementsOp(self.name, aedt_props)
-            elif self.operation_type == "RotationalLayerMesh":
-                if "Total Layer Thickness" in props:
-                    props["Total Layer Thickenss"] = props["Total Layer Thickness"]
-                    del props["Total Layer Thickness"]
-                self._app.omeshmodule.EditRotationalLayerOp(self.name, aedt_props)
-            elif self.operation_type == "DensityControlBased":
-                self._app.omeshmodule.EditDensityControlOp(self.name, aedt_props)
-            elif self.operation_type == "EdgeCutLayerMesh":
-                props = self.props.to_dict()
-                if "Layer Thickness" in props:
-                    props["Layer Thickenss"] = props["Layer Thickness"]
-                    del props["Layer Thickness"]
-                self._app.omeshmodule.EditEdgeCutLayerOp(self.name, aedt_props)
-            elif self.operation_type == "Icepak":
-                self._app.omeshmodule.EditMeshOperation(self.name, aedt_props)
-            elif self.operation_type == "CurvatureExtraction":
-                self._app.omeshmodule.EditCurvatureExtractionOp(self.name, aedt_props)
-            elif self.operation_type == "CylindricalGap":
-                self._app.omeshmodule.EditCylindricalGapOp(self.name, aedt_props)
-            else:
-                return False
-
-        if not self._has_getobject:
-            self._legacy_props = props
-        return True
-
     @pyaedt_function_handler()
     def update_assignment(self, properties: dict | None = None) -> bool:
         """Update the boundary assignment.
@@ -665,6 +561,111 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         self._app.omeshmodule.DeleteOp([self.name])
         return True
 
+    @pyaedt_function_handler()
+    def _get_initial_mesh_settings(self) -> MeshProps:
+        try:
+            self._legacy_props = self._app.design_properties["MeshSetup"]["MeshSettings"]
+        except Exception:
+            temp_name = generate_unique_name("temp_prj")
+            temp_proj = os.path.join(self._app.working_directory, temp_name + ".aedt")
+            oproject_target = self._app.odesktop.NewProject(temp_name)
+            if self._app.solution_type == "Modal":
+                sol = "HFSS Modal Network"
+            elif self._app.solution_type == "Terminal":
+                sol = "HFSS Terminal Network"
+            else:
+                sol = self._app.solution_type
+            oproject_target.InsertDesign(self._app.design_type, temp_name, sol, "")
+            oproject_target.SaveAs(temp_proj, True)
+            self._app.odesktop.CloseProject(temp_name)
+            _project_dictionary = load_keyword_in_aedt_file(temp_proj, "AnsoftProject")
+            try:
+                self._legacy_props = _project_dictionary["AnsoftProject"][self._app._design_type.model_name][
+                    "MeshSetup"
+                ]["MeshSettings"]
+            except Exception:
+                self._app.logger.debug("An error occurred while accessing design global mesh.")  # pragma: no cover
+            if os.path.exists(temp_proj):
+                os.remove(temp_proj)
+            if os.path.exists(temp_proj + "results"):
+                shutil.rmtree(temp_proj + "results", True)
+
+        return MeshProps(self, self._legacy_props)
+
+    @pyaedt_function_handler()
+    def _get_args(self, props: dict | None = None) -> list:
+        """Retrieve arguments.
+
+        Returns
+        -------
+        list
+            List of arguments for the mesh operation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> surface = hfss.mesh.assign_surface_mesh(o.name, 3, "Surface")
+        >>> surface._get_args()
+
+        """
+        props = self.props if not props else props
+        arg = ["NAME:" + self._name]
+        _dict2arg(props, arg)
+        return arg
+
+    @pyaedt_function_handler()
+    def _update_properties(self, props: dict, new_name: str | None = None) -> bool:
+        """Send a complete mesh operation property dictionary to AEDT."""
+        aedt_props = self._get_args(props)
+
+        if new_name is not None:
+            aedt_props[0] = "NAME:" + new_name
+
+        if self.operation_type in ["InitialMeshSettings", "MeshSettings"]:
+            self._app.omeshmodule.InitialMeshSettings(aedt_props)
+        elif hasattr(self._app.omeshmodule, "Edit"):
+            self._app.omeshmodule.Edit(self.name, aedt_props)
+        else:  # pragma: no cover
+            if self.operation_type in ["SurfApproxBased", "Surface Approximation Based"]:
+                self._app.omeshmodule.EditTrueSurfOp(self.name, aedt_props)
+            elif self.operation_type == "DefeatureBased":
+                self._app.omeshmodule.EditModelResolutionOp(self.name, aedt_props)
+            elif self.operation_type == "SurfaceRepPriority":
+                self._app.omeshmodule.EditSurfPriorityOp(self.name, aedt_props)
+            elif self.operation_type == "LengthBased":
+                self._app.omeshmodule.EditLengthOp(self.name, aedt_props)
+            elif self.operation_type == "SkinDepthBased":
+                self._app.omeshmodule.EditSkinDepthOp(self.name, aedt_props)
+            elif self.operation_type == "Curvilinear":
+                self._app.omeshmodule.EditApplyCurvlinearElementsOp(self.name, aedt_props)
+            elif self.operation_type == "RotationalLayerMesh":
+                if "Total Layer Thickness" in props:
+                    props["Total Layer Thickenss"] = props["Total Layer Thickness"]
+                    del props["Total Layer Thickness"]
+                self._app.omeshmodule.EditRotationalLayerOp(self.name, aedt_props)
+            elif self.operation_type == "DensityControlBased":
+                self._app.omeshmodule.EditDensityControlOp(self.name, aedt_props)
+            elif self.operation_type == "EdgeCutLayerMesh":
+                props = self.props.to_dict()
+                if "Layer Thickness" in props:
+                    props["Layer Thickenss"] = props["Layer Thickness"]
+                    del props["Layer Thickness"]
+                self._app.omeshmodule.EditEdgeCutLayerOp(self.name, aedt_props)
+            elif self.operation_type == "Icepak":
+                self._app.omeshmodule.EditMeshOperation(self.name, aedt_props)
+            elif self.operation_type == "CurvatureExtraction":
+                self._app.omeshmodule.EditCurvatureExtractionOp(self.name, aedt_props)
+            elif self.operation_type == "CylindricalGap":
+                self._app.omeshmodule.EditCylindricalGapOp(self.name, aedt_props)
+            else:
+                return False
+
+        if not self._has_getobject:
+            self._legacy_props = props
+        return True
+
 
 class Mesh(PyAedtBase):
     """Manages AEDT mesh functions for 2D and 3D solvers (HFSS, Maxwell, and Q3D).
@@ -693,7 +694,6 @@ class Mesh(PyAedtBase):
         self.__initial_mesh_settings = None
         self.__child_object = None
 
-    @pyaedt_function_handler()
     def __getitem__(self, part_id) -> MeshOperation | None:
         """Get the object ``Mesh`` for a given mesh operation name.
 
@@ -797,7 +797,7 @@ class Mesh(PyAedtBase):
                 self.__operations[operation] = MeshOperation(mesh=self, name=operation, props={})
 
         active_names = set(self.operation_names)
-        for setup_name in list(self.__operations):
+        for setup_name in list(self.__operations.keys()):
             if setup_name not in active_names:
                 del self.__operations[setup_name]
 
@@ -2021,3 +2021,31 @@ class Mesh(PyAedtBase):
             if opnames:
                 self._app.omeshmodule.DeleteOp(opnames)
         return True
+
+    @pyaedt_function_handler()
+    def get_mesh_operation(self, name: str) -> MeshOperation | None:
+        """Get mesh operation.
+
+        Parameters
+        ----------
+        name : str
+            Name of the setup.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.mesh.MeshOperation`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d()
+        >>> o = m3d.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> op1 = m3d.mesh.assign_length_mesh(assignment=o)
+        >>> op2 = m3d.mesh.get_operations(op1.name)
+
+        """
+        if name in self.operation_names:
+            if name not in self.__operations:
+                self.__operations[name] = MeshOperation(mesh=self, name=name, props={})
+            return self.__operations[name]
+        return None

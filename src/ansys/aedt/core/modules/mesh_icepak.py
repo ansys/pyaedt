@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import os.path
 from typing import TYPE_CHECKING
+from typing import Any
 
 from ansys.aedt.core.application import _get_obj_data
 from ansys.aedt.core.application import _has_get_obj_data
@@ -35,7 +36,9 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import SetupDict
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import _units_assignment
+from ansys.aedt.core.generic.props import Props as MeshProps
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
@@ -44,6 +47,65 @@ from ansys.aedt.core.modules.mesh import MeshOperation
 
 if TYPE_CHECKING:
     from ansys.aedt.core.application.analysis_icepak import FieldAnalysisIcepak
+
+
+UserSpecifiedSettings = dict(
+    {
+        "Enable": True,
+        "MeshMethod": "MesherHD",
+        "UserSpecifiedSettings": True,
+        "MaxElementSizeX": "0.04mm",
+        "MaxElementSizeY": "0.03mm",
+        "MaxElementSizeZ": "0.015mm",
+        "MinElementsInGap": "3",
+        "MinElementsOnEdge": "2",
+        "MaxSizeRatio": "2",
+        "NoOGrids": False,
+        "EnableMLM": True,
+        "EnforeMLMType": "3D",
+        "MaxLevels": "0",
+        "BufferLayers": "0",
+        "UniformMeshParametersType": "Average",
+        "StairStepMeshing": False,
+        "2DMLMType": "2DMLM_None",
+        "MinGapX": "0.08mm",
+        "MinGapY": "0.06mm",
+        "MinGapZ": "0.03mm",
+        "Objects": ["Settings_SubRegion"],
+        "ProximitySizeFunction": True,
+        "CurvatureSizeFunction": True,
+        "EnableTransition": False,
+        "OptimizePCBMesh": True,
+        "Enable2DCutCell": False,
+        "EnforceCutCellMeshing": False,
+        "Enforce2dot5DCutCell": False,
+        "NonHDMesherEnabled": False,
+    }
+)
+"""Value for UserSpecifiedSettings."""
+
+GeneralSettings = dict(
+    {
+        "Enable": True,
+        "MeshMethod": "MesherHD",
+        "UserSpecifiedSettings": False,
+        "MeshRegionResolution": 3,
+        "GeometryBasedMeshing": False,
+        "MinGapX": "0.08mm",
+        "MinGapY": "0.06mm",
+        "MinGapZ": "0.03mm",
+        "Objects": ["Settings_SubRegion"],
+        "ProximitySizeFunction": True,
+        "CurvatureSizeFunction": True,
+        "EnableTransition": False,
+        "OptimizePCBMesh": True,
+        "Enable2DCutCell": False,
+        "EnforceCutCellMeshing": False,
+        "Enforce2dot5DCutCell": False,
+        "NonHDMesherEnabled": False,
+    }
+)
+"""Value for GeneralSettings."""
 
 
 # Solid Region and Subregion classes
@@ -793,173 +855,29 @@ class MeshSettings(PyAedtBase):
         return x in self.keys()
 
 
-class MeshRegionCommon(BinaryTreeNode, PyAedtBase):
-    """Manages Icepak mesh region settings.
-
-    Examples
-    --------
-    >>> from ansys.aedt.core.modules.mesh_icepak import MeshRegionCommon
-    >>> obj = MeshRegionCommon()
-
-    """
-
-    def __init__(self, app: FieldAnalysisIcepak, units: str, name: str) -> None:
-
-        self._app = app
-        self._name = name
-        self._manual_settings = False
-        self._model_units = units
-        self._settings = None
-        self.__child_object = None
-
-        if self._name == "Settings":
-            self._has_getobject = False
-        else:
-            self._has_getobject = _has_get_obj_data(self._child_object)
-
-    @property
-    def settings(self):
-        """Get the mesh region settings."""
-        if self._settings and not self._has_getobject:
-            return self._settings
-
-        if self._settings is None:
-            self._settings = MeshSettings(self, self._app)
-            if self._has_getobject:
-                region_settings = _get_obj_data(self._child_object) or {}
-            else:
-                region_settings = self._get_global_region_settings() or {}
-
-            self._manual_settings = region_settings.get("UserSpecifiedSettings", False)
-            for key, value in region_settings.items():
-                if key in self._settings:
-                    self._settings[key] = value
-        return self._settings
-
-    #
-    # @pyaedt_function_handler()
-    # def _initialize_tree_node(self) -> bool:
-    #     child_object = self._child_object
-    #     if child_object:
-    #         BinaryTreeNode.__init__(self, self._name, child_object, False, app=self._app)
-    #         return True
-    #     return False
-    #
-    # @property
-    # def _child_object(self):
-    #     """Object-oriented properties.
-    #
-    #     Returns
-    #     -------
-    #     class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTreeNode`
-    #
-    #     """
-    #     if not self.__child_object:
-    #         design_childs = self._app.get_oo_name(self._app.odesign)
-    #
-    #         if "Mesh" in design_childs:
-    #             cc = self._app.get_oo_object(self._app.odesign, "Mesh")
-    #             cc_names = self._app.get_oo_name(cc)
-    #             if self._name in cc_names:
-    #                 self.__child_object = self._app.get_oo_object(cc, self._name)
-    #     return self.__child_object
-
-    # if self._name == "Settings":
-    #     return True
-    #
-    # if self._child_object:
-    #     child_object = self._app.get_oo_object(self._app.odesign, f"Mesh/{self._name}")
-    #     if child_object:
-    #         BinaryTreeNode.__init__(self, self._name, child_object, False, app=self._app)
-    #         return True
-    # return False
-
-    # @property
-    # def manual_settings(self) -> bool:
-    #     """Whether manual mesh settings are enabled."""
-    #     return self._manual_settings
-    #
-    # @manual_settings.setter
-    # def manual_settings(self, value: bool) -> None:
-    #     self._manual_settings = value
-    #     self.update()
-
-    # def __getattr__(self, name: str):
-    #     if name == "UserSpecifiedSettings":
-    #         return self.manual_settings
-    #     if not name.startswith("_"):
-    #         mesh_settings = self.__dict__.get("_settings")
-    #         if mesh_settings is not None and name in mesh_settings:
-    #             return mesh_settings[name]
-    #     raise AttributeError(f"{type(self).__name__!s} object has no attribute {name!r}")
-    #
-    # def __setattr__(self, name: str, value):
-    #     skip_properties = [
-    #         "manual_settings",
-    #         "settings",
-    #         "_name",
-    #         "_model_units",
-    #         "_app",
-    #         "_assignment",
-    #         "assignment",
-    #         "enable",
-    #         "name",
-    #     ]
-    #     skip_properties_binary = [
-    #         "_props",
-    #         "_saved_root_name",
-    #         "_get_child_obj_arg",
-    #         "_node",
-    #         "child_object",
-    #         "auto_update",
-    #         "_children",
-    #         "_children_loading",
-    #         "_children_loaded",
-    #         "_segments",
-    #         "_tree_node_initialized",
-    #         "_tree_node_initializing",
-    #         "_BinaryTreeNode__first_level",
-    #         "_BinaryTreeNode__child_object",
-    #     ]
-    #     if name == "UserSpecifiedSettings":
-    #         self.manual_settings = value
-    #     elif name in skip_properties_binary:
-    #         super(BinaryTreeNode, self).__setattr__(name, value)
-    #     elif name not in skip_properties and not name.startswith("_"):
-    #         mesh_settings = self.settings
-    #         if name in mesh_settings:
-    #             mesh_settings[name] = value
-    #         else:
-    #             self._app.logger.error(
-    #                 f"Setting name {name} is not available. Available parameters are: "
-    #                 f"{', '.join(mesh_settings.keys())}."
-    #             )
-    #     else:
-    #         super(MeshRegionCommon, self).__setattr__(name, value)
-
-
 class MeshRegion(BinaryTreeNode, PyAedtBase):
     """Provides Icepak subregions mesh properties and methods."""
 
-    def __init__(self, app: FieldAnalysisIcepak, assignment: str, name: str) -> None:
+    def __repr__(self) -> str:
+        return self.name
 
-        self._assignment = assignment
-        self.enable = True
-        if settings.aedt_version > "2023.2" and assignment is not None:
-            if not isinstance(assignment, list):
-                objects = [assignment]
-            if (
-                objects[0] not in self._app.modeler.user_defined_components
-                and self._app.modeler[objects[0]]
-                and self._app.modeler[objects[0]].history().command == "CreateSubRegion"
-            ):
-                self._assignment = objects[0]
-            else:
-                self._assignment = SubRegion(app, objects)
-        else:
-            self._assignment = assignment
-        if self._assignment is not None:
-            self.create()
+    def __str__(self) -> str:
+        return self.name
+
+    def __init__(self, mesh: IcepakMesh, name: str, props: dict) -> None:
+        self._mesh: IcepakMesh = mesh
+        self._app: Any = self._mesh._app
+        self._legacy_props = {}
+        self._name = name
+
+        self._manual_settings = None
+        self.__settings = None
+
+        self.__child_object = None
+        if props:
+            self._legacy_props = MeshProps(self, props)
+
+        self._has_getobject = _has_get_obj_data(self._child_object)
 
     @pyaedt_function_handler()
     def _initialize_tree_node(self) -> bool:
@@ -988,20 +906,102 @@ class MeshRegion(BinaryTreeNode, PyAedtBase):
                     self.__child_object = self._app.get_oo_object(cc, self._name)
         return self.__child_object
 
-    def _parse_assignment_value(self, assignment=None):
-        if assignment is None:
-            assignment = self.assignment
-        a = []
-        if isinstance(assignment, SubRegion):
-            a += ["Objects:=", [assignment.name]]
+    @property
+    def props(self) -> MeshProps:
+        """Properties of the mesh operation.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.generic.props.Props`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> surface = hfss.mesh.assign_surface_mesh(o.name, 3, "Surface")
+        >>> surface.props
+
+        """
+        if self._legacy_props and not self._has_getobject:
+            return MeshProps(self, self._legacy_props)
+
+        if self._has_getobject:
+            props = _get_obj_data(self._child_object) or {}
         else:
-            if any(o in self._app.modeler.object_names for o in assignment):
-                obj_assignment = [o for o in assignment if o in self._app.modeler.object_names]
-                a += ["Objects:=", obj_assignment]
-            if any(o in self._app.modeler.user_defined_components for o in assignment):
-                obj_assignment = [o for o in assignment if o in self._app.modeler.user_defined_components]
-                a += ["Submodels:=", obj_assignment]
-        return a
+            props = {}
+            # for key, value in self.properties.items():
+            #     if key in mesh_props.values():
+            #         key = [k for k, v in mesh_props.items() if v == key][0]
+            #     props[key] = value
+            #
+            # if "Assignment" in props:
+            #     assignment = props["Assignment"]
+            #     if "Face_" in assignment:
+            #         props["Faces"] = [
+            #             int(i.replace("Face_", "")) for i in assignment.split("(")[1].split(")")[0].split(",")
+            #         ]
+            #     elif "Edge_" in assignment:
+            #         props["Edges"] = [
+            #             int(i.replace("Edge_", "")) for i in assignment.split("(")[1].split(")")[0].split(",")
+            #         ]
+            #     else:
+            #         props["Objects"] = assignment
+            # elif not (props.get("Edges") or props.get("Faces") or props.get("Objects")):
+            #     props["Objects"] = []
+            #     props["Faces"] = []
+            #     props["Edges"] = []
+            #     assigned_id = []
+            #     if self._app._aedt_version >= "2023.1":
+            #         # GetMeshOpAssignment is not available in 2022 R2 and earlier versions
+            #         assigned_id = self._app.omeshmodule.GetMeshOpAssignment(self._name)
+            #     for comp_id in assigned_id:
+            #         if int(comp_id) in self._app.modeler.objects.keys():
+            #             props["Objects"].append(self._app.oeditor.GetObjectNameByID(comp_id))
+            #             continue
+            #         for comp in self._app.modeler.object_list:
+            #             faces = comp.faces
+            #             face_ids = [face.id for face in faces]
+            #             if int(comp_id) in face_ids:
+            #                 props["Faces"].append(int(comp_id))
+            #                 continue
+            #             edges = comp.edges
+            #             edge_ids = [edge.id for edge in edges]
+            #             if int(comp_id) in edge_ids:
+            #                 props["Edges"].append(int(comp_id))
+            #                 continue
+
+        self._legacy_props = props
+
+        return MeshProps(self, self._legacy_props)
+
+    @props.setter
+    def props(self, value: dict) -> None:
+        self.update(props=value)
+
+    @property
+    def manual_settings(self) -> bool | None:
+        """Whether manual mesh settings are enabled."""
+        props = self.props
+        if "UserSpecifiedSettings" in props:
+            return props["UserSpecifiedSettings"]
+        return None
+
+    @manual_settings.setter
+    def manual_settings(self, value: bool) -> None:
+        props = self.props.to_dict()
+        if value != props.get("UserSpecifiedSettings"):
+            if not value:
+                new_props = dict(GeneralSettings)
+            else:
+                new_props = dict(UserSpecifiedSettings)
+
+            # Keep the assignment and enabled state of the mesh region
+            if "Objects" in props:
+                new_props["Objects"] = props["Objects"]
+            if "Enable" in props:
+                new_props["Enable"] = props["Enable"]
+            self.update(props=new_props)
 
     @property
     def name(self) -> str:
@@ -1018,31 +1018,65 @@ class MeshRegion(BinaryTreeNode, PyAedtBase):
         >>> obj.name
 
         """
-        if self._child_object:
-            self._name = str(self.properties["Name"])
+        child_object = self._child_object
+        if child_object is not None:
+            self._name = child_object.Name
         return self._name
 
     @name.setter
     def name(self, value: str) -> None:
-        self._app.odesign.ChangeProperty(
-            [
-                "NAME:AllTabs",
-                [
-                    "NAME:Icepak",
-                    ["NAME:PropServers", f"MeshRegion:{self.name}"],
-                    ["NAME:ChangedProps", ["NAME:Name", "Value:=", value]],
-                ],
-            ]
-        )
-        self._app.modeler.refresh()
-        self._name = value
-        result = self._initialize_tree_node()
-        if isinstance(self.assignment, SubRegion) and result:
-            self._assignment = self.assignment
+        region_names = self._mesh.region_names
+
+        if value in region_names:
+            raise ValueError(f"Name {value} already assigned in the design.")
+
+        if "Rename" in dir(self._app.omeshmodule):
+            self._app.omeshmodule.Rename(self.name, str(value))
+        elif "RenameOp" in dir(self._app.omeshmodule):
+            self._app.omeshmodule.RenameOp(self.name, str(value))
+        else:  # pragma: no cover
+            raise AEDTRuntimeError("AEDT API does not support mesh operation rename.")
+
+        self.__child_object = None
+        object.__setattr__(self, "_name", value)
+        object.__setattr__(self, "_tree_node_initialized", False)
+        object.__setattr__(self, "_props", None)
+        object.__setattr__(self, "_children_loaded", False)
+
+    @property
+    def assignment(self) -> list:
+        """Retrieve assignments.
+
+        Returns
+        -------
+        list
+            List of assigned objects.
+
+        """
+        assignments = []
+        child_object = self._child_object
+        if child_object is not None:
+            if "Assignment" in child_object.GetPropNames():
+                assignment = getattr(child_object, "Assignment", [])
+                if isinstance(assignment, str):
+                    assignments = [item.strip() for item in assignment.split(",") if item.strip()]
+                elif isinstance(assignment, list):
+                    assignments = assignment
+
+        return assignments
+
+    @assignment.setter
+    def assignment(self, value: list) -> None:
+        arg = ["NAME:Assignment"] + self._parse_assignment_value(value)
+        try:
+            self._app.omeshmodule.ReassignMeshRegion(self.name, arg)
+            self._assignment = value
+        except GrpcApiError:  # pragma : no cover
+            self._app.logger.error("Mesh region reassignment failed.")
 
     @pyaedt_function_handler()
-    def update(self) -> bool:
-        """Update mesh region settings with the settings in the object variable.
+    def enable(self) -> bool:
+        """Enable a setup.
 
         Returns
         -------
@@ -1051,25 +1085,81 @@ class MeshRegion(BinaryTreeNode, PyAedtBase):
 
         References
         ----------
-        >>> oModule.EditMeshRegion
+        >>> oModule.EditSetup
+
+        """
+        if "Enable" in self.props:
+            self.props["Enable"] = True
+        elif "Enabled" in self.props:
+            self.props["Enabled"] = True
+        elif "IsEnabled" in self.props:
+            self.props["IsEnabled"] = True
+        else:  # pragma: no cover
+            self._app.logger.warning("No enabled setup found.")
+            return False
+        return True
+
+    @pyaedt_function_handler()
+    def disable(self) -> bool:
+        """Disable a setup.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.EditSetup
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.mesh_icepak import MeshRegion
-        >>> obj = MeshRegion()
-        >>> obj.update()
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> setup = app.create_setup()
+        >>> setup.disable()
 
         """
-        args = ["NAME:" + self.name, "Enable:=", self.enable]
-        args += self.settings.parse_settings_as_args()
-        args += self._parse_assignment_value()
-        args += ["UserSpecifiedSettings:=", self.manual_settings]
-        try:
-            self._app.omeshmodule.EditMeshRegion(self.name, args)
-            # return self._initialize_tree_node()
-            return True
-        except GrpcApiError:  # pragma : no cover
+        if "Enable" in self.props:
+            self.props["Enable"] = False
+        elif "Enabled" in self.props:
+            self.props["Enabled"] = False
+        elif "IsEnabled" in self.props:
+            self.props["IsEnabled"] = False
+        else:  # pragma: no cover
+            self._app.logger.warning("No enabled setup found.")
             return False
+        return True
+
+    @pyaedt_function_handler()
+    def update(self, props: dict | None = None) -> bool:
+        """Update the mesh.
+
+        Parameters
+        ----------
+        props : dict, optional
+            New properties to update. The  default is ``None``, in which case it uses the current properties.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.Edit
+
+        """
+        if props is None:
+            props = self.props.to_dict()
+
+        aedt_props = self._get_args(props)
+
+        self._app.omeshmodule.Edit(self.name, aedt_props)
+
+        if not self._has_getobject:
+            self._legacy_props = props
+        return True
 
     @pyaedt_function_handler()
     def delete(self) -> bool:
@@ -1094,99 +1184,6 @@ class MeshRegion(BinaryTreeNode, PyAedtBase):
         self._app.omeshmodule.DeleteMeshRegions([self.name])
         self._app.mesh.meshregions.remove(self)
         return True
-
-    @property
-    def manual_settings(self) -> bool:
-        """Whether manual mesh settings are enabled."""
-        return self._manual_settings
-
-    @manual_settings.setter
-    def manual_settings(self, value: bool) -> None:
-        self._manual_settings = value
-        self.update()
-
-    @property
-    def settings(self):
-        """Get the mesh region settings."""
-        if self._settings and not self._has_getobject:
-            return self._settings
-
-        if self._settings is None:
-            self._settings = MeshSettings(self, self._app)
-            if self._has_getobject:
-                region_settings = _get_obj_data(self._child_object) or {}
-            else:
-                region_settings = self._get_global_region_settings() or {}
-
-            self._manual_settings = region_settings.get("UserSpecifiedSettings", False)
-            for key, value in region_settings.items():
-                if key in self._settings:
-                    self._settings[key] = value
-        return self._settings
-
-    @property
-    def assignment(self) -> list:
-        """List of objects included in mesh region.
-
-        Returns
-        -------
-        list
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.mesh_icepak import MeshRegion
-        >>> obj = MeshRegion()
-        >>> obj.assignment
-
-        """
-        if isinstance(self._assignment, SubRegion):
-            mesh_oo = self._app.get_oo_object(self._app.odesign, "Mesh")
-            if self.name in self._app.get_oo_name(self._app.odesign, "Mesh"):
-                # try to update name, APIs lacking an easy method before 242
-                if self._app.settings.aedt_version < "2024.2":  # pragma: no cover
-                    parts = []
-                    subparts = []
-                    region_props = self._app.get_oo_properties(mesh_oo, self.name)
-                    if "Parts" in region_props:
-                        parts = self._app.get_oo_property_value(mesh_oo, self.name, "Parts")
-                    if "Submodels" in region_props:
-                        subparts = self._app.get_oo_property_value(mesh_oo, self.name, "Submodels")
-                    if not isinstance(parts, list):
-                        parts = [parts]
-                    if not isinstance(subparts, list):
-                        subparts = [subparts]
-                    parts += subparts
-                    sub_regions = self._app.modeler.non_model_objects
-                    for sr in sub_regions:
-                        p1 = []
-                        p2 = []
-                        if "Part Names" in self._app.modeler[sr].history().properties:
-                            p1 = self._app.modeler[sr].history().properties.get("Part Names", None)
-                            if not isinstance(p1, list):
-                                p1 = [p1]
-                        elif "Submodel Names" in self._app.modeler[sr].history().properties:
-                            p2 = self._app.modeler[sr].history().properties.get("Submodel Names", None)
-                            if not isinstance(p2, list):
-                                p2 = [p2]
-                        p1 += p2
-                        if "CreateSubRegion" == self._app.modeler[sr].history().command and all(p in p1 for p in parts):
-                            self._assignment.name = sr
-                else:
-                    self._assignment.name = self._app.get_oo_property_value(mesh_oo, self.name, "Assignment")
-            return self._assignment
-        elif isinstance(self._assignment, list):
-            return self._assignment
-        else:
-            return [self._assignment]
-
-    @assignment.setter
-    def assignment(self, value: list) -> None:
-        arg = ["NAME:Assignment"] + self._parse_assignment_value(value)
-        try:
-            self._app.omeshmodule.ReassignMeshRegion(self.name, arg)
-            self._assignment = value
-        except GrpcApiError:  # pragma : no cover
-            self._app.logger.error("Mesh region reassignment failed.")
 
     @pyaedt_function_handler()
     def create(self) -> bool:
@@ -1222,6 +1219,29 @@ class MeshRegion(BinaryTreeNode, PyAedtBase):
             self._assignment = self.assignment
         return result
 
+    @pyaedt_function_handler()
+    def _get_args(self, props: dict | None = None) -> list:
+        """Retrieve arguments.
+
+        Returns
+        -------
+        list
+            List of arguments for the mesh operation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> surface = hfss.mesh.assign_surface_mesh(o.name, 3, "Surface")
+        >>> surface._get_args()
+
+        """
+        props = self.props if not props else props
+        arg = ["NAME:" + self._name]
+        _dict2arg(props, arg)
+        return arg
+
 
 class GlobalMeshRegion:
     """Icepak global mesh properties and methods.
@@ -1246,12 +1266,13 @@ class GlobalMeshRegion:
         if "Region" in app.modeler.solid_bodies:
             self.assignment = Region(app)
 
-        # TODO: AEDT API does not have GetObjData for the global mesh region yeet
+        # TODO: AEDT API does not have GetObjData for the global mesh region yet
         self._has_getobject = False
 
     @property
     def settings(self):
         """Get the mesh region settings."""
+        # TODO: AEDT API does not have GetObjData for the global mesh region yet
         if self.__settings and not self._has_getobject:
             return self.__settings
 
@@ -1259,6 +1280,7 @@ class GlobalMeshRegion:
             self.__settings = MeshSettings(self, self._app)
             region_settings = self._get_global_region_settings() or {}
 
+            # Get if the user has specified manual settings for the global mesh region
             self._manual_settings = region_settings.get("UserSpecifiedSettings", False)
             for key, value in region_settings.items():
                 if key in self.__settings:
@@ -1400,10 +1422,13 @@ class IcepakMesh(PyAedtBase):
         """
         for region in self.region_names:
             if region not in self.__regions:
-                self.__regions[region] = MeshRegion(mesh=self, name=region, props={})
+                if region != "Global":
+                    self.__regions[region] = MeshRegion(mesh=self, name=region, props={})
+                else:
+                    self.__regions[region] = self.global_region
 
         active_names = set(self.region_names)
-        for region_name in list(self.__regions):
+        for region_name in list(self.__regions.keys()):
             if region_name not in active_names:
                 del self.__regions[region_name]
 
@@ -1467,7 +1492,7 @@ class IcepakMesh(PyAedtBase):
     @pyaedt_function_handler()
     def _get_mesh_names(self) -> tuple[list[str], list[str]]:
         """Return mesh region and operation names."""
-        region_names = []
+        region_names = ["Global"]
         operation_names = []
 
         if not self._app._is_object_oriented_enabled():  # pragma: no cover
@@ -1487,7 +1512,36 @@ class IcepakMesh(PyAedtBase):
                 elif object_type.lower() in ["mesh operation", "meshoperation"]:
                     operation_names.append(name)
 
+        # AEDT API can not get the available mesh regions in 3D Components,
+        # so we need to use the design properties to get them.
+        component_names = self._app.modeler.user_defined_component_names
+        if component_names:
+            child_names.append("Global")
+            component_regions, component_operations = self._get_mesh_3d_components(child_names)
+            region_names.extend(component_regions)
+            operation_names.extend(component_operations)
+
         return region_names, operation_names
+
+    @pyaedt_function_handler()
+    def _get_mesh_3d_components(self, mesh_names) -> tuple[list, list]:
+        component_regions = []
+        component_operations = []
+
+        dp = self._app.design_properties
+        if not isinstance(dp, dict):
+            return component_regions, component_operations
+
+        mesh_region = dp.get("MeshRegion", {})
+
+        mesh_setup = mesh_region.get("MeshSetup", {})
+        for region_name, region_settings in mesh_setup.items():
+            if isinstance(region_settings, dict) and region_name not in mesh_names:
+                if region_settings.get("DType") == "RegionT":
+                    component_regions.append(region_name)
+                elif region_settings.get("DType") == "OpT":
+                    component_operations.append(region_name)
+        return component_regions, component_operations
 
     @pyaedt_function_handler()
     def assign_mesh_level(self, mesh_order: dict, name: str = None) -> list[MeshOperation] | bool:
@@ -1854,3 +1908,33 @@ class IcepakMesh(PyAedtBase):
         mop.create()
         self.meshoperations.append(mop)
         return mop
+
+    @pyaedt_function_handler()
+    def get_mesh_region(self, name: str) -> MeshRegion | None:
+        """Get mesh region.
+
+        Parameters
+        ----------
+        name : str
+            Name of the setup.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.mesh_icepak.MeshRegion`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Icepak
+        >>> app = Icepak()
+        >>> region_names = app.mesh.region_names
+        >>> op2 = app.mesh.get_mesh_region(region_names[1])
+
+        """
+        if name in self.region_names:
+            if name not in self.__regions:
+                if name != "Global":
+                    self.__regions[name] = MeshRegion(mesh=self, name=name, props={})
+                else:
+                    self.__regions[name] = self.global_region
+            return self.__regions[name]
+        return None
