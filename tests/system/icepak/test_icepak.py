@@ -1843,6 +1843,41 @@ def test_transient_fs(transient_app) -> None:
         assert not df["Mean"].empty
 
 
+def test_export_transient_field_file(transient_app, test_tmp_dir) -> None:
+    fld_file_vol = test_tmp_dir / "icepak_transient_vol.fld"
+    assert transient_app.post.export_transient_field_file(
+        quantity="Temperature", time="2s", output_file=fld_file_vol, assignment="Box1", objects_type="Vol"
+    )
+    assert fld_file_vol.exists()
+    fld_file_surf = test_tmp_dir / "icepak_transient_surf.fld"
+    assert transient_app.post.export_transient_field_file(
+        quantity="HeatFlux", time="4s", output_file=fld_file_surf, assignment="Box1", objects_type="Surf"
+    )
+    assert fld_file_surf.exists()
+    with pytest.raises(AEDTRuntimeError, match="Time averaged fields are not available in Icepak designs"):
+        transient_app.post.export_transient_field_file(
+            quantity="Temperature", time="4s", assignment="Box1", field_type="Time Averaged Fields"
+        )
+
+
+def test_export_transient_field_file_on_points(transient_app, test_tmp_dir) -> None:
+    bounding_box = transient_app.modeler["Box1"].bounding_box
+    center = [(bounding_box[i] + bounding_box[i + 3]) / 2 for i in range(3)]
+    fld_file_points = test_tmp_dir / "icepak_transient_points.fld"
+    assert transient_app.post.export_transient_field_file_on_points(
+        quantity="Temperature",
+        time="2s",
+        sample_points=[center, bounding_box[:3]],
+        output_file=fld_file_points,
+        export_in_si_system=False,
+    )
+    assert fld_file_points.exists()
+    with pytest.raises(AEDTRuntimeError, match="Time averaged fields are not available in Icepak designs"):
+        transient_app.post.export_transient_field_file_on_points(
+            quantity="Temperature", time="4s", sample_points=[center], field_type="Time Averaged Fields"
+        )
+
+
 def test_folder_settings(transient_app) -> None:
     plot_object = transient_app.post.create_fieldplot_surface(
         assignment=transient_app.modeler["Box1"].faces[0].id, quantity="Temperature"
