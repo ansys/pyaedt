@@ -2020,7 +2020,7 @@ class ModelPlotter(CommonPlotter):
         # Initialize random generator and output container.
         rng = np.random.default_rng()
 
-        surface_mesh = src_mesh.extract_surface(algorithm='dataset_surface').triangulate().clean()
+        surface_mesh = src_mesh.extract_surface(algorithm="dataset_surface").triangulate().clean()
         xmin, xmax, ymin, ymax, zmin, zmax = surface_mesh.bounds
         inside_points = np.empty((0, 3), dtype=float)
 
