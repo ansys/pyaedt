@@ -25,7 +25,9 @@
 from __future__ import annotations
 
 import copy
+import itertools
 import os
+import re
 from typing import TYPE_CHECKING
 
 from ansys.aedt.core.base import PyAedtBase
@@ -1332,6 +1334,15 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
                             else:
                                 variations[key] = v
                             k += 2
+                    # Far field traces do not expose the fixed sweeps in ``Families``, but they are part
+                    # of the curve name, for example ``Phi='0deg' Theta='0deg' [Curve1]``.
+                    curve_families = tr.aedt_name.rpartition(tr._name)[2]
+                    for key, val in re.findall(r"(\w+)='([^']*)'", curve_families):
+                        if key == tr.properties["Primary Sweep"] or key == tr.properties.get("Secondary Sweep", None):
+                            continue
+                        values = variations.setdefault(key, [])
+                        if val not in values:
+                            values.append(val)
                     variations[tr.properties["Primary Sweep"]] = ["All"]
                     if tr.properties.get("Secondary Sweep", None):
                         variations[tr.properties["Secondary Sweep"]] = ["All"]
@@ -2101,6 +2112,68 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         if self.primary_sweep:
             solution_data.primary_sweep = self.primary_sweep
         return solution_data
+
+    @pyaedt_function_handler()
+    def get_expression_data_all_curves(
+        self,
+        expression: str = None,
+        formula: str = "real",
+        convert_to_SI: bool = False,
+        use_quantity: bool = False,
+    ) -> list[dict] | bool:
+        """Get the data of an expression for all the curves of the report.
+
+        A curve is identified by one combination of values of the sweeps of the report
+        that are not the primary sweep. For example, a report versus ``Freq`` with
+        ``Theta`` set to ``-41deg, 0deg, 64deg`` has three curves.
+
+        Parameters
+        ----------
+        expression : str, optional
+            Name of the expression. The default is ``None``, in which case the first expression
+            of the report is used.
+        formula : str, optional
+            Data type to be retrieved. Default is ``real``. See
+            :meth:`ansys.aedt.core.visualization.post.solution_data.SolutionData.get_expression_data`
+            for the available options.
+        convert_to_SI : bool, optional
+            Whether to convert the data to the SI unit system.
+            The default is ``False``.
+        use_quantity : bool, optional
+            Whether to output data in ``Quantity`` format or not.
+            The default is ``False``.
+
+        Returns
+        -------
+        list of dict or bool
+            One dictionary per curve with the keys ``"variation"`` (dictionary with the value of each
+            non-primary sweep), ``"x"`` and ``"y"``. ``False`` if the solution data is not available.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.plots[0]
+        >>> curves = report.get_expression_data_all_curves(formula="real")
+        >>> curves[0]["variation"], curves[0]["x"], curves[0]["y"]
+
+        """
+        solution_data = self.get_solution_data()
+        if not solution_data:
+            return False
+        names = [name for name in solution_data.intrinsics if name != solution_data.primary_sweep]
+        curves = []
+        for combination in itertools.product(*[solution_data.intrinsics[name] for name in names]):
+            for name, value in zip(names, combination):
+                solution_data.active_intrinsic[name] = value
+            x_axis, y_axis = solution_data.get_expression_data(
+                expression, formula=formula, convert_to_SI=convert_to_SI, use_quantity=use_quantity
+            )
+            if y_axis is None or len(y_axis) == 0:
+                continue
+            variation = {name: float(value) for name, value in zip(names, combination)}
+            curves.append({"variation": variation, "x": x_axis, "y": y_axis})
+        return curves
 
     @pyaedt_function_handler()
     def add_limit_line_from_points(
