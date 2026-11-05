@@ -637,6 +637,94 @@ def test_export_maxwell_fields(m3dtransient, test_tmp_dir) -> None:
     new_setup.update()
 
 
+def test_export_maxwell_transient_fields(m3dtransient, test_tmp_dir) -> None:
+    fld_file = m3dtransient.post.export_transient_field_file(
+        quantity="Mag_B",
+        time="10ms",
+        solution=m3dtransient.nominal_sweep,
+        assignment="Coil_A2",
+        objects_type="Surf",
+    )
+    assert fld_file.exists()
+    fld_file = test_tmp_dir / "test_fld_transient.fld"
+    assert m3dtransient.post.export_transient_field_file(
+        quantity="Mag_B",
+        time="10ms",
+        solution=m3dtransient.nominal_sweep,
+        output_file=fld_file,
+        assignment="Coil_A2",
+        objects_type="Surf",
+    )
+    assert fld_file.exists()
+    fld_file_avg = test_tmp_dir / "test_fld_transient_avg.fld"
+    assert m3dtransient.post.export_transient_field_file(
+        quantity="Loss_Density",
+        time="10ms",
+        output_file=fld_file_avg,
+        assignment="Coil_A2",
+        objects_type="Surf",
+        field_type="Time Averaged Fields",
+        start_time="0s",
+    )
+    assert fld_file_avg.exists()
+    fld_file_vol = test_tmp_dir / "test_fld_transient_vol.fld"
+    assert m3dtransient.post.export_transient_field_file(
+        quantity="Mag_B",
+        time="10ms",
+        output_file=fld_file_vol,
+        assignment="Coil_A2",
+        objects_type="Vol",
+    )
+    assert fld_file_vol.exists()
+    line = m3dtransient.modeler.create_polyline([[0, 0, 0], [0, 50, 0]], name="transient_fld_line", non_model=True)
+    fld_file_line = test_tmp_dir / "test_fld_transient_line.fld"
+    assert m3dtransient.post.export_transient_field_file(
+        quantity="Mag_B",
+        time="10ms",
+        output_file=fld_file_line,
+        assignment=line.name,
+        objects_type="Line",
+    )
+    assert fld_file_line.exists()
+    line.delete()
+    fld_file_points = test_tmp_dir / "test_fld_transient_points.fld"
+    assert m3dtransient.post.export_transient_field_file_on_points(
+        quantity="Mag_B",
+        time="10ms",
+        sample_points=[[0, 0, 0], [1, 1, 1]],
+        output_file=fld_file_points,
+    )
+    assert fld_file_points.exists()
+    points_file = Path(TESTS_SOLVERS_PATH) / "example_models" / TEST_SUBFOLDER / "coil_b1_points_surface.pts"
+    fld_file_points_avg = test_tmp_dir / "test_fld_transient_points_avg.fld"
+    assert m3dtransient.post.export_transient_field_file_on_points(
+        quantity="Loss_Density",
+        time="10ms",
+        sample_points=points_file,
+        output_file=fld_file_points_avg,
+        field_type="Time Averaged Fields",
+    )
+    assert fld_file_points_avg.exists()
+    with pytest.raises(FileNotFoundError):
+        m3dtransient.post.export_transient_field_file_on_points(
+            quantity="Mag_B", time="10ms", sample_points=test_tmp_dir / "invalid.pts"
+        )
+    with pytest.raises(ValueError):
+        m3dtransient.post.export_transient_field_file_on_points(quantity="Mag_B", time="10ms", sample_points=[])
+    with pytest.raises(AEDTRuntimeError):
+        m3dtransient.post.export_transient_field_file_on_points(
+            quantity="Mag_B", time="10ms", sample_points=points_file, field_type="invalid"
+        )
+    with pytest.raises(AEDTRuntimeError):
+        m3dtransient.post.export_transient_field_file(quantity="Mag_B", time="10ms", field_type="invalid")
+    with pytest.raises(AEDTRuntimeError):
+        m3dtransient.post.export_transient_field_file(quantity="Mag_B", time="10ms", objects_type="invalid")
+    with pytest.raises(AEDTRuntimeError):
+        m3dtransient.post.export_transient_field_file(
+            quantity="Loss_Density", time="10ms", assignment="Coil_A2", objects_type="Surf", field_type="Fields"
+        )
+
+
 def test_create_fieldplot_surface_transient(m3dtransient) -> None:
     fieldplot = m3dtransient.post.create_fieldplot_surface(
         quantity="Mag_B",
