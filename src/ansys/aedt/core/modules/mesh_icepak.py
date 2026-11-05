@@ -1354,7 +1354,6 @@ class IcepakMesh(PyAedtBase):
         self.__operations = SetupDict()
         self.__regions = SetupDict()
         self.__global_mesh_region = None
-        self.__mesh_child_types = {}
 
         self.__child_object = None
 
@@ -1479,20 +1478,15 @@ class IcepakMesh(PyAedtBase):
             return region_names, operation_names
 
         child_names = self._app.get_oo_name(mesh_object)
-        child_types = self.__mesh_child_types
         for name in child_names:
-            if name not in child_types:
-                child_object = self._app.get_oo_object(mesh_object, name)
-                if child_object:
-                    child_types[name] = child_object.GetObjType()
-        self.__mesh_child_types = {name: child_types[name] for name in child_names if name in child_types}
+            child_object = self._app.get_oo_object(mesh_object, name)
+            if child_object:
+                object_type = child_object.GetObjType()
+                if object_type.lower() in ["mesh region", "meshregion"]:
+                    region_names.append(name)
+                elif object_type.lower() in ["mesh operation", "meshoperation"]:
+                    operation_names.append(name)
 
-        for name in child_names:
-            object_type = self.__mesh_child_types.get(name)
-            if object_type.lower() in ["mesh region", "meshregion"]:
-                region_names.append(name)
-            elif object_type.lower() in ["mesh operation", "meshoperation"]:
-                operation_names.append(name)
         return region_names, operation_names
 
     @pyaedt_function_handler()
