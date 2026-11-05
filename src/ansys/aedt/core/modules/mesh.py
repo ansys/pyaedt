@@ -133,8 +133,9 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def _initialize_tree_node(self) -> bool:
-        if self._child_object:
-            BinaryTreeNode.__init__(self, self._name, self._child_object, False, app=self._app)
+        child_object = self._child_object
+        if child_object:
+            BinaryTreeNode.__init__(self, self._name, child_object, False, app=self._app)
             return True
         return False
 
@@ -574,7 +575,8 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
             else:
                 return False
 
-        self._legacy_props = props
+        if not self._has_getobject:
+            self._legacy_props = props
         return True
 
     @pyaedt_function_handler()
@@ -783,8 +785,6 @@ class Mesh(PyAedtBase):
 
         Examples
         --------
-        Basic usage demonstrated with an HFSS design:
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
@@ -840,7 +840,7 @@ class Mesh(PyAedtBase):
         auto_model_resolution: bool = True,
         model_resolution_length: str = "0.0001mm",
     ) -> bool:
-        """Assign a surface mesh level to an object.
+        """Assign initial mesh settings from slider.
 
         Parameters
         ----------
@@ -943,7 +943,7 @@ class Mesh(PyAedtBase):
         auto_model_resolution: bool = True,
         model_resolution_length: str = "0.0001mm",
     ) -> bool:
-        """Assign a surface mesh level to an object.
+        """Assign initial mesh settings manually.
 
         Parameters
         ----------

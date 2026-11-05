@@ -1794,7 +1794,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                 subregion.padding_values = props["_subregion_information"]["pad_vals"]
                 subregion.padding_types = props["_subregion_information"]["pad_types"]
                 objs = subregion.name
-            bound = MeshRegion(app=self._app, name=name, objects=objs)
+            bound = MeshRegion(app=self._app, name=name, assignment=objs)
             bound.manual_settings = props["UserSpecifiedSettings"]
             for el in props:
                 if el in bound.settings:
