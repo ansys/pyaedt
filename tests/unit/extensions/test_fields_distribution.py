@@ -33,6 +33,7 @@ import numpy as np
 import pytest
 
 from ansys.aedt.core.extensions.maxwell3d.fields_distribution import EXTENSION_TITLE
+from ansys.aedt.core.extensions.maxwell3d.fields_distribution import TEXT_MAX_LINES
 from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtension
 from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtensionData
 from ansys.aedt.core.extensions.maxwell3d.fields_distribution import main
@@ -182,6 +183,9 @@ def test_extension_ui_widgets(mock_maxwell_3d_app) -> None:
         assert extension._widgets["sample_points_entry"] is not None
         assert extension._widgets["export_file_entry"] is not None
 
+        # The preview plot button has been removed
+        assert "preview_button" not in extension._widgets
+
         extension.root.destroy()
 
 
@@ -204,14 +208,18 @@ def test_text_size_method(mock_maxwell_3d_app) -> None:
         # Test short path
         short_path = "test.txt"
         extension._text_size(short_path, mock_entry)
-        mock_entry.configure.assert_called_with(height=1, width=max(40, len(short_path) // 2))
+        mock_entry.configure.assert_called_with(height=1)
         mock_entry.delete.assert_called_with("1.0", tkinter.END)
         mock_entry.insert.assert_called_with(tkinter.END, short_path)
 
-        # Test long path
+        # Test long path: height grows to fit the whole path
         long_path = "very_long_path_name_that_exceeds_fifty_characters_definitely.txt"
         extension._text_size(long_path, mock_entry)
-        mock_entry.configure.assert_called_with(height=2, width=max(40, len(long_path) // 2))
+        mock_entry.configure.assert_called_with(height=2)
+
+        # Test very long path: height is capped
+        extension._text_size("a" * 1000, mock_entry)
+        mock_entry.configure.assert_called_with(height=TEXT_MAX_LINES)
 
         extension.root.destroy()
 
@@ -403,122 +411,6 @@ def test_callback_export_no_selection(mock_maxwell_3d_app) -> None:
         extension.root.destroy()
 
 
-def test_callback_preview(mock_maxwell_3d_app) -> None:
-    """Test the callback_preview function."""
-    mock_vector_fields = {
-        "Maxwell 3D": ["Vector_H", "Vector_B"],
-        "Maxwell 2D": ["A_Vector"],
-    }
-    mock_maxwell_3d_app.post.available_report_quantities.return_value = [
-        "Ohmic loss",
-        "Current density",
-    ]
-    mock_maxwell_3d_app.modeler.objects_by_name = {
-        "Object1": MagicMock(),
-        "Object2": MagicMock(),
-    }
-    mock_maxwell_3d_app.existing_analysis_sweeps = ["Setup1 : LastAdaptive"]
-
-    # Mock plot_field method
-    mock_plot = MagicMock()
-    mock_plot.fields = ["field1", "field2"]
-    mock_maxwell_3d_app.post.plot_field.return_value = mock_plot
-
-    mock_maxwell_3d_app.post.fields_calculator.get_expressions = MagicMock(
-        return_value=["Ohmic loss", "Current density"]
-    )
-
-    with (
-        patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
-        patch("json.load", return_value=mock_vector_fields),
-    ):
-        extension = FieldsDistributionExtension(withdraw=True)
-
-        # Mock UI state
-        extension._widgets["export_options_lb"].selection_set(0)
-        extension._widgets["objects_list_lb"].selection_set(0, 1)
-
-        # Simulate preview button click
-        extension._widgets["preview_button"].invoke()
-
-        # Verify plot_field was called with correct parameters
-        mock_maxwell_3d_app.post.plot_field.assert_called_with(
-            quantity="Ohmic loss",
-            assignment=["Object1", "Object2"],
-            plot_type="Surface",
-            setup="Setup1 : LastAdaptive",
-            plot_cad_objs=False,
-            keep_plot_after_generation=False,
-            show_grid=False,
-        )
-
-        extension.root.destroy()
-
-
-def test_callback_preview_no_selection(mock_maxwell_3d_app) -> None:
-    """Test callback_preview with no export option selected."""
-    mock_vector_fields = {
-        "Maxwell 3D": ["Vector_H"],
-        "Maxwell 2D": ["A_Vector"],
-    }
-    mock_maxwell_3d_app.post.available_report_quantities.return_value = ["Ohmic loss"]
-    mock_maxwell_3d_app.modeler.objects_by_name = {"Object1": MagicMock()}
-    mock_maxwell_3d_app.existing_analysis_sweeps = ["Setup1 : LastAdaptive"]
-
-    with (
-        patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
-        patch("json.load", return_value=mock_vector_fields),
-        patch("tkinter.messagebox.showerror") as mock_error,
-    ):
-        extension = FieldsDistributionExtension(withdraw=True)
-
-        # Don't select any export option
-        # Simulate preview button click
-        extension._widgets["preview_button"].invoke()
-
-        # Should show error message
-        mock_error.assert_called_with("Error", "Please select an export option.")
-
-        extension.root.destroy()
-
-
-def test_callback_preview_exception(mock_maxwell_3d_app) -> None:
-    """Test callback_preview when plot_field raises an exception."""
-    mock_vector_fields = {
-        "Maxwell 3D": ["Vector_H"],
-        "Maxwell 2D": ["A_Vector"],
-    }
-    mock_maxwell_3d_app.post.available_report_quantities.return_value = ["Ohmic loss"]
-    mock_maxwell_3d_app.modeler.objects_by_name = {"Object1": MagicMock()}
-    mock_maxwell_3d_app.existing_analysis_sweeps = ["Setup1 : LastAdaptive"]
-
-    # Make plot_field raise an exception
-    mock_maxwell_3d_app.post.plot_field.side_effect = Exception("Plot error")
-
-    mock_maxwell_3d_app.post.fields_calculator.get_expressions = MagicMock(
-        return_value=["Ohmic loss", "Current density"]
-    )
-
-    with (
-        patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
-        patch("json.load", return_value=mock_vector_fields),
-        patch("tkinter.messagebox.showerror") as mock_error,
-    ):
-        extension = FieldsDistributionExtension(withdraw=True)
-
-        # Select export option
-        extension._widgets["export_options_lb"].selection_set(0)
-        extension._widgets["objects_list_lb"].selection_set(0)
-
-        # Simulate preview button click
-        extension._widgets["preview_button"].invoke()
-
-        # Should show error message
-        mock_error.assert_called_with("Error", "Failed to create preview: Plot error")
-
-        extension.root.destroy()
-
-
 def test_save_as_files_callback(mock_maxwell_3d_app) -> None:
     """Test the save_as_files callback function."""
     mock_vector_fields = {
@@ -559,8 +451,8 @@ def test_save_as_files_callback(mock_maxwell_3d_app) -> None:
         extension.root.destroy()
 
 
-def test_show_points_popup_ui_creation(mock_maxwell_3d_app) -> None:
-    """Test that show_points_popup creates all UI elements correctly."""
+def test_browse_points_file(mock_maxwell_3d_app) -> None:
+    """Test that the points file button selects an existing PTS file."""
     mock_vector_fields = {
         "Maxwell 3D": ["Vector_H"],
         "Maxwell 2D": ["A_Vector"],
@@ -572,26 +464,27 @@ def test_show_points_popup_ui_creation(mock_maxwell_3d_app) -> None:
     with (
         patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
         patch("json.load", return_value=mock_vector_fields),
+        patch("tkinter.filedialog.askopenfilename", return_value="/imported/points.pts") as mock_filedialog,
+        patch("tkinter.Toplevel") as mock_toplevel,
     ):
         extension = FieldsDistributionExtension(withdraw=True)
 
-        # Mock the Toplevel creation to avoid actual popup window
-        with patch("tkinter.Toplevel") as mock_toplevel:
-            mock_popup = MagicMock()
-            mock_toplevel.return_value = mock_popup
+        extension._widgets["export_points_button"].invoke()
 
-            # Call the show_points_popup function directly
-            extension._widgets["export_points_button"].invoke()
-
-            # Verify popup was created and title set
-            mock_toplevel.assert_called_once_with(extension.root)
-            mock_popup.title.assert_called_with("Select an Option")
+        mock_filedialog.assert_called_once_with(
+            initialdir="/",
+            title="Select Points File",
+            filetypes=[("Points file", "*.pts")],
+        )
+        mock_toplevel.assert_not_called()
+        sample_text = extension._widgets["sample_points_entry"].get("1.0", tkinter.END).strip()
+        assert sample_text == "/imported/points.pts"
 
         extension.root.destroy()
 
 
-def test_submit_import_file_success(mock_maxwell_3d_app) -> None:
-    """Test submit function with import file option - success path."""
+def test_browse_points_file_cancelled(mock_maxwell_3d_app) -> None:
+    """Test that cancelling the points file dialog keeps the sample points entry unchanged."""
     mock_vector_fields = {
         "Maxwell 3D": ["Vector_H"],
         "Maxwell 2D": ["A_Vector"],
@@ -603,103 +496,14 @@ def test_submit_import_file_success(mock_maxwell_3d_app) -> None:
     with (
         patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
         patch("json.load", return_value=mock_vector_fields),
+        patch("tkinter.filedialog.askopenfilename", return_value="") as mock_filedialog,
     ):
         extension = FieldsDistributionExtension(withdraw=True)
 
-        # Test submit() logic for Option 2 (import file)
-        with patch("tkinter.filedialog.askopenfilename") as mock_filedialog:
-            mock_filedialog.return_value = "/imported/points.pts"
+        extension._widgets["export_points_button"].invoke()
 
-            # Simulate what submit() does when Option 2 is selected
-            filename = mock_filedialog(
-                initialdir="/",
-                title="Select Points File",
-                filetypes=(("Points file", ".pts"), ("all files", "*.*")),
-            )
-            if filename:
-                extension._text_size(filename, extension._widgets["sample_points_entry"])
-
-            # Verify dialog was called correctly
-            mock_filedialog.assert_called_with(
-                initialdir="/",
-                title="Select Points File",
-                filetypes=(("Points file", ".pts"), ("all files", "*.*")),
-            )
-
-            # Verify file path was set in the entry
-            sample_text = extension._widgets["sample_points_entry"].get("1.0", tkinter.END).strip()
-            assert sample_text == "/imported/points.pts"
-
-        extension.root.destroy()
-
-
-def test_submit_import_file_no_selection(mock_maxwell_3d_app) -> None:
-    """Test submit function with import file option - no file selected."""
-    mock_vector_fields = {
-        "Maxwell 3D": ["Vector_H"],
-        "Maxwell 2D": ["A_Vector"],
-    }
-    mock_maxwell_3d_app.post.available_report_quantities.return_value = ["Ohmic loss"]
-    mock_maxwell_3d_app.modeler.objects_by_name = {"Object1": MagicMock()}
-    mock_maxwell_3d_app.existing_analysis_sweeps = ["Setup1 : LastAdaptive"]
-
-    with (
-        patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
-        patch("json.load", return_value=mock_vector_fields),
-    ):
-        extension = FieldsDistributionExtension(withdraw=True)
-
-        # Test submit() logic when no file is selected
-        with patch("tkinter.filedialog.askopenfilename") as mock_filedialog:
-            mock_filedialog.return_value = ""  # No file selected
-
-            # Get initial state of sample points entry
-            initial_text = extension._widgets["sample_points_entry"].get("1.0", tkinter.END).strip()
-
-            # Simulate what submit() does when Option 2 is selected
-            filename = mock_filedialog(
-                initialdir="/",
-                title="Select Points File",
-                filetypes=(("Points file", ".pts"), ("all files", "*.*")),
-            )
-            if filename:  # This condition should be False
-                extension._text_size(filename, extension._widgets["sample_points_entry"])
-
-            # Verify dialog was called
-            mock_filedialog.assert_called_once()
-
-            # Verify no change in sample points entry
-            final_text = extension._widgets["sample_points_entry"].get("1.0", tkinter.END).strip()
-            assert final_text == initial_text
-
-        extension.root.destroy()
-
-
-def test_popup_destroy_called(mock_maxwell_3d_app) -> None:
-    """Test that popup.destroy() is called in submit function."""
-    mock_vector_fields = {
-        "Maxwell 3D": ["Vector_H"],
-        "Maxwell 2D": ["A_Vector"],
-    }
-    mock_maxwell_3d_app.post.available_report_quantities.return_value = ["Ohmic loss"]
-    mock_maxwell_3d_app.modeler.objects_by_name = {"Object1": MagicMock()}
-    mock_maxwell_3d_app.existing_analysis_sweeps = ["Setup1 : LastAdaptive"]
-
-    with (
-        patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
-        patch("json.load", return_value=mock_vector_fields),
-    ):
-        extension = FieldsDistributionExtension(withdraw=True)
-
-        # Mock popup window to verify destroy is called
-        mock_popup = MagicMock()
-
-        # Test that popup.destroy() is called at end of submit()
-        # We can verify this by mocking the popup and checking destroy call
-        with patch("tkinter.Toplevel", return_value=mock_popup):
-            extension._widgets["export_points_button"].invoke()
-            # The popup should be created
-            assert mock_popup.title.called
+        mock_filedialog.assert_called_once()
+        assert extension._widgets["sample_points_entry"].get("1.0", tkinter.END).strip() == ""
 
         extension.root.destroy()
 
@@ -900,4 +704,214 @@ def test_main_export_unsupported_suffix(tmp_path):
         ),
         pytest.raises(Exception, match=r"\.xyz is not supported"),
     ):
+        main(data)
+
+
+def _transient_extension_mocks(mock_app) -> None:
+    """Configure a mocked transient Maxwell design."""
+    mock_app.solution_type = "Transient"
+    mock_app.modeler.objects_by_name = {"Object1": MagicMock(), "Object2": MagicMock()}
+    mock_app.existing_analysis_sweeps = ["Setup1 : Transient"]
+    expressions = {
+        "Fields": {"Mag_B": "", "Ohmic_Loss": ""},
+        "Time Averaged Fields": {"Loss_Density": "", "Core_Loss": "", "Avg_Ohmic_Loss": ""},
+    }
+    mock_app.post.fields_calculator.get_expressions = MagicMock(
+        side_effect=lambda field_type=None: expressions[field_type]
+    )
+
+
+def test_transient_widgets(mock_maxwell_3d_app) -> None:
+    """Test transient widgets and time averaged toggle."""
+    _transient_extension_mocks(mock_maxwell_3d_app)
+    extension = FieldsDistributionExtension(withdraw=True)
+
+    export_lb = extension._widgets["export_options_lb"]
+    assert export_lb.get(0, tkinter.END) == ("Mag_B", "Ohmic_Loss")
+    assert extension._widgets["time_label"].cget("text") == "Time:"
+    assert not extension._widgets["start_time_entry"].winfo_ismapped()
+    assert not extension._widgets["start_time_entry"].grid_info()
+
+    extension._widgets["time_averaged_check"].invoke()
+    assert export_lb.get(0, tkinter.END) == ("Loss_Density", "Core_Loss", "Avg_Ohmic_Loss")
+    assert extension._widgets["time_label"].cget("text") == "Stop time:"
+    assert extension._widgets["start_time_entry"].grid_info()
+
+    extension._widgets["time_averaged_check"].invoke()
+    assert export_lb.get(0, tkinter.END) == ("Mag_B", "Ohmic_Loss")
+    assert extension._widgets["time_label"].cget("text") == "Time:"
+    assert not extension._widgets["start_time_entry"].grid_info()
+
+    extension.root.destroy()
+
+
+@pytest.mark.parametrize("mock_maxwell_3d_app", ["2025.2"], indirect=True)
+def test_transient_widgets_without_time_averaged(mock_maxwell_3d_app) -> None:
+    """Test that the time averaged option is not available before AEDT 2026.1."""
+    _transient_extension_mocks(mock_maxwell_3d_app)
+    mock_maxwell_3d_app.post.available_report_quantities.return_value = ["Mag_B"]
+    mock_vector_fields = {"Maxwell 3D": ["Vector_B"], "Maxwell 2D": ["B_Vector"]}
+
+    with (
+        patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
+        patch("json.load", return_value=mock_vector_fields),
+    ):
+        extension = FieldsDistributionExtension(withdraw=True)
+
+    assert "time_entry" in extension._widgets
+    assert "time_averaged_check" not in extension._widgets
+    assert "start_time_entry" not in extension._widgets
+
+    extension.root.destroy()
+
+
+def test_non_transient_widgets(mock_maxwell_3d_app) -> None:
+    """Test that transient widgets are not created for non transient designs."""
+    mock_maxwell_3d_app.solution_type = "Magnetostatic"
+    mock_maxwell_3d_app.modeler.objects_by_name = {"Object1": MagicMock()}
+    mock_maxwell_3d_app.existing_analysis_sweeps = ["Setup1 : LastAdaptive"]
+    mock_maxwell_3d_app.post.fields_calculator.get_expressions = MagicMock(return_value=["Mag_B"])
+    extension = FieldsDistributionExtension(withdraw=True)
+
+    assert "transient_frame" not in extension._widgets
+    assert "time_entry" not in extension._widgets
+
+    extension.root.destroy()
+
+
+def test_callback_export_transient_fields(mock_maxwell_3d_app) -> None:
+    """Test export callback for fields at a given time."""
+    _transient_extension_mocks(mock_maxwell_3d_app)
+    extension = FieldsDistributionExtension(withdraw=True)
+
+    extension._widgets["export_file_entry"].insert(tkinter.END, "/path/to/output.csv")
+    extension._widgets["export_options_lb"].selection_set(0)
+    extension._widgets["time_entry"].insert(0, "10ms")
+    extension._widgets["export_button"].invoke()
+
+    assert extension.data.export_option == "Mag_B"
+    assert extension.data.field_type == "Fields"
+    assert extension.data.time == "10ms"
+    assert extension.data.solution_option == "Setup1 : Transient"
+
+
+def test_callback_export_time_averaged_fields(mock_maxwell_3d_app) -> None:
+    """Test export callback for time averaged fields."""
+    _transient_extension_mocks(mock_maxwell_3d_app)
+    extension = FieldsDistributionExtension(withdraw=True)
+
+    extension._widgets["time_averaged_check"].invoke()
+    extension._widgets["export_file_entry"].insert(tkinter.END, "/path/to/output.csv")
+    extension._widgets["export_options_lb"].selection_set(0)
+    extension._widgets["start_time_entry"].delete(0, tkinter.END)
+    extension._widgets["start_time_entry"].insert(0, "5ms")
+    extension._widgets["time_entry"].insert(0, "20ms")
+    extension._widgets["export_button"].invoke()
+
+    assert extension.data.export_option == "Loss_Density"
+    assert extension.data.field_type == "Time Averaged Fields"
+    assert extension.data.time == "20ms"
+    assert extension.data.start_time == "5ms"
+
+
+def test_callback_export_time_averaged_fields_no_time(mock_maxwell_3d_app) -> None:
+    """Test export callback for time averaged fields without stop time."""
+    _transient_extension_mocks(mock_maxwell_3d_app)
+
+    with patch("tkinter.messagebox.showerror") as mock_error:
+        extension = FieldsDistributionExtension(withdraw=True)
+        extension._widgets["time_averaged_check"].invoke()
+        extension._widgets["export_file_entry"].insert(tkinter.END, "/path/to/output.csv")
+        extension._widgets["export_options_lb"].selection_set(0)
+        extension._widgets["export_button"].invoke()
+
+        mock_error.assert_called_with("Error", "Please specify the start and stop times for time averaged fields.")
+        assert extension.data is None
+
+    extension.root.destroy()
+
+
+def _mock_main_app():
+    """Create mocks for the main function."""
+    mock_desktop = MagicMock()
+    mock_desktop.active_project.return_value.GetName.return_value = "Project1"
+    mock_desktop.active_design.return_value.GetName.return_value = "Design1"
+    mock_aedtapp = MagicMock()
+    mock_aedtapp.design_type = "Maxwell 3D"
+    mock_setup = MagicMock()
+    mock_setup.name = "Setup1"
+    mock_setup.is_solved = True
+    mock_aedtapp.setups = [mock_setup]
+    return mock_desktop, mock_aedtapp
+
+
+@pytest.mark.parametrize("points_file", ["", "points.pts"])
+def test_main_export_time_averaged_fields(tmp_path, points_file):
+    """Test main function exports time averaged fields with and without sample points."""
+    fld_path = tmp_path / "output.fld"
+    fld_path.write_text("Header line 1\nHeader line 2\n1.0 2.0 3.0\n")
+    csv_path = tmp_path / "output.csv"
+
+    data = FieldsDistributionExtensionData(
+        points_file=points_file,
+        export_file=str(csv_path),
+        export_option="Loss_Density",
+        objects_list=["Object1"],
+        solution_option="Setup1 : Transient",
+        field_type="Time Averaged Fields",
+        time="20ms",
+        start_time="5ms",
+    )
+    mock_desktop, mock_aedtapp = _mock_main_app()
+    mock_aedtapp.solution_type = "Transient"
+    mock_aedtapp.setups[0].is_solved = False
+
+    with (
+        patch(
+            "ansys.aedt.core.extensions.maxwell3d.fields_distribution.ansys.aedt.core.Desktop",
+            return_value=mock_desktop,
+        ),
+        patch(
+            "ansys.aedt.core.extensions.maxwell3d.fields_distribution.get_pyaedt_app",
+            return_value=mock_aedtapp,
+        ),
+        patch("ansys.aedt.core.extensions.maxwell3d.fields_distribution.write_csv"),
+    ):
+        assert main(data)
+
+    mock_aedtapp.post.export_field_file.assert_not_called()
+    if points_file:
+        mock_aedtapp.post.export_transient_field_file_on_points.assert_called_once_with(
+            quantity="Loss_Density",
+            time="20ms",
+            sample_points=points_file,
+            solution="Setup1 : Transient",
+            output_file=str(fld_path),
+            field_type="Time Averaged Fields",
+            start_time="5ms",
+        )
+        mock_aedtapp.post.export_transient_field_file.assert_not_called()
+    else:
+        mock_aedtapp.post.export_transient_field_file.assert_called_once_with(
+            quantity="Loss_Density",
+            time="20ms",
+            solution="Setup1 : Transient",
+            output_file=str(fld_path),
+            assignment="Object1",
+            objects_type="Surf",
+            field_type="Time Averaged Fields",
+            start_time="5ms",
+        )
+        mock_aedtapp.post.export_transient_field_file_on_points.assert_not_called()
+
+
+def test_main_time_averaged_fields_no_time(tmp_path):
+    """Test main function raises an error when time averaged fields have no stop time."""
+    data = FieldsDistributionExtensionData(
+        export_file=str(tmp_path / "output.csv"),
+        export_option="Loss_Density",
+        solution_option="Setup1 : Transient",
+        field_type="Time Averaged Fields",
+    )
+    with pytest.raises(Exception, match="No stop time specified for time averaged fields."):
         main(data)
