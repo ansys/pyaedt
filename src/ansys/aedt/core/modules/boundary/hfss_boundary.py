@@ -116,7 +116,7 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
         """
         if self._child_object:
-            self._name = str(self.properties["Name"])
+            self._name = str(self._get_property_value("Name"))
         return self._name
 
     @name.setter

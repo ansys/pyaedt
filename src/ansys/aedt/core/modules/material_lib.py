@@ -25,9 +25,8 @@
 """Module containing the `Materials` class."""
 
 import copy
-import fnmatch
 import math
-import os
+from pathlib import Path
 import re
 import sys
 
@@ -44,6 +43,44 @@ from ansys.aedt.core.modules.material import Material
 from ansys.aedt.core.modules.material import MatProperties
 from ansys.aedt.core.modules.material import SurfaceMaterial
 from ansys.aedt.core.modules.material_workbench import MaterialWorkbench
+
+_AMAT_BEGIN_RE = re.compile(r"^\$begin '(.+)'")
+_AMAT_NAMES_CACHE: dict[str, tuple[tuple[float, int], tuple[str, ...]]] = {}
+
+
+def _read_amat_material_names(file_name: str | Path) -> tuple[str, ...]:
+    """Return the material names defined in an ``.amat`` library file.
+
+    Results are cached per file and invalidated when the file modification time or size changes,
+    so library files are parsed only once per session.
+    """
+    file_name = str(file_name)
+    try:
+        stat = Path(file_name).stat()
+        key = (stat.st_mtime, stat.st_size)
+    except OSError:
+        key = None
+    cached = _AMAT_NAMES_CACHE.get(file_name)
+    if key is not None and cached is not None and cached[0] == key:
+        return cached[1]
+    with open_file(file_name, "rb") as aedt_fh:
+        content = aedt_fh.read()
+    names = []
+    for line in content.splitlines():
+        # Cheap prefix check first: only lines starting with ``$begin '`` can match.
+        if not line.startswith(b"$begin '"):
+            continue
+        try:
+            ascii_line = line.decode("utf-8")
+        except UnicodeDecodeError:
+            continue
+        match = _AMAT_BEGIN_RE.search(ascii_line)
+        if match:
+            names.append(match.group(1))
+    result = tuple(names)
+    if key is not None:
+        _AMAT_NAMES_CACHE[file_name] = (key, result)
+    return result
 
 
 class Materials(PyAedtBase):
@@ -67,6 +104,7 @@ class Materials(PyAedtBase):
         self._color_id = 0
         self._mats = []
         self._mats_lower = []
+        self._mats_lower_index = {}
         self._desktop = self._app.odesktop
         self._oproject = self._app.oproject
         self.logger = self._app.logger
@@ -198,8 +236,7 @@ class Materials(PyAedtBase):
 
     @property
     def _mat_names_aedt_lower(self):
-        if len(self._mats_lower) < len(self._mat_names_aedt):
-            self._mats_lower = [i.casefold() for i in self._mat_names_aedt]
+        self._get_aedt_material_names_lower_index()
         return self._mats_lower
 
     @property
@@ -229,40 +266,22 @@ class Materials(PyAedtBase):
         return self._mat_names_aedt_lower
 
     @pyaedt_function_handler()
-    def _read_materials(self):
-        def get_mat_list(file_name: str):
-            mats = []
-            _begin_search = re.compile(r"^\$begin '(.+)'")
-            with open_file(file_name, "rb") as aedt_fh:
-                raw_lines = aedt_fh.read().splitlines()
-                for line in raw_lines:
-                    try:
-                        ascii_line = line.decode("utf-8")
-                    except UnicodeDecodeError:
-                        continue
-                    b = _begin_search.search(ascii_line)
-                    if b:  # walk down a level
-                        mats.append(b.group(1))
-            return mats
+    def _get_aedt_material_names_lower_index(self):
+        if len(self._mats_lower) < len(self._mat_names_aedt):
+            self._mats_lower = [i.casefold() for i in self._mat_names_aedt]
+            self._mats_lower_index = {}
+            for idx, name in enumerate(self._mats_lower):
+                self._mats_lower_index.setdefault(name, idx)
+        return self._mats_lower_index
 
-        amat_sys = [
-            os.path.join(dirpath, filename)
-            for dirpath, _, filenames in os.walk(self._app.syslib)
-            for filename in filenames
-            if fnmatch.fnmatch(filename, "*.amat")
-        ]
-        amat_personal = [
-            os.path.join(dirpath, filename)
-            for dirpath, _, filenames in os.walk(self._app.personallib)
-            for filename in filenames
-            if fnmatch.fnmatch(filename, "*.amat")
-        ]
-        amat_user = [
-            os.path.join(dirpath, filename)
-            for dirpath, _, filenames in os.walk(self._app.userlib)
-            for filename in filenames
-            if fnmatch.fnmatch(filename, "*.amat")
-        ]
+    @pyaedt_function_handler()
+    def _read_materials(self):
+        def get_mat_list(file_name: str | Path):
+            return list(_read_amat_material_names(file_name))
+
+        amat_sys = list(Path(self._app.syslib).rglob("*.amat"))
+        amat_personal = list(Path(self._app.personallib).rglob("*.amat"))
+        amat_user = list(Path(self._app.userlib).rglob("*.amat"))
         amat_libs = amat_sys + amat_personal + amat_user
         mats = []
         for amat in amat_libs:
@@ -281,11 +300,16 @@ class Materials(PyAedtBase):
         return mats
 
     @pyaedt_function_handler()
+    def _is_aedt_material_name(self, material_casefold: str) -> bool:
+        """Check whether a casefolded name is in the AEDT material names using a hash lookup."""
+        return material_casefold in self._get_aedt_material_names_lower_index()
+
+    @pyaedt_function_handler()
     def _get_aedt_case_name(self, material_name):
         if material_name.casefold() in self.material_keys:
             return self.material_keys[material_name.casefold()].name
-        if material_name.casefold() in self.mat_names_aedt_lower:
-            return self._mat_names_aedt[self.mat_names_aedt_lower.index(material_name.casefold())]
+        if self._is_aedt_material_name(material_name.casefold()):
+            return self._mat_names_aedt[self._mats_lower_index[material_name.casefold()]]
         return False
 
     @pyaedt_function_handler()
@@ -335,13 +359,14 @@ class Materials(PyAedtBase):
                 return material
             else:
                 return False
-        if material.casefold() in self.material_keys:
-            if material.casefold() in self.mat_names_aedt_lower:
-                return self.material_keys[material.casefold()]
-            if material.casefold() not in list(self.odefinition_manager.GetProjectMaterialNames()):
-                self.material_keys[material.casefold()].update()
-            return self.material_keys[material.casefold()]
-        elif material.casefold() in self.mat_names_aedt_lower:
+        material_casefold = material.casefold()
+        if material_casefold in self.material_keys:
+            if self._is_aedt_material_name(material_casefold):
+                return self.material_keys[material_casefold]
+            if material_casefold not in list(self.odefinition_manager.GetProjectMaterialNames()):
+                self.material_keys[material_casefold].update()
+            return self.material_keys[material_casefold]
+        elif self._is_aedt_material_name(material_casefold):
             return self._aedmattolibrary(material)
         elif settings.remote_api or settings.remote_rpc_session:
             return self._aedmattolibrary(material)
@@ -876,11 +901,11 @@ class Materials(PyAedtBase):
         >>> obj.import_materials_from_file(input_file="example.txt")
 
         """
-        if input_file is None or not os.path.exists(input_file):
+        if input_file is None or not Path(input_file).exists():
             self.logger.error("Incorrect path provided.")
             return False
 
-        _, file_extension = os.path.splitext(input_file)
+        file_extension = Path(input_file).suffix
         json_flag = True
         datasets = {}
         if file_extension.casefold() == ".json":
@@ -990,9 +1015,9 @@ class Materials(PyAedtBase):
             return False
         materials_added = []
         props = {}
-        if os.path.splitext(input_file)[1] == ".csv":
+        if Path(input_file).suffix == ".csv":
             df = pd.read_csv(input_file, index_col=0)
-        elif os.path.splitext(input_file)[1] == ".xlsx":
+        elif Path(input_file).suffix == ".xlsx":
             df = pd.read_excel(input_file, index_col=0)
         else:
             self.logger.error("Only csv and xlsx are supported.")
@@ -1074,7 +1099,7 @@ class Materials(PyAedtBase):
         if name_suffix:
             mat_wb.mat_name_suffix = name_suffix
         # check if the xml file exists
-        if not os.path.isfile(input_file):
+        if not Path(input_file).is_file():
             self.logger.error(f"The file specified does not exist: {input_file}")
             return False
         # import the materials in the xml

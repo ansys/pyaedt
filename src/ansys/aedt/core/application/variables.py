@@ -971,8 +971,19 @@ class VariableManager(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def _cleanup_variables(self) -> None:
-        variables = self._get_var_list_from_aedt(self._app.odesign) + self._get_var_list_from_aedt(self._app.oproject)
+    def _cleanup_variables(self, variables: list[str] | None = None) -> None:
+        """Remove cached variables that no longer exist in AEDT.
+
+        Parameters
+        ----------
+        variables : list[str], optional
+            Design and project variable names already retrieved from AEDT. If ``None``, they are retrieved.
+        """
+        if variables is None:
+            variables = self._get_var_list_from_aedt(self._app.odesign) + self._get_var_list_from_aedt(
+                self._app.oproject
+            )
+        variables = set(variables)
         all_dicts = [
             self.__independent_project_variables,
             self.__independent_design_variables,
@@ -985,18 +996,22 @@ class VariableManager(PyAedtBase):
                     del dict_var[var_name]
 
     @pyaedt_function_handler()
-    def _update_variable_dict(self, object_list):
+    def _update_variable_dict(self, object_list, var_lists: list[list[str]] | None = None):
         """Update variable dictionary.
 
         Parameters
         ----------
         object_list : list
             List of objects.
+        var_lists : list[list[str]], optional
+            Variable names already retrieved for each object in ``object_list``.
 
         """
         all_names = {}
-        for obj in object_list:
-            variables = [i for i in self._get_var_list_from_aedt(obj) if i not in list(self._all_variables.keys())]
+        known_variables = set(self._all_variables.keys())
+        for idx, obj in enumerate(object_list):
+            obj_vars = var_lists[idx] if var_lists is not None else self._get_var_list_from_aedt(obj)
+            variables = [i for i in obj_vars if i not in known_variables]
             for variable_name in variables:
                 variable_expression = self.get_expression(variable_name)
                 if variable_expression:
@@ -1032,19 +1047,32 @@ class VariableManager(PyAedtBase):
             Dictionary of the specified variables.
 
         """
-        self._update_variable_dict(object_list)
-        self._cleanup_variables()
+        odesign = self._app.odesign
+        oproject = self._app.oproject
+        design_vars = self._get_var_list_from_aedt(odesign)
+        project_vars = self._get_var_list_from_aedt(oproject)
+        var_lists = []
+        for obj in object_list:
+            if obj is odesign:
+                var_lists.append(design_vars)
+            elif obj is oproject:
+                var_lists.append(project_vars)
+            else:
+                var_lists.append(self._get_var_list_from_aedt(obj))
+        self._update_variable_dict(object_list, var_lists)
+        self._cleanup_variables(design_vars + project_vars)
+
         vars_to_output = {}
         dicts_to_add = []
         if independent:
-            if self._app.odesign in object_list:
+            if odesign in object_list:
                 dicts_to_add.append(self.__independent_design_variables)
-            if self._app.oproject in object_list:
+            if oproject in object_list:
                 dicts_to_add.append(self.__independent_project_variables)
         if dependent:
-            if self._app.odesign in object_list:
+            if odesign in object_list:
                 dicts_to_add.append(self.__dependent_design_variables)
-            if self._app.oproject in object_list:
+            if oproject in object_list:
                 dicts_to_add.append(self.__dependent_project_variables)
         for dict_var in dicts_to_add:
             for k, v in dict_var.items():
@@ -1236,15 +1264,32 @@ class VariableManager(PyAedtBase):
         design_indices: list[int] = []
         design_circuit_indices: list[int] = []
         design_local_indices: list[int] = []
+        existing_variables = None
+        # ``is_circuit_parameter`` can only be True for these design types, so the
+        # variable refresh below is skipped for the rest.
+        circuit_design = self._app.design_type in [
+            "HFSS 3D Layout Design",
+            "Circuit Design",
+            "Maxwell Circuit",
+            "Twin Builder",
+        ]
+
         for i, (nm, is_circuit) in enumerate(zip(names, circuit_parameter)):
             if nm.startswith("$"):
                 project_indices.append(i)
                 continue
 
             design_indices.append(i)
-            if nm in self.variables:
-                # Update circuit_parameter based on existing variables
-                is_circuit = self.variables[nm].is_circuit_parameter
+            if not circuit_design:
+                # The circuit parameter flag only affects circuit-like designs (tab and prop server selection),
+                # so all design variables are processed together without refreshing the variable cache.
+                is_circuit = False
+            else:
+                if existing_variables is None:
+                    existing_variables = self.variables
+                if nm in existing_variables:
+                    # Update circuit_parameter based on existing variables
+                    is_circuit = existing_variables[nm].is_circuit_parameter
 
             if is_circuit:
                 design_circuit_indices.append(i)
@@ -1347,7 +1392,7 @@ class VariableManager(PyAedtBase):
             self._clear_variable_from_cache(nm)
 
         var_list = self._get_var_list_from_aedt(desktop_object)
-        lower_case_vars = [v.lower() for v in var_list]
+        lower_case_vars = {v.lower() for v in var_list}
 
         # Separate new and existing variables
         new_indices = [i for i, nm in enumerate(names) if nm.lower() not in lower_case_vars]
@@ -1401,11 +1446,13 @@ class VariableManager(PyAedtBase):
                 self._logger.debug("Failed to update variables in batch.")
                 return False
 
-            self._cleanup_variables()
-
         # Verify all variables were created (skip separators, they don't appear in var_list)
         var_list = self._get_var_list_from_aedt(desktop_object)
-        lower_case_vars = [v.lower() for v in var_list]
+        if existing_indices:
+            other_object = self._odesign if is_project else self._oproject
+            self._cleanup_variables(var_list + self._get_var_list_from_aedt(other_object))
+        lower_case_vars = {v.lower() for v in var_list}
+
         for i, nm in enumerate(names):
             if expressions[i] and nm.lower() not in lower_case_vars:
                 return False
@@ -1929,10 +1976,9 @@ class Variable(PyAedtBase):
         prop = prop or self.name
         app = self._aedt_obj
 
-        app_type = app.GetObjType()
-
-        # DefinitionParameters only available in circuit and HFSS 3D Layout design type
-        if app_type.lower() == "design" and self.has_definition_parameters:
+        # DefinitionParameters only available in circuit and HFSS 3D Layout design type.
+        # Check the design type first to avoid a GetObjType call for the other design types.
+        if self.has_definition_parameters and app.GetObjType().lower() == "design":
             inst_name = f"Instance:{app.GetName()}"
 
             if self.is_circuit_parameter:
