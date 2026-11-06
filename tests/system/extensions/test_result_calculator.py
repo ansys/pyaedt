@@ -232,3 +232,57 @@ def test_import_existing_report_trace(rc_extension_get_results, sync_run_async):
         assert entry["metadata"]["trace"] == trace_name
         assert len(entry["x"]) > 0
         assert len(entry["y"]) > 0
+
+
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
+def test_existing_report_plot_selection(rc_extension_get_results, sync_run_async):
+    """The Plot dropdown is enabled with an 'All' entry only when the trace has multiple plots."""
+    extension, results_app, project = rc_extension_get_results
+
+    design_with_results = "with_results"
+    report_name, trace_name = "S11", "dB(S(1,1))"
+
+    service = extension.service
+    service.load_designs(project)
+    service.load_reports_for_design(project, design_with_results)
+    service.load_traces_for_report(project, design_with_results, report_name)
+
+    extension._ex_cascade.project_var.set(project)
+    extension._ex_cascade.design_var.set(design_with_results)
+    extension.ex_report.set(report_name)
+    extension.ex_trace.set(trace_name)
+
+    with (
+        patch("ansys.aedt.core.extensions.common.result_calculator.messagebox.showerror"),
+        patch.object(extension, "_run_async", side_effect=sync_run_async),
+    ):
+        extension._ex_trace_changed()
+
+    all_data = service.get_trace_data(project, design_with_results, report_name, trace_name, plot_index=None)
+    n_plots = len(all_data["plot_names"])
+    values = list(extension.ex_plot_cb["values"])
+
+    if n_plots > 1:
+        assert values == [extension._ALL_PLOTS, *all_data["plot_names"]]
+        assert extension.ex_plot.get() == extension._ALL_PLOTS
+        assert str(extension.ex_plot_cb.cget("state")) == "readonly"
+        assert str(extension.btn_import_existing.cget("state")) == "disabled"
+        assert len(extension._ex_preview_curves) == n_plots
+
+        # Selecting a single plot shows only that plot and enables the import.
+        extension.ex_plot.set(all_data["plot_names"][0])
+        with (
+            patch("ansys.aedt.core.extensions.common.result_calculator.messagebox.showerror"),
+            patch.object(extension, "_run_async", side_effect=sync_run_async),
+        ):
+            extension._ex_plot_changed()
+            assert len(extension._ex_preview_curves) == 1
+            assert str(extension.btn_import_existing.cget("state")) == "normal"
+            extension._import_existing_trace()
+        entry = list(extension.store.data.values())[-1]
+        assert entry["metadata"]["plot"] == all_data["plot_names"][0]
+    else:
+        assert values == [extension._SINGLE_PLOT_MSG]
+        assert str(extension.ex_plot_cb.cget("state")) == "disabled"
+        assert str(extension.btn_import_existing.cget("state")) == "normal"
+        assert len(extension._ex_preview_curves) == 1
