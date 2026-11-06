@@ -111,6 +111,14 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
     def __str__(self) -> str:
         return self.name
 
+    def __getitem__(self, key: str) -> Any:
+        """Return a setup property by key."""
+        return self.props[key]
+
+    def __setitem__(self, key: str, value: Any) -> None:
+        """Set a setup property by key."""
+        self.props[key] = value
+
     def __init__(self, mesh: Mesh | IcepakMesh, name: str, props: dict) -> None:
         self._mesh: Mesh | IcepakMesh = mesh
         self._app: Any = self._mesh._app
