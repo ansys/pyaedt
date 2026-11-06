@@ -6933,6 +6933,53 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             )
 
     @pyaedt_function_handler()
+    def assign_terminal(
+        self,
+        assignment: int | list,
+        port: str,
+        impedance: float = 50,
+        name: str | None = None,
+    ) -> BoundaryObject:
+        """Assign faces as the signal terminal of an existing port.
+
+        Use this when the signal and the reference conductor belong to the same
+        (united) object, so auto-identify cannot create the terminal.
+
+        Parameters
+        ----------
+        assignment : int or list
+            Face ID or face IDs that form the signal terminal.
+        port : str
+            Name of the parent port, created with :meth:`wave_port` or :meth:`lumped_port`.
+        impedance : float, optional
+            Terminal resistance in ohms. The default is ``50``.
+        name : str, optional
+            Terminal name. The default is ``"<port>_T1"``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
+            Terminal boundary object.
+
+        References
+        ----------
+        >>> oModule.AssignTerminal
+
+        Examples
+        --------
+        >>> port = hfss.wave_port(port_face.id, reference="Conductor", name="PORT_1")
+        >>> terminal = hfss.assign_terminal(signal_face.id, port="PORT_1", impedance=50)
+        """
+        faces = [assignment] if isinstance(assignment, (int, str)) else list(assignment)
+        props = {
+            "Faces": faces,
+            "ParentBndID": port,
+            "ImpedanceType": "Impedance",
+            "TerminalResistance": f"{impedance}ohm",
+        }
+        return self._create_boundary(name or f"{port}_T1", props, "Terminal")
+
+    @pyaedt_function_handler()
     def wave_port(
         self,
         assignment: int | Object3d | FacePrimitive,

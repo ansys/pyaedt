@@ -245,6 +245,26 @@ def test_create_wave_port_from_sheets_modal(aedt_app):
     assert port3.name in [i.name for i in aedt_app.boundaries]
 
 
+def test_assign_terminal(aedt_app) -> None:
+    aedt_app.solution_type = "Terminal"
+    # Signal and reference conductor are the same object, so auto-identify cannot create the terminal.
+    conductor = aedt_app.modeler.create_box([0, 0, 0], [10, 10, 2], name="cond", material="copper")
+    air = aedt_app.modeler.create_box([-5, -5, 0], [20, 20, 10], name="air", material="vacuum")
+    signal_face = conductor.bottom_face_z
+
+    port = aedt_app.wave_port(air.bottom_face_z, reference="cond", name="PORT_1")
+    assert port.name == "PORT_1"
+
+    terminal = aedt_app.assign_terminal(signal_face.id, port="PORT_1", impedance=75)
+    assert terminal
+    assert terminal.name == "PORT_1_T1"
+    assert terminal.props["ParentBndID"] == "PORT_1"
+    assert terminal.props["TerminalResistance"] == "75ohm"
+
+    custom = aedt_app.assign_terminal([signal_face.id], port="PORT_1", name="custom_terminal")
+    assert custom.name == "custom_terminal"
+
+
 def test_create_linear_count_sweep(aedt_app) -> None:
     # Newer, simplified notation to pass native API keywords
     setup = aedt_app.create_setup("MySetup", Frequency="1GHz", BasisOrder=2)
