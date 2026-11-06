@@ -26,7 +26,6 @@ import pytest
 
 from ansys.aedt.core.icepak import Icepak
 from ansys.aedt.core.modules.mesh_icepak import GlobalMeshRegion
-from ansys.aedt.core.modules.mesh_icepak import MeshRegion
 from tests.conftest import SYSTEM_GENERAL_TEST_PREFIX
 
 MESH_PROJECT = "mesh_operations"
@@ -69,36 +68,33 @@ def aedt_app(add_app):
 
 
 def test_global_mesh_icepak(aedt_app) -> None:
+    # Project must be saved because the global properties are obtained from the AEDT file
+    aedt_app.save_project()
+
     assert isinstance(aedt_app.mesh.global_region, GlobalMeshRegion)
     assert "Global" in aedt_app.mesh.region_names
     global_mesh_region = aedt_app.mesh.get_mesh_region("Global")
     assert isinstance(global_mesh_region, GlobalMeshRegion)
     assert isinstance(aedt_app.mesh.regions[0], GlobalMeshRegion)
 
+    assert global_mesh_region.name == "Global"
+    assert global_mesh_region.assignment == "Region"
+    assert global_mesh_region.props
 
-def test_mesh_priority(board_ipk_app) -> None:
-    b = board_ipk_app.modeler.create_box([0, 0, 0], [20, 50, 80])
-    board = board_ipk_app.create_ipk_3dcomponent_pcb(
-        "Board",
-        LINK_DATA,
-        SOLUTION_FREQ,
-        RESOLUTION,
-        extent_type="Polygon",
-        custom_x_RESOLUTION=400,
-        custom_y_RESOLUTION=500,
-    )
-    fan = board_ipk_app.create_fan(name="TestFan", is_2d=True)
-    rect = board_ipk_app.modeler.create_rectangle(0, [0, 0, 0], [1, 2], name="TestRectangle")
-    assert board_ipk_app.mesh.assign_priorities([[fan.name, board.name], [b.name, rect.name]])
+    global_mesh_region.manual_settings = True
+    assert global_mesh_region.props["UserSpecifiedSettings"]
+    assert "MaxElementSizeX" in global_mesh_region.props
+
+    global_mesh_region.manual_settings = False
+    assert not global_mesh_region.props["UserSpecifiedSettings"]
+    assert "MinGapX" in global_mesh_region.props
 
 
 def test_assign_pcb_region(ipk_app) -> None:
-    ipk_app.globalMeshSettings(2)
+    _ = ipk_app.modeler.create_box([0, 0, 0], [50, 50, 2])
 
-    ipk_app.modeler.create_box([0, 0, 0], [50, 50, 2], "PCB")
-
-    pcb_mesh_region = MeshRegion(ipk_app, "PCB")
-    pcb_mesh_region.name = "PCB_Region"
+    # pcb_mesh_region = MeshRegion(ipk_app, box.name)
+    # pcb_mesh_region.name = "PCB_Region"
 
     # if settings.aedt_version > "2023.2":
     #     assert [str(i) for i in pcb_mesh_region.assignment.padding_values] == ["0"] * 6
@@ -140,6 +136,22 @@ def test_assign_pcb_region(ipk_app) -> None:
     #     assert pcb_mesh_region.update()
     # assert ipk_app.mesh.meshregions_dict
     # assert pcb_mesh_region.delete()
+
+
+def test_mesh_priority(board_ipk_app) -> None:
+    b = board_ipk_app.modeler.create_box([0, 0, 0], [20, 50, 80])
+    board = board_ipk_app.create_ipk_3dcomponent_pcb(
+        "Board",
+        LINK_DATA,
+        SOLUTION_FREQ,
+        RESOLUTION,
+        extent_type="Polygon",
+        custom_x_RESOLUTION=400,
+        custom_y_RESOLUTION=500,
+    )
+    fan = board_ipk_app.create_fan(name="TestFan", is_2d=True)
+    rect = board_ipk_app.modeler.create_rectangle(0, [0, 0, 0], [1, 2], name="TestRectangle")
+    assert board_ipk_app.mesh.assign_priorities([[fan.name, board.name], [b.name, rect.name]])
 
 
 def test_mesh_level(usb_ipk_app) -> None:

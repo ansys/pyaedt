@@ -861,6 +861,64 @@ class IcepakMesh(PyAedtBase):
         return self._app.modeler.get_bounding_dimension()
 
     @pyaedt_function_handler()
+    def assign_mesh_region(
+        self, assignment: list = None, level: int = 5, name: str = None, **kwargs
+    ) -> MeshRegion | bool:
+        """Assign a predefined surface mesh level to an object.
+
+        Parameters
+        ----------
+        assignment : list, optional
+            List of objects to apply the mesh region to. The default
+            is ``None``, in which case all objects are selected.
+        level : int, optional
+            Level of the surface mesh. Options are ``1`` through ``5``. The default
+            is ``5``.
+        name : str, optional
+            Name of the mesh region. The default is ``"MeshRegion1"``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.mesh_icepak.IcepakMesh.MeshRegion`
+
+        References
+        ----------
+        >>> oModule.AssignMeshRegion
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import IcepakMesh
+        >>> obj = IcepakMesh()
+        >>> obj.assign_mesh_region(assignment="Box1", name="MyObject")
+
+        """
+        if not name:
+            name = generate_unique_name("MeshRegion")
+        elif name in self.region_names:
+            name = generate_unique_name(name)
+
+        if assignment is None:
+            assignment = [i for i in self._modeler.object_names]
+
+        meshregion = MeshRegion(self._app, assignment, name)
+        meshregion.manual_settings = False
+        meshregion.settings["MeshRegionResolution"] = level
+        all_objs = [i for i in self._modeler.object_names]
+        created = bool(meshregion)
+        if created:
+            if settings.aedt_version < "2024.1":
+                objectlist2 = self._modeler.object_names
+                added_obj = [i for i in objectlist2 if i not in all_objs]
+                if not added_obj:
+                    added_obj = [i for i in objectlist2 if i not in all_objs or i in assignment]
+                meshregion.Objects = added_obj
+                meshregion.SubModels = None
+            meshregion.update()
+            return meshregion
+        else:
+            return False
+
+    @pyaedt_function_handler()
     def assign_mesh_level(self, mesh_order: dict, name: str = None) -> list[MeshOperation] | bool:
         """Assign a mesh level to objects.
 
@@ -1036,60 +1094,6 @@ class IcepakMesh(PyAedtBase):
         _dict2arg(props, args)
         self._modeler.oeditor.UpdatePriorityList(args[0])
         return True
-
-    @pyaedt_function_handler()
-    def assign_mesh_region(
-        self, assignment: list = None, level: int = 5, name: str = None, **kwargs
-    ) -> MeshRegion | bool:
-        """Assign a predefined surface mesh level to an object.
-
-        Parameters
-        ----------
-        assignment : list, optional
-            List of objects to apply the mesh region to. The default
-            is ``None``, in which case all objects are selected.
-        level : int, optional
-            Level of the surface mesh. Options are ``1`` through ``5``. The default
-            is ``5``.
-        name : str, optional
-            Name of the mesh region. The default is ``"MeshRegion1"``.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.mesh_icepak.IcepakMesh.MeshRegion`
-
-        References
-        ----------
-        >>> oModule.AssignMeshRegion
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.mesh_icepak import IcepakMesh
-        >>> obj = IcepakMesh()
-        >>> obj.assign_mesh_region(assignment="Box1", name="MyObject")
-
-        """
-        if not name:
-            name = generate_unique_name("MeshRegion")
-        if assignment is None:
-            assignment = [i for i in self._modeler.object_names]
-        meshregion = MeshRegion(self._app, assignment, name)
-        meshregion.manual_settings = False
-        meshregion.settings["MeshRegionResolution"] = level
-        all_objs = [i for i in self._modeler.object_names]
-        created = bool(meshregion)
-        if created:
-            if settings.aedt_version < "2024.1":
-                objectlist2 = self._modeler.object_names
-                added_obj = [i for i in objectlist2 if i not in all_objs]
-                if not added_obj:
-                    added_obj = [i for i in objectlist2 if i not in all_objs or i in assignment]
-                meshregion.Objects = added_obj
-                meshregion.SubModels = None
-            meshregion.update()
-            return meshregion
-        else:
-            return False
 
     @pyaedt_function_handler()
     def generate_mesh(self, name: str = None) -> bool:
