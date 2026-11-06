@@ -757,8 +757,8 @@ class SolutionData(PyAedtBase):
             sol = 10 * np.log10(sol)
         elif formula.lower() == "db20":
             sol = 20 * np.log10(sol)
-        elif formula.lower() == "phaserad":
-            sol = sol * np.pi / 180
+        elif formula.lower() == "phasedeg":
+            sol = np.degrees(sol)
         return x_axis, sol
 
     @pyaedt_function_handler()

@@ -377,50 +377,78 @@ class ResultDataService:
             return [], "No traces in this report"
         return sorted(report_entry.keys()), None
 
-    def get_trace_data(self, project_name: str, design_name: str, report_name: str, trace_name: str) -> dict[str, Any]:
-        """Fetch (and cache) x/y data for a single trace of an existing report."""
+    def get_trace_data(
+        self, project_name: str, design_name: str, report_name: str, trace_name: str, plot_index: int | None = 0
+    ) -> dict[str, Any]:
+        """Fetch (and cache) the data of a trace of an existing report.
+
+        A trace can contain multiple plots (curves), one for each combination of the
+        non-primary sweeps. The returned dictionary contains in ``curves`` the plot selected
+        by ``plot_index`` or all the plots if ``plot_index`` is ``None``, and the names of
+        all the plots in ``plot_names``.
+        """
         report_entry = self.existing_reports[project_name][design_name][report_name]
         cached = report_entry.get(trace_name)
-        if cached is not None:
-            return cached
+        if cached is None:
+            cached = self._fetch_trace_curves(project_name, design_name, report_name, trace_name)
+            report_entry[trace_name] = cached
 
+        all_curves = cached["curves"]
+        if plot_index is None:
+            curves = all_curves
+        else:
+            curves = [all_curves[plot_index if 0 <= plot_index < len(all_curves) else 0]]
+        return {
+            "curves": curves,
+            "is_complex": cached["is_complex"],
+            "x_label": cached["x_label"],
+            "y_label": cached["y_label"],
+            "plot_names": [c["name"] for c in all_curves],
+        }
+
+    def _fetch_trace_curves(
+        self, project_name: str, design_name: str, report_name: str, trace_name: str
+    ) -> dict[str, Any]:
         aedtapp = self._get_aedtapp(project_name, design_name)
         report = next((r for r in aedtapp.post.plots if r.plot_name == report_name), None)
         if report is None:
             raise AEDTRuntimeError(f"Report '{report_name}' not found in design '{design_name}'.")
 
+        curves_real = report.get_expression_data_all_curves(expression=trace_name, formula="real")
+        # Imaginary part is fetched to detect whether the trace is complex
+        curves_imag = report.get_expression_data_all_curves(expression=trace_name, formula="imag")
+        if not curves_real or not curves_imag:
+            raise AEDTRuntimeError(f"No data available for trace '{trace_name}'.")
+
+        # All the plots of a trace are either real or complex, so the first one decides.
+        is_complex = not np.all(np.asarray(curves_imag[0]["y"], dtype=float) == 0.0)
+
+        curves = []
+        for idx, (c_real, c_imag) in enumerate(zip(curves_real, curves_imag)):
+            y = np.asarray(c_real["y"], dtype=float)
+            if is_complex:
+                y = y + 1j * np.asarray(c_imag["y"], dtype=float)
+            variation = c_real.get("variation") or {}
+            name = ", ".join(f"{k}={v}" for k, v in variation.items()) or f"Plot {idx + 1}"
+            curves.append({"name": name, "x": np.asarray(c_real["x"], dtype=float), "y": y})
+
+        # Make plot names unique so they can be used as dropdown values.
+        seen: dict[str, int] = {}
+        for curve in curves:
+            count = seen.get(curve["name"], 0)
+            seen[curve["name"]] = count + 1
+            if count:
+                curve["name"] = f"{curve['name']} ({count + 1})"
+
         sol = report.get_solution_data()
-
-        # Fetch real part (default behaviour, formula='real')
-        expr_data_real = sol.get_expression_data(expression=trace_name, formula="real")
-        # Fetch imaginary part to detect whether the trace is complex
-        expr_data_imag = sol.get_expression_data(expression=trace_name, formula="imag")
-
-        y_real = np.asarray(expr_data_real[1], dtype=float)
-        y_imag = np.asarray(expr_data_imag[1], dtype=float)
-
-        is_complex = not np.all(y_imag == 0.0)
-
-        if is_complex:
-            y = y_real + 1j * y_imag
-        else:
-            y = y_real
-
-        # Build axis labels
-        y_label = sol.active_expression
         primary_sweep = sol.primary_sweep
         sweep_unit = sol.units_sweeps.get(primary_sweep, "")
-        x_label = f"{primary_sweep} [{sweep_unit}]" if sweep_unit else primary_sweep
-
-        data = {
-            "x": np.asarray(expr_data_real[0], dtype=float),
-            "y": y,
+        return {
+            "curves": curves,
             "is_complex": is_complex,
-            "x_label": x_label,
-            "y_label": y_label,
+            "x_label": f"{primary_sweep} [{sweep_unit}]" if sweep_unit else primary_sweep,
+            "y_label": sol.active_expression,
         }
-        report_entry[trace_name] = data
-        return data
 
     ############### DATASET MANAGEMENT METHODS (Tab 4)
 
@@ -1245,8 +1273,8 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
         self._ds_manual_xy: tuple[np.ndarray, np.ndarray] | None = None
         self._ds_aedt_xy: tuple[np.ndarray, np.ndarray, str] | None = None  # x, y, label
         # Tab 2 - existing report trace preview.
-        self._ex_preview_xy: tuple[np.ndarray, np.ndarray] | None = None
-        self._ex_preview_key: tuple[str, str, str, str] | None = None
+        self._ex_preview_curves: list[tuple[str, np.ndarray, np.ndarray]] | None = None
+        self._ex_preview_key: tuple[str, str, str, str, str] | None = None
         # Tab 5 - file import
         self._fi_preview_xy: tuple[np.ndarray, np.ndarray] | None = None
         # Vertical padding (px) between the action buttons and the preview plot in Tab 2.
@@ -1274,7 +1302,7 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
 
         self.ex_report = tkinter.StringVar()
         self.ex_trace = tkinter.StringVar()
-
+        self.ex_plot = tkinter.StringVar()
         # Tab 1 - math formula over stored traces.
         self.formula = tkinter.StringVar(value="")
         # Cached last successful (x, y) computed from the formula, used by
@@ -1880,7 +1908,7 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
     # ----------------------------- Tab 2 ------------------------------------
     def _build_tab_existing(self) -> None:
         self.tab_existing.columnconfigure(1, weight=1)
-        self.tab_existing.rowconfigure(6, weight=1)
+        self.tab_existing.rowconfigure(7, weight=1)
 
         # Use narrower comboboxes (width=30 instead of default 52)
         def narrow_row_cb(parent, row, label, var, cb, disabled=False):
@@ -1889,6 +1917,8 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
         self._ex_cascade.build(self.tab_existing, start_row=0, row_cb_fn=narrow_row_cb)
         self.ex_report_cb = narrow_row_cb(self.tab_existing, 3, "Report", self.ex_report, self._ex_report_changed, True)
         self.ex_trace_cb = narrow_row_cb(self.tab_existing, 4, "Trace", self.ex_trace, self._ex_trace_changed, True)
+        # The Plot row is always visible; it is enabled only when the trace has multiple plots.
+        self.ex_plot_cb = narrow_row_cb(self.tab_existing, 5, "Plot", self.ex_plot, self._ex_plot_changed, True)
 
         # "Refresh AEDT sessions" placed inline at row 0 (same height as AEDT Session dropdown), column 2
         ttk.Button(
@@ -1899,7 +1929,7 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
         ).grid(row=0, column=2, padx=(0, 10), pady=5, sticky="e")
 
         ex_buttons = ttk.Frame(self.tab_existing, style="PyAEDT.TFrame")
-        ex_buttons.grid(row=5, column=0, columnspan=3, padx=10, pady=10, sticky="w")
+        ex_buttons.grid(row=6, column=0, columnspan=3, padx=10, pady=10, sticky="w")
 
         self.btn_import_existing = ttk.Button(
             ex_buttons,
@@ -1913,7 +1943,7 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
         # Bottom preview of the selected trace (points connected by a line).
         # The top padding is controlled by self._ex_plot_top_pad (set in __init__).
         self._ex_plot = MatplotlibPlotWidget(self.tab_existing)
-        self._ex_plot.grid(row=6, column=0, columnspan=3, sticky="nsew", padx=10, pady=(self._ex_plot_top_pad, 10))
+        self._ex_plot.grid(row=7, column=0, columnspan=3, sticky="nsew", padx=10, pady=(self._ex_plot_top_pad, 10))
 
     def _on_tab_changed(self, _event=None) -> None:
         selected = self.tabs.select()
@@ -1951,6 +1981,7 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
         """Reset the Tab 2 fields below the Design level."""
         self._reset_cb(self.ex_report_cb, self.ex_report)
         self._reset_cb(self.ex_trace_cb, self.ex_trace)
+        self._reset_ex_plot()
         self.btn_import_existing.configure(state="disabled")
         self._clear_ex_preview()
 
@@ -1971,6 +2002,7 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
 
     def _ex_report_changed(self, _event=None) -> None:
         self._reset_cb(self.ex_trace_cb, self.ex_trace)
+        self._reset_ex_plot()
         self.btn_import_existing.configure(state="disabled")
         self._clear_ex_preview()
 
@@ -1991,7 +2023,34 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
 
         self._run_async(_task, _on_done)
 
+    _SINGLE_PLOT_MSG = "- the trace contains a single plot -"
+    _ALL_PLOTS = "All"
+
+    def _reset_ex_plot(self) -> None:
+        self._reset_cb(self.ex_plot_cb, self.ex_plot)
+
+    def _selected_ex_plot(self) -> tuple[str, int | None]:
+        """Return the selected plot name and index.
+
+        The name is empty for a single-plot trace; for ``All`` the index is ``None``.
+        """
+        plot_name = self.ex_plot.get()
+        values = list(self.ex_plot_cb["values"])
+        if len(values) <= 1 or plot_name not in values:
+            return "", 0
+        if plot_name == self._ALL_PLOTS:
+            return plot_name, None
+        return plot_name, values.index(plot_name) - 1
+
     def _ex_trace_changed(self, _event=None) -> None:
+        self._reset_ex_plot()
+        self._load_ex_preview(plot_index=None, populate_plots=True)
+
+    def _ex_plot_changed(self, _event=None) -> None:
+        _, index = self._selected_ex_plot()
+        self._load_ex_preview(plot_index=index, populate_plots=False)
+
+    def _load_ex_preview(self, plot_index: int | None, populate_plots: bool) -> None:
         trace_name = self.ex_trace.get()
         # Keep the Import button disabled until the preview fetch completes
         # successfully.  Enabling it immediately (before data is ready) would
@@ -2006,11 +2065,15 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
             self._clear_ex_preview()
             return
 
-        preview_key = (p, d, r, trace_name)
+        # Clear the old preview immediately, while the new one is loading.
+        self._clear_ex_preview()
+        # The plot name is unknown until the first fetch of a trace completes.
+        plot_name = self._selected_ex_plot()[0] if not populate_plots else ""
+        preview_key = (p, d, r, trace_name, plot_name)
         self._ex_preview_key = preview_key
 
         def _task():
-            return self.service.get_trace_data(p, d, r, trace_name)
+            return self.service.get_trace_data(p, d, r, trace_name, plot_index)
 
         def _on_done(result):
             if self._ex_preview_key != preview_key:
@@ -2019,38 +2082,53 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
                 self._clear_ex_preview()
                 messagebox.showerror("Preview error", f"Failed to load trace preview:\n{result}")
                 return
-            self._ex_preview_xy = (result["x"], result["y"])
+            if populate_plots:
+                names = result["plot_names"]
+                if len(names) > 1:
+                    self.ex_plot_cb["values"] = [self._ALL_PLOTS, *names]
+                    self.ex_plot_cb.configure(state="readonly")
+                    self.ex_plot.set(self._ALL_PLOTS)
+                    self._ex_preview_key = (p, d, r, trace_name, self._ALL_PLOTS)
+                else:
+                    self.ex_plot_cb["values"] = [self._SINGLE_PLOT_MSG]
+                    self.ex_plot.set(self._SINGLE_PLOT_MSG)
+                    self.ex_plot_cb.configure(state="disabled")
+            self._ex_preview_curves = [(c["name"], c["x"], c["y"]) for c in result["curves"]]
             self._redraw_ex_preview()
-            # Enable Import only after data has been fetched successfully.
-            self.btn_import_existing.configure(state="normal")
+            # Enable Import only after data has been fetched successfully and a single plot is shown.
+            if self._ex_preview_key[4] != self._ALL_PLOTS:
+                self.btn_import_existing.configure(state="normal")
 
         self._run_async(_task, _on_done)
 
     def _clear_ex_preview(self) -> None:
         """Clear the Existing Reports preview plot and reset the current cache."""
-        self._ex_preview_xy = None
+        self._ex_preview_curves = None
         self._ex_preview_key = None
         self._redraw_ex_preview()
+        # Repaint right away, so the old preview is not visible while the new one is loading.
+        self.tab_existing.update_idletasks()
 
     def _redraw_ex_preview(self) -> None:
         """Redraw the Existing Reports preview (no interpolation)."""
         self._ex_plot.clear()
-        if self._ex_preview_xy is not None and self._ex_preview_key is not None:
-            x, y = self._ex_preview_xy
-            self._plot_y(
-                self._ex_plot.ax,
-                x,
-                y,
-                label=self._ex_preview_key[3],
-                linestyle="-",
-                marker="o",
-                markersize=3,
-                linewidth=1.0,
-            )
+        if self._ex_preview_curves is not None and self._ex_preview_key is not None:
+            p, d, r, trace_name, plot_name = self._ex_preview_key
+            for curve_name, x, y in self._ex_preview_curves:
+                label = trace_name if not plot_name else f"{trace_name} - {curve_name}"
+                self._plot_y(
+                    self._ex_plot.ax,
+                    x,
+                    y,
+                    label=label,
+                    linestyle="-",
+                    marker="o",
+                    markersize=3,
+                    linewidth=1.0,
+                )
             self._ex_plot.ax.legend(loc="best", fontsize=8)
 
             # Set axis labels from cached trace data (if available)
-            p, d, r, trace_name = self._ex_preview_key
             cached = self.service.existing_reports.get(p, {}).get(d, {}).get(r, {}).get(trace_name)
             if isinstance(cached, dict):
                 x_label = cached.get("x_label", "")
@@ -2067,35 +2145,35 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
         d = self._ex_cascade.design_var.get()
         r = self.ex_report.get()
         t = self.ex_trace.get()
+        plot_name, plot_index = self._selected_ex_plot()
 
         def _do_import(x, y) -> None:
-            self.store.add(
-                x=x,
-                y=y,
-                source="existing_report",
-                metadata={"project": p, "design": d, "report": r, "trace": t},
-            )
+            metadata = {"project": p, "design": d, "report": r, "trace": t}
+            if plot_name:
+                metadata["plot"] = plot_name
+            self.store.add(x=x, y=y, source="existing_report", metadata=metadata)
             self._refresh_results()
             self.tabs.select(self.tab_results)
 
-        # If the preview already loaded this exact trace, reuse its data directly
+        # If the preview already loaded this exact plot, reuse its data directly
         # without spawning another async AEDT call.
-        if self._ex_preview_xy is not None and self._ex_preview_key == (p, d, r, t):
-            _do_import(*self._ex_preview_xy)
+        if self._ex_preview_curves is not None and self._ex_preview_key == (p, d, r, t, plot_name):
+            _do_import(*self._ex_preview_curves[0][1:])
             return
 
         def _task():
-            return self.service.get_trace_data(p, d, r, t)
+            return self.service.get_trace_data(p, d, r, t, plot_index)
 
         def _on_done(result):
             if isinstance(result, Exception):
                 messagebox.showerror("Import error", f"Failed to fetch trace data:\n{result}")
                 return
             # Also cache the result as the current preview so future imports are instant.
-            self._ex_preview_xy = (result["x"], result["y"])
-            self._ex_preview_key = (p, d, r, t)
+            curve = result["curves"][0]
+            self._ex_preview_curves = [(curve["name"], curve["x"], curve["y"])]
+            self._ex_preview_key = (p, d, r, t, plot_name)
             self._redraw_ex_preview()
-            _do_import(result["x"], result["y"])
+            _do_import(curve["x"], curve["y"])
 
         self._run_async(_task, _on_done)
 

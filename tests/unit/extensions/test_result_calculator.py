@@ -78,29 +78,40 @@ def _add_trace(store: ResultStore, name: str | None = None, n: int = 5) -> str:
     return store.add(x, y, source="test", metadata={}, name=name)
 
 
-def _make_sol_data(
-    x: list | np.ndarray,
-    y_real: list | np.ndarray,
-    y_imag: list | np.ndarray | None = None,
+def _make_report(
+    curves: list[tuple[dict, list | np.ndarray, list | np.ndarray, list | np.ndarray | None]],
     expression: str = "S11",
     primary_sweep: str = "Freq",
     sweep_unit: str = "GHz",
+    plot_name: str = "Rep",
 ) -> MagicMock:
-    """Build a mock solution-data object returned by report.get_solution_data()."""
-    if y_imag is None:
-        y_imag = [0.0] * len(y_real)
+    """Build a mock report; each curve is a (variation, x, y_real, y_imag) tuple."""
     sol = MagicMock()
     sol.active_expression = expression
     sol.primary_sweep = primary_sweep
     sol.units_sweeps = {primary_sweep: sweep_unit}
 
-    def _get_expression_data(expression, formula):  # noqa: ARG001
-        if formula == "real":
-            return (x, y_real)
-        return (x, y_imag)
+    def _all_curves(expression, formula):  # noqa: ARG001
+        return [
+            {
+                "variation": variation,
+                "x": x,
+                "y": y_real if formula == "real" else ([0.0] * len(y_real) if y_imag is None else y_imag),
+            }
+            for variation, x, y_real, y_imag in curves
+        ]
 
-    sol.get_expression_data.side_effect = _get_expression_data
-    return sol
+    report = MagicMock()
+    report.plot_name = plot_name
+    report.get_solution_data.return_value = sol
+    report.get_expression_data_all_curves.side_effect = _all_curves
+    return report
+
+
+def _make_aedtapp(report: MagicMock | None) -> MagicMock:
+    aedtapp = MagicMock()
+    aedtapp.post.plots = [report] if report is not None else []
+    return aedtapp
 
 
 # ===========================================================================
@@ -1041,122 +1052,163 @@ class TestResultDataService:
 
     # ---- get_trace_data ----------------------------------------------------
 
-    def test_get_trace_data_fetches_and_caches(self) -> None:
+    @staticmethod
+    def _service_with_report(report: MagicMock | None, trace: str = "S11") -> tuple[ResultDataService, MagicMock]:
         service = _make_service()
         service.desktop = MagicMock()
         service.current_session_pid = 1
         service._cache_by_session[1] = ResultDataService._empty_session_cache()
-        service.existing_reports.setdefault("Proj", {}).setdefault("Des", {})["Rep"] = {"S11": None}
+        service.existing_reports.setdefault("Proj", {}).setdefault("Des", {})["Rep"] = {trace: None}
+        return service, _make_aedtapp(report)
 
+    def test_get_trace_data_fetches_and_caches(self) -> None:
         x = np.array([1.0, 2.0, 3.0])
         y_real = np.array([-10.0, -20.0, -30.0])
-        sol = _make_sol_data(x, y_real)
+        service, aedtapp = self._service_with_report(_make_report([({}, x, y_real, None)]))
 
-        report = MagicMock()
-        report.plot_name = "Rep"
-        report.get_solution_data.return_value = sol
-        aedtapp = MagicMock()
-        aedtapp.post.plots = [report]
         with patch.object(service, "_get_aedtapp", return_value=aedtapp):
             data = service.get_trace_data("Proj", "Des", "Rep", "S11")
 
-        np.testing.assert_array_equal(data["x"], x)
-        np.testing.assert_array_equal(data["y"], y_real)
+        assert len(data["curves"]) == 1
+        np.testing.assert_array_equal(data["curves"][0]["x"], x)
+        np.testing.assert_array_equal(data["curves"][0]["y"], y_real)
         assert data["is_complex"] is False
+        assert data["x_label"] == "Freq [GHz]"
+        assert data["y_label"] == "S11"
+        assert data["plot_names"] == ["Plot 1"]
 
     def test_get_trace_data_uses_cache(self) -> None:
         service = _make_service()
         service.desktop = MagicMock()
         service.current_session_pid = 1
         service._cache_by_session[1] = ResultDataService._empty_session_cache()
-        cached = {"x": np.array([1.0]), "y": np.array([2.0])}
+        cached = {
+            "curves": [{"name": "Plot 1", "x": np.array([1.0]), "y": np.array([2.0])}],
+            "is_complex": False,
+            "x_label": "Freq [GHz]",
+            "y_label": "S11",
+        }
         service.existing_reports.setdefault("Proj", {}).setdefault("Des", {})["Rep"] = {"S11": cached}
 
         with patch.object(service, "_get_aedtapp") as mock_app:
             data = service.get_trace_data("Proj", "Des", "Rep", "S11")
             mock_app.assert_not_called()
-        assert data is cached
+        np.testing.assert_array_equal(data["curves"][0]["y"], [2.0])
 
     def test_get_trace_data_report_not_found_raises(self) -> None:
-        service = _make_service()
-        service.desktop = MagicMock()
-        service.current_session_pid = 1
-        service._cache_by_session[1] = ResultDataService._empty_session_cache()
-        service.existing_reports.setdefault("Proj", {}).setdefault("Des", {})["Rep"] = {"S11": None}
-
-        aedtapp = MagicMock()
-        aedtapp.post.plots = []  # Report not present.
+        service, aedtapp = self._service_with_report(None)
         with patch.object(service, "_get_aedtapp", return_value=aedtapp):
             with pytest.raises(AEDTRuntimeError, match="not found"):
                 service.get_trace_data("Proj", "Des", "Rep", "S11")
 
-    def test_get_trace_data_stores_result_as_ndarray(self) -> None:
-        service = _make_service()
-        service.desktop = MagicMock()
-        service.current_session_pid = 1
-        service._cache_by_session[1] = ResultDataService._empty_session_cache()
-        service.existing_reports.setdefault("Proj", {}).setdefault("Des", {})["Rep"] = {"S11": None}
+    def test_get_trace_data_no_data_raises(self) -> None:
+        report = _make_report([({}, [1.0], [1.0], None)])
+        report.get_expression_data_all_curves.side_effect = None
+        report.get_expression_data_all_curves.return_value = False
+        service, aedtapp = self._service_with_report(report)
+        with patch.object(service, "_get_aedtapp", return_value=aedtapp):
+            with pytest.raises(AEDTRuntimeError, match="No data"):
+                service.get_trace_data("Proj", "Des", "Rep", "S11")
 
-        sol = _make_sol_data([1.0, 2.0], [-10.0, -20.0])  # plain lists, not ndarray
-        report = MagicMock()
-        report.plot_name = "Rep"
-        report.get_solution_data.return_value = sol
-        aedtapp = MagicMock()
-        aedtapp.post.plots = [report]
+    def test_get_trace_data_stores_result_as_ndarray(self) -> None:
+        service, aedtapp = self._service_with_report(_make_report([({}, [1.0, 2.0], [-10.0, -20.0], None)]))
         with patch.object(service, "_get_aedtapp", return_value=aedtapp):
             data = service.get_trace_data("Proj", "Des", "Rep", "S11")
-        assert isinstance(data["x"], np.ndarray)
-        assert isinstance(data["y"], np.ndarray)
+        assert isinstance(data["curves"][0]["x"], np.ndarray)
+        assert isinstance(data["curves"][0]["y"], np.ndarray)
 
     def test_get_trace_data_complex_trace_returns_complex_y(self) -> None:
         """When the imaginary part is non-zero, y must be a complex ndarray."""
-        service = _make_service()
-        service.desktop = MagicMock()
-        service.current_session_pid = 1
-        service._cache_by_session[1] = ResultDataService._empty_session_cache()
-        service.existing_reports.setdefault("Proj", {}).setdefault("Des", {})["Rep"] = {"S11": None}
-
         x = np.array([1e9, 2e9, 3e9])
         y_real = np.array([0.5, 0.3, 0.1])
         y_imag = np.array([-0.2, -0.4, -0.6])
-        sol = _make_sol_data(x, y_real, y_imag)
+        service, aedtapp = self._service_with_report(_make_report([({}, x, y_real, y_imag)]))
 
-        report = MagicMock()
-        report.plot_name = "Rep"
-        report.get_solution_data.return_value = sol
-        aedtapp = MagicMock()
-        aedtapp.post.plots = [report]
         with patch.object(service, "_get_aedtapp", return_value=aedtapp):
             data = service.get_trace_data("Proj", "Des", "Rep", "S11")
 
+        y = data["curves"][0]["y"]
         assert data["is_complex"] is True
-        assert np.iscomplexobj(data["y"])
-        np.testing.assert_allclose(data["y"].real, y_real, atol=1e-12)
-        np.testing.assert_allclose(data["y"].imag, y_imag, atol=1e-12)
+        assert np.iscomplexobj(y)
+        np.testing.assert_allclose(y.real, y_real, atol=1e-12)
+        np.testing.assert_allclose(y.imag, y_imag, atol=1e-12)
 
     def test_get_trace_data_real_only_trace_is_not_complex(self) -> None:
         """A trace with all-zero imaginary part must be marked as not complex."""
-        service = _make_service()
-        service.desktop = MagicMock()
-        service.current_session_pid = 1
-        service._cache_by_session[1] = ResultDataService._empty_session_cache()
-        service.existing_reports.setdefault("Proj", {}).setdefault("Des", {})["Rep"] = {"Mag": None}
+        report = _make_report([({}, [0.0, 1.0], [1.0, 2.0], [0.0, 0.0])], expression="Mag")
+        service, aedtapp = self._service_with_report(report, trace="Mag")
 
-        x = np.array([0.0, 1.0])
-        y_real = np.array([1.0, 2.0])
-        y_imag = np.array([0.0, 0.0])
-        sol = _make_sol_data(x, y_real, y_imag, expression="Mag")
-
-        report = MagicMock()
-        report.plot_name = "Rep"
-        report.get_solution_data.return_value = sol
-        aedtapp = MagicMock()
-        aedtapp.post.plots = [report]
         with patch.object(service, "_get_aedtapp", return_value=aedtapp):
             data = service.get_trace_data("Proj", "Des", "Rep", "Mag")
 
         assert data["is_complex"] is False
-        assert not np.iscomplexobj(data["y"])
+        assert not np.iscomplexobj(data["curves"][0]["y"])
+
+    @staticmethod
+    def _multi_plot_report(complex_data: bool = False) -> MagicMock:
+        x = [1.0, 2.0, 3.0]
+        imag = [0.1, 0.2, 0.3] if complex_data else None
+        return _make_report(
+            [
+                ({"Theta": "0deg"}, x, [1.0, 2.0, 3.0], imag),
+                ({"Theta": "45deg"}, x, [4.0, 5.0, 6.0], imag),
+                ({"Theta": "90deg"}, x, [7.0, 8.0, 9.0], imag),
+            ]
+        )
+
+    def test_get_trace_data_multiple_plots_all(self) -> None:
+        """plot_index=None returns every plot of the trace."""
+        service, aedtapp = self._service_with_report(self._multi_plot_report())
+        with patch.object(service, "_get_aedtapp", return_value=aedtapp):
+            data = service.get_trace_data("Proj", "Des", "Rep", "S11", plot_index=None)
+
+        assert data["plot_names"] == ["Theta=0deg", "Theta=45deg", "Theta=90deg"]
+        assert [c["name"] for c in data["curves"]] == data["plot_names"]
+        np.testing.assert_array_equal(data["curves"][2]["y"], [7.0, 8.0, 9.0])
+
+    def test_get_trace_data_multiple_plots_single_index(self) -> None:
+        """A numeric plot_index returns only that plot, while plot_names lists all of them."""
+        service, aedtapp = self._service_with_report(self._multi_plot_report())
+        with patch.object(service, "_get_aedtapp", return_value=aedtapp):
+            data = service.get_trace_data("Proj", "Des", "Rep", "S11", plot_index=1)
+
+        assert len(data["curves"]) == 1
+        assert data["curves"][0]["name"] == "Theta=45deg"
+        np.testing.assert_array_equal(data["curves"][0]["y"], [4.0, 5.0, 6.0])
+        assert len(data["plot_names"]) == 3
+
+    def test_get_trace_data_multiple_plots_fetched_once(self) -> None:
+        """Switching plot does not query AEDT again."""
+        report = self._multi_plot_report()
+        service, aedtapp = self._service_with_report(report)
+        with patch.object(service, "_get_aedtapp", return_value=aedtapp):
+            service.get_trace_data("Proj", "Des", "Rep", "S11", plot_index=None)
+            service.get_trace_data("Proj", "Des", "Rep", "S11", plot_index=2)
+
+        # One call for the real part and one for the imaginary part.
+        assert report.get_expression_data_all_curves.call_count == 2
+
+    def test_get_trace_data_multiple_complex_plots(self) -> None:
+        service, aedtapp = self._service_with_report(self._multi_plot_report(complex_data=True))
+        with patch.object(service, "_get_aedtapp", return_value=aedtapp):
+            data = service.get_trace_data("Proj", "Des", "Rep", "S11", plot_index=None)
+
+        assert data["is_complex"] is True
+        assert all(np.iscomplexobj(c["y"]) for c in data["curves"])
+        np.testing.assert_allclose(data["curves"][1]["y"], np.array([4.0, 5.0, 6.0]) + 1j * np.array([0.1, 0.2, 0.3]))
+
+    def test_get_trace_data_duplicate_plot_names_are_made_unique(self) -> None:
+        report = _make_report([({"Theta": "0deg"}, [1.0], [1.0], None), ({"Theta": "0deg"}, [1.0], [2.0], None)])
+        service, aedtapp = self._service_with_report(report)
+        with patch.object(service, "_get_aedtapp", return_value=aedtapp):
+            data = service.get_trace_data("Proj", "Des", "Rep", "S11", plot_index=None)
+        assert data["plot_names"] == ["Theta=0deg", "Theta=0deg (2)"]
+
+    def test_get_trace_data_out_of_range_index_falls_back_to_first(self) -> None:
+        service, aedtapp = self._service_with_report(self._multi_plot_report())
+        with patch.object(service, "_get_aedtapp", return_value=aedtapp):
+            data = service.get_trace_data("Proj", "Des", "Rep", "S11", plot_index=10)
+        assert data["curves"][0]["name"] == "Theta=0deg"
 
     # ---- load_datasets_for_design ------------------------------------------
 
