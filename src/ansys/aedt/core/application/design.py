@@ -85,6 +85,7 @@ from ansys.aedt.core.generic.protocols import _OProject
 from ansys.aedt.core.generic.settings import inner_project_settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.checks import deprecated_doc
+from ansys.aedt.core.internal.edb_registry import edb_registry
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.internal.load_aedt_file import load_entire_aedt_file
@@ -3237,8 +3238,10 @@ class Design(AedtObjects, PyAedtBase):
     @pyaedt_function_handler()
     def _close_edb(self) -> None:
         if self.design_type == "HFSS 3D Layout Design":  # pragma: no cover
-            if self.modeler and self.modeler._edb:
-                self.modeler._edb.close()
+            if self.modeler:
+                if self.modeler._edb is not None or edb_registry.is_open(self.modeler._edb_folder):
+                    edb_registry.close(self.modeler._edb_folder)
+                self.modeler._edb = None
 
     @pyaedt_function_handler()
     def create_dataset1d_design(
