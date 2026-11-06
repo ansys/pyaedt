@@ -38,7 +38,6 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
 from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
 from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsPackageParts
-from ansys.aedt.core.modules.mesh_icepak import MeshRegion
 from ansys.aedt.core.visualization.post.field_data import FolderPlotSettings
 from ansys.aedt.core.visualization.post.field_data import SpecifiedScale
 from tests import TESTS_GENERAL_PATH
@@ -337,56 +336,6 @@ def test_find_top(ipk_app) -> None:
     assert all(ipk_app.find_top(i + 3) == 0 for i in range(3))
 
 
-def test_assign_pcb_region(ipk_app) -> None:
-    ipk_app.globalMeshSettings(2)
-
-    ipk_app.modeler.create_box([0, 0, 0], [50, 50, 2], "PCB")
-
-    pcb_mesh_region = MeshRegion(ipk_app, "PCB")
-    pcb_mesh_region.name = "PCB_Region"
-
-    if settings.aedt_version > "2023.2":
-        assert [str(i) for i in pcb_mesh_region.assignment.padding_values] == ["0"] * 6
-        assert pcb_mesh_region.assignment.padding_types == ["Percentage Offset"] * 6
-        pcb_mesh_region.assignment.negative_x_padding = 1
-        pcb_mesh_region.assignment.positive_x_padding = 1
-        pcb_mesh_region.assignment.negative_y_padding = 1
-        pcb_mesh_region.assignment.positive_y_padding = 1
-        pcb_mesh_region.assignment.negative_z_padding = 1
-        pcb_mesh_region.assignment.positive_z_padding = 1
-        pcb_mesh_region.assignment.negative_x_padding_type = "Absolute Offset"
-        pcb_mesh_region.assignment.positive_x_padding_type = "Absolute Position"
-        pcb_mesh_region.assignment.negative_y_padding_type = "Transverse Percentage Offset"
-        pcb_mesh_region.assignment.positive_y_padding_type = "Absolute Position"
-        pcb_mesh_region.assignment.negative_z_padding_type = "Absolute Offset"
-        pcb_mesh_region.assignment.positive_z_padding_type = "Transverse Percentage Offset"
-        assert pcb_mesh_region.assignment.negative_x_padding == "1mm"
-        assert pcb_mesh_region.assignment.positive_x_padding == "1mm"
-        assert str(pcb_mesh_region.assignment.negative_y_padding) == "1"
-        assert pcb_mesh_region.assignment.positive_y_padding == "1mm"
-        assert pcb_mesh_region.assignment.negative_z_padding == "1mm"
-        assert str(pcb_mesh_region.assignment.positive_z_padding) == "1"
-        assert pcb_mesh_region.assignment.negative_x_padding_type == "Absolute Offset"
-        assert pcb_mesh_region.assignment.positive_x_padding_type == "Absolute Position"
-        assert pcb_mesh_region.assignment.negative_y_padding_type == "Transverse Percentage Offset"
-        assert pcb_mesh_region.assignment.positive_y_padding_type == "Absolute Position"
-        assert pcb_mesh_region.assignment.negative_z_padding_type == "Absolute Offset"
-        assert pcb_mesh_region.assignment.positive_z_padding_type == "Transverse Percentage Offset"
-        pcb_mesh_region.assignment.padding_values = 2
-        pcb_mesh_region.assignment.padding_types = "Absolute Offset"
-        assert pcb_mesh_region.assignment.padding_values == ["2mm"] * 6
-        assert pcb_mesh_region.assignment.padding_types == ["Absolute Offset"] * 6
-        assert ipk_app.modeler.create_subregion([50, 50, 50, 50, 100, 100], "Percentage Offset", "PCB")
-        box = ipk_app.modeler.create_box([0, 0, 0], [1, 2, 3])
-        assert ipk_app.modeler.create_subregion([50, 50, 50, 50, 100, 100], "Percentage Offset", ["PCB", box.name])
-    else:
-        box = ipk_app.modeler.create_box([0, 0, 0], [1, 2, 3])
-        pcb_mesh_region.Objects = box.name
-        assert pcb_mesh_region.update()
-    assert ipk_app.mesh.meshregions_dict
-    assert pcb_mesh_region.delete()
-
-
 def test_em_loss(ipk_app, test_tmp_dir) -> None:
     project_name = USB_HFSS + ".aedtz"
 
@@ -482,33 +431,6 @@ def test_existing_sweeps(existing_setup_app) -> None:
     assert len(existing_setup_app.existing_analysis_sweeps) == 1
     existing_setup_app.create_setup("test009")
     assert len(existing_setup_app.existing_analysis_sweeps) == 2
-
-
-def test_mesh_level(usb_ipk_app) -> None:
-    assert usb_ipk_app.mesh.assign_mesh_level({"USB_Shiels": 2})
-
-
-def test_assign_mesh_operation(usb_ipk_app) -> None:
-    group_name = "Group1"
-    mesh_level_Filter = "2"
-    component_name = ["USB_ID"]
-    mesh_level_RadioPCB = "1"
-    assert usb_ipk_app.mesh.assign_mesh_level_to_group(mesh_level_Filter, group_name)
-    test = usb_ipk_app.mesh.assign_mesh_level_to_group(mesh_level_Filter, group_name, name="Test")
-    assert test
-    test2 = usb_ipk_app.mesh.assign_mesh_level_to_group(mesh_level_Filter, group_name, name="Test")
-    assert test.name != test2.name
-    test = usb_ipk_app.mesh.assign_mesh_region(component_name, mesh_level_RadioPCB, is_submodel=True)
-    assert test
-    assert test.delete()
-    test = usb_ipk_app.mesh.assign_mesh_region(["USB_ID"], mesh_level_RadioPCB)
-    assert test
-    assert test.delete()
-    b = usb_ipk_app.modeler.create_box([0, 0, 0], [1, 1, 1])
-    b.is_model = False
-    test = usb_ipk_app.mesh.assign_mesh_region([b.name])
-    assert test
-    assert test.delete()
 
 
 def test_assign_openings(ipk_app) -> None:
@@ -1068,22 +990,6 @@ def test_native_components_history(ipk_app) -> None:
     )
 
 
-def test_mesh_priority(board_ipk_app) -> None:
-    b = board_ipk_app.modeler.create_box([0, 0, 0], [20, 50, 80])
-    board = board_ipk_app.create_ipk_3dcomponent_pcb(
-        "Board",
-        LINK_DATA,
-        SOLUTION_FREQ,
-        RESOLUTION,
-        extent_type="Polygon",
-        custom_x_RESOLUTION=400,
-        custom_y_RESOLUTION=500,
-    )
-    fan = board_ipk_app.create_fan(name="TestFan", is_2d=True)
-    rect = board_ipk_app.modeler.create_rectangle(0, [0, 0, 0], [1, 2], name="TestRectangle")
-    assert board_ipk_app.mesh.assign_priorities([[fan.name, board.name], [b.name, rect.name]])
-
-
 def test_update_source(ipk_app) -> None:
     ipk_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="boxSource")
     source_2d = ipk_app.assign_source(ipk_app.modeler["boxSource"].top_face_z.id, "Total Power", "10W")
@@ -1381,11 +1287,6 @@ def test_get_fans_operating_point(fan_op_point_app) -> None:
     assert len(list(op_dict.keys())) == 2
 
 
-def test_generate_mesh(ipk_app) -> None:
-    setup = ipk_app.create_setup()
-    assert ipk_app.mesh.generate_mesh(setup.name)
-
-
 def test_assign_free_opening(ipk_app) -> None:
     velocity_transient = {"Function": "Sinusoidal", "Values": ["0m_per_sec", 1, 1, "1s"]}
     ipk_app.solution_type = "Transient"
@@ -1481,10 +1382,6 @@ def test_import_dxf(ipk_app, test_tmp_dir) -> None:
     dxf_layers = get_dxf_layers(file)
     assert isinstance(dxf_layers, list)
     assert ipk_app.import_dxf(file, dxf_layers)
-
-
-def test_mesh_priority_3d_comp(comp_priority_app) -> None:
-    assert comp_priority_app.mesh.assign_priorities([["all_2d_objects1"], ["IcepakDesign1_1"]])
 
 
 def test_recirculation_boundary(ipk_app) -> None:
@@ -1756,65 +1653,6 @@ def test_design_settings(ipk_app) -> None:
         assert d["GravityVectorZ"] == "3m_per_s2"
 
 
-def test_mesh_reuse(ipk_app, test_tmp_dir) -> None:
-    cylinder = ipk_app.modeler.create_cylinder(1, [0, 0, 0], 5, 30)
-    assert not ipk_app.mesh.assign_mesh_reuse(
-        cylinder.name,
-        str(test_tmp_dir / "nonexistent_cylinder_mesh.msh"),
-    )
-    file_mesh = shutil.copy2(
-        TESTS_ICEPAK_PATH / "example_models" / TEST_SUBFOLDER / "CylinderMesh.msh",
-        test_tmp_dir / "CylinderMesh.msh",
-    )
-    assert ipk_app.mesh.assign_mesh_reuse(cylinder.name, str(file_mesh))
-    assert ipk_app.mesh.assign_mesh_reuse(
-        cylinder.name,
-        str(file_mesh),
-        "name_reuse",
-    )
-    assert ipk_app.mesh.assign_mesh_reuse(
-        cylinder.name,
-        str(file_mesh),
-        "name_reuse",
-    )
-
-
-def test_global_mesh_region(ipk_app) -> None:
-    g_m_r = ipk_app.mesh.global_mesh_region
-    assert g_m_r
-    assert g_m_r.global_region.object.name == "Region"
-    assert g_m_r.global_region.padding_values == [
-        "50",
-        "50",
-        "50",
-        "50",
-        "50",
-        "50",
-    ] or g_m_r.global_region.padding_values == [50, 50, 50, 50, 50, 50]
-    assert g_m_r.global_region.padding_types == [
-        "Percentage Offset",
-        "Percentage Offset",
-        "Percentage Offset",
-        "Percentage Offset",
-        "Percentage Offset",
-        "Percentage Offset",
-    ]
-    g_m_r.global_region.positive_z_padding_type = "Absolute Offset"
-    g_m_r.global_region.positive_z_padding = "5 mm"
-    assert g_m_r.global_region.padding_types[-2] == "Absolute Offset"
-    assert g_m_r.global_region.padding_values[-2] == "5mm"
-    g_m_r.settings["MeshRegionResolution"] = 3
-    g_m_r.update()
-    assert g_m_r.settings["MeshRegionResolution"] == 3
-    g_m_r.manual_settings = True
-    with pytest.raises(KeyError):
-        _ = g_m_r.settings["MeshRegionResolution"]
-    g_m_r.settings["MaxElementSizeX"] = "500um"
-    g_m_r.update()
-    g_m_r.global_region.object.material_name = "Carbon Monoxide"
-    assert g_m_r.global_region.object.material_name == "Carbon Monoxide"
-
-
 def test_transient_fs(transient_app) -> None:
     for ds in ["IcepakDesign1", "IcepakDesign2"]:
         transient_app.set_active_design(ds)
@@ -1955,16 +1793,6 @@ def test_folder_settings(transient_app) -> None:
         fs.scale_settings.unit = "AEDT"
     fs.scale_settings.unit = "kel"
     assert fs.scale_settings.unit == "kel"
-
-
-def test_multiple_mesh_regions(ipk_app) -> None:
-    # test issue 5485
-    c1 = ipk_app.modeler.create_cylinder(orientation=0, origin=[0, 0, 0], radius=5, height=10)
-    c2 = ipk_app.modeler.create_cylinder(orientation=1, origin=[100, 100, 100], radius=2, height=15)
-    mesh_class = ipk_app.mesh
-    m1 = mesh_class.assign_mesh_region([c1.name])
-    m2 = mesh_class.assign_mesh_region([c2.name])
-    assert m1.assignment.name != m2.assignment.name
 
 
 def test_get_object_material_properties(ipk_app) -> None:

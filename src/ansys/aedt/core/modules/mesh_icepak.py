@@ -107,8 +107,19 @@ GeneralSettings = dict(
 """Value for GeneralSettings."""
 
 
-class MeshRegion(BinaryTreeNode, PyAedtBase):
-    """Provides Icepak subregions mesh properties and methods."""
+class MeshRegionBase:
+    """Base class for Icepak mesh region properties and methods.
+
+    This class provides common functionality shared between ``MeshRegion``
+    and ``GlobalMeshRegion`` classes.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Icepak
+    >>> icepak = Icepak()
+    >>> icepak.mesh.global_region.manual_settings
+
+    """
 
     def __getitem__(self, key: str) -> Any:
         """Return a setup property by key."""
@@ -123,6 +134,200 @@ class MeshRegion(BinaryTreeNode, PyAedtBase):
 
     def __str__(self) -> str:
         return self.name
+
+    @property
+    def props(self) -> MeshProps:
+        """Properties of the mesh operation.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.generic.props.Props`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Icepak
+        >>> icepak = Icepak()
+        >>> icepak.mesh.global_region.props
+
+        """
+        if self._legacy_props and not self._has_getobject:
+            return MeshProps(self, self._legacy_props)
+
+        if self._has_getobject:
+            self._legacy_props = self._get_props_from_aedt() or {}
+
+        if not self._legacy_props:
+            self._legacy_props = self._get_props_fallback() or {}
+
+        return MeshProps(self, self._legacy_props)
+
+    @props.setter
+    def props(self, value: dict) -> None:
+        self.update(props=value)
+
+    def _get_props_from_aedt(self) -> dict:
+        """Retrieve properties from AEDT object data.
+
+        Returns
+        -------
+        dict
+            Properties dictionary from AEDT.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Icepak
+        >>> icepak = Icepak()
+        >>> icepak.mesh.global_region._get_props_from_aedt()
+
+        """
+        return {}
+
+    def _get_props_fallback(self) -> dict:
+        """Retrieve properties using fallback method.
+
+        Returns
+        -------
+        dict
+            Properties dictionary from fallback source.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Icepak
+        >>> icepak = Icepak()
+        >>> icepak.mesh.global_region._get_props_fallback()
+
+        """
+        return {}
+
+    @property
+    def manual_settings(self) -> bool | None:
+        """Whether manual mesh settings are enabled.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Icepak
+        >>> icepak = Icepak()
+        >>> icepak.mesh.global_region.manual_settings
+
+        """
+        props = self.props
+        if "UserSpecifiedSettings" in props:
+            return props["UserSpecifiedSettings"]
+        return None
+
+    @manual_settings.setter
+    def manual_settings(self, value: bool) -> None:
+        props = self.props.to_dict()
+        if value != props.get("UserSpecifiedSettings"):
+            if not value:
+                new_props = dict(GeneralSettings)
+            else:
+                new_props = dict(UserSpecifiedSettings)
+
+            # Keep the assignment and enabled state of the mesh region
+            if "Objects" in props:
+                new_props["Objects"] = props["Objects"]
+            if "Enable" in props:
+                new_props["Enable"] = props["Enable"]
+            self.update(props=new_props)
+
+    @property
+    def name(self) -> str:
+        """Name of the mesh region.
+
+        Returns
+        -------
+        str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Icepak
+        >>> icepak = Icepak()
+        >>> icepak.mesh.global_region.name
+
+        """
+        return self._name
+
+    @pyaedt_function_handler()
+    def update(self, props: dict | None = None) -> bool:
+        """Update the mesh.
+
+        Parameters
+        ----------
+        props : dict, optional
+            New properties to update. The default is ``None``, in which case
+            it uses the current properties.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.Edit
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Icepak
+        >>> icepak = Icepak()
+        >>> props = icepak.mesh.global_region.props.to_dict()
+        >>> icepak.mesh.global_region.update(props)
+
+        """
+        if props is None:
+            props = self.props.to_dict()
+
+        aedt_props = self._get_args(props)
+
+        self._update_aedt(aedt_props)
+
+        if not self._has_getobject:
+            self._legacy_props = props
+        return True
+
+    def _update_aedt(self, aedt_props: list) -> None:  # pragma: no cover
+        """Execute the AEDT update command.
+
+        Parameters
+        ----------
+        aedt_props : list
+            Properties formatted for AEDT API.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Icepak
+        >>> icepak = Icepak()
+        >>> props = icepak.mesh.global_region.props.to_dict()
+        >>> icepak.mesh.global_region.update(props)
+
+        """
+        raise NotImplementedError("Subclasses MeshRegion or GlobalMeshRegion must implement _update_aedt.")
+
+    @pyaedt_function_handler()
+    def _get_args(self, props: dict | None = None) -> list:
+        """Retrieve arguments.
+
+        Returns
+        -------
+        list
+            List of arguments for the mesh operation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Icepak
+        >>> icepak = Icepak()
+        >>> icepak.mesh.global_region._get_args()
+
+        """
+        props = self.props if not props else props
+        arg = ["NAME:" + self._name]
+        _dict2arg(props, arg)
+        return arg
+
+
+class MeshRegion(MeshRegionBase, BinaryTreeNode, PyAedtBase):
+    """Provides Icepak subregions mesh properties and methods."""
 
     def __init__(self, mesh: IcepakMesh, name: str, props: dict) -> None:
         self._mesh: IcepakMesh = mesh
@@ -166,74 +371,40 @@ class MeshRegion(BinaryTreeNode, PyAedtBase):
                     self.__child_object = self._app.get_oo_object(cc, self._name)
         return self.__child_object
 
-    @property
-    def props(self) -> MeshProps:
-        """Properties of the mesh operation.
+    def _get_props_from_aedt(self) -> dict:
+        """Retrieve properties from AEDT object data.
 
         Returns
         -------
-        :class:`ansys.aedt.core.generic.props.Props`
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
-        >>> surface = hfss.mesh.assign_surface_mesh(o.name, 3, "Surface")
-        >>> surface.props
+        dict
+            Properties dictionary from AEDT.
 
         """
-        if self._legacy_props and not self._has_getobject:
-            return MeshProps(self, self._legacy_props)
+        return _get_obj_data(self._child_object) or {}
 
-        if self._has_getobject:
-            self._legacy_props = _get_obj_data(self._child_object) or {}
+    def _get_props_fallback(self) -> dict:
+        """Retrieve properties using fallback method from design_properties.
 
-        if not self._legacy_props:
-            # Fallback if previous method fails. The information is retrieved from design_properties (AEDT file)
-            dp = self._app.design_properties
-            if not isinstance(dp, dict):  # pragma: no cover
-                return MeshProps(self, self._legacy_props)
+        Returns
+        -------
+        dict
+            Properties dictionary from design_properties.
 
-            mesh_regions = dp.get("MeshRegion", {})
-            mesh_setup = mesh_regions.get("MeshSetup", {})
+        """
+        dp = self._app.design_properties
+        if not isinstance(dp, dict):  # pragma: no cover
+            return {}
 
-            mesh_region = mesh_setup.get("MeshRegions", {})
+        mesh_regions = dp.get("MeshRegion", {})
+        mesh_setup = mesh_regions.get("MeshSetup", {})
 
-            if self._name in mesh_region:
-                self._legacy_props = mesh_region.get(self._name, {})
-            elif self._name in mesh_setup:
-                self._legacy_props = mesh_setup.get(self._name, {})
+        mesh_region = mesh_setup.get("MeshRegions", {})
 
-        return MeshProps(self, self._legacy_props)
-
-    @props.setter
-    def props(self, value: dict) -> None:
-        self.update(props=value)
-
-    @property
-    def manual_settings(self) -> bool | None:
-        """Whether manual mesh settings are enabled."""
-        props = self.props
-        if "UserSpecifiedSettings" in props:
-            return props["UserSpecifiedSettings"]
-        return None
-
-    @manual_settings.setter
-    def manual_settings(self, value: bool) -> None:
-        props = self.props.to_dict()
-        if value != props.get("UserSpecifiedSettings"):
-            if not value:
-                new_props = dict(GeneralSettings)
-            else:
-                new_props = dict(UserSpecifiedSettings)
-
-            # Keep the assignment and enabled state of the mesh region
-            if "Objects" in props:
-                new_props["Objects"] = props["Objects"]
-            if "Enable" in props:
-                new_props["Enable"] = props["Enable"]
-            self.update(props=new_props)
+        if self._name in mesh_region:
+            return mesh_region.get(self._name, {})
+        elif self._name in mesh_setup:
+            return mesh_setup.get(self._name, {})
+        return {}
 
     @property
     def name(self) -> str:
@@ -357,35 +528,16 @@ class MeshRegion(BinaryTreeNode, PyAedtBase):
             return False
         return True
 
-    @pyaedt_function_handler()
-    def update(self, props: dict | None = None) -> bool:
-        """Update the mesh.
+    def _update_aedt(self, aedt_props: list) -> None:
+        """Execute the AEDT update command.
 
         Parameters
         ----------
-        props : dict, optional
-            New properties to update. The  default is ``None``, in which case it uses the current properties.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oModule.Edit
+        aedt_props : list
+            Properties formatted for AEDT API.
 
         """
-        if props is None:
-            props = self.props.to_dict()
-
-        aedt_props = self._get_args(props)
-
         self._app.omeshmodule.Edit(self.name, aedt_props)
-
-        if not self._has_getobject:
-            self._legacy_props = props
-        return True
 
     @pyaedt_function_handler()
     def delete(self) -> bool:
@@ -445,53 +597,21 @@ class MeshRegion(BinaryTreeNode, PyAedtBase):
             self._assignment = self.assignment
         return result
 
-    @pyaedt_function_handler()
-    def _get_args(self, props: dict | None = None) -> list:
-        """Retrieve arguments.
 
-        Returns
-        -------
-        list
-            List of arguments for the mesh operation.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
-        >>> surface = hfss.mesh.assign_surface_mesh(o.name, 3, "Surface")
-        >>> surface._get_args()
-
-        """
-        props = self.props if not props else props
-        arg = ["NAME:" + self._name]
-        _dict2arg(props, arg)
-        return arg
-
-
-class GlobalMeshRegion:
+class GlobalMeshRegion(MeshRegionBase):
     """Icepak global mesh properties and methods.
+
+    Parameters
+    ----------
+    app : :class:`ansys.aedt.core.application.analysis_icepak.FieldAnalysisIcepak`
 
     Examples
     --------
-    >>> from ansys.aedt.core.modules.mesh_icepak import GlobalMeshRegion
-    >>> obj = GlobalMeshRegion()
+    >>> from ansys.aedt.core import Icepak
+    >>> icepak = Icepak()
+    >>> icepak.mesh.global_region
 
     """
-
-    def __getitem__(self, key: str) -> Any:
-        """Return a setup property by key."""
-        return self.props[key]
-
-    def __setitem__(self, key: str, value: Any) -> None:
-        """Set a setup property by key."""
-        self.props[key] = value
-
-    def __repr__(self) -> str:
-        return self.name
-
-    def __str__(self) -> str:
-        return self.name
 
     def __init__(self, app: FieldAnalysisIcepak) -> None:
         self._app = app
@@ -508,109 +628,21 @@ class GlobalMeshRegion:
         # TODO: AEDT API does not have GetObjData for the global mesh region yet
         self._has_getobject = False
 
-    @property
-    def props(self) -> MeshProps:
-        """Properties of the mesh operation.
+    def _get_props_fallback(self) -> dict:
+        """Retrieve properties using fallback method from design_properties.
 
         Returns
         -------
-        :class:`ansys.aedt.core.generic.props.Props`
+        dict
+            Properties dictionary from design_properties.
 
         Examples
         --------
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
-        >>> surface = hfss.mesh.assign_surface_mesh(o.name, 3, "Surface")
-        >>> surface.props
+        >>> from ansys.aedt.core import Icepak
+        >>> icepak = Icepak()
+        >>> icepak.mesh._get_props_fallback()
 
         """
-        if self._legacy_props and not self._has_getobject:
-            return MeshProps(self, self._legacy_props)
-
-        if not self._legacy_props:
-            # Fallback if previous method fails. The information is retrieved from design_properties (AEDT file)
-            self._legacy_props = self._get_global_region_settings() or {}
-
-        return MeshProps(self, self._legacy_props)
-
-    @props.setter
-    def props(self, value: dict) -> None:
-        self.update(props=value)
-
-    @property
-    def manual_settings(self) -> bool | None:
-        """Whether manual mesh settings are enabled."""
-        props = self.props
-        if "UserSpecifiedSettings" in props:
-            return props["UserSpecifiedSettings"]
-        return None
-
-    @manual_settings.setter
-    def manual_settings(self, value: bool) -> None:
-        props = self.props.to_dict()
-        if value != props.get("UserSpecifiedSettings"):
-            if not value:
-                new_props = dict(GeneralSettings)
-            else:
-                new_props = dict(UserSpecifiedSettings)
-
-            # Keep the assignment and enabled state of the mesh region
-            if "Objects" in props:
-                new_props["Objects"] = props["Objects"]
-            if "Enable" in props:
-                new_props["Enable"] = props["Enable"]
-            self.update(props=new_props)
-
-    @property
-    def name(self) -> str:
-        """Name of the mesh region.
-
-        Returns
-        -------
-        str
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.mesh_icepak import MeshRegion
-        >>> obj = MeshRegion()
-        >>> obj.name
-
-        """
-        return self._name
-
-    @pyaedt_function_handler()
-    def update(self, props: dict | None = None) -> bool:
-        """Update the mesh.
-
-        Parameters
-        ----------
-        props : dict, optional
-            New properties to update. The  default is ``None``, in which case it uses the current properties.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oModule.Edit
-
-        """
-        if props is None:
-            props = self.props.to_dict()
-
-        aedt_props = self._get_args(props)
-
-        self._app.omeshmodule.EditGlobalMeshRegion(aedt_props)
-
-        if not self._has_getobject:
-            self._legacy_props = props
-        return True
-
-    @pyaedt_function_handler()
-    def _get_global_region_settings(self):
         dp = self._app.design_properties
         if not isinstance(dp, dict):
             return {}
@@ -628,28 +660,26 @@ class GlobalMeshRegion:
                 return global_settings
         return {}
 
-    @pyaedt_function_handler()
-    def _get_args(self, props: dict | None = None) -> list:
-        """Retrieve arguments.
+    def _update_aedt(self, aedt_props: list) -> None:
+        """Execute the AEDT update command.
 
-        Returns
-        -------
-        list
-            List of arguments for the mesh operation.
+        Parameters
+        ----------
+        aedt_props : list
+            Properties formatted for AEDT API.
 
         Examples
         --------
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
-        >>> surface = hfss.mesh.assign_surface_mesh(o.name, 3, "Surface")
-        >>> surface._get_args()
+        >>> from ansys.aedt.core import Icepak
+        >>> icepak = Icepak()
+        >>> props = icepak.mesh.global_region.props.to_dict()
+        >>> icepak.mesh._update_aedt(props)
 
         """
-        props = self.props if not props else props
-        arg = ["NAME:" + self._name]
-        _dict2arg(props, arg)
-        return arg
+        try:
+            self._app.omeshmodule.EditGlobalMeshRegion(aedt_props)
+        except Exception:  # pragma: no cover
+            raise AEDTRuntimeError("Update global mesh region properties failed.")
 
 
 class IcepakMesh(PyAedtBase):
@@ -684,8 +714,8 @@ class IcepakMesh(PyAedtBase):
         self.__child_object = None
 
     @property
-    def global_region(self) -> GlobalMeshRegion:
-        """Return the global mesh region.
+    def global_region(self) -> GlobalMeshRegion | None:
+        """Global mesh region.
 
         Returns
         -------
@@ -705,12 +735,25 @@ class IcepakMesh(PyAedtBase):
 
     @property
     def region_names(self) -> list[str]:
-        """Return the names of all mesh regions."""
+        """Mesh region names.
+
+        Returns
+        -------
+        list
+            Mesh region names.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Icepak
+        >>> icepak = Icepak()
+        >>> icepak.mesh.region_names
+
+        """
         return self._get_mesh_names()[0]
 
     @property
     def regions(self) -> SetupDict:
-        """Return the available mesh regions.
+        """Mesh regions.
 
         Returns
         -------
@@ -741,12 +784,25 @@ class IcepakMesh(PyAedtBase):
 
     @property
     def operation_names(self) -> list[str]:
-        """Return the names of all mesh operations."""
+        """Mesh operation names.
+
+        Returns
+        -------
+        list
+            Mesh region names.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Icepak
+        >>> icepak = Icepak()
+        >>> icepak.mesh.operation_names
+
+        """
         return self._get_mesh_names()[1]
 
     @property
     def operations(self) -> SetupDict:
-        """Return the available mesh operations.
+        """Mesh operations.
 
         Returns
         -------
@@ -774,11 +830,11 @@ class IcepakMesh(PyAedtBase):
 
     @property
     def child_names(self) -> list[str]:
-        """Return the names of all mesh regions and operations.
+        """All mesh region and operation names.
 
         Returns
         -------
-        List
+        list
             Mesh region names followed by mesh operation names.
 
         Examples
@@ -797,9 +853,9 @@ class IcepakMesh(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.mesh_icepak import IcepakMesh
-        >>> obj = IcepakMesh()
-        >>> obj.bounding_dimension
+        >>> from ansys.aedt.core import Icepak
+        >>> app = Icepak()
+        >>> mesh_child_names = app.mesh.bounding_dimension
 
         """
         return self._app.modeler.get_bounding_dimension()
