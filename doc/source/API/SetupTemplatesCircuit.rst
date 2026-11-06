@@ -23,4 +23,13 @@ You can edit a setup after it is created. Here is an example:
 .. pprint:: ansys.aedt.core.modules.setup_templates.NexximQuickEye
 .. pprint:: ansys.aedt.core.modules.setup_templates.NexximVerifEye
 .. pprint:: ansys.aedt.core.modules.setup_templates.NexximAMI
-
+.. pprint:: ansys.aedt.core.modules.setup_templates.NexximOscillatorRSF
+.. pprint:: ansys.aedt.core.modules.setup_templates.NexximOscillator1T
+.. pprint:: ansys.aedt.core.modules.setup_templates.NexximOscillatorNT
+.. pprint:: ansys.aedt.core.modules.setup_templates.NexximHarmonicBalance1T
+.. pprint:: ansys.aedt.core.modules.setup_templates.NexximHarmonicBalanceNT
+.. pprint:: ansys.aedt.core.modules.setup_templates.NexximSystem
+.. pprint:: ansys.aedt.core.modules.setup_templates.NexximTVNoise
+.. pprint:: ansys.aedt.core.modules.setup_templates.HSPICE
+.. pprint:: ansys.aedt.core.modules.setup_templates.NexximEnvelope
+.. pprint:: ansys.aedt.core.modules.setup_templates.NexximPFX

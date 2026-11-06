@@ -36,10 +36,10 @@ import warnings
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
-from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
-from ansys.aedt.core.generic.numbers_utils import _units_assignment
+from ansys.aedt.core.generic.props import Props as CsProps
+from ansys.aedt.core.generic.props import Props as ListsProps
 from ansys.aedt.core.generic.quaternion import Quaternion
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
@@ -49,71 +49,7 @@ from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 
-class CsProps(dict):
-    """AEDT Cooardinate System Internal Parameters.
-
-    Examples
-    --------
-    >>> from ansys.aedt.core.modeler.cad.modeler import CsProps
-    >>> obj = CsProps()
-
-    """
-
-    def __setitem__(self, key, value):
-        value = _units_assignment(value)
-        dict.__setitem__(self, key, value)
-        if self._pyaedt_cs.auto_update:
-            res = self._pyaedt_cs.update()
-            if not res:
-                self._pyaedt_cs._app.logger.warning("Update of %s Failed. Check needed arguments", key)
-
-    def __init__(self, cs_object, props) -> None:
-        dict.__init__(self)
-        if props:
-            for key, value in props.items():
-                if isinstance(value, dict):
-                    dict.__setitem__(self, key, CsProps(cs_object, value))
-                else:
-                    dict.__setitem__(self, key, value)
-        self._pyaedt_cs = cs_object
-
-    def _setitem_without_update(self, key, value):
-        dict.__setitem__(self, key, value)
-
-
-class ListsProps(dict):
-    """AEDT Lists Internal Parameters.
-
-    Examples
-    --------
-    >>> from ansys.aedt.core.modeler.cad.modeler import ListsProps
-    >>> obj = ListsProps()
-
-    """
-
-    def __setitem__(self, key, value):
-        value = _units_assignment(value)
-        dict.__setitem__(self, key, value)
-        if self._pyaedt_lists.auto_update:
-            res = self._pyaedt_lists.update()
-            if not res:
-                self._pyaedt_lists._app.logger.warning("Update of %s Failed. Check needed arguments", key)
-
-    def __init__(self, cs_object, props) -> None:
-        dict.__init__(self)
-        if props:
-            for key, value in props.items():
-                if isinstance(value, dict):
-                    dict.__setitem__(self, key, CsProps(cs_object, value))
-                else:
-                    dict.__setitem__(self, key, value)
-        self._pyaedt_lists = cs_object
-
-    def _setitem_without_update(self, key, value):
-        dict.__setitem__(self, key, value)
-
-
-class BaseCoordinateSystem(PropsManager, PyAedtBase):
+class BaseCoordinateSystem(PyAedtBase):
     """Base methods common to FaceCoordinateSystem and CoordinateSystem.
 
     Parameters
@@ -1876,7 +1812,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
             return pos
 
 
-class Lists(PropsManager, PyAedtBase):
+class Lists(PyAedtBase):
     """Manages list data and execution.
 
     Parameters
@@ -2082,7 +2018,7 @@ class Lists(PropsManager, PyAedtBase):
         return object_list_new
 
 
-class NamedSelections(PropsManager, PyAedtBase):
+class NamedSelections(PyAedtBase):
     """Manages Named Selections (replacement for `Lists`) from AEDT version >= 2026.1."""
 
     def __init__(self, modeler, props=None, name: str | None = None) -> None:

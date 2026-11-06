@@ -26,6 +26,7 @@
 
 from __future__ import annotations
 
+import copy
 from pathlib import Path
 import re
 import time
@@ -34,10 +35,12 @@ from typing import Optional
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.base import PyAedtBase
+from ansys.aedt.core.generic.aedt_constants import Setups
 from ansys.aedt.core.generic.constants import Gravity
 from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import write_configuration_file
+from ansys.aedt.core.generic.general_methods import _merge_props
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
@@ -1336,7 +1339,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         if isinstance(charge_value, (int, float)):
             charge_value = str(charge_value)
 
-        if self.dim == "3D" and all([isinstance(a, FacePrimitive) for a in assignment]):
+        if self.is3d and all([isinstance(a, FacePrimitive) for a in assignment]):
             assignment_type = "Faces"
         else:
             assignment_type = "Objects"
@@ -1780,53 +1783,6 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
 
         """
         self.modeler[name].solve_inside = activate
-        return True
-
-    @pyaedt_function_handler()
-    def analyze_from_zero(self) -> bool:
-        """Force the next solve to start from time 0 for a given setup.
-
-        This method applies only to the Transient solution type.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oModule.ResetSetupToTimeZero
-
-        Examples
-        --------
-        Create a simple conductor model and analyze it starting from 0s.
-
-        >>> from ansys.aedt.core import Maxwell2d
-        >>> m2d = Maxwell2d(version=2026.1, solution_type="TransientXY", new_desktop=False)
-        >>> conductor = m2d.modeler.create_circle(origin=[0, 0, 0], radius=10, material="Copper")
-        >>> m2d.assign_winding(assignment=conductor.name, is_solid=False, current="5*cos(2*PI*50*time)")
-        >>> region = m2d.modeler.create_region(pad_percent=100)
-        >>> m2d.assign_vector_potential(assignment=region.edges)
-        >>> setup = m2d.create_setup()
-        >>> setup.props["StopTime"] = "2/50s"
-        >>> setup.props["TimeStep"] = "1/500s"
-        >>> m2d.analyze_from_zero()
-        >>> m2d.desktop_class.close_desktop()
-
-        """
-        if self.solution_type != SolutionsMaxwell3D.Transient:
-            raise AEDTRuntimeError("This methods work only with Maxwell Transient Analysis.")
-
-        self.oanalysis.ResetSetupToTimeZero(self._setup)
-        if any(boundary.type == "Balloon" for boundary in self.boundaries):
-            self.logger.warning(
-                "With Balloon boundary, it is not possible to parallelize the simulation "
-                "using the Time Decomposition Method (TDM). "
-                "Running the simulation without HPC auto settings and using one single core."
-            )
-            self.analyze(use_auto_settings=False, cores=1)
-        else:
-            self.analyze()
         return True
 
     @pyaedt_function_handler()
@@ -2589,20 +2545,15 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
     def create_setup(self, name: str = "MySetupAuto", setup_type: int | str | None = None, **kwargs) -> SetupMaxwell:
         """Create an analysis setup for Maxwell 3D or 2D.
 
-        Optional arguments are passed using the ``setup_type`` and ``name``
-        parameters.
-        Keyword names correspond to the ``setuptype`` corresponding to the native AEDT API.
-        The list of keywords here is not exhaustive.
-
         Parameters
         ----------
+        name : str, optional
+            Name of the setup. The default is ``"MySetupAuto"``.
         setup_type : int, str, optional
             Type of the setup. Depending on the solution type, options are
             ``"AC Conduction"``, ``"DC Conduction"``, ``"EddyCurrent"``, ``"AC Magnetic"``
             ``"Electric Transient"``, ``"Electrostatic"``, ``"Magnetostatic"``,
             and ``Transient"``.
-        name : str, optional
-            Name of the setup. The default is ``"Setup1"``.
         **kwargs : dict, optional
             Available keys depend on the setup chosen.
             For more information, see :doc:`../SetupTemplatesMaxwell`.
@@ -2610,7 +2561,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.modules.solve_setup.SetupMaxwell`
-            3D Solver Setup object.
+            Setup object.
 
         References
         ----------
@@ -2621,27 +2572,40 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d()
         >>> m3d.create_setup(name="My_Setup", setup_type="AC Magnetic", MaximumPasses=10, PercentError=2)
-        >>> m3d.desktop_class.close_desktop()
 
         """
-        if setup_type is None:
-            setup_type = self.design_solutions.default_setup
-        elif isinstance(setup_type, str) and (
-            setup_type in SetupKeys.SetupNames or setup_type.replace(" ", "") in SetupKeys.SetupNames
-        ):
-            setup_type = SetupKeys.SetupNames.index(setup_type.replace(" ", ""))
-        if "props" in kwargs:
-            return self._create_setup(name=name, setup_type=setup_type, props=kwargs["props"])
-        else:
-            setup = self._create_setup(name=name, setup_type=setup_type)
-        setup.auto_update = False
-        for arg_name, arg_value in kwargs.items():
-            if setup[arg_name] is not None:
-                setup[arg_name] = arg_value
-        setup.auto_update = True
-        setup.update()
-        return setup
+        setup_keys = SetupKeys.get_setup_templates()
+        setup_names_available = [name for name in dir(Setups) if not name.startswith("_")]
 
+        if setup_type is not None and isinstance(setup_type, str) and setup_type in setup_names_available:
+            setup_type = getattr(Setups, setup_type)
+        else:
+            setup_type = self.design_solutions.default_setup
+
+        if not name:
+            name = self.generate_unique_setup_name("MySetupAuto")
+        elif name in self.setup_names:
+            name = self.generate_unique_setup_name(name)
+            self.logger.warning(f"Name already exists. New name assigned is {name}.")
+
+        props = copy.deepcopy(setup_keys[setup_type])
+
+        setup = SetupMaxwell(app=self, name=name, props=props)
+
+        if "props" in kwargs:
+            _merge_props(props, kwargs.pop("props"))
+        for arg_name, arg_value in kwargs.items():
+            if props[arg_name] is not None:
+                props[arg_name] = arg_value
+
+        result = setup.create()
+
+        if not isinstance(result, SetupMaxwell):  # pragma: no cover
+            raise RuntimeError("Failed to create setup.")
+
+        return result
+
+    @pyaedt_function_handler()
     def export_matrix(
         self,
         matrix_name: str,
@@ -2863,19 +2827,6 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
     PyAEDT INFO: Added design ...
 
     """
-
-    @property  # for legacy purposes
-    def dim(self) -> str:
-        """Dimensions.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.maxwell import Maxwell3d
-        >>> obj = Maxwell3d()
-        >>> obj.dim
-
-        """
-        return "3D"
 
     @pyaedt_function_handler()
     def __init__(
@@ -3943,36 +3894,6 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, PyAedtBase):
 
     """
 
-    @property  # for legacy purposes
-    def dim(self) -> str:
-        """Dimensions.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.maxwell import Maxwell2d
-        >>> obj = Maxwell2d()
-        >>> obj.dim
-
-        """
-        return self.modeler.dimension
-
-    @property
-    def geometry_mode(self):
-        """Geometry mode.
-
-        References
-        ----------
-        >>> oDesign.GetGeometryMode
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.maxwell import Maxwell2d
-        >>> obj = Maxwell2d()
-        >>> obj.geometry_mode
-
-        """
-        return self.odesign.GetGeometryMode()
-
     @pyaedt_function_handler()
     def __init__(
         self,
@@ -4012,6 +3933,23 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, PyAedtBase):
 
     def _init_from_design(self, *args, **kwargs) -> None:
         self.__init__(**kwargs)
+
+    @property
+    def geometry_mode(self):
+        """Geometry mode.
+
+        References
+        ----------
+        >>> oDesign.GetGeometryMode
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.maxwell import Maxwell2d
+        >>> obj = Maxwell2d()
+        >>> obj.geometry_mode
+
+        """
+        return self.odesign.GetGeometryMode()
 
     @property
     def xy_plane(self) -> bool:

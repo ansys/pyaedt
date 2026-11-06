@@ -33,13 +33,17 @@ import re
 from typing import TYPE_CHECKING
 from typing import Literal
 
+from ansys.aedt.core.generic.general_methods import _merge_props
+
 if TYPE_CHECKING:
     from ansys.aedt.core.modules.mesh import MeshOperation
-    from ansys.aedt.core.modules.solve_setup import SetupIcepak
+
+import copy
 
 from ansys.aedt.core.application.analysis_icepak import FieldAnalysisIcepak
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import Plane
+from ansys.aedt.core.generic.constants import Setups
 from ansys.aedt.core.generic.constants import SolutionsIcepak
 from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.data_handlers import _dict2arg
@@ -68,6 +72,7 @@ from ansys.aedt.core.modules.boundary.icepak_boundary import SquareWaveDictionar
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
 from ansys.aedt.core.modules.setup_templates import SetupKeys
+from ansys.aedt.core.modules.solve_setup import SetupIcepak
 
 
 class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
@@ -602,17 +607,22 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def assign_block_from_sherlock_file(self, csv_name: str) -> float:
+    def assign_block_from_sherlock_file(self, csv_name: str | Path) -> float:
         """Assign block power to components based on a CSV file from Sherlock.
+
+        A solid block boundary named after the object is assigned to each component listed in the file.
+        The object is searched with the ``"COMP_"`` prefix first, then with the reference designator only.
+        Components that are not found in the design, whose power is not a number, or whose object is not
+        solved inside are skipped with a warning.
 
         Parameters
         ----------
-        csv_name : str
-            Name of the CSV file.
+        csv_name : str or :class:`pathlib.Path`
+            Path to the CSV file. The file must contain the ``"Ref Des"`` and ``"Applied Power (W)"`` columns.
 
         Returns
         -------
-        type
+        float
             Total power applied.
 
         References
@@ -626,35 +636,33 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> obj.assign_block_from_sherlock_file(r"C:\\Temp\\sherlock_components.csv")
 
         """
-        with open_file(csv_name) as csvfile:
-            csv_input = csv.reader(csvfile)
-            component_header = next(csv_input)
-            data = list(csv_input)
-            k = 0
-            component_data = {}
-            for el in component_header:
-                component_data[el] = [i[k] for i in data]
-                k += 1
+        csv_file = Path(csv_name)
+        if not csv_file.is_file():
+            raise FileNotFoundError(f"Sherlock file {csv_file} does not exist.")
+        with open_file(csv_file, encoding="utf-8") as csvfile:
+            reader = csv.DictReader(csvfile)
+            missing_columns = {"Ref Des", "Applied Power (W)"} - set(reader.fieldnames or [])
+            if missing_columns:
+                raise ValueError(f"Sherlock file {csv_file} is missing the columns: {sorted(missing_columns)}.")
+            component_data = [(row["Ref Des"], row["Applied Power (W)"]) for row in reader]
 
-        total_power = 0
+        total_power = 0.0
         all_objects = self.modeler.object_names
-        for i, power in enumerate(component_data["Applied Power (W)"]):
+        for ref_des, power in component_data:
+            object_name = f"COMP_{ref_des}" if f"COMP_{ref_des}" in all_objects else ref_des
+            if object_name not in all_objects:
+                self.logger.warning(f"Block {ref_des} skipped: object not found in the design.")
+                continue
             try:
-                if "COMP_" + component_data["Ref Des"][i] in all_objects:
-                    object_name = "COMP_" + component_data["Ref Des"][i]
-                else:
-                    object_name = component_data["Ref Des"][i]
-                status = self.create_source_block(object_name, str(power) + "W", assign_material=False)
-
-                if not status:
-                    self.logger.warning(
-                        "Warning. Block %s skipped with %sW power.", component_data["Ref Des"][i], power
-                    )
-                else:
-                    total_power += float(power)
-            except Exception:
-                self.logger.debug(f"Failed to handle component data from Ref Des {i}")
-        self.logger.info("Blocks inserted with total power %sW.", total_power)
+                power_value = float(power)
+            except ValueError:
+                self.logger.warning(f"Block {ref_des} skipped: invalid power value {power}.")
+                continue
+            if not self.assign_solid_block(object_name, f"{power}W", boundary_name=object_name):
+                self.logger.warning(f"Block {ref_des} skipped with {power}W power.")
+                continue
+            total_power += power_value
+        self.logger.info(f"Blocks inserted with total power {total_power}W.")
         return total_power
 
     @pyaedt_function_handler()
@@ -2136,109 +2144,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def globalMeshSettings(
-        self,
-        meshtype: int,
-        gap_min_elements: str | None = "1",
-        noOgrids: bool | None = False,
-        MLM_en: bool | None = True,
-        MLM_Type: str | None = "3D",
-        stairStep_en: bool | None = False,
-        edge_min_elements: str | None = "1",
-        object: str | None = "Region",
-    ) -> bool:
-        """Create a custom mesh tailored on a PCB design.
-
-        Parameters
-        ----------
-        meshtype : int
-            Type of the mesh. Options are ``1``, ``2``, and ``3``, which represent
-            respectively a coarse, standard, and very accurate mesh.
-        gap_min_elements : str, optional
-            The default is ``"1"``.
-        noOgrids : bool, optional
-            The default is ``False``.
-        MLM_en : bool, optional
-            The default is ``True``.
-        MLM_Type : str, optional
-            The default is ``"3D"``.
-        stairStep_en : bool, optional
-            The default is ``False``.
-        edge_min_elements : str, optional
-            The default is ``"1"``.
-        object : str, optional
-            The default is ``"Region"``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oModule.EditGlobalMeshRegion
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.icepak import Icepak
-        >>> obj = Icepak()
-        >>> obj.globalMeshSettings(2)
-
-        """
-        bounding_box = self.modeler.oeditor.GetModelBoundingBox()
-        xsize = abs(float(bounding_box[0]) - float(bounding_box[3])) / (15 * meshtype * meshtype)
-        ysize = abs(float(bounding_box[1]) - float(bounding_box[4])) / (15 * meshtype * meshtype)
-        zsize = abs(float(bounding_box[2]) - float(bounding_box[5])) / (10 * meshtype)
-        MaxSizeRatio = 1 + (meshtype / 2)
-
-        self.omeshmodule.EditGlobalMeshRegion(
-            [
-                "NAME:Settings",
-                "MeshMethod:=",
-                "MesherHD",
-                "UserSpecifiedSettings:=",
-                True,
-                "ComputeGap:=",
-                True,
-                "MaxElementSizeX:=",
-                str(xsize) + self.modeler.model_units,
-                "MaxElementSizeY:=",
-                str(ysize) + self.modeler.model_units,
-                "MaxElementSizeZ:=",
-                str(zsize) + self.modeler.model_units,
-                "MinElementsInGap:=",
-                gap_min_elements,
-                "MinElementsOnEdge:=",
-                edge_min_elements,
-                "MaxSizeRatio:=",
-                str(MaxSizeRatio),
-                "NoOGrids:=",
-                noOgrids,
-                "EnableMLM:=",
-                MLM_en,
-                "EnforeMLMType:=",
-                MLM_Type,
-                "MaxLevels:=",
-                "0",
-                "BufferLayers:=",
-                "0",
-                "UniformMeshParametersType:=",
-                "Average",
-                "StairStepMeshing:=",
-                stairStep_en,
-                "MinGapX:=",
-                str(xsize / 10) + self.modeler.model_units,
-                "MinGapY:=",
-                str(xsize / 10) + self.modeler.model_units,
-                "MinGapZ:=",
-                str(xsize / 10) + self.modeler.model_units,
-                "Objects:=",
-                [object],
-            ]
-        )
-        return True
-
-    @pyaedt_function_handler()
     def delete_pcb_component(self, comp_name: str) -> bool:
         """Delete a PCB component.
 
@@ -3392,21 +3297,15 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def create_setup(self, name: str | None = None, setup_type: int | str | None = None, **kwargs) -> SetupIcepak:
         """Create an analysis setup for Icepak.
-        Optional arguments are passed along with ``setup_type`` and ``name``.  Keyword
-        names correspond to the ``setup_type``
-        corresponding to the native AEDT API.  The list of
-        keywords here is not exhaustive.
-
-        .. note::
-           This method overrides the ``Analysis.setup()`` method for the HFSS app.
 
         Parameters
         ----------
         name : str, optional
             Name of the setup.
         setup_type : int, str, optional
-            Type of the setup. Options are ``"IcepakSteadyState"``
-            and ``"IcepakTransient"``. The default is ``"IcepakSteadyState"``.
+            Type of the setup. Options are ``"SteadyTemperatureAndFlow"``, ``"SteadyTemperatureOnly"``,
+            ``"SteadyFlowOnly"``, ``"TransientTemperatureAndFlow``", ``"TransientTemperatureOnly"``,
+            ``"TransientFlowOnly"``. The default is ``"SteadyTemperatureAndFlow"``.
         **kwargs : dict, optional
             Available keys depend on setup chosen.
             For more information, see
@@ -3415,7 +3314,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.modules.solve_setup.SetupIcepak`
-            3D Solver Setup object.
+            Setup object.
 
         References
         ----------
@@ -3428,20 +3327,32 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> app.create_setup(setup_type="Transient", name="Setup1", MaxIterations=20)
 
         """
-        if setup_type is None:
-            setup_type = self.design_solutions.default_setup
-        elif setup_type in SetupKeys.SetupNames:
-            setup_type = SetupKeys.SetupNames.index(setup_type)
-        if "props" in kwargs:
-            return self._create_setup(name=name, setup_type=setup_type, props=kwargs["props"])
+        setup_keys = SetupKeys.get_setup_templates()
+        setup_names_available = [name for name in dir(Setups) if not name.startswith("_")]
+
+        if setup_type is not None and isinstance(setup_type, str) and setup_type in setup_names_available:
+            setup_type = getattr(Setups, setup_type)
         else:
-            setup = self._create_setup(name=name, setup_type=setup_type)
-        setup.auto_update = False
+            setup_type = self.design_solutions.default_setup
+
+        if not name:
+            name = self.generate_unique_setup_name("MySetupAuto")
+        elif name in self.setup_names:
+            name = self.generate_unique_setup_name(name)
+            self.logger.warning(f"Name already exists. New name assigned is {name}.")
+
+        props = copy.deepcopy(setup_keys[setup_type])
+
+        setup = SetupIcepak(app=self, name=name, props=props)
+
+        if "props" in kwargs:
+            _merge_props(props, kwargs.pop("props"))
         for arg_name, arg_value in kwargs.items():
-            if setup[arg_name] is not None:
-                setup[arg_name] = arg_value
-        setup.auto_update = True
-        setup.update()
+            if props[arg_name] is not None:
+                props[arg_name] = arg_value
+
+        setup.create()
+
         return setup
 
     @pyaedt_function_handler()

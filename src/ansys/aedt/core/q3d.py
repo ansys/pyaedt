@@ -24,6 +24,9 @@
 
 """The module contains these classes: ``Q2d``, ``Q3d``, and ``QExtractor``."""
 
+from __future__ import annotations
+
+import copy
 from pathlib import Path
 import re
 import sys
@@ -37,6 +40,7 @@ else:
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.general_methods import _merge_props
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.settings import settings
@@ -123,20 +127,6 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
 
     """
 
-    @property
-    def design_file(self):
-        """Design file.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.q3d import QExtractor
-        >>> obj = QExtractor()
-        >>> obj.design_file
-
-        """
-        design_file = Path(self.working_directory) / "design_data.json"
-        return design_file
-
     def __init__(
         self,
         application: str,
@@ -174,6 +164,67 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         self.matrices = []
         for el in list(self.omatrix.ListReduceMatrixes()):
             self.matrices.append(Matrix(self, el))
+
+    @pyaedt_function_handler()
+    def create_setup(self, name: str | None = None, **kwargs) -> SetupQ3D:
+        """Create an analysis setup for Q3D or Q2D.
+
+        Parameters
+        ----------
+        name : str, optional
+            Name of the setup. The default is "MySetupAuto".
+        **kwargs : dict, optional
+            Available keys depend on the setup chosen.
+            For more information, see :doc:`../SetupTemplatesQ3D`.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.solve_setup.SetupQ3D`
+            Setup object.
+
+        References
+        ----------
+        >>> oModule.InsertSetup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Q2d
+        >>> app = Q2d()
+        >>> app.create_setup(name="Setup1", SaveFields=True)
+
+        >>> from ansys.aedt.core import Q3d
+        >>> app = Q3d()
+        >>> app.create_setup(name="Setup1", SaveFields=True)
+
+        """
+        setup_keys = SetupKeys.get_setup_templates()
+
+        # There is only one template
+        setup_type = self.design_solutions.default_setup
+
+        if not name:
+            name = self.generate_unique_setup_name("MySetupAuto")
+        elif name in self.setup_names:
+            name = self.generate_unique_setup_name(name)
+            self.logger.warning(f"Name already exists. New name assigned is {name}.")
+
+        props = copy.deepcopy(setup_keys[setup_type])
+
+        if kwargs:
+            if "props" in kwargs:
+                _merge_props(props, kwargs.pop("props"))
+            for arg_name, arg_value in kwargs.items():
+                if props[arg_name] is not None:
+                    props[arg_name] = arg_value
+
+        setup = SetupQ3D(app=self, name=name, props=props)
+
+        result = setup.create()
+
+        if not isinstance(result, SetupQ3D):  # pragma: no cover
+            raise RuntimeError("Failed to create setup.")
+
+        return result
 
     @pyaedt_function_handler()
     def sources(self, matrix_index: int | None = 0, is_gc_sources: bool | None = True) -> list:
@@ -1917,7 +1968,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def source(
         self,
-        assignment: "str | int | list | Object3d | None" = None,
+        assignment: str | int | list | Object3d | None = None,
         direction: int | None = 0,
         name: str | None = None,
         net_name: str | None = None,
@@ -1962,7 +2013,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def sink(
         self,
-        assignment: "str | int | list | Object3d | None" = None,
+        assignment: str | int | list | Object3d | None = None,
         direction: int | None = 0,
         name: str | None = None,
         net_name: str | None = None,
@@ -2099,53 +2150,9 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def create_setup(self, name: str | None = "MySetupAuto", **kwargs) -> SetupQ3D:
-        """Create an analysis setup for Q3D Extractor.
-
-        Optional arguments are passed along with the ``name`` parameter.
-
-        Parameters
-        ----------
-        name : str, optional
-            Name of the setup. The default is "Setup1".
-        **kwargs : dict, optional
-            Available keys depend on the setup chosen.
-            For more information, see :doc:`../SetupTemplatesQ3D`.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.solve_setup.SetupQ3D`
-            3D Solver Setup object.
-
-        References
-        ----------
-        >>> oModule.InsertSetup
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Q3d
-        >>> app = Q3d()
-        >>> app.create_setup(name="Setup1", DC__MinPass=2)
-
-        """
-        setup_type = self.design_solutions.default_setup
-
-        if "props" in kwargs:
-            return self._create_setup(name=name, setup_type=setup_type, props=kwargs["props"])
-        else:
-            setup = self._create_setup(name=name, setup_type=setup_type)
-        setup.auto_update = False
-        for arg_name, arg_value in kwargs.items():
-            if setup[arg_name] is not None:
-                setup[arg_name] = arg_value
-        setup.auto_update = True
-        setup.update()
-        return setup
-
-    @pyaedt_function_handler()
     def assign_thin_conductor(
         self,
-        assignment: "str | int | list | Object3d | None" = None,
+        assignment: str | int | list | Object3d | None = None,
         material: str | None = "copper",
         thickness: float | str | int | None = 1,
         name: str | None = "",
@@ -2732,19 +2739,6 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
 
     """
 
-    @property  # for legacy purposes
-    def dim(self):
-        """Dimension.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.q3d import Q2d
-        >>> obj = Q2d()
-        >>> obj.dim
-
-        """
-        return self.modeler.dimension
-
     def __init__(
         self,
         project: str | None = None,
@@ -2784,9 +2778,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         self.__init__(*args, **kwargs)
 
     @pyaedt_function_handler()
-    def create_rectangle(
-        self, origin: list, sizes: list, name: str | None = "", material: str | None = ""
-    ) -> "Object3d":
+    def create_rectangle(self, origin: list, sizes: list, name: str | None = "", material: str | None = "") -> Object3d:
         """Create a rectangle.
 
         Parameters
@@ -2823,7 +2815,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def assign_single_conductor(
         self,
-        assignment: "list[Object3d] | Object3d",
+        assignment: list[Object3d] | Object3d,
         name: str | None = "",
         conductor_type: str | None = "SignalLine",
         solve_option: str | None = "SolveInside",
@@ -2895,7 +2887,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def assign_huray_finitecond_to_edges(
         self,
-        assignment: "list[Object3d] | Object3d",
+        assignment: list[Object3d] | Object3d,
         radius: float | str,
         ratio: float | str,
         units: str | None = "um",
@@ -3147,55 +3139,3 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         except Exception:
             self.logger.error("Error in updating conductor type")
             return False
-
-    @pyaedt_function_handler()
-    def create_setup(self, name: str | None = "MySetupAuto", setup_type: int | str | None = None, **kwargs) -> SetupQ3D:
-        """Create an analysis setup for 2D Extractor.
-
-        Optional arguments are passed along with the ``setup_type`` and ``name``
-        parameters.  Keyword names correspond to the ``setup_type``
-        corresponding to the native AEDT API.  The list of
-        keywords here is not exhaustive.
-
-        Parameters
-        ----------
-        name : str, optional
-            Name of the setup. The default is "Setup1".
-        setup_type : int, str, optional
-            Type of the setup. Options are "IcepakSteadyState"
-            and "IcepakTransient". The default is "IcepakSteadyState".
-        **kwargs : dict, optional
-            Available keys depend on the setup chosen.
-            For more information, see :doc:`../SetupTemplatesQ3D`.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.solve_setup.SetupQ3D`
-            Solver Setup object.
-
-        References
-        ----------
-        >>> oModule.InsertSetup
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Q2d
-        >>> app = Q2d()
-        >>> app.create_setup(name="Setup1", RLDataBlock__MinPass=2)
-
-        """
-        if setup_type is None:
-            setup_type = self.design_solutions.default_setup
-        elif setup_type in SetupKeys.SetupNames:
-            setup_type = SetupKeys.SetupNames.index(setup_type)
-        if "props" in kwargs:
-            return self._create_setup(name=name, setup_type=setup_type, props=kwargs["props"])
-        else:
-            setup = self._create_setup(name=name, setup_type=setup_type)
-        setup.auto_update = False
-        for arg_name, arg_value in kwargs.items():
-            if setup[arg_name] is not None:
-                setup[arg_name] = arg_value
-        setup.auto_update = True
-        setup.update()
-        return setup

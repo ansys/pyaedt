@@ -24,14 +24,16 @@
 
 """The module contains these classes: ``RMXprtModule`` and ``Rmxprt``."""
 
+import copy
 from pathlib import Path
 
 from ansys.aedt.core.application.analysis_r_m_xprt import FieldAnalysisRMxprt
 from ansys.aedt.core.base import PyAedtBase
+from ansys.aedt.core.generic.general_methods import _merge_props
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modules.setup_templates import SetupKeys
-from ansys.aedt.core.modules.solve_setup import SetupHFSS
+from ansys.aedt.core.modules.solve_setup import SetupRmxprt
 
 
 class RMXprtModule(PyAedtBase):
@@ -340,30 +342,20 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
         self.design_solutions._design_type = value
 
     @pyaedt_function_handler()
-    def create_setup(
-        self, name: str | None = "MySetupAuto", setup_type: int | str | None = None, **kwargs
-    ) -> SetupHFSS:
-        """Create an analysis setup for RmXport.
-
-        Optional arguments are passed along with the ``setup_type`` and ``name``
-        parameters. Keyword names correspond to the ``setup_type``
-        corresponding to the native AEDT API.  The list of
-        keywords here is not exhaustive.
+    def create_setup(self, name: str | None = None, **kwargs) -> SetupRmxprt:
+        """Create an analysis setup for Rmxprt.
 
         Parameters
         ----------
         name : str, optional
             Name of the setup. The default is "Setup1".
-        setup_type : int, str, optional
-            Type of the setup. Options are "IcepakSteadyState"
-            and "IcepakTransient". The default is "IcepakSteadyState".
         **kwargs : dict, optional
             Available keys depend on the setup chosen.
             For more information, see :doc:`../SetupTemplatesRmxprt`.
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.solve_setup.SetupHFSS`
+        :class:`ansys.aedt.core.modules.solve_setup.SetupRmxprt`
             Solver Setup object.
 
         References
@@ -372,25 +364,32 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> hfss.create_setup(name="Setup1", setup_type="HFSSDriven", Frequency="10GHz")
+        >>> from ansys.aedt.core import Rmxprt
+        >>> app = Rmxprt()
+        >>> app.create_setup()
 
         """
-        if setup_type is None:
-            setup_type = self.design_solutions.default_setup
-        elif setup_type in SetupKeys.SetupNames:
-            setup_type = SetupKeys.SetupNames.index(setup_type)
+        setup_keys = SetupKeys.get_setup_templates()
+        setup_type = self.design_solutions.default_setup
+
+        if not name:
+            name = self.generate_unique_setup_name("MySetupAuto")
+        elif name in self.setup_names:
+            name = self.generate_unique_setup_name(name)
+            self.logger.warning(f"Name already exists. New name assigned is {name}.")
+
+        props = copy.deepcopy(setup_keys[setup_type])
+
+        setup = SetupRmxprt(app=self, name=name, props=props)
+
         if "props" in kwargs:
-            return self._create_setup(name=name, setup_type=setup_type, props=kwargs["props"])
-        else:
-            setup = self._create_setup(name=name, setup_type=setup_type)
-        setup.auto_update = False
+            _merge_props(props, kwargs.pop("props"))
         for arg_name, arg_value in kwargs.items():
-            if setup[arg_name] is not None:
-                setup[arg_name] = arg_value
-        setup.auto_update = True
-        setup.update()
+            if props[arg_name] is not None:
+                props[arg_name] = arg_value
+
+        setup.create()
+
         return setup
 
     @pyaedt_function_handler()

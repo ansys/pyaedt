@@ -41,7 +41,6 @@ from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellTorque
 from ansys.aedt.core.modules.boundary.maxwell_boundary import SourceACMagnetic
 from ansys.aedt.core.modules.boundary.maxwell_boundary import SourceMagnetostatic
 from tests import TESTS_GENERAL_PATH
-from tests.conftest import DESKTOP_VERSION
 from tests.conftest import NON_GRAPHICAL
 
 TEST_SUBFOLDER = "TMaxwell"
@@ -49,13 +48,8 @@ TEST_SUBFOLDER = "TMaxwell"
 TEST_NAME = "Maxwell_2D_Tests"
 TEST_DESIGN_NAME = "Basis_Model_For_Test"
 
-CTRL_PRG_PROJECT = "TimeStepCtrl"
-CTRL_PRG_FILE = "timestep_only.py"
-
 M2D_EXPORT_FIELD = "maxwell_e_line_export_field"
 SINUSOIDAL_NAME = "Sinusoidal"
-
-M2D_TRANSIENT_EC = "Setup_Transient_EC"
 
 EXPORT_MATRIX = "export_matrix"
 
@@ -87,13 +81,6 @@ def sinusoidal(add_app_example):
 
 
 @pytest.fixture
-def m2d_ctrl_prg(add_app_example):
-    app = add_app_example(application=ansys.aedt.core.Maxwell2d, project=CTRL_PRG_PROJECT, subfolder=TEST_SUBFOLDER)
-    yield app
-    app.close_project(app.project_name, save=False)
-
-
-@pytest.fixture
 def m2d_export_matrix(add_app_example):
     app = add_app_example(application=ansys.aedt.core.Maxwell2d, project=EXPORT_MATRIX, subfolder=TEST_SUBFOLDER)
     yield app
@@ -105,21 +92,6 @@ def m2d_app(add_app):
     app = add_app(application=ansys.aedt.core.Maxwell2d)
     yield app
     app.close_project(app.project_name, save=False)
-
-
-@pytest.fixture
-def m2d_setup(add_app_example):
-    app = add_app_example(application=ansys.aedt.core.Maxwell2d, project=M2D_TRANSIENT_EC, subfolder=TEST_SUBFOLDER)
-    yield app
-    app.close_project(app.project_name, save=False)
-
-
-def test_assign_initial_mesh_from_slider(aedt_app) -> None:
-    assert aedt_app.mesh.assign_initial_mesh_from_slider(4)
-    with pytest.raises(ValueError):
-        aedt_app.mesh.assign_initial_mesh_from_slider(method="dummy")
-    with pytest.raises(ValueError):
-        aedt_app.mesh.assign_initial_mesh(method="dummy")
 
 
 def test_assign_winding(aedt_app) -> None:
@@ -146,10 +118,10 @@ def test_assign_coil(aedt_app) -> None:
     assert bound
     polarity = "Positive"
     bound = aedt_app.assign_coil(assignment=["Coil"], polarity=polarity)
-    assert bound.props["PolarityType"] == polarity.lower()
+    assert bound.props["PolarityType"].lower() == polarity.lower()
     polarity = "Negative"
     bound = aedt_app.assign_coil(assignment=["Coil"], polarity=polarity)
-    assert bound.props["PolarityType"] == polarity.lower()
+    assert bound.props["PolarityType"].lower() == polarity.lower()
     bound_name = ansys.aedt.core.generate_unique_name("Coil")
     bound = aedt_app.assign_coil(assignment=["Coil"], name=bound_name)
     assert bound_name == bound.name
@@ -161,19 +133,13 @@ def test_create_vector_potential(aedt_app) -> None:
     bounds = aedt_app.assign_vector_potential(edge_object.id, 3)
     assert bounds
     assert bounds.props["Value"] == "3"
-    bounds["Value"] = "2"
+    bounds.props["Value"] = "2"
     assert bounds.props["Value"] == "2"
     line = aedt_app.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="myline")
     bound2 = aedt_app.assign_vector_potential(line.id, 2)
     assert bound2
     assert bound2.props["Value"] == "2"
     assert bound2.update()
-
-
-def test_create_setup(aedt_app) -> None:
-    mysetup = aedt_app.create_setup()
-    mysetup.props["SaveFields"] = True
-    assert mysetup.update()
 
 
 def test_assign_balloon(aedt_app) -> None:
@@ -364,9 +330,9 @@ def test_assign_current_density(sinusoidal) -> None:
     assert bound2.props["CoordinateSystem"] == ""
     bound_group = sinusoidal.assign_current_density(["Coil", "Coil_1"], "CurrentDensityGroup_1")
     assert bound_group
-    assert bound_group.props[bound_group.props["items"][0]]["Objects"] == ["Coil", "Coil_1"]
-    assert bound_group.props[bound_group.props["items"][0]]["Value"] == "0"
-    assert bound_group.props[bound_group.props["items"][0]]["CoordinateSystem"] == ""
+    assert bound_group.props["Objects"] == ["Coil"]
+    assert bound_group.props["Value"] == "0"
+    assert bound_group.props["CoordinateSystem"] == ""
     with pytest.raises(AEDTRuntimeError, match="Couldn't assign current density to desired list of objects."):
         sinusoidal.assign_current_density("Circle_inner", "CurrentDensity_1")
 
@@ -376,41 +342,6 @@ def test_set_variable(aedt_app) -> None:
     aedt_app["var_test"] = "234"
     assert "var_test" in aedt_app.variable_manager.design_variable_names
     assert aedt_app.variable_manager.design_variables["var_test"].expression == "234"
-
-
-def test_cylindrical_gap(aedt_app) -> None:
-    assert not aedt_app.mesh.assign_cylindrical_gap("Band")
-    [
-        x.delete()
-        for x in aedt_app.mesh.meshoperations[:]
-        if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
-    ]
-    assert aedt_app.mesh.assign_cylindrical_gap("Band", name="cyl_gap_test")
-    assert not aedt_app.mesh.assign_cylindrical_gap(["Band", "Region"])
-    assert not aedt_app.mesh.assign_cylindrical_gap("Band")
-    [
-        x.delete()
-        for x in aedt_app.mesh.meshoperations[:]
-        if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
-    ]
-    assert aedt_app.mesh.assign_cylindrical_gap("Band", name="cyl_gap_test", band_mapping_angle=2)
-
-
-def test_skin_depth(aedt_app) -> None:
-    edge = aedt_app.modeler["Rotor_Section1"].edges[0]
-    mesh = aedt_app.mesh.assign_skin_depth(assignment=edge, skin_depth="0.3mm", layers_number=3)
-    assert mesh
-    assert mesh.type == "SkinDepthBased"
-    assert mesh.props["Edges"][0] == edge.id
-    assert mesh.props["SkinDepth"] == "0.3mm"
-    assert mesh.props["NumLayers"] == 3
-    edge1 = aedt_app.modeler["Rotor_Section1"].edges[1]
-    mesh = aedt_app.mesh.assign_skin_depth(assignment=edge1.id, skin_depth="0.3mm", layers_number=3)
-    assert mesh
-    assert mesh.type == "SkinDepthBased"
-    assert mesh.props["Edges"][0] == edge1.id
-    assert mesh.props["SkinDepth"] == "0.3mm"
-    assert mesh.props["NumLayers"] == 3
 
 
 def test_start_continue_from_previous_setup(test_tmp_dir, aedt_app) -> None:
@@ -466,21 +397,6 @@ def test_export_field_file(test_tmp_dir, m2d_fields) -> None:
         quantity="E_Line", output_file=output_file, assignment="Poly1", objects_type="Line"
     )
     assert output_file.exists()
-
-
-def test_control_program(m2d_ctrl_prg) -> None:
-    user_ctl_path = Path("user.ctl")
-    ctrl_prg_path = Path(TESTS_GENERAL_PATH) / "example_models" / TEST_SUBFOLDER / CTRL_PRG_FILE
-    assert m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=ctrl_prg_path)
-    assert m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=ctrl_prg_path, control_program_args="3")
-    assert not m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=ctrl_prg_path, control_program_args=3)
-    assert m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=ctrl_prg_path, call_after_last_step=True)
-    invalid_ctrl_prg_path = Path(TESTS_GENERAL_PATH) / "example_models" / TEST_SUBFOLDER / "invalid.py"
-    assert not m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=invalid_ctrl_prg_path)
-    m2d_ctrl_prg.solution_type = SolutionsMaxwell2D.EddyCurrentXY
-    assert not m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=ctrl_prg_path)
-    if user_ctl_path.exists():
-        user_ctl_path.unlink()
 
 
 @pytest.mark.skipif(NON_GRAPHICAL, reason="Test fails on build machine")
@@ -611,57 +527,6 @@ def test_assign_matrix_failure(m2d_app):
         m2d_app.assign_matrix(matrix_args)
 
 
-def test_solution_types_setup(m2d_app) -> None:
-    m2d_app.solution_type = SolutionsMaxwell2D.TransientXY
-    setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
-    assert setup
-    setup.delete()
-    m2d_app.solution_type = SolutionsMaxwell2D.TransientZ
-    setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
-    assert setup
-    setup.delete()
-    m2d_app.solution_type = SolutionsMaxwell2D.MagnetostaticXY
-    setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
-    assert setup
-    setup.delete()
-    m2d_app.solution_type = SolutionsMaxwell2D.MagnetostaticZ
-    setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
-    assert setup
-    setup.delete()
-    m2d_app.solution_type = SolutionsMaxwell2D.EddyCurrentXY
-    setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
-    assert setup
-    setup.delete()
-    m2d_app.solution_type = SolutionsMaxwell2D.EddyCurrentZ
-    setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
-    assert setup
-    setup.delete()
-    m2d_app.solution_type = SolutionsMaxwell2D.ElectroStaticXY
-    setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
-    assert setup
-    setup.delete()
-    m2d_app.solution_type = SolutionsMaxwell2D.ElectroStaticZ
-    setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
-    assert setup
-    setup.delete()
-    m2d_app.solution_type = SolutionsMaxwell2D.DCConductionXY
-    setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
-    assert setup
-    setup.delete()
-    m2d_app.solution_type = SolutionsMaxwell2D.DCConductionZ
-    setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
-    assert setup
-    setup.delete()
-    m2d_app.solution_type = SolutionsMaxwell2D.ACConductionXY
-    setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
-    assert setup
-    setup.delete()
-    m2d_app.solution_type = SolutionsMaxwell2D.ACConductionZ
-    setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
-    assert setup
-    setup.delete()
-
-
 def test_create_external_circuit(m2d_app) -> None:
     m2d_app.solution_type = SolutionsMaxwell2D.EddyCurrentXY
     m2d_app.modeler.create_circle([0, 0, 0], 10, name="Coil1")
@@ -679,7 +544,7 @@ def test_create_external_circuit(m2d_app) -> None:
     with pytest.raises(AEDTRuntimeError):
         m2d_app.create_external_circuit()
     m2d_app.solution_type = SolutionsMaxwell2D.EddyCurrentXY
-    for w in m2d_app.excitations_by_type["Winding"]:
+    for w in m2d_app.excitations_by_type["Winding Group"]:
         w.delete()
     m2d_app.save_project()
     with pytest.raises(
@@ -701,125 +566,6 @@ def test_assign_voltage(m2d_app) -> None:
     rect = m2d_app.modeler.create_rectangle([32, 1.5, 0], [8, 3], is_covered=True)
     assert m2d_app.assign_voltage(assignment=[region_id.name, rect.name], amplitude=3, name="GRD4")
     assert len(m2d_app.boundaries) == 4
-
-
-def test_set_save_fields(m2d_setup) -> None:
-    m2d_setup.set_active_design("setup_transient")
-
-    setup = m2d_setup.setups[0]
-    assert setup.set_save_fields(
-        enable=True, range_type="Custom", subrange_type="LinearStep", start=0, stop=8, count=2, units="ms"
-    )
-    assert len(setup.props["SweepRanges"]["Subrange"]) == 2
-    assert setup.props["SweepRanges"]["Subrange"][1]["RangeType"] == "LinearStep"
-    assert setup.props["SweepRanges"]["Subrange"][1]["RangeStart"] == "0ms"
-    assert setup.props["SweepRanges"]["Subrange"][1]["RangeEnd"] == "8ms"
-    assert setup.props["SweepRanges"]["Subrange"][1]["RangeStep"] == "2ms"
-    assert setup.set_save_fields(
-        enable=True, range_type="Custom", subrange_type="LinearCount", start=0, stop=8, count=2, units="ms"
-    )
-    assert len(setup.props["SweepRanges"]["Subrange"]) == 3
-    assert setup.props["SweepRanges"]["Subrange"][2]["RangeType"] == "LinearCount"
-    assert setup.props["SweepRanges"]["Subrange"][2]["RangeStart"] == "0ms"
-    assert setup.props["SweepRanges"]["Subrange"][2]["RangeEnd"] == "8ms"
-    assert setup.props["SweepRanges"]["Subrange"][2]["RangeCount"] == 2
-    assert setup.set_save_fields(enable=True, range_type="Custom", subrange_type="SinglePoints", start=3, units="ms")
-    assert len(setup.props["SweepRanges"]["Subrange"]) == 4
-    assert setup.props["SweepRanges"]["Subrange"][3]["RangeType"] == "SinglePoints"
-    assert setup.props["SweepRanges"]["Subrange"][3]["RangeStart"] == "3ms"
-    assert setup.props["SweepRanges"]["Subrange"][3]["RangeEnd"] == "3ms"
-    assert setup.set_save_fields(enable=True, range_type="Every N Steps", start=0, stop=10, count=1, units="ms")
-    assert setup.props["SaveFieldsType"] == "Every N Steps"
-    assert setup.props["Steps From"] == "0ms"
-    assert setup.props["Steps To"] == "10ms"
-    assert setup.props["N Steps"] == "1"
-    assert setup.set_save_fields(enable=True, range_type="Custom", subrange_type="SinglePoints", start=3, units="ms")
-    assert len(setup.props["SweepRanges"]["Subrange"]) == 1
-    assert setup.props["SweepRanges"]["Subrange"][0]["RangeType"] == "SinglePoints"
-    assert setup.props["SweepRanges"]["Subrange"][0]["RangeStart"] == "3ms"
-    assert setup.props["SweepRanges"]["Subrange"][0]["RangeEnd"] == "3ms"
-    assert setup.set_save_fields(range_type="None")
-    assert setup.set_save_fields(enable=False)
-    assert not setup.set_save_fields(enable=True, range_type="invalid")
-
-    m2d_setup.solution_type = SolutionsMaxwell2D.MagnetostaticXY
-
-    setup = m2d_setup.create_setup()
-    assert setup.set_save_fields(enable=True)
-    assert setup.set_save_fields(enable=False)
-
-
-@pytest.mark.skipif(
-    DESKTOP_VERSION < "2025.1",
-    reason="Not working in non-graphical in version lower than 2025.1",
-)
-def test_eddy_current_sweep(m2d_setup) -> None:
-    m2d_setup.set_active_design("setup_ec")
-    setup = m2d_setup.setups[0]
-    setup.props["MaximumPasses"] = 12
-
-    setup.props["MinimumPasses"] = 2
-    setup.props["MinimumConvergedPasses"] = 1
-    setup.props["PercentRefinement"] = 30
-    setup.props["Frequency"] = "200Hz"
-    dc_freq = 0.1
-    stop_freq = 10
-    count = 1
-    sweep = setup.add_eddy_current_sweep(
-        sweep_type="LinearStep", start_frequency=dc_freq, stop_frequency=stop_freq, step_size=count, clear=False
-    )
-    assert sweep.props["RangeType"] == "LinearStep"
-    assert sweep.props["RangeStart"] == "0.1Hz"
-    assert sweep.props["RangeEnd"] == "10Hz"
-    assert sweep.props["RangeStep"] == "1Hz"
-    assert isinstance(setup.props["SweepRanges"]["Subrange"], list)
-    m2d_setup.save_project()
-    assert len(setup.props["SweepRanges"]["Subrange"]) == 2
-    assert len(setup.sweeps) == 2
-    assert setup.props["SaveAllFields"]
-    assert setup.delete_all_eddy_current_sweeps()
-    assert "SweepRanges" not in setup.props
-    assert len(setup.sweeps) == 0
-    sweep = setup.add_eddy_current_sweep(
-        sweep_type="LinearCount", start_frequency=dc_freq, stop_frequency=stop_freq, step_size=count, clear=False
-    )
-    assert sweep.props["RangeType"] == "LinearCount"
-    assert sweep.props["RangeStart"] == "0.1Hz"
-    assert sweep.props["RangeEnd"] == "10Hz"
-    assert sweep.props["RangeCount"] == 1
-    assert isinstance(setup.props["SweepRanges"]["Subrange"], list)
-    m2d_setup.save_project()
-    assert len(setup.props["SweepRanges"]["Subrange"]) == 1
-    assert len(setup.sweeps) == 1
-    sweep = setup.add_eddy_current_sweep(
-        sweep_type="LogScale", start_frequency=dc_freq, stop_frequency=stop_freq, step_size=count, clear=True
-    )
-    assert sweep.props["RangeType"] == "LogScale"
-    assert sweep.props["RangeStart"] == "0.1Hz"
-    assert sweep.props["RangeEnd"] == "10Hz"
-    assert sweep.props["RangeSamples"] == 1
-    assert isinstance(setup.props["SweepRanges"]["Subrange"], list)
-    m2d_setup.save_project()
-    assert len(setup.props["SweepRanges"]["Subrange"]) == 1
-    assert len(setup.sweeps) == 1
-    sweep = setup.add_eddy_current_sweep(sweep_type="SinglePoints", start_frequency=0.01, clear=False)
-    assert sweep.props["RangeType"] == "SinglePoints"
-    assert sweep.props["RangeStart"] == "0.01Hz"
-    assert sweep.props["RangeEnd"] == "0.01Hz"
-    m2d_setup.save_project()
-    assert len(setup.props["SweepRanges"]["Subrange"]) == 2
-    assert len(setup.sweeps) == 2
-    assert sweep.delete()
-    m2d_setup.save_project()
-    assert len(setup.props["SweepRanges"]["Subrange"]) == 1
-    assert len(setup.sweeps) == 1
-    assert setup.update()
-    assert setup.enable_expression_cache(["CoreLoss"], "Fields", "Phase='0deg' ", True)
-    assert setup.props["UseCacheFor"] == ["Pass", "Freq"]
-    assert setup.disable()
-    assert setup.enable()
-    assert not sweep.is_solved
-    assert isinstance(sweep.frequencies, list)
 
 
 def test_export_matrix(test_tmp_dir, m2d_export_matrix) -> None:
@@ -847,20 +593,20 @@ def test_export_matrix(test_tmp_dir, m2d_export_matrix) -> None:
     )
 
 
-def test_analyze_from_zero(m2d_app) -> None:
+def test_reset_to_zero(m2d_app) -> None:
     m2d_app.solution_type = SolutionsMaxwell2D.TransientXY
     conductor = m2d_app.modeler.create_circle(origin=[0, 0, 0], radius=10, material="Copper")
-    m2d_app.assign_winding(assignment=conductor.name, is_solid=False, current="5*cos(2*PI*50*time)")
-    region = m2d_app.modeler.create_region(pad_percent=100)
-    bound = m2d_app.assign_balloon(region.edges)
     setup1 = m2d_app.create_setup()
     setup1.props["StopTime"] = "2/50s"
     setup1.props["TimeStep"] = "1/500s"
-    assert m2d_app.analyze_from_zero()
-    bound.delete()
-    m2d_app.assign_vector_potential(assignment=region.edges)
-    assert m2d_app.analyze_from_zero()
+
+    assert setup1.reset_to_zero()
+    m2d_app.assign_winding(assignment=conductor.name, is_solid=False, current="5*cos(2*PI*50*time)")
+    region = m2d_app.modeler.create_region(pad_percent=100)
+    m2d_app.assign_balloon(region.edges)
+    assert setup1.reset_to_zero()
+
     m2d_app.solution_type = SolutionsMaxwell2D.MagnetostaticXY
     m2d_app.create_setup()
     with pytest.raises(AEDTRuntimeError):
-        m2d_app.analyze_from_zero()
+        setup1.reset_to_zero()

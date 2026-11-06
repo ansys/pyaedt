@@ -36,10 +36,11 @@ from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import Quantity
+from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 
-class Object3DLayout(PyAedtBase):
+class Object3DLayout(BinaryTreeNode, PyAedtBase):
     """Manages properties of objects in HFSS 3D Layout.
 
     Parameters
@@ -60,6 +61,19 @@ class Object3DLayout(PyAedtBase):
         self._n = 10
         self.prim_type = prim_type
         self._points = []
+        self._child_object = None
+
+    @pyaedt_function_handler()
+    def _initialize_tree_node(self) -> bool:
+        if not self._child_object:
+            try:
+                self._child_object = self._primitives._app.get_oo_object(self._oeditor, self.name)
+            except Exception:
+                self._child_object = None
+        if self._child_object:
+            BinaryTreeNode.__init__(self, self.name, self._child_object, False, app=self._primitives._app)
+            return True
+        return False
 
     @property
     def object_units(self) -> str:

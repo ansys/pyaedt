@@ -205,7 +205,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return self._modeler
 
     @property
-    def mesh(self) -> Mesh:
+    def mesh(self) -> Mesh | None:
         """Mesh.
 
         Returns
@@ -1297,8 +1297,6 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
                             return False
             app.close_project(save=False)
 
-        if not self.design_type == "Icepak":
-            self.mesh._refresh_mesh_operations()
         return True
 
     @pyaedt_function_handler()
