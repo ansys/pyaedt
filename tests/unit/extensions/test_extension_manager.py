@@ -30,6 +30,7 @@ from unittest.mock import patch
 
 import pytest
 
+from ansys.aedt.core.extensions import EXTENSIONS_PATH
 from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.misc import ExtensionTheme
@@ -1134,3 +1135,34 @@ def test_extension_manager_launch_web_url_exception(
         assert result is False
 
     extension.root.destroy()
+
+
+def test_custom_extension_icon_no_script_file() -> None:
+    """Without a script file, the default PyAnsys icon is returned."""
+    icon = ExtensionManager._custom_extension_icon(None)
+
+    assert icon == EXTENSIONS_PATH / "images" / "large" / "pyansys.png"
+
+
+def test_custom_extension_icon_with_matching_png(tmp_path) -> None:
+    """If a PNG with the script's name exists next to it, that icon is returned."""
+    script_file = tmp_path / "my_script.py"
+    script_file.touch()
+    images_dir = tmp_path / "images"
+    images_dir.mkdir()
+    custom_icon = images_dir / "my_script.png"
+    custom_icon.touch()
+
+    icon = ExtensionManager._custom_extension_icon(str(script_file))
+
+    assert icon == custom_icon
+
+
+def test_custom_extension_icon_without_matching_png(tmp_path) -> None:
+    """If no matching PNG exists next to the script file, the default icon is returned."""
+    script_file = tmp_path / "my_script.py"
+    script_file.touch()
+
+    icon = ExtensionManager._custom_extension_icon(str(script_file))
+
+    assert icon == EXTENSIONS_PATH / "images" / "large" / "pyansys.png"
