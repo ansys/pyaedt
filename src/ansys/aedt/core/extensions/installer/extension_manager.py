@@ -744,7 +744,7 @@ class ExtensionManager(ExtensionProjectCommon):
             else:
                 messagebox.showinfo("Error", "Wrong extension.")
                 return
-        icon = EXTENSIONS_PATH / "images" / "large" / "pyansys.png"
+        icon = self._custom_extension_icon(script_file if is_custom else None)
         if is_custom and script_field is None:
             try:
                 add_script_to_menu(
@@ -998,7 +998,7 @@ class ExtensionManager(ExtensionProjectCommon):
             return
         if option.lower() == "custom":
             script_file, custom_option = self.handle_custom_extension()
-            icon = EXTENSIONS_PATH / "images" / "large" / "pyansys.png"
+            icon = self._custom_extension_icon(script_file)
             # If the user selected a script, copy it into personal lib Toolkits/<product>/<option>/Lib
             if not script_file or custom_option is None:
                 self.desktop.logger.info("No script selected for custom extension. Aborting pin.")
@@ -1666,6 +1666,11 @@ class ExtensionManager(ExtensionProjectCommon):
         except Exception:
             logging.getLogger("Global").debug("PyAEDT update popup: failed to display.", exc_info=True)
 
+    @staticmethod
+    def _custom_extension_icon(script_file=None) -> Path:
+        """Icon of a custom extension: a PNG with the script's name beside it, else the PyAnsys icon."""
+        icon = Path(script_file).parent / "images" / Path(script_file).with_suffix(".png").name if script_file else None
+        return icon if icon and icon.is_file() else EXTENSIONS_PATH / "images" / "large" / "pyansys.png"
 
 if __name__ == "__main__":  # pragma: no cover
     # Open UI
