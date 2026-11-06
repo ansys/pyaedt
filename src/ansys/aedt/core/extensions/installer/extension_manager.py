@@ -1672,6 +1672,7 @@ class ExtensionManager(ExtensionProjectCommon):
         icon = Path(script_file).parent / "images" / Path(script_file).with_suffix(".png").name if script_file else None
         return icon if icon and icon.is_file() else EXTENSIONS_PATH / "images" / "large" / "pyansys.png"
 
+
 if __name__ == "__main__":  # pragma: no cover
     # Open UI
     extension: ExtensionProjectCommon = ExtensionManager(withdraw=False)
