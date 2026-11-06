@@ -30,7 +30,7 @@ import pytest
 
 @pytest.fixture
 def h3d_potter_horn(add_app_example):
-    app = add_app_example(project="Potter_Horn_242", subfolder="T12")
+    app = add_app_example(project="Potter_Horn_242", subfolder="T10")
     yield app
     app.close_project(save=False)
 

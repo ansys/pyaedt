@@ -25,16 +25,16 @@
 import numpy as np
 import pytest
 
-PATCH_PROJECT = "get_sol_data_test_v1"
-PATCH_DESIGN = "HFSSDesign_1patch"
+HORN_PROJECT = "Potter_Horn_242"
+HORN_DESIGN = "Horn_param"
 RCS_PROJECT = "Rectangular_GP_IE_v1"
 RCS_DESIGN = "RecGP"
 TEST_SUBFOLDER = "T10"
 
 
 @pytest.fixture
-def patch_app(add_app_example):
-    app = add_app_example(project=PATCH_PROJECT, design=PATCH_DESIGN, subfolder=TEST_SUBFOLDER)
+def horn_app(add_app_example):
+    app = add_app_example(project=HORN_PROJECT, design=HORN_DESIGN, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(app.project_name, save=False)
 
@@ -63,20 +63,20 @@ def _explicit_data(app, plot, variations, primary_sweep):
     )
 
 
-def test_ff_variations(patch_app) -> None:
-    plot = _get_plot(patch_app, "Realized Gain Plot1")
+def test_ff_variations(horn_app) -> None:
+    plot = _get_plot(horn_app, "Realized Gain Plot1")
     assert plot.variations["Phi"] != ["All"]
     assert plot.variations["Theta"] != ["All"]
     assert plot.variations["Freq"] == ["All"]
 
 
-def test_ff_matches_explicit(patch_app) -> None:
-    plot = _get_plot(patch_app, "Realized Gain Plot1")
+def test_ff_matches_explicit(horn_app) -> None:
+    plot = _get_plot(horn_app, "Realized Gain Plot1")
     expression = plot.expressions[0]
     x, y = plot.get_solution_data().get_expression_data(expression, formula="real")
 
     variations = {"Phi": ["0deg"], "Theta": ["0deg"], "Freq": ["All"]}
-    reference = _explicit_data(patch_app, plot, variations, "Freq")
+    reference = _explicit_data(horn_app, plot, variations, "Freq")
     x_ref, y_ref = reference.get_expression_data(expression, formula="real")
     np.testing.assert_allclose(x, x_ref)
     np.testing.assert_allclose(y, y_ref)
@@ -100,8 +100,8 @@ def test_rcs_matches_explicit(rcs_app) -> None:
     np.testing.assert_allclose(y, y_ref)
 
 
-def test_all_curves_single(patch_app) -> None:
-    plot = _get_plot(patch_app, "Realized Gain Plot1")
+def test_all_curves_single(horn_app) -> None:
+    plot = _get_plot(horn_app, "Realized Gain Plot1")
     curves = plot.get_expression_data_all_curves(formula="real")
     assert len(curves) == 1
     x, y = plot.get_solution_data().get_expression_data(plot.expressions[0], formula="real")
@@ -109,17 +109,17 @@ def test_all_curves_single(patch_app) -> None:
     np.testing.assert_allclose(curves[0]["y"], y)
 
 
-def test_all_curves_multiple(patch_app) -> None:
-    plot = _get_plot(patch_app, "Realized Gain 3Curves")
+def test_all_curves_multiple(horn_app) -> None:
+    plot = _get_plot(horn_app, "Realized Gain 3Curves")
     curves = plot.get_expression_data_all_curves(formula="real")
     assert len(curves) == 3
-    assert [curve["variation"]["Theta"] for curve in curves] == [-41.0, 0.0, 64.0]
+    assert [curve["variation"]["Theta"] for curve in curves] == [-50.0, 0.0, 40.0]
     assert all(len(curve["x"]) == len(curve["y"]) > 0 for curve in curves)
     assert not np.allclose(curves[0]["y"], curves[1]["y"])
 
 
-def test_phase_units(patch_app) -> None:
-    plot = _get_plot(patch_app, "S Parameter Chart1")
+def test_phase_units(horn_app) -> None:
+    plot = _get_plot(horn_app, "S Parameter Chart1")
     data = plot.get_solution_data()
     expression = plot.expressions[0]
     _, rad = data.get_expression_data(expression, formula="phaserad")
