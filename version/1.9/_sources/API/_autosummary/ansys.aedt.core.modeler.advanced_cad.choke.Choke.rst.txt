@@ -1,0 +1,60 @@
+﻿Choke
+=====
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.choke
+
+.. autoclass:: Choke
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      Choke.create_choke
+      
+      
+      Choke.create_ground
+      
+      
+      Choke.create_mesh
+      
+      
+      Choke.create_ports
+      
+      
+      Choke.export_to_json
+      
+      
+      Choke.from_dict
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      Choke.choke_parameters
+      Choke.name
+      Choke.public_dir
+      Choke.number_of_windings
+      Choke.layer
+      Choke.layer_type
+      Choke.similar_layer
+      Choke.mode
+      Choke.wire_section
+      Choke.core
+      Choke.outer_winding
+      Choke.mid_winding
+      Choke.inner_winding
+      Choke.settings
+      Choke.create_component
+   
+   

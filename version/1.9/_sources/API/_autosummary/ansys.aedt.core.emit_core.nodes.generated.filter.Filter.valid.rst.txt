@@ -1,0 +1,6 @@
+valid
+=====
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.filter
+
+.. autoproperty:: Filter.valid

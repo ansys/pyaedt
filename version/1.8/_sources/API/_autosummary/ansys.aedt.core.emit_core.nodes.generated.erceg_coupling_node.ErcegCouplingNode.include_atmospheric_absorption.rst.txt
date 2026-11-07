@@ -1,0 +1,6 @@
+include\_atmospheric\_absorption
+================================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.erceg_coupling_node
+
+.. autoproperty:: ErcegCouplingNode.include_atmospheric_absorption

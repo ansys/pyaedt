@@ -1,0 +1,6 @@
+set\_weave\_style
+=================
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.weave
+
+.. automethod:: Weave.set_weave_style

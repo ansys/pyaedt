@@ -1,0 +1,6 @@
+plot
+====
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.cable
+
+.. automethod:: Cable.plot

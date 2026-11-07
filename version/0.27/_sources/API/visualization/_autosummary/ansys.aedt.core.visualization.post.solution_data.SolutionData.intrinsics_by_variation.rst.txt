@@ -1,0 +1,6 @@
+intrinsics\_by\_variation
+=========================
+
+.. currentmodule:: ansys.aedt.core.visualization.post.solution_data
+
+.. automethod:: SolutionData.intrinsics_by_variation

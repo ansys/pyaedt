@@ -1,0 +1,6 @@
+ip3\_ref\_input
+===============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.amplifier
+
+.. autoproperty:: Amplifier.ip3_ref_input

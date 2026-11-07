@@ -1,0 +1,6 @@
+pulse\_fall\_time
+=================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.band
+
+.. autoproperty:: Band.pulse_fall_time

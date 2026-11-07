@@ -1,0 +1,6 @@
+export\_to\_csv
+===============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.rx_selectivity_node
+
+.. automethod:: RxSelectivityNode.export_to_csv

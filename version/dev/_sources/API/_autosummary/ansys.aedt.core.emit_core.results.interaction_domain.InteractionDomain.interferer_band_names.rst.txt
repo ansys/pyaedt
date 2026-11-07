@@ -1,0 +1,6 @@
+interferer\_band\_names
+=======================
+
+.. currentmodule:: ansys.aedt.core.emit_core.results.interaction_domain
+
+.. autoattribute:: InteractionDomain.interferer_band_names

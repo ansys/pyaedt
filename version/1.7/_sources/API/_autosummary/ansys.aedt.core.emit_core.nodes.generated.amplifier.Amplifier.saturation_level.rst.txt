@@ -1,0 +1,6 @@
+saturation\_level
+=================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.amplifier
+
+.. autoproperty:: Amplifier.saturation_level

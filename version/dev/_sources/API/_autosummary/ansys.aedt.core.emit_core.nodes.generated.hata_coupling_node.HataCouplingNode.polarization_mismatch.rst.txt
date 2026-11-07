@@ -1,0 +1,6 @@
+polarization\_mismatch
+======================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.hata_coupling_node
+
+.. autoproperty:: HataCouplingNode.polarization_mismatch

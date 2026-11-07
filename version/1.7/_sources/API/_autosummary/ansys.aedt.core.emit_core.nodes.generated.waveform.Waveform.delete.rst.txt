@@ -1,0 +1,6 @@
+delete
+======
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.waveform
+
+.. automethod:: Waveform.delete

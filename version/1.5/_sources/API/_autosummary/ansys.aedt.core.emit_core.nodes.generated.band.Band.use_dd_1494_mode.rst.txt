@@ -1,0 +1,6 @@
+use\_dd\_1494\_mode
+===================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.band
+
+.. autoproperty:: Band.use_dd_1494_mode

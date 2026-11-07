@@ -1,0 +1,6 @@
+allowed\_child\_types
+=====================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.isolator
+
+.. autoproperty:: Isolator.allowed_child_types

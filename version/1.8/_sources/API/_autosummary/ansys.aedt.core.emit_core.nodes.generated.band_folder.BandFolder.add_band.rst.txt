@@ -1,0 +1,6 @@
+add\_band
+=========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.band_folder
+
+.. automethod:: BandFolder.add_band

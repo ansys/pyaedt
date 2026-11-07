@@ -1,0 +1,129 @@
+﻿MCADComponent
+=============
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.mcad_assembly
+
+.. autoclass:: MCADComponent
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      MCADComponent.add_arrange_move
+      
+      
+      MCADComponent.add_arrange_rotate
+      
+      
+      MCADComponent.add_sub_ecad_component
+      
+      
+      MCADComponent.add_sub_mcad_component
+      
+      
+      MCADComponent.construct
+      
+      
+      MCADComponent.copy
+      
+      
+      MCADComponent.dict
+      
+      
+      MCADComponent.from_orm
+      
+      
+      MCADComponent.json
+      
+      
+      MCADComponent.model_construct
+      
+      
+      MCADComponent.model_copy
+      
+      
+      MCADComponent.model_dump
+      
+      
+      MCADComponent.model_dump_json
+      
+      
+      MCADComponent.model_json_schema
+      
+      
+      MCADComponent.model_parametrized_name
+      
+      
+      MCADComponent.model_post_init
+      
+      
+      MCADComponent.model_rebuild
+      
+      
+      MCADComponent.model_validate
+      
+      
+      MCADComponent.model_validate_json
+      
+      
+      MCADComponent.model_validate_strings
+      
+      
+      MCADComponent.parse_file
+      
+      
+      MCADComponent.parse_obj
+      
+      
+      MCADComponent.parse_raw
+      
+      
+      MCADComponent.preprocess
+      
+      
+      MCADComponent.schema
+      
+      
+      MCADComponent.schema_json
+      
+      
+      MCADComponent.update_forward_refs
+      
+      
+      MCADComponent.validate
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      MCADComponent.model_computed_fields
+      MCADComponent.model_config
+      MCADComponent.model_extra
+      MCADComponent.model_fields
+      MCADComponent.model_fields_set
+      MCADComponent.sub_components
+      MCADComponent.component_type
+      MCADComponent.name
+      MCADComponent.model
+      MCADComponent.use_pin_mapping
+      MCADComponent.placement_pin_mapping
+      MCADComponent.target_coordinate_system
+      MCADComponent.arranges
+      MCADComponent.password
+      MCADComponent.mcad_sub_components
+      MCADComponent.ecad_sub_components
+      MCADComponent.geometry_parameters
+      MCADComponent.reference_coordinate_system
+   
+   

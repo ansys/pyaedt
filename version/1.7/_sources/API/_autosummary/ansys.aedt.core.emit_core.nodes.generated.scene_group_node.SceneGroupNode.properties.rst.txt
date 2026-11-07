@@ -1,0 +1,6 @@
+properties
+==========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.scene_group_node
+
+.. autoproperty:: SceneGroupNode.properties

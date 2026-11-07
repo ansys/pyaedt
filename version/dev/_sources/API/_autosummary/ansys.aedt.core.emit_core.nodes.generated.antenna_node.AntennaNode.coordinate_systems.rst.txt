@@ -1,0 +1,6 @@
+coordinate\_systems
+===================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.antenna_node
+
+.. autoproperty:: AntennaNode.coordinate_systems

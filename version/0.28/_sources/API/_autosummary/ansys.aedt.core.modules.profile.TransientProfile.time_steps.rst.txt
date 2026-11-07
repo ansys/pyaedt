@@ -1,0 +1,6 @@
+time\_steps
+===========
+
+.. currentmodule:: ansys.aedt.core.modules.profile
+
+.. autoproperty:: TransientProfile.time_steps

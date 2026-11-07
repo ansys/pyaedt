@@ -1,0 +1,6 @@
+shift\_y
+========
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.weave
+
+.. autoproperty:: Weave.shift_y

@@ -1,0 +1,6 @@
+add\_rx\_selectivity
+====================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.rx_susceptibility_prof_node
+
+.. automethod:: RxSusceptibilityProfNode.add_rx_selectivity

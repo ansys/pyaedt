@@ -1,0 +1,22 @@
+﻿FieldClass
+==========
+
+.. currentmodule:: ansys.aedt.core.visualization.plot.pyvista
+
+.. autoclass:: FieldClass
+
+   
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      FieldClass.public_dir
+   
+   

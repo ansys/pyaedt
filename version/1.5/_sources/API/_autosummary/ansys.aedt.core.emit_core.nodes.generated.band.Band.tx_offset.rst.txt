@@ -1,0 +1,6 @@
+tx\_offset
+==========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.band
+
+.. autoproperty:: Band.tx_offset

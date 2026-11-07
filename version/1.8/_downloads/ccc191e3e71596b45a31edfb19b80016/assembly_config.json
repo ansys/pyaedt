@@ -1,0 +1,172 @@
+{
+    "coordinate_system": {
+        "GLOBAL_2": {
+            "origin": [
+                "100mm",
+                "0mm",
+                "0mm"
+            ],
+            "reference_coordinate_system": "Global",
+            "name": "GLOBAL_2"
+        },
+        "CS_CLAMP": {
+            "origin": [
+                "-130mm",
+                "80mm",
+                "12mm"
+            ],
+            "reference_coordinate_system": "GLOBAL_2",
+            "name": "CS_CLAMP"
+        }
+    },
+    "layout_component_models": {
+        "pcb": "mcad_assembly/DCDC-Converter-App_main.aedb"
+    },
+    "component_models": {
+        "case": "mcad_assembly/Chassi.a3dcomp",
+        "cable": "mcad_assembly/Cable.a3dcomp",
+        "clamp_monitor": "mcad_assembly/BCI_MONITORING_CLAMP.a3dcomp",
+        "cap0402": "mcad_assembly/Capacitor_HFSS.a3dcomp"
+    },
+    "sub_components": {
+        "case": {
+            "component_type": "mcad",
+            "name": "case",
+            "model": "case",
+            "use_pin_mapping": false,
+            "placement_pin_mapping": {},
+            "target_coordinate_system": "GLOBAL_2",
+            "layout_coordinate_systems": [],
+            "arranges": [],
+            "sub_components": {
+                "pcb": {
+                    "component_type": "ecad",
+                    "name": "pcb",
+                    "model": "pcb",
+                    "use_pin_mapping": false,
+                    "placement_pin_mapping": {},
+                    "target_coordinate_system": "Guiding_Pin",
+                    "layout_coordinate_systems": [
+                        "CABLE1_via_65",
+                        "CABLE2_via_65",
+                        "H0_via_65"
+                    ],
+                    "arranges": [
+                        {
+                            "operation": "rotate",
+                            "axis": "X",
+                            "angle": "0deg",
+                            "vector": [
+                                "0mm",
+                                "0mm",
+                                "0mm"
+                            ]
+                        }
+                    ],
+                    "sub_components": {
+                        "cable_a": {
+                            "component_type": "mcad",
+                            "name": "cable_a",
+                            "model": "cable",
+                            "use_pin_mapping": true,
+                            "placement_pin_mapping": {
+                                "reference_designator": "CABLE1",
+                                "pin_1_loc": [
+                                    0,
+                                    0,
+                                    0
+                                ]
+                            },
+                            "target_coordinate_system": "Global",
+                            "layout_coordinate_systems": [],
+                            "arranges": [],
+                            "sub_components": {},
+                            "reference_coordinate_system": "Global"
+                        },
+                        "cable_b": {
+                            "component_type": "mcad",
+                            "name": "cable_b",
+                            "model": "cable",
+                            "use_pin_mapping": true,
+                            "placement_pin_mapping": {
+                                "reference_designator": "CABLE2",
+                                "pin_1_loc": [
+                                    0,
+                                    0,
+                                    0
+                                ]
+                            },
+                            "target_coordinate_system": "Global",
+                            "layout_coordinate_systems": [],
+                            "arranges": [],
+                            "sub_components": {},
+                            "reference_coordinate_system": "Global"
+                        },
+                        "cap_c4": {
+                            "component_type": "mcad",
+                            "name": "cap_c4",
+                            "model": "cap0402",
+                            "use_pin_mapping": true,
+                            "placement_pin_mapping": {
+                                "reference_designator": "C4",
+                                "pin_1_loc": [
+                                    0,
+                                    0,
+                                    0
+                                ],
+                                "pin_2_loc": [
+                                    0.0007375,
+                                    0,
+                                    0
+                                ]
+                            },
+                            "target_coordinate_system": "Global",
+                            "layout_coordinate_systems": [],
+                            "arranges": [],
+                            "sub_components": {},
+                            "reference_coordinate_system": "Global"
+                        },
+                        "cap_r7": {
+                            "component_type": "mcad",
+                            "name": "cap_r7",
+                            "model": "cap0402",
+                            "use_pin_mapping": true,
+                            "placement_pin_mapping": {
+                                "reference_designator": "R7",
+                                "pin_1_loc": [
+                                    0,
+                                    0,
+                                    0
+                                ],
+                                "pin_2_loc": [
+                                    0.0007375,
+                                    0,
+                                    0
+                                ]
+                            },
+                            "target_coordinate_system": "Global",
+                            "layout_coordinate_systems": [],
+                            "arranges": [],
+                            "sub_components": {},
+                            "reference_coordinate_system": "Global"
+                        }
+                    },
+                    "reference_coordinate_system": "H0_via_65"
+                }
+            },
+            "reference_coordinate_system": "GLOBAL_2"
+        },
+        "clamp_monitor": {
+            "component_type": "mcad",
+            "name": "clamp_monitor",
+            "model": "clamp_monitor",
+            "use_pin_mapping": false,
+            "placement_pin_mapping": {},
+            "target_coordinate_system": "CS_CLAMP",
+            "layout_coordinate_systems": [],
+            "arranges": [],
+            "sub_components": {},
+            "reference_coordinate_system": "Global"
+        }
+    }
+}

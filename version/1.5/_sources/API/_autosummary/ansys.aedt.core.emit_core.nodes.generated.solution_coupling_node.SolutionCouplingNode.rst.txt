@@ -1,0 +1,50 @@
+﻿SolutionCouplingNode
+====================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.solution_coupling_node
+
+.. autoclass:: SolutionCouplingNode
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      SolutionCouplingNode.get_is_component
+      
+      
+      SolutionCouplingNode.get_properties
+      
+      
+      SolutionCouplingNode.props_to_dict
+      
+      
+      SolutionCouplingNode.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      SolutionCouplingNode.allowed_child_types
+      SolutionCouplingNode.children
+      SolutionCouplingNode.enabled
+      SolutionCouplingNode.name
+      SolutionCouplingNode.node_type
+      SolutionCouplingNode.odesktop
+      SolutionCouplingNode.parent
+      SolutionCouplingNode.parent_name
+      SolutionCouplingNode.properties
+      SolutionCouplingNode.valid
+      SolutionCouplingNode.warnings
+   
+   

@@ -1,0 +1,6 @@
+total\_air\_pressure
+====================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.walfisch_coupling_node
+
+.. autoproperty:: WalfischCouplingNode.total_air_pressure

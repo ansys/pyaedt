@@ -1,0 +1,6 @@
+suspend\_logging
+================
+
+.. currentmodule:: ansys.aedt.core.aedt_logger
+
+.. automethod:: AedtLogger.suspend_logging

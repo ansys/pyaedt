@@ -1,0 +1,6 @@
+water\_vapor\_concentration
+===========================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.log_distance_coupling_node
+
+.. autoproperty:: LogDistanceCouplingNode.water_vapor_concentration

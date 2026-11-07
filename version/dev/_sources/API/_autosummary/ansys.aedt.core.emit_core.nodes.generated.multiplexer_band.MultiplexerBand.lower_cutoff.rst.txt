@@ -1,0 +1,6 @@
+lower\_cutoff
+=============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.multiplexer_band
+
+.. autoproperty:: MultiplexerBand.lower_cutoff

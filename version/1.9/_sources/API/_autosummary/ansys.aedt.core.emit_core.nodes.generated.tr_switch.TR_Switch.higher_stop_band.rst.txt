@@ -1,0 +1,6 @@
+higher\_stop\_band
+==================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.tr_switch
+
+.. autoproperty:: TR_Switch.higher_stop_band

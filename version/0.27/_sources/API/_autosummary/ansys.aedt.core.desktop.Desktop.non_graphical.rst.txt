@@ -1,0 +1,6 @@
+non\_graphical
+==============
+
+.. currentmodule:: ansys.aedt.core.desktop
+
+.. autoproperty:: Desktop.non_graphical

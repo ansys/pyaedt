@@ -1,0 +1,6 @@
+props
+=====
+
+.. currentmodule:: ansys.aedt.core.modules.design_xploration
+
+.. autoattribute:: SetupParam.props

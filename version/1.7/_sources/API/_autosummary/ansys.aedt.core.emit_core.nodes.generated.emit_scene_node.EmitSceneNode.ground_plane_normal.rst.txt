@@ -1,0 +1,6 @@
+ground\_plane\_normal
+=====================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.emit_scene_node
+
+.. autoproperty:: EmitSceneNode.ground_plane_normal

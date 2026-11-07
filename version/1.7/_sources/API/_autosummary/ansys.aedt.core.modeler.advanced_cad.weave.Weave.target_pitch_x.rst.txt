@@ -1,0 +1,6 @@
+target\_pitch\_x
+================
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.weave
+
+.. autoproperty:: Weave.target_pitch_x

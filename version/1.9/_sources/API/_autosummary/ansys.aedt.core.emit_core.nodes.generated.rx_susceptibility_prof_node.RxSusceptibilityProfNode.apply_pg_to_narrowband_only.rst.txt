@@ -1,0 +1,6 @@
+apply\_pg\_to\_narrowband\_only
+===============================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.rx_susceptibility_prof_node
+
+.. autoproperty:: RxSusceptibilityProfNode.apply_pg_to_narrowband_only

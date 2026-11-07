@@ -1,0 +1,71 @@
+﻿EmiPlotMarkerNode
+=================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.emi_plot_marker_node
+
+.. autoclass:: EmiPlotMarkerNode
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      EmiPlotMarkerNode.get_is_component
+      
+      
+      EmiPlotMarkerNode.get_properties
+      
+      
+      EmiPlotMarkerNode.props_to_dict
+      
+      
+      EmiPlotMarkerNode.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      EmiPlotMarkerNode.allowed_child_types
+      EmiPlotMarkerNode.arrow_direction
+      EmiPlotMarkerNode.background_color
+      EmiPlotMarkerNode.border
+      EmiPlotMarkerNode.border_color
+      EmiPlotMarkerNode.border_width
+      EmiPlotMarkerNode.children
+      EmiPlotMarkerNode.color
+      EmiPlotMarkerNode.filled
+      EmiPlotMarkerNode.floating_label
+      EmiPlotMarkerNode.font
+      EmiPlotMarkerNode.horizontal_position
+      EmiPlotMarkerNode.line_width
+      EmiPlotMarkerNode.name
+      EmiPlotMarkerNode.node_type
+      EmiPlotMarkerNode.odesktop
+      EmiPlotMarkerNode.parent
+      EmiPlotMarkerNode.parent_name
+      EmiPlotMarkerNode.position_from_left
+      EmiPlotMarkerNode.position_from_top
+      EmiPlotMarkerNode.position_x
+      EmiPlotMarkerNode.position_y
+      EmiPlotMarkerNode.properties
+      EmiPlotMarkerNode.symbol
+      EmiPlotMarkerNode.symbol_color
+      EmiPlotMarkerNode.symbol_size
+      EmiPlotMarkerNode.text
+      EmiPlotMarkerNode.text_alignment
+      EmiPlotMarkerNode.valid
+      EmiPlotMarkerNode.vertical_position
+      EmiPlotMarkerNode.visible
+      EmiPlotMarkerNode.warnings
+   
+   

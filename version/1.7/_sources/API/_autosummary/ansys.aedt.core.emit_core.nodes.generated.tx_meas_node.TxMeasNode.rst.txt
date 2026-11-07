@@ -1,0 +1,56 @@
+﻿TxMeasNode
+==========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.tx_meas_node
+
+.. autoclass:: TxMeasNode
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      TxMeasNode.delete
+      
+      
+      TxMeasNode.get_is_component
+      
+      
+      TxMeasNode.get_properties
+      
+      
+      TxMeasNode.props_to_dict
+      
+      
+      TxMeasNode.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      TxMeasNode.allowed_child_types
+      TxMeasNode.children
+      TxMeasNode.enabled
+      TxMeasNode.exclude_harmonics_below_noise
+      TxMeasNode.file
+      TxMeasNode.name
+      TxMeasNode.node_type
+      TxMeasNode.odesktop
+      TxMeasNode.parent
+      TxMeasNode.parent_name
+      TxMeasNode.properties
+      TxMeasNode.transmit_frequency
+      TxMeasNode.valid
+      TxMeasNode.warnings
+   
+   
