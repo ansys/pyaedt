@@ -26,9 +26,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ansys.aedt.core.emit_core.emit_constants import EMI_CATEGORY_TO_INTERFERER_TYPE
+from matplotlib.figure import Figure
+
+from ansys.aedt.core.emit_core.emit_constants import EMI_CATEGORY_TO_INTERFERER_TYPE, PowerType
 from ansys.aedt.core.emit_core.emit_constants import EMIInterfererType
 from ansys.aedt.core.emit_core.emit_constants import ResultType
+from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import min_aedt_version
@@ -200,6 +203,210 @@ class InteractionInstance:
             raise ValueError(f"Error: category {category} not found")
         return result
 
+    @min_aedt_version("2027.2")
+    def export_emi_spectrum_to_csv(
+        self, file_name: str = "" ) -> str:
+        """Exports the emi trace data for this instance to a CSV file.
+
+        Parameters
+        ----------
+        file_name: str[optional]
+            full path to the file to export to.
+
+        Returns
+        -------
+        csv_data: str
+            stringified data for the node returned if file_name not specified
+        """
+        keys = ["EmiType","UseDomain"]
+        vals = ["Point","true"]
+        self.domain._populate_result_trace_properties(keys, vals)
+        sim_node: EmitNode = self.revision.get_simulation_node()
+        return sim_node._export_to_csv(file_name, "|".join(keys), "|".join(vals))
+
+
+    @min_aedt_version("2027.2")
+    @pyaedt_function_handler()
+    def plot_emi_spectrum(self) -> Figure:
+        """Plots point EMI margin using matplotlib.
+
+        Returns
+        -------
+        matplotlib.pyplot.Figure
+            The plot figure with frequency in MHz.
+        """
+
+        keys = ["EmiType","UseDomain"]
+        vals = ["Point","true"]
+        self.domain._populate_result_trace_properties(keys, vals)
+        sim_node: EmitNode = self.revision.get_simulation_node()
+        return sim_node._plot("|".join(keys), "|".join(vals))
+
+
+    @min_aedt_version("2027.2")
+    def export_power_output_to_csv(
+        self, 
+        power_type: PowerType,
+        component: str | EmitNode = "", 
+        port_name: str = "",
+        toward_radio: bool = False,
+        file_name: str = "" ) -> str | None:
+        """Exports the power trace data output at a given port to a CSV file.
+
+        Parameters
+        ----------
+        power_type: PowerType
+            The type of power to export (NARROWBAND or BROADBAND).
+        component: str | EmitNode
+            The component node or name to export the power trace from.
+        port_name: str
+            The port name to export the power trace from.
+        toward_radio: bool
+            If True, export the trace for power going toward the radio.
+        file_name: str[optional]
+            full path to the file to export to.
+
+        Returns
+        -------
+        csv_data: str
+            stringified data for the node returned if file_name not specified
+        """
+
+        self.validate()
+        keys = ["UseDomain"]
+        vals = ["true"]
+        keys.append("EmiType")
+        vals.append("NBPowerTrace" if power_type == PowerType.NARROWBAND else "BBPowerTrace")
+        full_port_name = ""
+        if isinstance(component, EmitNode):
+            full_port_name = f"{component._full_node_name}:{port_name}"
+        else:
+            comp_node = self.revision.get_component_node(component)
+            if not isinstance(comp_node, EmitNode):
+                raise ValueError(f"{component} does not exist.")
+            full_port_name = f"{comp_node._full_node_name()}:{port_name}"
+        keys.append("RxSidePortSelection") if toward_radio else keys.append("TxSidePortSelection")
+        vals.append(full_port_name)
+        keys.append("Direction")
+        vals.append("Toward" if toward_radio else "Away")
+        self.domain._populate_result_trace_properties(keys, vals)
+        sim_node: EmitNode = self.revision.get_simulation_node()
+        return sim_node._export_to_csv(file_name, "|".join(keys), "|".join(vals))
+
+
+    @min_aedt_version("2027.2")
+    @pyaedt_function_handler()
+    def plot_power_output(
+        self, 
+        power_type: PowerType,
+        component: str | EmitNode = "", 
+        port_name: str = "",
+        toward_radio: bool = False) -> Figure:
+        """Plots the power trace data output at a given port using matplotlib.
+
+        Parameters
+        ----------
+        power_type: PowerType
+            The type of power to export (NARROWBAND or BROADBAND).
+        component: str | EmitNode
+            The component node or name to export the power trace from.
+        port_name: str
+            The port name to export the power trace from.
+        toward_radio: bool
+            If True, export the trace for power going toward the radio.
+
+        Returns
+        -------
+        matplotlib.pyplot.Figure
+            The plot figure with frequency in MHz.
+        """
+
+        self.validate()
+        self.validate()
+        keys = ["UseDomain"]
+        vals = ["true"]
+        keys.append("EmiType")
+        vals.append("NBPowerTrace" if power_type == PowerType.NARROWBAND else "BBPowerTrace")
+        full_port_name = ""
+        if isinstance(component, EmitNode):
+            full_port_name = f"{component._full_node_name}:{port_name}"
+        else:
+            comp_node = self.revision.get_component_node(component)
+            if not isinstance(comp_node, EmitNode):
+                raise ValueError(f"{component} does not exist.")
+            full_port_name = f"{comp_node._full_node_name()}:{port_name}"
+        keys.append("RxSidePortSelection") if toward_radio else keys.append("TxSidePortSelection")
+        vals.append(full_port_name)
+        keys.append("Direction")
+        vals.append("Toward" if toward_radio else "Away")
+
+        self.domain._populate_result_trace_properties(keys, vals)
+        sim_node: EmitNode = self.revision.get_simulation_node()
+        return sim_node._plot("|".join(keys), "|".join(vals))
+
+
+
+    @min_aedt_version("2027.2")
+    def export_power_at_rx_to_csv(
+        self, 
+        power_type: PowerType,
+        file_name: str = "" ) -> str | None:
+        """Exports the power at rx trace data to a CSV file.
+
+        Parameters
+        ----------
+        power_type: PowerType
+            The type of power to export (NARROWBAND or BROADBAND).
+        file_name: str[optional]
+            full path to the file to export to.
+
+        Returns
+        -------
+        csv_data: str
+            stringified data for the node returned if file_name not specified
+        """
+
+        self.validate()
+        keys = ["UseDomain"]
+        vals = ["true"]
+        keys.append("EmiType")
+        vals.append("NBPowerAtRx" if power_type == PowerType.NARROWBAND else "BBPowerAtRx")
+    
+        self.domain._populate_result_trace_properties(keys, vals)
+        sim_node: EmitNode = self.revision.get_simulation_node()
+        return sim_node._export_to_csv(file_name, "|".join(keys), "|".join(vals))
+
+
+    @min_aedt_version("2027.2")
+    @pyaedt_function_handler()
+    def plot_power_at_rx(
+        self, 
+        power_type: PowerType) -> Figure:
+        """Plots the power trace data at rx using matplotlib.
+
+        Parameters
+        ----------
+        power_type: PowerType
+            The type of power to export (NARROWBAND or BROADBAND).
+
+        Returns
+        -------
+        matplotlib.pyplot.Figure
+            The plot figure with frequency in MHz.
+        """
+
+        self.validate()
+        self.validate()
+        keys = ["UseDomain"]
+        vals = ["true"]
+        keys.append("EmiType")
+        vals.append("NBPowerAtRx" if power_type == PowerType.NARROWBAND else "BBPowerAtRx")
+
+        self.domain._populate_result_trace_properties(keys, vals)
+        sim_node: EmitNode = self.revision.get_simulation_node()
+        return sim_node._plot("|".join(keys), "|".join(vals))
+
+
     @min_aedt_version("2027.1")
     @pyaedt_function_handler()
     def get_domain(self) -> InteractionDomain:
@@ -214,7 +421,7 @@ class InteractionInstance:
 
     @min_aedt_version("2027.1")
     @pyaedt_function_handler()
-    def validate(self) -> str:
+    def validate(self) -> None:
         """Validate this interaction instance.
 
         Raises
