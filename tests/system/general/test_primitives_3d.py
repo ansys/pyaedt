@@ -2743,7 +2743,7 @@ def test_get_named_selections(aedt_app) -> None:
 
     names = aedt_app.modeler.get_named_selections()
 
-    assert  default_selections == ["AllObjects"]
+    assert default_selections == ["AllObjects"]
     assert isinstance(names, list)
     assert sorted(names) == ["AllObjects", "faces_selection", "objects_selection"]
 
