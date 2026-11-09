@@ -343,6 +343,12 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
 
         # GetObjData is available for some objects in 2026R1
         self._has_getobject = _has_get_obj_data(self._child_object)
+
+        if not self._has_getobject:  # pragma: no cover
+            # If a new setup is created, and GetObjData is not available,
+            # it is needed to populated setups dictionary because if not props will be empty.
+            self._app.optiemtrics._Optimetrics__setups[self.name] = self
+
         return self
 
     @pyaedt_function_handler()

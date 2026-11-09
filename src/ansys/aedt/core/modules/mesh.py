@@ -398,6 +398,12 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
 
         # GetObjData is available for some objects in 2026R1
         self._has_getobject = _has_get_obj_data(self._child_object)
+
+        if not self._has_getobject:
+            # If a new mesh operation is created, and GetObjData is not available,
+            # it is needed to populated setups dictionary because if not props will be empty.
+            self._app.mesh._Mesh__operations[self.name] = self
+
         return self
 
     @pyaedt_function_handler()

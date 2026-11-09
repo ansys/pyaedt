@@ -26,6 +26,7 @@ import pytest
 
 from ansys.aedt.core.icepak import Icepak
 from ansys.aedt.core.modules.mesh_icepak import GlobalMeshRegion
+from tests.conftest import DESKTOP_VERSION
 from tests.conftest import SYSTEM_GENERAL_TEST_PREFIX
 
 MESH_PROJECT = "mesh_operations"
@@ -90,9 +91,20 @@ def test_global_mesh_icepak(aedt_app) -> None:
     assert "MinGapX" in global_mesh_region.props
 
 
-def test_assign_pcb_region(ipk_app) -> None:
-    _ = ipk_app.modeler.create_box([0, 0, 0], [50, 50, 2])
+def test_assign_pcb_region(aedt_app) -> None:
+    box = aedt_app.modeler.create_box([0, 0, 0], [50, 50, 2])
 
+    _ = aedt_app.mesh.assign_mesh_region()
+
+    if DESKTOP_VERSION > "2023.2":
+        aedt_app.modeler.create_subregion(
+            padding_values=[0, 0, 0, 0, 0, 0], padding_types="Percentage Offset", assignment=[box.name]
+        )
+
+    # Test multiple objects
+    # Multiple subregions
+
+    # Mix subregions and objects
     # pcb_mesh_region = MeshRegion(ipk_app, box.name)
     # pcb_mesh_region.name = "PCB_Region"
 

@@ -583,6 +583,21 @@ class MeshRegion(MeshRegionBase, BinaryTreeNode, PyAedtBase):
         >>> obj.create()
 
         """
+        aedt_props = self._get_args()
+
+        subregion = self.props["Objects"]
+
+        self._app.omeshmodule.AssignMeshRegion(aedt_props)
+
+        # GetObjData is available for some objects in 2026R1
+        self._has_getobject = _has_get_obj_data(self._child_object)
+
+        # API renames the subregion, and if GetObjData not available, we need to refresh the prop
+        new_name = f"{subregion[0]}_SubRegiom"
+        if settings.aedt_version > "2023.2" and not self._has_getobject and new_name in self._app.modeler.object_names:
+            self._legacy_props["Objects"] = [subregion[0]]
+        return self
+
         if self.name == "Settings":
             self._app.logger.error("Cannot create a new mesh region with this Name")
             return False
@@ -898,7 +913,21 @@ class IcepakMesh(PyAedtBase):
             name = generate_unique_name(name)
 
         if assignment is None:
-            assignment = [i for i in self._modeler.object_names]
+            assignment = self._app.modeler.object_names
+
+        props = dict(GeneralSettings)
+
+        if settings.aedt_version > "2023.2":
+            region = self._app.modeler.create_subregion(
+                padding_values=[0, 0, 0, 0, 0, 0], padding_types="Percentage Offset", assignment=assignment
+            )
+            props["Objects"] = region.name
+        else:
+            props["Objects"] = assignment
+
+        mesh_region = MeshRegion(mesh=self, name=name, props=props)
+
+        mesh_region.create()
 
         meshregion = MeshRegion(self._app, assignment, name)
         meshregion.manual_settings = False

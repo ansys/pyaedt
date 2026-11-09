@@ -849,6 +849,11 @@ class Setup(CommonSetup):
         # GetObjData is available for some objects in 2026R1.
         self._has_getobject = _has_get_obj_data(self._child_object)
 
+        if not self._has_getobject and not self._has_getsetupdata:
+            # If a new setup is created, and GetObjData is not available,
+            # it is needed to populated setups dictionary because if not props will be empty.
+            self._app._Analysis__setups[self.name] = self
+
         return self
 
     @pyaedt_function_handler()
@@ -886,7 +891,7 @@ class Setup(CommonSetup):
 
         self._app.oanalysis.EditSetup(self.name, arg)
 
-        if not self._has_getobject and not self._has_getsetupdata:
+        if not self._has_getobject and not self._has_getsetupdata:  # pragma: no cover
             self._legacy_props = properties
 
         return True
@@ -1501,6 +1506,12 @@ class SetupCircuit(CommonSetup):
         arg = self._setup_dict_to_arg()
 
         self._setup(self.solver_type, arg, newsetup=True)
+
+        if not self._has_getobject and not self._has_getsetupdata:  # pragma: no cover
+            # If a new setup is created, and GetObjData is not available,
+            # it is needed to populated setups dictionary because if not props will be empty.
+            self._app._Analysis__setups[self.name] = self
+
         return self
 
     @pyaedt_function_handler()
@@ -1619,7 +1630,7 @@ class SetupCircuit(CommonSetup):
 
         self._setup(self.solver_type, arg, newsetup=False)
 
-        if not self._has_getobject and not self._has_getsetupdata:
+        if not self._has_getobject and not self._has_getsetupdata:  # pragma: no cover
             self._legacy_props = dict(properties)
 
         return True
@@ -2394,6 +2405,11 @@ class Setup3DLayout(CommonSetup):
 
         # GetObjData is available for some objects in 2026R1.
         self._has_getobject = _has_get_obj_data(self._child_object)
+
+        if not self._has_getobject and not self._has_getsetupdata:  # pragma: no cover
+            # If a new setup is created, and GetObjData is not available,
+            # it is needed to populated setups dictionary because if not props will be empty.
+            self._app._Analysis__setups[self.name] = self
 
         return self
 
@@ -5040,7 +5056,7 @@ class SetupQ3D(Setup, PyAedtBase):
 
         self._app.oanalysis.EditSetup(self.name, arg)
 
-        if not self._has_getobject and not self._has_getsetupdata:
+        if not self._has_getobject and not self._has_getsetupdata:  # pragma: no cover
             self._legacy_props = properties
 
         return True

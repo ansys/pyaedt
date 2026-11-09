@@ -481,6 +481,11 @@ class SweepHFSS(SweepCommon):
         # GetObjData is available for some objects in 2026R1.
         self._has_getobject = _has_get_obj_data(self._child_object)
 
+        if not self._has_getobject:  # pragma: no cover
+            # If a new sweep is created, and GetObjData is not available,
+            # it is needed to populated setups dictionary because if not props will be empty.
+            self._setup._SetupHFSS__sweeps[self.name] = self
+
         return self
 
     @pyaedt_function_handler()
@@ -818,6 +823,11 @@ class SweepHFSS3DLayout(SweepCommon):
 
         # GetObjData is available for some objects in 2026R1.
         self._has_getobject = _has_get_obj_data(self._child_object)
+
+        if not self._has_getobject:  # pragma: no cover
+            # If a new sweep is created, and GetObjData is not available,
+            # it is needed to populated setups dictionary because if not props will be empty.
+            self._setup._Setup3DLayout__sweeps[self.name] = self
 
         return self
 
@@ -1316,6 +1326,12 @@ class SweepMatrix(SweepCommon):
         """
         self._app.oanalysis.InsertSweep(self.setup_name, self._get_args())
         self._has_getobject = _has_get_obj_data(self._child_object)
+
+        if not self._has_getobject:  # pragma: no cover
+            # If a new sweep is created, and GetObjData is not available,
+            # it is needed to populated setups dictionary because if not props will be empty.
+            self._setup._SetupQ3D__sweeps[self.name] = self
+
         return self
 
     @pyaedt_function_handler()
