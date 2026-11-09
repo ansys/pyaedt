@@ -143,10 +143,12 @@ class BoundaryCommon(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.common import BoundaryCommon
-        >>> obj = BoundaryCommon()
-        >>> obj.delete()
-
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> box = hfss.modeler.create_box([0, 0, 0], [10, 10, 10], name="Box1")
+        >>> boundary = hfss.assign_perfect_e(box.faces[0])
+        >>> boundary.delete()
+        >>> hfss.release_desktop(True, True)
         """
         if self.type == "Matrix" or self.type == "Force" or self.type == "Torque":
             self._app.omaxwell_parameters.DeleteParameters([self.name])
@@ -257,12 +259,9 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
     >>> from ansys.aedt.core.generic.constants import Plane
     >>> hfss = Hfss()
     >>> origin = hfss.modeler.Position(0, 0, 0)
-    >>> inner = hfss.modeler.create_cylinder(Plane.XY, origin, 3, 200, 0, "inner")
-    >>> inner_id = hfss.modeler.get_obj_id(
-    ...     "inner",
-    ... )
-    >>> coat = hfss.assign_finite_conductivity([inner_id], "copper", use_thickness=True, thickness="0.2mm")
-
+    >>> inner = hfss.modeler.create_cylinder(Plane.XY, [0, 0, 0], 3, 200, name="inner")
+    >>> coat = hfss.assign_finite_conductivity(inner.name, "copper", use_thickness=True, thickness="0.2mm")
+    >>> hfss.release_desktop(True, True)
     """
 
     def __init__(self, app, name: str, props=None, boundarytype=None, auto_update: bool = True) -> None:
@@ -295,8 +294,8 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         --------
         >>> from ansys.aedt.core import Hfss
         >>> app = Hfss()
-        >>> r = app.modeler.create_rectangle(orientation=1, origin=[0, 0, 0], sizes=["Box1"]))
-        >>> boundary = app.assign_perfect_e(r)
+        >>> rect = app.modeler.create_rectangle(orientation="XY", origin=[0, 0, 0], sizes=[5, 5])
+        >>> boundary = app.assign_perfect_e(rect)
         >>> boundary.child_object.GetChildNames()
         """
         if not self.__child_object:
@@ -369,10 +368,12 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.common import BoundaryObject
-        >>> obj = BoundaryObject()
-        >>> obj.props
-
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> box = hfss.modeler.create_box([0, 0, 0], [10, 10, 10], name="Box1")
+        >>> boundary = hfss.assign_perfect_e(box.faces[0])
+        >>> bound_props = boundary.props
+        >>> hfss.release_desktop(True, True)
         """
         if self._legacy_props and not self._has_getobject:
             return BoundaryProps(self, self._legacy_props)
@@ -409,9 +410,12 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.common import BoundaryObject
-        >>> obj = BoundaryObject()
-        >>> obj.type
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> box = hfss.modeler.create_box([0, 0, 0], [10, 10, 10], name="Box1")
+        >>> boundary = hfss.assign_perfect_e(box.faces[0])
+        >>> boundary.type
+        >>> hfss.release_desktop(True, True)
 
         """
         if not self._type:
@@ -439,10 +443,12 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.common import BoundaryObject
-        >>> obj = BoundaryObject()
-        >>> obj.name
-
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> box = hfss.modeler.create_box([0, 0, 0], [10, 10, 10], name="Box1")
+        >>> boundary = hfss.assign_perfect_e(box.faces[0])
+        >>> boundary.name
+        >>> hfss.release_desktop(True, True)
         """
         child_object = self._child_object
         if child_object is not None and "Name" in dir(child_object):
@@ -490,6 +496,11 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
     def create(self) -> bool:
         """Create a boundary.
 
+        This method is called by the ``assign_*`` methods of the application, such as
+        ``assign_perfect_e``, which also register the boundary in the design. Use those
+        methods to create a boundary. Call this method directly only for a
+        ``BoundaryObject`` instance built manually.
+
         Returns
         -------
         bool
@@ -497,10 +508,14 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Hfss
         >>> from ansys.aedt.core.modules.boundary.common import BoundaryObject
-        >>> obj = BoundaryObject()
-        >>> obj.create()
-
+        >>> hfss = Hfss()
+        >>> box = hfss.modeler.create_box([0, 0, 0], [10, 10, 10], name="Box1")
+        >>> props = {"Faces": [box.faces[0].id], "InfGroundPlane": False}
+        >>> boundary = BoundaryObject(hfss, "MyPerfectE", props, "Perfect E")
+        >>> boundary.create()
+        True
         """
         bound_type = self.type
         if bound_type == "Perfect E":
@@ -698,10 +713,13 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.common import BoundaryObject
-        >>> obj = BoundaryObject()
-        >>> obj.update()
-
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> box = hfss.modeler.create_box([0, 0, 0], [10, 10, 10], name="Box1")
+        >>> boundary = hfss.assign_perfect_e(box.faces[0])
+        >>> boundary.props["InfGroundPlane"] = True  # setting a prop calls update()
+        >>> boundary.update()
+        >>> hfss.release_desktop(True, True)
         """
         bound_type = self.type
         if bound_type == "Perfect E":
@@ -853,10 +871,13 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.common import BoundaryObject
-        >>> obj = BoundaryObject()
-        >>> obj.update_assignment()
-
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> box = hfss.modeler.create_box([0, 0, 0], [10, 10, 10], name="Box1")
+        >>> boundary = hfss.assign_perfect_e(box.faces[0])
+        >>> boundary.props["Faces"] = [box.faces[0].id, box.faces[1].id]
+        >>> boundary.update_assignment()
+        >>> hfss.release_desktop(True, True)
         """
         out = ["Name:" + self.name]
         if properties is None:
