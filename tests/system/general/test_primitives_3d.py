@@ -2733,6 +2733,21 @@ def test_get_named_selection_objects(aedt_app) -> None:
         aedt_app.modeler.get_named_selection_objects(name="invalid")
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Method available from AEDT 2027.1.")
+def test_get_named_selections(aedt_app) -> None:
+    default_selections = aedt_app.modeler.get_named_selections()
+    box1 = aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3], name="box1")
+    box2 = aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")
+    aedt_app.modeler.create_named_selection(name="objects_selection", assignment=[box1.name, box2.name])
+    aedt_app.modeler.create_named_selection(name="faces_selection", assignment=[box1.faces[0], box2.faces[0]])
+
+    names = aedt_app.modeler.get_named_selections()
+
+    assert default_selections == ["AllObjects"]
+    assert isinstance(names, list)
+    assert sorted(names) == ["AllObjects", "faces_selection", "objects_selection"]
+
+
 def test_get_named_selection_faces(aedt_app) -> None:
     box1 = aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3], name="box1")
     box2 = aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")

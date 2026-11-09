@@ -25,6 +25,7 @@
 from dataclasses import dataclass
 from dataclasses import field
 import json
+import math
 import os
 from pathlib import Path
 import tkinter
@@ -66,14 +67,26 @@ EXTENSION_DEFAULT_ARGUMENTS = {
     "export_option": "Ohmic loss",
     "objects_list": [],
     "solution_option": "",
+    "field_type": "Fields",
+    "time": "",
+    "start_time": "0s",
 }
 """Default arguments for the extension."""
 EXTENSION_TITLE = "Fields Distribution"
 """Title displayed for the extension."""
+LISTBOX_HEIGHT = 6
+"""Number of visible rows in the quantity and objects lists."""
+LABEL_WIDTH = 14
+"""Width of the field labels, used to align the entries across sections."""
+TEXT_WIDTH = 40
+"""Width, in characters, of the file path text boxes."""
+TEXT_MAX_LINES = 4
+"""Maximum number of lines displayed by the file path text boxes."""
 
 
 class MaxwellFieldsAppLike(Protocol):
     design_type: str
+    solution_type: str
     _aedt_version: str
     modeler: Any
     post: Any
@@ -106,6 +119,12 @@ class FieldsDistributionExtensionData(ExtensionCommonData):
     """Value for objects list."""
     solution_option: str = EXTENSION_DEFAULT_ARGUMENTS["solution_option"]
     """Value for solution option."""
+    field_type: str = EXTENSION_DEFAULT_ARGUMENTS["field_type"]
+    """Field type as in AEDT Fields Calculator. Options are ``"Fields"`` and ``"Time Averaged Fields"``."""
+    time: str = EXTENSION_DEFAULT_ARGUMENTS["time"]
+    """Time, with units, to export transient fields at. For time averaged fields, it is the stop time."""
+    start_time: str = EXTENSION_DEFAULT_ARGUMENTS["start_time"]
+    """Start time, with units, of the averaging range. Used only for time averaged fields."""
 
     def __post_init__(self) -> None:
         if self.objects_list is None:
@@ -128,11 +147,13 @@ class FieldsDistributionExtension(ExtensionCommon):
             EXTENSION_TITLE,
             withdraw=withdraw,
             add_custom_content=False,
-            toggle_row=6,
+            toggle_row=3,
             toggle_column=1,
         )
 
         # Add private attributes and initialize them through __load_aedt_info
+        self.__is_transient = False
+        self.__time_averaged_available = False
         self.__named_expressions = []
         self.__objects_list = []
         self.__solution_options = []
@@ -142,6 +163,8 @@ class FieldsDistributionExtension(ExtensionCommon):
 
         # Trigger manually since add_extension_content requires loading expression files first
         self.add_extension_content()
+        # Re-apply the theme so the widgets created above (listboxes, text boxes) are themed too
+        self.apply_theme(self.theme_color)
 
     @property
     def fields_data(self) -> FieldsDistributionExtensionData:
@@ -184,6 +207,9 @@ class FieldsDistributionExtension(ExtensionCommon):
 
     def __load_aedt_info(self) -> None:
         """Load Maxwell design info."""
+        self.__is_transient = "Transient" in str(self.maxwell_app.solution_type)
+        # Fields Calculator expressions split by field type are available from AEDT 2026.1
+        self.__time_averaged_available = self.__is_transient and self.maxwell_app._aedt_version >= "2026.1"
         # Get named expressions for field quantities
         # make it backward compatible by implementing a check on AEDT version
         if self.maxwell_app._aedt_version < "2026.1":
@@ -197,6 +223,10 @@ class FieldsDistributionExtension(ExtensionCommon):
                 vector_fields = json.load(f)
             self.__named_expressions.extend(vector_fields[self.maxwell_app.design_type])
             point.delete()
+        elif self.__time_averaged_available:
+            self.__named_expressions = list(
+                self.maxwell_app.post.fields_calculator.get_expressions(field_type="Fields")
+            )
         else:
             self.__named_expressions = self.maxwell_app.post.fields_calculator.get_expressions()
 
@@ -213,12 +243,9 @@ class FieldsDistributionExtension(ExtensionCommon):
             raise AEDTRuntimeError("No solved analysis sweeps found.")
 
     def _text_size(self, path: str, entry: tkinter.Text) -> None:
-        """Adjust text widget size based on content."""
-        text_length = len(path)
-        height = 1
-        if text_length > 50:
-            height += 1
-        entry.configure(height=height, width=max(40, text_length // 2))
+        """Adjust the text widget height so that the whole path is visible."""
+        height = min(TEXT_MAX_LINES, max(1, math.ceil(len(path) / TEXT_WIDTH)))
+        entry.configure(height=height)
         entry.delete("1.0", tkinter.END)
         entry.insert(tkinter.END, path)
 
@@ -234,6 +261,51 @@ class FieldsDistributionExtension(ExtensionCommon):
         for item in items_list:
             listbox.insert(tkinter.END, item)
 
+    def _toggle_time_averaged(self) -> None:
+        """Update quantities and time entries when the time averaged option changes."""
+        time_averaged_var = cast(tkinter.BooleanVar, self._widgets["time_averaged_var"])
+        export_options_lb = cast(tkinter.Listbox, self._widgets["export_options_lb"])
+        start_time_label = cast(ttk.Label, self._widgets["start_time_label"])
+        start_time_entry = cast(ttk.Entry, self._widgets["start_time_entry"])
+        time_label = cast(ttk.Label, self._widgets["time_label"])
+
+        field_type = "Time Averaged Fields" if time_averaged_var.get() else "Fields"
+        expressions = list(self.maxwell_app.post.fields_calculator.get_expressions(field_type=field_type))
+        export_options_lb.delete(0, tkinter.END)
+        for item in expressions:
+            export_options_lb.insert(tkinter.END, item)
+
+        if time_averaged_var.get():
+            start_time_label.grid()
+            start_time_entry.grid()
+            time_label.configure(text="Stop time:")
+        else:
+            start_time_label.grid_remove()
+            start_time_entry.grid_remove()
+            time_label.configure(text="Time:")
+
+    def _get_time_settings(self) -> tuple[str, str, str] | None:
+        """Get field type, time, and start time from the UI.
+
+        Returns
+        -------
+        tuple or None
+            Field type, time, and start time. ``None`` if the input is not valid.
+        """
+        if not self.__is_transient:
+            return "Fields", "", EXTENSION_DEFAULT_ARGUMENTS["start_time"]
+        time = cast(ttk.Entry, self._widgets["time_entry"]).get().strip()
+        start_time = EXTENSION_DEFAULT_ARGUMENTS["start_time"]
+        field_type = "Fields"
+        time_averaged_var = cast(tkinter.BooleanVar | None, self._widgets.get("time_averaged_var"))
+        if time_averaged_var is not None and time_averaged_var.get():
+            field_type = "Time Averaged Fields"
+            start_time = cast(ttk.Entry, self._widgets["start_time_entry"]).get().strip()
+            if not time or not start_time:
+                messagebox.showerror("Error", "Please specify the start and stop times for time averaged fields.")
+                return None
+        return field_type, time, start_time
+
     def add_extension_content(self) -> None:
         """Add custom content to the extension UI.
 
@@ -244,173 +316,141 @@ class FieldsDistributionExtension(ExtensionCommon):
         >>> extension.add_extension_content()
 
         """
-        # Export options
-        export_options_frame = tkinter.Frame(self.root, width=20)
-        export_options_frame.grid(row=0, column=0, pady=10, padx=10, sticky="ew")
+        self.root.columnconfigure(0, weight=1)
+
+        # Quantity and objects selection, side by side
+        selection_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
+        selection_frame.grid(row=0, column=0, columnspan=2, padx=10, pady=(10, 5), sticky="nsew")
+        selection_frame.columnconfigure(0, weight=1, uniform="selection")
+        selection_frame.columnconfigure(1, weight=1, uniform="selection")
+        self._widgets["selection_frame"] = selection_frame
+
+        export_options_frame = ttk.LabelFrame(selection_frame, text="Quantity", style="PyAEDT.TLabelframe")
+        export_options_frame.grid(row=0, column=0, padx=(0, 5), sticky="nsew")
         self._widgets["export_options_frame"] = export_options_frame
 
-        export_options_label = ttk.Label(
-            export_options_frame,
-            text="Export options:",
-            width=15,
-            style="PyAEDT.TLabel",
-            justify=tkinter.CENTER,
-            anchor="w",
-        )
-        self._widgets["export_options_label"] = export_options_label
-        export_options_label.pack(side=tkinter.TOP, fill=tkinter.BOTH)
-
-        listbox_height = min(len(self.__named_expressions), 6)
         export_options_lb = tkinter.Listbox(
             export_options_frame,
             selectmode=tkinter.SINGLE,
-            height=listbox_height,
-            justify=tkinter.CENTER,
+            height=LISTBOX_HEIGHT,
             exportselection=False,
+            activestyle="none",
         )
         self._widgets["export_options_lb"] = export_options_lb
-        self._populate_listbox(export_options_frame, export_options_lb, listbox_height, self.__named_expressions)
+        self._populate_listbox(export_options_frame, export_options_lb, LISTBOX_HEIGHT, self.__named_expressions)
 
-        # Objects list
-        objects_list_frame = tkinter.Frame(self.root, width=20)
-        objects_list_frame.grid(row=1, column=0, pady=10, padx=10, sticky="ew")
+        objects_list_frame = ttk.LabelFrame(selection_frame, text="Objects", style="PyAEDT.TLabelframe")
+        objects_list_frame.grid(row=0, column=1, padx=(5, 0), sticky="nsew")
         self._widgets["objects_list_frame"] = objects_list_frame
 
-        objects_list_label = ttk.Label(
-            objects_list_frame,
-            text="Objects list:",
-            width=15,
-            style="PyAEDT.TLabel",
-            justify=tkinter.CENTER,
-            anchor="w",
-        )
-        self._widgets["objects_list_label"] = objects_list_label
-        objects_list_label.pack(side=tkinter.TOP, fill=tkinter.BOTH)
-
-        objects_listbox_height = min(len(self.__objects_list), 6)
         objects_list_lb = tkinter.Listbox(
             objects_list_frame,
             selectmode=tkinter.MULTIPLE,
-            justify=tkinter.CENTER,
+            height=LISTBOX_HEIGHT,
             exportselection=False,
-            height=objects_listbox_height,
+            activestyle="none",
         )
         self._widgets["objects_list_lb"] = objects_list_lb
-        self._populate_listbox(objects_list_frame, objects_list_lb, objects_listbox_height, self.__objects_list)
+        self._populate_listbox(objects_list_frame, objects_list_lb, LISTBOX_HEIGHT, self.__objects_list)
 
-        # Solution
-        solution_frame = tkinter.Frame(self.root, width=20)
-        solution_frame.grid(row=2, column=0, pady=10, padx=10, sticky="ew")
+        # Solution and transient settings
+        solution_frame = ttk.LabelFrame(self.root, text="Solution", style="PyAEDT.TLabelframe")
+        solution_frame.grid(row=1, column=0, columnspan=2, padx=10, pady=5, sticky="ew")
+        solution_frame.columnconfigure(1, weight=1)
         self._widgets["solution_frame"] = solution_frame
 
-        solution_label = ttk.Label(
-            solution_frame, text="Solution:", style="PyAEDT.TLabel", justify=tkinter.CENTER, anchor="w"
-        )
+        solution_label = ttk.Label(solution_frame, text="Setup:", width=LABEL_WIDTH, style="PyAEDT.TLabel")
+        solution_label.grid(row=0, column=0, padx=5, pady=5, sticky="w")
         self._widgets["solution_label"] = solution_label
-        solution_label.pack(side=tkinter.LEFT, fill=tkinter.BOTH)
 
-        solution_dropdown_var = tkinter.StringVar(solution_frame)
-        solution_dropdown_var.set(self.__solution_options[0])
+        solution_dropdown_var = tkinter.StringVar(solution_frame, value=self.__solution_options[0])
         self._widgets["solution_dropdown_var"] = solution_dropdown_var
-        solution_dropdown = tkinter.OptionMenu(solution_frame, solution_dropdown_var, *self.__solution_options)
-        solution_dropdown.config(bg="white", fg="black")
-        solution_dropdown.pack(pady=20)
+        solution_dropdown = ttk.Combobox(
+            solution_frame,
+            textvariable=solution_dropdown_var,
+            values=self.__solution_options,
+            state="readonly",
+            style="PyAEDT.TCombobox",
+        )
+        solution_dropdown.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
         self._widgets["solution_dropdown"] = solution_dropdown
 
-        # Sample points file
-        sample_points_frame = tkinter.Frame(self.root, width=20)
-        sample_points_frame.grid(row=3, column=0, pady=10, padx=10, sticky="ew")
-        self._widgets["sample_points_frame"] = sample_points_frame
+        if self.__is_transient:
+            transient_frame = ttk.Frame(solution_frame, style="PyAEDT.TFrame")
+            transient_frame.grid(row=1, column=0, columnspan=2, sticky="ew")
+            self._widgets["transient_frame"] = transient_frame
 
-        sample_points_label = ttk.Label(
-            sample_points_frame,
-            text="Sample points file:",
-            width=15,
-            style="PyAEDT.TLabel",
-            justify=tkinter.CENTER,
-            anchor="w",
-        )
+            if self.__time_averaged_available:
+                time_averaged_var = tkinter.BooleanVar(transient_frame, value=False)
+                self._widgets["time_averaged_var"] = time_averaged_var
+                time_averaged_check = ttk.Checkbutton(
+                    transient_frame,
+                    text="Time averaged fields",
+                    variable=time_averaged_var,
+                    command=self._toggle_time_averaged,
+                    style="PyAEDT.TCheckbutton",
+                )
+                time_averaged_check.grid(row=0, column=0, columnspan=2, padx=5, pady=5, sticky="w")
+                self._widgets["time_averaged_check"] = time_averaged_check
+
+                start_time_label = ttk.Label(
+                    transient_frame, text="Start time:", width=LABEL_WIDTH, style="PyAEDT.TLabel"
+                )
+                start_time_label.grid(row=1, column=0, padx=5, pady=5, sticky="w")
+                self._widgets["start_time_label"] = start_time_label
+                start_time_entry = ttk.Entry(transient_frame, width=20, style="PyAEDT.TEntry")
+                start_time_entry.insert(0, EXTENSION_DEFAULT_ARGUMENTS["start_time"])
+                start_time_entry.grid(row=1, column=1, padx=5, pady=5, sticky="w")
+                self._widgets["start_time_entry"] = start_time_entry
+                start_time_label.grid_remove()
+                start_time_entry.grid_remove()
+
+            time_label = ttk.Label(transient_frame, text="Time:", width=LABEL_WIDTH, style="PyAEDT.TLabel")
+            time_label.grid(row=2, column=0, padx=5, pady=5, sticky="w")
+            self._widgets["time_label"] = time_label
+            time_entry = ttk.Entry(transient_frame, width=20, style="PyAEDT.TEntry")
+            time_entry.grid(row=2, column=1, padx=5, pady=5, sticky="w")
+            self._widgets["time_entry"] = time_entry
+
+        # Input and output files
+        files_frame = ttk.LabelFrame(self.root, text="Files", style="PyAEDT.TLabelframe")
+        files_frame.grid(row=2, column=0, columnspan=2, padx=10, pady=5, sticky="ew")
+        files_frame.columnconfigure(1, weight=1)
+        self._widgets["files_frame"] = files_frame
+
+        sample_points_label = ttk.Label(files_frame, text="Sample points:", width=LABEL_WIDTH, style="PyAEDT.TLabel")
+        sample_points_label.grid(row=0, column=0, padx=5, pady=5, sticky="w")
         self._widgets["sample_points_label"] = sample_points_label
-        sample_points_label.pack(side=tkinter.TOP, fill=tkinter.BOTH)
 
-        sample_points_entry = tkinter.Text(sample_points_frame, height=1, width=40, wrap=tkinter.WORD)
-        sample_points_entry.pack(expand=True, fill=tkinter.BOTH, side=tkinter.LEFT)
+        sample_points_entry = tkinter.Text(files_frame, height=1, width=TEXT_WIDTH, wrap=tkinter.CHAR)
+        sample_points_entry.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
         self._widgets["sample_points_entry"] = sample_points_entry
 
         # Points file button
-        def show_points_popup() -> None:
-            popup = tkinter.Toplevel(self.root)
-            popup.title("Select an Option")
-
-            tkinter.Label(popup, text="Choose an option:").pack(pady=10)
-
-            option_var = tkinter.StringVar(value="Option 1")
-
-            tkinter.Radiobutton(popup, text="Generate mesh grid", variable=option_var, value="Option 1").pack(
-                anchor=tkinter.W
+        def browse_points_file() -> None:
+            sample_points_entry = cast(tkinter.Text | None, self._widgets.get("sample_points_entry"))
+            if sample_points_entry is None:
+                raise RuntimeError("Fields Distribution widgets are not initialized.")
+            filename = filedialog.askopenfilename(
+                initialdir="/",
+                title="Select Points File",
+                filetypes=[("Points file", "*.pts")],
             )
-            number_points_label = tkinter.Label(popup, text="Number of Points:")
-            number_points_label.pack(anchor=tkinter.W, pady=5, padx=20)
-            points_entry = tkinter.Text(popup, wrap=tkinter.WORD, width=20, height=1)
-            points_entry.pack(pady=5, padx=20)
-            tkinter.Radiobutton(popup, text="Import .pts file", variable=option_var, value="Option 2").pack(
-                anchor=tkinter.W
-            )
-
-            def submit() -> None:
-                objects_list_lb = cast(tkinter.Listbox | None, self._widgets.get("objects_list_lb"))
-                sample_points_entry = cast(tkinter.Text | None, self._widgets.get("sample_points_entry"))
-                if objects_list_lb is None or sample_points_entry is None:
-                    raise RuntimeError("Fields Distribution widgets are not initialized.")
-                if option_var.get() == "Option 1":
-                    from ansys.aedt.core.extensions.common.points_cloud import PointsCloudExtensionData
-                    from ansys.aedt.core.extensions.common.points_cloud import main as points_main
-
-                    selected_objects = objects_list_lb.curselection()
-                    objects_list = [cast(str, objects_list_lb.get(i)) for i in selected_objects]
-                    points = points_entry.get("1.0", tkinter.END).strip()
-                    try:
-                        data = PointsCloudExtensionData(choice=objects_list, points=int(points))
-                        pts_path = points_main(data)
-                        self._text_size(pts_path, sample_points_entry)
-                    except Exception as e:
-                        messagebox.showerror("Error", f"Failed to generate points: {str(e)}")
-                else:
-                    filename = filedialog.askopenfilename(
-                        initialdir="/",
-                        title="Select Points File",
-                        filetypes=(("Points file", ".pts"), ("all files", "*.*")),
-                    )
-                    if filename:
-                        self._text_size(filename, sample_points_entry)
-                popup.destroy()
-
-            tkinter.Button(popup, text="OK", command=submit).pack(pady=10)
+            if filename:
+                self._text_size(filename, sample_points_entry)
 
         export_points_button = ttk.Button(
-            sample_points_frame, text="...", command=show_points_popup, width=10, style="PyAEDT.TButton"
+            files_frame, text="...", command=browse_points_file, width=10, style="PyAEDT.TButton"
         )
-        export_points_button.pack(side=tkinter.RIGHT, padx=10)
+        export_points_button.grid(row=0, column=2, padx=5, pady=5)
         self._widgets["export_points_button"] = export_points_button
 
-        # Export file
-        export_file_frame = tkinter.Frame(self.root, width=20)
-        export_file_frame.grid(row=4, column=0, pady=10, padx=10, sticky="ew")
-        self._widgets["export_file_frame"] = export_file_frame
-
-        export_file_label = ttk.Label(
-            export_file_frame,
-            text="Output file location:",
-            width=20,
-            style="PyAEDT.TLabel",
-            justify=tkinter.CENTER,
-            anchor="w",
-        )
+        export_file_label = ttk.Label(files_frame, text="Output file:", width=LABEL_WIDTH, style="PyAEDT.TLabel")
+        export_file_label.grid(row=1, column=0, padx=5, pady=5, sticky="w")
         self._widgets["export_file_label"] = export_file_label
-        export_file_label.pack(side=tkinter.TOP, fill=tkinter.BOTH)
 
-        export_file_entry = tkinter.Text(export_file_frame, width=40, height=1, wrap=tkinter.WORD)
-        export_file_entry.pack(expand=True, fill=tkinter.BOTH, side=tkinter.LEFT)
+        export_file_entry = tkinter.Text(files_frame, width=TEXT_WIDTH, height=1, wrap=tkinter.CHAR)
+        export_file_entry.grid(row=1, column=1, padx=5, pady=5, sticky="ew")
         self._widgets["export_file_entry"] = export_file_entry
 
         # Save as button
@@ -431,14 +471,14 @@ class FieldsDistributionExtension(ExtensionCommon):
                 self._text_size(filename, export_file_entry)
 
         save_as_button = ttk.Button(
-            export_file_frame, text="Save as...", command=save_as_files, width=10, style="PyAEDT.TButton"
+            files_frame, text="Save as...", command=save_as_files, width=10, style="PyAEDT.TButton"
         )
-        save_as_button.pack(side=tkinter.RIGHT, padx=10)
+        save_as_button.grid(row=1, column=2, padx=5, pady=5)
         self._widgets["save_as_button"] = save_as_button
 
-        # Buttons frame
-        buttons_frame = tkinter.Frame(self.root, width=20)
-        buttons_frame.grid(row=5, column=0, pady=10, padx=15, sticky="ew")
+        # Action buttons, next to the theme toggle button
+        buttons_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
+        buttons_frame.grid(row=3, column=0, padx=10, pady=10, sticky="w")
         self._widgets["buttons_frame"] = buttons_frame
 
         def callback_export() -> None:
@@ -465,6 +505,10 @@ class FieldsDistributionExtension(ExtensionCommon):
             selected_objects = objects_list_lb.curselection()
             objects_list = [cast(str, objects_list_lb.get(i)) for i in selected_objects]
             solution_option = solution_dropdown_var.get()
+            time_settings = self._get_time_settings()
+            if time_settings is None:
+                return
+            field_type, time, start_time = time_settings
 
             fields_data = FieldsDistributionExtensionData(
                 points_file=points_file,
@@ -472,51 +516,18 @@ class FieldsDistributionExtension(ExtensionCommon):
                 export_option=export_option,
                 objects_list=objects_list,
                 solution_option=solution_option,
+                field_type=field_type,
+                time=time,
+                start_time=start_time,
             )
             self.data = fields_data
             self.root.destroy()
 
-        def callback_preview() -> None:
-            export_options_lb = cast(tkinter.Listbox | None, self._widgets.get("export_options_lb"))
-            objects_list_lb = cast(tkinter.Listbox | None, self._widgets.get("objects_list_lb"))
-            solution_dropdown_var = cast(tkinter.StringVar | None, self._widgets.get("solution_dropdown_var"))
-            if export_options_lb is None or objects_list_lb is None or solution_dropdown_var is None:
-                raise RuntimeError("Fields Distribution widgets are not initialized.")
-            selected_export = export_options_lb.curselection()
-            if not selected_export:
-                messagebox.showerror("Error", "Please select an export option.")
-                return
-            export_option = cast(str, export_options_lb.get(selected_export[0]))
-            selected_objects = objects_list_lb.curselection()
-            objects_list = [cast(str, objects_list_lb.get(i)) for i in selected_objects]
-            solution_option = solution_dropdown_var.get()
-
-            try:
-                plot = self.maxwell_app.post.plot_field(
-                    quantity=export_option,
-                    assignment=objects_list,
-                    plot_type="Surface",
-                    setup=solution_option,
-                    plot_cad_objs=False,
-                    keep_plot_after_generation=False,
-                    show_grid=False,
-                )
-                if not plot.fields:
-                    setup_name = solution_option.split(":")[0].strip()
-                    messagebox.showerror("Error", f"{setup_name} is not solved.")
-            except Exception as e:
-                messagebox.showerror("Error", f"Failed to create preview: {str(e)}")
-
         export_button = ttk.Button(
-            buttons_frame, text="Export", command=callback_export, width=10, style="PyAEDT.TButton"
+            buttons_frame, text="Export", command=callback_export, width=12, style="PyAEDT.TButton"
         )
-        preview_button = ttk.Button(
-            buttons_frame, text="Preview plot", command=callback_preview, width=10, style="PyAEDT.TButton"
-        )
-        export_button.pack(side="left", expand=True, padx=5)
-        preview_button.pack(side="left", expand=True, padx=5)
+        export_button.pack(side="left")
         self._widgets["export_button"] = export_button
-        self._widgets["preview_button"] = preview_button
 
 
 def main(data: FieldsDistributionExtensionData) -> bool:
@@ -536,6 +547,8 @@ def main(data: FieldsDistributionExtensionData) -> bool:
     """
     if not data.export_file:
         raise AEDTRuntimeError("No export file specified.")
+    if data.field_type == "Time Averaged Fields" and not data.time:
+        raise AEDTRuntimeError("No stop time specified for time averaged fields.")
 
     app = ansys.aedt.core.Desktop(
         new_desktop=False,
@@ -567,18 +580,19 @@ def main(data: FieldsDistributionExtensionData) -> bool:
     if not objects_list:
         assignment = "AllObjects"
     elif isinstance(objects_list, list) and len(objects_list) > 1:
-        if len(aedtapp.modeler.user_lists) == 0:
-            objects_list = aedtapp.modeler.create_object_list(objects_list, "ObjectList1")
+        list_name = f"ObjectList{len(aedtapp.modeler.user_lists) + 1}"
+        if VERSION < "2026.1":
+            selection = aedtapp.modeler.create_object_list(assignment=objects_list, name=list_name)
         else:
-            objects_list = aedtapp.modeler.create_object_list(
-                objects_list, f"ObjectList{len(aedtapp.modeler.user_lists) + 1}"
-            )
-        assignment = objects_list.name
+            selection = aedtapp.modeler.create_named_selection(name=list_name, assignment=objects_list)
+        assignment = selection.name
     else:
         assignment = objects_list[0]
 
     setup_name = solution_option.split(":")[0].strip()
-    is_solved = [s.is_solved for s in aedtapp.setups if s.name == setup_name][0]
+    # setup.is_solved is not reliable for transient designs: the export raises if fields are not available.
+    is_transient = "Transient" in str(aedtapp.solution_type)
+    is_solved = is_transient or [s.is_solved for s in aedtapp.setups if s.name == setup_name][0]
     if not is_solved:
         if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
             app.release_desktop(False, False)
@@ -586,7 +600,29 @@ def main(data: FieldsDistributionExtensionData) -> bool:
 
     field_path = str(Path(export_file).with_suffix(".fld"))
 
-    if not points_file:
+    if data.time:
+        if not points_file:
+            aedtapp.post.export_transient_field_file(
+                quantity=export_option,
+                time=data.time,
+                solution=solution_option,
+                output_file=field_path,
+                assignment=assignment,
+                objects_type="Surf",
+                field_type=data.field_type,
+                start_time=data.start_time,
+            )
+        else:
+            aedtapp.post.export_transient_field_file_on_points(
+                quantity=export_option,
+                time=data.time,
+                sample_points=points_file,
+                solution=solution_option,
+                output_file=field_path,
+                field_type=data.field_type,
+                start_time=data.start_time,
+            )
+    elif not points_file:
         aedtapp.post.export_field_file(
             quantity=export_option,
             solution=solution_option,
