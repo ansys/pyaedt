@@ -29,24 +29,39 @@ import pytest
 
 import ansys.aedt.core
 from tests import TESTS_EXTENSIONS_PATH
+from tests import TESTS_SOLVERS_PATH
 
 # Test project constants
 FIELDS_DISTRIBUTION = "transformer_loss_distribution"
 TEST_SUBFOLDER = "T45"
+TRANSIENT_PROJECT = "Transient_StrandedWindings"
+TRANSIENT_SUBFOLDER = TESTS_SOLVERS_PATH / "example_models" / "T00"
 
 
-def test_fields_distribution_basic_export(add_app_example, test_tmp_dir) -> None:
+@pytest.fixture
+def m2d_app(add_app_example):
+    """Load the solved Maxwell 2D eddy current example."""
+    app = add_app_example(application=ansys.aedt.core.Maxwell2d, project=FIELDS_DISTRIBUTION, subfolder=TEST_SUBFOLDER)
+    yield app
+    app.close_project(app.project_name, save=False)
+
+
+@pytest.fixture
+def m3d_transient_app(add_app_example):
+    """Load the solved Maxwell 3D transient example."""
+    app = add_app_example(
+        application=ansys.aedt.core.Maxwell3d, project=TRANSIENT_PROJECT, subfolder=TRANSIENT_SUBFOLDER
+    )
+    yield app
+    app.close_project(app.project_name, save=False)
+
+
+def test_fields_distribution_basic_export(m2d_app, test_tmp_dir) -> None:
     """Test basic fields distribution export functionality."""
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtensionData
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import main
 
     file_path = test_tmp_dir / "loss_distribution_points.csv"
-
-    aedtapp = add_app_example(
-        application=ansys.aedt.core.Maxwell2d,
-        subfolder=TEST_SUBFOLDER,
-        project=FIELDS_DISTRIBUTION,
-    )
 
     data = FieldsDistributionExtensionData(
         points_file="",
@@ -59,10 +74,9 @@ def test_fields_distribution_basic_export(add_app_example, test_tmp_dir) -> None
 
     assert main(data)
     assert file_path.is_file()
-    aedtapp.close_project(aedtapp.project_name, save=False)
 
 
-def test_fields_distribution_with_points_file(add_app_example, test_tmp_dir) -> None:
+def test_fields_distribution_with_points_file(m2d_app, test_tmp_dir) -> None:
     """Test fields distribution export with custom points file."""
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtensionData
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import main
@@ -70,12 +84,6 @@ def test_fields_distribution_with_points_file(add_app_example, test_tmp_dir) -> 
     file_path = test_tmp_dir / "loss_distribution_points.csv"
     points_file_original = Path(TESTS_EXTENSIONS_PATH) / "example_models" / TEST_SUBFOLDER / "hv_terminal.pts"
     points_file = shutil.copy2(points_file_original, test_tmp_dir / "hv_terminal.pts")
-
-    aedtapp = add_app_example(
-        application=ansys.aedt.core.Maxwell2d,
-        subfolder=TEST_SUBFOLDER,
-        project=FIELDS_DISTRIBUTION,
-    )
 
     data = FieldsDistributionExtensionData(
         points_file=str(points_file),
@@ -88,21 +96,14 @@ def test_fields_distribution_with_points_file(add_app_example, test_tmp_dir) -> 
 
     assert main(data)
     assert file_path.is_file()
-    aedtapp.close_project(aedtapp.project_name, save=False)
 
 
-def test_fields_distribution_multiple_objects(add_app_example, test_tmp_dir) -> None:
+def test_fields_distribution_multiple_objects(m2d_app, test_tmp_dir) -> None:
     """Test fields distribution export with multiple objects."""
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtensionData
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import main
 
     file_path = test_tmp_dir / "loss_distribution_points.csv"
-
-    aedtapp = add_app_example(
-        application=ansys.aedt.core.Maxwell2d,
-        subfolder=TEST_SUBFOLDER,
-        project=FIELDS_DISTRIBUTION,
-    )
 
     data = FieldsDistributionExtensionData(
         points_file="",
@@ -115,21 +116,14 @@ def test_fields_distribution_multiple_objects(add_app_example, test_tmp_dir) -> 
 
     assert main(data)
     assert file_path.is_file()
-    aedtapp.close_project(aedtapp.project_name, save=False)
 
 
-def test_fields_distribution_all_objects(add_app_example, test_tmp_dir) -> None:
+def test_fields_distribution_all_objects(m2d_app, test_tmp_dir) -> None:
     """Test fields distribution export with all objects."""
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtensionData
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import main
 
     file_path = test_tmp_dir / "loss_distribution_points.csv"
-
-    aedtapp = add_app_example(
-        application=ansys.aedt.core.Maxwell2d,
-        subfolder=TEST_SUBFOLDER,
-        project=FIELDS_DISTRIBUTION,
-    )
 
     data = FieldsDistributionExtensionData(
         points_file="",
@@ -142,22 +136,15 @@ def test_fields_distribution_all_objects(add_app_example, test_tmp_dir) -> None:
 
     assert main(data)
     assert file_path.is_file()
-    aedtapp.close_project(aedtapp.project_name, save=False)
 
 
-def test_fields_distribution_surface_ac_force_density(add_app_example, test_tmp_dir) -> None:
+def test_fields_distribution_surface_ac_force_density(m2d_app, test_tmp_dir) -> None:
     """Test fields distribution export with SurfaceAcForceDensity option."""
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtensionData
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import main
 
     file_path = test_tmp_dir / "surface_ac_force_density.csv"
 
-    aedtapp = add_app_example(
-        application=ansys.aedt.core.Maxwell2d,
-        subfolder=TEST_SUBFOLDER,
-        project=FIELDS_DISTRIBUTION,
-    )
-
     data = FieldsDistributionExtensionData(
         points_file="",
         export_file=str(file_path),
@@ -169,22 +156,15 @@ def test_fields_distribution_surface_ac_force_density(add_app_example, test_tmp_
 
     assert main(data)
     assert file_path.is_file()
-    aedtapp.close_project(aedtapp.project_name, save=False)
 
 
-def test_fields_distribution_npy_export(add_app_example, test_tmp_dir) -> None:
+def test_fields_distribution_npy_export(m2d_app, test_tmp_dir) -> None:
     """Test fields distribution export to numpy format."""
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtensionData
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import main
 
     file_path = test_tmp_dir / "loss_distribution.npy"
 
-    aedtapp = add_app_example(
-        application=ansys.aedt.core.Maxwell2d,
-        subfolder=TEST_SUBFOLDER,
-        project=FIELDS_DISTRIBUTION,
-    )
-
     data = FieldsDistributionExtensionData(
         points_file="",
         export_file=str(file_path),
@@ -196,21 +176,14 @@ def test_fields_distribution_npy_export(add_app_example, test_tmp_dir) -> None:
 
     assert main(data)
     assert file_path.is_file()
-    aedtapp.close_project(aedtapp.project_name, save=False)
 
 
-def test_fields_distribution_tab_export(add_app_example, test_tmp_dir) -> None:
+def test_fields_distribution_tab_export(m2d_app, test_tmp_dir) -> None:
     """Test fields distribution export to tab-delimited format."""
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtensionData
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import main
 
     file_path = test_tmp_dir / "loss_distribution.tab"
-
-    aedtapp = add_app_example(
-        application=ansys.aedt.core.Maxwell2d,
-        subfolder=TEST_SUBFOLDER,
-        project=FIELDS_DISTRIBUTION,
-    )
 
     data = FieldsDistributionExtensionData(
         points_file="",
@@ -223,20 +196,13 @@ def test_fields_distribution_tab_export(add_app_example, test_tmp_dir) -> None:
 
     assert main(data)
     assert file_path.is_file()
-    aedtapp.close_project(aedtapp.project_name, save=False)
 
 
-def test_fields_distribution_error_no_export_file(add_app_example) -> None:
+def test_fields_distribution_error_no_export_file(m2d_app) -> None:
     """Test error handling when no export file is specified."""
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtensionData
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import main
     from ansys.aedt.core.internal.errors import AEDTRuntimeError
-
-    aedtapp = add_app_example(
-        application=ansys.aedt.core.Maxwell2d,
-        subfolder=TEST_SUBFOLDER,
-        project=FIELDS_DISTRIBUTION,
-    )
 
     data = FieldsDistributionExtensionData(
         points_file="",
@@ -249,8 +215,6 @@ def test_fields_distribution_error_no_export_file(add_app_example) -> None:
 
     with pytest.raises(AEDTRuntimeError, match="No export file specified."):
         main(data)
-
-    aedtapp.close_project(aedtapp.project_name, save=False)
 
 
 def test_fields_distribution_error_wrong_design_type(add_app, test_tmp_dir) -> None:
@@ -306,7 +270,7 @@ def test_fields_distribution_data_class_initialization() -> None:
     assert data.solution_option == "Setup1 : LastAdaptive"
 
 
-def test_fields_distribution_file_validation(add_app_example, test_tmp_dir) -> None:
+def test_fields_distribution_file_validation(m2d_app, test_tmp_dir) -> None:
     """Test that exported files contain expected data structure."""
     import csv
 
@@ -314,12 +278,6 @@ def test_fields_distribution_file_validation(add_app_example, test_tmp_dir) -> N
 
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtensionData
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import main
-
-    aedtapp = add_app_example(
-        application=ansys.aedt.core.Maxwell2d,
-        subfolder=TEST_SUBFOLDER,
-        project=FIELDS_DISTRIBUTION,
-    )
 
     # Test CSV file content
     csv_file_path = test_tmp_dir / "validation_test.csv"
@@ -352,19 +310,11 @@ def test_fields_distribution_file_validation(add_app_example, test_tmp_dir) -> N
     array_data = np.load(npy_file_path)
     assert array_data.size > 0, "NPY file should contain data"
 
-    aedtapp.close_project(aedtapp.project_name, save=False)
 
-
-def test_fields_distribution(add_app_example, test_tmp_dir) -> None:
+def test_fields_distribution(m2d_app, test_tmp_dir) -> None:
     """Test comprehensive fields distribution functionality."""
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtensionData
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import main
-
-    aedtapp = add_app_example(
-        application=ansys.aedt.core.Maxwell2d,
-        subfolder=TEST_SUBFOLDER,
-        project=FIELDS_DISTRIBUTION,
-    )
 
     # Test basic export
     file_path = test_tmp_dir / "loss_distribution.csv"
@@ -449,22 +399,14 @@ def test_fields_distribution(add_app_example, test_tmp_dir) -> None:
     assert main(data)
     assert file_path.is_file()
 
-    aedtapp.close_project(aedtapp.project_name, save=False)
 
-
-def test_fields_distribution_comprehensive_scenarios(add_app_example, test_tmp_dir) -> None:
+def test_fields_distribution_comprehensive_scenarios(m2d_app, test_tmp_dir) -> None:
     """Test comprehensive fields distribution functionality with various scenarios."""
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtensionData
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import main
 
     file_path = test_tmp_dir / "loss_distribution.csv"
 
-    aedtapp = add_app_example(
-        application=ansys.aedt.core.Maxwell2d,
-        subfolder=TEST_SUBFOLDER,
-        project=FIELDS_DISTRIBUTION,
-    )
-
     # Test basic export
     data = FieldsDistributionExtensionData(
         points_file="",
@@ -547,4 +489,57 @@ def test_fields_distribution_comprehensive_scenarios(add_app_example, test_tmp_d
     assert main(data)
     assert file_path.is_file()
 
-    aedtapp.close_project(aedtapp.project_name, save=False)
+
+def test_fields_distribution_transient(m3d_transient_app, test_tmp_dir) -> None:
+    """Test fields distribution export of transient and time averaged fields."""
+    from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtensionData
+    from ansys.aedt.core.extensions.maxwell3d.fields_distribution import main
+
+    solution = m3d_transient_app.nominal_sweep
+
+    # Fields at a given time
+    file_path = test_tmp_dir / "transient_fields.csv"
+    data = FieldsDistributionExtensionData(
+        export_file=str(file_path),
+        export_option="Mag_B",
+        objects_list=["Coil_A2"],
+        solution_option=solution,
+        time="10ms",
+    )
+    data.is_test = True
+    assert main(data)
+    assert file_path.is_file()
+
+    # Time averaged fields on objects
+    file_path = test_tmp_dir / "time_averaged_fields.csv"
+    data = FieldsDistributionExtensionData(
+        export_file=str(file_path),
+        export_option="Loss_Density",
+        objects_list=["Coil_A2"],
+        solution_option=solution,
+        field_type="Time Averaged Fields",
+        time="10ms",
+        start_time="0s",
+    )
+    data.is_test = True
+    assert main(data)
+    assert file_path.is_file()
+
+    # Time averaged fields on sample points
+    points_file = shutil.copy2(
+        TRANSIENT_SUBFOLDER / "coil_b1_points_surface.pts",
+        test_tmp_dir / "coil_b1_points_surface.pts",
+    )
+    file_path = test_tmp_dir / "time_averaged_fields_points.tab"
+    data = FieldsDistributionExtensionData(
+        points_file=str(points_file),
+        export_file=str(file_path),
+        export_option="Loss_Density",
+        solution_option=solution,
+        field_type="Time Averaged Fields",
+        time="10ms",
+        start_time="5ms",
+    )
+    data.is_test = True
+    assert main(data)
+    assert file_path.is_file()

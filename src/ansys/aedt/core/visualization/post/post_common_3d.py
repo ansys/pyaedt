@@ -49,6 +49,7 @@ from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.checks import min_aedt_version
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.visualization.post.common import PostProcessorCommon
 from ansys.aedt.core.visualization.post.field_data import FieldPlot
@@ -262,9 +263,11 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
                     intrinsics["Freq"] = v
                 elif k in ["Phase", "phase"]:
                     intrinsics["Phase"] = v
-                elif k in ["Time", "time"]:
+                elif k in ["Time", "time", "Time0"]:
                     if self._app.solution_type == "SteadyState":
                         continue
+                    if k == "Time0":
+                        intrinsics["Time0"] = v
                     intrinsics["Time"] = v
                 if "Phase" in self._app.design_solutions.intrinsics and "Phase" not in intrinsics:
                     intrinsics["Phase"] = "0deg"
@@ -949,6 +952,361 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         if Path(output_file).exists():
             return output_file
         return False  # pragma: no cover
+
+    @pyaedt_function_handler()
+    def export_transient_field_file(
+        self,
+        quantity: str,
+        time: str,
+        solution: str | None = None,
+        variations: dict[str, Any] | None = None,
+        output_file: str | Path | None = None,
+        assignment: str = "AllObjects",
+        objects_type: str = "Vol",
+        field_type: str = "Fields",
+        start_time: str = "0s",
+    ) -> Path:
+        """Use the field calculator to create a field file on an assignment for a transient solution.
+
+        The field can be exported at a given time instant or averaged over a time range.
+
+        Parameters
+        ----------
+        quantity : str
+            Name of the quantity or named expression to export. For example, ``"Mag_B"``.
+        time : str
+            Time instant at which the field is exported, with units. For example, ``"10ms"``.
+            If ``field_type="Time Averaged Fields"``, this is the end time of the averaging range.
+        solution : str, optional
+            Name of the solution in the format ``"setup : sweep"``.
+            The default is ``None``, in which case the first existing solution is used.
+        variations : dict, optional
+            Dictionary of all variation variables with their values.
+            The default is ``None``, in which case the nominal variation is used.
+        output_file : str or :class:`pathlib.Path`, optional
+            Full path and name to save the file to.
+            The default is ``None``, in which case a file named ``"<setup>_<sweep>.fld"``
+            is exported in the working directory.
+        assignment : str, optional
+            Object to export the field on. The default is ``"AllObjects"``.
+        objects_type : str, optional
+            Type of objects to export. Options are ``"Vol"`` for volume, ``"Surf"`` for surface
+            and ``"Line"`` for line. The default is ``"Vol"``.
+        field_type : str, optional
+            Type of field to export as in AEDT Fields Calculator.
+            Options are ``"Fields"`` and ``"Time Averaged Fields"``. The default is ``"Fields"``.
+            ``"Time Averaged Fields"`` is available only in Maxwell 3D and Maxwell 2D designs.
+        start_time : str, optional
+            Start time of the averaging range, with units. It is used only when
+            ``field_type="Time Averaged Fields"``. The default is ``"0s"``.
+
+        Returns
+        -------
+        :class:`pathlib.Path`
+            Path to the exported field file.
+
+        References
+        ----------
+        >>> oModule.EnterQty
+        >>> oModule.CopyNamedExprToStack
+        >>> oModule.EnterVol
+        >>> oModule.EnterSurf
+        >>> oModule.EnterLine
+        >>> oModule.CalcOp
+        >>> oModule.CalculatorWrite
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d()
+        >>> # Export the field at a given time instant.
+        >>> m3d.post.export_transient_field_file(quantity="Mag_B", time="10ms", output_file="mag_b.fld")
+        >>> # Export the field averaged over a time range.
+        >>> m3d.post.export_transient_field_file(
+        ...     quantity="LossDensity",
+        ...     time="41.6666665ms",
+        ...     output_file="loss_density.fld",
+        ...     field_type="Time Averaged Fields",
+        ...     start_time="0s",
+        ... )
+        """
+        if objects_type not in ["Vol", "Surf", "Line"]:
+            raise AEDTRuntimeError(f"Invalid objects type '{objects_type}'. Options are 'Vol', 'Surf' and 'Line'.")
+        solution, output_file, variation = self._prepare_transient_field_export(
+            quantity, time, solution, variations, output_file, field_type, start_time
+        )
+        self._calculator_write(output_file, solution, variation, assignment, objects_type)
+
+        if not output_file.exists():  # pragma: no cover
+            raise AEDTRuntimeError(f"Failed to export field file '{output_file}'.")
+        return output_file
+
+    @pyaedt_function_handler()
+    def export_transient_field_file_on_points(
+        self,
+        quantity: str,
+        time: str,
+        sample_points: str | Path | list[list[float]],
+        solution: str | None = None,
+        variations: dict[str, Any] | None = None,
+        output_file: str | Path | None = None,
+        field_type: str = "Fields",
+        start_time: str = "0s",
+        *,
+        export_with_sample_points: bool = True,
+        reference_coordinate_system: str = "Global",
+        export_in_si_system: bool = True,
+        export_field_in_reference: bool = True,
+    ) -> Path:
+        """Use the field calculator to create a field file on sample points for a transient solution.
+
+        The field can be exported at a given time instant or averaged over a time range.
+
+        Parameters
+        ----------
+        quantity : str
+            Name of the quantity or named expression to export. For example, ``"Mag_B"``.
+        time : str
+            Time instant at which the field is exported, with units. For example, ``"10ms"``.
+            If ``field_type="Time Averaged Fields"``, this is the end time of the averaging range.
+        sample_points : str, :class:`pathlib.Path` or list
+            Sample points to export the field on. It can be either the path to a ``.pts`` file
+            or a list of points ``[x, y, z]`` in model units.
+        solution : str, optional
+            Name of the solution in the format ``"setup : sweep"``.
+            The default is ``None``, in which case the first existing solution is used.
+        variations : dict, optional
+            Dictionary of all variation variables with their values.
+            The default is ``None``, in which case the nominal variation is used.
+        output_file : str or :class:`pathlib.Path`, optional
+            Full path and name to save the file to.
+            The default is ``None``, in which case a file named ``"<setup>_<sweep>.fld"``
+            is exported in the working directory.
+        field_type : str, optional
+            Type of field to export as in AEDT Fields Calculator.
+            Options are ``"Fields"`` and ``"Time Averaged Fields"``. The default is ``"Fields"``.
+            ``"Time Averaged Fields"`` is available only in Maxwell 3D and Maxwell 2D designs.
+        start_time : str, optional
+            Start time of the averaging range, with units. It is used only when
+            ``field_type="Time Averaged Fields"``. The default is ``"0s"``.
+        export_with_sample_points : bool, optional
+            Whether to include the sample points in the file to export.
+            The default is ``True``.
+        reference_coordinate_system : str, optional
+            Reference coordinate system in the file to export.
+            The default is ``"Global"``.
+        export_in_si_system : bool, optional
+            Whether the provided sample points are defined in the SI system or model units.
+            The default is ``True``.
+        export_field_in_reference : bool, optional
+            Whether to export the field in reference coordinate system.
+            The default is ``True``.
+
+        Returns
+        -------
+        :class:`pathlib.Path`
+            Path to the exported field file.
+
+        References
+        ----------
+        >>> oModule.EnterQty
+        >>> oModule.CopyNamedExprToStack
+        >>> oModule.ExportToFile
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d()
+        >>> # Export the field on a list of sample points.
+        >>> m3d.post.export_transient_field_file_on_points(
+        ...     quantity="Mag_B", time="10ms", sample_points=[[0, 0, 0], [1, 0, 0]], output_file="mag_b.fld"
+        ... )
+        >>> # Export the time averaged field on the sample points defined in a .pts file.
+        >>> m3d.post.export_transient_field_file_on_points(
+        ...     quantity="LossDensity",
+        ...     time="41.6666665ms",
+        ...     sample_points="points.pts",
+        ...     output_file="loss_density.fld",
+        ...     field_type="Time Averaged Fields",
+        ... )
+        """
+        if isinstance(sample_points, (str, Path)):
+            if not Path(sample_points).is_file():
+                raise FileNotFoundError(f"Sample points file '{sample_points}' does not exist.")
+        elif not sample_points:
+            raise ValueError("At least one sample point must be provided.")
+        solution, output_file, variation = self._prepare_transient_field_export(
+            quantity, time, solution, variations, output_file, field_type, start_time
+        )
+        export_options = [
+            "NAME:ExportOption",
+            "IncludePtInOutput:=",
+            export_with_sample_points,
+            "RefCSName:=",
+            reference_coordinate_system,
+            "PtInSI:=",
+            export_in_si_system,
+            "FieldInRefCS:=",
+            export_field_in_reference,
+        ]
+        self._export_to_file(output_file, solution, variation, export_options, sample_points)
+
+        if not output_file.exists():  # pragma: no cover
+            raise AEDTRuntimeError(f"Failed to export field file '{output_file}'.")
+        return output_file
+
+    @pyaedt_function_handler()
+    def _prepare_transient_field_export(
+        self,
+        quantity: str,
+        time: str,
+        solution: str | None,
+        variations: dict[str, Any] | None,
+        output_file: str | Path | None,
+        field_type: str,
+        start_time: str,
+    ) -> tuple[str, Path, list[str]]:
+        """Validate the inputs, load the quantity on the calculator stack, and build the transient variation.
+
+        Parameters
+        ----------
+        quantity : str
+            Name of the quantity or named expression to export.
+        time : str
+            Time instant, or end time of the averaging range, with units.
+        solution : str or None
+            Name of the solution in the format ``"setup : sweep"``. If ``None``, the first existing solution is used.
+        variations : dict or None
+            Dictionary of all variation variables with their values. If ``None``, the nominal variation is used.
+        output_file : str, :class:`pathlib.Path` or None
+            Full path and name to save the file to. If ``None``, ``"<setup>_<sweep>.fld"`` in the working
+            directory is used.
+        field_type : str
+            Type of field to export. Options are ``"Fields"`` and ``"Time Averaged Fields"``.
+        start_time : str
+            Start time of the averaging range, with units.
+
+        Returns
+        -------
+        tuple
+            Solution name, output file path, and variation list in the AEDT format.
+        """
+        if field_type not in ["Fields", "Time Averaged Fields"]:
+            raise AEDTRuntimeError(
+                f"Invalid field type '{field_type}'. Options are 'Fields' and 'Time Averaged Fields'."
+            )
+        if field_type == "Time Averaged Fields" and self._app.design_type not in ["Maxwell 3D", "Maxwell 2D"]:
+            raise AEDTRuntimeError(
+                f"Time averaged fields are not available in {self._app.design_type} designs. "
+                "They are available only in Maxwell 3D and Maxwell 2D designs."
+            )
+        available_expressions = self.fields_calculator.get_expressions(field_type=field_type)
+        if quantity not in available_expressions:
+            raise AEDTRuntimeError(f"Invalid quantity '{quantity}'. Available expressions are {available_expressions}.")
+        if not solution:
+            if not self._app.existing_analysis_sweeps:
+                raise AEDTRuntimeError("There are no existing solutions.")
+            solution = self._app.existing_analysis_sweeps[0]
+        if not output_file:
+            output_file = Path(self._app.working_directory) / (solution.replace(" : ", "_") + ".fld")
+        else:
+            output_file = Path(output_file).resolve()
+
+        self.logger.info(f"Exporting '{quantity}' field. Please be patient.")
+        self.ofieldsreporter.CalcStack("clear")
+        try:
+            self.ofieldsreporter.EnterQty(quantity)
+        except Exception:
+            self.ofieldsreporter.CopyNamedExprToStack(quantity)
+
+        if variations is None:
+            variations = self._app.available_variations.nominal_variation(dependent_params=False)
+
+        variation = ["Time:=", time]
+        if field_type == "Time Averaged Fields":
+            variation.extend(["Time0:=", start_time])
+        variables = self._app.variable_manager.variables
+        for el, value in variations.items():
+            if el in variables and variables[el].sweep:
+                variation.extend([f"{el}:=", value])
+        return solution, output_file, variation
+
+    @pyaedt_function_handler()
+    def _calculator_write(
+        self,
+        output_file: Path,
+        solution: str,
+        variation: list[str],
+        assignment: str,
+        objects_type: str,
+    ) -> None:
+        """Write the field on the calculator stack to a file with the ``CalculatorWrite`` native method.
+
+        Parameters
+        ----------
+        output_file : :class:`pathlib.Path`
+            Path of the field file to write.
+        solution : str
+            Name of the solution in the format ``"setup : sweep"``.
+        variation : list
+            Variation and intrinsics in the AEDT format, for example ``["Time:=", "10ms", "x:=", "1mm"]``.
+        assignment : str
+            Object to export the field on.
+        objects_type : str
+            Type of objects to export. Options are ``"Vol"``, ``"Surf"`` and ``"Line"``.
+        """
+        if objects_type == "Vol":
+            self.ofieldsreporter.EnterVol(assignment)
+        elif objects_type == "Surf":
+            self.ofieldsreporter.EnterSurf(assignment)
+        else:
+            self.ofieldsreporter.EnterLine(assignment)
+        self.ofieldsreporter.CalcOp("Value")
+
+        args = ["Solution:=", solution]
+        if objects_type == "Line":
+            args.extend(["Geometry:=", assignment, "GeometryType:=", objects_type])
+        self.ofieldsreporter.CalculatorWrite(str(output_file), args, variation)
+
+    @pyaedt_function_handler()
+    def _export_to_file(
+        self,
+        output_file: Path,
+        solution: str,
+        variation: list[str],
+        export_options: list[str | bool],
+        sample_points: str | Path | list[list[float]],
+    ) -> None:
+        """Write the field on the calculator stack to a file with the ``ExportToFile`` native method.
+
+        Parameters
+        ----------
+        output_file : :class:`pathlib.Path`
+            Path of the field file to write.
+        solution : str
+            Name of the solution in the format ``"setup : sweep"``.
+        variation : list
+            Variation and intrinsics in the AEDT format, for example ``["Time:=", "10ms", "x:=", "1mm"]``.
+        export_options : list
+            Export options in the AEDT format, starting with ``"NAME:ExportOption"``.
+        sample_points : str, :class:`pathlib.Path` or list
+            Path to a ``.pts`` file or list of sample points ``[x, y, z]`` in model units.
+        """
+        if isinstance(sample_points, (str, Path)):
+            sample_points_file = Path(sample_points)
+        else:
+            sample_points_file = Path(self._app.working_directory) / "temp_points.pts"
+            with open_file(sample_points_file, "w") as f:
+                f.write(f"Unit={self.model_units}\n")
+                for point in sample_points:
+                    f.write(" ".join([str(i) for i in point]) + "\n")
+        self.ofieldsreporter.ExportToFile(
+            str(output_file),
+            str(sample_points_file),
+            solution,
+            variation,
+            export_options,
+        )
 
     @pyaedt_function_handler()
     def export_field_plot(
