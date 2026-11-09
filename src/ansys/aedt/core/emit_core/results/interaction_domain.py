@@ -323,7 +323,6 @@ class InteractionDomain:
         values : list[str]
             List of values to populate with the result properties.
         """
-
         if not self.is_single_instance():
             raise ValueError("Only single instance domains can be used for result export.")
         keys.append("DomainRxRadio")

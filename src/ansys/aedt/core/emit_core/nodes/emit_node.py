@@ -28,7 +28,6 @@ import ast
 from contextlib import contextmanager
 import sys
 from typing import TypeVar
-import warnings
 
 from matplotlib.figure import Figure
 
@@ -105,7 +104,7 @@ class EmitNode:
 
     @min_aedt_version("2027.1")
     @contextmanager
-    def _catch_aedt_errors(self, default_error: str = f'An unknown error occurred: {{e}}') -> None:
+    def _catch_aedt_errors(self, default_error: str = "An unknown error occurred: {e}") -> None:
         """Catches grpc exceptions and raises a RuntimeError with the last error message from AEDT if found.
 
         Parameters
@@ -113,7 +112,6 @@ class EmitNode:
         default_error : str
             The default error message to raise if none is found in aedt message manager.
         """
-
         try:
             yield
         except Exception as e:
@@ -126,10 +124,9 @@ class EmitNode:
                     last_message = last_message[(index):]
                     raise RuntimeError(last_message)
                 else:
-                    raise Exception(default_error) from e    
+                    raise Exception(default_error) from e
             else:
                 raise Exception(default_error) from e
-
 
     @property
     @min_aedt_version("2025.2")
@@ -464,7 +461,7 @@ class EmitNode:
         ValueError
             If a requested property is not found or not available.
         """
-        with self._catch_aedt_errors(f"Failed to get node properties."):
+        with self._catch_aedt_errors("Failed to get node properties."):
             props = self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, skipChecks)
         props_dict = self.props_to_dict(props)
 
@@ -511,7 +508,7 @@ class EmitNode:
         if not prop_strings:
             return
 
-        with self._catch_aedt_errors(f"Failed to retrieve allowable node property list."):
+        with self._catch_aedt_errors("Failed to retrieve allowable node property list."):
             available_props = self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, skipChecks)
         available_dict = self.props_to_dict(available_props)
         missing = [name for name in prop_keys if name not in available_dict]
@@ -620,7 +617,7 @@ class EmitNode:
             If an error occurs.
         """
         try:
-            with self._catch_aedt_errors(f"Failed to retrieve node property list."):
+            with self._catch_aedt_errors("Failed to retrieve node property list."):
                 props = self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, skipChecks)
             kv_pairs = [prop.split("=") for prop in props]
             selected_kv_pairs = [kv for kv in kv_pairs if kv[0].rstrip() == prop]
@@ -924,7 +921,6 @@ class EmitNode:
         """
         self._oRevisionData.EmitExportModel(self._result_id, self._node_id, file_path)
 
-
     @min_aedt_version("2027.1")
     def _export_to_csv(self, file_path: str, keys: str, values: str) -> None | str:
         """Exports an Emit node's trace data to a CSV file.
@@ -943,9 +939,10 @@ class EmitNode:
         str
             The exported data as a string if no file path is provided.
         """
-
         with self._catch_aedt_errors(f'Failed to export "{file_path}" as CSV: {{e}}'):
-            data = self._oRevisionData.ExportTraceData(self._result_id, self._full_node_name(), file_path, ",", keys, values)
+            data = self._oRevisionData.ExportTraceData(
+                self._result_id, self._full_node_name(), file_path, ",", keys, values
+            )
             return data
 
     @min_aedt_version("2027.1")
@@ -967,8 +964,10 @@ class EmitNode:
         """
         import matplotlib.pyplot as plt
 
-        with self._catch_aedt_errors(f'Failed to retrieve trace data for plotting: {{e}}'):
-            csv_data = self._oRevisionData.ExportTraceData(self._result_id, self._full_node_name(), "", ",", keys, values)
+        with self._catch_aedt_errors("Failed to retrieve trace data for plotting: {e}"):
+            csv_data = self._oRevisionData.ExportTraceData(
+                self._result_id, self._full_node_name(), "", ",", keys, values
+            )
 
         lines = [line for line in csv_data.strip().split("\n") if line.strip()]
         if len(lines) < 2:
@@ -1356,7 +1355,9 @@ class EmitNode:
             raise ValueError(
                 f"Child type {child_type} is not allowed for this node. Allowed types are: {self.allowed_child_types}"
             )
-        with self._catch_aedt_errors(f"Failed to add child node of type {child_type} to node {self.name}. Error: {{e}}"):
+        with self._catch_aedt_errors(
+            f"Failed to add child node of type {child_type} to node {self.name}. Error: {{e}}"
+        ):
             new_id = self._oRevisionData.CreateEmitNode(self._result_id, self._node_id, child_name, child_type)
             new_node = self._get_node(new_id)
             if child_type == "Emitter" and new_node is not None:

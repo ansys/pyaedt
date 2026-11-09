@@ -48,6 +48,8 @@ if (
     or ((3, 10) <= sys.version_info[0:2] <= (3, 12) and DESKTOP_VERSION > "2024.2")
 ):
     from ansys.aedt.core import Emit
+    from ansys.aedt.core.emit_core.emit_constants import PowerType
+    from ansys.aedt.core.emit_core.emit_constants import ResultType
     from ansys.aedt.core.emit_core.nodes.generated import Amplifier
     from ansys.aedt.core.emit_core.nodes.generated import AntennaNode
     from ansys.aedt.core.emit_core.nodes.generated import Band
@@ -73,12 +75,7 @@ if (
     from ansys.aedt.core.emit_core.nodes.generated import TxNbEmissionNode
     from ansys.aedt.core.emit_core.nodes.generated import TxSpectralProfNode
     from ansys.aedt.core.emit_core.nodes.generated import TxSpurNode
-    from ansys.aedt.core.emit_core.emit_constants import PowerType, ResultType
-    from ansys.aedt.core.emit_core.results.interaction import Interaction
     from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
-    from ansys.aedt.core.emit_core.results.interaction_instance import InteractionInstance
-    from ansys.aedt.core.emit_core.results.revision import Revision
-    from ansys.aedt.core.emit_core.results.simulation import Simulation
 
 TEST_SUBFOLDER = TESTS_EMIT_PATH / "example_models/TEMIT"
 
@@ -699,7 +696,6 @@ class TestEmitExports:
             fig.savefig(png_path)
             assert os.path.isfile(png_path) and Path(png_path).stat().st_size > 0
 
-
     def test_emi_export(self, emit_app):
         """Test export_to_csv and plot on a point emi spectrum."""
         revision = _setup_two_radio_project(emit_app)
@@ -707,7 +703,7 @@ class TestEmitExports:
         domain = InteractionDomain(emit_app)
         interaction = sim.run(domain)
         worst_case = interaction.get_worst_instance(ResultType.EMI)
-        
+
         data = worst_case.export_emi_spectrum_to_csv("")
         assert data is not None
         assert len(data) > 0, "EMI CSV export should return non-empty data."
@@ -720,7 +716,6 @@ class TestEmitExports:
             assert os.path.isfile(png_path), "EMI plot figure was not saved."
             assert Path(png_path).stat().st_size > 0, "EMI plot file is empty."
 
-
     def test_power_at_port_export(self, emit_app):
         """Test export_to_csv and plot of power output by a tx radio."""
         revision = _setup_two_radio_project(emit_app)
@@ -728,7 +723,7 @@ class TestEmitExports:
         domain = InteractionDomain(emit_app)
         interaction = sim.run(domain)
         worst_case = interaction.get_worst_instance(ResultType.EMI)
-        
+
         data = worst_case.export_power_at_port_to_csv(PowerType.NARROWBAND, "Radio 2", "Port 1", False, "")
         assert data is not None
         assert len(data) > 0, "EMI CSV export should return non-empty data."
@@ -745,8 +740,6 @@ class TestEmitExports:
             assert os.path.isfile(png_path), "EMI plot figure was not saved."
             assert Path(png_path).stat().st_size > 0, "EMI plot file is empty."
 
-
-
     def test_power_at_rx_export(self, emit_app):
         """Test export_to_csv and plot of power at rx."""
         revision = _setup_two_radio_project(emit_app)
@@ -754,7 +747,7 @@ class TestEmitExports:
         domain = InteractionDomain(emit_app)
         interaction = sim.run(domain)
         worst_case = interaction.get_worst_instance(ResultType.EMI)
-        
+
         data = worst_case.export_power_at_rx_to_csv(PowerType.NARROWBAND, "")
         assert data is not None
         assert len(data) > 0, "EMI CSV export should return non-empty data."

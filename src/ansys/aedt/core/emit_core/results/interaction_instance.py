@@ -28,8 +28,9 @@ from typing import TYPE_CHECKING
 
 from matplotlib.figure import Figure
 
-from ansys.aedt.core.emit_core.emit_constants import EMI_CATEGORY_TO_INTERFERER_TYPE, PowerType
+from ansys.aedt.core.emit_core.emit_constants import EMI_CATEGORY_TO_INTERFERER_TYPE
 from ansys.aedt.core.emit_core.emit_constants import EMIInterfererType
+from ansys.aedt.core.emit_core.emit_constants import PowerType
 from ansys.aedt.core.emit_core.emit_constants import ResultType
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
@@ -204,8 +205,7 @@ class InteractionInstance:
         return result
 
     @min_aedt_version("2027.2")
-    def export_emi_spectrum_to_csv(
-        self, file_name: str = "" ) -> str:
+    def export_emi_spectrum_to_csv(self, file_name: str = "") -> str:
         """Exports the emi trace data for this instance to a CSV file.
 
         Parameters
@@ -219,12 +219,11 @@ class InteractionInstance:
             stringified data for the node returned if file_name not specified
         """
         self.validate()
-        keys = ["EmiType","UseDomain"]
-        vals = ["Point","true"]
+        keys = ["EmiType", "UseDomain"]
+        vals = ["Point", "true"]
         self.domain._populate_result_trace_properties(keys, vals)
         sim_node: EmitNode = self.revision.get_simulation_node()
         return sim_node._export_to_csv(file_name, "|".join(keys), "|".join(vals))
-
 
     @min_aedt_version("2027.2")
     @pyaedt_function_handler()
@@ -236,23 +235,22 @@ class InteractionInstance:
         matplotlib.pyplot.Figure
             The plot figure with frequency in MHz.
         """
-
         self.validate()
-        keys = ["EmiType","UseDomain"]
-        vals = ["Point","true"]
+        keys = ["EmiType", "UseDomain"]
+        vals = ["Point", "true"]
         self.domain._populate_result_trace_properties(keys, vals)
         sim_node: EmitNode = self.revision.get_simulation_node()
         return sim_node._plot("|".join(keys), "|".join(vals))
 
-
     @min_aedt_version("2027.2")
     def export_power_at_port_to_csv(
-        self, 
+        self,
         power_type: PowerType,
-        component: str | EmitNode, 
+        component: str | EmitNode,
         port_name: str,
         toward_tx: bool = False,
-        file_name: str = "" ) -> str | None:
+        file_name: str = "",
+    ) -> str | None:
         """Exports the power trace data output at a given rx side port to a CSV file.
 
         Parameters
@@ -273,7 +271,6 @@ class InteractionInstance:
         csv_data: str
             stringified data for the node returned if file_name not specified
         """
-
         self.validate()
         keys = ["UseDomain"]
         vals = ["true"]
@@ -295,15 +292,11 @@ class InteractionInstance:
         sim_node: EmitNode = self.revision.get_simulation_node()
         return sim_node._export_to_csv(file_name, "|".join(keys), "|".join(vals))
 
-
     @min_aedt_version("2027.2")
     @pyaedt_function_handler()
     def plot_power_at_port(
-        self, 
-        power_type: PowerType,
-        component: str | EmitNode, 
-        port_name: str,
-        toward_tx: bool = False) -> Figure:
+        self, power_type: PowerType, component: str | EmitNode, port_name: str, toward_tx: bool = False
+    ) -> Figure:
         """Plots the power trace data output at a given rx side port using matplotlib.
 
         Parameters
@@ -322,7 +315,6 @@ class InteractionInstance:
         matplotlib.pyplot.Figure
             The plot figure with frequency in MHz.
         """
-
         self.validate()
         keys = ["UseDomain"]
         vals = ["true"]
@@ -345,13 +337,8 @@ class InteractionInstance:
         sim_node: EmitNode = self.revision.get_simulation_node()
         return sim_node._plot("|".join(keys), "|".join(vals))
 
-
-
     @min_aedt_version("2027.2")
-    def export_power_at_rx_to_csv(
-        self, 
-        power_type: PowerType,
-        file_name: str = "" ) -> str | None:
+    def export_power_at_rx_to_csv(self, power_type: PowerType, file_name: str = "") -> str | None:
         """Exports the power at rx trace data to a CSV file.
 
         Parameters
@@ -366,23 +353,19 @@ class InteractionInstance:
         csv_data: str
             stringified data for the node returned if file_name not specified
         """
-
         self.validate()
         keys = ["UseDomain"]
         vals = ["true"]
         keys.append("EmiType")
         vals.append("NBPowerAtRx" if power_type == PowerType.NARROWBAND else "BBPowerAtRx")
-    
+
         self.domain._populate_result_trace_properties(keys, vals)
         sim_node: EmitNode = self.revision.get_simulation_node()
         return sim_node._export_to_csv(file_name, "|".join(keys), "|".join(vals))
 
-
     @min_aedt_version("2027.2")
     @pyaedt_function_handler()
-    def plot_power_at_rx(
-        self, 
-        power_type: PowerType) -> Figure:
+    def plot_power_at_rx(self, power_type: PowerType) -> Figure:
         """Plots the power trace data at rx using matplotlib.
 
         Parameters
@@ -395,7 +378,6 @@ class InteractionInstance:
         matplotlib.pyplot.Figure
             The plot figure with frequency in MHz.
         """
-
         self.validate()
         keys = ["UseDomain"]
         vals = ["true"]
@@ -405,7 +387,6 @@ class InteractionInstance:
         self.domain._populate_result_trace_properties(keys, vals)
         sim_node: EmitNode = self.revision.get_simulation_node()
         return sim_node._plot("|".join(keys), "|".join(vals))
-
 
     @min_aedt_version("2027.1")
     @pyaedt_function_handler()
