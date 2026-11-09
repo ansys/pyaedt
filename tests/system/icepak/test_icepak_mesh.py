@@ -26,6 +26,7 @@ import pytest
 
 from ansys.aedt.core.icepak import Icepak
 from ansys.aedt.core.modules.mesh_icepak import GlobalMeshRegion
+from ansys.aedt.core.modules.mesh_icepak import MeshRegion
 from tests.conftest import DESKTOP_VERSION
 from tests.conftest import SYSTEM_GENERAL_TEST_PREFIX
 
@@ -91,63 +92,63 @@ def test_global_mesh_icepak(aedt_app) -> None:
     assert "MinGapX" in global_mesh_region.props
 
 
-def test_assign_pcb_region(aedt_app) -> None:
-    box = aedt_app.modeler.create_box([0, 0, 0], [50, 50, 2])
+def test_assign_region(aedt_app) -> None:
+    box1 = aedt_app.modeler.create_box([0, 0, 0], [50, 50, 2])
+    _ = aedt_app.modeler.create_box([0, 0, 0], [50, 50, 2])
 
-    _ = aedt_app.mesh.assign_mesh_region()
+    mesh_region1 = aedt_app.mesh.assign_mesh_region()
+
+    assert mesh_region1.name in aedt_app.mesh.region_names
+    assert mesh_region1.name in aedt_app.mesh.regions
+    mesh_region1_1 = aedt_app.mesh.get_mesh_region(mesh_region1.name)
+    assert isinstance(mesh_region1_1, MeshRegion)
 
     if DESKTOP_VERSION > "2023.2":
-        aedt_app.modeler.create_subregion(
-            padding_values=[0, 0, 0, 0, 0, 0], padding_types="Percentage Offset", assignment=[box.name]
+        assert mesh_region1_1.props["Objects"][0] == f"{mesh_region1.name}_SubRegion"
+    else:
+        assert mesh_region1_1.props["Objects"] == ["Box1"]
+
+    assert mesh_region1.props["MeshRegionResolution"] == 5
+
+    mesh_region2 = aedt_app.mesh.assign_mesh_region(assignment=box1.name, level=4, name=mesh_region1.name)
+
+    if DESKTOP_VERSION > "2023.2":
+        assert mesh_region2.props["Objects"][0] == f"{mesh_region2.name}_SubRegion"
+    else:
+        assert mesh_region2.props["Objects"] == ["Box2"]
+
+    # Edit
+    mesh_region2["MeshRegionResolution"] = 1
+    assert mesh_region2.props["MeshRegionResolution"] == 1
+
+    assert mesh_region2.disable()
+    assert not mesh_region2.props["Enable"]
+    assert mesh_region2.enable()
+    assert mesh_region2.props["Enable"]
+
+    # Rename
+    name = mesh_region2.name
+    mesh_region2.name = "new_name"
+    assert "new_name" in aedt_app.mesh.region_names
+    assert name not in aedt_app.mesh.region_names
+    assert mesh_region2.name == "new_name"
+    assert mesh_region2.child_object
+
+    # Delete
+    name2 = mesh_region2.name
+    mesh_region2.delete()
+    assert name2 not in aedt_app.mesh.region_names
+
+    if DESKTOP_VERSION > "2023.2":
+        # Assign mesh region to an existing subregion.
+        # Subregion exists from 2023R2
+        subregion1 = aedt_app.modeler.create_subregion(
+            padding_values=[0, 0, 0, 0, 0, 0], padding_types="Percentage Offset", assignment=[box1.name]
         )
-
-    # Test multiple objects
-    # Multiple subregions
-
-    # Mix subregions and objects
-    # pcb_mesh_region = MeshRegion(ipk_app, box.name)
-    # pcb_mesh_region.name = "PCB_Region"
-
-    # if settings.aedt_version > "2023.2":
-    #     assert [str(i) for i in pcb_mesh_region.assignment.padding_values] == ["0"] * 6
-    #     assert pcb_mesh_region.assignment.padding_types == ["Percentage Offset"] * 6
-    #     pcb_mesh_region.assignment.negative_x_padding = 1
-    #     pcb_mesh_region.assignment.positive_x_padding = 1
-    #     pcb_mesh_region.assignment.negative_y_padding = 1
-    #     pcb_mesh_region.assignment.positive_y_padding = 1
-    #     pcb_mesh_region.assignment.negative_z_padding = 1
-    #     pcb_mesh_region.assignment.positive_z_padding = 1
-    #     pcb_mesh_region.assignment.negative_x_padding_type = "Absolute Offset"
-    #     pcb_mesh_region.assignment.positive_x_padding_type = "Absolute Position"
-    #     pcb_mesh_region.assignment.negative_y_padding_type = "Transverse Percentage Offset"
-    #     pcb_mesh_region.assignment.positive_y_padding_type = "Absolute Position"
-    #     pcb_mesh_region.assignment.negative_z_padding_type = "Absolute Offset"
-    #     pcb_mesh_region.assignment.positive_z_padding_type = "Transverse Percentage Offset"
-    #     assert pcb_mesh_region.assignment.negative_x_padding == "1mm"
-    #     assert pcb_mesh_region.assignment.positive_x_padding == "1mm"
-    #     assert str(pcb_mesh_region.assignment.negative_y_padding) == "1"
-    #     assert pcb_mesh_region.assignment.positive_y_padding == "1mm"
-    #     assert pcb_mesh_region.assignment.negative_z_padding == "1mm"
-    #     assert str(pcb_mesh_region.assignment.positive_z_padding) == "1"
-    #     assert pcb_mesh_region.assignment.negative_x_padding_type == "Absolute Offset"
-    #     assert pcb_mesh_region.assignment.positive_x_padding_type == "Absolute Position"
-    #     assert pcb_mesh_region.assignment.negative_y_padding_type == "Transverse Percentage Offset"
-    #     assert pcb_mesh_region.assignment.positive_y_padding_type == "Absolute Position"
-    #     assert pcb_mesh_region.assignment.negative_z_padding_type == "Absolute Offset"
-    #     assert pcb_mesh_region.assignment.positive_z_padding_type == "Transverse Percentage Offset"
-    #     pcb_mesh_region.assignment.padding_values = 2
-    #     pcb_mesh_region.assignment.padding_types = "Absolute Offset"
-    #     assert pcb_mesh_region.assignment.padding_values == ["2mm"] * 6
-    #     assert pcb_mesh_region.assignment.padding_types == ["Absolute Offset"] * 6
-    #     assert ipk_app.modeler.create_subregion([50, 50, 50, 50, 100, 100], "Percentage Offset", "PCB")
-    #     box = ipk_app.modeler.create_box([0, 0, 0], [1, 2, 3])
-    #     assert ipk_app.modeler.create_subregion([50, 50, 50, 50, 100, 100], "Percentage Offset", ["PCB", box.name])
-    # else:
-    #     box = ipk_app.modeler.create_box([0, 0, 0], [1, 2, 3])
-    #     pcb_mesh_region.Objects = box.name
-    #     assert pcb_mesh_region.update()
-    # assert ipk_app.mesh.meshregions_dict
-    # assert pcb_mesh_region.delete()
+        mesh_region3 = aedt_app.mesh.assign_mesh_region(assignment=subregion1.name, level=2, name=mesh_region1.name)
+        assert mesh_region3.props["Objects"][0] == f"{mesh_region3.name}_SubRegion"
+        assert mesh_region3.props["MeshRegionResolution"] == 2
+        assert mesh_region3.name in aedt_app.mesh.region_names
 
 
 def test_mesh_priority(board_ipk_app) -> None:

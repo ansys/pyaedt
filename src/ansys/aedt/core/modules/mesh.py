@@ -128,7 +128,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         self.__child_object = None
 
         if props:
-            self._legacy_props = MeshProps(self, props)
+            self._legacy_props = props
 
         if name == "InitialMeshSettings":
             self.__operation_type = "InitialMeshSettings"
