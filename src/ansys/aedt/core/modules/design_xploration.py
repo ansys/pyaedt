@@ -293,8 +293,9 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         >>> app = Hfss()
         >>> setup_names = app.optimetrics.setup_names
         >>> setup = app.optimetrics.setups[setup_names[0]]
-        >>> setup.update()
-        >>> setup.props["Goals"]["Goal"]["Ranges"]["Range"]["DiscreteValues"] = "2.7GHz"
+        >>> props = setup.props.to_dict()
+        >>> props["Goals"]["Goal"]["Ranges"]["Range"]["DiscreteValues"] = "2.7GHz"
+        >>> setup.update(props)
 
         """
         if props is None:
@@ -319,6 +320,9 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
     def create(self) -> OptimetricsSetup:
         """Create a setup.
 
+        This method is called by :meth:`Parametrics.add` and
+        :meth:`Optimizations.add`. Use those methods to create a setup.
+
         Returns
         -------
         :class:`ansys.aedt.core.modules.design_xploration.OptimetricsSetup`
@@ -332,10 +336,7 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         --------
         >>> from ansys.aedt.core import Hfss
         >>> app = Hfss()
-        >>> setup_names = app.optimetrics.setup_names
-        >>> setup = app.optimetrics.setups[setup_names[0]]
-        >>> setup.update()
-
+        >>> setup = app.parametrics.add("width", 1, 5, step=5)
         """
         arg = ["NAME:" + self.name]
         _dict2arg(self.props, arg)
@@ -345,9 +346,8 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         self._has_getobject = _has_get_obj_data(self._child_object)
 
         if not self._has_getobject:  # pragma: no cover
-            # If a new setup is created, and GetObjData is not available,
-            # it is needed to populated setups dictionary because if not props will be empty.
-            self._app.optiemtrics._Optimetrics__setups[self.name] = self
+            # Without GetObjData, props only live in memory, so keep this instance in the parent cache.
+            self._parent.setups[self.name] = self
 
         return self
 
@@ -449,17 +449,7 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         setupname = solution.split(" ")[0]
         if setupname not in props["Sim. Setups"]:
             props["Sim. Setups"].append(setupname)
-        domain = "Time"
-        maxwell_solutions = SolutionsMaxwell3D
-        if (ranges and ("Freq" in ranges or "Phase" in ranges or "Theta" in ranges)) or self._app.solution_type in [
-            maxwell_solutions.Magnetostatic,
-            maxwell_solutions.ElectroStatic,
-            maxwell_solutions.EddyCurrent,
-            maxwell_solutions.ACMagnetic,
-            maxwell_solutions.DCConduction,
-            SolutionsHfss.EigenMode,
-        ]:
-            domain = "Sweep"
+        domain = self._get_domain(ranges)
 
         if not report_type:
             report_type = self._app.design_solutions.report_type
@@ -591,6 +581,34 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
             revert_to_initial_mesh=revert_to_initial_mesh,
             blocking=blocking,
         )
+
+    @pyaedt_function_handler()
+    def _get_domain(self, ranges: dict | None = None) -> str:
+        """Get the calculation domain from the ranges and the design solution type.
+
+        Parameters
+        ----------
+        ranges : dict, optional
+            Dictionary of intrinsic ranges used by the calculation. The default is ``None``.
+
+        Returns
+        -------
+        str
+            ``"Sweep"`` for frequency, phase, or angle ranges and for solution types without a
+            time axis. ``"Time"`` otherwise.
+        """
+        if ranges and ("Freq" in ranges or "Phase" in ranges or "Theta" in ranges):
+            return "Sweep"
+        if self._app.solution_type in [
+            SolutionsMaxwell3D.Magnetostatic,
+            SolutionsMaxwell3D.ElectroStatic,
+            SolutionsMaxwell3D.EddyCurrent,
+            SolutionsMaxwell3D.ACMagnetic,
+            SolutionsMaxwell3D.DCConduction,
+            SolutionsHfss.EigenMode,
+        ]:
+            return "Sweep"
+        return "Time"
 
     @pyaedt_function_handler()
     def _get_context(
@@ -1204,12 +1222,12 @@ class OptimizationSetup(OptimetricsSetup):
             Values can be: `None` for all values, a List of Discrete Values, a tuple of start and stop range.
             It includes intrinsics like "Freq", "Time", "Theta", "Distance".
         variables : list, optional
-            List of variables to include in the optimization.
-        condition : string, optional
-            The default is ``"<="``.
-        goal_value : optional
+            Variables to enable in this setup. Only the names (keys) are used.
+        condition : str, optional
+            Comparison operator for the goal. The default is ``"<="``.
+        goal_value : int, optional
             Value for the goal. The default is ``1``.
-        goal_weight : optional
+        goal_weight : int, optional
             Value for the goal weight. The default is ``1``.
         solution : str, optional
             Type of the solution. The default is ``None``, in which case the default
@@ -1397,13 +1415,6 @@ class Parametrics(PyAedtBase):
         """Parent.
 
         Deprecated. Use the PyAEDT application object directly.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> app = Hfss()
-        >>> app.parametrics.p_app
-
         """
         return self._app
 
@@ -1416,14 +1427,8 @@ class Parametrics(PyAedtBase):
 
         Returns
         -------
-        :class:`Optimetrics`
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> app = Hfss()
-        >>> app.parametrics.optimodule
-
+        object
+            AEDT Optimetrics module (``app.ooptimetrics``).
         """
         return self._app.ooptimetrics
 
@@ -1475,8 +1480,8 @@ class Parametrics(PyAedtBase):
         Raises
         ------
         AEDTRuntimeError
-            If the variable does not exist, no solution setup is available, or
-            the initial variation cannot be added.
+            If the variable does not exist, ``variation_type`` is not supported,
+            no solution setup is available, or the initial variation cannot be added.
 
         References
         ----------
@@ -1495,6 +1500,16 @@ class Parametrics(PyAedtBase):
         """
         if variable not in self._app.variable_manager.variables:
             raise AEDTRuntimeError(f"Variable {variable} not found.")
+
+        if variation_type not in [
+            "LinearCount",
+            "LinearStep",
+            "DecadeCount",
+            "OctaveCount",
+            "ExponentialCount",
+            "SingleValue",
+        ]:
+            raise AEDTRuntimeError(f"Unsupported variation type {variation_type}.")
 
         if not solution and not self._app.nominal_sweep:
             raise AEDTRuntimeError("At least one setup is needed.")
@@ -1712,11 +1727,13 @@ class Optimizations(PyAedtBase):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
         >>> setup = app.optimetrics.optimizations["Optimization1"]
 
         """
         if name not in self.__setups and name in self.setup_names:
-            self.__setups[name] = ParametricSetup(app=self, name=name, props={})
+            self.__setups[name] = OptimizationSetup(app=self, name=name, props={})
         if name not in self.setup_names:
             return None
         return self.__setups[name]
@@ -1735,6 +1752,8 @@ class Optimizations(PyAedtBase):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
         >>> app.optimetrics.optimizations.setup_names
 
         """
@@ -1758,6 +1777,8 @@ class Optimizations(PyAedtBase):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
         >>> app.optimetrics.optimizations.setups
 
         """
@@ -1778,13 +1799,6 @@ class Optimizations(PyAedtBase):
         """Parent.
 
         Deprecated. Use the PyAEDT application object directly.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> app = Hfss()
-        >>> app.parametrics.p_app
-
         """
         return self._app
 
@@ -1797,14 +1811,8 @@ class Optimizations(PyAedtBase):
 
         Returns
         -------
-        :class:`Optimetrics`
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> app = Hfss()
-        >>> app.parametrics.optimodule
-
+        object
+            AEDT Optimetrics module (``app.ooptimetrics``).
         """
         return self._app.ooptimetrics
 
@@ -1816,6 +1824,12 @@ class Optimizations(PyAedtBase):
         -------
         :class:`ansys.aedt.core.generic.general_methods.SetupDict`
             Mapping of non-parametric setup names to their AEDT setup type.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.optimizations.setups_by_type
         """
         return self.__setups_by_type
 
@@ -1900,6 +1914,8 @@ class Optimizations(PyAedtBase):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
         >>> setup = app.optimetrics.optimizations.add(
         ...     calculation="dB(S(1,1))",
         ...     ranges={"Freq": "2.5GHz"},
@@ -1955,11 +1971,7 @@ class Optimizations(PyAedtBase):
             setup._legacy_props[arg_name] = arg_value
 
         if calculation:
-            domain = "Time"
-            if not ranges:
-                ranges = {}
-            if "Freq" in ranges or "Phase" in ranges or "Theta" in ranges:
-                domain = "Sweep"
+            domain = setup._get_domain(ranges)
             if not report_type:
                 report_type = self._app.design_solutions.report_type
                 if context and context in self._app.modeler.sheet_names:
@@ -2439,9 +2451,10 @@ class Optimetrics(PyAedtBase):
         if not self.setups:
             return False
 
-        if name == self.setup_names:
-            self.setups[name].delete()
-            return True
+        for setup_name, setup in self.setups.items():
+            if setup_name == name:
+                setup.delete()
+                return True
         return False
 
     @pyaedt_function_handler()

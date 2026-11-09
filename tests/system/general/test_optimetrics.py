@@ -25,7 +25,12 @@
 import pytest
 
 from ansys.aedt.core import Hfss
+from ansys.aedt.core import Maxwell2d
+from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core.generic.constants import Setups
+from ansys.aedt.core.generic.constants import SolutionsHfss
+from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
+from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
 from ansys.aedt.core.generic.props import Props
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modules.design_xploration import Optimetrics
@@ -51,6 +56,27 @@ def aedtapp(add_app_example):
 @pytest.fixture
 def optimetrics_app(add_app_example):
     app = add_app_example(application=Hfss, project=TEST_COAXIAL, subfolder=TEST_SUBFOLDER, design="optimetrics_design")
+    yield app
+    app.close_project(app.project_name, save=False)
+
+
+@pytest.fixture
+def m3d_app(add_app):
+    app = add_app(application=Maxwell3d)
+    yield app
+    app.close_project(app.project_name, save=False)
+
+
+@pytest.fixture
+def m2d_app(add_app):
+    app = add_app(application=Maxwell2d)
+    yield app
+    app.close_project(app.project_name, save=False)
+
+
+@pytest.fixture
+def hfss_eigenmode_app(add_app):
+    app = add_app(application=Hfss, solution_type=SolutionsHfss.EigenMode)
     yield app
     app.close_project(app.project_name, save=False)
 
@@ -126,7 +152,6 @@ def test_create_parametrics(aedtapp, test_tmp_dir) -> None:
         aedtapp.optimetrics.add_parametric("w1", 0.1, 20, 0.2, "LinearStep", name=setup1.name)
 
     assert isinstance(setup1, ParametricSetup)
-    assert setup1.name in aedtapp.parametrics.design_setups
     assert setup1.name in aedtapp.parametrics.setups
     assert setup1.name in aedtapp.optimetrics.setup_names
     assert setup1.props["Sweeps"]["SweepDefinition"]["Variable"] == "w1"
@@ -134,7 +159,6 @@ def test_create_parametrics(aedtapp, test_tmp_dir) -> None:
 
     # Rename
     setup1.name = "new_name"
-    assert "new_name" in aedtapp.parametrics.design_setups
     assert "new_name" in aedtapp.parametrics.setups
     assert setup1.name == "new_name"
     assert setup1.child_object
@@ -216,6 +240,26 @@ def test_create_parametrics_sync(aedtapp) -> None:
     assert setup1.props["Sweeps"]["SweepDefinition"][0]["Synchronize"] == 0
 
 
+def test_create_parametrics_maxwell(m3d_app) -> None:
+    m3d_app.create_setup()
+    m3d_app["w1"] = "10mm"
+    m3d_app["w2"] = "2mm"
+
+    setup_parametrics = m3d_app.optimetrics.add_parametric("w1", 0.1, 20, 0.2, "LinearStep")
+
+    assert setup_parametrics.props["Sweeps"]["SweepDefinition"]["Variable"] == "w1"
+    assert setup_parametrics.props["Sweeps"]["SweepDefinition"]["Data"] == "LIN 0.1mm 20mm 0.2mm"
+
+    assert setup_parametrics.add_calculation(
+        calculation="SolidLoss",
+        ranges={},
+        report_type="Magnetostatic",
+        solution=m3d_app.existing_analysis_sweeps[0],
+    )
+    # ?
+    assert setup_parametrics.props["Goals"]["Goal"]["Solution"] == m3d_app.existing_analysis_sweeps[0]
+
+
 def test_create_optimization(aedtapp) -> None:
     aedtapp["w1"] = "10mm"
     calculation = "db(S(1,1))"
@@ -227,7 +271,6 @@ def test_create_optimization(aedtapp) -> None:
         calculation, ranges={"Freq": "2.5GHz"}, solution=f"{new_setup.name} : {sweep.name}"
     )
 
-    assert setup2.name in aedtapp.optimizations.design_setups
     assert setup2.name in aedtapp.optimizations.setups
     assert setup2.name in aedtapp.optimetrics.setup_names
     assert setup2.props["Goals"]["Goal"]["Calculation"] == calculation
@@ -551,3 +594,63 @@ def test_create_statistical(aedtapp) -> None:
         assert setup2.props["Goals"]["Goal"][1]["Ranges"]["Range"][0]["DiscreteValues"] == "2.5GHz"
     else:
         assert setup2.props["Goals"]["Goal"][1]["Ranges"]["Range"]["DiscreteValues"] == "2.5GHz"
+
+
+def _assert_goal_domain(app, expected_domain: str, ranges: dict | None, report_type: str | None = None) -> None:
+    """Check that ``add_calculation`` and ``optimizations.add`` assign the same goal domain."""
+    app["w1"] = "10mm"
+    app.create_setup()
+    # Time goals must reduce the time dimension.
+    calculation = "max(w1)" if ranges and "Time" in ranges else "w1"
+
+    parametric = app.parametrics.add("w1", 1, 5, 3, "LinearCount")
+    assert parametric.add_calculation(calculation=calculation, ranges=ranges, report_type=report_type)
+
+    optimization = app.optimizations.add(calculation=calculation, ranges=ranges, report_type=report_type)
+
+    for setup in (parametric, optimization):
+        goal = setup.props["Goals"]["Goal"]
+        assert goal["Solution"] == app.nominal_sweep
+        assert goal["SimValueContext"]["Domain"] == expected_domain
+
+
+# Transient goals require a "Time" interval and AC Magnetic goals a "Freq" range, otherwise AEDT rejects them.
+@pytest.mark.parametrize(
+    ("solution_type", "expected_domain", "ranges", "report_type"),
+    [
+        ("Transient", "Time", {"Time": ("0s", "10ms")}, None),
+        ("Magnetostatic", "Sweep", None, None),
+        ("ElectroStatic", "Sweep", None, None),
+        ("EddyCurrent", "Sweep", {"Freq": "60Hz"}, None),
+        ("ACMagnetic", "Sweep", {"Freq": "60Hz"}, None),
+        # Maxwell 3D DC Conduction has no default report type.
+        ("DCConduction", "Sweep", None, "DCConduction"),
+    ],
+)
+def test_goal_domain_maxwell_3d(
+    m3d_app, solution_type: str, expected_domain: str, ranges: dict | None, report_type: str | None
+) -> None:
+    m3d_app.solution_type = getattr(SolutionsMaxwell3D, solution_type)
+    _assert_goal_domain(m3d_app, expected_domain, ranges, report_type)
+
+
+@pytest.mark.parametrize(
+    ("solution_type", "expected_domain", "ranges"),
+    [
+        ("TransientXY", "Time", {"Time": ("0s", "10ms")}),
+        ("TransientZ", "Time", {"Time": ("0s", "10ms")}),
+        ("MagnetostaticXY", "Sweep", None),
+        ("MagnetostaticZ", "Sweep", None),
+        ("ElectroStaticXY", "Sweep", None),
+        ("EddyCurrentXY", "Sweep", {"Freq": "60Hz"}),
+        ("ACMagneticZ", "Sweep", {"Freq": "60Hz"}),
+        ("DCConductionXY", "Sweep", None),
+    ],
+)
+def test_goal_domain_maxwell_2d(m2d_app, solution_type: str, expected_domain: str, ranges: dict | None) -> None:
+    m2d_app.solution_type = getattr(SolutionsMaxwell2D, solution_type)
+    _assert_goal_domain(m2d_app, expected_domain, ranges)
+
+
+def test_goal_domain_hfss_eigenmode(hfss_eigenmode_app) -> None:
+    _assert_goal_domain(hfss_eigenmode_app, "Sweep", None)
