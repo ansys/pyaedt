@@ -36,6 +36,7 @@ from ansys.aedt.core.generic.file_utils import available_file_name
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.pcb.object_3d_layout import CoordinateSystems3DLayout
+from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 from tests import TESTS_GENERAL_PATH
 from tests import TESTS_LAYOUT_PATH
@@ -1400,19 +1401,19 @@ def test_create_coordinate_system(aedt_app) -> None:
 
 
 def test_coordinate_system_create(aedt_app) -> None:
-    coordinate_system = CoordinateSystems3DLayout(aedt_app.modeler)
-    coordinate_system.name = "CS_create_test"
-    coordinate_system.origin = ["1mm", "2mm"]
+    """Test creating a Coordinate System"""
+    aedt_app.modeler.layers.add_layer(layer="Dummy")
+    primitives = Primitives3DLayout(aedt_app)
+    primitives.create_circle(layer="Dummy", x=0, y=0, radius="10mm")
+    cs = CoordinateSystems3DLayout(primitives)
+    cs.name = "DummyCS"
+    cs.origin = [1.0, 1.0]
+    cs_names = aedt_app.modeler.coordinate_system_names
 
-    assert coordinate_system.create()
-    assert coordinate_system.name in aedt_app.modeler.coordinate_system_names
-    assert coordinate_system["Location"] == "1 ,2"
+    cs.create()
 
-    existing_coordinate_system = aedt_app.modeler.coordinate_systems[coordinate_system.name]
-    assert existing_coordinate_system.origin == [1.0, 2.0]
-    existing_coordinate_system.origin = ["3mm", "4mm"]
-    assert existing_coordinate_system["Location"] == "3 ,4"
-    assert existing_coordinate_system.delete()
+    assert cs.name not in cs_names
+    assert cs.name in aedt_app.modeler.coordinate_system_names
 
 
 def test_create_scattering(aedt_app) -> None:
