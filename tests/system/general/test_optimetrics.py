@@ -151,6 +151,10 @@ def test_create_parametrics(aedtapp, test_tmp_dir) -> None:
     with pytest.raises(AEDTRuntimeError):
         aedtapp.optimetrics.add_parametric("w1", 0.1, 20, 0.2, "LinearStep", name=setup1.name)
 
+    setup_single = aedtapp.parametrics.add("w2", "3mm", variation_type="SingleValue")
+    assert setup_single.props["Sweeps"]["SweepDefinition"]["Data"] == "3mm"
+    assert aedtapp.parametrics.delete(setup_single.name)
+
     assert isinstance(setup1, ParametricSetup)
     assert setup1.name in aedtapp.parametrics.setups
     assert setup1.name in aedtapp.optimetrics.setup_names
@@ -222,6 +226,7 @@ def test_create_parametrics(aedtapp, test_tmp_dir) -> None:
         aedtapp.parametrics.add_from_file(str(test_tmp_dir / "test.csv"), setup2.name)
 
     assert aedtapp.parametrics.delete("ParametricsfromFile")
+    assert not aedtapp.parametrics.delete("invented")
     assert len(aedtapp.parametrics.setups) == 1
 
 
@@ -323,6 +328,7 @@ def test_create_optimization(aedtapp) -> None:
     name_to_delete = setup2.name
     assert aedtapp.optimizations.delete(name_to_delete)
     assert name_to_delete not in aedtapp.optimizations.setup_names
+    assert not aedtapp.optimizations.delete("invented")
 
     # Change optimization algorithm
     setup3 = aedtapp.optimizations.add(
@@ -332,6 +338,16 @@ def test_create_optimization(aedtapp) -> None:
     setup3.add_variation("w1", 0.1, 10, 5, min_step=0.5, max_step=1, use_manufacturable=True, levels=[1, 20])
     if not isinstance(setup3.props["Variables"]["w1"], list):
         assert setup3.props["Variables"]["w1"]["Level"] == "[1, 20] mm"
+
+    aedtapp["w_opt"] = "1mm"
+    assert not aedtapp.variable_manager["w_opt"].is_optimization_enabled
+    assert setup3.add_calculation(
+        calculation,
+        ranges={"Freq": "2.5GHz"},
+        variables={"w_opt": None},
+        solution=f"{new_setup.name} : {sweep.name}",
+    )
+    assert aedtapp.variable_manager["w_opt"].is_optimization_enabled
 
 
 def test_create_doe(aedtapp) -> None:

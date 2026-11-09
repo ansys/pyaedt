@@ -392,16 +392,16 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
 
         Parameters
         ----------
-        calculation : str, optional
-            Name of the calculation.
+        calculation : str
+            Expression to evaluate, for example ``"dB(S(1,1))"``.
         ranges : dict, optional
             Dictionary of ranges with respective values.
             Values can be: `None` for all values, a List of Discrete Values, a tuple of start and stop range.
             It includes intrinsics like "Freq", "Time", "Theta", "Distance".
             The default is ``None``, to be used e.g. in "Eigenmode" design type.
         variables : dict, optional
-            Dictionary of variable names and values used to resolve expressions in the
-            calculation. The default is ``None``.
+            Variables to enable in this setup. Only the names (keys) are used;
+            the values are ignored. The default is ``None``.
         solution : str, optional
             Type of the solution. The default is ``None``, in which case the default
             solution is used.
@@ -1221,7 +1221,7 @@ class OptimizationSetup(OptimetricsSetup):
             Dictionary of ranges with respective values.
             Values can be: `None` for all values, a List of Discrete Values, a tuple of start and stop range.
             It includes intrinsics like "Freq", "Time", "Theta", "Distance".
-        variables : list, optional
+        variables : dict, optional
             Variables to enable in this setup. Only the names (keys) are used.
         condition : str, optional
             Comparison operator for the goal. The default is ``"<="``.
@@ -1256,7 +1256,7 @@ class OptimizationSetup(OptimetricsSetup):
         >>> app = Hfss()
         >>> setup_names = app.optimizations.setup_names
         >>> setup = app.optimizations.setups[setup_names[0]]
-        >>> setup.add_goal("db(S1,1)", ranges={"Freq": "2.6GHz"})
+        >>> setup.add_goal("dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 
         """
         return self.add_calculation(
