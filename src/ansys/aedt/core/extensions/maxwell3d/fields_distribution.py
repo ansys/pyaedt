@@ -580,13 +580,12 @@ def main(data: FieldsDistributionExtensionData) -> bool:
     if not objects_list:
         assignment = "AllObjects"
     elif isinstance(objects_list, list) and len(objects_list) > 1:
-        if len(aedtapp.modeler.user_lists) == 0:
-            objects_list = aedtapp.modeler.create_object_list(objects_list, "ObjectList1")
+        list_name = f"ObjectList{len(aedtapp.modeler.user_lists) + 1}"
+        if VERSION < "2026.1":
+            selection = aedtapp.modeler.create_object_list(assignment=objects_list, name=list_name)
         else:
-            objects_list = aedtapp.modeler.create_object_list(
-                objects_list, f"ObjectList{len(aedtapp.modeler.user_lists) + 1}"
-            )
-        assignment = objects_list.name
+            selection = aedtapp.modeler.create_named_selection(name=list_name, assignment=objects_list)
+        assignment = selection.name
     else:
         assignment = objects_list[0]
 
