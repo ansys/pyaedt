@@ -931,7 +931,7 @@ class EmitNode:
 
         Parameters
         ----------
-        file_path : str
+        file_path : str, optional
             Full path to export the data to.
         keys : str
             Keys to export the data for.

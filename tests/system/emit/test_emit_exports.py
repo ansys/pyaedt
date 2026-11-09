@@ -721,7 +721,7 @@ class TestEmitExports:
             assert Path(png_path).stat().st_size > 0, "EMI plot file is empty."
 
 
-    def test_power_output_export(self, emit_app):
+    def test_power_at_port_export(self, emit_app):
         """Test export_to_csv and plot of power output by a tx radio."""
         revision = _setup_two_radio_project(emit_app)
         sim = revision.get_simulation()
@@ -729,15 +729,15 @@ class TestEmitExports:
         interaction = sim.run(domain)
         worst_case = interaction.get_worst_instance(ResultType.EMI)
         
-        data = worst_case.export_power_output_to_csv(PowerType.NARROWBAND, "Radio 2", "Port 1", False, "")
+        data = worst_case.export_power_at_port_to_csv(PowerType.NARROWBAND, "Radio 2", "Port 1", False, "")
         assert data is not None
         assert len(data) > 0, "EMI CSV export should return non-empty data."
 
-        data = worst_case.export_power_output_to_csv(PowerType.BROADBAND, "Radio 2", "Port 1", False, "")
+        data = worst_case.export_power_at_port_to_csv(PowerType.BROADBAND, "Radio 2", "Port 1", False, "")
         assert data is not None
         assert len(data) > 0, "EMI CSV export should return non-empty data."
 
-        fig = worst_case.plot_power_output(PowerType.NARROWBAND, "Radio 2", "Port 1")
+        fig = worst_case.plot_power_at_port(PowerType.NARROWBAND, "Radio 2", "Port 1")
         assert fig is not None
         with tempfile.TemporaryDirectory() as tmp_dir:
             png_path = os.path.join(tmp_dir, "emi_plot.png")
@@ -748,7 +748,7 @@ class TestEmitExports:
 
 
     def test_power_at_rx_export(self, emit_app):
-        """Test export_to_csv and plot of power at rx by a tx radio."""
+        """Test export_to_csv and plot of power at rx."""
         revision = _setup_two_radio_project(emit_app)
         sim = revision.get_simulation()
         domain = InteractionDomain(emit_app)

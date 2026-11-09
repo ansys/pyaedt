@@ -210,7 +210,7 @@ class InteractionInstance:
 
         Parameters
         ----------
-        file_name: str[optional]
+        file_name: str, optional
             full path to the file to export to.
 
         Returns
@@ -244,14 +244,14 @@ class InteractionInstance:
 
 
     @min_aedt_version("2027.2")
-    def export_power_output_to_csv(
+    def export_power_at_port_to_csv(
         self, 
         power_type: PowerType,
-        component: str | EmitNode = "", 
-        port_name: str = "",
-        toward_radio: bool = False,
+        component: str | EmitNode, 
+        port_name: str,
+        toward_tx: bool = False,
         file_name: str = "" ) -> str | None:
-        """Exports the power trace data output at a given port to a CSV file.
+        """Exports the power trace data output at a given rx side port to a CSV file.
 
         Parameters
         ----------
@@ -260,10 +260,10 @@ class InteractionInstance:
         component: str | EmitNode
             The component node or name to export the power trace from.
         port_name: str
-            The port name to export the power trace from.
-        toward_radio: bool
-            If True, export the trace for power going toward the radio.
-        file_name: str[optional]
+            The rx side port name to export the power trace from.
+        toward_tx: bool, optional, default False
+            If True, export the trace for power going toward the tx radio.
+        file_name: str, optional
             full path to the file to export to.
 
         Returns
@@ -285,10 +285,10 @@ class InteractionInstance:
             if not isinstance(comp_node, EmitNode):
                 raise ValueError(f"{component} does not exist.")
             full_port_name = f"{comp_node._full_node_name()}:{port_name}"
-        keys.append("RxSidePortSelection") if toward_radio else keys.append("TxSidePortSelection")
+        keys.append("RxSidePortSelection") if toward_tx else keys.append("TxSidePortSelection")
         vals.append(full_port_name)
         keys.append("Direction")
-        vals.append("Toward" if toward_radio else "Away")
+        vals.append("Toward" if toward_tx else "Away")
         self.domain._populate_result_trace_properties(keys, vals)
         sim_node: EmitNode = self.revision.get_simulation_node()
         return sim_node._export_to_csv(file_name, "|".join(keys), "|".join(vals))
@@ -296,13 +296,13 @@ class InteractionInstance:
 
     @min_aedt_version("2027.2")
     @pyaedt_function_handler()
-    def plot_power_output(
+    def plot_power_at_port(
         self, 
         power_type: PowerType,
-        component: str | EmitNode = "", 
-        port_name: str = "",
-        toward_radio: bool = False) -> Figure:
-        """Plots the power trace data output at a given port using matplotlib.
+        component: str | EmitNode, 
+        port_name: str,
+        toward_tx: bool = False) -> Figure:
+        """Plots the power trace data output at a given rx side port using matplotlib.
 
         Parameters
         ----------
@@ -311,9 +311,9 @@ class InteractionInstance:
         component: str | EmitNode
             The component node or name to export the power trace from.
         port_name: str
-            The port name to export the power trace from.
-        toward_radio: bool
-            If True, export the trace for power going toward the radio.
+            The rx side port name to export the power trace from.
+        toward_tx: bool, optional, default False
+            If True, export the trace for power going toward the tx radio.
 
         Returns
         -------
@@ -335,10 +335,10 @@ class InteractionInstance:
             if not isinstance(comp_node, EmitNode):
                 raise ValueError(f"{component} does not exist.")
             full_port_name = f"{comp_node._full_node_name()}:{port_name}"
-        keys.append("RxSidePortSelection") if toward_radio else keys.append("TxSidePortSelection")
+        keys.append("RxSidePortSelection") if toward_tx else keys.append("TxSidePortSelection")
         vals.append(full_port_name)
         keys.append("Direction")
-        vals.append("Toward" if toward_radio else "Away")
+        vals.append("Toward" if toward_tx else "Away")
 
         self.domain._populate_result_trace_properties(keys, vals)
         sim_node: EmitNode = self.revision.get_simulation_node()
