@@ -1512,7 +1512,7 @@ class PostProcessorCommon(PyAedtBase):
         if not domain:
             domain = "Sweep"
             if setup_name:
-                if "Time" in self._app.design_setups[setup_name].default_intrinsics:
+                if "Time" in self._app.setups[setup_name].default_intrinsics:
                     domain = "Time"
 
         # Expressions
@@ -1568,8 +1568,8 @@ class PostProcessorCommon(PyAedtBase):
             variations = self._app.available_variations.nominal_variation(dependent_params=False)
         elif not variations and domain != "Sweep":
             variations = self._app.available_variations.nominal_variation(dependent_params=False)
-        if setup_name in self._app.design_setups:
-            for v in self._app.design_setups[setup_name].default_intrinsics.keys():
+        if setup_name in self._app.setup_names:
+            for v in self._app.setups[setup_name].default_intrinsics.keys():
                 if v not in variations:
                     variations[v] = "All"
         if primary_sweep_variable and primary_sweep_variable not in variations:
