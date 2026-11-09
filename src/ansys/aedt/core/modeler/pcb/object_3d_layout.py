@@ -3006,7 +3006,7 @@ class CoordinateSystems3DLayout(PyAedtBase):
 
     """
 
-    def __init__(self, primitives, is_created: bool = False) -> None:
+    def __init__(self, primitives) -> None:
         self._primitives = primitives
         self._oeditor: "_OEditor" = self._primitives.modeler.oeditor
         self.logger = self._primitives.logger
@@ -3014,7 +3014,6 @@ class CoordinateSystems3DLayout(PyAedtBase):
         # Private properties
         self.__name = None
         self.__origin = None
-        self.__is_created = is_created
 
     def __repr__(self) -> str:
         return self.name
@@ -3106,7 +3105,7 @@ class CoordinateSystems3DLayout(PyAedtBase):
 
         """
         if self.__origin is None:
-            if self.__is_created:
+            if self.__is_created():
                 location = self.get_property_value("Location")
                 self.__origin = [float(x.strip()) for x in location.split(",")]
             else:
@@ -3117,7 +3116,7 @@ class CoordinateSystems3DLayout(PyAedtBase):
     def origin(self, value: list[float]) -> None:
         if not isinstance(value, list) or len(value) != 2:
             self.logger.warning("Origin is not a list of two elements.")
-        if self.__is_created:
+        if self.__is_created():
             vName = ["NAME:Location", "X:=", value[0], "Y:=", value[1]]
             self.change_property(vName)
         self.__origin = value
@@ -3162,7 +3161,6 @@ class CoordinateSystems3DLayout(PyAedtBase):
             8421504,
         ]
         self._oeditor.CreateCS(args)
-        self.__is_created = True
         return True
 
     @pyaedt_function_handler()
@@ -3246,8 +3244,10 @@ class CoordinateSystems3DLayout(PyAedtBase):
         """
         try:
             self._oeditor.Delete(self.name)
-            self.__is_created = False
             return True
         except Exception:
             self.logger.warning(f"{self.__name} can not be deleted.")
             return False
+
+    def __is_created(self) -> bool:
+        return self.name in self._oeditor.FindObjects("Type", "CS")
