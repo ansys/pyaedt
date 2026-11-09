@@ -26,7 +26,7 @@ from collections.abc import Callable
 from pathlib import Path
 import sys
 from typing import TYPE_CHECKING
-from typing import cast
+from typing import TypeVar
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import _uname
@@ -55,6 +55,9 @@ if sys.version_info >= (3, 13):
     from warnings import deprecated
 else:
     from typing_extensions import deprecated
+
+
+_GeometryT = TypeVar("_GeometryT", bound=Geometries3DLayout)
 
 
 class Primitives3DLayout(PyAedtBase):
@@ -572,74 +575,47 @@ class Primitives3DLayout(PyAedtBase):
         >>> obj.cleanup_objects()
 
         """
-        families: list[tuple[list[str], dict[str, Geometries3DLayout], Callable[..., Geometries3DLayout]]] = [
-            (
-                ["poly", "plg"],
-                cast(dict[str, Geometries3DLayout], self._polygons),
-                cast(Callable[..., Geometries3DLayout], Polygons3DLayout),
-            ),
-            (
-                ["line", "arc"],
-                cast(dict[str, Geometries3DLayout], self._lines),
-                cast(Callable[..., Geometries3DLayout], Line3dLayout),
-            ),
-            (
-                ["circle"],
-                cast(dict[str, Geometries3DLayout], self._circles),
-                cast(Callable[..., Geometries3DLayout], Circle3dLayout),
-            ),
-            (
-                ["rect"],
-                cast(dict[str, Geometries3DLayout], self._rectangles),
-                cast(Callable[..., Geometries3DLayout], Rect3dLayout),
-            ),
-            (
-                ["poly void", "plg void"],
-                cast(dict[str, Geometries3DLayout], self._polygons),
-                cast(Callable[..., Geometries3DLayout], Polygons3DLayout),
-            ),
-            (
-                ["line void", "arc void"],
-                cast(dict[str, Geometries3DLayout], self._lines),
-                cast(Callable[..., Geometries3DLayout], Line3dLayout),
-            ),
-            (
-                ["circle void"],
-                cast(dict[str, Geometries3DLayout], self._circles),
-                cast(Callable[..., Geometries3DLayout], Circle3dLayout),
-            ),
-            (
-                ["rect void"],
-                cast(dict[str, Geometries3DLayout], self._rectangles),
-                cast(Callable[..., Geometries3DLayout], Rect3dLayout),
-            ),
-        ]
         obj_to_add: list[Geometries3DLayout] = []
         obj_removed: list[str] = []
-        for element in families:
-            poly_types = element[0]
-            dict_in = element[1]
-            class_name = element[2]
-            names = set(dict_in.keys())
-            objs = set(self._get_names(poly_types))
-            names_to_add = set.difference(objs, names)
-            poly = poly_types[0]
-            if "void" in poly:
-                names_to_remove = [i for i in set.difference(names, objs) if dict_in[i].is_void]
-            else:
-                names_to_remove = [i for i in set.difference(names, objs) if not dict_in[i].is_void]
-            for obj in names_to_add:
-                if obj not in names:
-                    is_void = "void" in poly
-                    if class_name == Polygons3DLayout:
-                        geom_obj = Polygons3DLayout(self, obj, poly, is_void)
-                    else:
-                        geom_obj = class_name(self, obj, is_void)
-                    dict_in[obj] = geom_obj
-                    obj_to_add.append(geom_obj)
-            for obj in names_to_remove:
-                del dict_in[obj]
-                obj_removed.append(obj)
+
+        def synchronize(
+            categories: list[str],
+            cache: dict[str, _GeometryT],
+            factory: Callable[[str, bool], _GeometryT],
+        ) -> None:
+            """Synchronize a geometry cache with the objects in the requested categories."""
+            names = set(cache)
+            current_names = set(self._get_names(categories))
+            is_void = "void" in categories[0]
+            names_to_remove = [name for name in names - current_names if cache[name].is_void == is_void]
+            for name in current_names - names:
+                geometry = factory(name, is_void)
+                cache[name] = geometry
+                obj_to_add.append(geometry)
+            for name in names_to_remove:
+                del cache[name]
+                obj_removed.append(name)
+
+        def polygon_factory(name: str, is_void: bool) -> Polygons3DLayout:
+            return Polygons3DLayout(self, name, "poly void" if is_void else "poly", is_void)
+
+        def line_factory(name: str, is_void: bool) -> Line3dLayout:
+            return Line3dLayout(self, name, is_void)
+
+        def circle_factory(name: str, is_void: bool) -> Circle3dLayout:
+            return Circle3dLayout(self, name, is_void)
+
+        def rectangle_factory(name: str, is_void: bool) -> Rect3dLayout:
+            return Rect3dLayout(self, name, is_void)
+
+        synchronize(["poly", "plg"], self._polygons, polygon_factory)
+        synchronize(["line", "arc"], self._lines, line_factory)
+        synchronize(["circle"], self._circles, circle_factory)
+        synchronize(["rect"], self._rectangles, rectangle_factory)
+        synchronize(["poly void", "plg void"], self._polygons, polygon_factory)
+        synchronize(["line void", "arc void"], self._lines, line_factory)
+        synchronize(["circle void"], self._circles, circle_factory)
+        synchronize(["rect void"], self._rectangles, rectangle_factory)
         return obj_to_add, obj_removed
 
     @property
