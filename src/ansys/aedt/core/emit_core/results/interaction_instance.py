@@ -218,6 +218,7 @@ class InteractionInstance:
         csv_data: str
             stringified data for the node returned if file_name not specified
         """
+        self.validate()
         keys = ["EmiType","UseDomain"]
         vals = ["Point","true"]
         self.domain._populate_result_trace_properties(keys, vals)
@@ -236,6 +237,7 @@ class InteractionInstance:
             The plot figure with frequency in MHz.
         """
 
+        self.validate()
         keys = ["EmiType","UseDomain"]
         vals = ["Point","true"]
         self.domain._populate_result_trace_properties(keys, vals)
@@ -322,7 +324,6 @@ class InteractionInstance:
         """
 
         self.validate()
-        self.validate()
         keys = ["UseDomain"]
         vals = ["true"]
         keys.append("EmiType")
@@ -395,7 +396,6 @@ class InteractionInstance:
             The plot figure with frequency in MHz.
         """
 
-        self.validate()
         self.validate()
         keys = ["UseDomain"]
         vals = ["true"]
