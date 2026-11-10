@@ -24,17 +24,11 @@
 
 from __future__ import annotations
 
+import copy
 import csv
 from pathlib import Path
-import sys
 from typing import TYPE_CHECKING
 from typing import Any
-
-if sys.version_info >= (3, 13):
-    from warnings import deprecated
-else:
-    from typing_extensions import deprecated
-import copy
 
 from ansys.aedt.core.application import _get_obj_data
 from ansys.aedt.core.application import _has_get_obj_data
@@ -634,6 +628,7 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
             setup_sweep_name = self._app.nominal_sweep
         sweep_definition["Solution"] = setup_sweep_name
         ctxt: dict[str, Any] = {}
+        line_names = self._app.modeler.line_names if context else []
 
         if self._app.solution_type in ["TR", "AC", "DC", "TwinbuilderTR", "TwinbuilderAC", "TwinbuilderDC"]:
             ctxt["SimValueContext"] = [did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]
@@ -691,7 +686,7 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
                 ctxt["Context"] = context
         elif context:
             ctxt["Context"] = context
-            if context in self._app.modeler.line_names:
+            if context in line_names:
                 ctxt["PointCount"] = polyline_points
         else:
             ctxt = {"Domain": domain}
@@ -699,7 +694,7 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         sweep_definition["Calculation"] = expressions
         sweep_definition["Name"] = expressions
         sweep_definition["Ranges"] = {}
-        if context and context in self._app.modeler.line_names and intrinsics and "Distance" not in intrinsics:
+        if context and context in line_names and intrinsics and "Distance" not in intrinsics:
             sweep_definition["Ranges"]["Range"] = ("Var:=", "Distance", "Type:=", "a")
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_sweep
@@ -913,16 +908,16 @@ class ParametricSetup(OptimetricsSetup):
         if self.setup_type != "OptiParametric":
             raise AEDTRuntimeError("Setup must be a parametric setup.")
 
-        if type(self.props["Sweeps"]["SweepDefinition"]) is not list:
+        props = self.props.to_dict()
+        sweep_definitions = props["Sweeps"]["SweepDefinition"]
+        if type(sweep_definitions) is not list:
             raise AEDTRuntimeError("Not enough variables are defined in the parametric setup")
 
-        existing_variables = [s["Variable"] for s in self.props["Sweeps"]["SweepDefinition"]]
+        existing_variables = [s["Variable"] for s in sweep_definitions]
         undo_vals = {}
         for v in variables:
             if v not in existing_variables:
                 raise AEDTRuntimeError(f"Variable {v} is not defined in the parametric setup.")
-
-        props = self.props.to_dict()
 
         for v in variables:
             for count, sweep_def in enumerate(props["Sweeps"]["SweepDefinition"]):
@@ -1331,9 +1326,10 @@ class Parametrics(PyAedtBase):
         >>> same_parametric = app.parametrics[parametric.name]
 
         """
-        if name not in self.__setups and name in self.setup_names:
+        setup_names = self.setup_names
+        if name not in self.__setups and name in setup_names:
             self.__setups[name] = ParametricSetup(app=self, name=name, props={})
-        if name not in self.setup_names:
+        if name not in setup_names:
             return None
         return self.__setups[name]
 
@@ -1379,11 +1375,12 @@ class Parametrics(PyAedtBase):
         >>> app.parametrics.setups
 
         """
-        for setup_name in self.setup_names:
+        setup_names = self.setup_names
+        for setup_name in setup_names:
             if setup_name not in self.__setups:
                 self.__setups[setup_name] = ParametricSetup(app=self, name=setup_name, props={})
 
-        active_names = set(self.setup_names)
+        active_names = set(setup_names)
         for setup_name in list(self.__setups.keys()):
             if setup_name not in active_names:
                 del self.__setups[setup_name]
@@ -1408,29 +1405,6 @@ class Parametrics(PyAedtBase):
 
         """
         return self.__setups_by_type
-
-    @property
-    @deprecated("Use the PyAEDT application object directly.")
-    def p_app(self):
-        """Parent.
-
-        Deprecated. Use the PyAEDT application object directly.
-        """
-        return self._app
-
-    @property
-    @deprecated("Use ooptimetrics from application instead.")
-    def optimodule(self):
-        """Optimetrics module.
-
-        Deprecated. Use :attr:`application.ooptimetrics` instead.
-
-        Returns
-        -------
-        object
-            AEDT Optimetrics module (``app.ooptimetrics``).
-        """
-        return self._app.ooptimetrics
 
     @pyaedt_function_handler()
     def add(
@@ -1732,9 +1706,10 @@ class Optimizations(PyAedtBase):
         >>> setup = app.optimetrics.optimizations["Optimization1"]
 
         """
-        if name not in self.__setups and name in self.setup_names:
+        setup_names = self.setup_names
+        if name not in self.__setups and name in setup_names:
             self.__setups[name] = OptimizationSetup(app=self, name=name, props={})
-        if name not in self.setup_names:
+        if name not in setup_names:
             return None
         return self.__setups[name]
 
@@ -1782,39 +1757,17 @@ class Optimizations(PyAedtBase):
         >>> app.optimetrics.optimizations.setups
 
         """
-        for setup_name in self.setup_names:
+        setup_names = self.setup_names
+        for setup_name in setup_names:
             if setup_name not in self.__setups:
                 self.__setups[setup_name] = OptimizationSetup(app=self, name=setup_name, props={})
 
-        active_names = set(self.setup_names)
+        active_names = set(setup_names)
         for setup_name in list(self.__setups.keys()):
             if setup_name not in active_names:
                 del self.__setups[setup_name]
 
         return self.__setups
-
-    @property
-    @deprecated("Use the PyAEDT application object directly.")
-    def p_app(self):
-        """Parent.
-
-        Deprecated. Use the PyAEDT application object directly.
-        """
-        return self._app
-
-    @property
-    @deprecated("Use ooptimetrics from application instead.")
-    def optimodule(self):
-        """Optimetrics module.
-
-        Deprecated. Use :attr:`application.ooptimetrics` instead.
-
-        Returns
-        -------
-        object
-            AEDT Optimetrics module (``app.ooptimetrics``).
-        """
-        return self._app.ooptimetrics
 
     @property
     def setups_by_type(self) -> SetupDict:
@@ -2138,9 +2091,7 @@ class Optimetrics(PyAedtBase):
         >>> same_parametric = app.optimetrics[parametric.name]
 
         """
-        if name in self.setup_names:
-            return self.setups[name]
-        return None
+        return self.setups.get(name)
 
     @property
     def _child_object(self) -> object | None:
@@ -2241,15 +2192,17 @@ class Optimetrics(PyAedtBase):
         >>> app.optimetrics.setups
 
         """
-        for setup_name, setup in self.parametrics.setups.items():
+        parametric_setups = self.parametrics.setups
+        optimization_setups = self.optimizations.setups
+        for setup_name, setup in parametric_setups.items():
             if setup_name not in self.__setups:
                 self.__setups[setup_name] = setup
 
-        for setup_name, setup in self.optimizations.setups.items():
+        for setup_name, setup in optimization_setups.items():
             if setup_name not in self.__setups:
                 self.__setups[setup_name] = setup
 
-        active_names = set(self.setup_names)
+        active_names = set(parametric_setups) | set(optimization_setups)
         for setup_name in list(self.__setups.keys()):
             if setup_name not in active_names:
                 del self.__setups[setup_name]
@@ -2448,14 +2401,11 @@ class Optimetrics(PyAedtBase):
         >>> app.optimetrics.delete_setup("OptimizationSetup1")
 
         """
-        if not self.setups:
+        setup = self.setups.get(name)
+        if setup is None:
             return False
-
-        for setup_name, setup in self.setups.items():
-            if setup_name == name:
-                setup.delete()
-                return True
-        return False
+        setup.delete()
+        return True
 
     @pyaedt_function_handler()
     def _get_setup_types(self) -> dict[str, str | None]:

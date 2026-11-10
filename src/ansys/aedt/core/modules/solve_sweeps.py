@@ -24,15 +24,6 @@
 
 from __future__ import annotations
 
-import sys
-
-from ansys.aedt.core.internal.errors import AEDTRuntimeError
-
-if sys.version_info >= (3, 13):
-    from warnings import deprecated
-else:
-    from typing_extensions import deprecated
-
 import copy
 from difflib import SequenceMatcher
 from pathlib import Path
@@ -47,6 +38,7 @@ from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import Quantity
 from ansys.aedt.core.generic.props import Props as SweepProps
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.load_aedt_file import load_entire_aedt_file
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modules.setup_templates import Sweep3DLayout
@@ -57,7 +49,6 @@ from ansys.aedt.core.modules.setup_templates import SweepSiwave
 if TYPE_CHECKING:
     from ansys.aedt.core.modules.solve_setup import Setup3DLayout
     from ansys.aedt.core.modules.solve_setup import SetupHFSS
-    from ansys.aedt.core.modules.solve_setup import SetupMaxwell
     from ansys.aedt.core.modules.solve_setup import SetupQ3D
 
 
@@ -153,8 +144,8 @@ class SweepCommon(BinaryTreeNode, PyAedtBase):
 
     """
 
-    def __init__(self, setup: Setup3DLayout | SetupHFSS | SetupQ3D | SetupMaxwell, name: str) -> None:
-        self._setup: Setup3DLayout | SetupHFSS | SetupQ3D | SetupMaxwell = setup
+    def __init__(self, setup: Setup3DLayout | SetupHFSS | SetupQ3D, name: str) -> None:
+        self._setup: Setup3DLayout | SetupHFSS | SetupQ3D = setup
         self._app: Any = self._setup._app
 
         self._name = name
@@ -192,10 +183,11 @@ class SweepCommon(BinaryTreeNode, PyAedtBase):
 
         """
         child_object = None
-        if self._setup.child_object:
-            cc_names = self._app.get_oo_name(self._setup.child_object)
+        setup_object = self._setup.child_object
+        if setup_object:
+            cc_names = self._app.get_oo_name(setup_object)
             if self._name in cc_names:
-                child_object = self._app.get_oo_object(self._setup.child_object, self._name)
+                child_object = self._app.get_oo_object(setup_object, self._name)
         return child_object
 
     @property
@@ -253,16 +245,18 @@ class SweepCommon(BinaryTreeNode, PyAedtBase):
         >>> s.sweep_type
 
         """
-        sweep_type = self.child_object.Type if "Type" in dir(self.child_object) else None
+        child_object = self.child_object
+        sweep_type = child_object.Type if "Type" in dir(child_object) else None
         return sweep_type
 
     @sweep_type.setter
     def sweep_type(self, sweep_type):
-        if "FreqSweepType" in self.props:
+        props = self.props
+        if "FreqSweepType" in props:
             sweep_type = get_sweep_type(sweep_type)
-            self.props["FreqSweepType"] = sweep_type
-        elif "Type" in self.props:
-            self.props["Type"] = sweep_type
+            props["FreqSweepType"] = sweep_type
+        elif "Type" in props:
+            props["Type"] = sweep_type
 
     @property
     def setup_name(self) -> str:
@@ -429,7 +423,7 @@ class SweepHFSS(SweepCommon):
 
         """
         solutions_file = Path(self._app.results_directory) / f"{self._app.design_name}.asol"
-        fr = []
+        fr: list[list[float]] = []
         if solutions_file.is_file():
             solutions = load_entire_aedt_file(str(solutions_file))
             for k, v in solutions.items():
@@ -438,13 +432,14 @@ class SweepHFSS(SweepCommon):
                         new_list = [float(i) for i in v["Fields"]["IDDblMap"][1::2]]
 
                         new_list.sort()
-                        new_list = unit_converter(
+                        converted_frequencies = unit_converter(
                             values=new_list,
                             unit_system="Freq",
                             input_units="Hz",
                             output_units=self._app.units.frequency,
                         )
-                        fr.append(new_list)
+                        if isinstance(converted_frequencies, list):
+                            fr.append([float(frequency) for frequency in converted_frequencies])
                     except (KeyError, NameError, IndexError):
                         pass
 
@@ -484,7 +479,7 @@ class SweepHFSS(SweepCommon):
         if not self._has_getobject:  # pragma: no cover
             # If a new sweep is created, and GetObjData is not available,
             # it is needed to populated setups dictionary because if not props will be empty.
-            self._setup._SetupHFSS__sweeps[self.name] = self
+            self._setup._register_sweep(self.name, self)
 
         return self
 
@@ -757,26 +752,6 @@ class SweepHFSS3DLayout(SweepCommon):
         self.update(props)
 
     @property
-    @deprecated("Convert to string the object instead.")
-    def combined_name(self) -> str:
-        """Compute the name : sweep_name string.
-
-        Returns
-        -------
-        str
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss3dLayout
-        >>> hfss = Hfss3dLayout()
-        >>> setup = hfss.create_setup()
-        >>> sweep = setup.add_sweep()
-        >>> sweep.combined_name
-
-        """
-        return str(self)
-
-    @property
     def is_solved(self) -> bool:
         """Verify if solutions are available for the sweep.
 
@@ -795,7 +770,7 @@ class SweepHFSS3DLayout(SweepCommon):
 
         """
         combined_name = str(self)
-        expressions = [i for i in self._app.post.available_report_quantities(solution=combined_name)]
+        expressions = self._app.post.available_report_quantities(solution=combined_name)
         if not expressions:
             return False
         sol = self._app.post.reports_by_category.standard(expressions=expressions[0], setup=combined_name)
@@ -804,7 +779,7 @@ class SweepHFSS3DLayout(SweepCommon):
         return True if sol.get_solution_data() else False
 
     @pyaedt_function_handler()
-    def create(self) -> bool:
+    def create(self) -> SweepHFSS3DLayout:
         """Create a sweep.
 
         Returns
@@ -827,7 +802,7 @@ class SweepHFSS3DLayout(SweepCommon):
         if not self._has_getobject:  # pragma: no cover
             # If a new sweep is created, and GetObjData is not available,
             # it is needed to populated setups dictionary because if not props will be empty.
-            self._setup._Setup3DLayout__sweeps[self.name] = self
+            self._setup._register_sweep(self.name, self)
 
         return self
 
@@ -939,8 +914,9 @@ class SweepHFSS3DLayout(SweepCommon):
         >>> sweep.set_save_fields(save_fields=True)
 
         """
-        self.props["GenerateSurfaceCurrent"] = save_fields
-        self.props["SaveRadFieldsOnly"] = save_rad_fields
+        props = self.props
+        props["GenerateSurfaceCurrent"] = save_fields
+        props["SaveRadFieldsOnly"] = save_rad_fields
         return True
 
     @pyaedt_function_handler()
@@ -1330,7 +1306,7 @@ class SweepMatrix(SweepCommon):
         if not self._has_getobject:  # pragma: no cover
             # If a new sweep is created, and GetObjData is not available,
             # it is needed to populated setups dictionary because if not props will be empty.
-            self._setup._SetupQ3D__sweeps[self.name] = self
+            self._setup._register_sweep(self.name, self)
 
         return self
 

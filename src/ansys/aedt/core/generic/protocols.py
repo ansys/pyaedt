@@ -88,6 +88,12 @@ class _ODesign(Protocol):
     def GetDesignType(self) -> str: ...
 
 
+class _ODesignWithEnableSolutionSetup(Protocol):
+    """Interface definition for AEDT designs that can enable or disable setups."""
+
+    def EnableSolutionSetup(self, *args: object, **kwargs: object) -> object: ...
+
+
 class _OMeshDesign(_ODesign, Protocol):
     """Interface definition for a design that supports mesh generation."""
 

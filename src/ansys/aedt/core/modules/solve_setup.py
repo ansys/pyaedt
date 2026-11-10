@@ -35,25 +35,20 @@ import os.path
 from pathlib import Path
 import re
 import secrets
-import sys
 import time
 from typing import TYPE_CHECKING
 from typing import Any
+from typing import cast
 import warnings
 
-from ansys.aedt.core.generic.constants import SolutionsHfss
-from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
-
-if sys.version_info >= (3, 13):
-    from warnings import deprecated
-else:
-    from typing_extensions import deprecated
 from ansys.aedt.core.application import _get_obj_data
 from ansys.aedt.core.application import _has_get_obj_data
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import Setups
+from ansys.aedt.core.generic.constants import SolutionsHfss
+from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
 from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
 from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.data_handlers import _dict2arg
@@ -90,6 +85,7 @@ if TYPE_CHECKING:
     from ansys.aedt.core import Q3d
     from ansys.aedt.core import Rmxprt
     from ansys.aedt.core import TwinBuilder
+    from ansys.aedt.core.generic.protocols import _ODesignWithEnableSolutionSetup
     from ansys.aedt.core.visualization.post.solution_data import SolutionData
     from ansys.aedt.core.visualization.report.standard import Standard
 
@@ -190,7 +186,7 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
                     self.__child_object = self._app.get_oo_object(cc, self._name)
         return self.__child_object
 
-    def _setup_dict_to_arg(self, props: dict | None = None):
+    def _setup_dict_to_arg(self, props: dict | SetupProps | None = None):
         """Retrieve arguments needed to pass to AEDT API.
 
         Parameters
@@ -215,7 +211,7 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
 
         if props is None:
             props = self.props.to_dict()
-        elif hasattr(props, "to_dict"):
+        elif isinstance(props, SetupProps):
             props = props.to_dict()
 
         _dict2arg(props, arg)
@@ -261,11 +257,12 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
         # Merge with existing props to support partial updates
         current_props = self.props.to_dict() if self._legacy_props else {}
         current_props.update(value)
-
-        props = SetupProps(self, current_props)
-
         # Each Setup class must have an update method
-        self.update(props)
+        self.update(current_props)
+
+    def update(self, properties: dict | None = None) -> bool:
+        """Update setup properties in the concrete setup implementation."""
+        raise NotImplementedError
 
     @property
     def name(self) -> str:
@@ -326,18 +323,20 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
                 intrinsics["Freq"] = "All"
             return intrinsics
         elif self._app.design_type in ["Circuit Design"]:
+            props = self.props
             if any(
-                i in self.props
+                i in props
                 for i in ["TransientData", "QuickEyeAnalysis", "AMIAnalysis", "HSPICETransientData", "SystemFDAnalysis"]
             ):
                 intrinsics["Time"] = "0s"
             else:
                 intrinsics["Freq"] = "All"
             return intrinsics
+        props = self.props
         for i in self._app.design_solutions.intrinsics:
             if i == "Freq":
-                if "Frequency" in self.props:
-                    intrinsics[i] = self.props["Frequency"]
+                if "Frequency" in props:
+                    intrinsics[i] = props["Frequency"]
                 elif "Solution Freq" in self.properties:
                     intrinsics[i] = self.properties["Solution Freq"]
                 else:
@@ -384,7 +383,7 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
         cores: int = 1,
         tasks: int = 1,
         gpus: int = 0,
-        acf_file: str = None,
+        acf_file: str | None = None,
         use_auto_settings: bool = True,
         solve_in_batch: bool = False,
         machine: str = "localhost",
@@ -495,21 +494,6 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
             sol.domain = "Time"
         return True if sol.get_solution_data() else False
 
-    @property
-    @deprecated("Use onalysis from application object.")
-    def omodule(self):
-        """Analysis module.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> app = Hfss()
-        >>> setup = app.create_setup()
-        >>> setup.omodule
-
-        """
-        return self._app.oanalysis
-
     @pyaedt_function_handler()
     def get_profile(self) -> Profiles:
         """Solution profile.
@@ -532,16 +516,16 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
     @pyaedt_function_handler()
     def get_solution_data(
         self,
-        expressions: str | list = None,
-        domain: str = None,
-        variations: dict = None,
-        primary_sweep_variable: str = None,
-        report_category: str = None,
-        context: str | dict = None,
+        expressions: str | list[str] | None = None,
+        domain: str | None = None,
+        variations: dict | None = None,
+        primary_sweep_variable: str | None = None,
+        report_category: str | None = None,
+        context: str | dict | None = None,
         polyline_points: int = 1001,
-        math_formula: str = None,
-        sweep: str = None,
-    ) -> "SolutionData":
+        math_formula: str | None = None,
+        sweep: str | None = None,
+    ) -> "SolutionData | None":
         """Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
 
         Data to be retrieved from Electronics Desktop are any simulation results available in that
@@ -656,25 +640,25 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
     @pyaedt_function_handler()
     def create_report(
         self,
-        expressions: str | list = None,
+        expressions: str | list[str] | None = None,
         domain: str = "Sweep",
-        variations: dict = None,
-        primary_sweep_variable: str = None,
-        secondary_sweep_variable: str = None,
-        report_category: str = None,
+        variations: dict | None = None,
+        primary_sweep_variable: str | None = None,
+        secondary_sweep_variable: str | None = None,
+        report_category: str | None = None,
         plot_type: str = "Rectangular Plot",
-        context: str | dict = None,
-        subdesign_id: int = None,
+        context: str | dict | None = None,
+        subdesign_id: int | None = None,
         polyline_points: int = 1001,
-        name: str = None,
-        sweep: str = None,
+        name: str | None = None,
+        sweep: str | None = None,
         matplotlib: bool = False,
         show: bool = True,
         hide_legend: bool = False,
-        snapshot_path: str = None,
+        snapshot_path: str | None = None,
         width: int = 800,
         height: int = 450,
-    ) -> Standard:
+    ) -> Standard | None:
         """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plot, or data table.
 
         Parameters
@@ -810,13 +794,15 @@ class Setup(CommonSetup):
 
     """
 
+    solver_type: str
+
     def __init__(
         self, app: Hfss | Hfss3dLayout | Maxwell3d | Maxwell2d | Q3d | Q2d | Icepak | Rmxprt, name: str, props: dict
     ) -> None:
         CommonSetup.__init__(self, app=app, name=name, props=props)
 
     @pyaedt_function_handler()
-    def create(self) -> SetupHFSSAuto | SetupHFSS | SetupSBR | SetupMaxwell | SetupQ3D | SetupIcepak:
+    def create(self) -> Setup:
         """Add a new setup.
 
         Returns
@@ -1472,12 +1458,6 @@ class SetupCircuit(CommonSetup):
     def __str__(self) -> str:
         return self.name
 
-    @property
-    @deprecated("Use odesign from application instead.")
-    def _odesign(self):
-        """Design."""
-        return self._app._odesign
-
     @pyaedt_function_handler()
     def create(self) -> SetupCircuit:
         """Add a new setup based on class settings in AEDT.
@@ -1631,11 +1611,11 @@ class SetupCircuit(CommonSetup):
         self._setup(self.solver_type, arg, newsetup=False)
 
         if not self._has_getobject and not self._has_getsetupdata:  # pragma: no cover
-            self._legacy_props = dict(properties)
+            self._legacy_props = dict(properties) if properties is not None else self.props.to_dict()
 
         return True
 
-    def _setup_dict_to_arg(self, props: dict | None = None):
+    def _setup_dict_to_arg(self, props: dict | SetupProps | None = None):
         """Retrieve arguments needed to pass to AEDT API.
 
         Parameters
@@ -1660,7 +1640,7 @@ class SetupCircuit(CommonSetup):
 
         if props is None:
             props = self.props.to_dict()
-        elif hasattr(props, "to_dict"):
+        elif isinstance(props, SetupProps):
             props = props.to_dict()
 
         props["Name"] = self.name
@@ -1672,7 +1652,7 @@ class SetupCircuit(CommonSetup):
     def add_sweep_points(
         self,
         sweep_variable: str = "Freq",
-        sweep_points: int = 1,
+        sweep_points: int | float | str | list[int | float | str] = 1,
         units: str = "GHz",
         override_existing_sweep: bool = True,
     ) -> bool:
@@ -1725,8 +1705,8 @@ class SetupCircuit(CommonSetup):
     def add_sweep_count(
         self,
         sweep_variable: str = "Freq",
-        start: int = 1,
-        stop: int = 100,
+        start: int | float | str = 1,
+        stop: int | float | str = 100,
         count: int = 100,
         units: str = "GHz",
         count_type: str = "Linear",
@@ -1787,9 +1767,9 @@ class SetupCircuit(CommonSetup):
     def add_sweep_step(
         self,
         sweep_variable: str = "Freq",
-        start: int = 1,
-        stop: int = 100,
-        step_size: int = 1,
+        start: int | float | str = 1,
+        stop: int | float | str = 100,
+        step_size: int | float | str = 1,
         units: str = "GHz",
         override_existing_sweep: bool = True,
     ) -> bool:
@@ -1905,8 +1885,8 @@ class SetupCircuit(CommonSetup):
         """
         if not name:
             name = self.name
-        if "EnableSolutionSetup" in dir(self._odesign):
-            self._odesign.EnableSolutionSetup(name, True)
+        if "EnableSolutionSetup" in dir(self._app.odesign):
+            cast("_ODesignWithEnableSolutionSetup", self._app.odesign).EnableSolutionSetup(name, True)
             return True
         elif self.properties and "Enabled" in self.properties:
             self.properties["Enabled"] = True
@@ -1942,8 +1922,8 @@ class SetupCircuit(CommonSetup):
         """
         if not name:
             name = self.name
-        if "EnableSolutionSetup" in dir(self._odesign):
-            self._odesign.EnableSolutionSetup(name, False)
+        if "EnableSolutionSetup" in dir(self._app.odesign):
+            cast("_ODesignWithEnableSolutionSetup", self._app.odesign).EnableSolutionSetup(name, False)
             return True
         elif self.properties and "Enabled" in self.properties:
             self.properties["Enabled"] = False
@@ -1953,15 +1933,15 @@ class SetupCircuit(CommonSetup):
     @pyaedt_function_handler()
     def get_solution_data(
         self,
-        expressions: str | list = None,
-        domain: str = None,
-        variations: dict = None,
-        primary_sweep_variable: str = None,
-        report_category: str = None,
-        context: str | dict = None,
+        expressions: str | list[str] | None = None,
+        domain: str | None = None,
+        variations: dict | None = None,
+        primary_sweep_variable: str | None = None,
+        report_category: str | None = None,
+        context: str | dict | None = None,
         polyline_points: int = 1001,
-        math_formula: str = None,
-        sweep: str = None,
+        math_formula: str | None = None,
+        sweep: str | None = None,
     ) -> "SolutionData":
         """Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
 
@@ -2044,24 +2024,24 @@ class SetupCircuit(CommonSetup):
     @pyaedt_function_handler()
     def create_report(
         self,
-        expressions: str | list = None,
+        expressions: str | list[str] | None = None,
         domain: str = "Sweep",
-        variations: dict = None,
-        primary_sweep_variable: str = None,
-        secondary_sweep_variable: str = None,
-        report_category: str = None,
+        variations: dict | None = None,
+        primary_sweep_variable: str | None = None,
+        secondary_sweep_variable: str | None = None,
+        report_category: str | None = None,
         plot_type: str = "Rectangular Plot",
-        context: str | dict = None,
-        subdesign_id: int = None,
+        context: str | dict | None = None,
+        subdesign_id: int | None = None,
         polyline_points: int = 1001,
-        name: str = None,
+        name: str | None = None,
         matplotlib: bool = False,
         show: bool = True,
         hide_legend: bool = False,
-        snapshot_path: str = None,
+        snapshot_path: str | None = None,
         width: int = 800,
         height: int = 450,
-    ) -> Standard:
+    ) -> Standard | None:
         """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plots or data tables.
 
         Parameters
@@ -2187,6 +2167,10 @@ class Setup3DLayout(CommonSetup):
         else:
             return f"{self.name} : {self._app.design_solutions.default_adaptive}"
 
+    def _register_sweep(self, name: str, sweep: SweepHFSS3DLayout) -> None:
+        """Register a sweep when AEDT does not expose object-oriented sweep data."""
+        self.__sweeps[name] = sweep
+
     @property
     def sweep_names(self) -> list[str]:
         """Return the available sweep names.
@@ -2285,9 +2269,10 @@ class Setup3DLayout(CommonSetup):
                 return False
             sol = self._app.post.reports_by_category.standard(expressions=expressions[0], setup=combined_name)
         elif props.get(key, "HFSS") == "HFSSPI":
-            if not self.sweep_names:
+            sweep_names = self.sweep_names
+            if not sweep_names:
                 return False
-            sweep_name = self.sweep_names[0]
+            sweep_name = sweep_names[0]
             combined_name = f"{self.name} : {sweep_name}"
             expressions = [i for i in self._app.post.available_report_quantities(solution=combined_name)]
             if not expressions:
@@ -2604,7 +2589,7 @@ class Setup3DLayout(CommonSetup):
         }
         aedtapp = app(project=file_fullname)
         units = aedtapp.modeler.model_units
-        aedt_units = AEDT_UNITS["Length"][units]
+        aedt_units = cast(float, AEDT_UNITS["Length"][units])
         object_list = aedtapp.modeler.object_names
         self._convert_edb_to_aedt_units(input_dict=primitives_3d_pts_per_nets, output_unit=aedt_units)
         self._convert_edb_to_aedt_units(input_dict=via_per_nets, output_unit=aedt_units)
@@ -3011,7 +2996,7 @@ class Setup3DLayout(CommonSetup):
         all_offdiagonal_entries: bool = True,
         off_diagonal_mag: float = 0.02,
         off_diagonal_phase: int = 5,
-        custom_entries: list = None,
+        custom_entries: list | None = None,
     ) -> bool:
         """Enable Matrix Convergence criteria.
 
@@ -3079,6 +3064,8 @@ class Setup3DLayout(CommonSetup):
             props["MatrixConvEntry"] = val
         else:
             MatrixConvEntry = []
+            if custom_entries is None:
+                raise ValueError("custom_entries must be provided when entry_selection is 2.")
             for entry_custom in custom_entries:
                 entry = {
                     "Port1": entry_custom[0],
@@ -3127,6 +3114,10 @@ class SetupHFSS(Setup, PyAedtBase):
         self.__sweeps = SetupDict()
 
         Setup.__init__(self, app, name, props)
+
+    def _register_sweep(self, name: str, sweep: SweepHFSS) -> None:
+        """Register a sweep when AEDT does not expose object-oriented sweep data."""
+        self.__sweeps[name] = sweep
 
     @property
     def sweep_names(self) -> list[str]:
@@ -3374,7 +3365,7 @@ class SetupHFSS(Setup, PyAedtBase):
 
         sweepdata = self.add_sweep(name, sweep_type)
 
-        if not sweepdata:  # pragma: no cover
+        if not isinstance(sweepdata, SweepHFSS):  # pragma: no cover
             return False
 
         props = sweepdata.props.to_dict()
@@ -3461,7 +3452,7 @@ class SetupHFSS(Setup, PyAedtBase):
 
         sweepdata = self.add_sweep(name, sweep_type)
 
-        if not sweepdata:  # pragma: no cover
+        if not isinstance(sweepdata, SweepHFSS):  # pragma: no cover
             return False
 
         props = sweepdata.props.to_dict()
@@ -3562,7 +3553,7 @@ class SetupHFSS(Setup, PyAedtBase):
 
         sweepdata = self.add_sweep(name=name, sweep_type="Discrete")
 
-        if not sweepdata:  # pragma: no cover
+        if not isinstance(sweepdata, SweepHFSS):  # pragma: no cover
             return False
 
         if add_subranges and isinstance(freq, list) and isinstance(save_single_field, list):
@@ -3665,13 +3656,14 @@ class SetupHFSS(Setup, PyAedtBase):
         >>> setup.get_sweep(sweep.name)
 
         """
-        if name and name in self.sweep_names:
+        sweep_names = self.sweep_names
+        if name and name in sweep_names:
             if name not in self.__sweeps:
                 self.__sweeps[name] = SweepHFSS(setup=self, name=name, props={})
             return self.__sweeps[name]
         else:
-            if self.sweep_names:
-                sweep_name = self.sweep_names[0]
+            if sweep_names:
+                sweep_name = sweep_names[0]
                 if not self.__sweeps:
                     self.__sweeps[sweep_name] = SweepHFSS(setup=self, name=sweep_name, props={})
                 return self.__sweeps[sweep_name]
@@ -3816,7 +3808,9 @@ class SetupHFSS(Setup, PyAedtBase):
         return self.update(props)
 
     @pyaedt_function_handler()
-    def enable_adaptive_setup_multifrequency(self, frequencies: list, max_delta_s: float | int = 0.02) -> bool:
+    def enable_adaptive_setup_multifrequency(
+        self, frequencies: list, max_delta_s: float | int | list[float | int] = 0.02
+    ) -> bool:
         """Enable HFSS multi-frequency setup.
 
         Parameters
@@ -3853,7 +3847,7 @@ class SetupHFSS(Setup, PyAedtBase):
         # A known case is the setup automatically created by setting auto-open region.
         i = 0
         for f in frequencies:
-            if isinstance(max_delta_s, float):
+            if isinstance(max_delta_s, (int, float)):
                 if isinstance(f, (int, float)):
                     f = f"{f}GHz"
                 multi[f] = [max_delta_s]
@@ -3919,7 +3913,7 @@ class SetupHFSS(Setup, PyAedtBase):
         >>> setup1.use_matrix_convergence(entry_selection=1, ignore_phase_when_mag_is_less_than=1.0)
 
         """
-        conv_data = {}
+        conv_data: dict[str, Any] = {}
         if entry_selection == 0:
             conv_data = {
                 "AllEntries": True,
@@ -4801,6 +4795,10 @@ class SetupQ3D(Setup, PyAedtBase):
 
         Setup.__init__(self, app, name, props)
 
+    def _register_sweep(self, name: str, sweep: SweepMatrix) -> None:
+        """Register a sweep when AEDT does not expose object-oriented sweep data."""
+        self.__sweeps[name] = sweep
+
     @property
     def sweep_names(self) -> list[str]:
         """Return the available sweep names.
@@ -5139,7 +5137,7 @@ class SetupQ3D(Setup, PyAedtBase):
 
         sweepdata = self.add_sweep(name, sweep_type)
 
-        if not sweepdata:  # pragma: no cover
+        if not isinstance(sweepdata, SweepMatrix):  # pragma: no cover
             return False
 
         props = sweepdata.props.to_dict()
@@ -5223,7 +5221,7 @@ class SetupQ3D(Setup, PyAedtBase):
 
         sweepdata = self.add_sweep(name, sweep_type)
 
-        if not sweepdata:  # pragma: no cover
+        if not isinstance(sweepdata, SweepMatrix):  # pragma: no cover
             return False
 
         props = sweepdata.props.to_dict()
@@ -5322,7 +5320,7 @@ class SetupQ3D(Setup, PyAedtBase):
 
         sweepdata = self.add_sweep(name, "Discrete")
 
-        if not sweepdata:  # pragma: no cover
+        if not isinstance(sweepdata, SweepMatrix):  # pragma: no cover
             return False
 
         if add_subranges and isinstance(freq, list) and isinstance(save_single_field, list):
@@ -5380,7 +5378,7 @@ class SetupQ3D(Setup, PyAedtBase):
         elif name in self.sweep_names:
             name = generate_unique_name(name)
 
-        sweep_props = copy.deepcopy(SweepQ3D)
+        sweep_props: dict[str, Any] = copy.deepcopy(SweepQ3D)
         sweep_props["Type"] = sweep_type
         if sweep_type == "Discrete":
             sweep_props.update(
@@ -5440,13 +5438,14 @@ class SetupQ3D(Setup, PyAedtBase):
         >>> sweep2 = setup.get_sweep(sweep1.name)
 
         """
-        if name and name in self.sweep_names:
+        sweep_names = self.sweep_names
+        if name and name in sweep_names:
             if name not in self.__sweeps:
                 self.__sweeps[name] = SweepMatrix(setup=self, name=name, props={})
             return self.__sweeps[name]
         else:
-            if self.sweep_names:
-                sweep_name = self.sweep_names[0]
+            if sweep_names:
+                sweep_name = sweep_names[0]
                 if not self.__sweeps:
                     self.__sweeps[sweep_name] = SweepMatrix(setup=self, name=sweep_name, props={})
                 return self.__sweeps[sweep_name]
