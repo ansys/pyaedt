@@ -25,7 +25,7 @@
 from __future__ import annotations
 
 import copy
-import os.path
+from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
 
@@ -39,9 +39,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.props import Props as MeshProps
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
-from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modules.mesh import MeshOperation
 
 if TYPE_CHECKING:
@@ -629,13 +627,13 @@ class MeshRegion(MeshRegionBase, BinaryTreeNode, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def create(self) -> bool:
+    def create(self) -> MeshRegion:
         """Create a mesh region.
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`ansys.aedt.core.modules.mesh_icepak.MeshRegion`
+            The created mesh operation.
 
         References
         ----------
@@ -973,7 +971,7 @@ class IcepakMesh(PyAedtBase):
         --------
         >>> from ansys.aedt.core import Icepak
         >>> app = Icepak()
-        box = app.modeler.create_box([5, 5, 5], [20, 50, 80])
+        >>> box = app.modeler.create_box([5, 5, 5], [20, 50, 80])
         >>> app.mesh.assign_mesh_region(assignment=box.name)
 
         """
@@ -1009,9 +1007,7 @@ class IcepakMesh(PyAedtBase):
 
         mesh_region = MeshRegion(mesh=self, name=name, props=props)
 
-        mesh_region.create()
-
-        return mesh_region
+        return mesh_region.create()
 
     @pyaedt_function_handler()
     def assign_mesh_level(self, mesh_order: dict, name: str | None = None) -> list[MeshOperation] | bool:
@@ -1020,9 +1016,8 @@ class IcepakMesh(PyAedtBase):
         Parameters
         ----------
         mesh_order : dict
-            Dictionary where the key is the object name and the value is
-            the mesh level.
-        name :  str, optional
+            Dictionary where the key is the object name and the value is the mesh level.
+        name : str, optional
             Name of the mesh operation. The default is ``None``.
 
         Returns
@@ -1036,9 +1031,10 @@ class IcepakMesh(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.mesh_icepak import IcepakMesh
-        >>> obj = IcepakMesh()
-        >>> obj.assign_mesh_level(mesh_order={"Name": "Value"})
+        >>> from ansys.aedt.core import Icepak
+        >>> app = Icepak()
+        >>> box = app.modeler.create_box([5, 5, 5], [20, 50, 80])
+        >>> app.mesh.assign_mesh_level(mesh_order={box.name: 2})
 
         """
         level_order = {}
@@ -1047,177 +1043,30 @@ class IcepakMesh(PyAedtBase):
                 level_order[mesh_order[obj]] = []
             level_order[mesh_order[obj]].append(obj)
         list_meshops = []
+
         for level in level_order:
             if name:
                 name = generate_unique_name(name, "L_" + str(level))
             else:
                 name = generate_unique_name("Icepak", "L_" + str(level))
-            props = dict({"Enable": True, "Level": str(level), "Objects": level_order[level]})
-            mop = MeshOperation(self, name, props, "Icepak")
-            mop.create()
-            self.meshoperations.append(mop)
-            list_meshops.append(name)
+
+            props = {
+                "Enable": True,
+                "Local Mesh Parameters Enabled": False,
+                "Objects": level_order[level],
+                "MaxLevel": str(level),
+                "MinLevel": str(level),
+                "IncrLevel": "0",
+                "Mesh Reuse Enabled": False,
+                "Mesh Reuse File": "",
+                "Mesh Object(s) Separately Enabled": False,
+            }
+
+            mop = MeshOperation(self, name, props)
+
+            list_meshops.append(mop.create())
+
         return list_meshops
-
-    @pyaedt_function_handler()
-    def assign_mesh_from_file(self, assignment: list, file_name: str, name: str = None) -> MeshOperation | bool:
-        """Assign a mesh from a file to objects.
-
-        Parameters
-        ----------
-        assignment : list
-            List of objects to apply the mesh file to.
-        file_name :  str
-            Full path to the mesh (MSH) file.
-        name :  str, optional
-            Name of the mesh operations. Default is ``None``.
-
-        Returns
-        -------
-         :class:`ansys.aedt.core.modules.mesh.MeshOperation`
-            Mesh Operation object. ``False`` when failed.
-
-        References
-        ----------
-        >>> oModule.AssignMeshOperation
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.mesh_icepak import IcepakMesh
-        >>> obj = IcepakMesh()
-        >>> obj.assign_mesh_from_file(assignment="Box1", file_name="example.txt")
-
-        """
-        objs = self._app.modeler.convert_to_selections(assignment, True)
-        if name:
-            name = generate_unique_name("MeshFile")
-        else:
-            name = generate_unique_name("MeshFile")
-        props = dict({"Enable": True, "MaxLevel": str(0), "MinLevel": str(0), "Objects": objs})
-        props["Local Mesh Parameters Enabled"] = False
-        props["Mesh Reuse Enabled"] = True
-        props["Mesh Reuse File"] = file_name
-        props["Local Mesh Parameters Type"] = "3DPolygon Local Mesh Parameters"
-        props["Height count"] = "0"
-        props["Top height"] = "0mm"
-        props["Top ratio"] = "0"
-        props["Bottom height"] = "0mm"
-        props["Bottom ratio"] = "0"
-        mop = MeshOperation(self, name, props, "Icepak")
-        if mop.create():
-            self.meshoperations.append(mop)
-            return mop
-        return False
-
-    @pyaedt_function_handler()
-    def assign_priorities(self, assignment: list[list[Object3d | UserDefinedComponent | str]]) -> bool:
-        """Set objects priorities.
-
-        Parameters
-        ----------
-        assignment : List[List[Union[Object3d, UserDefinedComponent, str]
-            List of lists of objects. Each list corresponds to one priority level from low to high.
-            This means that the first list has the lowest priority while the last list
-            has the highest priority. Objects not explicitly passed in the lists are assigned
-            to a priority level lower than the objects in the first list.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, "False" when failed.
-
-        References
-        ----------
-        >>> oEditor.UpdatePriorityList
-
-        Examples
-        --------
-        >>> ipk.mesh.assign_priorities([["Box1", "Rectangle1"], ["Box2", "Fan1_1"], ["Heatsink1_1"]])
-
-        """
-        if not assignment or not isinstance(assignment, list) or not isinstance(assignment[0], list):
-            raise AttributeError("``assignment`` input must be a list of lists.")
-        props = {"PriorityListParameters": []}
-        self._app.logger.info("Parsing input objects information for priority assignment. This operation can take time")
-        udc = self._modeler.user_defined_components
-        udc._parse_objs()
-        for level, objects in enumerate(assignment):
-            level += 1
-            if isinstance(objects[0], str):
-                objects = [self._modeler.objects_by_name.get(o, udc.get(o, None)) for o in objects]
-            obj_3d = [
-                o
-                for o in objects
-                if (isinstance(o, Object3d) and o.is_3d)
-                or (isinstance(o, UserDefinedComponent) and any(p.is_3d for p in o.parts.values()))
-            ]
-            obj_2d = [
-                o
-                for o in objects
-                if (isinstance(o, Object3d) and not o.is_3d)
-                or (isinstance(o, UserDefinedComponent) and any(not p.is_3d for p in o.parts.values()))
-            ]
-            if obj_3d:
-                level_3d = {
-                    "EntityList": ", ".join([o.name for o in obj_3d]),
-                    "PriorityNumber": level,
-                    "PriorityListType": "3D",
-                }
-                if all(isinstance(o, Object3d) for o in obj_3d):
-                    level_3d["EntityType"] = "Object"
-                elif all(isinstance(o, UserDefinedComponent) for o in obj_3d):
-                    level_3d["EntityType"] = "Component"
-                else:
-                    raise AttributeError("Cannot assign components and parts on the same level.")
-                props["PriorityListParameters"].append(level_3d)
-            if obj_2d:
-                level_2d = {
-                    "EntityList": ", ".join([o.name for o in obj_2d]),
-                    "PriorityNumber": level,
-                    "PriorityListType": "2D",
-                }
-                if all(isinstance(o, Object3d) for o in obj_2d):
-                    level_2d["EntityType"] = "Object"
-                elif all(isinstance(o, UserDefinedComponent) for o in obj_2d):
-                    level_2d["EntityType"] = "Component"
-                else:
-                    raise AttributeError("Cannot assign components and parts on the same level.")
-                props["PriorityListParameters"].append(level_2d)
-        props = {"UpdatePriorityListData": props}
-        self._app.logger.info("Input objects information for priority assignment completed.")
-        args = []
-        _dict2arg(props, args)
-        self._modeler.oeditor.UpdatePriorityList(args[0])
-        return True
-
-    @pyaedt_function_handler()
-    def generate_mesh(self, name: str = None) -> bool:
-        """Generate the mesh for a given setup name.
-
-        Parameters
-        ----------
-        name : str, optional
-            Name of the design to mesh. Default is ``None`` in which case the first available setup will be selected.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oDesign.GenerateMesh
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.mesh_icepak import IcepakMesh
-        >>> obj = IcepakMesh()
-        >>> obj.generate_mesh(name="MyObject")
-
-        """
-        if name is None:
-            name = []
-        return self._odesign.GenerateMesh(name) == 0
 
     @pyaedt_function_handler()
     def assign_mesh_level_to_group(
@@ -1226,8 +1075,8 @@ class IcepakMesh(PyAedtBase):
         group_name: str,
         enable_local_mesh_parameters: bool = False,
         local_mesh_parameters: str = "No local mesh parameters",
-        name: str = None,
-    ) -> MeshOperation:
+        name: str | None = None,
+    ) -> MeshOperation | bool:
         """Assign a mesh level to a group.
 
         Parameters
@@ -1253,40 +1102,44 @@ class IcepakMesh(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.mesh_icepak import IcepakMesh
-        >>> obj = IcepakMesh()
-        >>> obj.assign_mesh_level_to_group(mesh_level=1, group_name=1)
+        >>> from ansys.aedt.core import Icepak
+        >>> app = Icepak()
+        >>> box1 = app.modeler.create_box([5, 5, 5], [20, 50, 80])
+        >>> box2 = app.modeler.create_box([10, 10, 10], [50, 50, 2])
+        >>> group = app.modeler.create_group([box1.name, box2.name], group_name="mygroup")
+        >>> app.mesh.assign_mesh_level_to_group(mesh_level=1, group_name=group)
 
         """
-        if name:
-            for el in self.meshoperations:
-                if el.name == name:
-                    name = generate_unique_name(name)
-                    break
-        else:
+        if not name:
             name = generate_unique_name("MeshLevel")
-        props = dict(
-            {
-                "Enable": True,
-                "Level": mesh_level,
-                "Local Mesh Parameters Enabled": enable_local_mesh_parameters,
-                "Groups": [str(group_name)],
-                "Local Mesh Parameters Type": local_mesh_parameters,
-            }
-        )
-        mop = MeshOperation(self, name, props, "Icepak")
-        mop.create()
-        self.meshoperations.append(mop)
-        return mop
+        elif name in self.operation_names:
+            name = generate_unique_name(name)
 
-    def assign_mesh_reuse(self, assignment: list, mesh_file: str, name: str = None) -> MeshOperation | bool:
+        props = {
+            "Enable": True,
+            "Local Mesh Parameters Enabled": enable_local_mesh_parameters,
+            "MaxLevel": mesh_level,
+            "MinLevel": mesh_level,
+            "IncrLevel": "0",
+            "Groups": [str(group_name)],
+            "Local Mesh Parameters Type": local_mesh_parameters,
+        }
+
+        mop = MeshOperation(self, name, props)
+
+        return mop.create()
+
+    @pyaedt_function_handler()
+    def assign_mesh_reuse(
+        self, assignment: list, mesh_file: str | Path, name: str | None = None
+    ) -> MeshOperation | bool:
         """Assign a mesh file to objects.
 
         Parameters
         ----------
         assignment : str or list
             Names of objects to which the mesh file is assignment.
-        mesh_file : str
+        mesh_file : str or :class:`pathlib.Path`
             Path to the mesh file.
         name : str, optional
             Name of the mesh operation. The default is ``None``, in which case it will be
@@ -1302,28 +1155,36 @@ class IcepakMesh(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.mesh_icepak import IcepakMesh
-        >>> obj = IcepakMesh()
-        >>> obj.assign_mesh_reuse(assignment="Box1", mesh_file="example.txt")
+        >>> from ansys.aedt.core import Icepak
+        >>> app = Icepak()
+        >>> box1 = app.modeler.create_box([5, 5, 5], [20, 50, 80])
+        >>> app.mesh.assign_mesh_reuse(assignment=box1.name, mesh_file="example.msh")
 
         """
-        if not os.path.exists(mesh_file):
-            self._app.logger.error("Mesh file does not exist.")
-            return False
-        if name:
-            for el in self.meshoperations:
-                if el.name == name:
-                    name = generate_unique_name(name)
-                    break
-        else:
-            name = generate_unique_name("MeshReuse")
-        if not isinstance(assignment, list):
-            assignment = [assignment]
-        props = dict({"Enable": True, "Mesh Reuse Enabled": True, "Mesh Reuse File": mesh_file, "Objects": assignment})
-        mop = MeshOperation(self, name, props, "Icepak")
-        mop.create()
-        self.meshoperations.append(mop)
-        return mop
+        mesh_file = Path(mesh_file)
+        if not mesh_file.is_file():
+            raise FileNotFoundError(f"Mesh file does not exist: {mesh_file}.")
+
+        objs = self._app.modeler.convert_to_selections(assignment, True)
+
+        if not name:
+            name = generate_unique_name("MeshFile")
+        elif name in self.operation_names:
+            name = generate_unique_name(name)
+
+        props = {
+            "Enable": True,
+            "Local Mesh Parameters Enabled": False,
+            "Objects": objs,
+            "MaxLevel": "0",
+            "MinLevel": "0",
+            "IncrLevel": "0",
+            "Mesh Reuse Enabled": True,
+            "Mesh Reuse File": str(mesh_file),
+            "Mesh Object(s) Separately Enabled": False,
+        }
+        mop = MeshOperation(self, name, props)
+        return mop.create()
 
     @pyaedt_function_handler()
     def get_mesh_region(self, name: str) -> MeshRegion | None:
@@ -1332,7 +1193,7 @@ class IcepakMesh(PyAedtBase):
         Parameters
         ----------
         name : str
-            Name of the setup.
+            Name of the mesh region.
 
         Returns
         -------
@@ -1354,6 +1215,67 @@ class IcepakMesh(PyAedtBase):
                     self.__regions[name] = self.global_region
             return self.__regions[name]
         return None
+
+    @pyaedt_function_handler()
+    def get_mesh_operation(self, name: str) -> MeshOperation | None:
+        """Get mesh operation.
+
+        Parameters
+        ----------
+        name : str
+            Name of the mesh operation.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.mesh.MeshOperation`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Icepak
+        >>> app = Icepak()
+        >>> operation_names = app.mesh.operation_names
+        >>> op2 = app.mesh.get_mesh_operation(operation_names[1])
+
+        """
+        if name in self.operation_names:
+            if name not in self.__operations:
+                self.__operations[name] = MeshOperation(mesh=self, name=name, props={})
+            return self.__operations[name]
+        return None
+
+    @pyaedt_function_handler()
+    def generate_mesh(self, name: str | None = None) -> bool:
+        """Generate the mesh for a given setup name.
+
+        Parameters
+        ----------
+        name : str, optional
+            Name of the design to mesh. Default is ``None`` in which case the first available setup will be selected.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oDesign.GenerateMesh
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Icepak
+        >>> app = Icepak()
+        >>> box = app.modeler.create_box([5, 5, 5], [20, 50, 80])
+        >>> setup = app.create_setup()
+        >>> app.mesh.generate_mesh(name=setup.name)
+
+        """
+        setup_names = self._app.setup_names
+        if name is None and setup_names:
+            name = self._app.setup_names[0]
+        elif not setup_names:
+            raise AEDTRuntimeError("At least one setup has to be defined.")
+        return self._odesign.GenerateMesh(name) == 0
 
     @pyaedt_function_handler()
     def _get_mesh_names(self) -> tuple[list[str], list[str]]:

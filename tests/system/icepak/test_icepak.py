@@ -1832,3 +1832,23 @@ def test_get_max_temp_location_steady_state(max_temp_app) -> None:
     assert isinstance(min_temp, tuple)
     assert len(min_temp[0]) == 3
     assert isinstance(min_temp[1], float)
+
+
+def test_mesh_priority(board_ipk_app) -> None:
+    b = board_ipk_app.modeler.create_box([0, 0, 0], [20, 50, 80])
+    board = board_ipk_app.create_ipk_3dcomponent_pcb(
+        "Board",
+        LINK_DATA,
+        SOLUTION_FREQ,
+        RESOLUTION,
+        extent_type="Polygon",
+        custom_x_RESOLUTION=400,
+        custom_y_RESOLUTION=500,
+    )
+    fan = board_ipk_app.create_fan(name="TestFan", is_2d=True)
+    rect = board_ipk_app.modeler.create_rectangle(0, [0, 0, 0], [1, 2], name="TestRectangle")
+    assert board_ipk_app.modeler.assign_priorities([[fan.name, board.name], [b.name, rect.name]])
+
+
+def test_mesh_priority_3d_comp(comp_priority_app) -> None:
+    assert comp_priority_app.mesh.assign_priorities([["all_2d_objects1"], ["IcepakDesign1_1"]])

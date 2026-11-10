@@ -26,6 +26,7 @@
 
 from __future__ import annotations
 
+import copy
 import os
 import shutil
 from typing import TYPE_CHECKING
@@ -184,7 +185,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         >>> surface.operation_type
 
         """
-        if not self.__operation_type:
+        if not self.__operation_type and self._app.design_type != "Icepak":
             self.__operation_type = self.props.get("Type", None)
         return self.__operation_type
 
@@ -215,6 +216,13 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
                     assignments = [item.strip() for item in assignment.split(",") if item.strip()]
                 elif isinstance(assignment, list):
                     assignments = assignment
+
+        # Fallback, previous to 2025R2, "Assignment" was not available in child_object
+        if not assignments:
+            if "Objects" in self.props:
+                assignments = list(self.props["Objects"])
+            elif "Groups" in self.props:
+                assignments = list(self.props["Groups"])
 
         return assignments
 
@@ -250,7 +258,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
                     key = [k for k, v in mesh_props.items() if v == key][0]
                 props[key] = value
 
-            if "Assignment" in props:
+            if props and "Assignment" in props:
                 assignment = props["Assignment"]
                 if "Face_" in assignment:
                     props["Faces"] = [
@@ -262,29 +270,8 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
                     ]
                 else:
                     props["Objects"] = assignment
-            elif not (props.get("Edges") or props.get("Faces") or props.get("Objects")):
-                props["Objects"] = []
-                props["Faces"] = []
-                props["Edges"] = []
-                assigned_id = []
-                if self._app._aedt_version >= "2023.1":
-                    # GetMeshOpAssignment is not available in 2022 R2 and earlier versions
-                    assigned_id = self._app.omeshmodule.GetMeshOpAssignment(self._name)
-                for comp_id in assigned_id:
-                    if int(comp_id) in self._app.modeler.objects.keys():
-                        props["Objects"].append(self._app.oeditor.GetObjectNameByID(comp_id))
-                        continue
-                    for comp in self._app.modeler.object_list:
-                        faces = comp.faces
-                        face_ids = [face.id for face in faces]
-                        if int(comp_id) in face_ids:
-                            props["Faces"].append(int(comp_id))
-                            continue
-                        edges = comp.edges
-                        edge_ids = [edge.id for edge in edges]
-                        if int(comp_id) in edge_ids:
-                            props["Edges"].append(int(comp_id))
-                            continue
+            else:
+                props = self._get_props_fallback()
 
         self._legacy_props = props
 
@@ -335,6 +322,8 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
                 self._app.omeshmodule.Rename(self.name, str(meshop_name))
             elif "RenameOp" in dir(self._app.omeshmodule):
                 self._app.omeshmodule.RenameOp(self.name, str(meshop_name))
+            elif "Name" in dir(self.child_object):
+                self.child_object.Name = str(meshop_name)
             else:  # pragma: no cover
                 raise AEDTRuntimeError("AEDT API does not support mesh operation rename.")
 
@@ -387,12 +376,12 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
             self._app.omeshmodule.AssignEdgeCutLayerOp(self._get_args(props))
         elif self.operation_type == "DensityControlBased":
             self._app.omeshmodule.AssignDensityControlOp(self._get_args())
-        elif self.operation_type == "Icepak":
-            self._app.omeshmodule.AssignMeshOperation(self._get_args())
         elif self.operation_type == "CurvatureExtraction":
             self._app.omeshmodule.AssignCurvatureExtractionOp(self._get_args())
         elif self.operation_type in ["CylindricalGap", "AssignCylindricalGapOp"]:
             self._app.omeshmodule.AssignCylindricalGapOp(self._get_args())
+        elif self._app.design_type == "Icepak":
+            self._app.omeshmodule.AssignMeshOperation(self._get_args())
         else:
             return False
 
@@ -402,7 +391,10 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         if not self._has_getobject:
             # If a new mesh operation is created, and GetObjData is not available,
             # it is needed to populated setups dictionary because if not props will be empty.
-            self._app.mesh._Mesh__operations[self.name] = self
+            if self._app.design_type == "Icepak":
+                self._app.mesh._IcepakMesh__operations[self.name] = self
+            else:
+                self._app.mesh._Mesh__operations[self.name] = self
 
         return self
 
@@ -561,6 +553,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         References
         ----------
         >>> oModule.DeleteOp
+        >>> oModule.DeleteMeshRegions
 
         Examples
         --------
@@ -572,7 +565,71 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         >>> surface.delete()
 
         """
-        self._app.omeshmodule.DeleteOp([self.name])
+        omeshmodule = dir(self._app.omeshmodule)
+        if "DeleteOp" in omeshmodule:
+            self._app.omeshmodule.DeleteOp([self.name])
+        elif "DeleteMeshOperations" in omeshmodule:
+            self._app.omeshmodule.DeleteMeshOperations([self.name])
+        else:  # pragma: no cover
+            return False
+        return True
+
+    @pyaedt_function_handler()
+    def enable(self) -> bool:
+        """Enable a setup.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.EditSetup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> surface = hfss.mesh.assign_surface_mesh(o.name, 3, "Surface")
+        >>> surface.enable()
+
+        """
+        if "Enable" in self.props:
+            self.props["Enable"] = True
+        else:  # pragma: no cover
+            self._app.logger.warning("No enabled setup found.")
+            return False
+        return True
+
+    @pyaedt_function_handler()
+    def disable(self) -> bool:
+        """Disable a setup.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.EditSetup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> surface = hfss.mesh.assign_surface_mesh(o.name, 3, "Surface")
+        >>> surface.disable()
+
+        """
+        if "Enable" in self.props:
+            self.props["Enable"] = False
+        else:  # pragma: no cover
+            self._app.logger.warning("No enabled setup found.")
+            return False
         return True
 
     @pyaedt_function_handler()
@@ -667,18 +724,48 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
                     props["Layer Thickenss"] = props["Layer Thickness"]
                     del props["Layer Thickness"]
                 self._app.omeshmodule.EditEdgeCutLayerOp(self.name, aedt_props)
-            elif self.operation_type == "Icepak":
-                self._app.omeshmodule.EditMeshOperation(self.name, aedt_props)
             elif self.operation_type == "CurvatureExtraction":
                 self._app.omeshmodule.EditCurvatureExtractionOp(self.name, aedt_props)
             elif self.operation_type == "CylindricalGap":
                 self._app.omeshmodule.EditCylindricalGapOp(self.name, aedt_props)
+            elif self._app.design_type == "Icepak":
+                self._app.omeshmodule.EditMeshOperation(self.name, aedt_props)
             else:
                 return False
 
         if not self._has_getobject:
             self._legacy_props = props
         return True
+
+    def _get_props_fallback(self) -> dict:
+        """Retrieve properties using fallback method from design_properties.
+
+        Returns
+        -------
+        dict
+            Properties dictionary from design_properties.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Icepak
+        >>> icepak = Icepak()
+        >>> region = icepak.mesh.regions[0]
+        >>> region._get_props_fallback()
+
+        """
+        dp = self._app.design_properties
+        if not isinstance(dp, dict):  # pragma: no cover
+            return {}
+        if self._app.design_type == "Icepak":
+            mesh_regions = dp.get("MeshRegion", {})
+            mesh_setup = mesh_regions.get("MeshSetup", {})
+            mesh_operation = mesh_setup.get("MeshOperations", {})
+
+            if self._name in mesh_operation:
+                return mesh_operation.get(self._name, {})
+            elif self._name in mesh_setup:
+                return mesh_setup.get(self._name, {})
+        return {}
 
 
 class Mesh(PyAedtBase):
@@ -2063,3 +2150,36 @@ class Mesh(PyAedtBase):
                 self.__operations[name] = MeshOperation(mesh=self, name=name, props={})
             return self.__operations[name]
         return None
+
+    @pyaedt_function_handler()
+    def _get_mesh_3d_components(self, mesh_names) -> tuple[list, list]:
+        component_regions = []
+        component_operations = []
+
+        dp = self._app.design_properties
+        if not isinstance(dp, dict):
+            return component_regions, component_operations
+
+        mesh_region = dp.get("MeshRegion", {})
+
+        mesh_setup = copy.deepcopy(mesh_region.get("MeshSetup", {}))
+
+        if "MeshRegions" in mesh_setup:
+            for region_name, region_settings in mesh_setup["MeshRegions"].items():
+                if isinstance(region_settings, dict) and region_name not in mesh_names:
+                    component_regions.append(region_name)
+            del mesh_setup["MeshRegions"]
+
+        if "MeshOperations" in mesh_setup:
+            for operation_name, operation_settings in mesh_setup["MeshOperations"].items():
+                if isinstance(operation_settings, dict) and operation_name not in mesh_names:
+                    component_operations.append(operation_name)
+            del mesh_setup["MeshOperations"]
+
+        for region_name, region_settings in mesh_setup.items():
+            if isinstance(region_settings, dict) and region_name not in mesh_names:
+                if region_settings.get("DType") == "RegionT":
+                    component_regions.append(region_name)
+                elif region_settings.get("DType") == "OpT":
+                    component_operations.append(region_name)
+        return component_regions, component_operations

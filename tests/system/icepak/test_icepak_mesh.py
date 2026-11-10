@@ -22,44 +22,39 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import shutil
+
 import pytest
 
 from ansys.aedt.core.icepak import Icepak
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from ansys.aedt.core.modules.mesh import MeshOperation
 from ansys.aedt.core.modules.mesh_icepak import GlobalMeshRegion
 from ansys.aedt.core.modules.mesh_icepak import MeshRegion
+from tests import TESTS_GENERAL_PATH
+from tests import TESTS_ICEPAK_PATH
 from tests.conftest import DESKTOP_VERSION
-from tests.conftest import SYSTEM_GENERAL_TEST_PREFIX
 
-MESH_PROJECT = "mesh_operations"
-BOARD_3DL = "FilterBoard_H3DL"
-BOARD_IPK = "FilterBoard"
-TEST_SUBFOLDER = "icepak"
-
-# Filter board import
-PROJ_NAME = None
-DESIGN_NAME = "cutout3"
-SOLUTION_NAME = "HFSS Setup 1 : Last Adaptive"
-EN_FORCE_SIMULATION = True
-EN_PRESERVE_RESULTS = True
-LINK_DATA = [PROJ_NAME, DESIGN_NAME, SOLUTION_NAME, EN_FORCE_SIMULATION, EN_PRESERVE_RESULTS]
-SOLUTION_FREQ = "2.5GHz"
-RESOLUTION = 2
+MESH_PROJECT = "mesh_operations_261"
+TEST_SUBFOLDER = "TMesh"
 
 
 @pytest.fixture
 def mesh_app(add_app_example):
     app = add_app_example(
-        project=MESH_PROJECT, subfolder=SYSTEM_GENERAL_TEST_PREFIX / "example_models" / "TMesh", application=Icepak
+        project=MESH_PROJECT, subfolder=TESTS_GENERAL_PATH / "example_models" / "TMesh", application=Icepak
     )
     yield app
     app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture
-def board_ipk_app(add_app_example):
-    app = add_app_example(project=BOARD_IPK, application=Icepak, subfolder=TEST_SUBFOLDER)
+def mesh_app_231(add_app_example):
+    app = add_app_example(
+        project="mesh_operations_231", subfolder=TESTS_GENERAL_PATH / "example_models" / "TMesh", application=Icepak
+    )
     yield app
-    app.close_project(save=False)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture
@@ -67,6 +62,80 @@ def aedt_app(add_app):
     app = add_app(application=Icepak)
     yield app
     app.close_project(app.project_name, save=False)
+
+
+@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
+def test_mesh_init(mesh_app) -> None:
+    operation_names = mesh_app.mesh.operation_names
+    assert len(operation_names) == 2
+
+    op1 = mesh_app.mesh.operations[0]
+    assert isinstance(op1, MeshOperation)
+    assert op1.assignment == ["Box2"]
+    assert op1.name == "MeshOperation1"
+
+    op2 = mesh_app.mesh.operations[1]
+    assert isinstance(op2, MeshOperation)
+    assert op2.assignment == [177]
+    assert op2.name == "IcepakDesign1_1_MeshOperation1"
+
+    region_names = mesh_app.mesh.region_names
+    assert len(region_names) == 3
+
+    region1 = mesh_app.mesh.regions[0]
+    assert isinstance(region1, GlobalMeshRegion)
+    assert region1.assignment == "Region"
+    assert region1.name == "Global"
+    assert region1["MinGapX"] == "0.16mm"
+
+    region2 = mesh_app.mesh.regions[1]
+    assert isinstance(region2, MeshRegion)
+    assert region2.assignment == ["MeshRegion1_SubRegion"]
+    assert region2.name == "MeshRegion1"
+    assert region2["MinGapX"] == "0.08mm"
+
+    region3 = mesh_app.mesh.regions[2]
+    assert isinstance(region3, MeshRegion)
+    assert region3.assignment == [177]
+    assert region3.name == "IcepakDesign1_1_MeshRegion1"
+    assert region3["MaxElementSizeX"] == "0.04mm"
+
+
+@pytest.mark.skipif(DESKTOP_VERSION != "2023.1", reason="Skipped on versions that are not 2023.1")
+def test_mesh_init_231(mesh_app_231) -> None:
+    operation_names = mesh_app_231.mesh.operation_names
+    assert len(operation_names) == 2
+
+    op1 = mesh_app_231.mesh.operations[0]
+    assert isinstance(op1, MeshOperation)
+    assert op1.assignment == [62]
+    assert op1.name == "MeshOperation1"
+
+    op2 = mesh_app_231.mesh.operations[1]
+    assert isinstance(op2, MeshOperation)
+    assert op2.assignment == [147]
+    assert op2.name == "IcepakDesign1_1_MeshOperation1"
+
+    region_names = mesh_app_231.mesh.region_names
+    assert len(region_names) == 3
+
+    region1 = mesh_app_231.mesh.regions[0]
+    assert isinstance(region1, GlobalMeshRegion)
+    assert region1.assignment == "Region"
+    assert region1.name == "Global"
+    assert region1["MinGapX"] == "1mm"
+
+    region2 = mesh_app_231.mesh.regions[1]
+    assert isinstance(region2, MeshRegion)
+    assert region2.assignment == [90]
+    assert region2.name == "MeshRegion1"
+    assert region2["MinGapX"] == "1mm"
+
+    region3 = mesh_app_231.mesh.regions[2]
+    assert isinstance(region3, MeshRegion)
+    assert region3.assignment == [175]
+    assert region3.name == "IcepakDesign1_1_MeshRegion1"
+    assert region3["MinGapX"] == "1mm"
 
 
 def test_global_mesh_icepak(aedt_app) -> None:
@@ -90,6 +159,8 @@ def test_global_mesh_icepak(aedt_app) -> None:
     global_mesh_region.manual_settings = False
     assert not global_mesh_region.props["UserSpecifiedSettings"]
     assert "MinGapX" in global_mesh_region.props
+
+    assert not aedt_app.mesh.get_mesh_region("invented")
 
 
 def test_assign_region(aedt_app) -> None:
@@ -151,122 +222,86 @@ def test_assign_region(aedt_app) -> None:
         assert mesh_region3.name in aedt_app.mesh.region_names
 
 
-def test_mesh_priority(board_ipk_app) -> None:
-    b = board_ipk_app.modeler.create_box([0, 0, 0], [20, 50, 80])
-    board = board_ipk_app.create_ipk_3dcomponent_pcb(
-        "Board",
-        LINK_DATA,
-        SOLUTION_FREQ,
-        RESOLUTION,
-        extent_type="Polygon",
-        custom_x_RESOLUTION=400,
-        custom_y_RESOLUTION=500,
+def test_mesh_level(aedt_app) -> None:
+    box1 = aedt_app.modeler.create_box([0, 0, 0], [50, 50, 2])
+    box2 = aedt_app.modeler.create_box([10, 10, 10], [50, 50, 2])
+    ops1 = aedt_app.mesh.assign_mesh_level({box1.name: 2, box2.name: 4})
+
+    assert ops1[0].name in aedt_app.mesh.operation_names
+    assert ops1[1].name in aedt_app.mesh.operation_names
+    assert ops1[0].name in aedt_app.mesh.operations
+
+    mesh_op = aedt_app.mesh.get_mesh_operation(ops1[0].name)
+    assert not mesh_op.operation_type
+    assert mesh_op.assignment == [box1.name]
+    assert str(mesh_op["MaxLevel"]) == "2"
+
+    # Edit
+    mesh_op["MaxLevel"] = "3"
+    assert str(mesh_op.props["MaxLevel"]) == "3"
+
+    assert mesh_op.disable()
+    assert not mesh_op.props["Enable"]
+    assert mesh_op.enable()
+    assert mesh_op.props["Enable"]
+
+    # Rename
+    name = mesh_op.name
+    mesh_op.name = "new_name"
+    assert "new_name" in aedt_app.mesh.operation_names
+    assert name not in aedt_app.mesh.operation_names
+    assert mesh_op.name == "new_name"
+    assert mesh_op.child_object
+
+    # Delete
+    name2 = mesh_op.name
+    mesh_op.delete()
+    assert name2 not in aedt_app.mesh.operation_names
+
+    ops2 = aedt_app.mesh.assign_mesh_level({box1.name: 2}, name="new_op")
+    assert ops2[0].name in aedt_app.mesh.operation_names
+
+    assert not aedt_app.mesh.get_mesh_operation("invented")
+
+
+def test_mesh_reused(aedt_app, test_tmp_dir) -> None:
+    box1 = aedt_app.modeler.create_box([0, 0, 0], [50, 50, 2])
+    box2 = aedt_app.modeler.create_box([10, 10, 10], [50, 50, 2])
+    mesh_file = shutil.copy2(
+        TESTS_ICEPAK_PATH / "example_models" / "icepak" / "CylinderMesh.msh",
+        test_tmp_dir / "CylinderMesh.msh",
     )
-    fan = board_ipk_app.create_fan(name="TestFan", is_2d=True)
-    rect = board_ipk_app.modeler.create_rectangle(0, [0, 0, 0], [1, 2], name="TestRectangle")
-    assert board_ipk_app.mesh.assign_priorities([[fan.name, board.name], [b.name, rect.name]])
+    op1 = aedt_app.mesh.assign_mesh_reuse(assignment=[box1.name, box2.name], mesh_file=mesh_file)
+
+    assert op1.name in aedt_app.mesh.operation_names
+    assert op1.assignment == [box1.name, box2.name]
+    assert op1["Mesh Reuse File"] == str(mesh_file)
+
+    op2 = aedt_app.mesh.assign_mesh_reuse(assignment=[box1.name, box2.name], mesh_file=mesh_file, name=op1.name)
+    assert op2.name in aedt_app.mesh.operation_names
+
+    with pytest.raises(FileNotFoundError):
+        aedt_app.mesh.assign_mesh_reuse(assignment=[box1.name, box2.name], mesh_file="invented")
 
 
-def test_mesh_level(usb_ipk_app) -> None:
-    assert usb_ipk_app.mesh.assign_mesh_level({"USB_Shiels": 2})
+def test_assign_mesh_operation(aedt_app) -> None:
+    box1 = aedt_app.modeler.create_box([0, 0, 0], [50, 50, 2])
+    box2 = aedt_app.modeler.create_box([10, 10, 10], [50, 50, 2])
+    group = aedt_app.modeler.create_group([box1.name, box2.name], group_name="mygroup")
+
+    op1 = aedt_app.mesh.assign_mesh_level_to_group(mesh_level=2, group_name=group)
+    assert op1.name in aedt_app.mesh.operation_names
+    assert op1.assignment == [group]
+
+    op2 = aedt_app.mesh.assign_mesh_level_to_group(mesh_level=1, group_name=group, name=op1.name)
+    assert op2.name in aedt_app.mesh.operation_names
+    assert op2.assignment == [group]
 
 
-def test_assign_mesh_operation(usb_ipk_app) -> None:
-    group_name = "Group1"
-    mesh_level_Filter = "2"
-    component_name = ["USB_ID"]
-    mesh_level_RadioPCB = "1"
-    assert usb_ipk_app.mesh.assign_mesh_level_to_group(mesh_level_Filter, group_name)
-    test = usb_ipk_app.mesh.assign_mesh_level_to_group(mesh_level_Filter, group_name, name="Test")
-    assert test
-    test2 = usb_ipk_app.mesh.assign_mesh_level_to_group(mesh_level_Filter, group_name, name="Test")
-    assert test.name != test2.name
-    test = usb_ipk_app.mesh.assign_mesh_region(component_name, mesh_level_RadioPCB, is_submodel=True)
-    assert test
-    assert test.delete()
-    test = usb_ipk_app.mesh.assign_mesh_region(["USB_ID"], mesh_level_RadioPCB)
-    assert test
-    assert test.delete()
-    b = usb_ipk_app.modeler.create_box([0, 0, 0], [1, 1, 1])
-    b.is_model = False
-    test = usb_ipk_app.mesh.assign_mesh_region([b.name])
-    assert test
-    assert test.delete()
-
-
-def test_generate_mesh(ipk_app) -> None:
-    setup = ipk_app.create_setup()
-    assert ipk_app.mesh.generate_mesh(setup.name)
-
-
-def test_mesh_priority_3d_comp(comp_priority_app) -> None:
-    assert comp_priority_app.mesh.assign_priorities([["all_2d_objects1"], ["IcepakDesign1_1"]])
-
-
-def test_mesh_reuse(ipk_app, test_tmp_dir) -> None:
-    _ = ipk_app.modeler.create_cylinder(1, [0, 0, 0], 5, 30)
-    # assert not ipk_app.mesh.assign_mesh_reuse(
-    #     cylinder.name,
-    #     str(test_tmp_dir / "nonexistent_cylinder_mesh.msh"),
-    # )
-    # file_mesh = shutil.copy2(
-    #     TESTS_ICEPAK_PATH / "example_models" / TEST_SUBFOLDER / "CylinderMesh.msh",
-    #     test_tmp_dir / "CylinderMesh.msh",
-    # )
-    # assert ipk_app.mesh.assign_mesh_reuse(cylinder.name, str(file_mesh))
-    # assert ipk_app.mesh.assign_mesh_reuse(
-    #     cylinder.name,
-    #     str(file_mesh),
-    #     "name_reuse",
-    # )
-    # assert ipk_app.mesh.assign_mesh_reuse(
-    #     cylinder.name,
-    #     str(file_mesh),
-    #     "name_reuse",
-    # )
-
-
-def test_global_mesh_region(ipk_app) -> None:
-    g_m_r = ipk_app.mesh.global_mesh_region
-    assert g_m_r
-    assert g_m_r.global_region.object.name == "Region"
-    assert g_m_r.global_region.padding_values == [
-        "50",
-        "50",
-        "50",
-        "50",
-        "50",
-        "50",
-    ] or g_m_r.global_region.padding_values == [50, 50, 50, 50, 50, 50]
-    assert g_m_r.global_region.padding_types == [
-        "Percentage Offset",
-        "Percentage Offset",
-        "Percentage Offset",
-        "Percentage Offset",
-        "Percentage Offset",
-        "Percentage Offset",
-    ]
-    g_m_r.global_region.positive_z_padding_type = "Absolute Offset"
-    g_m_r.global_region.positive_z_padding = "5 mm"
-    assert g_m_r.global_region.padding_types[-2] == "Absolute Offset"
-    assert g_m_r.global_region.padding_values[-2] == "5mm"
-    g_m_r.settings["MeshRegionResolution"] = 3
-    g_m_r.update()
-    assert g_m_r.settings["MeshRegionResolution"] == 3
-    g_m_r.manual_settings = True
-    with pytest.raises(KeyError):
-        _ = g_m_r.settings["MeshRegionResolution"]
-    g_m_r.settings["MaxElementSizeX"] = "500um"
-    g_m_r.update()
-    g_m_r.global_region.object.material_name = "Carbon Monoxide"
-    assert g_m_r.global_region.object.material_name == "Carbon Monoxide"
-
-
-def test_multiple_mesh_regions(ipk_app) -> None:
-    # test issue 5485
-    c1 = ipk_app.modeler.create_cylinder(orientation=0, origin=[0, 0, 0], radius=5, height=10)
-    c2 = ipk_app.modeler.create_cylinder(orientation=1, origin=[100, 100, 100], radius=2, height=15)
-    mesh_class = ipk_app.mesh
-    m1 = mesh_class.assign_mesh_region([c1.name])
-    m2 = mesh_class.assign_mesh_region([c2.name])
-    assert m1.assignment.name != m2.assignment.name
+def test_generate_mesh(aedt_app) -> None:
+    # This test should be the last one, because sometimes there is a pop-up window
+    with pytest.raises(AEDTRuntimeError):
+        aedt_app.mesh.generate_mesh()
+    setup = aedt_app.create_setup()
+    assert aedt_app.mesh.generate_mesh(setup.name)
+    assert aedt_app.mesh.generate_mesh()
