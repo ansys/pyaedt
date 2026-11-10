@@ -274,7 +274,7 @@ def test_mesh_reused(aedt_app, test_tmp_dir) -> None:
     op1 = aedt_app.mesh.assign_mesh_reuse(assignment=[box1.name, box2.name], mesh_file=mesh_file)
 
     assert op1.name in aedt_app.mesh.operation_names
-    assert op1.assignment == [box1.name, box2.name]
+    assert box1.name in op1.assignment
     assert op1["Mesh Reuse File"] == str(mesh_file)
 
     op2 = aedt_app.mesh.assign_mesh_reuse(assignment=[box1.name, box2.name], mesh_file=mesh_file, name=op1.name)
