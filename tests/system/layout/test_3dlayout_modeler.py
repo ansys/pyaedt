@@ -35,6 +35,8 @@ from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core.generic.file_utils import available_file_name
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from ansys.aedt.core.modeler.pcb.object_3d_layout import CoordinateSystems3DLayout
+from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 from tests import TESTS_GENERAL_PATH
 from tests import TESTS_LAYOUT_PATH
@@ -1396,6 +1398,22 @@ def test_create_coordinate_system(aedt_app) -> None:
 
     # If CS is renamed, it can not be deleted
     assert not cs2.delete()
+
+
+def test_coordinate_system_create(aedt_app) -> None:
+    """Test creating a Coordinate System"""
+    aedt_app.modeler.layers.add_layer(layer="Dummy")
+    primitives = Primitives3DLayout(aedt_app)
+    primitives.create_circle(layer="Dummy", x=0, y=0, radius="10mm")
+    cs = CoordinateSystems3DLayout(primitives)
+    cs.name = "DummyCS"
+    cs.origin = [1.0, 1.0]
+    cs_names = aedt_app.modeler.coordinate_system_names
+
+    cs.create()
+
+    assert cs.name not in cs_names
+    assert cs.name in aedt_app.modeler.coordinate_system_names
 
 
 def test_create_scattering(aedt_app) -> None:
