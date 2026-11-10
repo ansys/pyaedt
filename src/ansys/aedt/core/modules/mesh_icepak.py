@@ -28,6 +28,7 @@ import copy
 from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
+from typing import cast
 
 from ansys.aedt.core.application import _get_obj_data
 from ansys.aedt.core.application import _has_get_obj_data
@@ -37,6 +38,9 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import SetupDict
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.props import Props as MeshProps
+from ansys.aedt.core.generic.protocols import _OIcepakDesign
+from ansys.aedt.core.generic.protocols import _OMeshModule
+from ansys.aedt.core.generic.protocols import _OMeshObject
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
@@ -118,6 +122,10 @@ class MeshRegionBase:
     >>> icepak.mesh.global_region.manual_settings
 
     """
+
+    _has_getobject: bool
+    _legacy_props: dict
+    _name: str
 
     def __getitem__(self, key: str) -> Any:
         """Return a setup property by key.
@@ -598,7 +606,7 @@ class MeshRegion(MeshRegionBase, BinaryTreeNode, PyAedtBase):
 
         """
         try:
-            self._app.omeshmodule.EditMeshRegion(self.name, aedt_props)
+            cast(_OMeshModule, self._app.omeshmodule).EditMeshRegion(self.name, aedt_props)
         except Exception:  # pragma: no cover
             raise AEDTRuntimeError("Update mesh region failed.")
 
@@ -623,7 +631,7 @@ class MeshRegion(MeshRegionBase, BinaryTreeNode, PyAedtBase):
         >>> region.delete()
 
         """
-        self._app.omeshmodule.DeleteMeshRegions([self.name])
+        cast(_OMeshModule, self._app.omeshmodule).DeleteMeshRegions([self.name])
         return True
 
     @pyaedt_function_handler()
@@ -650,10 +658,10 @@ class MeshRegion(MeshRegionBase, BinaryTreeNode, PyAedtBase):
 
         non_model_solids = []
 
-        if settings.aedt_version <= "2023.2":
+        if settings.aedt_version is None or settings.aedt_version <= "2023.2":
             non_model_solids = list(self._app.modeler.non_model_objects)
 
-        self._app.omeshmodule.AssignMeshRegion(aedt_props)
+        cast(_OMeshModule, self._app.omeshmodule).AssignMeshRegion(aedt_props)
 
         # GetObjData is available for some objects in 2026R1
         self._has_getobject = _has_get_obj_data(self._child_object)
@@ -661,10 +669,13 @@ class MeshRegion(MeshRegionBase, BinaryTreeNode, PyAedtBase):
         # API renames the subregion, and if GetObjData not available, we need to refresh the prop
         new_name = f"{self.name}_SubRegion"
         if (
-            settings.aedt_version > "2023.2" and not self._has_getobject and new_name in self._app.modeler.object_names
+            settings.aedt_version is not None
+            and settings.aedt_version > "2023.2"
+            and not self._has_getobject
+            and new_name in self._app.modeler.object_names
         ):  # pragma: no cover
             self._legacy_props["Objects"] = [new_name]
-        elif settings.aedt_version <= "2023.2":
+        elif settings.aedt_version is None or settings.aedt_version <= "2023.2":
             new_non_model_solids = list(self._app.modeler.non_model_objects)
             added_non_model_solids = [obj for obj in new_non_model_solids if obj not in non_model_solids]
             self._legacy_props["Objects"] = added_non_model_solids
@@ -728,7 +739,7 @@ class GlobalMeshRegion(MeshRegionBase):
 
         mesh_region = dp.get("MeshRegion", {})
         mesh_setup = mesh_region.get("MeshSetup", {})
-        if settings.aedt_version > "2023.2":
+        if settings.aedt_version is not None and settings.aedt_version > "2023.2":
             global_settings = mesh_setup.get("Global", {})
             if isinstance(global_settings, dict) and global_settings.get("DType") == "RegionT":
                 return global_settings
@@ -756,7 +767,7 @@ class GlobalMeshRegion(MeshRegionBase):
 
         """
         try:
-            self._app.omeshmodule.EditGlobalMeshRegion(aedt_props)
+            cast(_OMeshModule, self._app.omeshmodule).EditGlobalMeshRegion(aedt_props)
         except Exception:  # pragma: no cover
             raise AEDTRuntimeError("Update global mesh region properties failed.")
 
@@ -784,7 +795,7 @@ class IcepakMesh(PyAedtBase):
         if not hasattr(self._app._design_type, "mesher"):  # pragma: no cover
             raise RuntimeError(f"Invalid design type {design_type}.")
 
-        self._odesign = self._app.odesign
+        self._odesign: _OIcepakDesign = cast(_OIcepakDesign, self._app.odesign)
 
         self.__operations = SetupDict()
         self.__regions = SetupDict()
@@ -997,7 +1008,7 @@ class IcepakMesh(PyAedtBase):
 
         props["MeshRegionResolution"] = level
 
-        if settings.aedt_version > "2023.2" and not is_subregion:
+        if settings.aedt_version is not None and settings.aedt_version > "2023.2" and not is_subregion:
             region = self._app.modeler.create_subregion(
                 padding_values=[0, 0, 0, 0, 0, 0], padding_types="Percentage Offset", assignment=assignment
             )
@@ -1010,7 +1021,7 @@ class IcepakMesh(PyAedtBase):
         return mesh_region.create()
 
     @pyaedt_function_handler()
-    def assign_mesh_level(self, mesh_order: dict, name: str | None = None) -> list[MeshOperation] | bool:
+    def assign_mesh_level(self, mesh_order: dict, name: str | None = None) -> list[MeshOperation | bool] | bool:
         """Assign a mesh level to objects.
 
         Parameters
@@ -1022,8 +1033,8 @@ class IcepakMesh(PyAedtBase):
 
         Returns
         -------
-        list[:class:`ansys.aedt.core.modules.mesh.MeshOperation`]
-            ``True`` when successful, ``False`` when failed.
+        list[:class:`ansys.aedt.core.modules.mesh.MeshOperation`] or bool
+            The created mesh operations, or ``False`` if an operation fails.
 
         References
         ----------
@@ -1295,7 +1306,7 @@ class IcepakMesh(PyAedtBase):
             child_object = self._app.get_oo_object(mesh_object, name)
             if child_object:
                 if "GetObjType" in dir(child_object):
-                    object_type = child_object.GetObjType()
+                    object_type = cast(_OMeshObject, child_object).GetObjType()
                     if object_type.lower() in ["mesh region", "meshregion"]:
                         region_names.append(name)
                     elif object_type.lower() in ["mesh operation", "meshoperation"]:

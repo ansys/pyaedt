@@ -86,6 +86,27 @@ class _ODesign(Protocol):
     def GetDesignType(self) -> str: ...
 
 
+class _OIcepakDesign(_ODesign, Protocol):
+    """Interface definition for the AEDT Icepak design object."""
+
+    def GenerateMesh(self, *args: object, **kwargs: object) -> int: ...
+
+
+class _OMeshModule(Protocol):
+    """Interface definition for the AEDT mesh module."""
+
+    def AssignMeshRegion(self, *args: object, **kwargs: object) -> object: ...
+    def DeleteMeshRegions(self, *args: object, **kwargs: object) -> object: ...
+    def EditGlobalMeshRegion(self, *args: object, **kwargs: object) -> object: ...
+    def EditMeshRegion(self, *args: object, **kwargs: object) -> object: ...
+
+
+class _OMeshObject(Protocol):
+    """Interface definition for an AEDT mesh object."""
+
+    def GetObjType(self) -> str: ...
+
+
 class _OEditor(Protocol):
     """Interface definition for the AEDT editor object."""
 
