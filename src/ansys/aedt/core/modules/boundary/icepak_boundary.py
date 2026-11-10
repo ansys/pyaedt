@@ -48,8 +48,20 @@ class BoundaryDictionary(PyAedtBase):
 
     Examples
     --------
+    Assign a sinusoidal transient power to a chip with a ``BoundaryDictionary`` subclass.
+
+    >>> from ansys.aedt.core import Icepak
     >>> from ansys.aedt.core.modules.boundary.icepak_boundary import BoundaryDictionary
-    >>> obj = BoundaryDictionary()
+    >>> from ansys.aedt.core.modules.boundary.icepak_boundary import SinusoidalDictionary
+    >>> ipk = Icepak(version="2026.1", solution_type="Transient")
+    >>> chip = ipk.modeler.create_box([0, 0, 0], [10, 10, 2], name="Chip", material="Al-Extruded")
+    >>> power = SinusoidalDictionary(vertical_offset="2W", vertical_scaling="1", period="10", period_offset="0s")
+    >>> isinstance(power, BoundaryDictionary)
+    True
+    >>> power.assignment_type, power.function_type
+    ('Transient', 'Sinusoidal')
+    >>> block = ipk.assign_solid_block(chip.name, power_assignment=power, boundary_name="ChipPower")
+    >>> ipk.release_desktop()
 
     """
 
@@ -69,9 +81,17 @@ class BoundaryDictionary(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.icepak_boundary import BoundaryDictionary
-        >>> obj = BoundaryDictionary()
-        >>> obj.props
+        Inspect the properties of a square wave power before assigning it to a chip.
+
+        >>> from ansys.aedt.core import Icepak
+        >>> from ansys.aedt.core.modules.boundary.icepak_boundary import SquareWaveDictionary
+        >>> ipk = Icepak(version="2026.1", solution_type="Transient")
+        >>> chip = ipk.modeler.create_box([0, 0, 0], [10, 10, 2], name="Chip", material="Al-Extruded")
+        >>> power = SquareWaveDictionary("5W", "0s", "2s", "3s", "0W")
+        >>> power.props
+        {'Type': 'Transient', 'Function': 'Square Wave', 'Values': ['5W', '0s', '2s', '3s', '0W']}
+        >>> block = ipk.assign_solid_block(chip.name, power_assignment=power)
+        >>> ipk.release_desktop()
 
         """
         return {
@@ -106,8 +126,17 @@ class LinearDictionary(BoundaryDictionary):
 
     Examples
     --------
+    Ramp up the power of a chip linearly in time, starting from 0.01 W.
+
+    >>> from ansys.aedt.core import Icepak
     >>> from ansys.aedt.core.modules.boundary.icepak_boundary import LinearDictionary
-    >>> obj = LinearDictionary()
+    >>> ipk = Icepak(version="2026.1", solution_type="Transient")
+    >>> chip = ipk.modeler.create_box([0, 0, 0], [10, 10, 2], name="Chip", material="Al-Extruded")
+    >>> power = LinearDictionary(intercept="0.01W", slope="5")
+    >>> power["Values"]
+    ['5', '0.01W']
+    >>> block = ipk.assign_solid_block(chip.name, power_assignment=power, boundary_name="ChipPower")
+    >>> ipk.release_desktop()
 
     """
 
@@ -141,8 +170,17 @@ class PowerLawDictionary(BoundaryDictionary):
 
     Examples
     --------
+    Apply a power law transient power to a source on the top face of a chip.
+
+    >>> from ansys.aedt.core import Icepak
     >>> from ansys.aedt.core.modules.boundary.icepak_boundary import PowerLawDictionary
-    >>> obj = PowerLawDictionary()
+    >>> ipk = Icepak(version="2026.1", solution_type="Transient")
+    >>> chip = ipk.modeler.create_box([0, 0, 0], [10, 10, 2], name="Chip", material="Al-Extruded")
+    >>> power = PowerLawDictionary(intercept="0.5W", coefficient="2", scaling_exponent="0.3")
+    >>> power["Function"]
+    'Power Law'
+    >>> source = ipk.assign_source(chip.top_face_z.id, "Total Power", assignment_value=power, boundary_name="TopHeat")
+    >>> ipk.release_desktop()
 
     """
 
@@ -177,8 +215,17 @@ class ExponentialDictionary(BoundaryDictionary):
 
     Examples
     --------
+    Apply an exponentially decaying power to a chip.
+
+    >>> from ansys.aedt.core import Icepak
     >>> from ansys.aedt.core.modules.boundary.icepak_boundary import ExponentialDictionary
-    >>> obj = ExponentialDictionary()
+    >>> ipk = Icepak(version="2026.1", solution_type="Transient")
+    >>> chip = ipk.modeler.create_box([0, 0, 0], [10, 10, 2], name="Chip", material="Al-Extruded")
+    >>> power = ExponentialDictionary(vertical_offset="1W", coefficient="4", exponent_coefficient="-0.5")
+    >>> power["Values"]
+    ['1W', '4', '-0.5']
+    >>> block = ipk.assign_solid_block(chip.name, power_assignment=power, boundary_name="ChipPower")
+    >>> ipk.release_desktop()
 
     """
 
@@ -216,8 +263,17 @@ class SinusoidalDictionary(BoundaryDictionary):
 
     Examples
     --------
+    Apply a power that oscillates around 2 W with a period of 10 s to a chip.
+
+    >>> from ansys.aedt.core import Icepak
     >>> from ansys.aedt.core.modules.boundary.icepak_boundary import SinusoidalDictionary
-    >>> obj = SinusoidalDictionary()
+    >>> ipk = Icepak(version="2026.1", solution_type="Transient")
+    >>> chip = ipk.modeler.create_box([0, 0, 0], [10, 10, 2], name="Chip", material="Al-Extruded")
+    >>> power = SinusoidalDictionary(vertical_offset="2W", vertical_scaling="1", period="10", period_offset="0s")
+    >>> power["Values"]
+    ['2W', '1', '10', '0s']
+    >>> block = ipk.assign_solid_block(chip.name, power_assignment=power, boundary_name="ChipPower")
+    >>> ipk.release_desktop()
 
     """
 
@@ -251,8 +307,17 @@ class SquareWaveDictionary(BoundaryDictionary):
 
     Examples
     --------
+    Switch a 5 W chip on for 2 s and off for 3 s, starting after 1 s.
+
+    >>> from ansys.aedt.core import Icepak
     >>> from ansys.aedt.core.modules.boundary.icepak_boundary import SquareWaveDictionary
-    >>> obj = SquareWaveDictionary()
+    >>> ipk = Icepak(version="2026.1", solution_type="Transient")
+    >>> chip = ipk.modeler.create_box([0, 0, 0], [10, 10, 2], name="Chip", material="Al-Extruded")
+    >>> power = SquareWaveDictionary(on_value="5W", initial_time_off="1s", on_time="2s", off_time="3s", off_value="0W")
+    >>> power["Values"]
+    ['5W', '1s', '2s', '3s', '0W']
+    >>> block = ipk.assign_solid_block(chip.name, power_assignment=power, boundary_name="ChipPower")
+    >>> ipk.release_desktop()
 
     """
 
@@ -284,8 +349,19 @@ class PieceWiseLinearDictionary(BoundaryDictionary):
 
     Examples
     --------
-    >>> from ansys.aedt.core.modules.boundary.icepak_boundary import PieceWiseLinearDictionary
-    >>> obj = PieceWiseLinearDictionary()
+    Assign a temperature-dependent power, defined by a design dataset, to a chip.
+
+    >>> from ansys.aedt.core import Icepak
+    >>> ipk = Icepak(version="2026.1")
+    >>> chip = ipk.modeler.create_box([0, 0, 0], [10, 10, 2], name="Chip", material="Al-Extruded")
+    >>> dataset = ipk.create_dataset(
+    ...     "PowerVsTemp", [20, 60, 100], [1, 1.5, 2.5], is_project_dataset=False, x_unit="cel", y_unit="W"
+    ... )
+    >>> power = ipk.create_temp_dep_assignment(dataset.name, scale=2)
+    >>> power.props
+    {'Type': 'Temp Dep', 'Function': 'Piecewise Linear', 'Values': ['2', 'PowerVsTemp']}
+    >>> block = ipk.assign_solid_block(chip.name, power_assignment=power, boundary_name="ChipPower")
+    >>> ipk.release_desktop()
 
     """
 
@@ -305,9 +381,19 @@ class PieceWiseLinearDictionary(BoundaryDictionary):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.icepak_boundary import PieceWiseLinearDictionary
-        >>> obj = PieceWiseLinearDictionary()
-        >>> obj.dataset_name
+        Get the dataset that drives a transient power assignment.
+
+        >>> from ansys.aedt.core import Icepak
+        >>> ipk = Icepak(version="2026.1", solution_type="Transient")
+        >>> chip = ipk.modeler.create_box([0, 0, 0], [10, 10, 2], name="Chip", material="Al-Extruded")
+        >>> dataset = ipk.create_dataset(
+        ...     "PowerVsTime", [0, 5, 10], [0, 3, 1], is_project_dataset=False, x_unit="s", y_unit="W"
+        ... )
+        >>> power = ipk.create_dataset_transient_assignment(dataset.name)
+        >>> power.dataset_name
+        'PowerVsTime'
+        >>> block = ipk.assign_solid_block(chip.name, power_assignment=power)
+        >>> ipk.release_desktop()
 
         """
         return self.dataset.name
@@ -318,8 +404,22 @@ class NetworkObject(BoundaryObject):
 
     Examples
     --------
-    >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
-    >>> obj = NetworkObject()
+    Model a 2 W chip as a two-resistor network that connects the junction to a board face.
+
+    >>> from ansys.aedt.core import Icepak
+    >>> ipk = Icepak(version="2026.1")
+    >>> board = ipk.modeler.create_box([0, 0, 0], [40, 40, 2], name="Board", material="FR4_epoxy")
+    >>> network = ipk.create_network_object(name="ChipNetwork")
+    >>> junction = network.add_internal_node("Junction", power="2W")
+    >>> case = network.add_internal_node("Case", power="0W")
+    >>> board_face = network.add_face_node(board.top_face_z.id, name="BoardTop")
+    >>> network.add_link("Junction", "Case", "0.5cel_per_w", name="JunctionToCase")
+    True
+    >>> network.add_link("Case", "BoardTop", "2cel_per_w", name="CaseToBoard")
+    True
+    >>> network.create()  # doctest: +SKIP
+    True
+    >>> ipk.release_desktop()
 
     """
 
@@ -372,9 +472,21 @@ class NetworkObject(BoundaryObject):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
-        >>> obj = NetworkObject()
-        >>> obj.create()
+        Define a junction-to-board thermal resistance and create the network in AEDT.
+
+        >>> from ansys.aedt.core import Icepak
+        >>> ipk = Icepak(version="2026.1")
+        >>> board = ipk.modeler.create_box([0, 0, 0], [40, 40, 2], name="Board", material="FR4_epoxy")
+        >>> network = ipk.create_network_object(name="ChipNetwork")
+        >>> junction = network.add_internal_node("Junction", power="2W")
+        >>> board_face = network.add_face_node(board.top_face_z.id, name="BoardTop")
+        >>> network.add_link("Junction", "BoardTop", "1.5cel_per_w", name="JunctionToBoard")
+        True
+        >>> network.create()  # doctest: +SKIP
+        True
+        >>> "ChipNetwork" in [boundary.name for boundary in ipk.boundaries]  # doctest: +SKIP
+        True
+        >>> ipk.release_desktop()
 
         """
         if not self.props.get("Faces", None):
@@ -454,9 +566,14 @@ class NetworkObject(BoundaryObject):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
-        >>> obj = NetworkObject()
-        >>> obj.auto_update
+        Check that changes to a network are pushed to AEDT only when ``update()`` is called.
+
+        >>> from ansys.aedt.core import Icepak
+        >>> ipk = Icepak(version="2026.1")
+        >>> network = ipk.create_network_object(name="ChipNetwork")
+        >>> network.auto_update
+        False
+        >>> ipk.release_desktop()
 
         """
         return False
@@ -487,9 +604,24 @@ class NetworkObject(BoundaryObject):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
-        >>> obj = NetworkObject()
-        >>> obj.links
+        List the thermal links that connect a chip junction to a board.
+
+        >>> from ansys.aedt.core import Icepak
+        >>> ipk = Icepak(version="2026.1")
+        >>> board = ipk.modeler.create_box([0, 0, 0], [40, 40, 2], name="Board", material="FR4_epoxy")
+        >>> network = ipk.create_network_object(name="ChipNetwork")
+        >>> junction = network.add_internal_node("Junction", power="2W")
+        >>> case = network.add_internal_node("Case", power="0W")
+        >>> board_face = network.add_face_node(board.top_face_z.id, name="BoardTop")
+        >>> network.add_link("Junction", "Case", "0.5cel_per_w", name="JunctionToCase")
+        True
+        >>> network.add_link("Case", "BoardTop", "2cel_per_w", name="CaseToBoard")
+        True
+        >>> sorted(network.links)
+        ['CaseToBoard', 'JunctionToCase']
+        >>> network.links["CaseToBoard"].props
+        ['Case', 'BoardTop', 'R-Link', 'R', '2cel_per_w']
+        >>> ipk.release_desktop()
 
         """
         self._update_from_props()
@@ -506,9 +638,22 @@ class NetworkObject(BoundaryObject):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
-        >>> obj = NetworkObject()
-        >>> obj.r_links
+        Get the thermal resistance links of a network that also models a coolant mass flow.
+
+        >>> from ansys.aedt.core import Icepak
+        >>> ipk = Icepak(version="2026.1")
+        >>> plate = ipk.modeler.create_box([0, 0, 0], [40, 40, 2], name="ColdPlate", material="Al-Extruded")
+        >>> network = ipk.create_network_object(name="CoolingNetwork")
+        >>> junction = network.add_internal_node("Junction", power="20W")
+        >>> inlet = network.add_face_node(plate.bottom_face_x.id, name="Inlet")
+        >>> outlet = network.add_face_node(plate.top_face_x.id, name="Outlet")
+        >>> network.add_link("Junction", "Inlet", "0.2cel_per_w", name="JunctionToInlet")
+        True
+        >>> network.add_link("Inlet", "Outlet", "0.01kg_per_s", name="CoolantFlow")
+        True
+        >>> list(network.r_links)
+        ['JunctionToInlet']
+        >>> ipk.release_desktop()
 
         """
         self._update_from_props()
@@ -525,9 +670,24 @@ class NetworkObject(BoundaryObject):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
-        >>> obj = NetworkObject()
-        >>> obj.c_links
+        Get the mass flow links that model a coolant flowing through a cold plate.
+
+        >>> from ansys.aedt.core import Icepak
+        >>> ipk = Icepak(version="2026.1")
+        >>> plate = ipk.modeler.create_box([0, 0, 0], [40, 40, 2], name="ColdPlate", material="Al-Extruded")
+        >>> network = ipk.create_network_object(name="CoolingNetwork")
+        >>> junction = network.add_internal_node("Junction", power="20W")
+        >>> inlet = network.add_face_node(plate.bottom_face_x.id, name="Inlet")
+        >>> outlet = network.add_face_node(plate.top_face_x.id, name="Outlet")
+        >>> network.add_link("Junction", "Inlet", "0.2cel_per_w", name="JunctionToInlet")
+        True
+        >>> network.add_link("Inlet", "Outlet", "0.01kg_per_s", name="CoolantFlow")
+        True
+        >>> list(network.c_links)
+        ['CoolantFlow']
+        >>> network.c_links["CoolantFlow"].props
+        ['Inlet', 'Outlet', 'C-Link', 'Node1ToNode2', '0.01kg_per_s']
+        >>> ipk.release_desktop()
 
         """
         self._update_from_props()
@@ -544,9 +704,20 @@ class NetworkObject(BoundaryObject):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
-        >>> obj = NetworkObject()
-        >>> obj.nodes
+        List all nodes of a network that connects a chip junction to a board and to the ambient.
+
+        >>> from ansys.aedt.core import Icepak
+        >>> ipk = Icepak(version="2026.1")
+        >>> board = ipk.modeler.create_box([0, 0, 0], [40, 40, 2], name="Board", material="FR4_epoxy")
+        >>> network = ipk.create_network_object(name="ChipNetwork")
+        >>> junction = network.add_internal_node("Junction", power="2W")
+        >>> board_face = network.add_face_node(board.top_face_z.id, name="BoardTop")
+        >>> ambient = network.add_boundary_node("Ambient", assignment_type="Temperature", value=25)
+        >>> sorted(network.nodes)
+        ['Ambient', 'BoardTop', 'Junction']
+        >>> network.nodes["Junction"].node_type
+        'InternalNode'
+        >>> ipk.release_desktop()
 
         """
         self._update_from_props()
@@ -563,9 +734,20 @@ class NetworkObject(BoundaryObject):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
-        >>> obj = NetworkObject()
-        >>> obj.face_nodes
+        Get the nodes that attach a network to the faces of a board.
+
+        >>> from ansys.aedt.core import Icepak
+        >>> ipk = Icepak(version="2026.1")
+        >>> board = ipk.modeler.create_box([0, 0, 0], [40, 40, 2], name="Board", material="FR4_epoxy")
+        >>> network = ipk.create_network_object(name="ChipNetwork")
+        >>> junction = network.add_internal_node("Junction", power="2W")
+        >>> top = network.add_face_node(board.top_face_z.id, name="BoardTop")
+        >>> bottom = network.add_face_node(board.bottom_face_z.id, name="BoardBottom")
+        >>> sorted(network.face_nodes)
+        ['BoardBottom', 'BoardTop']
+        >>> network.face_nodes["BoardTop"].props["ThermalResistance"]
+        'NoResistance'
+        >>> ipk.release_desktop()
 
         """
         self._update_from_props()
@@ -582,9 +764,17 @@ class NetworkObject(BoundaryObject):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
-        >>> obj = NetworkObject()
-        >>> obj.faces_ids_in_network
+        Check which board faces a network is attached to.
+
+        >>> from ansys.aedt.core import Icepak
+        >>> ipk = Icepak(version="2026.1")
+        >>> board = ipk.modeler.create_box([0, 0, 0], [40, 40, 2], name="Board", material="FR4_epoxy")
+        >>> network = ipk.create_network_object(name="ChipNetwork")
+        >>> top = network.add_face_node(board.top_face_z.id, name="BoardTop")
+        >>> bottom = network.add_face_node(board.bottom_face_z.id, name="BoardBottom")
+        >>> network.faces_ids_in_network == [board.top_face_z.id, board.bottom_face_z.id]
+        True
+        >>> ipk.release_desktop()
 
         """
         out_arr = []
@@ -603,9 +793,18 @@ class NetworkObject(BoundaryObject):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
-        >>> obj = NetworkObject()
-        >>> obj.objects_in_network
+        Get the objects that own the faces connected by a network between a chip and a heat sink.
+
+        >>> from ansys.aedt.core import Icepak
+        >>> ipk = Icepak(version="2026.1")
+        >>> board = ipk.modeler.create_box([0, 0, 0], [40, 40, 2], name="Board", material="FR4_epoxy")
+        >>> sink = ipk.modeler.create_box([10, 10, 10], [20, 20, 5], name="HeatSink", material="Al-Extruded")
+        >>> network = ipk.create_network_object(name="ChipNetwork")
+        >>> board_face = network.add_face_node(board.top_face_z.id, name="BoardTop")
+        >>> sink_face = network.add_face_node(sink.bottom_face_z.id, name="SinkBase")
+        >>> network.objects_in_network
+        ['Board', 'HeatSink']
+        >>> ipk.release_desktop()
 
         """
         out_arr = []
@@ -624,9 +823,20 @@ class NetworkObject(BoundaryObject):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
-        >>> obj = NetworkObject()
-        >>> obj.internal_nodes
+        Get the internal nodes that represent the junction and the case of a chip package.
+
+        >>> from ansys.aedt.core import Icepak
+        >>> ipk = Icepak(version="2026.1")
+        >>> board = ipk.modeler.create_box([0, 0, 0], [40, 40, 2], name="Board", material="FR4_epoxy")
+        >>> network = ipk.create_network_object(name="ChipNetwork")
+        >>> junction = network.add_internal_node("Junction", power="2W")
+        >>> case = network.add_internal_node("Case", power="0W")
+        >>> board_face = network.add_face_node(board.top_face_z.id, name="BoardTop")
+        >>> sorted(network.internal_nodes)
+        ['Case', 'Junction']
+        >>> network.internal_nodes["Junction"].props["Power"]
+        '2W'
+        >>> ipk.release_desktop()
 
         """
         self._update_from_props()
@@ -643,9 +853,18 @@ class NetworkObject(BoundaryObject):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
-        >>> obj = NetworkObject()
-        >>> obj.boundary_nodes
+        Get the boundary node that holds a chip network at a fixed ambient temperature.
+
+        >>> from ansys.aedt.core import Icepak
+        >>> ipk = Icepak(version="2026.1")
+        >>> network = ipk.create_network_object(name="ChipNetwork")
+        >>> junction = network.add_internal_node("Junction", power="2W")
+        >>> ambient = network.add_boundary_node("Ambient", assignment_type="Temperature", value=25)
+        >>> list(network.boundary_nodes)
+        ['Ambient']
+        >>> network.boundary_nodes["Ambient"].props["Temperature"]
+        '25cel'
+        >>> ipk.release_desktop()
 
         """
         self._update_from_props()
@@ -662,9 +881,24 @@ class NetworkObject(BoundaryObject):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
-        >>> obj = NetworkObject()
-        >>> obj.name
+        Rename a chip network after it is created in AEDT.
+
+        >>> from ansys.aedt.core import Icepak
+        >>> ipk = Icepak(version="2026.1")
+        >>> board = ipk.modeler.create_box([0, 0, 0], [40, 40, 2], name="Board", material="FR4_epoxy")
+        >>> network = ipk.create_network_object(name="ChipNetwork")
+        >>> junction = network.add_internal_node("Junction", power="2W")
+        >>> board_face = network.add_face_node(board.top_face_z.id, name="BoardTop")
+        >>> network.add_link("Junction", "BoardTop", "1.5cel_per_w")
+        True
+        >>> network.create()  # doctest: +SKIP
+        True
+        >>> network.name
+        'ChipNetwork'
+        >>> network.name = "CPUNetwork"
+        >>> network.name
+        'CPUNetwork'
+        >>> ipk.release_desktop()
 
         """
         return self._name
@@ -721,11 +955,26 @@ class NetworkObject(BoundaryObject):
 
         Examples
         --------
-        >>> import ansys.aedt.core
-        >>> app = ansys.aedt.core.Icepak()
-        >>> network = ansys.aedt.core.modules.boundary.Network(app)
-        >>> network.add_internal_node("TestNode", {"Type": "Transient",
-        >>>                                        "Function": "Linear", "Values": ["0.01W", "1"]})
+        Add a chip junction whose power ramps up linearly in time to a transient network.
+
+        >>> from ansys.aedt.core import Icepak
+        >>> ipk = Icepak(version="2026.1", solution_type="Transient")
+        >>> board = ipk.modeler.create_box([0, 0, 0], [40, 40, 2], name="Board", material="FR4_epoxy")
+        >>> network = ipk.create_network_object(name="ChipNetwork")
+        >>> junction = network.add_internal_node(
+        ...     "Junction",
+        ...     power={"Type": "Transient", "Function": "Linear", "Values": ["0.01W", "1"]},
+        ...     mass="0.002kg",
+        ...     specific_heat=700,
+        ... )
+        >>> junction.props["SpecificHeat"]
+        '700J_per_Kelkg'
+        >>> board_face = network.add_face_node(board.top_face_z.id, name="BoardTop")
+        >>> network.add_link("Junction", "BoardTop", "1.5cel_per_w")
+        True
+        >>> network.create()  # doctest: +SKIP
+        True
+        >>> ipk.release_desktop()
 
         """
         if self._app.solution_type != "SteadyState" and mass is None and specific_heat is None:
@@ -776,14 +1025,28 @@ class NetworkObject(BoundaryObject):
 
         Examples
         --------
-        >>> import ansys.aedt.core
-        >>> app = ansys.aedt.core.Icepak()
-        >>> network = ansys.aedt.core.modules.boundary.Network(app)
-        >>> network.add_boundary_node("TestNode", "Temperature", 2)
-        >>> ds = app.create_dataset1d_design("Test_DataSet", [1, 2, 3], [3, 4, 5])
-        >>> network.add_boundary_node("TestNode", "Power", {"Type": "Temp Dep",
-        >>>                                                       "Function": "Piecewise Linear",
-        >>>                                                       "Values": "Test_DataSet"})
+        Connect a chip junction to a fixed ambient temperature and to a temperature-dependent heat load.
+
+        >>> from ansys.aedt.core import Icepak
+        >>> ipk = Icepak(version="2026.1")
+        >>> network = ipk.create_network_object(name="ChipNetwork")
+        >>> junction = network.add_internal_node("Junction", power="2W")
+        >>> ambient = network.add_boundary_node("Ambient", assignment_type="Temperature", value=25)
+        >>> ambient.props["Temperature"]
+        '25cel'
+        >>> dataset = ipk.create_dataset1d_design("LoadVsTemp", [20, 60, 100], [0.1, 0.3, 0.6])
+        >>> load = network.add_boundary_node(
+        ...     "HeatLoad",
+        ...     assignment_type="Power",
+        ...     value={"Type": "Temp Dep", "Function": "Piecewise Linear", "Values": "LoadVsTemp"},
+        ... )
+        >>> network.add_link("Junction", "Ambient", "10cel_per_w")
+        True
+        >>> network.add_link("Junction", "HeatLoad", "5cel_per_w")
+        True
+        >>> network.create()  # doctest: +SKIP
+        True
+        >>> ipk.release_desktop()
 
         """
         if assignment_type not in ["Power", "Temperature", "PowerValue", "TemperatureValue"]:  # pragma: no cover
@@ -856,16 +1119,34 @@ class NetworkObject(BoundaryObject):
 
         Examples
         --------
-        >>> import ansys.aedt.core
-        >>> app = ansys.aedt.core.Icepak()
-        >>> network = ansys.aedt.core.modules.boundary.Network(app)
-        >>> box = app.modeler.create_box([5, 5, 5], [20, 50, 80])
-        >>> faces_ids = [face.id for face in box.faces]
-        >>> network.add_face_node(faces_ids[0])
-        >>> network.add_face_node(
-        ...     faces_ids[1], name="TestNode", thermal_resistance="Compute", material="Al-Extruded", thickness="2mm"
+        Attach a network to three faces of a board, with different contact resistance models.
+
+        >>> from ansys.aedt.core import Icepak
+        >>> ipk = Icepak(version="2026.1")
+        >>> board = ipk.modeler.create_box([0, 0, 0], [40, 40, 2], name="Board", material="FR4_epoxy")
+        >>> network = ipk.create_network_object(name="BoardNetwork")
+        >>> top = network.add_face_node(board.top_face_z.id)
+        >>> top.name == f"FaceID{board.top_face_z.id}"
+        True
+        >>> bottom = network.add_face_node(
+        ...     board.bottom_face_z.id,
+        ...     name="BoardBottom",
+        ...     thermal_resistance="Compute",
+        ...     material="Al-Extruded",
+        ...     thickness="2mm",
         ... )
-        >>> network.add_face_node(faces_ids[2], name="TestNode", thermal_resistance="Specified", resistance=2)
+        >>> side = network.add_face_node(
+        ...     board.top_face_x.id, name="BoardSide", thermal_resistance="Specified", resistance=2
+        ... )
+        >>> side.props["Resistance"]
+        '2cel_per_w'
+        >>> network.add_link(top.name, "BoardBottom", "1cel_per_w")
+        True
+        >>> network.add_link("BoardBottom", "BoardSide", "3cel_per_w")
+        True
+        >>> network.create()  # doctest: +SKIP
+        True
+        >>> ipk.release_desktop()
 
         """
         props_dict = {}
@@ -943,18 +1224,34 @@ class NetworkObject(BoundaryObject):
 
         Examples
         --------
-        >>> import ansys.aedt.core
-        >>> app = ansys.aedt.core.Icepak()
-        >>> network = ansys.aedt.core.modules.boundary.Network(app)
-        >>> box = app.modeler.create_box([5, 5, 5], [20, 50, 80])
-        >>> faces_ids = [face.id for face in box.faces]
-        >>> nodes_dict = [
-        >>>         {"FaceID": faces_ids[0]},
-        >>>         {"Name": "TestNode", "FaceID": faces_ids[1],
-        >>>          "ThermalResistance": "Compute", "Thickness": "2mm"},
-        >>>         {"FaceID": faces_ids[2], "ThermalResistance": "Specified", "Resistance": "2cel_per_w"},
-        >>>         {"Name": "Junction", "Power": "1W"}]
-        >>> network.add_nodes_from_dictionaries(nodes_dict)
+        Define the face and internal nodes of a board network from a list of dictionaries.
+
+        >>> from ansys.aedt.core import Icepak
+        >>> ipk = Icepak(version="2026.1")
+        >>> board = ipk.modeler.create_box([0, 0, 0], [40, 40, 2], name="Board", material="FR4_epoxy")
+        >>> nodes = [
+        ...     {"Name": "BoardTop", "FaceID": board.top_face_z.id},
+        ...     {
+        ...         "Name": "BoardBottom",
+        ...         "FaceID": board.bottom_face_z.id,
+        ...         "ThermalResistance": "Compute",
+        ...         "Material": "Al-Extruded",
+        ...         "Thickness": "2mm",
+        ...     },
+        ...     {
+        ...         "Name": "BoardSide",
+        ...         "FaceID": board.top_face_x.id,
+        ...         "ThermalResistance": "Specified",
+        ...         "Resistance": "2cel_per_w",
+        ...     },
+        ...     {"Name": "Junction", "Power": "1W"},
+        ... ]
+        >>> network = ipk.create_network_object(name="BoardNetwork")
+        >>> network.add_nodes_from_dictionaries(nodes)
+        True
+        >>> sorted(network.nodes)
+        ['BoardBottom', 'BoardSide', 'BoardTop', 'Junction']
+        >>> ipk.release_desktop()
 
         """
         if isinstance(nodes, dict):
@@ -1012,13 +1309,20 @@ class NetworkObject(BoundaryObject):
 
         Examples
         --------
-        >>> import ansys.aedt.core
-        >>> app = ansys.aedt.core.Icepak()
-        >>> network = ansys.aedt.core.modules.boundary.Network(app)
-        >>> box = app.modeler.create_box([5, 5, 5], [20, 50, 80])
-        >>> faces_ids = [face.id for face in box.faces]
-        >>> connection = {"Name": "LinkTest", "Connection": [faces_ids[1], faces_ids[0]], "Value": "1cel_per_w"}
-        >>> network.add_links_from_dictionaries(connection)
+        Connect two board faces with a thermal resistance and a chip junction with a heat transfer coefficient.
+
+        >>> from ansys.aedt.core import Icepak
+        >>> ipk = Icepak(version="2026.1")
+        >>> board = ipk.modeler.create_box([0, 0, 0], [40, 40, 2], name="Board", material="FR4_epoxy")
+        >>> network = ipk.create_network_object(name="BoardNetwork")
+        >>> junction = network.add_internal_node("Junction", power="1W")
+        >>> network.add_link(board.top_face_z.id, board.bottom_face_z.id, 2, name="TopToBottom")
+        True
+        >>> network.add_link("Junction", board.top_face_z.id, "500w_per_m2kel", name="JunctionToTop")
+        True
+        >>> network.links["JunctionToTop"].props[2:]
+        ['R-Link', 'HTC', '500w_per_m2kel']
+        >>> ipk.release_desktop()
 
         """
         if name is None:
@@ -1056,14 +1360,24 @@ class NetworkObject(BoundaryObject):
 
         Examples
         --------
-        >>> import ansys.aedt.core
-        >>> app = ansys.aedt.core.Icepak()
-        >>> network = ansys.aedt.core.modules.boundary.Network(app)
-        >>> box = app.modeler.create_box([5, 5, 5], [20, 50, 80])
-        >>> faces_ids = [face.id for face in box.faces]
-        >>> [network.add_face_node(faces_ids[i]) for i in range(2)]
-        >>> connection = {"Name": "LinkTest", "Link": [faces_ids[1], faces_ids[0], "1cel_per_w"]}
-        >>> network.add_links_from_dictionaries(connection)
+        Connect a chip junction to two board faces from a list of link dictionaries.
+
+        >>> from ansys.aedt.core import Icepak
+        >>> ipk = Icepak(version="2026.1")
+        >>> board = ipk.modeler.create_box([0, 0, 0], [40, 40, 2], name="Board", material="FR4_epoxy")
+        >>> network = ipk.create_network_object(name="BoardNetwork")
+        >>> junction = network.add_internal_node("Junction", power="1W")
+        >>> top = network.add_face_node(board.top_face_z.id, name="BoardTop")
+        >>> bottom = network.add_face_node(board.bottom_face_z.id, name="BoardBottom")
+        >>> connections = [
+        ...     {"Name": "JunctionToTop", "Link": ["Junction", "BoardTop", "1cel_per_w"]},
+        ...     {"Name": "TopToBottom", "Link": ["BoardTop", "BoardBottom", "4cel_per_w"]},
+        ... ]
+        >>> network.add_links_from_dictionaries(connections)
+        True
+        >>> network.create()  # doctest: +SKIP
+        True
+        >>> ipk.release_desktop()
 
         """
         if isinstance(connections, dict):
@@ -1092,9 +1406,25 @@ class NetworkObject(BoundaryObject):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
-        >>> obj = NetworkObject()
-        >>> obj.update()
+        Add a heat sink path to a chip network that already exists in AEDT.
+
+        >>> from ansys.aedt.core import Icepak
+        >>> ipk = Icepak(version="2026.1")
+        >>> board = ipk.modeler.create_box([0, 0, 0], [40, 40, 2], name="Board", material="FR4_epoxy")
+        >>> sink = ipk.modeler.create_box([10, 10, 10], [20, 20, 5], name="HeatSink", material="Al-Extruded")
+        >>> network = ipk.create_network_object(name="ChipNetwork")
+        >>> junction = network.add_internal_node("Junction", power="2W")
+        >>> board_face = network.add_face_node(board.top_face_z.id, name="BoardTop")
+        >>> network.add_link("Junction", "BoardTop", "1.5cel_per_w")
+        True
+        >>> network.create()  # doctest: +SKIP
+        True
+        >>> sink_face = network.add_face_node(sink.bottom_face_z.id, name="SinkBase")
+        >>> network.add_link("Junction", "SinkBase", "0.8cel_per_w")
+        True
+        >>> network.update()  # doctest: +SKIP
+        True
+        >>> ipk.release_desktop()
 
         """
         if self.name in [b.name for b in self._app.boundaries]:
@@ -1117,9 +1447,21 @@ class NetworkObject(BoundaryObject):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
-        >>> obj = NetworkObject()
-        >>> obj.update_assignment()
+        Push the modified nodes of a chip network that already exists in AEDT.
+
+        >>> from ansys.aedt.core import Icepak
+        >>> ipk = Icepak(version="2026.1")
+        >>> board = ipk.modeler.create_box([0, 0, 0], [40, 40, 2], name="Board", material="FR4_epoxy")
+        >>> network = ipk.create_network_object(name="ChipNetwork")
+        >>> junction = network.add_internal_node("Junction", power="2W")
+        >>> board_face = network.add_face_node(board.top_face_z.id, name="BoardTop")
+        >>> network.add_link("Junction", "BoardTop", "1.5cel_per_w")
+        True
+        >>> network.create()  # doctest: +SKIP
+        True
+        >>> network.update_assignment()  # doctest: +SKIP
+        True
+        >>> ipk.release_desktop()
 
         """
         return self.update(properties)

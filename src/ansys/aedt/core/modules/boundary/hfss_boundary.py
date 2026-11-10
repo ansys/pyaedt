@@ -36,14 +36,20 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
     Examples
     --------
-    In this example the sphere1 returned object is a ``ansys.aedt.core.modules.boundary.hfss_boundary.FarFieldSetup``
+    Create an infinite sphere around a radiating air region and edit its theta sweep.
+    The ``sphere1`` object is a ``ansys.aedt.core.modules.boundary.hfss_boundary.FarFieldSetup``.
+
     >>> from ansys.aedt.core import Hfss
-    >>> hfss = Hfss()
+    >>> hfss = Hfss(version="2026.1")
+    >>> air = hfss.modeler.create_box([0, 0, 0], [20, 20, 20], name="Air", material="vacuum")
+    >>> radiation = hfss.assign_radiation_boundary_to_objects(air)
     >>> sphere1 = hfss.insert_infinite_sphere()
     >>> sphere1.props["ThetaStart"] = "-90deg"
     >>> sphere1.props["ThetaStop"] = "90deg"
     >>> sphere1.props["ThetaStep"] = "2deg"
     >>> sphere1.delete()
+    True
+    >>> hfss.release_desktop()
 
     """
 
@@ -84,9 +90,18 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FieldSetup
-        >>> obj = FieldSetup()
-        >>> obj.props
+        Read the theta sweep of an infinite sphere that covers the upper hemisphere of a radiating region.
+
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss(version="2026.1")
+        >>> air = hfss.modeler.create_box([0, 0, 0], [20, 20, 20], name="Air", material="vacuum")
+        >>> radiation = hfss.assign_radiation_boundary_to_objects(air)
+        >>> sphere = hfss.insert_infinite_sphere(theta_start=0, theta_stop=90, theta_step=5, name="Upper")
+        >>> sphere.props["ThetaStart"]
+        '0deg'
+        >>> sphere.props["ThetaStop"]
+        '90deg'
+        >>> hfss.release_desktop()
 
         """
         # TODO: Radiation has GetObjectData but it is raising an error message in AEDT.
@@ -122,9 +137,19 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FieldSetup
-        >>> obj = FieldSetup()
-        >>> obj.name
+        Rename the infinite sphere used to compute the far field of a radiating region.
+
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss(version="2026.1")
+        >>> air = hfss.modeler.create_box([0, 0, 0], [20, 20, 20], name="Air", material="vacuum")
+        >>> radiation = hfss.assign_radiation_boundary_to_objects(air)
+        >>> sphere = hfss.insert_infinite_sphere(theta_stop=90, name="Upper")
+        >>> sphere.name
+        'Upper'
+        >>> sphere.name = "UpperHemisphere"
+        >>> hfss.field_setup_names
+        ['UpperHemisphere']
+        >>> hfss.release_desktop()
 
         """
         if self._child_object:
@@ -158,9 +183,36 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FieldSetup
-        >>> obj = FieldSetup()
-        >>> obj.create()
+        This method is called by the ``insert_*`` methods of the HFSS application, such as
+        ``insert_infinite_sphere``. Call it directly only when building a field setup from a
+        property dictionary, for example to define an upper hemisphere with a 5 degree theta step.
+
+        >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
+        >>> hfss = Hfss(version="2026.1")
+        >>> air = hfss.modeler.create_box([0, 0, 0], [20, 20, 20], name="Air", material="vacuum")
+        >>> radiation = hfss.assign_radiation_boundary_to_objects(air)
+        >>> props = {
+        ...     "UseCustomRadiationSurface": False,
+        ...     "CustomRadiationSurface": "",
+        ...     "CSDefinition": "Theta-Phi",
+        ...     "Polarization": "Linear",
+        ...     "SlantAngle": "0deg",
+        ...     "ThetaStart": "0deg",
+        ...     "ThetaStop": "90deg",
+        ...     "ThetaStep": "5deg",
+        ...     "PhiStart": "0deg",
+        ...     "PhiStop": "360deg",
+        ...     "PhiStep": "5deg",
+        ...     "UseLocalCS": False,
+        ...     "CoordSystem": "",
+        ... }
+        >>> sphere = FarFieldSetup(hfss, "UpperHemisphere", props, "FarFieldSphere")
+        >>> sphere.create()
+        True
+        >>> hfss.field_setup_names
+        ['UpperHemisphere']
+        >>> hfss.release_desktop()
 
         """
         if self.type == "FarFieldSphere":
@@ -186,6 +238,12 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
     def update(self, properties: dict = None) -> bool:
         """Update the Field Setup in AEDT.
 
+        Parameters
+        ----------
+        properties : dict, optional
+            Properties to send to AEDT. The default is ``None``, in which case the
+            current ``props`` are used.
+
         Returns
         -------
         bool
@@ -193,9 +251,22 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FieldSetup
-        >>> obj = FieldSetup()
-        >>> obj.update()
+        Restrict an infinite sphere to the upper hemisphere and push both changes to AEDT in a single call.
+
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss(version="2026.1")
+        >>> air = hfss.modeler.create_box([0, 0, 0], [20, 20, 20], name="Air", material="vacuum")
+        >>> radiation = hfss.assign_radiation_boundary_to_objects(air)
+        >>> sphere = hfss.insert_infinite_sphere(name="FarField")
+        >>> sphere.auto_update = False
+        >>> sphere.props["ThetaStop"] = "90deg"
+        >>> sphere.props["PhiStop"] = "360deg"
+        >>> sphere.update()
+        True
+        >>> sphere.auto_update = True
+        >>> sphere.properties["Stop Theta"]
+        '90deg'
+        >>> hfss.release_desktop()
 
         """
         if self.type == "FarFieldSphere":
@@ -225,9 +296,20 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FieldSetup
-        >>> obj = FieldSetup()
-        >>> obj.delete()
+        Delete a near field rectangle that is no longer needed.
+
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss(version="2026.1")
+        >>> air = hfss.modeler.create_box([0, 0, 0], [20, 20, 20], name="Air", material="vacuum")
+        >>> radiation = hfss.assign_radiation_boundary_to_objects(air)
+        >>> rectangle = hfss.insert_near_field_rectangle(u_length=10, v_length=10, name="NearRect")
+        >>> hfss.field_setup_names
+        ['NearRect']
+        >>> rectangle.delete()
+        True
+        >>> hfss.field_setup_names
+        []
+        >>> hfss.release_desktop()
 
         """
         self._app.oradfield.DeleteSetup([self.name])
@@ -242,14 +324,20 @@ class FarFieldSetup(FieldSetup):
 
     Examples
     --------
-    in this example the sphere1 returned object is a ``ansys.aedt.core.modules.boundary.hfss_boundary.FarFieldSetup``
+    Create an infinite sphere around a radiating air region and edit its theta sweep.
+    The ``sphere1`` object is a ``ansys.aedt.core.modules.boundary.hfss_boundary.FarFieldSetup``.
+
     >>> from ansys.aedt.core import Hfss
-    >>> hfss = Hfss()
+    >>> hfss = Hfss(version="2026.1")
+    >>> air = hfss.modeler.create_box([0, 0, 0], [20, 20, 20], name="Air", material="vacuum")
+    >>> radiation = hfss.assign_radiation_boundary_to_objects(air)
     >>> sphere1 = hfss.insert_infinite_sphere()
     >>> sphere1.props["ThetaStart"] = "-90deg"
     >>> sphere1.props["ThetaStop"] = "90deg"
     >>> sphere1.props["ThetaStep"] = "2deg"
     >>> sphere1.delete()
+    True
+    >>> hfss.release_desktop()
 
     """
 
@@ -347,8 +435,9 @@ class FarFieldSetup(FieldSetup):
         >>> air = aedt_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
         >>> aedt_app.assign_radiation_boundary_to_objects(air)
         >>> face_list = aedt_app.modeler.create_named_selection("radiation_surface", air.faces[0])
-        >>> inf = aedt_app.insert_infinite_sphere(custom_radiation_faces=face_list)
+        >>> inf = aedt_app.insert_infinite_sphere(custom_radiation_faces=face_list.name)
         >>> inf.custom_radiation_surface
+        'radiation_surface'
 
         """
         return self.props["CustomRadiationSurface"]
@@ -786,8 +875,11 @@ class NearFieldSetup(FieldSetup):
     ``ansys.aedt.core.modules.boundary.hfss_boundary.NearFieldSetup``
 
     >>> from ansys.aedt.core import Hfss
-    >>> hfss = Hfss()
+    >>> hfss = Hfss(version="2026.1")
+    >>> air = hfss.modeler.create_box([0, 0, 0], [20, 20, 20], name="Air", material="vacuum")
+    >>> radiation = hfss.assign_radiation_boundary_to_objects(air)
     >>> rectangle1 = hfss.insert_near_field_rectangle()
+    >>> hfss.release_desktop()
 
     """
 
