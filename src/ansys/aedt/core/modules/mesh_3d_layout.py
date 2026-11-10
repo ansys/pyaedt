@@ -443,7 +443,8 @@ class Mesh3dLayout(PyAedtBase):
         >>> mesh_operations_list = hfss.mesh.operations
 
         """
-        for setup_name, operations in self.operation_names.items():
+        operation_names = self.operation_names
+        for setup_name, operations in operation_names.items():
             for operation in operations:
                 if setup_name not in self.__operations:
                     self.__operations[setup_name] = SetupDict()
@@ -452,13 +453,13 @@ class Mesh3dLayout(PyAedtBase):
                         mesh=self, name=operation, props={}, setup=setup_name
                     )
 
-        operation_names = self.operation_names
+        active_operations = {setup: set(names) for setup, names in operation_names.items()}
         for setup_name in list(self.__operations.keys()):
             if setup_name not in operation_names:
                 del self.__operations[setup_name]
             else:
                 for operation_name in list(self.__operations[setup_name].keys()):
-                    if operation_name not in operation_names[setup_name]:
+                    if operation_name not in active_operations[setup_name]:
                         del self.__operations[setup_name][operation_name]
 
         return self.__operations
@@ -770,7 +771,8 @@ class Mesh3dLayout(PyAedtBase):
         >>> op2 = m3d.mesh.get_operations(op1.name)
 
         """
-        if setup in self.operation_names and name in self.operation_names[setup]:
+        operation_names = self.operation_names
+        if setup in operation_names and name in operation_names[setup]:
             if setup not in self.__operations:
                 self.__operations[setup] = SetupDict()
             if name not in self.__operations[setup]:

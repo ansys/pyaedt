@@ -329,10 +329,12 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         if meshop_name in operation_names:
             raise ValueError(f"Name {meshop_name} already assigned in the design.")
         if self.operation_type != "InitialMeshSettings":
-            if "Rename" in dir(_get_mesh_module(self._app)):
-                _get_mesh_module(self._app).Rename(self.name, str(meshop_name))
-            elif "RenameOp" in dir(_get_mesh_module(self._app)):
-                _get_mesh_module(self._app).RenameOp(self.name, str(meshop_name))
+            mesh_module = _get_mesh_module(self._app)
+            mesh_methods = dir(mesh_module)
+            if "Rename" in mesh_methods:
+                mesh_module.Rename(self.name, str(meshop_name))
+            elif "RenameOp" in mesh_methods:
+                mesh_module.RenameOp(self.name, str(meshop_name))
             elif "Name" in dir(self.child_object):
                 self.child_object.Name = str(meshop_name)
             else:  # pragma: no cover
@@ -361,40 +363,57 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         >>> surface = hfss.mesh.assign_surface_mesh(o.name, 3, "Surface")
 
         """
-        if self.operation_type == "SurfApproxBased":
-            _get_mesh_module(self._app).AssignTrueSurfOp(self._get_args())
-        elif self.operation_type == "DefeatureBased":
-            _get_mesh_module(self._app).AssignModelResolutionOp(self._get_args())
-        elif self.operation_type == "SurfaceRepPriority":
-            _get_mesh_module(self._app).AssignSurfPriorityForTauOp(self._get_args())
-        elif self.operation_type == "LengthBased":
-            _get_mesh_module(self._app).AssignLengthOp(self._get_args())
-        elif self.operation_type == "SkinDepthBased":
-            _get_mesh_module(self._app).AssignSkinDepthOp(self._get_args())
-        elif self.operation_type == "Curvilinear":
-            _get_mesh_module(self._app).AssignApplyCurvlinearElementsOp(self._get_args())
-        elif self.operation_type == "RotationalLayerMesh":
+        operation_type = self.operation_type
+        supported_types = {
+            "SurfApproxBased",
+            "DefeatureBased",
+            "SurfaceRepPriority",
+            "LengthBased",
+            "SkinDepthBased",
+            "Curvilinear",
+            "RotationalLayerMesh",
+            "EdgeCutLayerMesh",
+            "DensityControlBased",
+            "CurvatureExtraction",
+            "CylindricalGap",
+            "AssignCylindricalGapOp",
+        }
+        if operation_type not in supported_types and self._app.design_type != "Icepak":
+            return False
+
+        mesh_module = _get_mesh_module(self._app)
+        if operation_type == "SurfApproxBased":
+            mesh_module.AssignTrueSurfOp(self._get_args())
+        elif operation_type == "DefeatureBased":
+            mesh_module.AssignModelResolutionOp(self._get_args())
+        elif operation_type == "SurfaceRepPriority":
+            mesh_module.AssignSurfPriorityForTauOp(self._get_args())
+        elif operation_type == "LengthBased":
+            mesh_module.AssignLengthOp(self._get_args())
+        elif operation_type == "SkinDepthBased":
+            mesh_module.AssignSkinDepthOp(self._get_args())
+        elif operation_type == "Curvilinear":
+            mesh_module.AssignApplyCurvlinearElementsOp(self._get_args())
+        elif operation_type == "RotationalLayerMesh":
             props = self.props.to_dict()
             if "Total Layer Thickness" in props:
                 props["Total Layer Thickenss"] = props["Total Layer Thickness"]
                 del props["Total Layer Thickness"]
-            _get_mesh_module(self._app).AssignRotationalLayerOp(self._get_args(props))
-        elif self.operation_type == "EdgeCutLayerMesh":
+            mesh_module.AssignRotationalLayerOp(self._get_args(props))
+        elif operation_type == "EdgeCutLayerMesh":
             props = self.props.to_dict()
             if "Layer Thickness" in props:
                 props["Layer Thickenss"] = props["Layer Thickness"]
                 del props["Layer Thickness"]
-            _get_mesh_module(self._app).AssignEdgeCutLayerOp(self._get_args(props))
-        elif self.operation_type == "DensityControlBased":
-            _get_mesh_module(self._app).AssignDensityControlOp(self._get_args())
-        elif self.operation_type == "CurvatureExtraction":
-            _get_mesh_module(self._app).AssignCurvatureExtractionOp(self._get_args())
-        elif self.operation_type in ["CylindricalGap", "AssignCylindricalGapOp"]:
-            _get_mesh_module(self._app).AssignCylindricalGapOp(self._get_args())
-        elif self._app.design_type == "Icepak":
-            _get_mesh_module(self._app).AssignMeshOperation(self._get_args())
+            mesh_module.AssignEdgeCutLayerOp(self._get_args(props))
+        elif operation_type == "DensityControlBased":
+            mesh_module.AssignDensityControlOp(self._get_args())
+        elif operation_type == "CurvatureExtraction":
+            mesh_module.AssignCurvatureExtractionOp(self._get_args())
+        elif operation_type in {"CylindricalGap", "AssignCylindricalGapOp"}:
+            mesh_module.AssignCylindricalGapOp(self._get_args())
         else:
-            return False
+            mesh_module.AssignMeshOperation(self._get_args())
 
         # GetObjData is available for some objects in 2026R1
         self._has_getobject = _has_get_obj_data(self._child_object)
@@ -573,11 +592,12 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         >>> surface.delete()
 
         """
-        omeshmodule = dir(_get_mesh_module(self._app))
-        if "DeleteOp" in omeshmodule:
-            _get_mesh_module(self._app).DeleteOp([self.name])
-        elif "DeleteMeshOperations" in omeshmodule:
-            _get_mesh_module(self._app).DeleteMeshOperations([self.name])
+        mesh_module = _get_mesh_module(self._app)
+        mesh_methods = dir(mesh_module)
+        if "DeleteOp" in mesh_methods:
+            mesh_module.DeleteOp([self.name])
+        elif "DeleteMeshOperations" in mesh_methods:
+            mesh_module.DeleteMeshOperations([self.name])
         else:  # pragma: no cover
             return False
         return True
@@ -698,46 +718,47 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
     def _update_properties(self, props: dict, new_name: str | None = None) -> bool:
         """Send a complete mesh operation property dictionary to AEDT."""
         aedt_props = self._get_args(props)
+        mesh_module = _get_mesh_module(self._app)
 
         if new_name is not None:
             aedt_props[0] = "NAME:" + new_name
 
         if self.operation_type in ["InitialMeshSettings", "MeshSettings"]:
-            _get_mesh_module(self._app).InitialMeshSettings(aedt_props)
-        elif hasattr(_get_mesh_module(self._app), "Edit"):
-            _get_mesh_module(self._app).Edit(self.name, aedt_props)
+            mesh_module.InitialMeshSettings(aedt_props)
+        elif hasattr(mesh_module, "Edit"):
+            mesh_module.Edit(self.name, aedt_props)
         else:  # pragma: no cover
             if self.operation_type in ["SurfApproxBased", "Surface Approximation Based"]:
-                _get_mesh_module(self._app).EditTrueSurfOp(self.name, aedt_props)
+                mesh_module.EditTrueSurfOp(self.name, aedt_props)
             elif self.operation_type == "DefeatureBased":
-                _get_mesh_module(self._app).EditModelResolutionOp(self.name, aedt_props)
+                mesh_module.EditModelResolutionOp(self.name, aedt_props)
             elif self.operation_type == "SurfaceRepPriority":
-                _get_mesh_module(self._app).EditSurfPriorityOp(self.name, aedt_props)
+                mesh_module.EditSurfPriorityOp(self.name, aedt_props)
             elif self.operation_type == "LengthBased":
-                _get_mesh_module(self._app).EditLengthOp(self.name, aedt_props)
+                mesh_module.EditLengthOp(self.name, aedt_props)
             elif self.operation_type == "SkinDepthBased":
-                _get_mesh_module(self._app).EditSkinDepthOp(self.name, aedt_props)
+                mesh_module.EditSkinDepthOp(self.name, aedt_props)
             elif self.operation_type == "Curvilinear":
-                _get_mesh_module(self._app).EditApplyCurvlinearElementsOp(self.name, aedt_props)
+                mesh_module.EditApplyCurvlinearElementsOp(self.name, aedt_props)
             elif self.operation_type == "RotationalLayerMesh":
                 if "Total Layer Thickness" in props:
                     props["Total Layer Thickenss"] = props["Total Layer Thickness"]
                     del props["Total Layer Thickness"]
-                _get_mesh_module(self._app).EditRotationalLayerOp(self.name, aedt_props)
+                mesh_module.EditRotationalLayerOp(self.name, aedt_props)
             elif self.operation_type == "DensityControlBased":
-                _get_mesh_module(self._app).EditDensityControlOp(self.name, aedt_props)
+                mesh_module.EditDensityControlOp(self.name, aedt_props)
             elif self.operation_type == "EdgeCutLayerMesh":
                 props = self.props.to_dict()
                 if "Layer Thickness" in props:
                     props["Layer Thickenss"] = props["Layer Thickness"]
                     del props["Layer Thickness"]
-                _get_mesh_module(self._app).EditEdgeCutLayerOp(self.name, aedt_props)
+                mesh_module.EditEdgeCutLayerOp(self.name, aedt_props)
             elif self.operation_type == "CurvatureExtraction":
-                _get_mesh_module(self._app).EditCurvatureExtractionOp(self.name, aedt_props)
+                mesh_module.EditCurvatureExtractionOp(self.name, aedt_props)
             elif self.operation_type == "CylindricalGap":
-                _get_mesh_module(self._app).EditCylindricalGapOp(self.name, aedt_props)
+                mesh_module.EditCylindricalGapOp(self.name, aedt_props)
             elif self._app.design_type == "Icepak":
-                _get_mesh_module(self._app).EditMeshOperation(self.name, aedt_props)
+                mesh_module.EditMeshOperation(self.name, aedt_props)
             else:
                 return False
 
@@ -905,11 +926,12 @@ class Mesh(PyAedtBase):
         >>> mesh_operations_list = hfss.mesh.operations
 
         """
-        for operation in self.operation_names:
+        operation_names = self.operation_names
+        for operation in operation_names:
             if operation not in self.__operations:
                 self.__operations[operation] = MeshOperation(mesh=self, name=operation, props={})
 
-        active_names = set(self.operation_names)
+        active_names = set(operation_names)
         for setup_name in list(self.__operations.keys()):
             if setup_name not in active_names:
                 del self.__operations[setup_name]

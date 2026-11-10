@@ -24,7 +24,6 @@
 
 from __future__ import annotations
 
-import copy
 from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
@@ -375,7 +374,7 @@ class MeshRegion(MeshRegionBase, BinaryTreeNode, PyAedtBase):
 
     def __init__(self, mesh: IcepakMesh, name: str, props: dict) -> None:
         self._mesh: IcepakMesh = mesh
-        self._app: Any = self._mesh._app
+        self._app: FieldAnalysisIcepak = self._mesh._app
         self._legacy_props = {}
         self._name = name
 
@@ -683,7 +682,7 @@ class MeshRegion(MeshRegionBase, BinaryTreeNode, PyAedtBase):
         if not self._has_getobject:  # pragma: no cover
             # If a new mesh region is created, and GetObjData is not available,
             # it is needed to populated setups dictionary because if not props will be empty.
-            self._app.mesh._IcepakMesh__regions[self.name] = self
+            self._mesh._register_region(self)
 
         return self
 
@@ -806,6 +805,10 @@ class IcepakMesh(PyAedtBase):
     def _register_operation(self, operation: MeshOperation) -> None:
         """Store a newly created mesh operation in the local cache."""
         self.__operations[operation.name] = operation
+
+    def _register_region(self, region: MeshRegion) -> None:
+        """Store a newly created mesh region in the local cache."""
+        self.__regions[region.name] = region
 
     @property
     def global_region(self) -> GlobalMeshRegion | None:
@@ -1287,7 +1290,7 @@ class IcepakMesh(PyAedtBase):
         """
         setup_names = self._app.setup_names
         if name is None and setup_names:
-            name = self._app.setup_names[0]
+            name = setup_names[0]
         elif not setup_names:
             raise AEDTRuntimeError("At least one setup has to be defined.")
         return self._odesign.GenerateMesh(name) == 0
@@ -1309,14 +1312,15 @@ class IcepakMesh(PyAedtBase):
         for name in child_names:
             child_object = self._app.get_oo_object(mesh_object, name)
             if child_object:
-                if "GetObjType" in dir(child_object):
+                child_object_attributes = dir(child_object)
+                if "GetObjType" in child_object_attributes:
                     object_type = cast("_OMeshTypedObject", child_object).GetObjType()
                     if object_type.lower() in ["mesh region", "meshregion"]:
                         region_names.append(name)
                     elif object_type.lower() in ["mesh operation", "meshoperation"]:
                         operation_names.append(name)
                 else:
-                    if "Mesh_Resolution" in dir(child_object) or "Minimum_Gap_X" in dir(child_object):
+                    if "Mesh_Resolution" in child_object_attributes or "Minimum_Gap_X" in child_object_attributes:
                         region_names.append(name)
                     else:
                         operation_names.append(name)
@@ -1343,21 +1347,19 @@ class IcepakMesh(PyAedtBase):
 
         mesh_region = dp.get("MeshRegion", {})
 
-        mesh_setup = copy.deepcopy(mesh_region.get("MeshSetup", {}))
+        mesh_setup = mesh_region.get("MeshSetup", {})
 
-        if "MeshRegions" in mesh_setup:
-            for region_name, region_settings in mesh_setup["MeshRegions"].items():
-                if isinstance(region_settings, dict) and region_name not in mesh_names:
-                    component_regions.append(region_name)
-            del mesh_setup["MeshRegions"]
+        for region_name, region_settings in mesh_setup.get("MeshRegions", {}).items():
+            if isinstance(region_settings, dict) and region_name not in mesh_names:
+                component_regions.append(region_name)
 
-        if "MeshOperations" in mesh_setup:
-            for operation_name, operation_settings in mesh_setup["MeshOperations"].items():
-                if isinstance(operation_settings, dict) and operation_name not in mesh_names:
-                    component_operations.append(operation_name)
-            del mesh_setup["MeshOperations"]
+        for operation_name, operation_settings in mesh_setup.get("MeshOperations", {}).items():
+            if isinstance(operation_settings, dict) and operation_name not in mesh_names:
+                component_operations.append(operation_name)
 
         for region_name, region_settings in mesh_setup.items():
+            if region_name in {"MeshRegions", "MeshOperations"}:
+                continue
             if isinstance(region_settings, dict) and region_name not in mesh_names:
                 if region_settings.get("DType") == "RegionT":
                     component_regions.append(region_name)
