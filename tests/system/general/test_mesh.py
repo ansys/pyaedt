@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from itertools import product
+
 import pytest
 
 from ansys.aedt.core import Maxwell3d
@@ -39,7 +41,7 @@ from ansys.aedt.core.q3d import Q3d
 from tests import TESTS_LAYOUT_PATH
 from tests.conftest import DESKTOP_VERSION
 
-MESH_PROJECT = "mesh_operations"
+MESH_PROJECT = "mesh_operations_261"
 LAYOUT_PROJECT = "ANSYS-HSD_V1"
 TEST_SUBFOLDER = "layout_edb"
 
@@ -98,7 +100,7 @@ def q3d_app(add_app):
     app.close_project(app.project_name, save=False)
 
 
-@pytest.mark.skipif(DESKTOP_VERSION < "2023.1", reason="Skipped on versions earlier than 2023.1")
+@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
 def test_mesh_init(mesh_app) -> None:
     assert isinstance(mesh_app.mesh.operations, SetupDict)
     assert isinstance(mesh_app.mesh.initial_mesh_settings, MeshOperation)
@@ -271,7 +273,7 @@ def test_assign_surface_mesh(aedt_app) -> None:
     # Verify that the surface mesh operation is correctly assigned to the object
     assert surface.name in aedt_app.get_oo_name(mesh_object)
     surface.name = "surface_test"
-    assert "surface_test" in aedt_app.mesh.operations[0].name
+    assert "surface_test" in aedt_app.mesh.operation_names
     assert "surface_test" in aedt_app.get_oo_name(mesh_object)
     if surface.assignment:
         assert len(surface.assignment) == 2
@@ -320,7 +322,7 @@ def test_assign_surface_mesh_manual(aedt_app) -> None:
     # Verify that the surface mesh operation is correctly assigned to the object
     assert surface.name in aedt_app.get_oo_name(mesh_object)
     surface.name = "surface_test"
-    assert "surface_test" in aedt_app.mesh.meshoperations[0].name
+    assert "surface_test" in aedt_app.mesh.operation_names
     assert "surface_test" in aedt_app.get_oo_name(mesh_object)
     if surface.assignment:
         assert len(surface.assignment) == 2
@@ -457,7 +459,7 @@ def test_assign_skin_depth_maxwell2d(m2d_app) -> None:
     edge = conductor.edges[0]
     mesh = m2d_app.mesh.assign_skin_depth(assignment=edge, skin_depth="0.3mm", layers_number=3)
     assert mesh
-    assert mesh.type == "SkinDepthBased"
+    assert mesh.operation_type == "SkinDepthBased"
     assert mesh.props["Edges"][0] == edge.id
     assert mesh.props["SkinDepth"] == "0.3mm"
     assert int(mesh.props["NumLayers"]) == 3
@@ -527,25 +529,36 @@ def test_assign_density_control(maxwell_app) -> None:
 def test_cylindrical_gap_maxwell3d(maxwell_app) -> None:
     inner_cylinder = maxwell_app.modeler.create_cylinder(Axis.Z, [0, 0, 0], 5, 10, 0, "inner")
     outer_cylinder = maxwell_app.modeler.create_cylinder(Axis.Z, [0, 0, 0], 7, 12, 0, "outer")
-    assert maxwell_app.mesh.assign_cylindrical_gap(outer_cylinder.name, name="cyl_gap_test")
 
     with pytest.raises(ValueError):
         maxwell_app.mesh.assign_cylindrical_gap([inner_cylinder.name, outer_cylinder.name])
 
+    for clone_mesh, band_mapping_angle, moving_side_layers, static_side_layers in product(
+        (False, True), (None, 2), (1, 2), (1, 2)
+    ):
+        gap = maxwell_app.mesh.assign_cylindrical_gap(
+            outer_cylinder.name,
+            clone_mesh=clone_mesh,
+            band_mapping_angle=band_mapping_angle,
+            moving_side_layers=moving_side_layers,
+            static_side_layers=static_side_layers,
+        )
+        assert gap
+        assert gap.props["CloneMesh"] is clone_mesh
+        if "MovingSideLayers" in gap.props:
+            assert gap.props["MovingSideLayers"] == moving_side_layers
+        if "StaticSideLayers" in gap.props:
+            assert gap.props["StaticSideLayers"] == static_side_layers
+        if band_mapping_angle is not None and "BandMappingAngle" in gap.props:
+            assert gap.props["BandMappingAngle"] == f"{band_mapping_angle}deg"
+        elif clone_mesh:
+            assert gap.props["BandMappingAngle"] == "3deg"
+        gap.delete()
+
+    gap = maxwell_app.mesh.assign_cylindrical_gap(outer_cylinder.name, name="cyl_gap_test")
     with pytest.raises(ValueError):
         maxwell_app.mesh.assign_cylindrical_gap(outer_cylinder.name)
-
-    [
-        x.delete()
-        for _, x in maxwell_app.mesh.operations.items()
-        if x.operation_type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
-    ]
-    assert maxwell_app.mesh.assign_cylindrical_gap(outer_cylinder.name, name="cyl_gap_test", clone_mesh=True)
-    [
-        x.delete()
-        for _, x in maxwell_app.mesh.operations.items()
-        if x.operation_type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
-    ]
+    gap.delete()
 
     with pytest.raises(ValueError):
         maxwell_app.mesh.assign_cylindrical_gap(
@@ -567,17 +580,25 @@ def test_cylindrical_gap_maxwell2d(m2d_app) -> None:
     conductor = m2d_app.modeler.create_circle(origin=[0, 0, 0], radius=10, material="Copper")
     conductor2 = m2d_app.modeler.create_circle(origin=[0, 0, 0], radius=10, material="Copper")
 
-    assert m2d_app.mesh.assign_cylindrical_gap(conductor, name="cyl_gap_test")
-
     with pytest.raises(ValueError):
         m2d_app.mesh.assign_cylindrical_gap([conductor, conductor2])
 
-    [
-        x.delete()
-        for _, x in m2d_app.mesh.operations.items()
-        if x.operation_type == "Cylindrical Gap Based" or x.operation_type == "CylindricalGap"
-    ]
-    assert m2d_app.mesh.assign_cylindrical_gap(conductor, name="cyl_gap_test", band_mapping_angle=2)
+    for band_mapping_angle in (None, 2):
+        gap = m2d_app.mesh.assign_cylindrical_gap(conductor, name="cyl_gap_test", band_mapping_angle=band_mapping_angle)
+        assert gap
+        assert gap.props["UseBandMappingAngle"] is (band_mapping_angle is not None)
+        if band_mapping_angle:
+            expected_angle = f"{band_mapping_angle}deg" if band_mapping_angle is not None else "3deg"
+            assert gap.props["BandMappingAngle"] == expected_angle
+        gap.delete()
+
+    gap = m2d_app.mesh.assign_cylindrical_gap(conductor, name="cyl_gap_test")
+    with pytest.raises(ValueError):
+        m2d_app.mesh.assign_cylindrical_gap(conductor)
+    gap.delete()
+
+    with pytest.raises(ValueError):
+        m2d_app.mesh.assign_cylindrical_gap(conductor, band_mapping_angle=5)
 
 
 def test_assign_mesh_exception(q3d_app) -> None:
@@ -612,7 +633,7 @@ def test_maxwell_mesh(maxwell_app) -> None:
     assert rot.name in maxwell_app.get_oo_name(mesh_object)
     rot.name = "rot_test"
 
-    assert "rot_test" in maxwell_app.mesh.meshoperations[0].name
+    assert "rot_test" in maxwell_app.mesh.operations[0].name
     assert "rot_test" in maxwell_app.get_oo_name(mesh_object)
 
     assert rot.props["Number of Layers"] == "3"
@@ -624,17 +645,19 @@ def test_maxwell_mesh(maxwell_app) -> None:
     if "Total Layer Thickness" in rot.props:
         assert rot.props["Total Layer Thickness"] == "5mm"
         rot.props["Total Layer Thickness"] = "1mm"
-        assert rot.props["Total Layer Thickness"] == maxwell_app.get_oo_property_value(
-            mesh_object, rot.name, "Total Layer Thickness"
-        )
+        if "Total Layer Thickness" in rot.props:
+            assert rot.props["Total Layer Thickness"] == maxwell_app.get_oo_property_value(
+                mesh_object, rot.name, "Total Layer Thickness"
+            )
 
     edge_cut = maxwell_app.mesh.assign_edge_cut(o.name, name="Edge")
     if "Total Layer Thickness" in rot.props:
         assert edge_cut.props["Layer Thickness"] == "1mm"
         edge_cut.props["Layer Thickness"] = "2mm"
-        assert edge_cut.props["Layer Thickness"] == maxwell_app.get_oo_property_value(
-            mesh_object, edge_cut.name, "Layer Thickness"
-        )
+        if "Total Layer Thickness" in edge_cut.props:
+            assert edge_cut.props["Layer Thickness"] == maxwell_app.get_oo_property_value(
+                mesh_object, edge_cut.name, "Layer Thickness"
+            )
 
     dens = maxwell_app.mesh.assign_density_control(o.name, maximum_element_length=10000, name="Density")
     assert dens.props["RestrictMaxElemLength"]

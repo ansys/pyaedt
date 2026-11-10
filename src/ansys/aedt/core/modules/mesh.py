@@ -26,7 +26,6 @@
 
 from __future__ import annotations
 
-import copy
 import os
 import shutil
 from typing import TYPE_CHECKING
@@ -220,9 +219,11 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         # Fallback, previous to 2025R2, "Assignment" was not available in child_object
         if not assignments:
             if "Objects" in self.props:
-                assignments = list(self.props["Objects"])
-            elif "Groups" in self.props:
-                assignments = list(self.props["Groups"])
+                assignments.extend(list(self.props["Objects"]))
+            if "Groups" in self.props:
+                assignments.extend(list(self.props["Groups"]))
+            if "Faces" in self.props:
+                assignments.extend(list(self.props["Faces"]))
 
         return assignments
 
@@ -1992,7 +1993,12 @@ class Mesh(PyAedtBase):
 
         ops = []
         for _, op in self.operations.items():
-            if op.operation_type in ["Cylindrical Gap Based", "CylindricalGap"]:
+            if op.operation_type in [
+                "Cylindrical Gap Based",
+                "CylindricalGap",
+                "AssignCylindralGapOp",
+                "AssignCylindricalGapOp",
+            ]:
                 ops.append(op)
 
         if len(ops) > 0:
@@ -2150,36 +2156,3 @@ class Mesh(PyAedtBase):
                 self.__operations[name] = MeshOperation(mesh=self, name=name, props={})
             return self.__operations[name]
         return None
-
-    @pyaedt_function_handler()
-    def _get_mesh_3d_components(self, mesh_names) -> tuple[list, list]:
-        component_regions = []
-        component_operations = []
-
-        dp = self._app.design_properties
-        if not isinstance(dp, dict):
-            return component_regions, component_operations
-
-        mesh_region = dp.get("MeshRegion", {})
-
-        mesh_setup = copy.deepcopy(mesh_region.get("MeshSetup", {}))
-
-        if "MeshRegions" in mesh_setup:
-            for region_name, region_settings in mesh_setup["MeshRegions"].items():
-                if isinstance(region_settings, dict) and region_name not in mesh_names:
-                    component_regions.append(region_name)
-            del mesh_setup["MeshRegions"]
-
-        if "MeshOperations" in mesh_setup:
-            for operation_name, operation_settings in mesh_setup["MeshOperations"].items():
-                if isinstance(operation_settings, dict) and operation_name not in mesh_names:
-                    component_operations.append(operation_name)
-            del mesh_setup["MeshOperations"]
-
-        for region_name, region_settings in mesh_setup.items():
-            if isinstance(region_settings, dict) and region_name not in mesh_names:
-                if region_settings.get("DType") == "RegionT":
-                    component_regions.append(region_name)
-                elif region_settings.get("DType") == "OpT":
-                    component_operations.append(region_name)
-        return component_regions, component_operations
