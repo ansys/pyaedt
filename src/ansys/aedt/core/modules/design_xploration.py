@@ -83,12 +83,6 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
 
     """
 
-    def __repr__(self) -> str:
-        return self.name
-
-    def __str__(self) -> str:
-        return self.name
-
     def __init__(self, app: Parametrics | Optimizations, name: str, props: dict) -> None:
         self._parent: Parametrics | Optimizations = app
         self._app: Any = self._parent._app
@@ -123,6 +117,12 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
 
         # GetObjData is available for some objects in 2026R1
         self._has_getobject = _has_get_obj_data(self._child_object)
+
+    def __repr__(self) -> str:
+        return self.name
+
+    def __str__(self) -> str:
+        return self.name
 
     @pyaedt_function_handler()
     def _initialize_tree_node(self) -> bool:
