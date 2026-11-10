@@ -38,9 +38,6 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import SetupDict
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.props import Props as MeshProps
-from ansys.aedt.core.generic.protocols import _OIcepakDesign
-from ansys.aedt.core.generic.protocols import _OMeshModule
-from ansys.aedt.core.generic.protocols import _OMeshObject
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
@@ -48,6 +45,9 @@ from ansys.aedt.core.modules.mesh import MeshOperation
 
 if TYPE_CHECKING:
     from ansys.aedt.core.application.analysis_icepak import FieldAnalysisIcepak
+    from ansys.aedt.core.generic.protocols import _OMeshDesign
+    from ansys.aedt.core.generic.protocols import _OMeshModule
+    from ansys.aedt.core.generic.protocols import _OMeshTypedObject
 
 
 UserSpecifiedSettings = dict(
@@ -606,7 +606,7 @@ class MeshRegion(MeshRegionBase, BinaryTreeNode, PyAedtBase):
 
         """
         try:
-            cast(_OMeshModule, self._app.omeshmodule).EditMeshRegion(self.name, aedt_props)
+            cast("_OMeshModule", self._app.omeshmodule).EditMeshRegion(self.name, aedt_props)
         except Exception:  # pragma: no cover
             raise AEDTRuntimeError("Update mesh region failed.")
 
@@ -631,7 +631,7 @@ class MeshRegion(MeshRegionBase, BinaryTreeNode, PyAedtBase):
         >>> region.delete()
 
         """
-        cast(_OMeshModule, self._app.omeshmodule).DeleteMeshRegions([self.name])
+        cast("_OMeshModule", self._app.omeshmodule).DeleteMeshRegions([self.name])
         return True
 
     @pyaedt_function_handler()
@@ -661,7 +661,7 @@ class MeshRegion(MeshRegionBase, BinaryTreeNode, PyAedtBase):
         if settings.aedt_version is None or settings.aedt_version <= "2023.2":
             non_model_solids = list(self._app.modeler.non_model_objects)
 
-        cast(_OMeshModule, self._app.omeshmodule).AssignMeshRegion(aedt_props)
+        cast("_OMeshModule", self._app.omeshmodule).AssignMeshRegion(aedt_props)
 
         # GetObjData is available for some objects in 2026R1
         self._has_getobject = _has_get_obj_data(self._child_object)
@@ -767,7 +767,7 @@ class GlobalMeshRegion(MeshRegionBase):
 
         """
         try:
-            cast(_OMeshModule, self._app.omeshmodule).EditGlobalMeshRegion(aedt_props)
+            cast("_OMeshModule", self._app.omeshmodule).EditGlobalMeshRegion(aedt_props)
         except Exception:  # pragma: no cover
             raise AEDTRuntimeError("Update global mesh region properties failed.")
 
@@ -795,13 +795,17 @@ class IcepakMesh(PyAedtBase):
         if not hasattr(self._app._design_type, "mesher"):  # pragma: no cover
             raise RuntimeError(f"Invalid design type {design_type}.")
 
-        self._odesign: _OIcepakDesign = cast(_OIcepakDesign, self._app.odesign)
+        self._odesign: _OMeshDesign = cast("_OMeshDesign", self._app.odesign)
 
         self.__operations = SetupDict()
         self.__regions = SetupDict()
         self.__global_mesh_region = None
 
         self.__child_object = None
+
+    def _register_operation(self, operation: MeshOperation) -> None:
+        """Store a newly created mesh operation in the local cache."""
+        self.__operations[operation.name] = operation
 
     @property
     def global_region(self) -> GlobalMeshRegion | None:
@@ -1306,7 +1310,7 @@ class IcepakMesh(PyAedtBase):
             child_object = self._app.get_oo_object(mesh_object, name)
             if child_object:
                 if "GetObjType" in dir(child_object):
-                    object_type = cast(_OMeshObject, child_object).GetObjType()
+                    object_type = cast("_OMeshTypedObject", child_object).GetObjType()
                     if object_type.lower() in ["mesh region", "meshregion"]:
                         region_names.append(name)
                     elif object_type.lower() in ["mesh operation", "meshoperation"]:

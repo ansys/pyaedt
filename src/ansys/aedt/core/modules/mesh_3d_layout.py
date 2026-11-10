@@ -32,6 +32,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 from typing import Any
+from typing import cast
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
@@ -42,6 +43,8 @@ from ansys.aedt.core.modules.mesh import MeshProps
 
 if TYPE_CHECKING:
     from ansys.aedt.core.application.analysis_3d_layout import FieldAnalysis3DLayout
+    from ansys.aedt.core.generic.protocols import _OAnalysis3DLayout
+    from ansys.aedt.core.generic.protocols import _OMesh3DLayoutModule
 
 
 class Mesh3dLayoutOperation(PyAedtBase):
@@ -68,7 +71,7 @@ class Mesh3dLayoutOperation(PyAedtBase):
 
     def __init__(self, mesh: Mesh3dLayout, name: str, props: dict, setup: str) -> None:
         self._mesh: Mesh3dLayout = mesh
-        self._app: Any = self._mesh._app
+        self._app: FieldAnalysis3DLayout = self._mesh._app
         self._legacy_props = {}
         self._name = name
         self.__operation_type = None
@@ -217,7 +220,7 @@ class Mesh3dLayoutOperation(PyAedtBase):
         >>> op1 = app.mesh.assign_length_mesh(setup=setup.name, layer="Top", net="GND")
 
         """
-        self._app.omeshmodule.AddMeshOperation(self.setup, self._get_args())
+        cast("_OMesh3DLayoutModule", self._app.omeshmodule).AddMeshOperation(self.setup, self._get_args())
         return self
 
     @pyaedt_function_handler()
@@ -249,7 +252,7 @@ class Mesh3dLayoutOperation(PyAedtBase):
 
         args = self._get_args(props)
         try:
-            self._app.omeshmodule.EditMeshOperation(self.setup, self.name, args)
+            cast("_OMesh3DLayoutModule", self._app.omeshmodule).EditMeshOperation(self.setup, self.name, args)
             self._legacy_props = props
         except Exception:  # pragma: no cover
             self._app.logger.error("Mesh operation could not be updated.")
@@ -277,7 +280,7 @@ class Mesh3dLayoutOperation(PyAedtBase):
         >>> operation.delete()
 
         """
-        self._app.omeshmodule.DeleteMeshOperation(
+        cast("_OMesh3DLayoutModule", self._app.omeshmodule).DeleteMeshOperation(
             self.setup,
             self.name,
         )
@@ -379,7 +382,7 @@ class Mesh3dLayout(PyAedtBase):
     """
 
     def __init__(self, app: FieldAnalysis3DLayout) -> None:
-        self._app: Any = app
+        self._app: FieldAnalysis3DLayout = app
         self.logger = self._app.logger
 
         # Available mesh operations
@@ -405,10 +408,11 @@ class Mesh3dLayout(PyAedtBase):
         operation_names: dict[str, list[str]] = {}
         if not setup_names:
             return {}
-        has_get_mesh_operations = "GetMeshOperations" in dir(self._app.oanalysis)
+        oanalysis = cast("_OAnalysis3DLayout", self._app.oanalysis)
+        has_get_mesh_operations = "GetMeshOperations" in dir(oanalysis)
         for setup in setup_names:
             if has_get_mesh_operations:
-                names = self._app.oanalysis.GetMeshOperations(setup)
+                names = oanalysis.GetMeshOperations(setup)
                 if names:
                     operation_names[setup] = names
             else:  # pragma: no cover
@@ -582,7 +586,7 @@ class Mesh3dLayout(PyAedtBase):
             restrictlength = False
         else:
             restrictlength = True
-        length = self._app.modeler.modeler_variable(maximum_length)
+        length = self._app.modeler.modeler_variable(maximum_length) if maximum_length is not None else ""
 
         if maximum_elements is None:
             restrictel = False
@@ -630,9 +634,9 @@ class Mesh3dLayout(PyAedtBase):
         setup: str,
         layer: str,
         net: str,
-        skin_depth: int = 1,
+        skin_depth: str | int | float = 1,
         maximum_elements: int | None = None,
-        triangulation_max_length: float | int = 0.1,
+        triangulation_max_length: str | float | int = 0.1,
         layers_number: str = "2",
         name: str | None = None,
     ) -> Mesh3dLayoutOperation | bool:
@@ -646,11 +650,11 @@ class Mesh3dLayout(PyAedtBase):
             Name of the layer.
         net : str
             Name of the net.
-        skin_depth : int, optional
+        skin_depth : str, int, or float, optional
             Depth of the skin. The default is ``1``.
         maximum_elements : float, optional
             Maximum element length. The default is ``None``, which disables this parameter.
-        triangulation_max_length : float, optional
+        triangulation_max_length : str, int, or float, optional
             Maximum surface triangulation length. The default is ``0.1``.
         layers_number : str, optional
             Number of layers. The default is ``"2"``.
@@ -688,9 +692,9 @@ class Mesh3dLayout(PyAedtBase):
         else:
             restrictlength = True
             num_elements = maximum_elements
-        skin_depth = self._app.modeler.modeler_variable(skin_depth)
+        skin_depth_value = self._app.modeler.modeler_variable(skin_depth)
 
-        triangulation_max_length = self._app.modeler.modeler_variable(triangulation_max_length)
+        triangulation_max_length_value = self._app.modeler.modeler_variable(triangulation_max_length)
         meshbody = dict({"Id": -1, "Nam": "", "Layer": layer, "Net": net, "OrigNet": net})
         assignment = dict(
             {"MeshEntityInfo": dict({"IsFcSel": False, "EntID": -1, "FcIDs": [], "MeshBody": meshbody, "BBox": []})}
@@ -701,8 +705,8 @@ class Mesh3dLayout(PyAedtBase):
                 "Enabled": True,
                 "Assignment": assignment,
                 "Region": "",
-                "SkinDepth": skin_depth,
-                "SurfTriMaxLength": triangulation_max_length,
+                "SkinDepth": skin_depth_value,
+                "SurfTriMaxLength": triangulation_max_length_value,
                 "NumLayers": layers_number,
                 "RestrictElem": restrictlength,
                 "NumMaxElem": num_elements,
@@ -739,7 +743,7 @@ class Mesh3dLayout(PyAedtBase):
         >>> app.mesh.generate_mesh(setup.name)
 
         """
-        self._app.oanalysis.GenerateMesh([name])
+        cast("_OAnalysis3DLayout", self._app.oanalysis).GenerateMesh([name])
         return True
 
     @pyaedt_function_handler()
