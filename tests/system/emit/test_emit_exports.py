@@ -42,6 +42,7 @@ matplotlib.use("Agg")
 # specifically compiled for each supported Python version.
 # Prior to 2025R1, the Emit API supported Python 3.8,3.9,3.10,3.11
 # Starting with 2025R1, the Emit API supports Python 3.10,3.11,3.12
+# Starting with 2027R1, the Emit API supports Python 3.10+
 if (
     DESKTOP_VERSION >= "2027.1"
     or ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1")
@@ -107,6 +108,10 @@ def _setup_two_radio_project(emit_app):
 @pytest.mark.skipif(
     sys.version_info < (3, 10) and DESKTOP_VERSION > "2024.2",
     reason="Emit API is only available for Python 3.10+ in AEDT versions 2025.1 and later.",
+)
+@pytest.mark.skipif(
+    sys.version_info > (3, 12) and DESKTOP_VERSION < "2027.1",
+    reason="Emit API is only available for Python 3.13+ in AEDT versions 2027.1 and later.",
 )
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="export_to_csv requires 2027 R1 or later.")
 class TestEmitExports:
