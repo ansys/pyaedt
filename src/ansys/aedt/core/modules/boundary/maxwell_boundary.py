@@ -55,8 +55,25 @@ class MatrixElectric:
 
     Examples
     --------
+    Compute the capacitance matrix of two conductors referenced to a ground plane.
+
+    >>> from ansys.aedt.core import Maxwell3d
+    >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
     >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixElectric
-    >>> obj = MatrixElectric()
+    >>> m3d = Maxwell3d(version="2026.1", solution_type=SolutionsMaxwell3D.ElectroStatic)
+    >>> trace1 = m3d.modeler.create_box([0, 0, 1], [10, 1, 0.1], name="Trace1", material="copper")
+    >>> trace2 = m3d.modeler.create_box([0, 3, 1], [10, 1, 0.1], name="Trace2", material="copper")
+    >>> plane = m3d.modeler.create_box([0, -2, 0], [10, 8, 0.1], name="Ground", material="copper")
+    >>> voltage1 = m3d.assign_voltage([trace1], amplitude=1, name="V_Trace1")
+    >>> voltage2 = m3d.assign_voltage([trace2], amplitude=1, name="V_Trace2")
+    >>> voltage_gnd = m3d.assign_voltage([plane], amplitude=0, name="V_Ground")
+    >>> matrix_args = MatrixElectric(
+    ...     signal_sources=[voltage1.name, voltage2.name],
+    ...     ground_sources=[voltage_gnd.name],
+    ...     matrix_name="CapacitanceMatrix",
+    ... )
+    >>> matrix = m3d.assign_matrix(matrix_args)
+    >>> m3d.release_desktop()
 
     """
 
@@ -85,8 +102,22 @@ class SourceMagnetostatic:
 
     Examples
     --------
+    Define a 10-turn coil in a Maxwell 2D magnetostatic design whose current
+    returns through a second coil side.
+
+    >>> from ansys.aedt.core import Maxwell2d
+    >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
+    >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixMagnetostatic
     >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import SourceMagnetostatic
-    >>> obj = SourceMagnetostatic()
+    >>> m2d = Maxwell2d(version="2026.1", solution_type=SolutionsMaxwell2D.MagnetostaticXY)
+    >>> go = m2d.modeler.create_rectangle([0, 0, 0], [2, 5], name="Coil_Go", material="copper")
+    >>> back = m2d.modeler.create_rectangle([6, 0, 0], [2, 5], name="Coil_Back", material="copper")
+    >>> current_go = m2d.assign_current([go], amplitude=1, name="I_Go")
+    >>> current_back = m2d.assign_current([back], amplitude=1, swap_direction=True, name="I_Back")
+    >>> source = SourceMagnetostatic(name=current_go.name, return_path=current_back.name, turns_number=10)
+    >>> matrix_args = MatrixMagnetostatic(signal_sources=[source], group_sources=[], matrix_name="CoilMatrix")
+    >>> matrix = m2d.assign_matrix(matrix_args)
+    >>> m2d.release_desktop()
 
     """
 
@@ -115,8 +146,37 @@ class GroupSourcesMagnetostatic:
 
     Examples
     --------
+    Group two coil sides connected in parallel into a single matrix entry.
+
+    >>> from ansys.aedt.core import Maxwell3d
+    >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
     >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import GroupSourcesMagnetostatic
-    >>> obj = GroupSourcesMagnetostatic()
+    >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixMagnetostatic
+    >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import SourceMagnetostatic
+    >>> m3d = Maxwell3d(version="2026.1", solution_type=SolutionsMaxwell3D.Magnetostatic)
+    >>> bar1 = m3d.modeler.create_box([0, 0, 0], [1, 1, 10], name="Bar1", material="copper")
+    >>> bar2 = m3d.modeler.create_box([3, 0, 0], [1, 1, 10], name="Bar2", material="copper")
+    >>> bar3 = m3d.modeler.create_box([6, 0, 0], [1, 1, 10], name="Bar3", material="copper")
+    >>> current1 = m3d.assign_current([bar1.top_face_z], amplitude=1, name="I_Bar1")
+    >>> current2 = m3d.assign_current([bar2.top_face_z], amplitude=1, name="I_Bar2")
+    >>> current3 = m3d.assign_current([bar3.top_face_z], amplitude=1, name="I_Bar3")
+    >>> return1 = m3d.assign_current([bar1.bottom_face_z], amplitude=1, swap_direction=True, name="I_Bar1_Out")
+    >>> return2 = m3d.assign_current([bar2.bottom_face_z], amplitude=1, swap_direction=True, name="I_Bar2_Out")
+    >>> return3 = m3d.assign_current([bar3.bottom_face_z], amplitude=1, swap_direction=True, name="I_Bar3_Out")
+    >>> group = GroupSourcesMagnetostatic(
+    ...     source_names=[current1.name, current2.name], branches_number=2, name="ParallelBars"
+    ... )
+    >>> matrix_args = MatrixMagnetostatic(
+    ...     signal_sources=[
+    ...         SourceMagnetostatic(name=current1.name),
+    ...         SourceMagnetostatic(name=current2.name),
+    ...         SourceMagnetostatic(name=current3.name),
+    ...     ],
+    ...     group_sources=[group],
+    ...     matrix_name="InductanceMatrix",
+    ... )
+    >>> matrix = m3d.assign_matrix(matrix_args)
+    >>> m3d.release_desktop()
 
     """
 
@@ -143,8 +203,31 @@ class MatrixMagnetostatic:
 
     Examples
     --------
+    Compute the self and mutual inductances of two coils with 20 and 5 turns.
+
+    >>> from ansys.aedt.core import Maxwell3d
+    >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
     >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixMagnetostatic
-    >>> obj = MatrixMagnetostatic()
+    >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import SourceMagnetostatic
+    >>> m3d = Maxwell3d(version="2026.1", solution_type=SolutionsMaxwell3D.Magnetostatic)
+    >>> primary = m3d.modeler.create_box([0, 0, 0], [1, 1, 10], name="Primary", material="copper")
+    >>> secondary = m3d.modeler.create_box([4, 0, 0], [1, 1, 10], name="Secondary", material="copper")
+    >>> current_p = m3d.assign_current([primary.top_face_z], amplitude=1, name="I_Primary")
+    >>> current_s = m3d.assign_current([secondary.top_face_z], amplitude=1, name="I_Secondary")
+    >>> return_p = m3d.assign_current([primary.bottom_face_z], amplitude=1, swap_direction=True, name="I_Primary_Out")
+    >>> return_s = m3d.assign_current(
+    ...     [secondary.bottom_face_z], amplitude=1, swap_direction=True, name="I_Secondary_Out"
+    ... )
+    >>> matrix_args = MatrixMagnetostatic(
+    ...     signal_sources=[
+    ...         SourceMagnetostatic(name=current_p.name, turns_number=20),
+    ...         SourceMagnetostatic(name=current_s.name, turns_number=5),
+    ...     ],
+    ...     group_sources=[],
+    ...     matrix_name="TransformerMatrix",
+    ... )
+    >>> matrix = m3d.assign_matrix(matrix_args)
+    >>> m3d.release_desktop()
 
     """
 
@@ -171,8 +254,19 @@ class SourceACMagnetic:
 
     Examples
     --------
+    Wrap the current excitations of an AC Magnetic design as matrix sources.
+
+    >>> from ansys.aedt.core import Maxwell3d
+    >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
+    >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixACMagnetic
     >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import SourceACMagnetic
-    >>> obj = SourceACMagnetic()
+    >>> m3d = Maxwell3d(version="2026.1", solution_type=SolutionsMaxwell3D.ACMagnetic)
+    >>> bar = m3d.modeler.create_box([0, 0, 0], [1, 1, 10], name="Busbar", material="copper")
+    >>> current_in = m3d.assign_current([bar.top_face_z], amplitude=10, name="I_In")
+    >>> m3d.assign_current([bar.bottom_face_z], amplitude=10, swap_direction=True, name="I_Out")
+    >>> source = SourceACMagnetic(name=current_in.name)
+    >>> matrix = m3d.assign_matrix(MatrixACMagnetic(signal_sources=[source], matrix_name="BusbarRL"))
+    >>> m3d.release_desktop()
 
     """
 
@@ -195,8 +289,25 @@ class MatrixACMagnetic:
 
     Examples
     --------
+    Compute the frequency-dependent R and L matrix of two parallel busbars.
+
+    >>> from ansys.aedt.core import Maxwell3d
+    >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
     >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixACMagnetic
-    >>> obj = MatrixACMagnetic()
+    >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import SourceACMagnetic
+    >>> m3d = Maxwell3d(version="2026.1", solution_type=SolutionsMaxwell3D.ACMagnetic)
+    >>> bar1 = m3d.modeler.create_box([0, 0, 0], [1, 1, 10], name="Busbar1", material="copper")
+    >>> bar2 = m3d.modeler.create_box([3, 0, 0], [1, 1, 10], name="Busbar2", material="copper")
+    >>> current1 = m3d.assign_current([bar1.top_face_z], amplitude=1, name="I_Bar1")
+    >>> current2 = m3d.assign_current([bar2.top_face_z], amplitude=1, name="I_Bar2")
+    >>> m3d.assign_current([bar1.bottom_face_z], amplitude=1, swap_direction=True, name="I_Bar1_Out")
+    >>> m3d.assign_current([bar2.bottom_face_z], amplitude=1, swap_direction=True, name="I_Bar2_Out")
+    >>> matrix_args = MatrixACMagnetic(
+    ...     signal_sources=[SourceACMagnetic(name=current1.name), SourceACMagnetic(name=current2.name)],
+    ...     matrix_name="BusbarMatrix",
+    ... )
+    >>> matrix = m3d.assign_matrix(matrix_args)
+    >>> m3d.release_desktop()
 
     """
 
@@ -219,8 +330,20 @@ class RLSourceACMagneticAPhi:
 
     Examples
     --------
+    Define the terminal pair used to extract the RL matrix of a conductor.
+
+    >>> from ansys.aedt.core import Maxwell3d
+    >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
+    >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixACMagneticAPhi
     >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import RLSourceACMagneticAPhi
-    >>> obj = RLSourceACMagneticAPhi()
+    >>> m3d = Maxwell3d(version="2026.1", solution_type=SolutionsMaxwell3D.ACMagneticAPhi)
+    >>> bar = m3d.modeler.create_box([0, 0, 0], [1, 1, 10], name="Conductor", material="copper")
+    >>> sink = m3d.assign_current([bar.top_face_z], amplitude=1, name="I_Sink")
+    >>> source = m3d.assign_current([bar.bottom_face_z], amplitude=1, swap_direction=True, name="I_Source")
+    >>> rl_source = RLSourceACMagneticAPhi(signal_sources=[sink.name], ground_sources=[source.name])
+    >>> matrix_args = MatrixACMagneticAPhi(rl_sources=[rl_source], gc_sources=[], matrix_name="RLMatrix")
+    >>> matrix = m3d.assign_matrix(matrix_args)
+    >>> m3d.release_desktop()
 
     """
 
@@ -243,8 +366,22 @@ class GCSourceACMagneticAPhi:
 
     Examples
     --------
+    Define the terminal pair used to extract the GC (conductance and capacitance)
+    matrix between two conductors.
+
+    >>> from ansys.aedt.core import Maxwell3d
+    >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
     >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import GCSourceACMagneticAPhi
-    >>> obj = GCSourceACMagneticAPhi()
+    >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixACMagneticAPhi
+    >>> m3d = Maxwell3d(version="2026.1", solution_type=SolutionsMaxwell3D.ACMagneticAPhi)
+    >>> signal = m3d.modeler.create_box([0, 0, 1], [10, 1, 0.1], name="Signal", material="copper")
+    >>> ground = m3d.modeler.create_box([0, 0, 0], [10, 1, 0.1], name="Ground", material="copper")
+    >>> current_sig = m3d.assign_current([signal.top_face_z], amplitude=1, name="I_Signal")
+    >>> current_gnd = m3d.assign_current([ground.top_face_z], amplitude=1, name="I_Ground")
+    >>> gc_source = GCSourceACMagneticAPhi(signal_sources=[current_sig.name], ground_sources=[current_gnd.name])
+    >>> matrix_args = MatrixACMagneticAPhi(rl_sources=[], gc_sources=[gc_source], matrix_name="GCMatrix")
+    >>> matrix = m3d.assign_matrix(matrix_args)
+    >>> m3d.release_desktop()
 
     """
 
@@ -269,8 +406,27 @@ class MatrixACMagneticAPhi:
 
     Examples
     --------
+    Extract both the RL and the GC matrices of a two-conductor system.
+
+    >>> from ansys.aedt.core import Maxwell3d
+    >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
+    >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import GCSourceACMagneticAPhi
     >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixACMagneticAPhi
-    >>> obj = MatrixACMagneticAPhi()
+    >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import RLSourceACMagneticAPhi
+    >>> m3d = Maxwell3d(version="2026.1", solution_type=SolutionsMaxwell3D.ACMagneticAPhi)
+    >>> box1 = m3d.modeler.create_box([0, 0, 0], [1, 1, 10], name="Conductor1", material="copper")
+    >>> box2 = m3d.modeler.create_box([3, 0, 0], [1, 1, 10], name="Conductor2", material="copper")
+    >>> top1 = m3d.assign_current([box1.top_face_z], amplitude=1, name="I1_Top")
+    >>> top2 = m3d.assign_current([box2.top_face_z], amplitude=1, name="I2_Top")
+    >>> bottom1 = m3d.assign_current([box1.bottom_face_z], amplitude=1, swap_direction=True, name="I1_Bottom")
+    >>> bottom2 = m3d.assign_current([box2.bottom_face_z], amplitude=1, swap_direction=True, name="I2_Bottom")
+    >>> matrix_args = MatrixACMagneticAPhi(
+    ...     rl_sources=[RLSourceACMagneticAPhi(signal_sources=[top1.name], ground_sources=[bottom1.name])],
+    ...     gc_sources=[GCSourceACMagneticAPhi(signal_sources=[top2.name], ground_sources=[bottom2.name])],
+    ...     matrix_name="RLGCMatrix",
+    ... )
+    >>> matrix = m3d.assign_matrix(matrix_args)
+    >>> m3d.release_desktop()
 
     """
 
@@ -311,8 +467,19 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
     Examples
     --------
-    >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
-    >>> obj = MaxwellParameters()
+    ``MaxwellParameters`` is the base class of the objects returned by
+    :meth:`ansys.aedt.core.maxwell.Maxwell.assign_force`,
+    :meth:`ansys.aedt.core.maxwell.Maxwell.assign_torque`, and
+    :meth:`ansys.aedt.core.maxwell.Maxwell.assign_matrix`.
+
+    >>> from ansys.aedt.core import Maxwell3d
+    >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
+    >>> m3d = Maxwell3d(version="2026.1", solution_type=SolutionsMaxwell3D.Magnetostatic)
+    >>> plate = m3d.modeler.create_box([0, 0, 0], [10, 10, 1], name="Plate", material="iron")
+    >>> force = m3d.assign_force([plate.name], force_name="Force_Plate")
+    >>> force.type
+    'Force'
+    >>> m3d.release_desktop()
 
     """
 
@@ -343,9 +510,18 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
-        >>> obj = MaxwellParameters()
-        >>> obj.props
+        Read the reference coordinate system of a force and make it a Lorentz force.
+        Setting a property updates the parameter in AEDT.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
+        >>> m3d = Maxwell3d(version="2026.1", solution_type=SolutionsMaxwell3D.Magnetostatic)
+        >>> plate = m3d.modeler.create_box([0, 0, 0], [10, 10, 1], name="Plate", material="copper")
+        >>> force = m3d.assign_force([plate.name], force_name="Force_Plate")
+        >>> force.props["Reference CS"]
+        'Global'
+        >>> force.props["Is Virtual"] = False
+        >>> m3d.release_desktop()
 
         """
         has_obj_data = _has_get_obj_data(self._child_object)
@@ -374,9 +550,17 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
-        >>> obj = MaxwellParameters()
-        >>> obj.name
+        Rename a torque parameter.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
+        >>> m3d = Maxwell3d(version="2026.1", solution_type=SolutionsMaxwell3D.Magnetostatic)
+        >>> rotor = m3d.modeler.create_cylinder(orientation="Z", origin=[0, 0, 0], radius=5, height=10, name="Rotor")
+        >>> torque = m3d.assign_torque([rotor.name], axis="Z")
+        >>> torque.name = "Torque_Rotor"
+        >>> torque.name
+        'Torque_Rotor'
+        >>> m3d.release_desktop()
 
         """
         if self._child_object:
@@ -423,9 +607,19 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
-        >>> obj = MaxwellParameters()
-        >>> obj.create()
+        This method is called by the ``assign_*`` methods of the Maxwell application.
+        Call it directly only when building a parameter from a property dictionary.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
+        >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellForce
+        >>> m3d = Maxwell3d(version="2026.1", solution_type=SolutionsMaxwell3D.Magnetostatic)
+        >>> plate = m3d.modeler.create_box([0, 0, 0], [10, 10, 1], name="Plate", material="iron")
+        >>> props = {"Name": "Force_Plate", "Reference CS": "Global", "Is Virtual": True, "Objects": [plate.name]}
+        >>> force = MaxwellForce(m3d, "Force_Plate", props=props)
+        >>> force.create()
+        True
+        >>> m3d.release_desktop()
 
         """
         if self.type == "Matrix":
@@ -452,9 +646,20 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
-        >>> obj = MaxwellParameters()
-        >>> obj.update()
+        Change several torque properties and push them to AEDT in a single call.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
+        >>> m3d = Maxwell3d(version="2026.1", solution_type=SolutionsMaxwell3D.Magnetostatic)
+        >>> rotor = m3d.modeler.create_cylinder(orientation="Z", origin=[0, 0, 0], radius=5, height=10, name="Rotor")
+        >>> torque = m3d.assign_torque([rotor.name], axis="Z", torque_name="Torque_Rotor")
+        >>> torque.auto_update = False
+        >>> torque.props["Axis"] = "X"
+        >>> torque.props["Is Positive"] = False
+        >>> torque.update()
+        True
+        >>> torque.auto_update = True
+        >>> m3d.release_desktop()
 
         """
         if self.type == "Matrix":
@@ -488,6 +693,7 @@ class MaxwellMatrix(MaxwellParameters):
     Setup a Maxwell 2D model in Electrostatic (valid for all electric solvers).
 
     >>> from ansys.aedt.core import Maxwell2d
+    >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
     >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixElectric
     >>> m2d = Maxwell2d(version="2026.1", solution_type=SolutionsMaxwell2D.ElectroStaticXY)
     >>> rectangle1 = m2d.modeler.create_rectangle([0.5, 1.5, 0], [2.5, 5], name="Sheet1")
@@ -611,9 +817,26 @@ class MaxwellMatrix(MaxwellParameters):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
-        >>> obj = MaxwellMatrix()
-        >>> obj.reduced_matrices
+        List the reduced matrices and their join operations.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
+        >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixACMagnetic
+        >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import SourceACMagnetic
+        >>> m3d = Maxwell3d(version="2026.1", solution_type=SolutionsMaxwell3D.ACMagnetic)
+        >>> bar1 = m3d.modeler.create_box([0, 0, 0], [1, 1, 10], name="Bar1", material="copper")
+        >>> bar2 = m3d.modeler.create_box([3, 0, 0], [1, 1, 10], name="Bar2", material="copper")
+        >>> current1 = m3d.assign_current([bar1.top_face_z], amplitude=1, name="I_Bar1")
+        >>> current2 = m3d.assign_current([bar2.top_face_z], amplitude=1, name="I_Bar2")
+        >>> m3d.assign_current([bar1.bottom_face_z], amplitude=1, swap_direction=True, name="I_Bar1_Out")
+        >>> m3d.assign_current([bar2.bottom_face_z], amplitude=1, swap_direction=True, name="I_Bar2_Out")
+        >>> matrix = m3d.assign_matrix(
+        ...     MatrixACMagnetic(signal_sources=[SourceACMagnetic(current1.name), SourceACMagnetic(current2.name)])
+        ... )
+        >>> matrix.join_series(sources=[current1.name, current2.name], matrix_name="SeriesBars", join_name="Series")
+        >>> [(r.name, [op.name for op in r.operations_reduction]) for r in matrix.reduced_matrices]
+        [('SeriesBars', ['Series'])]
+        >>> m3d.release_desktop()
 
         """
         if self._app.solution_type in [SolutionsMaxwell3D.EddyCurrent, SolutionsMaxwell3D.ACMagnetic]:
@@ -652,9 +875,28 @@ class MaxwellMatrix(MaxwellParameters):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
-        >>> obj = MaxwellMatrix()
-        >>> obj.join_series(sources=["Box1"])
+        Compute the equivalent impedance of two busbars connected in series.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
+        >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixACMagnetic
+        >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import SourceACMagnetic
+        >>> m3d = Maxwell3d(version="2026.1", solution_type=SolutionsMaxwell3D.ACMagnetic)
+        >>> bar1 = m3d.modeler.create_box([0, 0, 0], [1, 1, 10], name="Bar1", material="copper")
+        >>> bar2 = m3d.modeler.create_box([3, 0, 0], [1, 1, 10], name="Bar2", material="copper")
+        >>> current1 = m3d.assign_current([bar1.top_face_z], amplitude=1, name="I_Bar1")
+        >>> current2 = m3d.assign_current([bar2.top_face_z], amplitude=1, name="I_Bar2")
+        >>> m3d.assign_current([bar1.bottom_face_z], amplitude=1, swap_direction=True, name="I_Bar1_Out")
+        >>> m3d.assign_current([bar2.bottom_face_z], amplitude=1, swap_direction=True, name="I_Bar2_Out")
+        >>> matrix = m3d.assign_matrix(
+        ...     MatrixACMagnetic(signal_sources=[SourceACMagnetic(current1.name), SourceACMagnetic(current2.name)])
+        ... )
+        >>> reduced = matrix.join_series(
+        ...     sources=[current1.name, current2.name], matrix_name="SeriesBars", join_name="Series_1_2"
+        ... )
+        >>> reduced.name
+        'SeriesBars'
+        >>> m3d.release_desktop()
 
         """
         return self._create_matrix_reduction(
@@ -681,9 +923,28 @@ class MaxwellMatrix(MaxwellParameters):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
-        >>> obj = MaxwellMatrix()
-        >>> obj.join_parallel(sources=["Box1"])
+        Compute the equivalent impedance of two busbars connected in parallel.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
+        >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixACMagnetic
+        >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import SourceACMagnetic
+        >>> m3d = Maxwell3d(version="2026.1", solution_type=SolutionsMaxwell3D.ACMagnetic)
+        >>> bar1 = m3d.modeler.create_box([0, 0, 0], [1, 1, 10], name="Bar1", material="copper")
+        >>> bar2 = m3d.modeler.create_box([3, 0, 0], [1, 1, 10], name="Bar2", material="copper")
+        >>> current1 = m3d.assign_current([bar1.top_face_z], amplitude=1, name="I_Bar1")
+        >>> current2 = m3d.assign_current([bar2.top_face_z], amplitude=1, name="I_Bar2")
+        >>> m3d.assign_current([bar1.bottom_face_z], amplitude=1, swap_direction=True, name="I_Bar1_Out")
+        >>> m3d.assign_current([bar2.bottom_face_z], amplitude=1, swap_direction=True, name="I_Bar2_Out")
+        >>> matrix = m3d.assign_matrix(
+        ...     MatrixACMagnetic(signal_sources=[SourceACMagnetic(current1.name), SourceACMagnetic(current2.name)])
+        ... )
+        >>> reduced = matrix.join_parallel(
+        ...     sources=[current1.name, current2.name], matrix_name="ParallelBars", join_name="Parallel_1_2"
+        ... )
+        >>> reduced.name
+        'ParallelBars'
+        >>> m3d.release_desktop()
 
         """
         return self._create_matrix_reduction(
@@ -951,8 +1212,29 @@ class MaxwellReducedMatrixOperation:
 
     Examples
     --------
-    >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellReducedMatrixOperation
-    >>> obj = MaxwellReducedMatrixOperation()
+    Instances are created by :meth:`MaxwellMatrix.join_series` and
+    :meth:`MaxwellMatrix.join_parallel` and are available through
+    :attr:`MaxwellReducedMatrix.operations_reduction`.
+
+    >>> from ansys.aedt.core import Maxwell3d
+    >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
+    >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixACMagnetic
+    >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import SourceACMagnetic
+    >>> m3d = Maxwell3d(version="2026.1", solution_type=SolutionsMaxwell3D.ACMagnetic)
+    >>> bar1 = m3d.modeler.create_box([0, 0, 0], [1, 1, 10], name="Bar1", material="copper")
+    >>> bar2 = m3d.modeler.create_box([3, 0, 0], [1, 1, 10], name="Bar2", material="copper")
+    >>> current1 = m3d.assign_current([bar1.top_face_z], amplitude=1, name="I_Bar1")
+    >>> current2 = m3d.assign_current([bar2.top_face_z], amplitude=1, name="I_Bar2")
+    >>> m3d.assign_current([bar1.bottom_face_z], amplitude=1, swap_direction=True, name="I_Bar1_Out")
+    >>> m3d.assign_current([bar2.bottom_face_z], amplitude=1, swap_direction=True, name="I_Bar2_Out")
+    >>> matrix = m3d.assign_matrix(
+    ...     MatrixACMagnetic(signal_sources=[SourceACMagnetic(current1.name), SourceACMagnetic(current2.name)])
+    ... )
+    >>> reduced = matrix.join_series(sources=[current1.name, current2.name], join_name="Series_1_2")
+    >>> operation = reduced.operations_reduction[0]
+    >>> operation.name, operation.sources
+    ('Series_1_2', ['I_Bar1', 'I_Bar2'])
+    >>> m3d.release_desktop()
 
     """
 
@@ -968,8 +1250,17 @@ class MaxwellForce(MaxwellParameters):
 
     Examples
     --------
-    >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellForce
-    >>> obj = MaxwellForce()
+    Compute the attraction force exerted by a permanent magnet on an iron plate.
+
+    >>> from ansys.aedt.core import Maxwell3d
+    >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
+    >>> m3d = Maxwell3d(version="2026.1", solution_type=SolutionsMaxwell3D.Magnetostatic)
+    >>> magnet = m3d.modeler.create_box([0, 0, 0], [10, 10, 2], name="Magnet", material="NdFe35")
+    >>> plate = m3d.modeler.create_box([0, 0, 3], [10, 10, 1], name="Plate", material="iron")
+    >>> force = m3d.assign_force([plate.name], is_virtual=True, force_name="Force_Plate")
+    >>> force.props["Objects"]
+    ['Plate']
+    >>> m3d.release_desktop()
 
     """
 
@@ -983,8 +1274,18 @@ class MaxwellTorque(MaxwellParameters):
 
     Examples
     --------
-    >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellTorque
-    >>> obj = MaxwellTorque()
+    Compute the torque about the Z axis acting on a motor rotor.
+
+    >>> from ansys.aedt.core import Maxwell3d
+    >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
+    >>> m3d = Maxwell3d(version="2026.1", solution_type=SolutionsMaxwell3D.Transient)
+    >>> rotor = m3d.modeler.create_cylinder(
+    ...     orientation="Z", origin=[0, 0, 0], radius=20, height=50, name="Rotor", material="steel_1008"
+    ... )
+    >>> torque = m3d.assign_torque([rotor.name], axis="Z", is_positive=True, torque_name="Torque_Rotor")
+    >>> torque.props["Axis"]
+    'Z'
+    >>> m3d.release_desktop()
 
     """
 
@@ -998,8 +1299,17 @@ class MaxwellLayoutForce(MaxwellParameters):
 
     Examples
     --------
-    >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellLayoutForce
-    >>> obj = MaxwellLayoutForce()
+    Compute the force on the ``GND`` net of a PCB layout component in a
+    Transient A-Phi design. The design must already contain the layout
+    component ``"LC1_1"``.
+
+    >>> from ansys.aedt.core import Maxwell3d
+    >>> m3d = Maxwell3d(version="2026.1", project="pcb_layout.aedt", design="TransientAPhi")
+    >>> net_layers = {"GND": ["TOP", "BOTTOM"], "PWR": ["L2"]}
+    >>> layout_force = m3d.assign_layout_force(net_layers=net_layers, component_name="LC1_1", force_name="Force_PCB")
+    >>> layout_force.type
+    'LayoutForce'
+    >>> m3d.release_desktop()
 
     """
 
