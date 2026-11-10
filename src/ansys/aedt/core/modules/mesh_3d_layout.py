@@ -359,7 +359,7 @@ class Mesh3dLayoutOperation(PyAedtBase):
             ) and name in design_properties["Setup"]["Data"][self.setup]["MeshOps"]:
                 meshops = self._app.design_properties["Setup"]["Data"][self.setup]["MeshOps"][name]
         except Exception:
-            self.logger.debug("An error occurred while accessing design mesh operations.")  # pragma: no cover
+            self._app.logger.debug("An error occurred while accessing design mesh operations.")  # pragma: no cover
         return meshops
 
 
@@ -386,7 +386,7 @@ class Mesh3dLayout(PyAedtBase):
         self.__operations = SetupDict()
 
     @property
-    def operation_names(self) -> dict[str, str]:
+    def operation_names(self) -> dict[str, list[str]]:
         """Return the available mesh operation names.
 
         Returns
@@ -402,7 +402,7 @@ class Mesh3dLayout(PyAedtBase):
 
         """
         setup_names = self._app.setup_names
-        operation_names = {}
+        operation_names: dict[str, list[str]] = {}
         if not setup_names:
             return {}
         has_get_mesh_operations = "GetMeshOperations" in dir(self._app.oanalysis)
@@ -492,7 +492,7 @@ class Mesh3dLayout(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def _get_setup_mesh_operation_names(self, name) -> list:
+    def _get_setup_mesh_operation_names(self, name: str) -> list[str]:
         """Retrieve setup mesh operations.
 
         Returns
@@ -518,7 +518,7 @@ class Mesh3dLayout(PyAedtBase):
             ):
                 meshops = list(self._app.design_properties["Setup"]["Data"][name]["MeshOps"])
         except Exception:
-            self.logger.debug("An error occurred while accessing design mesh operations.")  # pragma: no cover
+            self._app.logger.debug("An error occurred while accessing design mesh operations.")  # pragma: no cover
         return meshops
 
     @pyaedt_function_handler()
@@ -684,9 +684,10 @@ class Mesh3dLayout(PyAedtBase):
 
         if maximum_elements is None:
             restrictlength = False
-            maximum_elements = "1000"
+            num_elements: int | str = "1000"
         else:
             restrictlength = True
+            num_elements = maximum_elements
         skin_depth = self._app.modeler.modeler_variable(skin_depth)
 
         triangulation_max_length = self._app.modeler.modeler_variable(triangulation_max_length)
@@ -704,7 +705,7 @@ class Mesh3dLayout(PyAedtBase):
                 "SurfTriMaxLength": triangulation_max_length,
                 "NumLayers": layers_number,
                 "RestrictElem": restrictlength,
-                "NumMaxElem": maximum_elements,
+                "NumMaxElem": num_elements,
             }
         )
 
