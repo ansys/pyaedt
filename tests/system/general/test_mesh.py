@@ -546,9 +546,9 @@ def test_cylindrical_gap_maxwell3d(maxwell_app) -> None:
         assert gap
         assert gap.props["CloneMesh"] is clone_mesh
         if "MovingSideLayers" in gap.props:
-            assert gap.props["MovingSideLayers"] == moving_side_layers
+            assert str(gap.props["MovingSideLayers"]) == str(moving_side_layers)
         if "StaticSideLayers" in gap.props:
-            assert gap.props["StaticSideLayers"] == static_side_layers
+            assert str(gap.props["StaticSideLayers"]) == str(static_side_layers)
         if band_mapping_angle is not None and "BandMappingAngle" in gap.props:
             assert gap.props["BandMappingAngle"] == f"{band_mapping_angle}deg"
         elif clone_mesh:
