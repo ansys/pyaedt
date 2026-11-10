@@ -490,7 +490,7 @@ class Analysis(Design, PyAedtBase):
                         sweep_list[el]["Sweeps"].extend(list(self.oanalysis.GetSweeps(el)))
                     except Exception:
                         sweep_list[el]["Sweeps"] = []
-        for k in self._imported_solution_names(setup_list):
+        for k in self.imported_solution_names(setup_list):
             sweep_list[k] = {"Nominal": "Table", "Sweeps": []}
         return sweep_list
 
