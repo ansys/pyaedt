@@ -35,11 +35,13 @@ from ansys.aedt.core import settings
 from ansys.aedt.core.application.variables import generate_validation_errors
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import Axis
+from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import install_message
 from ansys.aedt.core.internal.errors import GrpcApiError
+from ansys.aedt.core.internal.errors import MethodNotSupportedError
 from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
@@ -1611,3 +1613,93 @@ class Modeler3D(Primitives3D, PyAedtBase):
             return create_region.SetPropValue("Coordinate System", assignment)
         except (GrpcApiError, SystemExit):
             return False
+
+    @pyaedt_function_handler()
+    def assign_priorities(self, assignment: list[list[Object3d | UserDefinedComponent | str]]) -> bool:
+        """Set objects priorities.
+
+        Parameters
+        ----------
+        assignment : List[List[Union[Object3d, UserDefinedComponent, str]
+            List of lists of objects. Each list corresponds to one priority level from low to high.
+            This means that the first list has the lowest priority while the last list
+            has the highest priority. Objects not explicitly passed in the lists are assigned
+            to a priority level lower than the objects in the first list.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, "False" when failed.
+
+        References
+        ----------
+        >>> oEditor.UpdatePriorityList
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Icepak
+        >>> icepak = Icepak()
+        >>> box = icepak.modeler.create_box([0, 0, 0], [20, 50, 80])
+        >>> fan = icepak.create_fan(name="TestFan", is_2d=True)
+        >>> rect = icepak.modeler.create_rectangle(0, [0, 0, 0], [1, 2], name="TestRectangle")
+        >>> icepak.mesh.assign_priorities([[box.name, rect.name], [fan.name]])
+
+        """
+        if self._app.design_type != "Icepak":
+            raise MethodNotSupportedError
+        if not assignment or not isinstance(assignment, list) or not isinstance(assignment[0], list):
+            raise AttributeError("``assignment`` input must be a list of lists.")
+        props = {"PriorityListParameters": []}
+        self._app.logger.info(
+            "Parsing input objects information for priority assignment. This operation can take time."
+        )
+        udc = self._modeler.user_defined_components
+        udc._parse_objs()
+        for level, objects in enumerate(assignment):
+            level += 1
+            if isinstance(objects[0], str):
+                objects = [self._modeler.objects_by_name.get(o, udc.get(o, None)) for o in objects]
+            obj_3d = [
+                o
+                for o in objects
+                if (isinstance(o, Object3d) and o.is_3d)
+                or (isinstance(o, UserDefinedComponent) and any(p.is_3d for p in o.parts.values()))
+            ]
+            obj_2d = [
+                o
+                for o in objects
+                if (isinstance(o, Object3d) and not o.is_3d)
+                or (isinstance(o, UserDefinedComponent) and any(not p.is_3d for p in o.parts.values()))
+            ]
+            if obj_3d:
+                level_3d = {
+                    "EntityList": ", ".join([o.name for o in obj_3d]),
+                    "PriorityNumber": level,
+                    "PriorityListType": "3D",
+                }
+                if all(isinstance(o, Object3d) for o in obj_3d):
+                    level_3d["EntityType"] = "Object"
+                elif all(isinstance(o, UserDefinedComponent) for o in obj_3d):
+                    level_3d["EntityType"] = "Component"
+                else:
+                    raise AttributeError("Cannot assign components and parts on the same level.")
+                props["PriorityListParameters"].append(level_3d)
+            if obj_2d:
+                level_2d = {
+                    "EntityList": ", ".join([o.name for o in obj_2d]),
+                    "PriorityNumber": level,
+                    "PriorityListType": "2D",
+                }
+                if all(isinstance(o, Object3d) for o in obj_2d):
+                    level_2d["EntityType"] = "Object"
+                elif all(isinstance(o, UserDefinedComponent) for o in obj_2d):
+                    level_2d["EntityType"] = "Component"
+                else:
+                    raise AttributeError("Cannot assign components and parts on the same level.")
+                props["PriorityListParameters"].append(level_2d)
+        props = {"UpdatePriorityListData": props}
+        self._app.logger.info("Input objects information for priority assignment completed.")
+        args = []
+        _dict2arg(props, args)
+        self._modeler.oeditor.UpdatePriorityList(args[0])
+        return True

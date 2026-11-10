@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from itertools import product
+
 import pytest
 
 from ansys.aedt.core import Maxwell3d
@@ -30,16 +32,15 @@ from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.generic.general_methods import SetupDict
 from ansys.aedt.core.hfss import Hfss
 from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
-from ansys.aedt.core.icepak import Icepak
 from ansys.aedt.core.internal.errors import MethodNotSupportedError
 from ansys.aedt.core.maxwell import Maxwell2d
 from ansys.aedt.core.modules.mesh import MeshOperation
 from ansys.aedt.core.modules.mesh import MeshProps
+from ansys.aedt.core.modules.mesh_3d_layout import Mesh3dLayoutOperation
 from ansys.aedt.core.q3d import Q3d
-from tests import TESTS_LAYOUT_PATH
 from tests.conftest import DESKTOP_VERSION
 
-MESH_PROJECT = "mesh_operations"
+MESH_PROJECT = "mesh_operations_261"
 LAYOUT_PROJECT = "ANSYS-HSD_V1"
 TEST_SUBFOLDER = "layout_edb"
 
@@ -52,13 +53,8 @@ def mesh_app(add_app_example):
 
 
 @pytest.fixture
-def layout_app(add_app_example):
-    app = add_app_example(
-        project=LAYOUT_PROJECT,
-        application=Hfss3dLayout,
-        subfolder=TESTS_LAYOUT_PATH / "example_models" / TEST_SUBFOLDER,
-        is_edb=True,
-    )
+def mesh_layout_app(add_app_example):
+    app = add_app_example(project=MESH_PROJECT, subfolder="TMesh", application=Hfss3dLayout)
     yield app
     app.close_project(app.project_name, save=False)
 
@@ -85,20 +81,20 @@ def m2d_app(add_app):
 
 
 @pytest.fixture
-def icepak_app(add_app):
-    app = add_app(application=Icepak)
-    yield app
-    app.close_project(app.project_name, save=False)
-
-
-@pytest.fixture
 def q3d_app(add_app):
     app = add_app(application=Q3d)
     yield app
     app.close_project(app.project_name, save=False)
 
 
-@pytest.mark.skipif(DESKTOP_VERSION < "2023.1", reason="Skipped on versions earlier than 2023.1")
+@pytest.fixture
+def layout_app(add_app):
+    app = add_app(application=Hfss3dLayout)
+    yield app
+    app.close_project(app.project_name, save=False)
+
+
+@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
 def test_mesh_init(mesh_app) -> None:
     assert isinstance(mesh_app.mesh.operations, SetupDict)
     assert isinstance(mesh_app.mesh.initial_mesh_settings, MeshOperation)
@@ -148,6 +144,36 @@ def test_mesh_init(mesh_app) -> None:
 
     assert mesh_app.mesh.delete_mesh_operations()
     assert len(mesh_app.mesh.operations) == 0
+
+
+@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
+def test_mesh_layout_init(mesh_layout_app) -> None:
+    assert isinstance(mesh_layout_app.mesh.operations, SetupDict)
+    assert isinstance(mesh_layout_app.mesh.operations["Setup1"], SetupDict)
+    assert len(mesh_layout_app.mesh.operations["Setup1"]) == 2
+    name1 = mesh_layout_app.mesh.operations["Setup1"][0].name
+    name2 = mesh_layout_app.mesh.operations["Setup1"][1].name
+    assert name1 in mesh_layout_app.mesh.operation_names["Setup1"]
+    assert name2 in mesh_layout_app.mesh.operation_names["Setup1"]
+
+    op = mesh_layout_app.mesh.get_mesh_operation(name=name1, setup="Setup1")
+    assert isinstance(op, Mesh3dLayoutOperation)
+
+    assert op["MaxLength"] == "0.2mm"
+    op["MaxLength"] = "0.5mm"
+    assert op["MaxLength"] == "0.5mm"
+
+    assert str(op) == name1
+    assert op.__repr__() == name1
+
+    assert op.operation_type == "LengthBased"
+    assert op.refresh()
+
+    assert mesh_layout_app.mesh.delete_mesh_operations("Setup1", name1)
+    assert name1 not in mesh_layout_app.mesh.operations["Setup1"]
+
+    mesh_layout_app.delete_setup("Setup1")
+    assert not mesh_layout_app.mesh.operations
 
 
 def test_initial_mesh_settings_hfss(aedt_app) -> None:
@@ -271,7 +297,7 @@ def test_assign_surface_mesh(aedt_app) -> None:
     # Verify that the surface mesh operation is correctly assigned to the object
     assert surface.name in aedt_app.get_oo_name(mesh_object)
     surface.name = "surface_test"
-    assert "surface_test" in aedt_app.mesh.operations[0].name
+    assert "surface_test" in aedt_app.mesh.operation_names
     assert "surface_test" in aedt_app.get_oo_name(mesh_object)
     if surface.assignment:
         assert len(surface.assignment) == 2
@@ -320,7 +346,7 @@ def test_assign_surface_mesh_manual(aedt_app) -> None:
     # Verify that the surface mesh operation is correctly assigned to the object
     assert surface.name in aedt_app.get_oo_name(mesh_object)
     surface.name = "surface_test"
-    assert "surface_test" in aedt_app.mesh.meshoperations[0].name
+    assert "surface_test" in aedt_app.mesh.operation_names
     assert "surface_test" in aedt_app.get_oo_name(mesh_object)
     if surface.assignment:
         assert len(surface.assignment) == 2
@@ -457,7 +483,7 @@ def test_assign_skin_depth_maxwell2d(m2d_app) -> None:
     edge = conductor.edges[0]
     mesh = m2d_app.mesh.assign_skin_depth(assignment=edge, skin_depth="0.3mm", layers_number=3)
     assert mesh
-    assert mesh.type == "SkinDepthBased"
+    assert mesh.operation_type == "SkinDepthBased"
     assert mesh.props["Edges"][0] == edge.id
     assert mesh.props["SkinDepth"] == "0.3mm"
     assert int(mesh.props["NumLayers"]) == 3
@@ -527,25 +553,36 @@ def test_assign_density_control(maxwell_app) -> None:
 def test_cylindrical_gap_maxwell3d(maxwell_app) -> None:
     inner_cylinder = maxwell_app.modeler.create_cylinder(Axis.Z, [0, 0, 0], 5, 10, 0, "inner")
     outer_cylinder = maxwell_app.modeler.create_cylinder(Axis.Z, [0, 0, 0], 7, 12, 0, "outer")
-    assert maxwell_app.mesh.assign_cylindrical_gap(outer_cylinder.name, name="cyl_gap_test")
 
     with pytest.raises(ValueError):
         maxwell_app.mesh.assign_cylindrical_gap([inner_cylinder.name, outer_cylinder.name])
 
+    for clone_mesh, band_mapping_angle, moving_side_layers, static_side_layers in product(
+        (False, True), (None, 2), (1, 2), (1, 2)
+    ):
+        gap = maxwell_app.mesh.assign_cylindrical_gap(
+            outer_cylinder.name,
+            clone_mesh=clone_mesh,
+            band_mapping_angle=band_mapping_angle,
+            moving_side_layers=moving_side_layers,
+            static_side_layers=static_side_layers,
+        )
+        assert gap
+        assert gap.props["CloneMesh"] is clone_mesh
+        if "MovingSideLayers" in gap.props:
+            assert str(gap.props["MovingSideLayers"]) == str(moving_side_layers)
+        if "StaticSideLayers" in gap.props:
+            assert str(gap.props["StaticSideLayers"]) == str(static_side_layers)
+        if band_mapping_angle is not None and "BandMappingAngle" in gap.props:
+            assert gap.props["BandMappingAngle"] == f"{band_mapping_angle}deg"
+        elif clone_mesh:
+            assert gap.props["BandMappingAngle"] == "3deg"
+        gap.delete()
+
+    gap = maxwell_app.mesh.assign_cylindrical_gap(outer_cylinder.name, name="cyl_gap_test")
     with pytest.raises(ValueError):
         maxwell_app.mesh.assign_cylindrical_gap(outer_cylinder.name)
-
-    [
-        x.delete()
-        for _, x in maxwell_app.mesh.operations.items()
-        if x.operation_type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
-    ]
-    assert maxwell_app.mesh.assign_cylindrical_gap(outer_cylinder.name, name="cyl_gap_test", clone_mesh=True)
-    [
-        x.delete()
-        for _, x in maxwell_app.mesh.operations.items()
-        if x.operation_type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
-    ]
+    gap.delete()
 
     with pytest.raises(ValueError):
         maxwell_app.mesh.assign_cylindrical_gap(
@@ -567,17 +604,25 @@ def test_cylindrical_gap_maxwell2d(m2d_app) -> None:
     conductor = m2d_app.modeler.create_circle(origin=[0, 0, 0], radius=10, material="Copper")
     conductor2 = m2d_app.modeler.create_circle(origin=[0, 0, 0], radius=10, material="Copper")
 
-    assert m2d_app.mesh.assign_cylindrical_gap(conductor, name="cyl_gap_test")
-
     with pytest.raises(ValueError):
         m2d_app.mesh.assign_cylindrical_gap([conductor, conductor2])
 
-    [
-        x.delete()
-        for _, x in m2d_app.mesh.operations.items()
-        if x.operation_type == "Cylindrical Gap Based" or x.operation_type == "CylindricalGap"
-    ]
-    assert m2d_app.mesh.assign_cylindrical_gap(conductor, name="cyl_gap_test", band_mapping_angle=2)
+    for band_mapping_angle in (None, 2):
+        gap = m2d_app.mesh.assign_cylindrical_gap(conductor, name="cyl_gap_test", band_mapping_angle=band_mapping_angle)
+        assert gap
+        assert gap.props["UseBandMappingAngle"] is (band_mapping_angle is not None)
+        if band_mapping_angle:
+            expected_angle = f"{band_mapping_angle}deg" if band_mapping_angle is not None else "3deg"
+            assert gap.props["BandMappingAngle"] == expected_angle
+        gap.delete()
+
+    gap = m2d_app.mesh.assign_cylindrical_gap(conductor, name="cyl_gap_test")
+    with pytest.raises(ValueError):
+        m2d_app.mesh.assign_cylindrical_gap(conductor)
+    gap.delete()
+
+    with pytest.raises(ValueError):
+        m2d_app.mesh.assign_cylindrical_gap(conductor, band_mapping_angle=5)
 
 
 def test_assign_mesh_exception(q3d_app) -> None:
@@ -612,7 +657,7 @@ def test_maxwell_mesh(maxwell_app) -> None:
     assert rot.name in maxwell_app.get_oo_name(mesh_object)
     rot.name = "rot_test"
 
-    assert "rot_test" in maxwell_app.mesh.meshoperations[0].name
+    assert "rot_test" in maxwell_app.mesh.operations[0].name
     assert "rot_test" in maxwell_app.get_oo_name(mesh_object)
 
     assert rot.props["Number of Layers"] == "3"
@@ -624,17 +669,19 @@ def test_maxwell_mesh(maxwell_app) -> None:
     if "Total Layer Thickness" in rot.props:
         assert rot.props["Total Layer Thickness"] == "5mm"
         rot.props["Total Layer Thickness"] = "1mm"
-        assert rot.props["Total Layer Thickness"] == maxwell_app.get_oo_property_value(
-            mesh_object, rot.name, "Total Layer Thickness"
-        )
+        if "Total Layer Thickness" in rot.props:
+            assert rot.props["Total Layer Thickness"] == maxwell_app.get_oo_property_value(
+                mesh_object, rot.name, "Total Layer Thickness"
+            )
 
     edge_cut = maxwell_app.mesh.assign_edge_cut(o.name, name="Edge")
     if "Total Layer Thickness" in rot.props:
         assert edge_cut.props["Layer Thickness"] == "1mm"
         edge_cut.props["Layer Thickness"] = "2mm"
-        assert edge_cut.props["Layer Thickness"] == maxwell_app.get_oo_property_value(
-            mesh_object, edge_cut.name, "Layer Thickness"
-        )
+        if "Total Layer Thickness" in edge_cut.props:
+            assert edge_cut.props["Layer Thickness"] == maxwell_app.get_oo_property_value(
+                mesh_object, edge_cut.name, "Layer Thickness"
+            )
 
     dens = maxwell_app.mesh.assign_density_control(o.name, maximum_element_length=10000, name="Density")
     assert dens.props["RestrictMaxElemLength"]
@@ -656,19 +703,66 @@ def test_maxwell_mesh(maxwell_app) -> None:
     assert str(dens.props["LayersNum"]) == maxwell_app.get_oo_property_value(mesh_object, dens.name, "Number of layers")
 
 
-# def test_add_mesh_operations(layout_app) -> None:
-#     layout_app.create_setup("HFSS", setup_type="HFSSDriven")
-#     layout_app.mesh.operation_names
-#
-#     layout_app.mesh.operations
-#
-#     setup1 = layout_app.mesh.assign_length_mesh("HFSS", "PWR", "GND")
-#     setup2 = layout_app.mesh.assign_skin_depth("HFSS", "PWR", "GND")
-#     assert setup1
-#     assert setup2
-#     setup1.props["RestrictElem"] = False
-#     assert setup1.update()
-#     assert layout_app.mesh.delete_mesh_operations(
-#         "HFSS",
-#         setup1.name,
-#     )
+def test_layout_length_mesh(layout_app) -> None:
+    setup = layout_app.create_setup()
+    layout_app.save_project()
+
+    layout_app.modeler.layers.add_layer(layer="Top")
+    c1 = layout_app.modeler.create_circle("Top", 0, 5, 40, "mycircle")
+    c1.net_name = "GND"
+
+    layout_app.modeler.layers.add_layer(layer="Bot")
+    c2 = layout_app.modeler.create_circle("Bot", 0, 5, 40, "mycircle2")
+    c2.net_name = "GND2"
+
+    assert not layout_app.mesh.operation_names
+    assert not layout_app.mesh.operations
+
+    op1 = layout_app.mesh.assign_length_mesh(setup=setup.name, layer="Top", net="GND", maximum_elements=None)
+    assert str(op1) in layout_app.mesh.operation_names[setup.name]
+    assert op1.operation_type == "LengthBased"
+    assert not op1["RestrictElem"]
+
+    op2 = layout_app.mesh.assign_length_mesh(
+        setup=setup.name,
+        layer=["Top", "Bot"],
+        net=["GND", "GND2"],
+        name=op1.name,
+        maximum_elements=100,
+        maximum_length=None,
+    )
+    assert str(op2) in layout_app.mesh.operation_names[setup.name]
+    assert op2.operation_type == "LengthBased"
+    assert op2["RestrictElem"]
+    assert str(op2["NumMaxElem"]) == "100"
+    assert not op2["RestrictLength"]
+
+    with pytest.raises(AttributeError):
+        layout_app.mesh.assign_length_mesh(
+            setup=setup.name, layer="Top", net="GND", maximum_length=None, maximum_elements=None
+        )
+
+
+def test_layout_skin(layout_app) -> None:
+    setup = layout_app.create_setup()
+    layout_app.save_project()
+
+    layout_app.modeler.layers.add_layer(layer="Top")
+    c1 = layout_app.modeler.create_circle("Top", 0, 5, 40, "mycircle")
+    c1.net_name = "GND"
+
+    assert not layout_app.mesh.operation_names
+    assert not layout_app.mesh.operations
+
+    op1 = layout_app.mesh.assign_skin_depth(setup=setup.name, layer="Top", net="GND", maximum_elements=None)
+    assert str(op1) in layout_app.mesh.operation_names[setup.name]
+    assert op1.operation_type == "SkinDepthLengthBased"
+    assert not op1["RestrictElem"]
+
+    op2 = layout_app.mesh.assign_skin_depth(
+        setup=setup.name, layer="Top", net="GND", name=op1.name, maximum_elements=100
+    )
+    assert str(op2) in layout_app.mesh.operation_names[setup.name]
+    assert op2.operation_type == "SkinDepthLengthBased"
+    assert op2["RestrictElem"]
+    assert str(op2["NumMaxElem"]) == "100"

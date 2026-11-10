@@ -153,6 +153,14 @@ class SweepCommon(BinaryTreeNode, PyAedtBase):
 
     """
 
+    def __init__(self, setup: Setup3DLayout | SetupHFSS | SetupQ3D | SetupMaxwell, name: str) -> None:
+        self._setup: Setup3DLayout | SetupHFSS | SetupQ3D | SetupMaxwell = setup
+        self._app: Any = self._setup._app
+
+        self._name = name
+
+        self._has_getobject = _has_get_obj_data(self._child_object)
+
     def __getitem__(self, key: str) -> Any:
         """Return a sweep property by key."""
         return self.props[key]
@@ -166,14 +174,6 @@ class SweepCommon(BinaryTreeNode, PyAedtBase):
 
     def __str__(self) -> str:
         return f"{self.setup_name} : {self.name}"
-
-    def __init__(self, setup: Setup3DLayout | SetupHFSS | SetupQ3D | SetupMaxwell, name: str) -> None:
-        self._setup: Setup3DLayout | SetupHFSS | SetupQ3D | SetupMaxwell = setup
-        self._app: Any = self._setup._app
-
-        self._name = name
-
-        self._has_getobject = _has_get_obj_data(self._child_object)
 
     @pyaedt_function_handler()
     def _initialize_tree_node(self) -> bool:

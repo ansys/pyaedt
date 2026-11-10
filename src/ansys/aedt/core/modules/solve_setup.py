@@ -117,23 +117,6 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
 
     """
 
-    def __getitem__(self, key: str) -> Any:
-        """Return a setup property by key."""
-        return self.props[key]
-
-    def __setitem__(self, key: str, value: Any) -> None:
-        """Set a setup property by key."""
-        self.props[key] = value
-
-    def __repr__(self) -> str:
-        return self.name
-
-    def __str__(self) -> str:
-        if not self._app.design_solutions.default_adaptive:
-            return self.name
-        else:
-            return f"{self.name} : {self._app.design_solutions.default_adaptive}"
-
     def __init__(
         self,
         app: Hfss | Circuit | Hfss3dLayout | Maxwell3d | TwinBuilder | Q3d | Q2d | Maxwell2d | Icepak | Rmxprt,
@@ -156,6 +139,23 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
 
         # GetObjData is available for some objects in 2026R1
         self._has_getobject = _has_get_obj_data(self._child_object)
+
+    def __getitem__(self, key: str) -> Any:
+        """Return a setup property by key."""
+        return self.props[key]
+
+    def __setitem__(self, key: str, value: Any) -> None:
+        """Set a setup property by key."""
+        self.props[key] = value
+
+    def __repr__(self) -> str:
+        return self.name
+
+    def __str__(self) -> str:
+        if not self._app.design_solutions.default_adaptive:
+            return self.name
+        else:
+            return f"{self.name} : {self._app.design_solutions.default_adaptive}"
 
     @pyaedt_function_handler()
     def _initialize_tree_node(self) -> bool:
@@ -1426,12 +1426,6 @@ class SetupCircuit(CommonSetup):
 
     """
 
-    def __repr__(self) -> str:
-        return self.name
-
-    def __str__(self) -> str:
-        return self.name
-
     def __init__(self, app: Circuit | TwinBuilder, name: str, props: dict) -> None:
         setup_keys = SetupKeys.get_setup_templates()
         setup_names = SetupKeys.SetupNames
@@ -1471,6 +1465,12 @@ class SetupCircuit(CommonSetup):
                 if template_datablock == data_block_id:
                     self.solver_type = setup_names[setup_type]
                     break
+
+    def __repr__(self) -> str:
+        return self.name
+
+    def __str__(self) -> str:
+        return self.name
 
     @property
     @deprecated("Use odesign from application instead.")
@@ -2172,6 +2172,12 @@ class Setup3DLayout(CommonSetup):
 
     """
 
+    def __init__(self, app: Hfss3dLayout, name: str, props: dict) -> None:
+        # Internal variables
+        self.__sweeps = SetupDict()
+
+        CommonSetup.__init__(self, app, name, props)
+
     def __repr__(self) -> str:
         return self.name + " with " + str(len(self.sweep_names)) + " Sweeps"
 
@@ -2180,12 +2186,6 @@ class Setup3DLayout(CommonSetup):
             return self.name
         else:
             return f"{self.name} : {self._app.design_solutions.default_adaptive}"
-
-    def __init__(self, app: Hfss3dLayout, name: str, props: dict) -> None:
-        # Internal variables
-        self.__sweeps = SetupDict()
-
-        CommonSetup.__init__(self, app, name, props)
 
     @property
     def sweep_names(self) -> list[str]:
@@ -3986,18 +3986,18 @@ class SetupHFSSAuto(Setup, PyAedtBase):
 
     """
 
-    def __repr__(self) -> str:
-        return self.name
-
-    def __str__(self) -> str:
-        return f"{self.name} : Sweep"
-
     def __init__(self, app: Hfss | Hfss3dLayout, name: str, props: dict) -> None:
         if app.design_type == "HFSS 3D Layout Design":
             self.solver_type = "HFSS"
         else:
             self.solver_type = SetupKeys.SetupNames[Setups.HFSSDrivenAuto]
         Setup.__init__(self, app, name, props)
+
+    def __repr__(self) -> str:
+        return self.name
+
+    def __str__(self) -> str:
+        return f"{self.name} : Sweep"
 
     @property
     def is_solved(self) -> bool:
