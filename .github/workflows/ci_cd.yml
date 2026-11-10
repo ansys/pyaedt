@@ -27,6 +27,9 @@ jobs:
         id: setup-python
         with:
           python-version: ${{ matrix.python-version }}
+          use-cache: false
+          provision-uv: true
+          prune-uv-cache: true
 
       - name: Log result
         uses: ansys/actions/_logging@refactor/revert-changes-and-leverage-latest-python
