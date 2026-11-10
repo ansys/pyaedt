@@ -32,13 +32,12 @@ from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.generic.general_methods import SetupDict
 from ansys.aedt.core.hfss import Hfss
 from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
-from ansys.aedt.core.icepak import Icepak
 from ansys.aedt.core.internal.errors import MethodNotSupportedError
 from ansys.aedt.core.maxwell import Maxwell2d
 from ansys.aedt.core.modules.mesh import MeshOperation
 from ansys.aedt.core.modules.mesh import MeshProps
+from ansys.aedt.core.modules.mesh_3d_layout import Mesh3dLayoutOperation
 from ansys.aedt.core.q3d import Q3d
-from tests import TESTS_LAYOUT_PATH
 from tests.conftest import DESKTOP_VERSION
 
 MESH_PROJECT = "mesh_operations_261"
@@ -54,13 +53,8 @@ def mesh_app(add_app_example):
 
 
 @pytest.fixture
-def layout_app(add_app_example):
-    app = add_app_example(
-        project=LAYOUT_PROJECT,
-        application=Hfss3dLayout,
-        subfolder=TESTS_LAYOUT_PATH / "example_models" / TEST_SUBFOLDER,
-        is_edb=True,
-    )
+def mesh_layout_app(add_app_example):
+    app = add_app_example(project=MESH_PROJECT, subfolder="TMesh", application=Hfss3dLayout)
     yield app
     app.close_project(app.project_name, save=False)
 
@@ -87,15 +81,15 @@ def m2d_app(add_app):
 
 
 @pytest.fixture
-def icepak_app(add_app):
-    app = add_app(application=Icepak)
+def q3d_app(add_app):
+    app = add_app(application=Q3d)
     yield app
     app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture
-def q3d_app(add_app):
-    app = add_app(application=Q3d)
+def layout_app(add_app):
+    app = add_app(application=Hfss3dLayout)
     yield app
     app.close_project(app.project_name, save=False)
 
@@ -150,6 +144,36 @@ def test_mesh_init(mesh_app) -> None:
 
     assert mesh_app.mesh.delete_mesh_operations()
     assert len(mesh_app.mesh.operations) == 0
+
+
+@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
+def test_mesh_layout_init(mesh_layout_app) -> None:
+    assert isinstance(mesh_layout_app.mesh.operations, SetupDict)
+    assert isinstance(mesh_layout_app.mesh.operations["Setup1"], SetupDict)
+    assert len(mesh_layout_app.mesh.operations["Setup1"]) == 2
+    name1 = mesh_layout_app.mesh.operations["Setup1"][0].name
+    name2 = mesh_layout_app.mesh.operations["Setup1"][1].name
+    assert name1 in mesh_layout_app.mesh.operation_names["Setup1"]
+    assert name2 in mesh_layout_app.mesh.operation_names["Setup1"]
+
+    op = mesh_layout_app.mesh.get_mesh_operation(name=name1, setup="Setup1")
+    assert isinstance(op, Mesh3dLayoutOperation)
+
+    assert op["MaxLength"] == "0.2mm"
+    op["MaxLength"] = "0.5mm"
+    assert op["MaxLength"] == "0.5mm"
+
+    assert str(op) == name1
+    assert op.__repr__() == name1
+
+    assert op.operation_type == "LengthBased"
+    assert op.refresh()
+
+    assert mesh_layout_app.mesh.delete_mesh_operations("Setup1", name1)
+    assert name1 not in mesh_layout_app.mesh.operations["Setup1"]
+
+    mesh_layout_app.delete_setup("Setup1")
+    assert not mesh_layout_app.mesh.operations
 
 
 def test_initial_mesh_settings_hfss(aedt_app) -> None:
@@ -679,19 +703,66 @@ def test_maxwell_mesh(maxwell_app) -> None:
     assert str(dens.props["LayersNum"]) == maxwell_app.get_oo_property_value(mesh_object, dens.name, "Number of layers")
 
 
-# def test_add_mesh_operations(layout_app) -> None:
-#     layout_app.create_setup("HFSS", setup_type="HFSSDriven")
-#     layout_app.mesh.operation_names
-#
-#     layout_app.mesh.operations
-#
-#     setup1 = layout_app.mesh.assign_length_mesh("HFSS", "PWR", "GND")
-#     setup2 = layout_app.mesh.assign_skin_depth("HFSS", "PWR", "GND")
-#     assert setup1
-#     assert setup2
-#     setup1.props["RestrictElem"] = False
-#     assert setup1.update()
-#     assert layout_app.mesh.delete_mesh_operations(
-#         "HFSS",
-#         setup1.name,
-#     )
+def test_layout_length_mesh(layout_app) -> None:
+    setup = layout_app.create_setup()
+    layout_app.save_project()
+
+    layout_app.modeler.layers.add_layer(layer="Top")
+    c1 = layout_app.modeler.create_circle("Top", 0, 5, 40, "mycircle")
+    c1.net_name = "GND"
+
+    layout_app.modeler.layers.add_layer(layer="Bot")
+    c2 = layout_app.modeler.create_circle("Bot", 0, 5, 40, "mycircle2")
+    c2.net_name = "GND2"
+
+    assert not layout_app.mesh.operation_names
+    assert not layout_app.mesh.operations
+
+    op1 = layout_app.mesh.assign_length_mesh(setup=setup.name, layer="Top", net="GND", maximum_elements=None)
+    assert str(op1) in layout_app.mesh.operation_names[setup.name]
+    assert op1.operation_type == "LengthBased"
+    assert not op1["RestrictElem"]
+
+    op2 = layout_app.mesh.assign_length_mesh(
+        setup=setup.name,
+        layer=["Top", "Bot"],
+        net=["GND", "GND2"],
+        name=op1.name,
+        maximum_elements=100,
+        maximum_length=None,
+    )
+    assert str(op2) in layout_app.mesh.operation_names[setup.name]
+    assert op2.operation_type == "LengthBased"
+    assert op2["RestrictElem"]
+    assert str(op2["NumMaxElem"]) == "100"
+    assert not op2["RestrictLength"]
+
+    with pytest.raises(AttributeError):
+        layout_app.mesh.assign_length_mesh(
+            setup=setup.name, layer="Top", net="GND", maximum_length=None, maximum_elements=None
+        )
+
+
+def test_layout_skin(layout_app) -> None:
+    setup = layout_app.create_setup()
+    layout_app.save_project()
+
+    layout_app.modeler.layers.add_layer(layer="Top")
+    c1 = layout_app.modeler.create_circle("Top", 0, 5, 40, "mycircle")
+    c1.net_name = "GND"
+
+    assert not layout_app.mesh.operation_names
+    assert not layout_app.mesh.operations
+
+    op1 = layout_app.mesh.assign_skin_depth(setup=setup.name, layer="Top", net="GND", maximum_elements=None)
+    assert str(op1) in layout_app.mesh.operation_names[setup.name]
+    assert op1.operation_type == "SkinDepthLengthBased"
+    assert not op1["RestrictElem"]
+
+    op2 = layout_app.mesh.assign_skin_depth(
+        setup=setup.name, layer="Top", net="GND", name=op1.name, maximum_elements=100
+    )
+    assert str(op2) in layout_app.mesh.operation_names[setup.name]
+    assert op2.operation_type == "SkinDepthLengthBased"
+    assert op2["RestrictElem"]
+    assert str(op2["NumMaxElem"]) == "100"
