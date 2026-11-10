@@ -77,7 +77,6 @@ if (
     from ansys.aedt.core.emit_core.nodes.generated import TxSpectralProfNode
     from ansys.aedt.core.emit_core.nodes.generated import TxSpurNode
     from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
-    from ansys.aedt.core.emit_core.results import revision
 
 TEST_SUBFOLDER = TESTS_EMIT_PATH / "example_models/TEMIT"
 
@@ -727,7 +726,7 @@ class TestEmitExports:
         ant3.position_defined = True
         ant3.position = "0 20 0"
         revision = emit_app.results.analyze()
-       
+
         sim = revision.get_simulation()
         domain = InteractionDomain(emit_app)
         interaction = sim.run(domain)
@@ -785,4 +784,3 @@ class TestEmitExports:
             fig.savefig(png_path)
             assert os.path.isfile(png_path), "Power at rx plot figure was not saved."
             assert Path(png_path).stat().st_size > 0, "Power at rx plot file is empty."
-
