@@ -2044,7 +2044,7 @@ class BinaryTreeNode:
                 if prop_name in child_object.GetPropNames():
                     return child_object.GetPropValue(prop_name)
             except Exception:
-                pass
+                return self.properties[prop_name]
         return self.properties[prop_name]
 
     @property
