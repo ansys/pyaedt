@@ -48,6 +48,9 @@ jobs:
         uses: ansys/actions/_setup-python@refactor/revert-changes-and-leverage-latest-python
         with:
           python-version: ${{ matrix.python-version }}
+          use-cache: false
+          provision-uv: true
+          prune-uv-cache: true
 
       - name: Check Python version
         id: check-python-version
