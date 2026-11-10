@@ -366,7 +366,7 @@ class InteractionInstance:
     @min_aedt_version("2027.2")
     @pyaedt_function_handler()
     def plot_power_at_rx(self, power_type: PowerType) -> Figure:
-        """Plots the power trace data at rx using matplotlib.
+        """Plots the power at rx trace data using matplotlib.
 
         Parameters
         ----------

@@ -76,6 +76,7 @@ if (
     from ansys.aedt.core.emit_core.nodes.generated import TxSpectralProfNode
     from ansys.aedt.core.emit_core.nodes.generated import TxSpurNode
     from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
+    from ansys.aedt.core.emit_core.results import revision
 
 TEST_SUBFOLDER = TESTS_EMIT_PATH / "example_models/TEMIT"
 
@@ -716,6 +717,22 @@ class TestEmitExports:
             assert os.path.isfile(png_path), "EMI plot figure was not saved."
             assert Path(png_path).stat().st_size > 0, "EMI plot file is empty."
 
+        # add a third system to test N to 1
+        radio3, ant3 = emit_app.schematic.create_radio_antenna("New Radio")
+        ant3.position_defined = True
+        ant3.position = "0 20 0"
+        revision = emit_app.results.analyze()
+       
+        sim = revision.get_simulation()
+        domain = InteractionDomain(emit_app)
+        interaction = sim.run(domain)
+        worst_case = interaction.get_worst_instance(ResultType.EMI)
+        assert len(worst_case.domain.interferer_names) == 2, "Expected 2 interferers in the worst case instance."
+
+        data = worst_case.export_emi_spectrum_to_csv("")
+        assert data is not None
+        assert len(data) > 0, "N to 1 EMI CSV export should return non-empty data."
+
     def test_power_at_port_export(self, emit_app):
         """Test export_to_csv and plot of power output by a tx radio."""
         revision = _setup_two_radio_project(emit_app)
@@ -726,19 +743,19 @@ class TestEmitExports:
 
         data = worst_case.export_power_at_port_to_csv(PowerType.NARROWBAND, "Radio 2", "Port 1", False, "")
         assert data is not None
-        assert len(data) > 0, "EMI CSV export should return non-empty data."
+        assert len(data) > 0, "Narrowband power CSV export should return non-empty data."
 
         data = worst_case.export_power_at_port_to_csv(PowerType.BROADBAND, "Radio 2", "Port 1", False, "")
         assert data is not None
-        assert len(data) > 0, "EMI CSV export should return non-empty data."
+        assert len(data) > 0, "Broadband power CSV export should return non-empty data."
 
         fig = worst_case.plot_power_at_port(PowerType.NARROWBAND, "Radio 2", "Port 1")
         assert fig is not None
         with tempfile.TemporaryDirectory() as tmp_dir:
-            png_path = os.path.join(tmp_dir, "emi_plot.png")
+            png_path = os.path.join(tmp_dir, "power_at_port_plot.png")
             fig.savefig(png_path)
-            assert os.path.isfile(png_path), "EMI plot figure was not saved."
-            assert Path(png_path).stat().st_size > 0, "EMI plot file is empty."
+            assert os.path.isfile(png_path), "Power at port plot figure was not saved."
+            assert Path(png_path).stat().st_size > 0, "Power at port plot file is empty."
 
     def test_power_at_rx_export(self, emit_app):
         """Test export_to_csv and plot of power at rx."""
@@ -750,16 +767,17 @@ class TestEmitExports:
 
         data = worst_case.export_power_at_rx_to_csv(PowerType.NARROWBAND, "")
         assert data is not None
-        assert len(data) > 0, "EMI CSV export should return non-empty data."
+        assert len(data) > 0, "Narrowband power at rx CSV export should return non-empty data."
 
         data = worst_case.export_power_at_rx_to_csv(PowerType.BROADBAND, "")
         assert data is not None
-        assert len(data) > 0, "EMI CSV export should return non-empty data."
+        assert len(data) > 0, "Broadband power at rx CSV export should return non-empty data."
 
         fig = worst_case.plot_power_at_rx(PowerType.NARROWBAND)
         assert fig is not None
         with tempfile.TemporaryDirectory() as tmp_dir:
-            png_path = os.path.join(tmp_dir, "emi_plot.png")
+            png_path = os.path.join(tmp_dir, "power_at_rx_plot.png")
             fig.savefig(png_path)
-            assert os.path.isfile(png_path), "EMI plot figure was not saved."
-            assert Path(png_path).stat().st_size > 0, "EMI plot file is empty."
+            assert os.path.isfile(png_path), "Power at rx plot figure was not saved."
+            assert Path(png_path).stat().st_size > 0, "Power at rx plot file is empty."
+
