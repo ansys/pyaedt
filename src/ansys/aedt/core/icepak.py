@@ -1865,7 +1865,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         custom_x_resolution: str | float | None = None,
         custom_y_resolution: str | float | None = None,
         **kwargs,  # fmt: skip
-    ) -> NativeComponentPCB:
+    ) -> NativeComponentPCB | bool:
         """Create a PCB component in Icepak that is linked to an HFSS 3D Layout object.
 
         Parameters
@@ -1960,22 +1960,15 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             native_props["NativeComponentDefinitionProvider"]["CustomResolution"] = True
             native_props["NativeComponentDefinitionProvider"]["CustomResolutionRow"] = custom_x_resolution
             native_props["NativeComponentDefinitionProvider"]["CustomResolutionCol"] = custom_y_resolution
-            # compDefinition += ["UseThermalLink:=", solutionFreq!="",
-            #                    "CustomResolution:=", True, "CustomResolutionRow:=", custom_x_resolution,
-            #                    "CustomResolutionCol:=", 600]
         else:
             native_props["NativeComponentDefinitionProvider"]["UseThermalLink"] = solutionFreq != ""
             native_props["NativeComponentDefinitionProvider"]["CustomResolution"] = False
-            # compDefinition += ["UseThermalLink:=", solutionFreq != "",
-            #                    "CustomResolution:=", False]
         if solutionFreq:
             native_props["NativeComponentDefinitionProvider"]["Frequency"] = solutionFreq
             native_props["NativeComponentDefinitionProvider"]["DefnLink"] = hfss_link_info["DefnLink"]
-            # compDefinition += ["Frequency:=", solutionFreq, hfssLinkInfo]
         else:
             native_props["NativeComponentDefinitionProvider"]["Power"] = powerin
             native_props["NativeComponentDefinitionProvider"]["DefnLink"] = hfss_link_info["DefnLink"]
-            # compDefinition += ["Power:=", powerin, hfssLinkInfo]
 
         native_props["TargetCS"] = PCB_CS
         native = NativeComponentPCB(self, "PCB", compName, native_props)

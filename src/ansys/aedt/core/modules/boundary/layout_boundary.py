@@ -24,17 +24,22 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from ansys.aedt.core.application import _get_obj_data
 from ansys.aedt.core.application import _has_get_obj_data
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.data_handlers import random_string
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.props import Props as BoundaryProps
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modules.boundary.common import BoundaryCommon
-from ansys.aedt.core.modules.boundary.common import BoundaryProps
 from ansys.aedt.core.modules.boundary.common import disable_auto_update
+
+if TYPE_CHECKING:
+    from ansys.aedt.core import Icepak
 
 
 class NativeComponentObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
@@ -66,53 +71,59 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
     """
 
-    def __init__(self, app, component_type, component_name, props) -> None:
-        self.auto_update = False
-        self._app = app
-        self._name = component_name
+    def __init__(self, app: Icepak, component_type: str, component_name: str, props: dict) -> None:
+        self._app: Icepak = app
+        self._name: str = component_name
 
-        self.__props = BoundaryProps(
-            self,
-            {
-                "TargetCS": "Global",
-                "SubmodelDefinitionName": self.name,
-                "ComponentPriorityLists": {},
-                "NextUniqueID": 0,
-                "MoveBackwards": False,
-                "DatasetType": "ComponentDatasetType",
-                "DatasetDefinitions": {},
-                "BasicComponentInfo": {
-                    "ComponentName": self.name,
-                    "Company": "",
-                    "Company URL": "",
-                    "Model Number": "",
-                    "Help URL": "",
-                    "Version": "1.0",
-                    "Notes": "",
-                    "IconType": "",
-                },
-                "GeometryDefinitionParameters": {"VariableOrders": {}},
-                "DesignDefinitionParameters": {"VariableOrders": {}},
-                "MaterialDefinitionParameters": {"VariableOrders": {}},
-                "DefReferenceCSID": 1,
-                "MapInstanceParameters": "DesignVariable",
-                "UniqueDefinitionIdentifier": "89d26167-fb77-480e-a7ab-"
-                + random_string(12, char_set="abcdef0123456789"),
-                "OriginFilePath": "",
-                "IsLocal": False,
-                "ChecksumString": "",
-                "ChecksumHistory": [],
-                "VersionHistory": [],
-                "NativeComponentDefinitionProvider": {"Type": component_type},
-                "InstanceParameters": {"GeometryParameters": "", "MaterialParameters": "", "DesignParameters": ""},
+        self._legacy_props = {
+            "TargetCS": "Global",
+            "SubmodelDefinitionName": self._name,
+            "ComponentPriorityLists": {},
+            "NextUniqueID": 0,
+            "MoveBackwards": False,
+            "DatasetType": "ComponentDatasetType",
+            "DatasetDefinitions": {},
+            "BasicComponentInfo": {
+                "ComponentName": self._name,
+                "Company": "",
+                "Company URL": "",
+                "Model Number": "",
+                "Help URL": "",
+                "Version": "1.0",
+                "Notes": "",
+                "IconType": "",
             },
-        )
-        if props:
-            self._update_props(self.__props, props)
-        self.native_properties = self.__props["NativeComponentDefinitionProvider"]
-        self.auto_update = True
+            "GeometryDefinitionParameters": {"VariableOrders": {}},
+            "DesignDefinitionParameters": {"VariableOrders": {}},
+            "MaterialDefinitionParameters": {"VariableOrders": {}},
+            "DefReferenceCSID": 1,
+            "MapInstanceParameters": "DesignVariable",
+            "UniqueDefinitionIdentifier": "89d26167-fb77-480e-a7ab-" + random_string(12, char_set="abcdef0123456789"),
+            "OriginFilePath": "",
+            "IsLocal": False,
+            "ChecksumString": "",
+            "ChecksumHistory": [],
+            "VersionHistory": [],
+            "NativeComponentDefinitionProvider": {"Type": component_type},
+            "InstanceParameters": {"GeometryParameters": "", "MaterialParameters": "", "DesignParameters": ""},
+        }
 
-        # self._initialize_tree_node()
+        if props:
+            self._legacy_props = props
+
+        self.native_properties = self._legacy_props["NativeComponentDefinitionProvider"]
+        self.__child_object = None
+        self.__excitation_name = None
+
+        # GetObjData is available for some objects in 2026R1
+        self._has_getobject = _has_get_obj_data(self._child_object)
+
+    @pyaedt_function_handler()
+    def _initialize_tree_node(self) -> bool:
+        if self._child_object:
+            BinaryTreeNode.__init__(self, self._name, self._child_object, False, app=self._app)
+            return True
+        return False
 
     @property
     def _child_object(self):
@@ -123,20 +134,33 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTreeNode`
 
         """
-        child_object = None
-        component_definition = self._app.oeditor.Get3DComponentDefinitionNames()
-
-        for el in component_definition:
-            design_childs = self._app.get_oo_name(self._app.get_oo_object(self._app.oeditor, el))
-            if self._name in design_childs:
-                child_object = self._app.get_oo_object(self._app.oeditor, f"{el}\\{self._name}")
-                break
-        return child_object
+        if not self.__child_object:
+            component_definition = self._app.oeditor.Get3DComponentDefinitionNames()
+            for el in component_definition:
+                design_childs = self._app.get_oo_name(self._app.get_oo_object(self._app.oeditor, el))
+                if self._name in design_childs:
+                    self.__child_object = self._app.get_oo_object(self._app.oeditor, f"{el}\\{self._name}")
+                    break
+        return self.__child_object
 
     @property
     def props(self) -> BoundaryProps:
         """Retrieve props."""
-        return self.__props
+        if self._legacy_props and not self._has_getobject:
+            return BoundaryProps(self, self._legacy_props)
+
+        if self._has_getobject:
+            self._legacy_props = _get_obj_data(self.child_object)
+
+        return BoundaryProps(self, self._legacy_props)
+
+    @props.setter
+    def props(self, value: dict) -> None:
+        # Merge with existing props to support partial updates
+        current_props = self.props.to_dict() if self._legacy_props else {}
+        current_props.update(value)
+        # Each Setup class must have an update method
+        self.update(current_props)
 
     @property
     def name(self) -> str:
@@ -149,29 +173,24 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> obj.name
 
         """
-        if self._child_object:
+        child_object = self._child_object
+        if child_object:
             self._name = str(self.properties["Name"])
         return self._name
 
     @name.setter
     def name(self, value: str) -> None:
-        if self._child_object:
-            try:
-                legacy_name = self._name
-                self.properties["Name"] = value
-                self._app.modeler.user_defined_components[self._name] = self
-                del self._app.modeler.user_defined_components[legacy_name]
-            except KeyError:
-                self._app.logger.add_message(
-                    message_type=2,
-                    message_text=f"Name {value} already assigned in the design",
-                    level="Design",
-                    proj_name=self._app.project_name,
-                    des_name=self._app.design_name,
-                )
+        if value in self._app.modeler.user_defined_component_names:
+            raise ValueError(f"Name {value} already assigned in the design.")
+        child_object = self._child_object
+        if child_object:
+            legacy_name = self._name
+            self.properties["Name"] = value
+            self._app.modeler.user_defined_components[self._name] = self
+            del self._app.modeler.user_defined_components[legacy_name]
 
     @property
-    def definition_name(self) -> str:
+    def definition_name(self) -> str | None:
         """Definition name of the native component.
 
         Returns
@@ -216,15 +235,18 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
     def targetcs(self, cs: str) -> None:
         self.props["TargetCS"] = cs
 
-    def _update_props(self, d, u):
-        for k, v in u.items():
-            if isinstance(v, dict):
-                if k not in d:
-                    d[k] = {}
-                d[k] = self._update_props(d[k], v)
-            else:
-                d[k] = v
-        return d
+    @property
+    def excitation_name(self) -> str:
+        """Boundary Name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
+        >>> obj = NativeComponentObject()
+        >>> obj.name
+
+        """
+        return self.__excitation_name
 
     @pyaedt_function_handler()
     def _get_args(self, props=None):
@@ -257,10 +279,9 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         self._name = self._app.modeler.oeditor.InsertNativeComponent(self._get_args())
         try:
             a = [i for i in self._app.excitation_names if i not in names]
-            self.excitation_name = a[0].split(":")[0]
+            self.__excitation_name = a[0].split(":")[0]
         except (GrpcApiError, IndexError):
-            self.excitation_name = self._name
-        # return self._initialize_tree_node()
+            self.__excitation_name = self._name
         return True
 
     @pyaedt_function_handler()
@@ -513,7 +534,7 @@ class NativeComponentPCB(NativeComponentObject):
 
     """
 
-    def __init__(self, app, component_type, component_name, props) -> None:
+    def __init__(self, app: Icepak, component_type: str, component_name: str, props: dict) -> None:
         NativeComponentObject.__init__(self, app, component_type, component_name, props)
 
     @pyaedt_function_handler()

@@ -68,8 +68,8 @@ class UserDefinedComponentParameters(dict):
         self._component = component
 
 
-class UserDefinedComponent(PyAedtBase):
-    """Manages object attributes for 3DComponent and User Defined Model.
+class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
+    """Manages object attributes for 3DComponent and User Defined Model instances.
 
     Parameters
     ----------
@@ -99,6 +99,17 @@ class UserDefinedComponent(PyAedtBase):
     """
 
     def __init__(self, primitives, name: str | None = None, props=None, component_type=None) -> None:
+        self._primitives = primitives
+        self._app = self._primitives._app
+
+        if name:
+            self._m_name = name
+        else:
+            self._m_name = _uname()
+
+        self._legacy_props = {}
+
+        # Internal variables
         self._fix_udm_props = [
             "General[Name]",
             "Group",
@@ -115,68 +126,119 @@ class UserDefinedComponent(PyAedtBase):
         self._group_name = None
         self._is_3d_component = None
         self._mesh_assembly = None
-
-        if name:
-            self._m_name = name
-        else:
-            self._m_name = _uname()
         self._parameters = {}
         self._parts = None
-        self._primitives = primitives
         self._target_coordinate_system = "Global"
-        self._is_updated = False
-        self._all_props = None
+        # Get definition name (parent component)
+        self.definition_name = None
         defined_components = self._primitives.oeditor.Get3DComponentDefinitionNames()
         defined_components = defined_components if defined_components else []
         for component in defined_components:
             if self._m_name in self._primitives.oeditor.Get3DComponentInstanceNames(component):
                 self.definition_name = component
+                break
+
         if component_type:
-            self.auto_update = False
-            self._props = UserDefinedComponentProps(
-                self,
-                {
-                    "TargetCS": self._target_coordinate_system,
-                    "SubmodelDefinitionName": self.definition_name,
-                    "ComponentPriorityLists": {},
-                    "NextUniqueID": 0,
-                    "MoveBackwards": False,
-                    "DatasetType": "ComponentDatasetType",
-                    "DatasetDefinitions": {},
-                    "BasicComponentInfo": {
-                        "ComponentName": self.definition_name,
-                        "Company": "",
-                        "Company URL": "",
-                        "Model Number": "",
-                        "Help URL": "",
-                        "Version": "1.0",
-                        "Notes": "",
-                        "IconType": "",
-                    },
-                    "GeometryDefinitionParameters": {"VariableOrders": {}},
-                    "DesignDefinitionParameters": {"VariableOrders": {}},
-                    "MaterialDefinitionParameters": {"VariableOrders": {}},
-                    "MapInstanceParameters": "DesignVariable",
-                    "UniqueDefinitionIdentifier": "89d26167-fb77-480e-a7ab-"
-                    + "".join(secrets.choice("abcdef0123456789") for _ in range(int(12))),
-                    "OriginFilePath": "",
-                    "IsLocal": False,
-                    "ChecksumString": "",
-                    "ChecksumHistory": [],
-                    "VersionHistory": [],
-                    "NativeComponentDefinitionProvider": {"Type": component_type},
-                    "InstanceParameters": {"GeometryParameters": "", "MaterialParameters": "", "DesignParameters": ""},
+            self._legacy_props = {
+                "TargetCS": self._target_coordinate_system,
+                "SubmodelDefinitionName": self.definition_name,
+                "ComponentPriorityLists": {},
+                "NextUniqueID": 0,
+                "MoveBackwards": False,
+                "DatasetType": "ComponentDatasetType",
+                "DatasetDefinitions": {},
+                "BasicComponentInfo": {
+                    "ComponentName": self.definition_name,
+                    "Company": "",
+                    "Company URL": "",
+                    "Model Number": "",
+                    "Help URL": "",
+                    "Version": "1.0",
+                    "Notes": "",
+                    "IconType": "",
                 },
-            )
+                "GeometryDefinitionParameters": {"VariableOrders": {}},
+                "DesignDefinitionParameters": {"VariableOrders": {}},
+                "MaterialDefinitionParameters": {"VariableOrders": {}},
+                "MapInstanceParameters": "DesignVariable",
+                "UniqueDefinitionIdentifier": "89d26167-fb77-480e-a7ab-"
+                + "".join(secrets.choice("abcdef0123456789") for _ in range(int(12))),
+                "OriginFilePath": "",
+                "IsLocal": False,
+                "ChecksumString": "",
+                "ChecksumHistory": [],
+                "VersionHistory": [],
+                "NativeComponentDefinitionProvider": {"Type": component_type},
+                "InstanceParameters": {"GeometryParameters": "", "MaterialParameters": "", "DesignParameters": ""},
+            }
+
             if props:
+                self._legacy_props
                 self._update_props(
                     self._props["NativeComponentDefinitionProvider"],
                     props.get("NativeComponentDefinitionProvider", props),
                 )
             self.native_properties = self._props["NativeComponentDefinitionProvider"]
-            self.auto_update = True
 
         self._layout_component = None
+
+        self.__child_object = None
+
+        # TODO: GetObjData is not available yet
+        self._has_getobject = False
+
+    @pyaedt_function_handler()
+    def _initialize_tree_node(self) -> bool:
+        if self._child_object:
+            BinaryTreeNode.__init__(self, self._m_name, self._child_object, False, app=self._app)
+            return True
+        return False
+
+    @property
+    def _child_object(self):
+        """Object-oriented properties.
+
+        Returns
+        -------
+        AEDT object if any or None
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> setup = app.create_setup()
+        >>> setup.child_object.GetChildNames()
+
+        """
+        if not self.__child_object:
+            cc_names = self._primitives.user_defined_component_names
+            if self._m_name in cc_names:
+                self.__child_object = self._app.get_oo_object(self._app.oeditor, self._m_name)
+        return self.__child_object
+
+    @property
+    def props(self) -> UserDefinedComponentProps:
+        """Properties of the setup.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> setup = app.create_setup()
+        >>> setup.props
+
+        """
+        if self._legacy_props:
+            return UserDefinedComponentProps(self, self._legacy_props)
+        return UserDefinedComponentProps(self, self._legacy_props)
+
+    @props.setter
+    def props(self, value: dict) -> None:
+        # Merge with existing props to support partial updates
+        current_props = self.props.to_dict() if self._legacy_props else {}
+        current_props.update(value)
+        # Each Setup class must have an update method
+        self.update(current_props)
 
     @property
     def layout_component(self) -> "LayoutComponent":
@@ -204,34 +266,6 @@ class UserDefinedComponent(PyAedtBase):
         ):
             self._layout_component = LayoutComponent(self)
         return self._layout_component
-
-    @pyaedt_function_handler()
-    def history(self) -> "BinaryTreeNode" | bool:
-        """Component history.
-
-        Returns
-        -------
-            :class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTree` when successful,
-            ``False`` when failed.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
-        >>> obj = UserDefinedComponent()
-        >>> obj.history()
-
-        """
-        try:
-            child_object = self._primitives._app.get_oo_object(self._primitives.oeditor, self.name)
-            return BinaryTreeNode(
-                list(child_object.GetChildNames("Operations"))[0],
-                child_object,
-                True,
-                "Operations",
-                app=self._primitives._app,
-            )
-        except Exception:
-            return False
 
     @property
     def group_name(self) -> str:
@@ -870,17 +904,6 @@ class UserDefinedComponent(PyAedtBase):
     @pyaedt_function_handler()
     def _change_property(self, vPropChange):
         return self._primitives._change_component_property(vPropChange, self._m_name)
-
-    @pyaedt_function_handler()
-    def _update_props(self, d, u):
-        for k, v in u.items():
-            if isinstance(v, dict):
-                if k not in d:
-                    d[k] = {}
-                d[k] = self._update_props(d[k], v)
-            else:
-                d[k] = v
-        return d
 
     @property
     def _m_Editor(self):
