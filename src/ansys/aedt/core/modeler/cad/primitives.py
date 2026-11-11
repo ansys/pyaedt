@@ -1647,6 +1647,35 @@ class GeometryModeler(Modeler, PyAedtBase):
         return [int(entity_id) for entity_id in entity_ids]
 
     @pyaedt_function_handler()
+    @min_aedt_version("2027.1")
+    def get_named_selections(self) -> list[str]:
+        """Get the names of all named selections in the design.
+
+        Method valid from AEDT 2027.1.
+
+        Returns
+        -------
+        list of str
+            Names of the named selections. The list is empty if the design has no named selections.
+
+        References
+        ----------
+        >>> oEditor.GetAllNamedSelections
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> aedt_app = Maxwell3d(version="2027.1")
+        >>> box1 = aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3], name="box1")
+        >>> box2 = aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")
+        >>> ns1 = aedt_app.modeler.create_named_selection(name="selection_1", assignment=[box1.name])
+        >>> ns2 = aedt_app.modeler.create_named_selection(name="selection_2", assignment=[box2.name])
+        >>> aedt_app.modeler.get_named_selections()
+        ['selection_1', 'selection_2']
+        """
+        return self.oeditor.GetAllNamedSelections()
+
+    @pyaedt_function_handler()
     def _get_coordinates_data(self):  # pragma: no cover
         coord = []
         id2name = {1: "Global"}
