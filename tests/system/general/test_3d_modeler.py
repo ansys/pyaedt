@@ -334,6 +334,7 @@ def test_create_region(aedt_app) -> None:
     assert aedt_app.modeler.edit_region_dimensions([40, 30, 30, 50, 50, 100])
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Deprecated method.")
 def test_create_face_list(coaxial) -> None:
     o2 = coaxial.modeler.create_airbox(50, "Relative", "Second_airbox")
     fl = coaxial.modeler.get_object_faces(o2.name)
@@ -346,6 +347,7 @@ def test_create_face_list(coaxial) -> None:
     assert not coaxial.modeler.create_face_list(["outer2"])
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Deprecated method.")
 def test_create_object_list(coaxial) -> None:
     o2 = coaxial.modeler.create_airbox(50, "Relative", "Second_airbox")
     fl1 = coaxial.modeler.create_object_list([o2.name], "my_object_list")
