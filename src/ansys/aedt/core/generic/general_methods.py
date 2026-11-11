@@ -252,12 +252,9 @@ def _function_handler_wrapper(user_function: Callable[_P, _R], **deprecated_kwar
         if deprecated_kwargs and kwargs:
             deprecate_kwargs(function_name, kwargs, deprecated_kwargs)
         try:
-            log_enabled = settings.enable_debug_logger or settings.enable_debug_edb_logger
-            if log_enabled:
-                settings.time_tick = time.time()
+            settings.time_tick = time.time()
             out = user_function(*args, **kwargs)
-            if log_enabled:
-                _log_method(user_function, args, kwargs)
+            _log_method(user_function, args, kwargs)
             return out
         except MethodNotSupportedError as e:
             message = "This method is not supported in current AEDT design type."
