@@ -973,6 +973,24 @@ class GeometryModeler(Modeler, PyAedtBase):
         return lc_names
 
     @property
+    def groups(self):
+        """List of available groups.
+
+        Returns
+        -------
+        list
+            Groups.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.groups
+
+        """
+        return list(self.oeditor.GetChildNames("Groups"))
+
+    @property
     def _oproject(self):
         """Project."""
         return self._app.oproject

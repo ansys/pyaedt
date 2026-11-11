@@ -1913,6 +1913,24 @@ class BinaryTreeNode:
             object.__setattr__(self, "_children_loaded", False)
         object.__setattr__(self, name, value)
 
+    def __dir__(self):
+        """List available attributes, omitting unavailable history metadata."""
+        attrs = super().__dir__()
+        unavailable_values = {"segments": None, "command": ""}
+        result = []
+        for name in attrs:
+            if name not in unavailable_values:
+                result.append(name)
+                continue
+            try:
+                value = getattr(self, name)
+            except (AttributeError, RuntimeError):
+                result.append(name)
+                continue
+            if value != unavailable_values[name]:
+                result.append(name)
+        return result
+
     def _initialize_tree_node(self) -> bool:
         """Initialize the AEDT tree node.
 

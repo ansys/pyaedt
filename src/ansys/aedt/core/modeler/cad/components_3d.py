@@ -36,12 +36,14 @@ from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import _uname
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.props import Props as UserDefinedComponentProps
+from ansys.aedt.core.generic.protocols import _AppWithOProject
 from ansys.aedt.core.internal.desktop_sessions import _edb_sessions
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 
 if TYPE_CHECKING:
-    from ansys.aedt.core.hfss import Hfss
+    from ansys.aedt.core.generic.constants import Axis
     from ansys.aedt.core.modeler.cad.object_3d import Object3d
+    from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
 
 
 class UserDefinedComponentParameters(dict):
@@ -49,7 +51,7 @@ class UserDefinedComponentParameters(dict):
 
     def __setitem__(self, key, value):
         try:
-            self._component._m_Editor.ChangeProperty(
+            self._component._app.oeditor.ChangeProperty(
                 [
                     "NAME:AllTabs",
                     [
@@ -61,7 +63,7 @@ class UserDefinedComponentParameters(dict):
             )
             dict.__setitem__(self, key, value)
         except Exception:
-            self._component._logger.warning("Property %s has not been edited.Check if readonly", key)
+            self._component._app.logger.warning("Property %s has not been edited.Check if readonly", key)
 
     def __init__(self, component, *args, **kw) -> None:
         dict.__init__(self, *args, **kw)
@@ -98,7 +100,13 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
     """
 
-    def __init__(self, primitives, name: str | None = None, props=None, component_type=None) -> None:
+    def __init__(
+        self,
+        primitives: Primitives3D,
+        name: str | None = None,
+        props: dict | None = None,
+        component_type: str | None = None,
+    ) -> None:
         self._primitives = primitives
         self._app = self._primitives._app
 
@@ -107,6 +115,7 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         else:
             self._m_name = _uname()
 
+        # Props can not be retrieved from AEDT file, so only components created by PyAEDT will have it
         self._legacy_props = {}
 
         # Internal variables
@@ -123,24 +132,19 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
             "Purpose",
             "Version",
         ]
-        self._group_name = None
-        self._is_3d_component = None
-        self._mesh_assembly = None
-        self._parameters = {}
-        self._parts = None
-        self._target_coordinate_system = "Global"
+
         # Get definition name (parent component)
         self.definition_name = None
-        defined_components = self._primitives.oeditor.Get3DComponentDefinitionNames()
+        defined_components = self._app.oeditor.Get3DComponentDefinitionNames()
         defined_components = defined_components if defined_components else []
         for component in defined_components:
-            if self._m_name in self._primitives.oeditor.Get3DComponentInstanceNames(component):
+            if self._m_name in self._app.oeditor.Get3DComponentInstanceNames(component):
                 self.definition_name = component
                 break
 
         if component_type:
             self._legacy_props = {
-                "TargetCS": self._target_coordinate_system,
+                "TargetCS": "Global",
                 "SubmodelDefinitionName": self.definition_name,
                 "ComponentPriorityLists": {},
                 "NextUniqueID": 0,
@@ -180,12 +184,25 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
                 )
             self.native_properties = self._props["NativeComponentDefinitionProvider"]
 
-        self._layout_component = None
+        self.__layout_component = None
+        self.__is_3d_component = None
+        self.__parameters = None
 
         self.__child_object = None
-
         # TODO: GetObjData is not available yet
         self._has_getobject = False
+
+    def __str__(self) -> str:
+        return f"""
+         {type(self)}
+         is_3d_component: {self.is_3d_component}   parts: {self.parts}
+         --- read/write properties  ----
+         name: {self.name}
+         group_name: {self.group_name}
+         mesh_assembly: {self.mesh_assembly}
+         parameters: {self.parameters}
+         target_coordinate_system: {self.target_coordinate_system}
+         """
 
     @pyaedt_function_handler()
     def _initialize_tree_node(self) -> bool:
@@ -206,8 +223,9 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         --------
         >>> from ansys.aedt.core import Hfss
         >>> app = Hfss()
-        >>> setup = app.create_setup()
-        >>> setup.child_object.GetChildNames()
+        >>> component_names = app.modeler.user_defined_component_names
+        >>> component = app.modeler.user_defined_components[component_names[0]]
+        >>> component.child_object.GetChildNames()
 
         """
         if not self.__child_object:
@@ -218,54 +236,76 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
     @property
     def props(self) -> UserDefinedComponentProps:
-        """Properties of the setup.
+        """Properties of the component.
+        If the component is not created by PyAEDT, it will be empty.
 
         Examples
         --------
         >>> from ansys.aedt.core import Hfss
         >>> app = Hfss()
-        >>> setup = app.create_setup()
-        >>> setup.props
+        >>> component_names = app.modeler.user_defined_component_names
+        >>> component = app.modeler.user_defined_components[component_names[0]]
+        >>> component.props
 
         """
         if self._legacy_props:
             return UserDefinedComponentProps(self, self._legacy_props)
         return UserDefinedComponentProps(self, self._legacy_props)
 
-    @props.setter
-    def props(self, value: dict) -> None:
-        # Merge with existing props to support partial updates
-        current_props = self.props.to_dict() if self._legacy_props else {}
-        current_props.update(value)
-        # Each Setup class must have an update method
-        self.update(current_props)
+    @property
+    def name(self) -> str:
+        """Name of the component.
+
+        Returns
+        -------
+        str
+           Name of the object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> component_names = app.modeler.user_defined_component_names
+        >>> component = app.modeler.user_defined_components[component_names[0]]
+        >>> component.name
+
+        """
+        return self._m_name
+
+    @name.setter
+    def name(self, component_name: str) -> None:
+        not_valid_names = self._primitives.user_defined_component_names + self._primitives.object_names
+        if component_name not in not_valid_names:
+            if component_name != self._m_name:
+                pcs = ["NAME:Name", "Value:=", component_name]
+                self._change_property(pcs)
+                self._primitives.user_defined_components.update({component_name: self})
+                del self._primitives.user_defined_components[self._m_name]
+                self._m_name = component_name
+        else:  # pragma: no cover
+            self._app.logger.warning("Name %s already assigned in the design", component_name)
 
     @property
-    def layout_component(self) -> "LayoutComponent":
+    def layout_component(self) -> LayoutComponent | None:
         """Layout component object.
 
         Returns
         -------
-        :class:`LayoutComponent`
+        :class:`ansys.aedt.core.modeler.cad.components_3d.LayoutComponent`
             Layout Component.
-
-        References
-        ----------
-        >>> oEditor.GetPropertyValue
-        >>> oEditor.ChangeProperty
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
-        >>> obj = UserDefinedComponent()
-        >>> obj.layout_component
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> component_names = app.modeler.user_defined_component_names
+        >>> component = app.modeler.user_defined_components[component_names[0]]
+        >>> component.layout_component
 
         """
-        if not self._layout_component and "Show Layout" in self._primitives._app.get_oo_properties(
-            self._primitives.oeditor, self.name
-        ):
-            self._layout_component = LayoutComponent(self)
-        return self._layout_component
+        if self.__layout_component is None and "Show Layout" in self.properties:
+            self.__layout_component = LayoutComponent(self)
+        return self.__layout_component
 
     @property
     def group_name(self) -> str:
@@ -276,99 +316,55 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         str
             Name of the group.
 
-        References
-        ----------
-        >>> oEditor.GetPropertyValue
-        >>> oEditor.ChangeProperty
-
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
-        >>> obj = UserDefinedComponent()
-        >>> obj.group_name
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> component_names = app.modeler.user_defined_component_names
+        >>> component = app.modeler.user_defined_components[component_names[0]]
+        >>> component.group_name
 
         """
-        group = None
-        if "Group" in self._primitives._app.get_oo_properties(self._primitives.oeditor, self.name):
-            group = self._primitives._app.get_oo_property_value(self._primitives.oeditor, self.name, "Group")
-        if group is not None:
-            self._group_name = group
+        group = "Model"
+        if "Group" in self.properties:
+            group = self.properties["Group"]
         return group
 
     @group_name.setter
-    def group_name(self, name: str) -> str:
-        """Assign component to a specific group. A new group is created if the specified group doesn't exist.
-
-        Parameters
-        ----------
-        name : str
-            Name of the group to assign the component to. A group is created if the one
-            specified does not exist.
-
-        Returns
-        -------
-        str
-            Name of the group.
-
-        References
-        ----------
-        >>> oEditor.GetPropertyValue
-        >>> oEditor.ChangeProperty
-
-        """
-        if "Group" in self._primitives._app.get_oo_properties(self._primitives.oeditor, self.name) and name not in list(
-            list(self._primitives.oeditor.GetChildNames("Groups"))
-        ):
-            arg = [
-                "NAME:GroupParameter",
-                "ParentGroupID:=",
-                "Model",
-                "Parts:=",
-                "",
-                "SubmodelInstances:=",
-                "",
-                "Groups:=",
-                "",
-            ]
-            assigned_name = self._primitives.oeditor.CreateGroup(arg)
-            self._primitives.oeditor.ChangeProperty(
-                [
-                    "NAME:AllTabs",
-                    [
-                        "NAME:Attributes",
-                        ["NAME:PropServers", assigned_name],
-                        ["NAME:ChangedProps", ["NAME:Name", "Value:=", name]],
-                    ],
-                ]
-            )
-
-        pcs = ["NAME:Group", "Value:=", name]
-        self._change_property(pcs)
-        self._group_name = name
+    def group_name(self, name: str) -> None:
+        if "Group" in self.properties and name not in self._primitives.groups:
+            self._primitives.create_group(group_name=name, components=self.name)
+        else:
+            pcs = ["NAME:Group", "Value:=", name]
+            self._change_property(pcs)
 
     @property
     def is_3d_component(self) -> bool:
-        """3DComponent flag.
+        """Whether the object is a 3D component.
 
         Returns
         -------
         bool
-           ``True`` if a 3DComponent, ``False`` if a user-defined model.
+           ``True`` if a 3D Component, ``False`` if a user-defined model.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
-        >>> obj = UserDefinedComponent()
-        >>> obj.is_3d_component
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> component_names = app.modeler.user_defined_component_names
+        >>> component = app.modeler.user_defined_components[component_names[0]]
+        >>> component.is_3d_component
 
         """
-        definitions = list(self._primitives.oeditor.Get3DComponentDefinitionNames())
-        for comp in definitions:
-            if self.name in self._primitives.oeditor.Get3DComponentInstanceNames(comp):
-                self._is_3d_component = True
-                return True
-        self._is_3d_component = False
-        return False
+        if self.__is_3d_component is None:
+            definitions = list(self._app.oeditor.Get3DComponentDefinitionNames())
+            for comp in definitions:
+                if self.name in self._primitives.oeditor.Get3DComponentInstanceNames(comp):
+                    self.__is_3d_component = True
+                    break
+            if not self.__is_3d_component:
+                self.__is_3d_component = False
+        return self.__is_3d_component
 
     @property
     def mesh_assembly(self) -> bool | None:
@@ -381,15 +377,16 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
-        >>> obj = UserDefinedComponent()
-        >>> obj.mesh_assembly
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> component_names = app.modeler.user_defined_component_names
+        >>> component = app.modeler.user_defined_components[component_names[0]]
+        >>> component.mesh_assembly
 
         """
         key = "Do Mesh Assembly"
-        if self.is_3d_component and key in self._primitives._app.get_oo_properties(self._primitives.oeditor, self.name):
-            ma = self._primitives._app.get_oo_property_value(self._primitives.oeditor, self.name, key)
-            self._mesh_assembly = ma
+        if self.is_3d_component and key in self.properties:
+            ma = self.properties[key]
             return ma
         else:
             return None
@@ -397,54 +394,11 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
     @mesh_assembly.setter
     def mesh_assembly(self, ma: bool) -> None:
         key = "Do Mesh Assembly"
-        if (
-            self.is_3d_component
-            and isinstance(ma, bool)
-            and key in self._primitives._app.get_oo_properties(self._primitives.oeditor, self.name)
-        ):
-            self._primitives._app.set_oo_property_value(self._primitives.oeditor, self.name, key, ma)
-            self._mesh_assembly = ma
+        if self.is_3d_component and isinstance(ma, bool) and key in self.properties:
+            self.properties[key] = ma
 
     @property
-    def name(self) -> str:
-        """Name of the object.
-
-        Returns
-        -------
-        str
-           Name of the object.
-
-        References
-        ----------
-        >>> oEditor.GetPropertyValue
-        >>> oEditor.ChangeProperty
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
-        >>> obj = UserDefinedComponent()
-        >>> obj.name
-
-        """
-        return self._m_name
-
-    @name.setter
-    def name(self, component_name: str) -> None:
-        if component_name not in self._primitives.user_defined_component_names + self._primitives.object_names + list(
-            self._primitives.oeditor.Get3DComponentDefinitionNames()
-        ):
-            if component_name != self._m_name:
-                pcs = ["NAME:Name", "Value:=", component_name]
-                self._change_property(pcs)
-                self._primitives.user_defined_components.update({component_name: self})
-                del self._primitives.user_defined_components[self._m_name]
-                self._project_dictionary = None
-                self._m_name = component_name
-        else:  # pragma: no cover
-            self._logger.warning("Name %s already assigned in the design", component_name)
-
-    @property
-    def parameters(self) -> "UserDefinedComponentParameters":
+    def parameters(self) -> UserDefinedComponentParameters:
         """Component parameters.
 
         Returns
@@ -452,39 +406,38 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         dict
             :class:`ansys.aedt.core.modeler.cad.components_3d.UserDefinedComponentParameters`.
 
-        References
-        ----------
-        >>> oEditor.GetPropertyValue
-        >>> oEditor.ChangeProperty
-
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
-        >>> obj = UserDefinedComponent()
-        >>> obj.parameters
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> component_names = app.modeler.user_defined_component_names
+        >>> component = app.modeler.user_defined_components[component_names[0]]
+        >>> component.parameters
 
         """
-        self._parameters = None
-        if self.is_3d_component:
-            parameters_tuple = list(self._primitives.oeditor.Get3DComponentParameters(self.name))
-            parameters = {}
-            for parameter in parameters_tuple:
-                value = self._primitives._app.get_oo_property_value(self._primitives.oeditor, self.name, parameter[0])
-                parameters[parameter[0]] = value
-            self._parameters = UserDefinedComponentParameters(self, parameters)
-        else:
-            props = list(self._primitives._app.get_oo_properties(self._primitives.oeditor, self.name))
-            parameters_aedt = list(set(props) - set(self._fix_udm_props))
-            parameter_name = [par for par in parameters_aedt if not re.findall(r"/", par)]
-            parameters = {}
-            for parameter in parameter_name:
-                value = self._primitives._app.get_oo_property_value(self._primitives.oeditor, self.name, parameter)
-                parameters[parameter] = value
-            self._parameters = UserDefinedComponentParameters(self, parameters)
-        return self._parameters
+        if self.__parameters is None:
+            if self.is_3d_component:
+                parameters_tuple = list(self._primitives.oeditor.Get3DComponentParameters(self.name))
+                parameters = {}
+                for parameter in parameters_tuple:
+                    if parameter[0] in self.properties:
+                        value = self.properties[parameter[0]]
+                        parameters[parameter[0]] = value
+                self.__parameters = UserDefinedComponentParameters(self, parameters)
+            else:
+                props = list(self.properties)
+                parameters_aedt = list(set(props) - set(self._fix_udm_props))
+                parameter_name = [par for par in parameters_aedt if not re.findall(r"/", par)]
+                parameters = {}
+                for parameter in parameter_name:
+                    if parameter in self.properties:
+                        value = self.properties[parameter]
+                        parameters[parameter] = value
+                self.__parameters = UserDefinedComponentParameters(self, parameters)
+        return self.__parameters
 
     @property
-    def parts(self) -> dict[str, "Object3d"]:
+    def parts(self) -> dict[str, Object3d]:
         """Dictionary of objects that belong to the user-defined component.
 
         Returns
@@ -493,15 +446,17 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
-        >>> obj = UserDefinedComponent()
-        >>> obj.parts
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> component_names = app.modeler.user_defined_component_names
+        >>> component = app.modeler.user_defined_components[component_names[0]]
+        >>> component.parts
 
         """
         if self.is_3d_component:
-            component_parts = list(self._primitives.oeditor.Get3DComponentPartNames(self.name))
+            component_parts = list(self._app.oeditor.Get3DComponentPartNames(self.name))
         else:
-            component_parts = list(self._primitives._app.get_oo_name(self._primitives.oeditor, self.name))
+            component_parts = list(self.properties)
 
         parts_id = [
             self._primitives.objects_by_name[part].id
@@ -520,39 +475,77 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         str
             Name of the target coordinate system.
 
-        References
-        ----------
-        >>> oEditor.GetPropertyValue
-        >>> oEditor.ChangeProperty
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> component_names = app.modeler.user_defined_component_names
+        >>> component = app.modeler.user_defined_components[component_names[0]]
+        >>> component.target_coordinate_system
+
+        """
+        coordinate_system = None
+        if "Target Coordinate System" in self.properties:
+            coordinate_system = self.properties["Target Coordinate System"]
+        return coordinate_system
+
+    @target_coordinate_system.setter
+    def target_coordinate_system(self, value: str) -> None:
+        if "Target Coordinate System" in self.properties and "Target_Coordinate_System_Choices" in dir(
+            self.child_object
+        ):
+            options = self.child_object.Target_Coordinate_System_Choices
+            if value in options:
+                pcs = ["NAME:Target Coordinate System", "Value:=", value]
+                self._change_property(pcs)
+
+    @property
+    def bounding_box(self) -> list:
+        """Get bounding dimension of a user defined model.
+
+        Returns
+        -------
+        list
+            List of floats containing [x_min, y_min, z_min, x_max, y_max, z_max].
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
-        >>> obj = UserDefinedComponent()
-        >>> obj.target_coordinate_system
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> component_names = app.modeler.user_defined_component_names
+        >>> component = app.modeler.user_defined_components[component_names[0]]
+        >>> component.bounding_box
 
         """
-        self._target_coordinate_system = None
-        if "Target Coordinate System" in self._primitives._app.get_oo_properties(self._primitives.oeditor, self.name):
-            tCS = self._primitives._app.get_oo_property_value(
-                self._primitives.oeditor, self.name, "Target Coordinate System"
-            )
-            self._target_coordinate_system = tCS
-        return self._target_coordinate_system
+        bb = [float("inf")] * 3 + [float("-inf")] * 3
+        for _, obj in self.parts.items():
+            bbox = obj.bounding_box
+            bb = [min(bb[i], bbox[i]) for i in range(3)] + [max(bb[i + 3], bbox[i + 3]) for i in range(3)]
+        return bb
 
-    @target_coordinate_system.setter
-    def target_coordinate_system(self, tCS: str) -> None:
-        oo_props = self._primitives._app.get_oo_properties(self._primitives.oeditor, self.name)
-        if "Target Coordinate System" in oo_props and "Target Coordinate System/Choices" in oo_props:
-            tCS_options = list(
-                self._primitives._app.get_oo_property_value(
-                    self._primitives.oeditor, self.name, "Target Coordinate System/Choices"
-                )
-            )
-            if tCS in tCS_options:
-                pcs = ["NAME:Target Coordinate System", "Value:=", tCS]
-                self._change_property(pcs)
-                self._target_coordinate_system = tCS
+    @property
+    def center(self) -> list:
+        """Get center coordinates of a user defined model.
+
+        Returns
+        -------
+        list
+            List of floats containing [x_center, y_center, z_center].
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> component_names = app.modeler.user_defined_component_names
+        >>> component = app.modeler.user_defined_components[component_names[0]]
+        >>> component.center
+
+        """
+        x_min, y_min, z_min, x_max, y_max, z_max = self.bounding_box
+        x_center = (x_min + x_max) / 2
+        y_center = (y_min + y_max) / 2
+        z_center = (z_min + z_max) / 2
+        return [x_center, y_center, z_center]
 
     @pyaedt_function_handler()
     def delete(self) -> None:
@@ -567,16 +560,15 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core import hfss
-        >>> hfss = Hfss()
-        >>> hfss.modeler["UDM"].delete()
-        >>> hfss.save_project()
-        >>> hfss._project_dictionary = None
-        >>> udc = hfss.modeler.user_defined_component_names
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> component_names = app.modeler.user_defined_component_names
+        >>> component = app.modeler.user_defined_components[component_names[0]]
+        >>> component.delete()
 
         """
         arg = ["NAME:Selections", "Selections:=", self._m_name]
-        self._m_Editor.Delete(arg)
+        self._app.oeditor.Delete(arg)
         del self._primitives.user_defined_components[self.name]
         self._primitives.cleanup_objects()
         self.__dict__ = {}
@@ -605,15 +597,17 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
-        >>> obj = UserDefinedComponent()
-        >>> obj.duplicate_and_mirror(origin=[0, 0, 0], vector=[1, 0, 0])
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> component_names = app.modeler.user_defined_component_names
+        >>> component = app.modeler.user_defined_components[component_names[0]]
+        >>> component.duplicate_and_mirror(origin=[0, 0, 0], vector=[1, 0, 0])
 
         """
         return self._primitives.duplicate_and_mirror(self.name, origin=origin, vector=vector, is_3d_comp=True)
 
     @pyaedt_function_handler()
-    def mirror(self, origin: list | object, vector: list | object) -> "UserDefinedComponent | bool":
+    def mirror(self, origin: list | object, vector: list | object) -> UserDefinedComponent | bool:
         """Mirror a selection.
 
         Parameters
@@ -636,9 +630,11 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
-        >>> obj = UserDefinedComponent()
-        >>> obj.mirror(origin=[0, 0, 0], vector=[1, 0, 0])
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> component_names = app.modeler.user_defined_component_names
+        >>> component = app.modeler.user_defined_components[component_names[0]]
+        >>> component.mirror(origin=[0, 0, 0], vector=[1, 0, 0])
 
         """
         if self.is_3d_component:
@@ -651,14 +647,14 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def rotate(self, axis: "Axis", angle: float = 90.0, units: str = "deg") -> "UserDefinedComponent | bool":
+    def rotate(self, axis: Axis | int, angle: float | int = 90.0, units: str = "deg") -> UserDefinedComponent | bool:
         """Rotate the selection.
 
         Parameters
         ----------
-        axis
-            Coordinate system axis or the a value of the enum :class:`ansys.aedt.core.generic.constants.Axis`.
-        angle : float, optional
+        axis : :class:`ansys.aedt.core.generic.constants.Axis`
+            Coordinate system axis or the value of the enum :class:`ansys.aedt.core.generic.constants.Axis`.
+        angle : float or int, optional
             Angle of rotation. The units, defined by ``unit``, can be either
             degrees or radians. The default is ``90.0``.
         units : text, optional
@@ -676,9 +672,12 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
-        >>> obj = UserDefinedComponent()
-        >>> obj.rotate(axis="Z")
+        >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.generic.constants import Axis
+        >>> app = Hfss()
+        >>> component_names = app.modeler.user_defined_component_names
+        >>> component = app.modeler.user_defined_components[component_names[0]]
+        >>> component.rotate(axis=Axis.Z)
 
         """
         if self.is_3d_component:
@@ -691,7 +690,7 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def move(self, vector: list | object) -> "UserDefinedComponent | bool":
+    def move(self, vector: list | object) -> UserDefinedComponent | bool:
         """Move component from a list.
 
         Parameters
@@ -711,9 +710,11 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
-        >>> obj = UserDefinedComponent()
-        >>> obj.move(vector=[1, 0, 0])
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> component_names = app.modeler.user_defined_component_names
+        >>> component = app.modeler.user_defined_components[component_names[0]]
+        >>> component.move(vector=[1, 0, 0])
 
         """
         if self.is_3d_component:
@@ -728,13 +729,13 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def duplicate_around_axis(
-        self, axis: "Axis", angle: int = 90, clones: int = 2, create_new_objects: bool = True
+        self, axis: Axis, angle: int = 90, clones: int = 2, create_new_objects: bool = True
     ) -> list | bool:
         """Duplicate the component around the axis.
 
         Parameters
         ----------
-        axis : Value of the :class:`ansys.aedt.core.generic.constants.Axis` enum
+        axis : :class:`ansys.aedt.core.generic.constants.Axis`
             Coordinate system axis of the object.
         angle : float, optional
             Angle of rotation in degrees. The default is ``90``.
@@ -754,9 +755,12 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
-        >>> obj = UserDefinedComponent()
-        >>> obj.duplicate_around_axis(axis="Z")
+        >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.generic.constants import Axis
+        >>> app = Hfss()
+        >>> component_names = app.modeler.user_defined_component_names
+        >>> component = app.modeler.user_defined_components[component_names[0]]
+        >>> component.duplicate_around_axis(axis=Axis.Z)
 
         """
         if self.is_3d_component:
@@ -764,13 +768,11 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
                 self.name, axis, angle, clones, create_new_objects=create_new_objects, is_3d_comp=True
             )
             return added_objects
-        self._logger.warning("User-defined models do not support this operation.")
+        self._app.logger.warning("User-defined models do not support this operation.")
         return False
 
     @pyaedt_function_handler()
-    def duplicate_along_line(
-        self, vector: list | object, clones: int = 2, attach: bool = False, **kwargs
-    ) -> list | bool:
+    def duplicate_along_line(self, vector: list | object, clones: int = 2, attach: bool = False) -> list | bool:
         """Duplicate the object along a line.
 
         Parameters
@@ -793,9 +795,12 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
-        >>> obj = UserDefinedComponent()
-        >>> obj.duplicate_along_line(vector=[1, 0, 0])
+        >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.generic.constants import Axis
+        >>> app = Hfss()
+        >>> component_names = app.modeler.user_defined_component_names
+        >>> component = app.modeler.user_defined_components[component_names[0]]
+        >>> component.duplicate_along_line(vector=[1, 0, 0])
 
         """
         if self.is_3d_component:
@@ -804,12 +809,12 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
                 self.name, vector, clones, attach=attach, is_3d_comp=True
             )
             return list(set(added_objects) - set(old_component_list))
-        self._logger.warning("User-defined models do not support this operation.")
+        self._app.logger.warning("User-defined models do not support this operation.")
         return False
 
     @pyaedt_function_handler()
     def update_native(self) -> bool:
-        """Update the Native Component in AEDT.
+        """Update the native component in AEDT.
 
         Returns
         -------
@@ -818,9 +823,11 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
-        >>> obj = UserDefinedComponent()
-        >>> obj.update_native()
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> component_names = app.modeler.user_defined_component_names
+        >>> component = app.modeler.user_defined_components[component_names[0]]
+        >>> component.update_native()
 
         """
         self.update_props = {}
@@ -844,55 +851,6 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
         return True
 
-    @property
-    def bounding_box(self) -> list:
-        """Get bounding dimension of a user defined model.
-
-        Returns
-        -------
-        list
-            List of floats containing [x_min, y_min, z_min, x_max, y_max, z_max].
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
-        >>> obj = UserDefinedComponent()
-        >>> obj.bounding_box
-
-        """
-        bb = [float("inf")] * 3 + [float("-inf")] * 3
-        for _, obj in self.parts.items():
-            bbox = obj.bounding_box
-            bb = [min(bb[i], bbox[i]) for i in range(3)] + [max(bb[i + 3], bbox[i + 3]) for i in range(3)]
-        return bb
-
-    @property
-    def center(self) -> list:
-        """Get center coordinates of a user defined model.
-
-        Returns
-        -------
-        list
-            List of floats containing [x_center, y_center, z_center].
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
-        >>> obj = UserDefinedComponent()
-        >>> obj.center
-
-        """
-        x_min, y_min, z_min, x_max, y_max, z_max = self.bounding_box
-        x_center = (x_min + x_max) / 2
-        y_center = (y_min + y_max) / 2
-        z_center = (z_min + z_max) / 2
-        return [x_center, y_center, z_center]
-
-    @property
-    def _logger(self):
-        """Logger."""
-        return self._primitives.logger
-
     @pyaedt_function_handler()
     def _get_args(self, props=None):
         if props is None:
@@ -905,31 +863,6 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
     def _change_property(self, vPropChange):
         return self._primitives._change_component_property(vPropChange, self._m_name)
 
-    @property
-    def _m_Editor(self):
-        """Pointer to the oEditor object in the AEDT API. This property is
-        intended primarily to be used by FacePrimitive, EdgePrimitive, and
-        VertexPrimitive child objects.
-
-        Returns
-        -------
-        oEditor COM Object
-
-        """
-        return self._primitives.oeditor
-
-    def __str__(self) -> str:
-        return f"""
-         {type(self)}
-         is_3d_component: {self._is_3d_component}   parts: {self._parts}
-         --- read/write properties  ----
-         name: {self._m_name}
-         group_name: {self._group_name}
-         mesh_assembly: {self._mesh_assembly}
-         parameters: {self._parameters}
-         target_coordinate_system: {self._target_coordinate_system}
-         """
-
     @pyaedt_function_handler()
     def get_component_filepath(self) -> str:
         """Get 3d component file path.
@@ -941,17 +874,17 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
-        >>> obj = UserDefinedComponent()
-        >>> obj.get_component_filepath()
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> component_names = app.modeler.user_defined_component_names
+        >>> component = app.modeler.user_defined_components[component_names[0]]
+        >>> component.get_component_filepath()
 
         """
-        return self._primitives._app.get_oo_property_value(
-            self._primitives._app.oeditor, self.definition_name, "3D Component File Path"
-        )
+        return self._app.get_oo_property_value(self._app.oeditor, self.definition_name, "3D Component File Path")
 
     @pyaedt_function_handler()
-    def update_definition(self, password: str = None, output_file: str = "", local_update: bool = False) -> bool:
+    def update_definition(self, password: str | None = None, output_file: str = "", local_update: bool = False) -> bool:
         """Update 3d component definition.
 
         Parameters
@@ -971,14 +904,16 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
-        >>> obj = UserDefinedComponent()
-        >>> obj.update_definition(password=1, output_file="example.txt")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> component_names = app.modeler.user_defined_component_names
+        >>> component = app.modeler.user_defined_components[component_names[0]]
+        >>> component.update_definition()
 
         """
         if password is None:
             password = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
-        self._primitives._app.oeditor.UpdateComponentDefinition(
+        self._app.oeditor.UpdateComponentDefinition(
             [
                 "NAME:UpdateDefinitionData",
                 "ForLocalEdit:=",
@@ -991,12 +926,12 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
                 output_file,
             ]
         )
-        self._primitives._app.modeler.refresh_all_ids()
+        self._app.modeler.refresh_all_ids()
         return True
 
     @pyaedt_function_handler()
-    def edit_definition(self, password: str = None) -> "Hfss | bool":
-        """Edit 3d Definition. Open AEDT Project and return Pyaedt Object.
+    def edit_definition(self, password: str | None = None) -> _AppWithOProject | None:
+        """Edit 3d Definition. Open AEDT Project and return PyAEDT object.
 
         Parameters
         ----------
@@ -1005,23 +940,24 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.hfss.Hfss` or :class:`ansys.aedt.core.Icepak.Icepak`
-            Pyaedt object.
+        _AppWithOProject | None
+            PyAEDT object.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
-        >>> obj = UserDefinedComponent()
-        >>> obj.edit_definition(password=1)
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> component_names = app.modeler.user_defined_component_names
+        >>> component = app.modeler.user_defined_components[component_names[0]]
+        >>> new_app = component.edit_definition()
 
         """
         # TODO: Edit documentation to include all supported returned classes.
-
         # from ansys.aedt.core.generic.general_methods import is_linux
         if password is None:
             password = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
 
-        project_list = [i for i in self._primitives._app.desktop_class.project_list]
+        project_list = [i for i in self._app.desktop_class.project_list]
 
         self._primitives.oeditor.Edit3DComponentDefinition(
             [
@@ -1030,12 +966,12 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
             ]
         )
 
-        new_project = [i for i in self._primitives._app.desktop_class.project_list if i not in project_list]
+        new_project = [i for i in self._app.desktop_class.project_list if i not in project_list]
 
         if new_project:
             from ansys.aedt.core.generic.design_types import get_pyaedt_app
 
-            project = self._primitives._app.desktop_class.active_project(new_project[0])
+            project = self._app.desktop_class.active_project(new_project[0])
             # project = self._primitives._app.odesktop.GetActiveProject()
             project_name = project.GetName()
             project.GetDesigns()[0].GetName()
@@ -1044,8 +980,8 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
             #     design_name = project.GetDesigns()[0].GetName()
             # else:
             #     design_name = project.GetActiveDesign().GetName()
-            return get_pyaedt_app(project_name, design_name, desktop=self._primitives._app.desktop_class)
-        return False
+            return get_pyaedt_app(project_name, design_name, desktop=self._app.desktop_class)
+        return None
 
 
 class LayoutComponent(PyAedtBase):
@@ -1333,10 +1269,10 @@ class LayoutComponent(PyAedtBase):
                 self.edb_object.close()
                 return True
             except Exception:  # pragma: no cover
-                self._logger.error("EDB object cannot be closed.")
+                self._app.logger.error("EDB object cannot be closed.")
                 return False
         else:  # pragma: no cover
-            self._logger.warning("EDB object was not created.")
+            self._app.logger.warning("EDB object was not created.")
             return False
 
     @pyaedt_function_handler()
