@@ -1713,6 +1713,7 @@ class ExtensionManager(ExtensionProjectCommon):
             logging.getLogger("Global").debug("PyAEDT update popup: failed to display.", exc_info=True)
 
 
+
 if __name__ == "__main__":  # pragma: no cover
     # Open UI
     extension: ExtensionProjectCommon = ExtensionManager(withdraw=False)
