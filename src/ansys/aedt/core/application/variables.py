@@ -1061,7 +1061,6 @@ class VariableManager(PyAedtBase):
                 var_lists.append(self._get_var_list_from_aedt(obj))
         self._update_variable_dict(object_list, var_lists)
         self._cleanup_variables(design_vars + project_vars)
-
         vars_to_output = {}
         dicts_to_add = []
         if independent:
@@ -1273,7 +1272,6 @@ class VariableManager(PyAedtBase):
             "Maxwell Circuit",
             "Twin Builder",
         ]
-
         for i, (nm, is_circuit) in enumerate(zip(names, circuit_parameter)):
             if nm.startswith("$"):
                 project_indices.append(i)
@@ -1452,7 +1450,6 @@ class VariableManager(PyAedtBase):
             other_object = self._odesign if is_project else self._oproject
             self._cleanup_variables(var_list + self._get_var_list_from_aedt(other_object))
         lower_case_vars = {v.lower() for v in var_list}
-
         for i, nm in enumerate(names):
             if expressions[i] and nm.lower() not in lower_case_vars:
                 return False
