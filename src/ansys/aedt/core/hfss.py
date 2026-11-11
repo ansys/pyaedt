@@ -83,12 +83,12 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modeler import cad
 from ansys.aedt.core.modeler.cad.component_array import ComponentArray
+from ansys.aedt.core.modeler.cad.components_3d import NativeComponentObject
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
 from ansys.aedt.core.modules.boundary.hfss_boundary import NearFieldSetup
-from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.modules.solve_setup import SetupHFSS
 from ansys.aedt.core.modules.solve_setup import SetupHFSSAuto

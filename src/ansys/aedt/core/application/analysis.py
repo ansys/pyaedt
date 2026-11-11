@@ -65,8 +65,6 @@ from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.checks import deprecated_doc
 from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
-from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
 from ansys.aedt.core.modules.design_xploration import Optimetrics
 from ansys.aedt.core.modules.design_xploration import Optimizations
 from ansys.aedt.core.modules.design_xploration import Parametrics
@@ -195,42 +193,6 @@ class Analysis(Design, PyAedtBase):
             self._optimizations = self.optimizations
             self._optimetrics = self.optimetrics
             self._available_variations = self.available_variations
-
-    @property
-    def native_components(self) -> dict[str, NativeComponentObject]:
-        """Native Component dictionary.
-
-        Returns
-        -------
-        dict[str, :class:`ansys.aedt.core.modules.Boundaries.NativeComponentObject`]
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> hfss.native_components
-
-        """
-        if not self._native_components:
-            self._native_components = self._get_native_data()
-        return {nc.name: nc for nc in self._native_components}
-
-    @property
-    def native_component_names(self) -> list[str]:
-        """Native component names.
-
-        Returns
-        -------
-        list
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> hfss.native_component_names
-
-        """
-        return self.modeler.user_defined_component_names
 
     @property
     def output_variables(self) -> list[str]:
@@ -1195,35 +1157,6 @@ class Analysis(Design, PyAedtBase):
             self.odesign.ExportConvergence(setup, variations, output_file)
             self.logger.info("Export Convergence to  %s", output_file)
         return output_file
-
-    @pyaedt_function_handler()
-    def _get_native_data(self):
-        """Retrieve Native Components data."""
-        boundaries = []
-        try:
-            data_vals = self.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
-                "SubModelDefinitions"
-            ]["NativeComponentDefinition"]
-            if not isinstance(data_vals, list) and isinstance(data_vals, dict):
-                data_vals = [data_vals]
-            for ds in data_vals:
-                try:
-                    component_name = "undefined"
-                    if isinstance(ds, dict):
-                        component_type = ds["NativeComponentDefinitionProvider"]["Type"]
-                        component_name = ds["BasicComponentInfo"]["ComponentName"]
-                        if component_type == "PCB":
-                            native_component_object = NativeComponentPCB(self, component_type, component_name, ds)
-                        else:
-                            native_component_object = NativeComponentObject(self, component_type, component_name, ds)
-                        boundaries.append(native_component_object)
-                except Exception:
-                    msg = "Failed to add native component object."
-                    msg_end = "." if component_name == "undefined" else f"(named {component_name})."
-                    self.logger.debug(msg + msg_end)
-        except Exception:
-            self.logger.debug("Failed to add native component object.")
-        return boundaries
 
     @property
     def axis_directions(self):

@@ -47,13 +47,13 @@ from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.generic.protocols import _AppWithOProject
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
+from ansys.aedt.core.modeler.cad.components_3d import NativeComponentObject
+from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.common import BoundaryProps
-from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
-from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
 from ansys.aedt.core.modules.design_xploration import OptimizationSetup
 from ansys.aedt.core.modules.design_xploration import ParametricSetup
 from ansys.aedt.core.modules.material_lib import Material

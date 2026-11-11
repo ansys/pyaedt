@@ -55,6 +55,8 @@ from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.mixins import CreateBoundaryMixin
+from ansys.aedt.core.modeler.cad.components_3d import NativeComponentObject
+from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.object_3d import Object3d
@@ -69,8 +71,6 @@ from ansys.aedt.core.modules.boundary.icepak_boundary import PieceWiseLinearDict
 from ansys.aedt.core.modules.boundary.icepak_boundary import PowerLawDictionary
 from ansys.aedt.core.modules.boundary.icepak_boundary import SinusoidalDictionary
 from ansys.aedt.core.modules.boundary.icepak_boundary import SquareWaveDictionary
-from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
-from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.modules.solve_setup import SetupIcepak
 
@@ -1853,47 +1853,47 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def create_ipk_3dcomponent_pcb(
         self,
-        compName: str,
-        setupLinkInfo: list,
-        solutionFreq: str | float | None,
-        resolution: int,
-        PCB_CS: str | None = "Global",
-        rad: str | None = "Nothing",
+        name: str,
+        setup_link: list,
+        frequency: str | float | None = None,
+        resolution: int = 2,
+        coordinate_system: str | None = "Global",
+        radiating_faces: str | None = "Nothing",
         extent_type: str | None = "Bounding Box",
         outline_polygon: str | None = "",
-        powerin: str | None = "0W",
-        custom_x_resolution: str | float | None = None,
-        custom_y_resolution: str | float | None = None,
-        **kwargs,  # fmt: skip
+        power: str | None = "0W",
+        custom_x_resolution: str | float | int | None = None,
+        custom_y_resolution: str | float | int | None = None,
     ) -> NativeComponentPCB | bool:
         """Create a PCB component in Icepak that is linked to an HFSS 3D Layout object.
 
         Parameters
         ----------
-        compName : str
+        name : str
             Name of the new PCB component.
-        setupLinkInfo : list
+        setup_link : list
             List of the five elements needed to set up the link in this format:
-            ``[projectname, designname, solution name, forcesimulation (bool), preserve results (bool)]``.
-        solutionFreq :
+            ``[Project name, design name, solution name, force simulation (bool), preserve results (bool)]``.
+        frequency : str | float, optional
             Frequency of the solution if cosimulation is requested.
         resolution : int
             Resolution of the mapping.
-        PCB_CS : str, optional
+        coordinate_system : str, optional
             Coordinate system for the PCB. The default is ``"Global"``.
-        rad : str, optional
-            Radiating faces. The default is ``"Nothing"``.
+        radiating_faces : str, optional
+            Radiating faces. The default is ``"Nothing"``. Available options are ``"Nothing"``, ``"Low"``,
+            ``"High"``, or  ``"Both"``.
         extent_type : str, optional
             Type of the extent. Options are ``"Bounding Box"`` and ``"Polygon"``.
             The default is ``"Bounding Box"``.
         outline_polygon : str, optional
             Name of the polygon if ``extentype="Polygon"``. The default is ``""``,
             in which case the outline polygon is automatically identified.
-        powerin : str, optional
+        power : str, optional
             Power to dissipate if cosimulation is disabled. The default is ``"0W"``.
-        custom_x_resolution
+        custom_x_resolution : str | float | int, optional
             The default is ``None``.
-        custom_y_resolution
+        custom_y_resolution : str | float | int, optional
             The default is ``None``.
 
         Returns
@@ -1913,9 +1913,9 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> obj.create_ipk_3dcomponent_pcb("MainBoard", link_data, "2.4GHz", 2)
 
         """
-        low_radiation, high_radiation = self.get_radiation_settings(rad)
+        low_radiation, high_radiation = self.get_radiation_settings(radiating_faces)
         hfss_link_info = {}
-        _arg2dict(self.get_link_data(setupLinkInfo), hfss_link_info)
+        _arg2dict(self.get_link_data(setup_link), hfss_link_info)
         if extent_type == "Polygon" and not outline_polygon:
             native_props = {
                 "NativeComponentDefinitionProvider": {
@@ -1956,22 +1956,23 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             native_props["IncludeMCAD"] = False
 
         if custom_x_resolution and custom_y_resolution:
-            native_props["NativeComponentDefinitionProvider"]["UseThermalLink"] = solutionFreq != ""
+            native_props["NativeComponentDefinitionProvider"]["UseThermalLink"] = frequency != ""
             native_props["NativeComponentDefinitionProvider"]["CustomResolution"] = True
             native_props["NativeComponentDefinitionProvider"]["CustomResolutionRow"] = custom_x_resolution
             native_props["NativeComponentDefinitionProvider"]["CustomResolutionCol"] = custom_y_resolution
         else:
-            native_props["NativeComponentDefinitionProvider"]["UseThermalLink"] = solutionFreq != ""
+            native_props["NativeComponentDefinitionProvider"]["UseThermalLink"] = frequency != ""
             native_props["NativeComponentDefinitionProvider"]["CustomResolution"] = False
-        if solutionFreq:
-            native_props["NativeComponentDefinitionProvider"]["Frequency"] = solutionFreq
+        if frequency:
+            native_props["NativeComponentDefinitionProvider"]["Frequency"] = frequency
             native_props["NativeComponentDefinitionProvider"]["DefnLink"] = hfss_link_info["DefnLink"]
         else:
-            native_props["NativeComponentDefinitionProvider"]["Power"] = powerin
+            native_props["NativeComponentDefinitionProvider"]["Power"] = power
             native_props["NativeComponentDefinitionProvider"]["DefnLink"] = hfss_link_info["DefnLink"]
 
-        native_props["TargetCS"] = PCB_CS
-        native = NativeComponentPCB(self, "PCB", compName, native_props)
+        native_props["TargetCS"] = coordinate_system
+        native = NativeComponentPCB(app=self, component_type="PCB", component_name=name, props=native_props)
+
         if native.create():
             user_defined_component = UserDefinedComponent(
                 self.modeler, native.name, native_props["NativeComponentDefinitionProvider"], "PCB"

@@ -34,6 +34,7 @@ from pathlib import Path
 import secrets
 import string
 import time
+from typing import TYPE_CHECKING
 import warnings
 
 import ansys.aedt.core
@@ -44,6 +45,7 @@ from ansys.aedt.core.generic.constants import Plane as PlaneEnum
 from ansys.aedt.core.generic.data_handlers import json_to_dict
 from ansys.aedt.core.generic.file_utils import _uname
 from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.general_methods import SetupDict
 from ansys.aedt.core.generic.general_methods import clamp
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -55,6 +57,8 @@ from ansys.aedt.core.generic.quaternion import Quaternion
 from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
+from ansys.aedt.core.modeler.cad.components_3d import NativeComponentObject
+from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
@@ -73,7 +77,10 @@ from ansys.aedt.core.modeler.cad.object_3d import PolylineSegment
 from ansys.aedt.core.modeler.cad.polylines import Polyline
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modules.material_lib import Material
-from ansys.aedt.core.modules.material_lib import Materials
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.modules.material_lib import Materials
+
 
 aedt_wait_time = 0.1
 """Value for AEDT wait time."""
@@ -90,7 +97,12 @@ class Objects(dict):
     """
 
     def _parse_objs(self) -> None:
-        if self.__refreshed is False and dict.__len__(self) != len(self.__parent.object_names):
+        if self.__obj_type == "o":
+            object_names = self.__parent.object_names
+        elif self.__obj_type == "p":
+            object_names = self.__parent.point_names
+
+        if self.__refreshed is False and dict.__len__(self) != len(object_names):
             self.__refreshed = True
             if self.__obj_type == "o":
                 self.__parent.logger.info("Parsing design objects. This operation can take time")
@@ -100,13 +112,12 @@ class Objects(dict):
                 self.__parent.cleanup_solids()
                 self.__parent.logger.info_timer("3D Modeler objects parsed.")
             elif self.__obj_type == "p":
-                # self.__parent.logger.info("Parsing design points. This operation can take time")
-                # self.__parent.logger.reset_timer()
                 self.__parent.add_new_points()
                 self.__parent.cleanup_points()
-                # self.__parent.logger.info_timer("3D Modeler objects parsed.")
-            elif self.__obj_type == "u":
-                self.__parent.add_new_user_defined_component()
+
+    def __repr__(self) -> str:
+        self._parse_objs()
+        return dict.__repr__(self)
 
     def __len__(self) -> int:
         if self.__refreshed:
@@ -116,7 +127,7 @@ class Objects(dict):
         elif self.__obj_type == "p":
             return len(self.__parent.point_names)
         else:
-            return len(self.__parent.user_defined_component_names)
+            return 0
 
     def __delitem__(self, key):
         try:
@@ -148,7 +159,7 @@ class Objects(dict):
             elif self.__obj_type == "p":
                 return True if item in self.__parent.point_names else False
             else:
-                return True if item in self.__parent.user_defined_component_names else False
+                return False
         self._parse_objs()
         return True if (item in dict.keys(self) or item in self.__obj_names) else False
 
@@ -176,7 +187,7 @@ class Objects(dict):
         if self.__obj_type == "o":
             self.__parent._object_names_to_ids[value.name] = key
 
-    def __getitem__(self, item) -> "Object3d":
+    def __getitem__(self, item) -> Object3d:
         if item in dict.keys(self):
             return dict.__getitem__(self, item)
         elif item in self.__obj_names:
@@ -312,8 +323,11 @@ class GeometryModeler(Modeler, PyAedtBase):
         self._model_units = None
         self._object_names_to_ids = {}
         self.objects = Objects(self, "o")
-        self.user_defined_components = Objects(self, "u")
         self.points = Objects(self, "p")
+
+        self.__user_defined_components = SetupDict()
+        self.__native_components = SetupDict()
+
         self.refresh()
 
     @property
@@ -510,7 +524,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return self._app.oeditor
 
     @property
-    def materials(self) -> "Materials":
+    def materials(self) -> Materials:
         """Material library used in the project.
 
         Returns
@@ -910,6 +924,55 @@ class GeometryModeler(Modeler, PyAedtBase):
         return self._points
 
     @property
+    def component_definition_names(self) -> list:
+        """List of the 3D component definition names.
+
+        Returns
+        -------
+        list
+
+        References
+        ----------
+        >>> oEditor.Get3DComponentDefinitionNames
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.modeler.component_definition_names
+
+        """
+        comp_definitions = []
+        if "Get3DComponentDefinitionNames" in dir(self.oeditor):
+            comp_definitions = list(self.oeditor.Get3DComponentDefinitionNames())
+        return comp_definitions
+
+    @property
+    def component_definition_instances(self) -> dict:
+        """Instances of each component definition.
+
+        References
+        ----------
+        >>> oEditor.Get3DComponentInstanceNames
+
+        Returns
+        -------
+        dict
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.modeler.component_definition_instances
+
+        """
+        comp_definitions = self.component_definition_names
+        instances = {}
+        for definition in comp_definitions:
+            instances[definition] = list(self.oeditor.Get3DComponentInstanceNames(definition))
+        return instances
+
+    @property
     def user_defined_component_names(self) -> list:
         """List of the names of all 3D component objects.
 
@@ -920,34 +983,48 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.user_defined_component_names
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.modeler.user_defined_component_names
 
         """
-        obs3d = []
+        # Get 3D Components
+        comp_instances = []
+        comp_definitions = self.component_definition_names
+        for comp3d in comp_definitions:
+            comp_instances += list(self.oeditor.Get3DComponentInstanceNames(comp3d))
+        # Get UDM
+        udm = []
         try:
-            comps3d = self.oeditor.Get3DComponentDefinitionNames()
-            for comp3d in comps3d:
-                obs3d += list(self.oeditor.Get3DComponentInstanceNames(comp3d))
+            child_types = self.oeditor.GetChildTypes()
+            child_type = next(
+                (name for name in ("UserDefinedModels", "UserDefinedModel") if name in child_types),
+                None,
+            )
+            if child_type:
+                udm = list(self.oeditor.GetChildNames(child_type))
+        except Exception:  # pragma: no cover
             udm = []
-            if "UserDefinedModels" in self.oeditor.GetChildTypes():
-                try:
-                    udm = list(self.oeditor.GetChildNames("UserDefinedModels"))
-                except Exception:  # pragma: no cover
-                    udm = []
-            obs3d = list(set(udm + obs3d))
-            new_obs3d = copy.deepcopy(obs3d)
-            if self.user_defined_components.keys():
-                existing_components = list(self.user_defined_components.keys())
-                new_obs3d = [i for i in obs3d if i]
-                for _, value in enumerate(existing_components):
-                    if value not in new_obs3d:
-                        new_obs3d.append(value)
+        obs3d = list(set(udm + comp_instances))
+        return obs3d
 
-        except Exception:
-            new_obs3d = []
-        return new_obs3d
+    @property
+    def user_defined_components(self) -> SetupDict:
+        user_define_components = self.user_defined_component_names
+        aedt_data = None
+        for udm in user_define_components:
+            if udm not in self.__user_defined_components:
+                if not aedt_data:
+                    # AEDT API does not have a method to get the 3D Component properties
+                    aedt_data = self._get_native_data()
+
+                pass
+
+        for comp in list(self.__user_defined_components.keys()):
+            if comp not in user_define_components:
+                del self.__user_defined_components[comp]
+
+        return self.__user_defined_components
 
     @property
     def layout_component_names(self) -> list:
@@ -1142,7 +1219,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         self._all_object_names = []
         self._object_names_to_ids = {}
         self.objects = Objects(self, "o")
-        self.user_defined_components = Objects(self, "u")
+
         self._refresh_object_types()
         if not settings.objects_lazy_load:
             self._refresh_all_ids_wrapper()
@@ -1161,7 +1238,12 @@ class GeometryModeler(Modeler, PyAedtBase):
             native_component_properties = self._get_native_component_properties(name)
             if native_component_properties:
                 component_type = native_component_properties["NativeComponentDefinitionProvider"]["Type"]
-                o = UserDefinedComponent(self, name, native_component_properties, component_type)
+                from ansys.aedt.core.modeler.cad.components_3d import NativeComponentObject
+
+                if component_type == "PCB":
+                    o = NativeComponentPCB(self._app, component_type, name, native_component_properties)
+                else:
+                    o = NativeComponentObject(self._app, component_type, name, native_component_properties)
             else:
                 o = UserDefinedComponent(self, name)
             self.user_defined_components[name] = o
@@ -10594,15 +10676,8 @@ class GeometryModeler(Modeler, PyAedtBase):
         list
            List of names for native components.
         """
-        native_comp_properties = None
-        comps3d = self.oeditor.Get3DComponentDefinitionNames()
-        component_name = None
-        for comp3d in comps3d:
-            if name in self.oeditor.Get3DComponentInstanceNames(comp3d):
-                component_name = comp3d
-                break
         dp = copy.deepcopy(self._app.design_properties)
-        if dp and dp.get("ModelSetup", None) and component_name:
+        if dp and dp.get("ModelSetup", None) and name in self.user_defined_component_names:
             try:
                 native_comp_entry = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["SubModelDefinitions"][
                     "NativeComponentDefinition"
@@ -10612,7 +10687,7 @@ class GeometryModeler(Modeler, PyAedtBase):
                         native_comp_entry = [native_comp_entry]
                     for data in native_comp_entry:
                         native_comp_name = data["SubmodelDefinitionName"]
-                        if native_comp_name == component_name:
+                        if native_comp_name == name:
                             native_comp_properties = data
                             break
             except Exception:
@@ -10683,6 +10758,64 @@ class GeometryModeler(Modeler, PyAedtBase):
                 ]
             )
         return True
+
+    @pyaedt_function_handler()
+    def _get_native_data(self):
+        """Retrieve native components data."""
+        boundaries = SetupDict()
+
+        dp = self._app.design_properties
+
+        if not isinstance(dp, dict):  # pragma: no cover
+            return boundaries
+
+        model_setup = dp.get("ModelSetup", {})
+        geometry_core = model_setup.get("GeometryCore", {})
+        geometry_operations = geometry_core.get("GeometryOperations", {})
+        sub_model_definitions = geometry_operations.get("SubModelDefinitions", {})
+        native_component_definitions = sub_model_definitions.get("NativeComponentDefinition", {})
+
+        if not native_component_definitions:  # pragma: no cover
+            return boundaries
+
+        component_definitions = copy.deepcopy(native_component_definitions)
+
+        if not isinstance(component_definitions, list) and isinstance(component_definitions, dict):
+            component_definitions = [component_definitions]
+
+        component_definitions = None
+        if component_definitions:
+            try:
+                component_definitions = {}
+                for definition in self.oeditor.Get3DComponentDefinitionNames() or []:
+                    for instance_name in self.oeditor.Get3DComponentInstanceNames(definition) or []:
+                        component_definitions.setdefault(instance_name, definition)
+            except Exception:
+                component_definitions = None
+                self.logger.debug("Failed to retrieve native component definitions.")
+        for ds in component_definitions:
+            try:
+                component_name = "undefined"
+                if isinstance(ds, dict):
+                    component_type = ds["NativeComponentDefinitionProvider"]["Type"]
+                    component_name = ds["BasicComponentInfo"]["ComponentName"]
+                    definition_name = (
+                        component_definitions.get(component_name, "") if component_definitions is not None else None
+                    )
+                    if component_type == "PCB":
+                        native_component_object = NativeComponentPCB(
+                            self._app, component_name, ds, definition_name=definition_name
+                        )
+                    else:
+                        native_component_object = NativeComponentObject(
+                            self, component_type, component_name, ds, definition_name=definition_name
+                        )
+                    boundaries[component_name] = native_component_object
+            except Exception:
+                msg = "Failed to add native component object."
+                msg_end = "." if component_name == "undefined" else f"(named {component_name})."
+                self.logger.debug(msg + msg_end)
+        return boundaries
 
 
 class PrimitivesBuilder(PyAedtBase):
