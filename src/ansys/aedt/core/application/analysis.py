@@ -470,7 +470,6 @@ class Analysis(Design, PyAedtBase):
             has_get_sweeps = bool(setup_list) and solution_type != "Eigenmode" and "GetSweeps" in dir(self.oanalysis)
             for el in setup_list:
                 sweep_list[el] = {"Nominal": None, "Sweeps": []}
-
                 if setuptype:
                     sweep_list[el]["Nominal"] = setuptype
                 elif self.design_type in [
@@ -490,7 +489,7 @@ class Analysis(Design, PyAedtBase):
                         sweep_list[el]["Sweeps"].extend(list(self.oanalysis.GetSweeps(el)))
                     except Exception:
                         sweep_list[el]["Sweeps"] = []
-        for k in self.imported_solution_names(setup_list):
+        for k in self._imported_solution_names(setup_list):
             sweep_list[k] = {"Nominal": "Table", "Sweeps": []}
         return sweep_list
 
@@ -546,12 +545,15 @@ class Analysis(Design, PyAedtBase):
         >>> hfss.nominal_adaptive
 
         """
-        if not self.active_setup or self.active_setup not in self.setup_sweeps_names:
+        if not self.active_setup:
             return ""
-        if self.setup_sweeps_names[self.active_setup]["Nominal"] is None:
+        setup_sweeps = self.setup_sweeps_names
+        if self.active_setup not in setup_sweeps:
+            return ""
+        if setup_sweeps[self.active_setup]["Nominal"] is None:
             return self.active_setup
         else:
-            return f"{self.active_setup} : {self.setup_sweeps_names[self.active_setup]['Nominal']}"
+            return f"{self.active_setup} : {setup_sweeps[self.active_setup]['Nominal']}"
 
     @property
     def nominal_sweep(self) -> str:
@@ -575,10 +577,13 @@ class Analysis(Design, PyAedtBase):
         >>> hfss.nominal_sweep
 
         """
-        if not self.active_setup or self.active_setup not in self.setup_sweeps_names:
+        if not self.active_setup:
             return ""
-        if self.setup_sweeps_names[self.active_setup]["Sweeps"]:
-            return f"{self.active_setup} : {self.setup_sweeps_names[self.active_setup]['Sweeps'][0]}"
+        setup_sweeps = self.setup_sweeps_names
+        if self.active_setup not in setup_sweeps:
+            return ""
+        if setup_sweeps[self.active_setup]["Sweeps"]:
+            return f"{self.active_setup} : {setup_sweeps[self.active_setup]['Sweeps'][0]}"
         else:
             return self.nominal_adaptive
 
@@ -622,8 +627,14 @@ class Analysis(Design, PyAedtBase):
         >>> hfss.imported_solution_names
 
         """
+        return self._imported_solution_names(self.setup_names)
+
+    @pyaedt_function_handler()
+    def _imported_solution_names(self, setup_names: list[str]) -> list[str]:
+        """Return imported solution names, given the already retrieved setup names."""
         solution_list = list(self.get_oo_name(self.oreportsetup, "Profile"))
-        return [i for i in solution_list if i not in self.setup_names]
+        setup_names = set(setup_names)
+        return [i for i in solution_list if i not in setup_names]
 
     @property
     def excitation_names(self) -> list[str]:
