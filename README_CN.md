@@ -15,7 +15,7 @@
 [![PyPI downloads](https://static.pepy.tech/badge/pyaedt/month)](https://www.pepy.tech/projects/pyaedt)
 [![Conda](https://anaconda.org/conda-forge/pyaedt/badges/version.svg)](https://anaconda.org/conda-forge/pyaedt)
 [![Conda downloads](https://img.shields.io/conda/dn/conda-forge/pyaedt?label=Conda%20downloads)](https://anaconda.org/conda-forge/pyaedt)
-[![Python version](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![Python version](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![GitHub CI](https://github.com/ansys/pyaedt/actions/workflows/nightly-tests.yml/badge.svg)](https://github.com/ansys/pyaedt/actions/workflows/nightly-tests.yml)
 [![codecov](https://codecov.io/gh/ansys/pyaedt/branch/main/graph/badge.svg)](https://codecov.io/gh/ansys/pyaedt)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/blog/license/mit)
@@ -29,7 +29,7 @@
 
 ## 关于 PyAEDT 的安装
 
-1. 您可以使用 `PyPI` 工具将 `PyAEDT` 安装在 `CPython 3.10-3.14` 版本上:
+1. 您可以使用 `PyPI` 工具将 `PyAEDT` 安装在 `CPython 3.12-3.14` 版本上:
 
 ``` bash
   pip install pyaedt

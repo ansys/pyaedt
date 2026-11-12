@@ -248,7 +248,7 @@ Finally, in the Python console, run the following commands:
 Linux support
 ~~~~~~~~~~~~~
 
-PyAEDT works with CPython 3.10 through 3.13 on Linux in AEDT 2022 R2 and later.
+PyAEDT works with CPython 3.12 through 3.14 on Linux in AEDT 2024 R2 and later.
 However, you must set up the following environment variables before launching Python.
 Replace the version number and path with your actual AEDT installation:
 
@@ -285,7 +285,7 @@ Install offline from a wheelhouse
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Using a wheelhouse can be helpful if you work for a company that restricts access to external networks.
 
-Wheelhouses for CPython 3.10, 3.11, 3.12, 3.13 and 3.14 are available in the releases for both Windows and Linux.
+Wheelhouses for CPython 3.12, 3.13 and 3.14 are available in the releases for both Windows and Linux.
 From the `Releases <https://github.com/ansys/pyaedt/releases>`_
 page in the PyAEDT repository, you can find the wheelhouses for a particular release in its
 assets and download the wheelhouse specific to your setup.
@@ -293,11 +293,11 @@ assets and download the wheelhouse specific to your setup.
 You can then install PyAEDT and all of its dependencies from one single entry point that can be shared internally,
 which eases the security review of the PyAEDT package content.
 
-For example, on Windows with Python 3.10, install PyAEDT and all its dependencies from a wheelhouse with code like this:
+For example, on Windows with Python 3.12, install PyAEDT and all its dependencies from a wheelhouse with code like this:
 
 .. code::
 
-    pip install --no-cache-dir --no-index --find-links=file:///<path_to_wheelhouse>/PyAEDT-v<release_version>-wheelhouse-Windows-3.10 pyaedt[all]
+    pip install --no-cache-dir --no-index --find-links=file:///<path_to_wheelhouse>/PyAEDT-v<release_version>-wheelhouse-Windows-3.12 pyaedt[all]
 
 
 .. note::
@@ -406,7 +406,7 @@ Create virtual environment
 
 .. code:: bash
 
-    conda create --name pyaedt_py310 python=3.10
+    conda create --name pyaedt_py310 python=3.12
 
 Activate virtual environment
 

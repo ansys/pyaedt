@@ -11,7 +11,7 @@ on:
 env:
   ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
   MAIN_PYTHON_VERSION: '3.14'
-  TESTS_VERSION: '3.10'
+  TESTS_VERSION: '3.12'
   PACKAGE_NAME: 'PyAEDT'
   DOCUMENTATION_CNAME: 'aedt.docs.pyansys.com'
   PYAEDT_DOC_BUILD_CHEATSHEET: False
@@ -284,7 +284,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
+        python-version: ['3.12', '3.13', '3.14']
         target: ['', 'all']
     steps:
       - name: Build wheelhouse and perform smoke test
@@ -314,7 +314,7 @@ jobs:
     needs: [analyze-changes]
     uses: $/.github/workflows/reusable-smoke-tests-rocky.yml
     with:
-      python-versions: '["3.10", "3.11", "3.12", "3.13", "3.14"]'
+      python-versions: '["3.12", "3.13", "3.14"]'
 
   unit-tests:
     name: Unit tests

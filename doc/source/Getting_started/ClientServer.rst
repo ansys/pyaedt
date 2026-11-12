@@ -5,9 +5,7 @@ Client-server
 You can launch PyAEDT on a remote machine if these conditions are met:
 
 - AEDT and PyAEDT is installed on client and server machines.
-- The same Python version is used on the client and server machines. (CPython 3.10+
-  is embedded in the AEDT installation.)
-
+- The same Python version is used on the client and server machines.
 
 gRPC connections
 ~~~~~~~~~~~~~~~~
@@ -284,7 +282,7 @@ On a CPython server run the ``pyaedt_service_manager`` service that listens on p
 for incoming requests of connections from clients. The port is configurable.
 Requirements:
 
-- Python 3.10+ Virtual Environment.
+- Python 3.12+ Virtual Environment.
 - pyaedt > 0.6.0
 
 On Linux, in addition to the preceding requirements, these environments are needed:
