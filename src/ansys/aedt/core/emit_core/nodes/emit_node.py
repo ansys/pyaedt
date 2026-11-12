@@ -118,7 +118,7 @@ class EmitNode:
         except GrpcApiError as e:
             try:
                 errors = self._emit_obj.logger.aedt_messages.error_level
-            except GrpcApiError: # no messages found (logger bug triggers the exception)
+            except GrpcApiError:  # no messages found (logger bug triggers the exception)
                 raise e
             if errors:
                 last_message = str(errors[-1])
