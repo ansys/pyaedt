@@ -50,6 +50,7 @@ from ansys.aedt.core.extensions.customize_automation_tab import get_custom_exten
 from ansys.aedt.core.extensions.customize_automation_tab import get_custom_extensions_from_tabconfig
 from ansys.aedt.core.extensions.customize_automation_tab import is_extension_in_panel
 from ansys.aedt.core.extensions.customize_automation_tab import remove_script_from_menu
+from ansys.aedt.core.extensions.customize_automation_tab import tab_map
 from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
 from ansys.aedt.core.extensions.misc import ToolTip
 from ansys.aedt.core.extensions.misc import check_for_pyaedt_update_on_startup
@@ -708,6 +709,7 @@ class ExtensionManager(ExtensionProjectCommon):
         script_file: Path | None = None
         script_field: str | None = None
         option_label = option
+        custom_icon: Path | None = None
         logger = logging.getLogger("Global")
         current_toolkits = self.toolkits.get(self.current_category, {})
         if option not in current_toolkits and option != "Custom":  # pragma: no cover
@@ -725,7 +727,7 @@ class ExtensionManager(ExtensionProjectCommon):
                 messagebox.showinfo("Error", f"Script {script_field} for custom extension '{option}' not found.")
                 return
         elif is_custom:
-            script_file, display_name = self.handle_custom_extension()
+            script_file, display_name, custom_icon = self.handle_custom_extension()
             if script_file is None:
                 self.desktop.logger.info("Exited custom extension setup.")
                 return
@@ -744,9 +746,9 @@ class ExtensionManager(ExtensionProjectCommon):
             else:
                 messagebox.showinfo("Error", "Wrong extension.")
                 return
-        icon = EXTENSIONS_PATH / "images" / "large" / "pyansys.png"
         if is_custom and script_field is None:
             try:
+                icon = self._install_custom_icon(custom_icon, category, option_label)
                 add_script_to_menu(
                     name=option_label,
                     script_file=str(script_file),
@@ -997,13 +999,13 @@ class ExtensionManager(ExtensionProjectCommon):
             self._log_optional_extension_blocked(option)
             return
         if option.lower() == "custom":
-            script_file, custom_option = self.handle_custom_extension()
-            icon = EXTENSIONS_PATH / "images" / "large" / "pyansys.png"
+            script_file, custom_option, custom_icon = self.handle_custom_extension()
             # If the user selected a script, copy it into personal lib Toolkits/<product>/<option>/Lib
             if not script_file or custom_option is None:
                 self.desktop.logger.info("No script selected for custom extension. Aborting pin.")
                 return
             try:
+                icon = self._install_custom_icon(custom_icon, category, custom_option)
                 add_script_to_menu(
                     name=custom_option,
                     script_file=str(script_file),
@@ -1056,8 +1058,28 @@ class ExtensionManager(ExtensionProjectCommon):
         # Refresh the extension manager UI to show the unpin button
         self.load_extensions(category)
 
-    def handle_custom_extension(self) -> tuple[Path | None, str | None]:
+    def _install_custom_icon(self, icon_file: Path | None, category: str, name: str) -> Path:
+        """Return the icon to install for a custom extension.
+
+        A selected icon is saved as a 32x32 RGBA PNG in the extension folder in PersonalLib, so
+        AEDT does not depend on the original file and the icon is removed with the extension.
+        """
+        if not icon_file:
+            return EXTENSIONS_PATH / "images" / "large" / "pyansys.png"
+        icon = Path(self.desktop.personallib) / "Toolkits" / tab_map(category) / name.replace("/", "_") / "icon.png"
+        icon.parent.mkdir(parents=True, exist_ok=True)
+        with PIL.Image.open(icon_file) as img:
+            PIL.ImageOps.pad(img.convert("RGBA"), (32, 32), color=(0, 0, 0, 0)).save(icon, format="PNG")
+        return icon
+
+    def handle_custom_extension(self) -> tuple[Path | None, str | None, Path | None]:
         """Handle custom extension pin to the top bar.
+
+        Returns
+        -------
+        tuple
+            Script file, extension name and optional icon file (PNG). Items are ``None``
+            if the dialog is cancelled or no icon is selected.
 
         Examples
         --------
@@ -1069,6 +1091,7 @@ class ExtensionManager(ExtensionProjectCommon):
         # Prompt user for script file and extension name
         script_result: Path | None = None
         display_name_result: str | None = None
+        icon_result: Path | None = None
         # Create a single dialog window for all inputs
         dialog = tkinter.Toplevel(self.root)
         dialog.title("Custom Extension Setup")
@@ -1109,6 +1132,37 @@ class ExtensionManager(ExtensionProjectCommon):
         )
         browse_btn.pack(padx=10, pady=2, anchor="e")
 
+        # Optional icon selection
+        ttk.Label(
+            dialog,
+            text="Select Icon (optional, PNG):",
+            style="PyAEDT.TLabel",
+        ).pack(padx=10, pady=(10, 2), anchor="w")
+        icon_var = tkinter.StringVar()
+        icon_entry = ttk.Entry(
+            dialog,
+            textvariable=icon_var,
+            width=60,
+            style="PyAEDT.TEntry",
+        )
+        icon_entry.pack(padx=10, pady=2, fill="x")
+
+        def browse_icon() -> None:  # pragma: no cover
+            file_path = filedialog.askopenfilename(
+                title="Select icon",
+                filetypes=[("PNG Files", "*.png"), ("All Files", "*.*")],
+            )
+            if file_path:
+                icon_var.set(file_path)
+
+        browse_icon_btn = ttk.Button(
+            dialog,
+            text="Browse...",
+            command=browse_icon,
+            style="PyAEDT.TButton",
+        )
+        browse_icon_btn.pack(padx=10, pady=2, anchor="e")
+
         # Extension name input
         ttk.Label(
             dialog,
@@ -1131,8 +1185,14 @@ class ExtensionManager(ExtensionProjectCommon):
         def on_ok() -> None:
             nonlocal display_name_result
             nonlocal script_result
+            nonlocal icon_result
             script = script_var.get().strip()
             name = name_var.get().strip()
+            icon = icon_var.get().strip()
+
+            if icon and (Path(icon).suffix.lower() != ".png" or not Path(icon).is_file()):
+                messagebox.showerror("Error", "The icon must be an existing PNG file.")
+                return
 
             # Basic validation
             if not script:
@@ -1171,6 +1231,7 @@ class ExtensionManager(ExtensionProjectCommon):
 
             script_result = script_path.resolve()
             display_name_result = name
+            icon_result = Path(icon).resolve() if icon else None
             dialog.destroy()
 
         def on_cancel() -> None:
@@ -1195,8 +1256,8 @@ class ExtensionManager(ExtensionProjectCommon):
         self.root.wait_window(dialog)
 
         if script_result:
-            return script_result, display_name_result
-        return None, None
+            return script_result, display_name_result, icon_result
+        return None, None, None
 
     def create_theme_background_image(
         self, img: PIL.Image.Image, target_size: tuple[int, int] | None = None
