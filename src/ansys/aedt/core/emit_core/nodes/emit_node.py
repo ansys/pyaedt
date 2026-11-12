@@ -29,7 +29,10 @@ from contextlib import contextmanager
 import sys
 from typing import TypeVar
 
-from matplotlib.figure import Figure
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from matplotlib.figure import Figure
 
 if sys.version_info >= (3, 13):
     from warnings import deprecated
