@@ -2011,8 +2011,9 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         assignment = self.modeler.convert_to_selections(assignment, True)
         sheets = []
         is_face = True
+        solid_names = set(self.modeler.solid_names)
         for object_name in assignment:
-            if isinstance(object_name, str) and object_name in self.modeler.solid_names:
+            if isinstance(object_name, str) and object_name in solid_names:
                 sheets.append(self.modeler._get_faceid_on_axis(object_name, direction))
                 if not net_name:
                     for net in self.net_names:
@@ -2180,13 +2181,19 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         """
         assignment = self.modeler.convert_to_selections(assignment, True)
         new_ass = []
+        sheet_names = None
         for ass in assignment:
             if isinstance(ass, int):
                 try:
                     new_ass.append(self.modeler.create_object_from_face(ass)._m_name)
                 except Exception:  # pragma: no cover
                     self.logger.error("Thin conductor can be applied only to sheet objects or faces.")
-            elif ass in self.modeler.sheet_names:
+                # Creating objects from faces adds sheets, so refresh the cached names.
+                sheet_names = None
+                continue
+            if sheet_names is None:
+                sheet_names = set(self.modeler.sheet_names)
+            if ass in sheet_names:
                 new_ass.append(ass)
             else:
                 self.logger.error("Thin conductor can be applied only to sheet objects.")
