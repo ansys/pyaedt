@@ -2118,7 +2118,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         self,
         expression: str = None,
         formula: str = "real",
-        convert_to_SI: bool = False,
+        convert_to_si: bool = False,
         use_quantity: bool = False,
     ) -> list[dict] | bool:
         """Get the data of an expression for all the curves of the report.
@@ -2136,7 +2136,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             Data type to be retrieved. Default is ``real``. See
             :meth:`ansys.aedt.core.visualization.post.solution_data.SolutionData.get_expression_data`
             for the available options.
-        convert_to_SI : bool, optional
+        convert_to_si : bool, optional
             Whether to convert the data to the SI unit system.
             The default is ``False``.
         use_quantity : bool, optional
@@ -2167,7 +2167,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             for name, value in zip(names, combination):
                 solution_data.active_intrinsic[name] = value
             x_axis, y_axis = solution_data.get_expression_data(
-                expression, formula=formula, convert_to_SI=convert_to_SI, use_quantity=use_quantity
+                expression, formula=formula, convert_to_si=convert_to_si, use_quantity=use_quantity
             )
             if y_axis is None or len(y_axis) == 0:
                 continue

@@ -48,7 +48,7 @@ from ansys.aedt.core.emit_core.nodes.generated import ResultPlotNode
 from ansys.aedt.core.emit_core.nodes.generated import Waveform
 from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 from ansys.aedt.core.emit_core.results.simulation import Simulation
-from ansys.aedt.core.generic.general_methods import deprecate_argument
+from ansys.aedt.core.generic.general_methods import deprecate_argument_old
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import deprecated_doc
 from ansys.aedt.core.internal.checks import min_aedt_version
@@ -570,7 +570,7 @@ class Revision:
         return transmitters
 
     @pyaedt_function_handler()
-    @deprecate_argument(
+    @deprecate_argument_old(
         arg_name="radio_name",
         message=(
             "The ''radio_name'' argument will be removed in future versions. Use the ''radio_node'' argument instead."

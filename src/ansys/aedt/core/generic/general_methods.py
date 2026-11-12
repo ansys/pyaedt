@@ -305,7 +305,7 @@ def deprecate_kwargs(func_name, kwargs, aliases):
             kwargs[new] = kwargs.pop(alias)
 
 
-def deprecate_argument(
+def deprecate_argument_old(
     arg_name: str, version: str | None = None, message: str | None = None, removed: bool = False
 ) -> Callable:
     """Decorator to deprecate a specific argument (positional or keyword) in a function.
@@ -324,8 +324,8 @@ def deprecate_argument(
 
     Examples
     --------
-    >>> from ansys.aedt.core.generic.general_methods import deprecate_argument
-    >>> @deprecate_argument("old_arg", version="1.0")
+    >>> from ansys.aedt.core.generic.general_methods import deprecate_argument_old
+    >>> @deprecate_argument_old("old_arg", version="1.0")
     ... def my_function(new_arg=None, old_arg=None):
     ...     return new_arg if new_arg is not None else old_arg
     >>> my_function(old_arg=1)
@@ -339,7 +339,6 @@ def deprecate_argument(
             sig = inspect.signature(func)
             try:
                 bound_args = sig.bind_partial(*args, **kwargs)
-                bound_args.apply_defaults()
             except TypeError:
                 # In case of incomplete binding (e.g. missing required args), skip
                 return func(*args, **kwargs)
@@ -356,6 +355,81 @@ def deprecate_argument(
                     warn_msg = message or f"Argument '{arg_name}' is deprecated and will be removed{msg_version}."
                     warnings.warn(warn_msg, DeprecationWarning, stacklevel=2)
 
+            return func(*args, **kwargs)
+
+        return wrapper  # ty: ignore[invalid-return-type]
+
+    return decorator
+
+
+def deprecate_argument(
+    old_name: str,
+    new_name: str,
+    version: str | None = None,
+    message: str | None = None,
+    removed: bool = False,
+) -> Callable:
+    """Decorator to rename an argument, keeping the old keyword working with a warning.
+
+    The decorated function must only define ``new_name``, in the same position the old
+    argument had. Positional calls keep working unchanged. When the caller passes ``old_name``
+    as keyword, the value is forwarded to ``new_name``. The decorator can be stacked to rename
+    more than one argument.
+
+    Parameters
+    ----------
+    old_name : str
+        Deprecated argument name.
+    new_name : str
+        Name of the argument replacing ``old_name``.
+    version : str, optional
+        Version in which the old argument will be (or was) removed.
+    message : str, optional
+        Custom deprecation message.
+    removed : bool, optional
+        If ``True``, using ``old_name`` raises a ``TypeError``.
+        If ``False``, a ``DeprecationWarning`` is issued. The default is ``False``.
+
+    Raises
+    ------
+    TypeError
+        If both ``old_name`` and ``new_name`` are passed, or if ``old_name`` is used with ``removed=True``.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.general_methods import deprecate_argument
+    >>> @deprecate_argument("old_a", "new_a", version="1.0")
+    ... @deprecate_argument("old_b", "new_b")
+    ... def my_function(new_a=0, new_b=0):
+    ...     return new_a, new_b
+    >>> my_function(old_a=1, old_b=2)
+    (1, 2)
+
+    """
+
+    def decorator(func: _F) -> _F:
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            if old_name in kwargs:
+                if new_name in kwargs:
+                    func_name = getattr(func, "__name__", str(func))
+                    raise TypeError(
+                        f"{func_name}() received both '{old_name}' and '{new_name}' as arguments. "
+                        f"'{old_name}' is deprecated, use '{new_name}' instead."
+                    )
+                msg_version = f" in version {version}" if version else ""
+                if removed:
+                    raise TypeError(
+                        message or f"Argument '{old_name}' was removed{msg_version}. Use '{new_name}' instead."
+                    )
+                warnings.warn(
+                    message
+                    or f"Argument '{old_name}' is deprecated and will be removed{msg_version}. "
+                    f"Use '{new_name}' instead.",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
+                kwargs[new_name] = kwargs.pop(old_name)
             return func(*args, **kwargs)
 
         return wrapper  # ty: ignore[invalid-return-type]
