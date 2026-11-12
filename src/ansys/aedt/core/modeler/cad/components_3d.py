@@ -24,6 +24,7 @@
 
 from __future__ import annotations
 
+import copy
 import os
 import re
 import secrets
@@ -33,12 +34,9 @@ from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.edb import Edb
 from ansys.aedt.core.generic.constants import Axis
 from ansys.aedt.core.generic.data_handlers import _dict2arg
-from ansys.aedt.core.generic.general_methods import _merge_props
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.props import Props as UserDefinedComponentProps
 from ansys.aedt.core.generic.protocols import _AppWithOProject
 from ansys.aedt.core.internal.desktop_sessions import _edb_sessions
-from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 
 if TYPE_CHECKING:
@@ -101,50 +99,34 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
     """
 
-    def __init__(
-        self,
-        app: Icepak,
-        name: str | None = None,
-        props: dict | None = None,
-        component_type: str | None = None,
-        definition_name: str | None = None,
-    ) -> None:
+    def __init__(self, app: _AppWithOProject, name: str, props: dict) -> None:
         self._app = app
-        self._primitives = self._app.modeler
-
         self._name = name
 
-        # Props can not be retrieved from AEDT file, so only components created by PyAEDT will have it
-        self._legacy_props = {}
+        self.definition_name = None
+        self.definition_type = None
 
-        # Internal variables
-        self._fix_udm_props = [
-            "General[Name]",
-            "Group",
-            "Target Coordinate System",
-            "Target Coordinate System/Choices",
-            "Info[Name]",
-            "Location",
-            "Location/Choices",
-            "Company",
-            "Date",
-            "Purpose",
-            "Version",
-        ]
+        if props:
+            self._legacy_props = props
+        else:
+            data = self._app.modeler.components_data
+            if name in data:
+                self.definition_name = data[name].get("definition", None)
+                self.definition_type = data[name].get("type", None)
 
-        self.definition = definition_name
+            # This is working if model does not have encrypted components and it is saved
+            native_props = self._get_native_props()
 
-        if component_type:
+            # Props of 3D Component can not be retrieved
             self._legacy_props = {
-                "TargetCS": "Global",
-                "SubmodelDefinitionName": self._name,
+                "SubmodelDefinitionName": self.definition_name,
                 "ComponentPriorityLists": {},
                 "NextUniqueID": 0,
                 "MoveBackwards": False,
                 "DatasetType": "ComponentDatasetType",
                 "DatasetDefinitions": {},
                 "BasicComponentInfo": {
-                    "ComponentName": self._name,
+                    "ComponentName": self.definition_name,
                     "Company": "",
                     "Company URL": "",
                     "Model Number": "",
@@ -156,7 +138,6 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
                 "GeometryDefinitionParameters": {"VariableOrders": {}},
                 "DesignDefinitionParameters": {"VariableOrders": {}},
                 "MaterialDefinitionParameters": {"VariableOrders": {}},
-                "DefReferenceCSID": 1,
                 "MapInstanceParameters": "DesignVariable",
                 "UniqueDefinitionIdentifier": "89d26167-fb77-480e-a7ab-"
                 + "".join(secrets.choice("abcdef0123456789") for _ in range(int(12))),
@@ -165,42 +146,46 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
                 "ChecksumString": "",
                 "ChecksumHistory": [],
                 "VersionHistory": [],
-                "NativeComponentDefinitionProvider": {"Type": component_type},
                 "InstanceParameters": {"GeometryParameters": "", "MaterialParameters": "", "DesignParameters": ""},
             }
+            if native_props:
+                self._legacy_props["NativeComponentDefinitionProvider"] = native_props
+            else:
+                self._legacy_props["NativeComponentDefinitionProvider"] = {"Type": self.definition_type}
 
-            if props:
-                if "NativeComponentDefinitionProvider" in props or any(key in self._legacy_props for key in props):
-                    _merge_props(self._legacy_props, props)
-                else:
-                    _merge_props(self._legacy_props["NativeComponentDefinitionProvider"], props)
-
-            self.native_properties = self._legacy_props["NativeComponentDefinitionProvider"]
-
-        self.__layout_component = None
-        self.__is_3d_component = None
         self.__parameters = None
 
         self.__child_object = None
         # TODO: GetObjData is not available yet
         self._has_getobject = False
 
-    def __str__(self) -> str:
-        return f"""
-         {type(self)}
-         is_3d_component: {self.is_3d_component}   parts: {self.parts}
-         --- read/write properties  ----
-         name: {self.name}
-         group_name: {self.group_name}
-         mesh_assembly: {self.mesh_assembly}
-         parameters: {self.parameters}
-         target_coordinate_system: {self.target_coordinate_system}
-         """
+    def _get_native_props(self) -> dict:
+        native_comp_properties = {}
+        dp = self._app.design_properties
+        if not isinstance(dp, dict):  # pragma: no cover
+            return native_comp_properties
+        model_setup = dp.get("ModelSetup", {})
+        geometry_core = model_setup.get("GeometryCore", {})
+        geometry_operations = geometry_core.get("GeometryOperations", {})
+        sub_model_definitions = geometry_operations.get("SubModelDefinitions", {})
+        native_component_definition = copy.deepcopy(sub_model_definitions.get("NativeComponentDefinition", {}))
+
+        if not native_component_definition:  # pragma: no cover
+            return native_comp_properties
+        elif not isinstance(native_component_definition, list):
+            native_component_definition = [native_component_definition]
+
+        for data in native_component_definition:
+            definition_name = data.get("SubmodelDefinitionName", None)
+            if definition_name and definition_name == self.definition_name:
+                native_comp_properties = data.get("NativeComponentDefinitionProvider", None)
+                break
+        return native_comp_properties
 
     @pyaedt_function_handler()
     def _initialize_tree_node(self) -> bool:
         if self._child_object:
-            BinaryTreeNode.__init__(self, self._m_name, self._child_object, False, app=self._app)
+            BinaryTreeNode.__init__(self, self._name, self._child_object, False, app=self._app)
             return True
         return False
 
@@ -222,28 +207,10 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
         """
         if not self.__child_object:
-            cc_names = self._primitives.user_defined_component_names
-            if self._m_name in cc_names:
-                self.__child_object = self._app.get_oo_object(self._app.oeditor, self._m_name)
+            cc_names = self._app.modeler.component_names
+            if self._name in cc_names:
+                self.__child_object = self._app.get_oo_object(self._app.oeditor, self._name)
         return self.__child_object
-
-    @property
-    def props(self) -> UserDefinedComponentProps:
-        """Properties of the component.
-        If the component is not created by PyAEDT, it will be empty.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> app = Hfss()
-        >>> component_names = app.modeler.user_defined_component_names
-        >>> component = app.modeler.user_defined_components[component_names[0]]
-        >>> component.props
-
-        """
-        if self._legacy_props:
-            return UserDefinedComponentProps(self, self._legacy_props)
-        return UserDefinedComponentProps(self, self._legacy_props)
 
     @property
     def name(self) -> str:
@@ -263,42 +230,28 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         >>> component.name
 
         """
-        return self._m_name
+        child_object = self._child_object
+        if child_object is not None:
+            child_object_methods = dir(child_object)
+            if "Name" in child_object_methods:
+                self._name = child_object.Name
+            elif "GetObjName" in child_object_methods:
+                self._name = self.child_object.GetObjName()
+        return self._name
 
     @name.setter
     def name(self, component_name: str) -> None:
-        not_valid_names = self._primitives.user_defined_component_names + self._primitives.object_names
+        not_valid_names = self._app.modeler.component_names
         if component_name not in not_valid_names:
-            if component_name != self._m_name:
-                pcs = ["NAME:Name", "Value:=", component_name]
-                self._change_property(pcs)
-                self._primitives.user_defined_components.update({component_name: self})
-                del self._primitives.user_defined_components[self._m_name]
-                self._m_name = component_name
+            self._app.change_property(
+                aedt_object=self._app.oeditor,
+                tab_name="General",
+                property_object=self.name,
+                property_name="Name",
+                property_value=component_name,
+            )
         else:  # pragma: no cover
-            self._app.logger.warning("Name %s already assigned in the design", component_name)
-
-    @property
-    def layout_component(self) -> LayoutComponent | None:
-        """Layout component object.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modeler.cad.components_3d.LayoutComponent`
-            Layout Component.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> app = Hfss()
-        >>> component_names = app.modeler.user_defined_component_names
-        >>> component = app.modeler.user_defined_components[component_names[0]]
-        >>> component.layout_component
-
-        """
-        if self.__layout_component is None and "Show Layout" in self.properties:
-            self.__layout_component = LayoutComponent(self)
-        return self.__layout_component
+            self._app.logger.warning(f"Name {component_name} already assigned in the design.")
 
     @property
     def group_name(self) -> str:
@@ -325,39 +278,11 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
     @group_name.setter
     def group_name(self, name: str) -> None:
-        if "Group" in self.properties and name not in self._primitives.groups:
-            self._primitives.create_group(group_name=name, components=self.name)
+        if "Group" in self.properties and name not in self._app.modeler.groups:
+            self._app.modeler.create_group(group_name=name, components=[self.name])
         else:
             pcs = ["NAME:Group", "Value:=", name]
             self._change_property(pcs)
-
-    @property
-    def is_3d_component(self) -> bool:
-        """Whether the object is a 3D component.
-
-        Returns
-        -------
-        bool
-           ``True`` if a 3D Component, ``False`` if a user-defined model.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> app = Hfss()
-        >>> component_names = app.modeler.user_defined_component_names
-        >>> component = app.modeler.user_defined_components[component_names[0]]
-        >>> component.is_3d_component
-
-        """
-        if self.__is_3d_component is None:
-            definitions = list(self._app.oeditor.Get3DComponentDefinitionNames())
-            for comp in definitions:
-                if self.name in self._primitives.oeditor.Get3DComponentInstanceNames(comp):
-                    self.__is_3d_component = True
-                    break
-            if not self.__is_3d_component:
-                self.__is_3d_component = False
-        return self.__is_3d_component
 
     @property
     def mesh_assembly(self) -> bool | None:
@@ -378,7 +303,7 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
         """
         key = "Do Mesh Assembly"
-        if self.is_3d_component and key in self.properties:
+        if key in self.properties:
             ma = self.properties[key]
             return ma
         else:
@@ -387,7 +312,7 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
     @mesh_assembly.setter
     def mesh_assembly(self, ma: bool) -> None:
         key = "Do Mesh Assembly"
-        if self.is_3d_component and isinstance(ma, bool) and key in self.properties:
+        if isinstance(ma, bool) and key in self.properties:
             self.properties[key] = ma
 
     @property
@@ -409,15 +334,16 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
         """
         if self.__parameters is None:
-            if self.is_3d_component:
-                parameters_tuple = list(self._primitives.oeditor.Get3DComponentParameters(self.name))
+            self.__parameters = UserDefinedComponentParameters(self, {})
+            if self.definition_name:
+                parameters_tuple = list(self._app.oeditor.Get3DComponentParameters(self.name))
                 parameters = {}
                 for parameter in parameters_tuple:
                     if parameter[0] in self.properties:
                         value = self.properties[parameter[0]]
                         parameters[parameter[0]] = value
                 self.__parameters = UserDefinedComponentParameters(self, parameters)
-            else:
+            elif not self.definition_name and self.definition_type == "UserDefinedModel":
                 props = list(self.properties)
                 parameters_aedt = list(set(props) - set(self._fix_udm_props))
                 parameter_name = [par for par in parameters_aedt if not re.findall(r"/", par)]
@@ -446,17 +372,18 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         >>> component.parts
 
         """
-        if self.is_3d_component:
+        if self.definition_name:
             component_parts = list(self._app.oeditor.Get3DComponentPartNames(self.name))
+        elif self.definition_type == "UserDefinedModel":
+            component_parts = list(self._app.oeditor.GetPartsForUserDefinedModel(self.name))
         else:
             component_parts = list(self.properties)
 
+        modeler = self._app.modeler
         parts_id = [
-            self._primitives.objects_by_name[part].id
-            for part in self._primitives.objects_by_name.keys()
-            if part in component_parts
+            modeler.objects_by_name[part].id for part in modeler.objects_by_name.keys() if part in component_parts
         ]
-        parts_dict = {part_id: self._primitives.objects[part_id] for part_id in parts_id}
+        parts_dict = {part_id: modeler.objects[part_id] for part_id in parts_id}
         return parts_dict
 
     @property
@@ -845,16 +772,24 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def _get_args(self, props=None):
+    def _get_args_create(self, props=None):
         if props is None:
-            props = self.props
+            props = self._legacy_props
+        arg = ["NAME:InsertNativeComponentData"]
+        _dict2arg(props, arg)
+        return arg
+
+    @pyaedt_function_handler()
+    def _get_args_edit(self, props=None):
+        if props is None:
+            props = self._legacy_props
         arg = ["NAME:EditNativeComponentDefinitionData"]
         _dict2arg(props, arg)
         return arg
 
     @pyaedt_function_handler()
     def _change_property(self, vPropChange):
-        return self._primitives._change_component_property(vPropChange, self._m_name)
+        return self._primitives._change_component_property(vPropChange, self._name)
 
     @pyaedt_function_handler()
     def get_component_filepath(self) -> str:
@@ -1335,7 +1270,7 @@ class LayoutComponent(PyAedtBase):
         return True
 
 
-class NativeComponentObject(UserDefinedComponent):
+class NativeComponent(UserDefinedComponent):
     """Manages Native Component data and execution.
 
     Parameters
@@ -1352,7 +1287,7 @@ class NativeComponentObject(UserDefinedComponent):
     Examples
     --------
     This example the par_beam returned object is a
-    :class:`ansys.aedt.core.modules.boundary.layout_boundary.NativeComponentObject`.
+    :class:`ansys.aedt.core.modules.boundary.layout_boundary.NativeComponent`.
 
     >>> from ansys.aedt.core import Hfss
     >>> hfss = Hfss(solution_type="SBR+")
@@ -1364,137 +1299,10 @@ class NativeComponentObject(UserDefinedComponent):
 
     """
 
-    def __init__(self, app: Icepak, component_type: str, name: str, definition_name: str, props: dict) -> None:
-        super().__init__(
-            app=app, name=name, props=props, component_type=component_type, definition_name=definition_name
-        )
+    def __init__(self, app: Icepak, name: str, props: dict) -> None:
+        super().__init__(app=app, name=name, props=props)
         self.__child_object = None
         self.__excitation_name = None
-
-    @property
-    def _child_object(self):
-        """Object-oriented properties.
-
-        Returns
-        -------
-        class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTreeNode`
-
-        """
-        if not self.__child_object:
-            component_definition = self._app.oeditor.Get3DComponentDefinitionNames()
-            for el in component_definition:
-                design_childs = self._app.get_oo_name(self._app.get_oo_object(self._app.oeditor, el))
-                if self._m_name in design_childs:
-                    self.__child_object = self._app.get_oo_object(self._app.oeditor, f"{el}\\{self._m_name}")
-                    break
-        return self.__child_object
-
-    @UserDefinedComponent.props.setter
-    def props(self, value: dict) -> None:
-        # Merge with existing props to support partial updates
-        current_props = self.props.to_dict() if self._legacy_props else {}
-        _merge_props(current_props, value)
-        # Each Setup class must have an update method
-        self.update(current_props)
-
-    @property
-    def name(self) -> str:
-        """Boundary Name.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentObject
-        >>> obj = NativeComponentObject()
-        >>> obj.name
-
-        """
-        child_object = self._child_object
-        if child_object:
-            self._m_name = str(self.properties["Name"])
-        return self._m_name
-
-    @name.setter
-    def name(self, value: str) -> None:
-        if value in self._app.modeler.user_defined_component_names:
-            raise ValueError(f"Name {value} already assigned in the design.")
-        child_object = self._child_object
-        if child_object:
-            legacy_name = self._m_name
-            self.properties["Name"] = value
-            self._m_name = value
-            self._app.modeler.user_defined_components[value] = self
-            del self._app.modeler.user_defined_components[legacy_name]
-
-    @property
-    def definition_name(self) -> str | None:
-        """Definition name of the native component.
-
-        Returns
-        -------
-        str
-           Name of the native component.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentObject
-        >>> obj = NativeComponentObject()
-        >>> obj.definition_name
-
-        """
-        definition_name = None
-        if self.props and "SubmodelDefinitionName" in self.props:
-            definition_name = self.props["SubmodelDefinitionName"]
-        return definition_name or getattr(self, "_definition_name", None)
-
-    @definition_name.setter
-    def definition_name(self, value: str | None) -> None:
-        self._definition_name = value
-
-    @property
-    def targetcs(self) -> str:
-        """Native Component Coordinate System.
-
-        Returns
-        -------
-        str
-            Native Component Coordinate System.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentObject
-        >>> obj = NativeComponentObject()
-        >>> obj.targetcs
-
-        """
-        if "TargetCS" in list(self.props.keys()):
-            return self.props["TargetCS"]
-        else:
-            return "Global"
-
-    @targetcs.setter
-    def targetcs(self, cs: str) -> None:
-        self.props["TargetCS"] = cs
-
-    @property
-    def excitation_name(self) -> str:
-        """Boundary Name.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentObject
-        >>> obj = NativeComponentObject()
-        >>> obj.name
-
-        """
-        return self.__excitation_name
-
-    @pyaedt_function_handler()
-    def _get_args(self, props=None):
-        if props is None:
-            props = self.props
-        arg = ["NAME:InsertNativeComponentData"]
-        _dict2arg(props, arg)
-        return arg
 
     @pyaedt_function_handler()
     def create(self) -> bool:
@@ -1507,25 +1315,23 @@ class NativeComponentObject(UserDefinedComponent):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentObject
+        >>> from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
         >>> obj = NativeComponentObject()
         >>> obj.create()
 
         """
-        try:
-            names = [i for i in self._app.excitation_names]
-        except GrpcApiError:  # pragma: no cover
-            names = []
-        self._m_name = self._app.modeler.oeditor.InsertNativeComponent(self._get_args())
-        try:
-            a = [i for i in self._app.excitation_names if i not in names]
-            self.__excitation_name = a[0].split(":")[0]
-        except (GrpcApiError, IndexError):
-            self.__excitation_name = self._m_name
-        return True
+        name = str(self.name)
+        created_name = self._app.oeditor.InsertNativeComponent(self._get_args_create())
+        if created_name != name:
+            # AEDT renames the component automatically
+            self._name = created_name
+            self.name = name
+
+        self._app.modeler._GeometryModeler__components[name] = self
+        return self
 
     @pyaedt_function_handler()
-    def update(self, properties: dict = None) -> bool:
+    def update(self) -> bool:
         """Update the Native Component in AEDT.
 
         Returns
@@ -1535,59 +1341,83 @@ class NativeComponentObject(UserDefinedComponent):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentObject
+        >>> from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
         >>> obj = NativeComponentObject()
         >>> obj.update()
 
         """
-        if not properties:
-            properties = {}
-            properties["DefinitionName"] = self.props["SubmodelDefinitionName"]
-            properties["GeometryDefinitionParameters"] = self.props["GeometryDefinitionParameters"]
-            properties["DesignDefinitionParameters"] = self.props["DesignDefinitionParameters"]
-            properties["MaterialDefinitionParameters"] = self.props["MaterialDefinitionParameters"]
-            properties["NextUniqueID"] = self.props["NextUniqueID"]
-            properties["MoveBackwards"] = self.props["MoveBackwards"]
-            properties["DatasetType"] = self.props["DatasetType"]
-            properties["DatasetDefinitions"] = self.props["DatasetDefinitions"]
-            properties["NativeComponentDefinitionProvider"] = self.props["NativeComponentDefinitionProvider"]
-            properties["ComponentName"] = self.props["BasicComponentInfo"]["ComponentName"]
-            properties["Company"] = self.props["BasicComponentInfo"]["Company"]
-            properties["Model Number"] = self.props["BasicComponentInfo"]["Model Number"]
-            properties["Help URL"] = self.props["BasicComponentInfo"]["Help URL"]
-            properties["Version"] = self.props["BasicComponentInfo"]["Version"]
-            properties["Notes"] = self.props["BasicComponentInfo"]["Notes"]
-            properties["IconType"] = self.props["BasicComponentInfo"]["IconType"]
-        self._app.modeler.oeditor.EditNativeComponentDefinition(self._get_args(properties))
+        update_props = {}
+        update_props["DefinitionName"] = self._legacy_props.get("SubmodelDefinitionName", "")
 
-        return True
+        update_props["GeometryDefinitionParameters"] = self._legacy_props["GeometryDefinitionParameters"]
+        update_props["DesignDefinitionParameters"] = self._legacy_props["DesignDefinitionParameters"]
+        update_props["MaterialDefinitionParameters"] = self._legacy_props["MaterialDefinitionParameters"]
+        update_props["NextUniqueID"] = self._legacy_props["NextUniqueID"]
+        update_props["MoveBackwards"] = self._legacy_props["MoveBackwards"]
+        update_props["DatasetType"] = self._legacy_props["DatasetType"]
+        update_props["DatasetDefinitions"] = self._legacy_props["DatasetDefinitions"]
+        update_props["NativeComponentDefinitionProvider"] = self._legacy_props["NativeComponentDefinitionProvider"]
+        update_props["ComponentName"] = self._legacy_props["BasicComponentInfo"]["ComponentName"]
+        update_props["Company"] = self._legacy_props["BasicComponentInfo"]["Company"]
+        update_props["Model Number"] = self._legacy_props["BasicComponentInfo"]["Model Number"]
+        update_props["Help URL"] = self._legacy_props["BasicComponentInfo"]["Help URL"]
+        update_props["Version"] = self._legacy_props["BasicComponentInfo"]["Version"]
+        update_props["Notes"] = self._legacy_props["BasicComponentInfo"]["Notes"]
+        update_props["IconType"] = self._legacy_props["BasicComponentInfo"]["IconType"]
 
-    @pyaedt_function_handler()
-    def delete(self) -> bool:
-        """Delete the Native Component in AEDT.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentObject
-        >>> obj = NativeComponentObject()
-        >>> obj.delete()
-
-        """
-        self._app.modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.name])
-        for el in self._app._native_components:
-            if el.name == self.name:
-                self._app._native_components.remove(el)
-                del self._app.modeler.user_defined_components[self.name]
-                self._app.modeler.cleanup_objects()
+        self._app.modeler.oeditor.EditNativeComponentDefinition(self._get_args_edit(update_props))
         return True
 
 
-class NativeComponentPCB(NativeComponentObject):
+class UserDefinedModel(UserDefinedComponent):
+    """Manages Native Component data and execution.
+
+    Parameters
+    ----------
+    app : object
+        An AEDT application from ``ansys.aedt.core.application``.
+    component_type : str
+        Type of the component.
+    component_name : str
+        Name of the component.
+    props : dict
+        Properties of the boundary.
+
+    Examples
+    --------
+    This example the par_beam returned object is a
+    :class:`ansys.aedt.core.modules.boundary.layout_boundary.NativeComponent`.
+
+    >>> from ansys.aedt.core import Hfss
+    >>> hfss = Hfss(solution_type="SBR+")
+    >>> ffd_file = "path/to/ffdfile.ffd"
+    >>> par_beam = hfss.create_sbr_file_based_antenna(ffd_file)
+    >>> par_beam.native_properties["Size"] = "0.1mm"
+    >>> par_beam.update()
+    >>> par_beam.delete()
+
+    """
+
+    def __init__(self, app: _AppWithOProject, name: str, props: dict) -> None:
+        # Internal variables
+        self._fix_udm_props = [
+            "General[Name]",
+            "Group",
+            "Target Coordinate System",
+            "Target Coordinate System/Choices",
+            "Info[Name]",
+            "Location",
+            "Location/Choices",
+            "Company",
+            "Date",
+            "Purpose",
+            "Version",
+        ]
+
+        super().__init__(app=app, name=name, props=props)
+
+
+class NativeComponentPCB(NativeComponent):
     """Manages native component PCB data and execution.
 
     Parameters
@@ -1608,10 +1438,8 @@ class NativeComponentPCB(NativeComponentObject):
 
     """
 
-    def __init__(self, app: Icepak, name: str, definition_name: str, props: dict) -> None:
-        NativeComponentObject.__init__(
-            self, app=app, component_type="PCB", name=name, props=props, definition_name=definition_name
-        )
+    def __init__(self, app: Icepak, name: str, props: dict) -> None:
+        NativeComponent.__init__(self, app=app, name=name, props=props)
 
     @property
     def board_cutout_material(self) -> str:
@@ -1932,7 +1760,7 @@ class NativeComponentPCB(NativeComponentObject):
         return outlines[0].name
 
     @pyaedt_function_handler()
-    def set_board_extents(self, extent_type: str = None, extent_polygon: str = None) -> bool:
+    def set_board_extents(self, extent_type: str | None = None, extent_polygon: str | None = None) -> bool:
         """Set board extent.
 
         Parameters
@@ -1956,8 +1784,13 @@ class NativeComponentPCB(NativeComponentObject):
         >>> obj.set_board_extents(extent_type=1, extent_polygon=1)
 
         """
+        props = self._legacy_props.get("NativeComponentDefinitionProvider", {})
+
+        if not props:  # pragma: no cover
+            self._legacy_props["NativeComponentDefinitionProvider"] = {}
+
         if extent_type is None:
-            self.props["NativeComponentDefinitionProvider"]["Use3DLayoutExtents"] = True
+            props["Use3DLayoutExtents"] = True
         else:
             allowed_extent_types = ["Bounding Box", "Polygon"]
             if extent_type not in allowed_extent_types:
@@ -1970,13 +1803,16 @@ class NativeComponentPCB(NativeComponentObject):
                     des_name=self._app.design_name,
                 )
                 return False
-            self.props["NativeComponentDefinitionProvider"]["ExtentsType"] = extent_type
+            props["ExtentsType"] = extent_type
             if extent_type == "Polygon":
                 if extent_polygon is None:
                     extent_polygon = self.identify_extent_poly()
                     if not extent_polygon:
                         return False
-                self.props["NativeComponentDefinitionProvider"]["OutlinePolygon"] = extent_polygon
+                props["OutlinePolygon"] = extent_polygon
+
+        self._legacy_props["NativeComponentDefinitionProvider"] = props
+        self.update()
         return True
 
     @pyaedt_function_handler()

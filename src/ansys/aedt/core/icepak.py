@@ -55,7 +55,7 @@ from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.mixins import CreateBoundaryMixin
-from ansys.aedt.core.modeler.cad.components_3d import NativeComponentObject
+from ansys.aedt.core.modeler.cad.components_3d import NativeComponent
 from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
@@ -1726,7 +1726,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         radius: str | float | None = "0.008mm",
         hub_radius: str | float | None = "0mm",
         origin: list | None = None,
-    ) -> NativeComponentObject:
+    ) -> NativeComponent:
         """Create a fan component in Icepak that is linked to an HFSS 3D Layout object.
 
         Parameters
@@ -1750,8 +1750,8 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.layout_boundary.NativeComponentObject`
-            NativeComponentObject object.
+        :class:`ansys.aedt.core.modules.boundary.layout_boundary.NativeComponent`
+            NativeComponent object.
 
         References
         ----------
@@ -1835,7 +1835,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
 
         udc = set(self.modeler.user_defined_components)
 
-        native = NativeComponentObject(self, "Fan", name, native_props)
+        native = NativeComponent(self, "Fan", name, native_props)
         if native.create():
             user_defined_component = UserDefinedComponent(
                 self.modeler, native.name, native_props["NativeComponentDefinitionProvider"], "Fan"
@@ -1853,8 +1853,8 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def create_ipk_3dcomponent_pcb(
         self,
-        name: str,
         setup_link: list,
+        name: str | None = None,
         frequency: str | float | None = None,
         resolution: int = 2,
         coordinate_system: str | None = "Global",
@@ -1864,19 +1864,20 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         power: str | None = "0W",
         custom_x_resolution: str | float | int | None = None,
         custom_y_resolution: str | float | int | None = None,
+        definition_name: str | None = None,
     ) -> NativeComponentPCB | bool:
         """Create a PCB component in Icepak that is linked to an HFSS 3D Layout object.
 
         Parameters
         ----------
-        name : str
-            Name of the new PCB component.
         setup_link : list
             List of the five elements needed to set up the link in this format:
             ``[Project name, design name, solution name, force simulation (bool), preserve results (bool)]``.
+        name : str
+            Name of the new PCB component.
         frequency : str | float, optional
             Frequency of the solution if cosimulation is requested.
-        resolution : int
+        resolution : int, optional
             Resolution of the mapping.
         coordinate_system : str, optional
             Coordinate system for the PCB. The default is ``"Global"``.
@@ -1895,11 +1896,13 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             The default is ``None``.
         custom_y_resolution : str | float | int, optional
             The default is ``None``.
+        definition_name : str, optional
+            The default is ``None``.
 
         Returns
         -------
         :class:`ansys.aedt.core.modules.boundary.layout_boundary.NativeComponentPCB`
-            NativeComponentObject object.
+            NativeComponent object.
 
         References
         ----------
@@ -1913,6 +1916,16 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> obj.create_ipk_3dcomponent_pcb("MainBoard", link_data, "2.4GHz", 2)
 
         """
+        if not name:
+            name = generate_unique_name("PCB")
+        elif name in self.modeler.component_names:
+            name = generate_unique_name(name)
+
+        if not definition_name:
+            definition_name = generate_unique_name("PCB")
+        elif definition_name in self.modeler.component_definition_names:
+            definition_name = generate_unique_name(definition_name)
+
         low_radiation, high_radiation = self.get_radiation_settings(radiating_faces)
         hfss_link_info = {}
         _arg2dict(self.get_link_data(setup_link), hfss_link_info)
@@ -1932,7 +1945,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
                     "HighSide": {"Radiate": high_radiation},
                 }
             }
-
         else:
             native_props = {
                 "NativeComponentDefinitionProvider": {
@@ -1954,7 +1966,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         if settings.aedt_version > "2023.2":  # pragma: no cover
             native_props["ViaHoleMaterial"] = "copper"
             native_props["IncludeMCAD"] = False
-
         if custom_x_resolution and custom_y_resolution:
             native_props["NativeComponentDefinitionProvider"]["UseThermalLink"] = frequency != ""
             native_props["NativeComponentDefinitionProvider"]["CustomResolution"] = True
@@ -1970,17 +1981,42 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             native_props["NativeComponentDefinitionProvider"]["Power"] = power
             native_props["NativeComponentDefinitionProvider"]["DefnLink"] = hfss_link_info["DefnLink"]
 
-        native_props["TargetCS"] = coordinate_system
-        native = NativeComponentPCB(app=self, component_type="PCB", component_name=name, props=native_props)
+        props = {
+            "SubmodelDefinitionName": definition_name,
+            "ComponentPriorityLists": {},
+            "NextUniqueID": 0,
+            "MoveBackwards": False,
+            "DatasetType": "ComponentDatasetType",
+            "DatasetDefinitions": {},
+            "BasicComponentInfo": {
+                "ComponentName": definition_name,
+                "Company": "",
+                "Company URL": "",
+                "Model Number": "",
+                "Help URL": "",
+                "Version": "1.0",
+                "Notes": "",
+                "IconType": "",
+            },
+            "GeometryDefinitionParameters": {"VariableOrders": {}},
+            "DesignDefinitionParameters": {"VariableOrders": {}},
+            "MaterialDefinitionParameters": {"VariableOrders": {}},
+            "MapInstanceParameters": "DesignVariable",
+            "OriginFilePath": "",
+            "IsLocal": False,
+            "ChecksumString": "",
+            "ChecksumHistory": [],
+            "VersionHistory": [],
+            "InstanceParameters": {"GeometryParameters": "", "MaterialParameters": "", "DesignParameters": ""},
+        }
+        props.update(native_props)
+
+        native = NativeComponentPCB(app=self, name=name, props=props)
+        native.definition_name = definition_name
+        native.definition_type = "PCB"
 
         if native.create():
-            user_defined_component = UserDefinedComponent(
-                self.modeler, native.name, native_props["NativeComponentDefinitionProvider"], "PCB"
-            )
-            self.modeler.user_defined_components[native.name] = user_defined_component
-            self.modeler.refresh_all_ids()
-            self.materials._load_from_project()
-            self._native_components.append(native)
+            native.target_coordinate_system = coordinate_system
             if extent_type == "Polygon" and not outline_polygon:
                 outline_polygon = native.identify_extent_poly()
                 if outline_polygon:

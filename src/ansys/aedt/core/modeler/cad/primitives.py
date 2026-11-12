@@ -57,9 +57,10 @@ from ansys.aedt.core.generic.quaternion import Quaternion
 from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
-from ansys.aedt.core.modeler.cad.components_3d import NativeComponentObject
+from ansys.aedt.core.modeler.cad.components_3d import NativeComponent
 from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
+from ansys.aedt.core.modeler.cad.components_3d import UserDefinedModel
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import Plane
@@ -1138,26 +1139,26 @@ class GeometryModeler(Modeler, PyAedtBase):
                 component_definition = component_data.get("definition", None)
                 component_type = component_data.get("type", None)
                 if component_type == "PCB":
-                    self.__components[component_name] = NativeComponentPCB(
-                        app=self._app, name=component_name, definition_name=component_definition, props={}
-                    )
+                    self.__components[component_name] = NativeComponentPCB(app=self._app, name=component_name, props={})
                 elif component_type not in ["3d_component", "layout_component"] and component_definition:
-                    self.__components[component_name] = NativeComponentObject(
+                    self.__components[component_name] = NativeComponent(
                         app=self._app,
-                        component_type=component_type,
                         name=component_name,
-                        definition_name=component_definition,
                         props={},
                     )
                 elif component_type == "layout_component":
                     # self.__components[component_name] = LayoutComponent
                     pass
+                elif component_type == "UserDefinedModel":
+                    self.__components[component_name] = UserDefinedModel(
+                        app=self._app,
+                        name=component_name,
+                        props={},
+                    )
                 else:
                     self.__components[component_name] = UserDefinedComponent(
                         app=self._app,
-                        component_type=component_type,
                         name=component_name,
-                        definition_name=component_definition,
                         props={},
                     )
 
@@ -1358,12 +1359,11 @@ class GeometryModeler(Modeler, PyAedtBase):
             native_component_properties = self._get_native_component_properties(name)
             if native_component_properties:
                 component_type = native_component_properties["NativeComponentDefinitionProvider"]["Type"]
-                from ansys.aedt.core.modeler.cad.components_3d import NativeComponentObject
 
                 if component_type == "PCB":
                     o = NativeComponentPCB(self._app, component_type, name, native_component_properties)
                 else:
-                    o = NativeComponentObject(self._app, component_type, name, native_component_properties)
+                    o = NativeComponent(self._app, component_type, name, native_component_properties)
             else:
                 o = UserDefinedComponent(self, name)
             self.user_defined_components[name] = o
@@ -1688,30 +1688,6 @@ class GeometryModeler(Modeler, PyAedtBase):
                 added_objects.append(obj_name)
         return added_objects
 
-    @pyaedt_function_handler()
-    def add_new_user_defined_component(self) -> list:
-        """Add 3D components and user-defined models that have been created in the modeler by
-        previous operations.
-
-        Returns
-        -------
-        list
-            List of added components.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.add_new_user_defined_component()
-
-        """
-        added_component = []
-        for comp_name in self.user_defined_component_names:
-            if comp_name not in self.user_defined_components.keys():
-                self._create_user_defined_component(comp_name)
-            added_component.append(comp_name)
-        return added_component
-
     # TODO: Eliminate this - check about import_3d_cad
     # Should no longer be a problem
     @pyaedt_function_handler()
@@ -1727,7 +1703,6 @@ class GeometryModeler(Modeler, PyAedtBase):
         """
         self.add_new_solids()
         self.add_new_points()
-        self.add_new_user_defined_component()
         self.cleanup_objects()
 
         return len(self.objects)
@@ -10878,30 +10853,6 @@ class GeometryModeler(Modeler, PyAedtBase):
                 ]
             )
         return True
-
-    @pyaedt_function_handler()
-    def _get_native_data(self):
-        """Retrieve native components data."""
-        native_definitions = {}
-        dp = self._app.design_properties
-        if not isinstance(dp, dict):  # pragma: no cover
-            # This could happen if the project is not saved or has an encrypted component
-            return {}
-        model_setup = dp.get("ModelSetup", {})
-        geometry_core = model_setup.get("GeometryCore", {})
-        geometry_operations = geometry_core.get("GeometryOperations", {})
-        sub_model_definitions = geometry_operations.get("SubModelDefinitions", {})
-        native_component_definitions = sub_model_definitions.get("NativeComponentDefinition", {})
-        component_definitions = copy.deepcopy(native_component_definitions)
-        for native_comp in component_definitions:
-            native_name = native_comp.get("SubmodelDefinitionName", None)
-            native_type = None
-            if native_name:
-                native_provider = native_comp.get("NativeComponentDefinitionProvider", None)
-                if native_provider:
-                    native_type = native_provider.get("Type", None)
-                native_definitions[native_name] = native_type
-        return native_definitions
 
 
 class PrimitivesBuilder(PyAedtBase):

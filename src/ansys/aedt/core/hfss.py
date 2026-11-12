@@ -83,7 +83,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modeler import cad
 from ansys.aedt.core.modeler.cad.component_array import ComponentArray
-from ansys.aedt.core.modeler.cad.components_3d import NativeComponentObject
+from ansys.aedt.core.modeler.cad.components_3d import NativeComponent
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
@@ -2187,7 +2187,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                     native_props["NativeComponentDefinitionProvider"][el.replace("_", " ").title()] = parameters_dict[
                         el
                     ]
-        native = NativeComponentObject(self, antenna_type, antenna_name, native_props)
+        native = NativeComponent(self, antenna_type, antenna_name, native_props)
 
         _ = self.native_components
 
@@ -2433,7 +2433,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         is_array: bool = False,
         custom_array: str | None = None,
         name: str | None = None,
-    ) -> NativeComponentObject:
+    ) -> NativeComponent:
         """Create a parametric beam antennas in SBR+.
 
         Parameters
@@ -2462,8 +2462,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.layout_boundary.NativeComponentObject`
-            NativeComponentObject object.
+        :class:`ansys.aedt.core.modules.boundary.layout_boundary.NativeComponent`
+            NativeComponent object.
 
         References
         ----------
@@ -2555,7 +2555,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         is_array: bool = False,
         custom_array: str | None = None,
         name: str | None = None,
-    ) -> NativeComponentObject:
+    ) -> NativeComponent:
         """Create a linked antenna.
 
         Parameters
@@ -2586,7 +2586,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.layout_boundary.NativeComponentObject`
+        :class:`ansys.aedt.core.modules.boundary.layout_boundary.NativeComponent`
 
         References
         ----------
@@ -2670,7 +2670,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         is_array: bool | None = False,
         custom_array: str | None = None,
         name: str | None = None,
-    ) -> NativeComponentObject:
+    ) -> NativeComponent:
         """Create a linked antennas.
 
         Parameters

@@ -47,7 +47,7 @@ from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.generic.protocols import _AppWithOProject
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
-from ansys.aedt.core.modeler.cad.components_3d import NativeComponentObject
+from ansys.aedt.core.modeler.cad.components_3d import NativeComponent
 from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
@@ -2314,9 +2314,9 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                 nc_dict["TargetCS"] = instance_dict["CS"]
                 component3d_names = list(self._app.modeler.oeditor.Get3DComponentInstanceNames(native_name))
                 if native_dict["Type"] == "PCB":
-                    native = NativeComponentPCB(self._app, native_dict["Type"], native_name, nc_dict)
+                    native = NativeComponentPCB(self._app, native_dict["Type"], native_name)
                 else:
-                    native = NativeComponentObject(self._app, native_dict["Type"], native_name, nc_dict, nc_dict)
+                    native = NativeComponent(self._app, native_dict["Type"], native_name)
                 prj_list = set(self._app.desktop_class.project_list)
                 definition_names = set(self._app.oeditor.Get3DComponentDefinitionNames())
                 instance_names = {
@@ -2356,13 +2356,13 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                         raise ValueError(f"Could not get the PyAEDT application for design {design} in project {prj}.")
                     app.oproject.Close()
                 user_defined_component = UserDefinedComponent(
-                    self._app.modeler, instance_names, nc_dict["NativeComponentDefinitionProvider"], native_dict["Type"]
+                    self._app.modeler, instance_names, nc_dict["NativeComponentDefinitionProvider"]
                 )
                 self._app.modeler.user_defined_components[instance_names] = user_defined_component
                 new_name = [
                     i
                     for i in list(
-                        self._app.modeler.oeditor.Get3DComponentInstanceNames(user_defined_component.definition)
+                        self._app.modeler.oeditor.Get3DComponentInstanceNames(user_defined_component.definition_name)
                     )
                     if i not in component3d_names
                 ][0]

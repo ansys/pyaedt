@@ -35,9 +35,10 @@ from ansys.aedt.core.generic.file_utils import available_file_name
 from ansys.aedt.core.generic.file_utils import get_dxf_layers
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
+from ansys.aedt.core.modeler.cad.components_3d import PCBSettingsDeviceParts
+from ansys.aedt.core.modeler.cad.components_3d import PCBSettingsPackageParts
 from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
-from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
-from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsPackageParts
 from ansys.aedt.core.visualization.post.field_data import FolderPlotSettings
 from ansys.aedt.core.visualization.post.field_data import SpecifiedScale
 from tests import TESTS_GENERAL_PATH
@@ -161,11 +162,32 @@ def ipk_app(add_app):
 def test_import_pcb(board_3dl_app) -> None:
     component_name = "RadioBoard1"
     pcb = board_3dl_app.create_ipk_3dcomponent_pcb(
-        component_name, LINK_DATA, SOLUTION_FREQ, RESOLUTION, custom_x_resolution=400, custom_y_resolution=500
+        setup_link=LINK_DATA,
+        name=component_name,
+        frequency=SOLUTION_FREQ,
+        resolution=RESOLUTION,
+        custom_x_resolution=400,
+        custom_y_resolution=500,
     )
-    assert pcb
-    assert len(board_3dl_app.native_components) == 1
-    assert len(board_3dl_app.modeler.user_defined_component_names) == 1
+    assert isinstance(pcb, NativeComponentPCB)
+    assert len(board_3dl_app.modeler.component_names) == 1
+    assert len(board_3dl_app.modeler.components) == 1
+    assert isinstance(board_3dl_app.modeler.components[0], NativeComponentPCB)
+    comp = board_3dl_app.modeler.components[0]
+    assert comp.name == component_name
+    assert comp.properties == component_name
+    assert comp.board_cutout_material
+    assert comp.bounding_box
+    assert comp.center
+    assert comp.definition_name
+    assert comp.definition_type
+    assert comp.force_source_solve
+    assert not comp.mesh_assembly
+    assert comp.included_parts
+    assert comp.power
+    assert comp.preserve_partner_solution
+    assert comp.target_coordinate_system
+    assert comp.via_holes_material
     assert board_3dl_app.modeler.get_object_from_name("RadioBoard1_001_TOP_BBox")
 
 
@@ -283,7 +305,7 @@ def test_pcb_comp_properties(board_ipk_app) -> None:
 def test_pcb_comp_import(board_ipk_app) -> None:
     component_name = "RadioBoard2"
     cmp = board_ipk_app.create_ipk_3dcomponent_pcb(
-        component_name, LINK_DATA, SOLUTION_FREQ, RESOLUTION, custom_x_RESOLUTION=400, custom_y_RESOLUTION=500
+        LINK_DATA, component_name, SOLUTION_FREQ, RESOLUTION, custom_x_RESOLUTION=400, custom_y_RESOLUTION=500
     )
     assert cmp.included_parts is None
     cmp.included_parts = "Device"
@@ -719,7 +741,7 @@ def test_create_two_resistor_network_block(board_ipk_app) -> None:
     assert result1.props["Nodes"]["Internal"][0] == "5W"
     assert result2.props["Nodes"]["Internal"][0] == "10W"
     board_ipk_app.create_ipk_3dcomponent_pcb(
-        "RadioBoard1", LINK_DATA, SOLUTION_FREQ, RESOLUTION, custom_x_RESOLUTION=400, custom_y_RESOLUTION=500
+        LINK_DATA, "RadioBoard1", SOLUTION_FREQ, RESOLUTION, custom_x_RESOLUTION=400, custom_y_RESOLUTION=500
     )
     board_ipk_app.modeler.create_box([42, 8, 2.03962], [10, 22, 3], "network_box3", "copper")
     result3 = board_ipk_app.create_two_resistor_network_block("network_box3", "RadioBoard1_1", "15W", 2.5, 5)
@@ -1837,8 +1859,8 @@ def test_get_max_temp_location_steady_state(max_temp_app) -> None:
 def test_mesh_priority(board_ipk_app) -> None:
     b = board_ipk_app.modeler.create_box([0, 0, 0], [20, 50, 80])
     board = board_ipk_app.create_ipk_3dcomponent_pcb(
-        "Board",
         LINK_DATA,
+        "Board",
         SOLUTION_FREQ,
         RESOLUTION,
         extent_type="Polygon",
