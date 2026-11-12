@@ -91,7 +91,7 @@ executed in sequence.
 
      app = Hfss()
      target = app.modeler.create_box(origin=[0, 0, 0], sizes=[100, 100, 20])
-     cutter = app.modeler.create_cylinder(
+     cutters = app.modeler.create_cylinder(
          orientation=Axis.Z, origin=[0, 0, -1], radius=1, height=22
      )
      with app.modeler.batch_geometry_operations():
