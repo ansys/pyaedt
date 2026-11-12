@@ -27,9 +27,8 @@ from __future__ import annotations
 import ast
 from contextlib import contextmanager
 import sys
-from typing import TypeVar
-
 from typing import TYPE_CHECKING
+from typing import TypeVar
 
 if TYPE_CHECKING:
     from matplotlib.figure import Figure
