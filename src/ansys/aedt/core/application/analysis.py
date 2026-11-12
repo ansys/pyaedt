@@ -437,7 +437,8 @@ class Analysis(Design, PyAedtBase):
         """
         setup_list = self.setup_names
         sweep_list = {}
-        if self.solution_type == "HFSS3DLayout" or self.solution_type == "HFSS 3D Layout Design":
+        solution_type = self.solution_type
+        if solution_type == "HFSS3DLayout" or solution_type == "HFSS 3D Layout Design":
             solutions = self.oanalysis.GetAllSolutionNames()
             solutions = [i for i in solutions if "Adaptive Pass" not in i]
             solutions.reverse()
@@ -451,9 +452,11 @@ class Analysis(Design, PyAedtBase):
                     else:
                         sweep_list[sol_sweep[0]]["Sweeps"].append(sol_sweep[1])
         else:
+            setuptype = self.design_solutions.default_adaptive if setup_list else None
+            all_solution_setups = None
+            has_get_sweeps = bool(setup_list) and solution_type != "Eigenmode" and "GetSweeps" in dir(self.oanalysis)
             for el in setup_list:
                 sweep_list[el] = {"Nominal": None, "Sweeps": []}
-                setuptype = self.design_solutions.default_adaptive
                 if setuptype:
                     sweep_list[el]["Nominal"] = setuptype
                 elif self.design_type in [
@@ -462,12 +465,13 @@ class Analysis(Design, PyAedtBase):
                     "Twin Builder",
                     "Maxwell Circuit",
                 ]:
-                    setups = self.oanalysis.GetAllSolutionSetups()
-                    for k in setups:
+                    if all_solution_setups is None:
+                        all_solution_setups = self.oanalysis.GetAllSolutionSetups()
+                    for k in all_solution_setups:
                         val = k.split(" : ")
                         if len(val) == 2 and val[0] == el:
                             sweep_list[el]["Nominal"] = val[1]
-                if self.solution_type != "Eigenmode" and "GetSweeps" in dir(self.oanalysis):
+                if has_get_sweeps:
                     try:
                         sweep_list[el]["Sweeps"].extend(list(self.oanalysis.GetSweeps(el)))
                     except Exception:
@@ -528,12 +532,15 @@ class Analysis(Design, PyAedtBase):
         >>> hfss.nominal_adaptive
 
         """
-        if not self.active_setup or self.active_setup not in self.setup_sweeps_names:
+        if not self.active_setup:
             return ""
-        if self.setup_sweeps_names[self.active_setup]["Nominal"] is None:
+        setup_sweeps = self.setup_sweeps_names
+        if self.active_setup not in setup_sweeps:
+            return ""
+        if setup_sweeps[self.active_setup]["Nominal"] is None:
             return self.active_setup
         else:
-            return f"{self.active_setup} : {self.setup_sweeps_names[self.active_setup]['Nominal']}"
+            return f"{self.active_setup} : {setup_sweeps[self.active_setup]['Nominal']}"
 
     @property
     def nominal_sweep(self) -> str:
@@ -557,10 +564,13 @@ class Analysis(Design, PyAedtBase):
         >>> hfss.nominal_sweep
 
         """
-        if not self.active_setup or self.active_setup not in self.setup_sweeps_names:
+        if not self.active_setup:
             return ""
-        if self.setup_sweeps_names[self.active_setup]["Sweeps"]:
-            return f"{self.active_setup} : {self.setup_sweeps_names[self.active_setup]['Sweeps'][0]}"
+        setup_sweeps = self.setup_sweeps_names
+        if self.active_setup not in setup_sweeps:
+            return ""
+        if setup_sweeps[self.active_setup]["Sweeps"]:
+            return f"{self.active_setup} : {setup_sweeps[self.active_setup]['Sweeps'][0]}"
         else:
             return self.nominal_adaptive
 
@@ -605,7 +615,8 @@ class Analysis(Design, PyAedtBase):
 
         """
         solution_list = list(self.get_oo_name(self.oreportsetup, "Profile"))
-        return [i for i in solution_list if i not in self.setup_names]
+        setup_names = set(self.setup_names)
+        return [i for i in solution_list if i not in setup_names]
 
     @property
     def excitation_names(self) -> list[str]:

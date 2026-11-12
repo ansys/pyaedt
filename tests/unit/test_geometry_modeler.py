@@ -70,6 +70,23 @@ def test_delete_all_points_failure(mock_hfss_app, caplog: pytest.LogCaptureFixtu
     assert any("Failed to delete points." in record.getMessage() for record in caplog.records)
 
 
+def test_batch_update_defers_object_cleanup(mock_hfss_app) -> None:
+    """Test object cleanup is performed once when the outermost batch exits."""
+    gm = GeometryModeler(mock_hfss_app)
+    gm.cleanup_solids = MagicMock()
+    gm.cleanup_points = MagicMock()
+
+    with gm.batch_geometry_operations():
+        gm.cleanup_objects()
+        with gm.batch_geometry_operations():
+            gm.cleanup_objects()
+        gm.cleanup_solids.assert_not_called()
+        gm.cleanup_points.assert_not_called()
+
+    gm.cleanup_solids.assert_called_once()
+    gm.cleanup_points.assert_called_once()
+
+
 @patch(
     "ansys.aedt.core.modeler.cad.primitives.GeometryModeler.components_data",
     new_callable=PropertyMock,

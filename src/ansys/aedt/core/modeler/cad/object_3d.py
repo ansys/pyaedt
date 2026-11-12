@@ -1392,8 +1392,9 @@ class Object3d(BinaryTreeNode, PyAedtBase):
             vOut = ["NAME:AllTabs", vGeo3d]
             self._primitives.oeditor.ChangeProperty(vOut)
             self._m_name = obj_name
-            self._primitives.add_new_objects()
-            self._primitives.cleanup_objects()
+            with self._primitives._cached_object_types():
+                self._primitives.add_new_objects()
+                self._primitives.cleanup_objects()
         else:
             self.logger.warning(f"{obj_name} is already used in current design.")
 

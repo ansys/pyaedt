@@ -242,9 +242,9 @@ def raise_exception_or_return_false(e):
 
 def _function_handler_wrapper(user_function: Callable[_P, _R], **deprecated_kwargs) -> Callable[_P, _R]:
     """Wrap a function with error handling, logging, and deprecated-argument support."""
+    function_name = getattr(user_function, "__name__", str(user_function))
 
     def wrapper(*args: _P.args, **kwargs: _P.kwargs) -> _R:
-        function_name = getattr(user_function, "__name__", str(user_function))
         if deprecated_kwargs and kwargs:
             deprecate_kwargs(function_name, kwargs, deprecated_kwargs)
         try:

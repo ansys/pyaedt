@@ -337,7 +337,7 @@ class AedtLogger:
     @property
     def _log_on_desktop(self) -> bool:
         try:
-            if self._desktop and settings.enable_desktop_logs:
+            if settings.enable_desktop_logs and self._desktop:
                 return True
             else:
                 return False
@@ -765,7 +765,8 @@ class AedtLogger:
         if level not in message_levels:
             raise ValueError("Message level must be 'Design', 'Project', or 'Global'.")
 
-        if self._log_on_desktop and self._desktop:
+        odesktop = self._desktop if self._log_on_desktop else None
+        if odesktop:
             if not proj_name and message_levels[level] > 0:
                 proj_name = self.project_name
             if not des_name and message_levels[level] > 1:
@@ -773,7 +774,7 @@ class AedtLogger:
             if des_name and ";" in des_name:
                 des_name = des_name[des_name.find(";") + 1 :]
             try:
-                self._desktop.AddMessage(proj_name, des_name, message_type, message_text)
+                odesktop.AddMessage(proj_name, des_name, message_type, message_text)
             except Exception:  # pragma: no cover
                 self._log_on_handler(2, "Failed to add desktop message.")
 

@@ -26,6 +26,7 @@
 
 from __future__ import annotations
 
+from contextlib import contextmanager
 import copy
 import fnmatch
 import math
@@ -92,29 +93,35 @@ class Objects(dict):
 
     Examples
     --------
-    >>> from ansys.aedt.core.modeler.cad.primitives import Objects
-    >>> obj = Objects()
+    >>> from ansys.aedt.core import Hfss
+    >>> app = Hfss()
+    >>> app.modeler.objects
 
     """
 
     def _parse_objs(self) -> None:
-        if self.__obj_type == "o":
-            object_names = self.__parent.object_names
-        elif self.__obj_type == "p":
-            object_names = self.__parent.point_names
-
-        if self.__refreshed is False and dict.__len__(self) != len(object_names):
-            self.__refreshed = True
+        if self.__refreshed:
+            return
+        with self.__parent._cached_object_types():
             if self.__obj_type == "o":
-                self.__parent.logger.info("Parsing design objects. This operation can take time")
-                self.__parent.logger.reset_timer()
-                self.__parent._refresh_all_ids_wrapper()
-                self.__parent.add_new_solids()
-                self.__parent.cleanup_solids()
-                self.__parent.logger.info_timer("3D Modeler objects parsed.")
+                object_names = self.__parent.object_names
             elif self.__obj_type == "p":
-                self.__parent.add_new_points()
-                self.__parent.cleanup_points()
+                object_names = self.__parent.point_names
+
+            if dict.__len__(self) == len(object_names):
+                return
+            if self.__refreshed is False and dict.__len__(self) != len(object_names):
+                self.__refreshed = True
+                if self.__obj_type == "o":
+                    self.__parent.logger.info("Parsing design objects. This operation can take time")
+                    self.__parent.logger.reset_timer()
+                    self.__parent._refresh_all_ids_wrapper()
+                    self.__parent.add_new_solids()
+                    self.__parent.cleanup_solids()
+                    self.__parent.logger.info_timer("3D Modeler objects parsed.")
+                elif self.__obj_type == "p":
+                    self.__parent.add_new_points()
+                    self.__parent.cleanup_points()
 
     def __repr__(self) -> str:
         self._parse_objs()
@@ -252,10 +259,14 @@ class GeometryModeler(Modeler, PyAedtBase):
 
     Examples
     --------
-    >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-    >>> obj = GeometryModeler()
+    >>> from ansys.aedt.core import Hfss
+    >>> app = Hfss()
+    >>> app.modeler
 
     """
+
+    _object_types_cached = False
+    _object_types_cache_depth = 0
 
     @pyaedt_function_handler()
     def __getitem__(self, partId) -> Object3d:
@@ -311,6 +322,8 @@ class GeometryModeler(Modeler, PyAedtBase):
         self._app = app
         self._model_data = {}
         Modeler.__init__(self, app)
+        self._batch_update_depth = 0
+        self._cleanup_pending = False
         self._coordinate_systems = []
         self._user_lists = []
         self._planes = []
@@ -323,6 +336,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         self._all_object_names = []
         self._model_units = None
         self._object_names_to_ids = {}
+        self._planes = {}
         self.objects = Objects(self, "o")
         self.points = Objects(self, "p")
 
@@ -341,9 +355,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.rescale_model
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.rescale_model
 
         """
         return self._app.units.rescale_model
@@ -454,9 +468,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.coordinate_systems
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.coordinate_systems
 
         """
         if settings.aedt_version > "2022.2":
@@ -483,9 +497,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.user_lists
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.user_lists
 
         """
         if not self._user_lists:
@@ -498,9 +512,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.planes
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.planes
 
         """
         if not self._planes:
@@ -517,9 +531,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.oeditor
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.oeditor
 
         """
         return self._app.oeditor
@@ -534,9 +548,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.materials
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.materials
 
         """
         return self._app.materials
@@ -578,9 +592,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.selections
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.selections
 
         """
         return self.oeditor.GetSelections()
@@ -595,9 +609,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.obounding_box
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.obounding_box
 
         """
         return self.oeditor.GetModelBoundingBox()
@@ -643,9 +657,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.design_type
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.design_type
 
         """
         return self._app.design_type
@@ -660,9 +674,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.geometry_mode
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.geometry_mode
 
         """
         if "GetGeometryMode" in dir(self._odesign):
@@ -687,9 +701,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.solid_bodies
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.solid_bodies
 
         """
         if self.dimension == "3D":
@@ -713,13 +727,14 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.solid_objects
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.solid_objects
 
         """
-        # self._refresh_solids()
-        return [self[name] for name in self.solid_names if self[name]]
+        with self._cached_object_types():
+            objects = (self[name] for name in self.solid_names)
+            return [obj for obj in objects if obj]
 
     @property
     def sheet_objects(self) -> list:
@@ -732,9 +747,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.sheet_objects
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.sheet_objects
 
         """
         self._refresh_sheets()
@@ -751,9 +766,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.line_objects
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.line_objects
 
         """
         self._refresh_lines()
@@ -770,9 +785,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.point_objects
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.point_objects
 
         """
         self._refresh_points()
@@ -789,9 +804,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.unclassified_objects
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.unclassified_objects
 
         """
         self._refresh_unclassified()
@@ -808,13 +823,15 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.object_list
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.object_list
 
         """
-        self._refresh_object_types()
-        return [v for name, v in self.objects_by_name.items() if name is not None and name not in self.point_names]
+        with self._cached_object_types():
+            self._refresh_object_types()
+            point_names = set(self._points)
+            return [v for name, v in self.objects_by_name.items() if name is not None and name not in point_names]
 
     @property
     def solid_names(self) -> list:
@@ -826,9 +843,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.solid_names
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.solid_names
 
         """
         self._refresh_solids()
@@ -844,9 +861,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.sheet_names
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.sheet_names
 
         """
         self._refresh_sheets()
@@ -862,9 +879,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.line_names
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.line_names
 
         """
         self._refresh_lines()
@@ -880,9 +897,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.unclassified_names
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.unclassified_names
 
         """
         self._refresh_unclassified()
@@ -898,13 +915,14 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.object_names
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.object_names
 
         """
         self._refresh_object_types()
-        return [i for i in self._all_object_names if i not in self._unclassified and i not in self._points]
+        excluded = set(self._unclassified).union(self._points)
+        return [i for i in self._all_object_names if i not in excluded]
 
     @property
     def point_names(self) -> list:
@@ -916,9 +934,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.point_names
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.point_names
 
         """
         self._refresh_points()
@@ -1215,9 +1233,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.defaultmaterial
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.defaultmaterial
 
         """
         return self._app._design_type.default_material
@@ -1228,9 +1246,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.logger
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.logger
 
         """
         return self._app.logger
@@ -1241,9 +1259,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.version
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.version
 
         """
         return self._app._aedt_version
@@ -1254,9 +1272,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.model_objects
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.model_objects
 
         """
         return self._get_model_objects(model=True)
@@ -1267,9 +1285,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.non_model_objects
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.non_model_objects
 
         """
         return list(self.oeditor.GetObjectsInGroup("Non Model"))
@@ -1284,9 +1302,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.model_consistency_report
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.model_consistency_report
 
         """
         obj_names = self.object_names
@@ -1311,9 +1329,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.objects_by_name
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.objects_by_name
 
         """
         obj_dict = {}
@@ -1327,9 +1345,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.refresh()
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.refresh()
 
         """
         self._solids = []
@@ -1522,13 +1540,22 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.cleanup_objects()
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.cleanup_objects()
 
         """
-        self.cleanup_solids()
-        self.cleanup_points()
+        if self._batch_update_depth > 0:
+            self._cleanup_pending = True
+            return
+
+        self._cleanup_objects_now()
+
+    def _cleanup_objects_now(self) -> None:
+        """Synchronize object and point collections with the current AEDT geometry."""
+        with self._cached_object_types():
+            self.cleanup_solids()
+            self.cleanup_points()
 
     @pyaedt_function_handler()
     def cleanup_solids(self) -> None:
@@ -1546,23 +1573,24 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.cleanup_solids()
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.cleanup_solids()
 
         """
         new_object_dict = {}
-        all_objects = self.object_names
-        all_unclassified = self._unclassified
-        all_objs = all_objects + all_unclassified
-        if sorted(all_objs) != sorted(list(self._object_names_to_ids.keys())):
-            for old_id, obj in self.objects.items():
-                if obj.name in all_objs:
-                    # Check if ID can change in boolean operations
-                    # updated_id = obj.id  # By calling the object property we get the new id
-                    new_object_dict[old_id] = obj
-            self._object_names_to_ids = {}
-            self.objects = Objects(self, "o", new_object_dict)
+        with self._cached_object_types():
+            all_objects = self.object_names
+            all_unclassified = self._unclassified
+            all_objs = set(all_objects + all_unclassified)
+            if all_objs != set(self._object_names_to_ids.keys()):
+                for old_id, obj in self.objects.items():
+                    if obj.name in all_objs:
+                        # Check if ID can change in boolean operations
+                        # updated_id = obj.id  # By calling the object property we get the new id
+                        new_object_dict[old_id] = obj
+                self._object_names_to_ids = {}
+                self.objects = Objects(self, "o", new_object_dict)
 
     @pyaedt_function_handler()
     def cleanup_points(self) -> None:
@@ -1579,16 +1607,16 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.cleanup_points()
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.cleanup_points()
 
         """
         new_points_dict = {}
-
-        for old_id, obj in self.points.items():
-            if obj.name in self._points:
-                new_points_dict[obj.name] = obj
+        with self._cached_object_types():
+            for old_id, obj in self.points.items():
+                if obj.name in self._points:
+                    new_points_dict[obj.name] = obj
 
         self.points = Objects(self, "p", new_points_dict)
 
@@ -1603,9 +1631,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.find_new_objects()
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.find_new_objects()
 
         """
         new_objects = []
@@ -1625,9 +1653,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.add_new_objects()
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.add_new_objects()
 
         """
         added_objects = []
@@ -1646,9 +1674,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.add_new_solids()
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.add_new_solids()
 
         """
         added_objects = []
@@ -1676,9 +1704,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.add_new_points()
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.add_new_points()
 
         """
         added_objects = []
@@ -1696,9 +1724,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.refresh_all_ids()
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.refresh_all_ids()
 
         """
         self.add_new_solids()
@@ -1732,24 +1760,26 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.get_objects_by_material(material="copper")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_objects_by_material(material="copper")
 
         """
         obj_lst = []
         if material is not None:
+            material_lower = material.lower()
+            modeler_oo = None
             for obj in self.object_list:
-                if obj and ("[" in obj.material_name or "(" in obj.material_name) and obj.object_type == "Solid":
-                    found_material = (
-                        self._app.odesign.GetChildObject("3D Modeler")
-                        .GetChildObject(obj.name)
-                        .GetPropEvaluatedValue("Material")
-                        .lower()
-                    )
-                    if found_material.lower() == material.lower():
+                if not obj:
+                    continue
+                material_name = obj.material_name
+                if ("[" in material_name or "(" in material_name) and obj.object_type == "Solid":
+                    if modeler_oo is None:
+                        modeler_oo = self._app.odesign.GetChildObject("3D Modeler")
+                    found_material = modeler_oo.GetChildObject(obj.name).GetPropEvaluatedValue("Material").lower()
+                    if found_material == material_lower:
                         obj_lst.append(obj)
-                elif obj and (obj.material_name.lower() == material.lower()):
+                elif material_name.lower() == material_lower:
                     obj_lst.append(obj)
         else:
             obj_lst = [
@@ -1875,9 +1905,10 @@ class GeometryModeler(Modeler, PyAedtBase):
         coord = []
         id2name = {1: "Global"}
         name2refid = {}
-        dp = copy.deepcopy(self._design_properties)
+        dp = self._design_properties
         if dp and "ModelSetup" in dp:
-            cs = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["CoordinateSystems"]
+            # Copy only the data handed to coordinate system objects instead of the whole design properties.
+            cs = copy.deepcopy(dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["CoordinateSystems"])
             for ds in cs:
                 try:
                     if isinstance(cs[ds], dict):
@@ -1906,12 +1937,12 @@ class GeometryModeler(Modeler, PyAedtBase):
                                 op = geometry_part["Operations"]["FaceCSHolderOperation"]
                                 if isinstance(op, dict):
                                     if op["ID"] == op_id:
-                                        props = op["FaceCSParameters"]
+                                        props = copy.deepcopy(op["FaceCSParameters"])
                                         coord.append(FaceCoordinateSystem(self, props, name))
                                 elif isinstance(op, list):
                                     for iop in op:
                                         if iop["ID"] == op_id:
-                                            props = iop["FaceCSParameters"]
+                                            props = copy.deepcopy(iop["FaceCSParameters"])
                                             coord.append(FaceCoordinateSystem(self, props, name))
                                             break
                             elif isinstance(geometry_part, list):
@@ -1919,12 +1950,12 @@ class GeometryModeler(Modeler, PyAedtBase):
                                     op = gp["Operations"]["FaceCSHolderOperation"]
                                     if isinstance(op, dict):
                                         if op["ID"] == op_id:
-                                            props = op["FaceCSParameters"]
+                                            props = copy.deepcopy(op["FaceCSParameters"])
                                             coord.append(FaceCoordinateSystem(self, props, name))
                                     elif isinstance(op, list):
                                         for iop in op:
                                             if iop["ID"] == op_id:
-                                                props = iop["FaceCSParameters"]
+                                                props = copy.deepcopy(iop["FaceCSParameters"])
                                                 coord.append(FaceCoordinateSystem(self, props, name))
                                                 break
                     elif isinstance(cs[ds], list):
@@ -1954,12 +1985,12 @@ class GeometryModeler(Modeler, PyAedtBase):
                                     op = geometry_part["Operations"]["FaceCSHolderOperation"]
                                     if isinstance(op, dict):
                                         if op["ID"] == op_id:
-                                            props = op["FaceCSParameters"]
+                                            props = copy.deepcopy(op["FaceCSParameters"])
                                             coord.append(FaceCoordinateSystem(self, props, name))
                                     elif isinstance(op, list):
                                         for iop in op:
                                             if iop["ID"] == op_id:
-                                                props = iop["FaceCSParameters"]
+                                                props = copy.deepcopy(iop["FaceCSParameters"])
                                                 coord.append(FaceCoordinateSystem(self, props, name))
                                                 break
                                 elif isinstance(geometry_part, list):
@@ -1970,12 +2001,12 @@ class GeometryModeler(Modeler, PyAedtBase):
                                             continue
                                         if isinstance(op, dict):
                                             if op["ID"] == op_id:
-                                                props = op["FaceCSParameters"]
+                                                props = copy.deepcopy(op["FaceCSParameters"])
                                                 coord.append(FaceCoordinateSystem(self, props, name))
                                         elif isinstance(op, list):
                                             for iop in op:
                                                 if iop["ID"] == op_id:
-                                                    props = iop["FaceCSParameters"]
+                                                    props = copy.deepcopy(iop["FaceCSParameters"])
                                                     coord.append(FaceCoordinateSystem(self, props, name))
                                                     break
                 except Exception as e:
@@ -1997,7 +2028,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         [Dict with List information]
         """
         design_lists = []
-        dp = copy.deepcopy(self._design_properties)
+        dp = self._design_properties
         if dp and dp.get("ModelSetup", None):
             key1 = "GeometryOperations"
             key2 = "GeometryEntityLists"
@@ -2117,9 +2148,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.cover_lines(assignment="Polyline1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.cover_lines(assignment="Polyline1")
 
         """
         obj_to_cover = self.convert_to_selections(assignment, False)
@@ -2146,9 +2177,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.cover_faces(assignment="Sheet1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.cover_faces(assignment="Sheet1")
 
         """
         obj_to_cover = self.convert_to_selections(assignment, False)
@@ -2303,9 +2334,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.create_coordinate_system(origin=[0, 0, 0], name="CS1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.create_coordinate_system(origin=[0, 0, 0], name="CS1")
 
         """
         if name:
@@ -2392,9 +2423,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.create_face_coordinate_system(face=1, origin=1, axis_position=1, name="FaceCS1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.create_face_coordinate_system(face=1, origin=1, axis_position=1, name="FaceCS1")
 
         """
         if name:
@@ -2430,7 +2461,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         reverse_x_axis: bool = False,
         reverse_y_axis: bool = False,
         name: str | None = None,
-    ) -> "ObjectCoordinateSystem":
+    ) -> ObjectCoordinateSystem:
         """Create an object coordinate system.
 
         Parameters
@@ -2481,9 +2512,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.create_object_coordinate_system(
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.create_object_coordinate_system(
         ...     assignment="Box1", origin=[0, 0, 0], x_axis=[1, 0, 0], y_axis=[0, 1, 0], name="ObjectCS1"
         ... )
 
@@ -2528,9 +2559,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.global_to_cs(point=[1, 0, 0], coordinate_system="Global")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.global_to_cs(point=[1, 0, 0], coordinate_system="Global")
 
         """
         if type(point) is not list or len(point) != 3:
@@ -2602,9 +2633,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.set_working_coordinate_system(name="Global")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.set_working_coordinate_system(name="Global")
 
         """
         if isinstance(name, BaseCoordinateSystem):
@@ -2632,9 +2663,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.get_working_coordinate_system()
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_working_coordinate_system()
 
         """
         return self.oeditor.GetActiveCoordinateSystem()
@@ -2665,9 +2696,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.invert_cs(coordinate_system="Global")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.invert_cs(coordinate_system="Global")
 
         """
         if isinstance(coordinate_system, BaseCoordinateSystem):
@@ -2707,9 +2738,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.reference_cs_to_global(coordinate_system="Global")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.reference_cs_to_global(coordinate_system="Global")
 
         """
         cs_names = [i.name for i in self.coordinate_systems]
@@ -2756,9 +2787,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.duplicate_coordinate_system_to_global(coordinate_system="Global")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.duplicate_coordinate_system_to_global(coordinate_system="Global")
 
         """
         cs_names = [i.name for i in self.coordinate_systems]
@@ -2925,9 +2956,10 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.set_objects_deformation(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> box = app.modeler.create_box([0, 0, 0], [10, 10, 10])
+        >>> app.modeler.set_objects_deformation(assignment=box.name)
 
         """
         self.logger.info("Enabling deformation feedback")
@@ -2969,9 +3001,10 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.set_objects_temperature(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> box = app.modeler.create_box([0, 0, 0], [10, 10, 10])
+        >>> app.modeler.set_objects_temperature(assignment=box.name)
 
         """
         self.logger.info("Set model temperature and enabling Thermal Feedback")
@@ -3076,9 +3109,10 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.find_point_around(assignment="Box1", origin=[0, 0, 0], offset="1mm", plane="XY")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> box = app.modeler.create_box([0, 0, 0], [10, 10, 10])
+        >>> app.modeler.find_point_around(assignment=box.name, origin=[0, 0, 0], offset="1mm", plane="XY")
 
         """
         position = [0, 0, 0]
@@ -3141,9 +3175,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.create_sheet_to_ground(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.create_sheet_to_ground(assignment="Box1")
 
         """
         if orientation > 2:
@@ -3312,9 +3346,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.get_boundaries_name()
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_boundaries_name()
 
         """
         if self._app.design_type == "Icepak":
@@ -3345,9 +3379,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.set_object_model_state(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.set_object_model_state(assignment="Box1")
 
         """
         selections = self.convert_to_selections(assignment, True)
@@ -3382,9 +3416,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.get_objects_in_group(group=1)
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_objects_in_group(group=1)
 
         """
         if not isinstance(group, str):
@@ -3416,9 +3450,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.get_group_bounding_box(group=1)
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_group_bounding_box(group=1)
 
         """
         if not isinstance(group, str):
@@ -3480,9 +3514,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.convert_to_selections(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.convert_to_selections(assignment="Box1")
 
         """
         if not isinstance(assignment, list):
@@ -3556,9 +3590,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.split(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.split(assignment="Box1")
 
         """
         if plane is None and not tool or plane and tool:
@@ -3710,9 +3744,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.duplicate_and_mirror(assignment="Box1", origin=[0, 0, 0], vector=[1, 0, 0])
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.duplicate_and_mirror(assignment="Box1", origin=[0, 0, 0], vector=[1, 0, 0])
 
         """
         return self.mirror(
@@ -3762,9 +3796,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.mirror(assignment="Box1", origin=[0, 0, 0], vector=[1, 0, 0])
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.mirror(assignment="Box1", origin=[0, 0, 0], vector=[1, 0, 0])
 
         """
         selections = self.convert_to_selections(assignment)
@@ -3841,9 +3875,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.move(assignment="Box1", vector=[1, 0, 0])
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.move(assignment="Box1", vector=[1, 0, 0])
 
         """
         x_vec, y_vec, z_vec = self._pos_with_arg(vector)
@@ -3905,9 +3939,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.duplicate_around_axis(assignment="Box1", axis="Z")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.duplicate_around_axis(assignment="Box1", axis="Z")
 
         """
         selections = self.convert_to_selections(assignment)
@@ -3986,9 +4020,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.duplicate_along_line(assignment="Box1", vector=[1, 0, 0])
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.duplicate_along_line(assignment="Box1", vector=[1, 0, 0])
 
         """
         selections = self.convert_to_selections(assignment)
@@ -4042,9 +4076,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.thicken_sheet(assignment="Box1", thickness=[1, 2, 3])
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.thicken_sheet(assignment="Box1", thickness=[1, 2, 3])
 
         """
         selections = self.convert_to_selections(assignment)
@@ -4088,9 +4122,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.sweep_along_normal(assignment="Box1", faces=[1])
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.sweep_along_normal(assignment="Box1", faces=[1])
 
         """
         if not isinstance(faces, list):
@@ -4157,9 +4191,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.sweep_along_vector(assignment="Box1", sweep_vector=[1, 0, 0])
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.sweep_along_vector(assignment="Box1", sweep_vector=[1, 0, 0])
 
         """
         selections = self.convert_to_selections(assignment)
@@ -4221,9 +4255,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.sweep_along_path(assignment="Box1", sweep_object=1)
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.sweep_along_path(assignment="Box1", sweep_object=1)
 
         """
         selections = self.convert_to_selections(assignment) + "," + self.convert_to_selections(sweep_object)
@@ -4279,9 +4313,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.sweep_around_axis(assignment="Box1", axis="Z")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.sweep_around_axis(assignment="Box1", axis="Z")
 
         """
         selections = self.convert_to_selections(assignment)
@@ -4346,9 +4380,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.section(assignment="Box1", plane="XY")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.section(assignment="Box1", plane="XY")
 
         """
         section_plane = GeometryOperators.cs_plane_to_plane_str(plane)
@@ -4395,9 +4429,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.separate_bodies(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.separate_bodies(assignment="Box1")
 
         """
         try:
@@ -4448,9 +4482,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.rotate(assignment="Box1", axis="Z")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.rotate(assignment="Box1", axis="Z")
 
         """
         selections = self.convert_to_selections(assignment)
@@ -4495,9 +4529,12 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.subtract(blank_list=[1, 2, 3], tool_list=[1, 2, 3])
+        >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.generic.constants import Axis
+        >>> app = Hfss()
+        >>> c1 = app.modeler.create_cylinder(Axis.X, [0, 0, 0], 10.0, 200)
+        >>> c2 = app.modeler.create_cylinder(Axis.X, [0, 0, 0], 3.0, 200)
+        >>> app.modeler.subtract(c1, c2, keep_originals=True)
 
         """
         szList = self.convert_to_selections(blank_list)
@@ -4507,6 +4544,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         vArg2 = ["NAME:SubtractParameters", "KeepOriginals:=", keep_originals]
 
         self.oeditor.Subtract(vArg1, vArg2)
+
         if not keep_originals:
             self.cleanup_objects()
 
@@ -4543,9 +4581,11 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.imprint(blank_list=[1, 2, 3], tool_list=[1, 2, 3])
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> box1 = app.modeler.create_box([0, 0, 0], [10, 10, 10], name="Box1")
+        >>> box2 = app.modeler.create_box([5, 5, 0], [10, 10, 10], name="Box2")
+        >>> app.modeler.imprint(blank_list=[box1], tool_list=[box2])
 
         """
         szList = self.convert_to_selections(blank_list)
@@ -4615,9 +4655,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.imprint_normal_projection(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.imprint_normal_projection(assignment="Box1")
 
         """
         return self._imprint_projection(assignment, keep_originals, True)
@@ -4655,9 +4695,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.imprint_vector_projection(assignment="Box1", vector_points=[0, 0, 0], distance=1)
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.imprint_vector_projection(assignment="Box1", vector_points=[0, 0, 0], distance=1)
 
         """
         return self._imprint_projection(assignment, keep_originals, False, vector_points, distance)
@@ -4686,8 +4726,8 @@ class GeometryModeler(Modeler, PyAedtBase):
         --------
         >>> from ansys.aedt.core import Hfss
         >>> app = Hfss()
-        >>> cylinder1 = hfss.modeler.create_cylinder(orientation="X", origin=[5, 0, 0], radius=1, height=20)
-        >>> aedtapp.modeler.purge_history(assignment=cylinder1)
+        >>> cylinder1 = app.modeler.create_cylinder(orientation="X", origin=[5, 0, 0], radius=1, height=20)
+        >>> app.modeler.purge_history(assignment=cylinder1)
 
         """
         szList = self.convert_to_selections(assignment)
@@ -4717,9 +4757,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.get_model_bounding_box()
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_model_bounding_box()
 
         """
         bb = list(self.oeditor.GetModelBoundingBox())
@@ -4750,9 +4790,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.unite(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.unite(assignment="Box1")
 
         """
         slice = min(100, len(assignment))
@@ -4809,9 +4849,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.clone(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.clone(assignment="Box1")
 
         """
         self.copy(assignment)
@@ -4838,9 +4878,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.copy(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.copy(assignment="Box1")
 
         """
         # convert to string
@@ -4869,9 +4909,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.paste()
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.paste()
 
         """
         self.add_new_objects()
@@ -4901,9 +4941,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.intersect(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.intersect(assignment="Box1")
 
         """
         unclassified = list(self.oeditor.GetObjectsInGroup("Unclassified"))
@@ -4944,9 +4984,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.detach_faces(assignment="Box1", faces=[1])
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.detach_faces(assignment="Box1", faces=[1])
 
         """
         if isinstance(assignment, str):
@@ -4982,9 +5022,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.connect(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.connect(assignment="Box1")
 
         """
         try:
@@ -5025,9 +5065,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.chassis_subtraction(chassis_part=1)
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.chassis_subtraction(chassis_part=1)
 
         """
         self.logger.info("Subtract all objects from Chassis object - exclude vacuum objs")
@@ -5108,9 +5148,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.check_plane(assignment="Box1", face_location=[1])
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.check_plane(assignment="Box1", face_location=[1])
 
         """
         x_vec, y_vec, z_vec = self._pos_with_arg(face_location)
@@ -5170,9 +5210,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.get_matched_object_name(search_string=1)
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_matched_object_name(search_string=1)
 
         """
         return self.oeditor.GetMatchedObjectName(search_string)
@@ -5197,9 +5237,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.clean_objects_name(main_part_name=1)
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.clean_objects_name(main_part_name=1)
 
         """
         cad_suffix = main_part_name + "_"
@@ -5242,9 +5282,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.create_airbox(name="MyObject", offset="1mm")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.create_airbox(name="MyObject", offset="1mm")
 
         """
         self.logger.info("Adding Airbox to the Bounding ")
@@ -5318,9 +5358,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.create_air_region(x_pos=[1, 2, 3], y_pos=[1, 2, 3])
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.create_air_region(x_pos=[1, 2, 3], y_pos=[1, 2, 3])
 
         """
         return self.create_region(pad_percent=[x_pos, x_neg, y_pos, y_neg, z_pos, z_neg], is_percentage=is_percentage)
@@ -5346,9 +5386,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.edit_region_dimensions(values=["Box1"])
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.edit_region_dimensions(values=["Box1"])
 
         """
         arg = ["NAME:AllTabs"]
@@ -5535,9 +5575,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.create_faceted_bondwire_from_true_surface(assignment="Box1", direction=[0, 0, 1])
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.create_faceted_bondwire_from_true_surface(assignment="Box1", direction=[0, 0, 1])
 
         """
         objects = self.get_objects_by_name(assignment)
@@ -5664,9 +5704,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.get_entitylist_id(name="MyObject")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_entitylist_id(name="MyObject")
 
         """
         id = self.oeditor.GetEntityListIDByName(name)
@@ -5690,9 +5730,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.create_outer_facelist(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.create_outer_facelist(assignment="Box1")
 
         """
         list2 = self.select_allfaces_fromobjects(assignment)  # find ALL faces of outer objects
@@ -5723,9 +5763,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.explicitly_subtract(tool_parts=["Box1"], blank_parts=["Box1"])
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.explicitly_subtract(tool_parts=["Box1"], blank_parts=["Box1"])
 
         """
         self.logger.info("Creating explicit subtraction between objects.")
@@ -5777,9 +5817,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.find_port_faces(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.find_port_faces(assignment="Box1")
 
         """
         faces = []
@@ -5801,9 +5841,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.get_line_ids()
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_line_ids()
 
         """
         line_ids = {}
@@ -5834,9 +5874,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.get_bounding_dimension()
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_bounding_dimension()
 
         """
         oBoundingBox = list(self.oeditor.GetModelBoundingBox())
@@ -5866,9 +5906,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.get_object_name_from_edge_id(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_object_name_from_edge_id(assignment="Box1")
 
         """
         for obj in self.solid_names + self.sheet_names + self.line_names:
@@ -5895,9 +5935,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.get_solving_volume()
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_solving_volume()
 
         """
         bound = self.get_model_bounding_box()
@@ -5922,9 +5962,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.vertex_data_of_lines(text_filter=1)
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.vertex_data_of_lines(text_filter=1)
 
         """
         line_data = {}
@@ -5956,9 +5996,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.get_vertices_of_line(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_vertices_of_line(assignment="Box1")
 
         """
         position_list = []
@@ -6022,9 +6062,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.export_3d_model(file_path="example.txt", file_name="example.txt")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.export_3d_model(file_path="example.txt", file_name="example.txt")
 
         """
         if not file_name:
@@ -6153,9 +6193,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.import_3d_cad(input_file="example.txt")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.import_3d_cad(input_file="example.txt")
 
         """
         input_file = Path(input_file)
@@ -6209,9 +6249,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.import_spaceclaim_document(input_file="example.txt")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.import_spaceclaim_document(input_file="example.txt")
 
         """
         env_var = os.environ
@@ -6436,9 +6476,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.import_discovery_model(input_file="example.txt")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.import_discovery_model(input_file="example.txt")
 
         """
         if is_linux:  # pragma: no cover
@@ -6539,9 +6579,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.modeler_variable(value=1)
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.modeler_variable(value=1)
 
         """
         if isinstance(value, str):
@@ -6564,9 +6604,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.break_spaceclaim_connection()
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.break_spaceclaim_connection()
 
         """
         args = ["NAME:Selections", "Selections:=", "SpaceClaim1"]
@@ -6595,9 +6635,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.load_scdm_in_hfss(input_file="example.txt")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.load_scdm_in_hfss(input_file="example.txt")
 
         """
         self.import_spaceclaim_document(input_file)
@@ -6626,9 +6666,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.get_faces_from_materials(filter_materials=["copper"])
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_faces_from_materials(filter_materials=["copper"])
 
         """
         self.logger.info("Selecting outer faces.")
@@ -6673,9 +6713,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.scale(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.scale(assignment="Box1")
 
         """
         selections = self.convert_to_selections(assignment, True)
@@ -6704,9 +6744,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.select_allfaces_fromobjects(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.select_allfaces_fromobjects(assignment="Box1")
 
         """
         self.logger.info("Selecting outer faces.")
@@ -6735,9 +6775,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.setunassigned_mats()
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.setunassigned_mats()
 
         """
         objects = list(self.oeditor.GetObjectsInGroup("Solids"))
@@ -6778,9 +6818,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.automatic_thicken_sheets(assignment="Box1", value=1)
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.automatic_thicken_sheets(assignment="Box1", value=1)
 
         """
         aedt_bounding_box = self.get_model_bounding_box()
@@ -6883,18 +6923,15 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.move_face(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.move_face(assignment="Box1")
 
         """
         face_selection = self.convert_to_selections(assignment, True)
         selection = {}
         for f in face_selection:
-            if self.oeditor.GetObjectNameByFaceID(f) in selection:
-                selection[self.oeditor.GetObjectNameByFaceID(f)].append(f)
-            else:
-                selection[self.oeditor.GetObjectNameByFaceID(f)] = [f]
+            selection.setdefault(self.oeditor.GetObjectNameByFaceID(f), []).append(f)
 
         arg1 = [
             "NAME:Selections",
@@ -6949,18 +6986,15 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.move_edge(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.move_edge(assignment="Box1")
 
         """
         edge_selection = self.convert_to_selections(assignment, True)
         selection = {}
         for f in edge_selection:
-            if self.oeditor.GetObjectNameByEdgeID(f) in selection:
-                selection[self.oeditor.GetObjectNameByEdgeID(f)].append(f)
-            else:
-                selection[self.oeditor.GetObjectNameByEdgeID(f)] = [f]
+            selection.setdefault(self.oeditor.GetObjectNameByEdgeID(f), []).append(f)
 
         arg1 = [
             "NAME:Selections",
@@ -7028,9 +7062,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.create_group(objects=["Box1"], components=["U1"])
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.create_group(objects=["Box1"], components=["U1"])
 
         """
         if components is None and groups is None and objects is None:
@@ -7098,9 +7132,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.ungroup(groups=["Box1"])
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.ungroup(groups=["Box1"])
 
         """
         group_list = self.convert_to_selections(groups, return_list=True)
@@ -7123,9 +7157,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.flatten_assembly()
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.flatten_assembly()
 
         """
         self.oeditor.FlattenGroup(["Groups:=", ["Model"]])
@@ -7153,9 +7187,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.wrap_sheet(sheet="Box1", object="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.wrap_sheet(sheet="Box1", object="Box1")
 
         """
         sheet = self.convert_to_selections(sheet, False)
@@ -7220,9 +7254,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.project_sheet(sheet="Box1", object=["Box1"], thickness=[1, 2, 3])
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.project_sheet(sheet="Box1", object=["Box1"], thickness=[1, 2, 3])
 
         """
         sheet = self.convert_to_selections(sheet, False)
@@ -7356,9 +7390,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.heal_objects(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.heal_objects(assignment="Box1")
 
         """
         if not assignment:
@@ -7587,9 +7621,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.get_face_by_id(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_face_by_id(assignment="Box1")
 
         """
         obj = [o for o in self.object_list for face in o.faces if face.id == assignment]
@@ -7798,9 +7832,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.update_object(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.update_object(assignment="Box1")
 
         """
         o = self._resolve_object(assignment)
@@ -7832,9 +7866,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.update_geometry_property(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.update_geometry_property(assignment="Box1")
 
         """
         assignment = self.convert_to_selections(assignment, True)
@@ -7914,9 +7948,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.value_in_object_units(value=1)
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.value_in_object_units(value=1)
 
         """
         # Convert to a list if a scalar is presented
@@ -7966,17 +8000,17 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.does_object_exists(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.does_object_exists(assignment="Box1")
 
         """
         if isinstance(assignment, int):
             return assignment in self.objects
         elif isinstance(assignment, str):
-            return assignment in self.objects_by_name
+            return self.get_obj_id(assignment) is not None
         elif isinstance(assignment, Object3d):
-            return assignment.name in self.objects_by_name
+            return self.get_obj_id(assignment.name) is not None
         return False
 
     @pyaedt_function_handler()
@@ -8020,9 +8054,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.create_subregion(padding_values=[1, 2, 3], padding_types=["Box1"], assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.create_subregion(padding_values=[1, 2, 3], padding_types=["Box1"], assignment="Box1")
 
         """
         if name is None:
@@ -8053,9 +8087,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.reassign_subregion(region=1, parts=["Box1"])
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.reassign_subregion(region=1, parts=["Box1"])
 
         """
         is_percentage = region.padding_types in ["Percentage Offset", "Transverse Percentage Offset"]
@@ -8192,9 +8226,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.create_region(name="MyObject", pad_value=[1, 2, 3])
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.create_region(name="MyObject", pad_value=[1, 2, 3])
 
         """
         # backward compatibility
@@ -8241,9 +8275,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.create_object_from_edge(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.create_object_from_edge(assignment="Box1")
 
         """
         edge_ids = self.convert_to_selections(assignment, True)
@@ -8299,9 +8333,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.create_object_from_face(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.create_object_from_face(assignment="Box1")
 
         """
         face_ids = self.convert_to_selections(assignment, True)
@@ -8379,9 +8413,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.polyline_segment(type=1)
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.polyline_segment(type=1)
 
         """
         return PolylineSegment(
@@ -8673,9 +8707,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.get_existing_polyline(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_existing_polyline(assignment="Box1")
 
         """
         return Polyline(self, src_object=assignment)
@@ -8816,21 +8850,26 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.delete(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.delete(assignment="Box1")
 
         """
         if assignment is None:
             assignment = self.object_names
         assignment = self._modeler.convert_to_selections(assignment, return_list=True)
+        object_names = set(self.object_names)
+        has_unclassified = None
+        valid_assignment = []
         for el in assignment:
-            if (
-                el not in self.object_names
-                and not list(self.oeditor.GetObjectsInGroup(el))
-                and not self.oeditor.GetObjectsInGroup("Unclassified")
-            ):
-                assignment.remove(el)
+            if el in object_names or list(self.oeditor.GetObjectsInGroup(el)):
+                valid_assignment.append(el)
+                continue
+            if has_unclassified is None:
+                has_unclassified = bool(self.oeditor.GetObjectsInGroup("Unclassified"))
+            if has_unclassified:
+                valid_assignment.append(el)
+        assignment = valid_assignment
         if not assignment:
             self.logger.warning("No objects to delete")
             return False
@@ -8849,11 +8888,12 @@ class GeometryModeler(Modeler, PyAedtBase):
             if remaining > 0:
                 assignment = assignment[slice:]
 
-        self._refresh_object_types()
+        with self._cached_object_types():
+            self._refresh_object_types()
 
-        if len(assignment) > 0:
-            self.cleanup_objects()
-            self.logger.info(f"Deleted {num_objects} Objects: {objects_str}.")
+            if len(assignment) > 0:
+                self.cleanup_objects()
+                self.logger.info(f"Deleted {num_objects} Objects: {objects_str}.")
         return True
 
     @pyaedt_function_handler()
@@ -8878,9 +8918,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.delete_objects_containing(contained_string=1)
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.delete_objects_containing(contained_string=1)
 
         """
         objnames = self.object_names
@@ -8925,9 +8965,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.delete_all_points()
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.delete_all_points()
 
         """
         res = False
@@ -8963,13 +9003,25 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.get_obj_id(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_obj_id(assignment="Box1")
 
         """
-        if assignment in self.objects_by_name:
-            return self.objects_by_name[assignment].id
+        if assignment in self._object_names_to_ids:
+            obj = self.objects.get(self._object_names_to_ids[assignment])
+            if obj is not None and obj._m_name == assignment:
+                # Validate with a single native call instead of a full object type refresh.
+                try:
+                    oid = self.oeditor.GetObjectIDByName(assignment)
+                except (GrpcApiError, AttributeError, TypeError):
+                    oid = None
+                if oid is not None and int(oid) == obj.id:
+                    return obj.id
+                self.logger.debug(f"Cached id of object {assignment} is stale. Refreshing objects.")
+        obj = self.objects_by_name.get(assignment)
+        if obj is not None:
+            return obj.id
         return None
 
     @pyaedt_function_handler()
@@ -9039,9 +9091,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.get_object_from_name(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_object_from_name(assignment="Box1")
 
         """
         if assignment in self.object_names:
@@ -9065,9 +9117,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.get_objects_w_string(string_name=1)
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_objects_w_string(string_name=1)
 
         """
         list_objs = []
@@ -9104,9 +9156,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.find_closest_edges(start_object=1, end_object=1)
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.find_closest_edges(start_object=1, end_object=1)
 
         """
         start_object = self._resolve_object(start_object)
@@ -9284,9 +9336,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.get_equivalent_parallel_edges(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_equivalent_parallel_edges(assignment="Box1")
 
         """
         if isinstance(assignment[0], str):
@@ -9362,9 +9414,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.get_object_faces(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_object_faces(assignment="Box1")
 
         """
         oFaceIDs = []
@@ -9398,9 +9450,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.get_object_edges(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_object_edges(assignment="Box1")
 
         """
         oEdgeIDs = []
@@ -9433,9 +9485,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.get_face_edges(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_face_edges(assignment="Box1")
 
         """
         oEdgeIDs = self.oeditor.GetEdgeIDsFromFace(assignment)
@@ -9499,9 +9551,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.get_face_vertices(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_face_vertices(assignment="Box1")
 
         """
         try:
@@ -9528,9 +9580,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.get_edge_length(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_edge_length(assignment="Box1")
 
         """
         vertexID = self.get_edge_vertices(assignment)
@@ -9563,9 +9615,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.get_edge_vertices(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_edge_vertices(assignment="Box1")
 
         """
         try:
@@ -9629,9 +9681,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.get_face_area(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_face_area(assignment="Box1")
 
         """
         area = self.oeditor.GetFaceArea(assignment)
@@ -9658,9 +9710,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.get_face_center(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_face_center(assignment="Box1")
 
         """
         try:
@@ -9688,9 +9740,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.get_mid_points_on_dir(assignment="Box1", axis="Z")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_mid_points_on_dir(assignment="Box1", axis="Z")
 
         """
         edgesid = self.get_object_edges(assignment)
@@ -9727,9 +9779,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.get_edge_midpoint(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_edge_midpoint(assignment="Box1")
 
         """
         if isinstance(assignment, str) and assignment in self._object_names_to_ids:
@@ -9777,9 +9829,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.get_bodynames_from_position(position=[0, 0, 0])
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_bodynames_from_position(position=[0, 0, 0])
 
         """
         if not isinstance(position, (self.Position, list)):
@@ -9797,7 +9849,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         ]
         list_of_bodies = list(self.oeditor.GetBodyNamesByPosition(arg_1))
         if not include_non_model:
-            non_models = [i for i in self.non_model_objects]
+            non_models = set(self.non_model_objects)
             list_of_bodies = [i for i in list_of_bodies if i not in non_models]
         return list_of_bodies
 
@@ -9823,9 +9875,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.get_edgeid_from_position(position=[0, 0, 0])
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_edgeid_from_position(position=[0, 0, 0])
 
         """
         if isinstance(assignment, str):
@@ -9878,9 +9930,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.get_edgeids_from_vertexid(vertex=1, assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_edgeids_from_vertexid(vertex=1, assignment="Box1")
 
         """
         edge_ids = []
@@ -9918,9 +9970,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.get_faceid_from_position(position=[0, 0, 0])
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_faceid_from_position(position=[0, 0, 0])
 
         """
         if isinstance(assignment, str):
@@ -9974,9 +10026,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.get_edges_on_bounding_box(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_edges_on_bounding_box(assignment="Box1")
 
         """
         port_sheets = self._modeler.convert_to_selections(assignment, return_list=True)
@@ -10073,9 +10125,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.get_edges_for_circuit_port_from_sheet(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_edges_for_circuit_port_from_sheet(assignment="Box1")
 
         """
         tol2 = tolerance**2
@@ -10232,9 +10284,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.get_edges_for_circuit_port(assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_edges_for_circuit_port(assignment="Box1")
 
         """
         tol2 = tolerance**2
@@ -10359,9 +10411,9 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.get_closest_edgeid_to_position(position=[0, 0, 0])
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_closest_edgeid_to_position(position=[0, 0, 0])
 
         """
         if isinstance(position, list):
@@ -10464,11 +10516,12 @@ class GeometryModeler(Modeler, PyAedtBase):
                         self._app.variable_manager.delete_variable(name=condition_name)
                 else:
                     self.logger.debug(f"Design variable {array[0]} does not exist.")
-            if self._app.materials[material]:
+            material_obj = self._app.materials[material]
+            if material_obj:
                 if self._app.design_type == "HFSS":
-                    return self._app.materials[material].name, self._app.materials[material].is_dielectric(threshold)
+                    return material_obj.name, material_obj.is_dielectric(threshold)
                 else:
-                    return self._app.materials[material].name, True
+                    return material_obj.name, True
             else:
                 self.logger.warning("Material %s does not exists. Assigning default material", material)
         if self._app.design_type == "HFSS":
@@ -10539,18 +10592,76 @@ class GeometryModeler(Modeler, PyAedtBase):
 
     @pyaedt_function_handler()
     def _refresh_planes(self) -> None:
-        self._planes = {}
+        cached = self._planes if isinstance(self._planes, dict) else {}
         try:
-            self._planes = {
-                plane_name: self._app.get_oo_object(self.oeditor, plane_name)
-                for plane_name in self.oeditor.GetChildNames("Planes")
-            }
+            planes = {}
+            for plane_name in self.oeditor.GetChildNames("Planes"):
+                # Reuse handles already retrieved to avoid one GetChildObject call per plane on every refresh.
+                handle = cached.get(plane_name)
+                if not handle or isinstance(handle, Plane):
+                    handle = self._app.get_oo_object(self.oeditor, plane_name)
+                planes[plane_name] = handle
+            self._planes = planes
         except (TypeError, AttributeError):
             self._planes = {}
         self._all_object_names = self._solids + self._sheets + self._lines + self._points + list(self._planes.keys())
 
+    @contextmanager
+    def _cached_object_types(self):
+        """Reuse one AEDT object-type refresh for grouped queries.
+
+        The first call to ``_refresh_object_types`` inside the context fetches the object lists from AEDT,
+        later calls reuse those lists instead of repeating the (potentially expensive) AEDT queries. The
+        geometry must not change after that first refresh while the context is active. Direct calls to
+        individual refresh methods, such as ``_refresh_solids``, do not use this cache. This context is
+        not thread-safe.
+        """
+        self._object_types_cache_depth += 1
+        try:
+            yield
+        finally:
+            self._object_types_cache_depth -= 1
+            if self._object_types_cache_depth == 0:
+                self._object_types_cached = False
+
+    @contextmanager
+    def batch_geometry_operations(self):
+        """Batch geometry operations in a single cleanup phase.
+
+        This context manager is useful when several modeler operations are applied in sequence and
+        intermediate ``cleanup_objects`` calls would otherwise make Python object references stale.
+        It can also improve performance for large geometries by deferring repeated cleanup work until
+        the batch completes. Operations inside the context may temporarily leave the Python object
+        dictionaries out of sync with AEDT. Any ``cleanup_objects`` calls are combined into one
+        cleanup when the outermost context exits, so names or other stable selections should be used
+        for objects that may be removed or changed during the batch.
+
+        This context is not thread-safe.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.hfss import Hfss
+        >>> from ansys.aedt.core.generic.constants import Axis
+        >>> app = Hfss()
+        >>> target = app.modeler.create_box(origin=[0, 0, 0], sizes=[100, 100, 20])
+        >>> cutter = app.modeler.create_cylinder(orientation=Axis.Z, origin=[0, 0, -1], radius=1, height=22)
+        >>> with app.modeler.batch_geometry_operations():
+        ...     app.modeler.subtract(target.name, cutter.name, keep_originals=False)
+
+        """
+        self._batch_update_depth += 1
+        try:
+            yield
+        finally:
+            self._batch_update_depth -= 1
+            if self._batch_update_depth == 0 and self._cleanup_pending:
+                self._cleanup_pending = False
+                self._cleanup_objects_now()
+
     @pyaedt_function_handler()
     def _refresh_object_types(self) -> None:
+        if self._object_types_cached:
+            return
         self._refresh_solids()
         self._refresh_sheets()
         self._refresh_lines()
@@ -10558,13 +10669,23 @@ class GeometryModeler(Modeler, PyAedtBase):
         self._refresh_planes()
         self._refresh_unclassified()
         self._all_object_names = self._solids + self._sheets + self._lines + self._points + self._unclassified
+        if self._object_types_cache_depth > 0:
+            self._object_types_cached = True
 
     @pyaedt_function_handler()
-    def _create_object(self, name: str, pid: int = 0, use_cached: bool = False, is_polyline: bool = False, **kwargs):
+    def _create_object(
+        self, name: str, pid: int = 0, use_cached: bool = False, is_polyline: bool | None = None, **kwargs
+    ):
+        """Create the PyAEDT object for an AEDT object name.
+
+        ``is_polyline=None`` queries AEDT for line objects. An explicit ``True`` or ``False`` skips that query.
+        """
         if use_cached:
             line_names = self._lines
-        else:
+        elif is_polyline is None:
             line_names = self.line_names
+        else:
+            line_names = []
         if name in self._points:
             o = Point(self, name)
             self.points[name] = o
@@ -10582,7 +10703,7 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         else:
             o = Object3d(self, name)
-            o.is_polyline = is_polyline
+            o.is_polyline = bool(is_polyline)
             if pid:
                 new_id = pid
             else:
@@ -10731,35 +10852,25 @@ class GeometryModeler(Modeler, PyAedtBase):
         return szList
 
     @pyaedt_function_handler()
-    def _find_object_from_edge_id(self, lval):
-        objList = []
-        objListSheets = self.sheet_names
-        if len(objListSheets) > 0:
-            objList.extend(objListSheets)
-        objListSolids = self.solid_names
-        if len(objListSolids) > 0:
-            objList.extend(objListSolids)
-        for obj in objList:
-            val = self.oeditor.GetEdgeIDsFromObject(obj)
-            if not (isinstance(val, bool)) and str(lval) in list(val):
-                return obj
+    def _find_object_name_from_entity_id(self, entity_id, method_name: str):
+        """Get the name of the solid or sheet owning a face or edge ID, or ``None`` if not found."""
+        try:
+            obj_name = getattr(self.oeditor, method_name)(int(entity_id))
+        except Exception:  # Native API raises different errors with gRPC and COM for unknown IDs.
+            self.logger.debug(f"{method_name} failed for ID {entity_id}.")
+            return None
+        if obj_name and (obj_name in self.solid_names or obj_name in self.sheet_names):
+            return obj_name
         return None
+
+    @pyaedt_function_handler()
+    def _find_object_from_edge_id(self, lval):
+        return self._find_object_name_from_entity_id(lval, "GetObjectNameByEdgeID")
 
     @pyaedt_function_handler()
     def _find_object_from_face_id(self, lval):
         if self.oeditor is not None:
-            objList = []
-            objListSheets = self.sheet_names
-            if len(objListSheets) > 0:
-                objList.extend(objListSheets)
-            objListSolids = self.solid_names
-            if len(objListSolids) > 0:
-                objList.extend(objListSolids)
-            for obj in objList:
-                face_ids = list(self.oeditor.GetFaceIDs(obj))
-                if str(lval) in face_ids:
-                    return obj
-
+            return self._find_object_name_from_entity_id(lval, "GetObjectNameByFaceID")
         return None
 
     @pyaedt_function_handler()
@@ -10793,19 +10904,24 @@ class GeometryModeler(Modeler, PyAedtBase):
     @pyaedt_function_handler()
     def _get_object_dict_by_material(self, material: str):
         obj_dict = {}
+        # Evaluate the object list and parametric materials once, not once per material.
+        object_list = [obj for obj in self.object_list if obj]
+        evaluated_materials = {}
+        modeler_oo = None
+        for obj in object_list:
+            if "[" in obj.material_name or "(" in obj.material_name:
+                if modeler_oo is None:
+                    modeler_oo = self._app.odesign.GetChildObject("3D Modeler")
+                evaluated_materials[obj.name] = (
+                    modeler_oo.GetChildObject(obj.name).GetPropEvaluatedValue("Material").lower()
+                )
         for mat in material:
             objs = []
-            for obj in self.object_list:
-                if obj and ("[" in obj.material_name or "(" in obj.material_name):
-                    if (
-                        mat
-                        == self._app.odesign.GetChildObject("3D Modeler")
-                        .GetChildObject(obj.name)
-                        .GetPropEvaluatedValue("Material")
-                        .lower()
-                    ):
+            for obj in object_list:
+                if obj.name in evaluated_materials:
+                    if mat == evaluated_materials[obj.name]:
                         objs.append(obj)
-                elif obj and (obj.material_name == mat or obj.material_name == mat.lower()):
+                elif obj.material_name == mat or obj.material_name == mat.lower():
                     objs.append(obj)
             obj_dict[mat] = objs
         return obj_dict
@@ -10941,9 +11057,11 @@ class PrimitivesBuilder(PyAedtBase):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Hfss
         >>> from ansys.aedt.core.modeler.cad.primitives import PrimitivesBuilder
-        >>> obj = PrimitivesBuilder()
-        >>> obj.logger
+        >>> app = Hfss()
+        >>> builder = PrimitivesBuilder(app, input_dict={"Primitives": {}, "Instances": []})
+        >>> builder.logger
 
         """
         return self._app.logger
@@ -10959,9 +11077,11 @@ class PrimitivesBuilder(PyAedtBase):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Hfss
         >>> from ansys.aedt.core.modeler.cad.primitives import PrimitivesBuilder
-        >>> obj = PrimitivesBuilder()
-        >>> obj.create()
+        >>> app = Hfss()
+        >>> builder = PrimitivesBuilder(app, input_dict={"Primitives": {}, "Instances": []})
+        >>> builder.create()
 
         """
         created_instances = []
@@ -11308,9 +11428,11 @@ class PrimitivesBuilder(PyAedtBase):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Hfss
         >>> from ansys.aedt.core.modeler.cad.primitives import PrimitivesBuilder
-        >>> obj = PrimitivesBuilder()
-        >>> obj.convert_units(values=["Box1"])
+        >>> app = Hfss()
+        >>> builder = PrimitivesBuilder(app, input_dict={"Primitives": {}, "Instances": []})
+        >>> builder.convert_units(values=["1mm"])
 
         """
         extracted_values = []

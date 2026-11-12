@@ -155,8 +155,9 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def _initialize_tree_node(self) -> bool:
-        if self._child_object:
-            BinaryTreeNode.__init__(self, self._name, self._child_object, False, app=self._app)
+        child_object = self._child_object
+        if child_object:
+            BinaryTreeNode.__init__(self, self._name, child_object, False, app=self._app)
             return True
         return False
 
