@@ -33,7 +33,6 @@ from ansys.aedt.core import Hfss
 from ansys.aedt.core.extensions.common.result_calculator import ResultCalculatorExtension
 
 SUBFOLDER = "result_calculator_test_data"
-DESIGN_NAME = "HFSSDesign1"
 SHOW_ERROR = "ansys.aedt.core.extensions.common.result_calculator.messagebox.showerror"
 
 
@@ -113,14 +112,12 @@ def rc_extension_factory(add_app_example, rc_extension_holder):
 
 @pytest.fixture()
 def rc_extension_dataset(rc_extension_factory):
-    extension, app, project, design = rc_extension_factory("Datasets", "HFSSDesign1")
-    return extension, app, project
+    return rc_extension_factory("Datasets", "HFSSDesign1")
 
 
 @pytest.fixture()
 def rc_extension_get_results(rc_extension_factory):
-    extension, app, project, design = rc_extension_factory("res_calc_test_v2", "with_results")
-    return extension, app, project
+    return rc_extension_factory("res_calc_test_v2", "with_results")
 
 
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
@@ -130,19 +127,19 @@ def test_import_dataset(rc_extension_dataset):
     """Importing a project dataset ($ds1) adds it to the result store.
     Importing a design dataset (ds2) adds it to the result store.
     """
-    extension, datasets_app, project = rc_extension_dataset
+    extension, datasets_app, project, design = rc_extension_dataset
 
     datasets_to_test = ["$ds1", "ds2"]
 
     for dataset in datasets_to_test:
         # Load datasets and verify that dataset is present.
-        names, err = extension.service.load_datasets_for_design(project, DESIGN_NAME)
+        names, err = extension.service.load_datasets_for_design(project, design)
         assert err is None
         assert dataset in names
 
         # Simulate the UI: set cascade vars and dataset var, then call _ds_aedt_add.
         extension._ds_cascade.project_var.set(project)
-        extension._ds_cascade.design_var.set(DESIGN_NAME)
+        extension._ds_cascade.design_var.set(design)
 
         # test import Dataset
         extension.ds_aedt_dataset_var.set(dataset)
@@ -167,11 +164,11 @@ def test_import_dataset(rc_extension_dataset):
 @patch.object(ResultCalculatorExtension, "_run_async", _sync_run_async)
 def test_push_manual_dataset_as_project_dataset(rc_extension_dataset):
     """The 'Add Manual Dataset as Project Dataset' button creates a project dataset in AEDT."""
-    extension, datasets_app, project = rc_extension_dataset
+    extension, datasets_app, project, design = rc_extension_dataset
 
     # Fill in the UI fields for the manual dataset.
     extension._ds_cascade.project_var.set(project)
-    extension._ds_cascade.design_var.set(DESIGN_NAME)
+    extension._ds_cascade.design_var.set(design)
     extension.ds_name_var.set("manual_proj_ds")
     extension.ds_x_text.insert("1.0", "1, 2, 3")
     extension.ds_y_text.insert("1.0", "10, 20, 30")
@@ -193,10 +190,10 @@ def test_push_manual_dataset_as_project_dataset(rc_extension_dataset):
 @patch.object(ResultCalculatorExtension, "_run_async", _sync_run_async)
 def test_push_manual_dataset_as_design_dataset(rc_extension_dataset):
     """The 'Add Manual Dataset as Design Dataset' button creates a design dataset in AEDT."""
-    extension, datasets_app, project = rc_extension_dataset
+    extension, datasets_app, project, design = rc_extension_dataset
 
     extension._ds_cascade.project_var.set(project)
-    extension._ds_cascade.design_var.set(DESIGN_NAME)
+    extension._ds_cascade.design_var.set(design)
     extension.ds_name_var.set("manual_design_ds")
     extension.ds_x_text.insert("1.0", "5, 10, 15")
     extension.ds_y_text.insert("1.0", "50, 100, 150")
@@ -218,9 +215,8 @@ def test_push_manual_dataset_as_design_dataset(rc_extension_dataset):
 @patch.object(ResultCalculatorExtension, "_run_async", _sync_run_async)
 def test_import_existing_report_trace(rc_extension_get_results):
     """Importing a trace from an existing AEDT report adds it to the result store."""
-    extension, results_app, project = rc_extension_get_results
+    extension, results_app, project, design = rc_extension_get_results
 
-    design_with_results = "with_results"
     report_trace_list = [["S11", "dB(S(1,1))"], ["Gain", "dB(GainTotal)"]]
 
     for i, report_trace in enumerate(report_trace_list):
@@ -231,11 +227,11 @@ def test_import_existing_report_trace(rc_extension_get_results):
         # Without this, get_trace_data raises KeyError on the empty cache.
         service = extension.service
         service.load_designs(project)
-        service.load_reports_for_design(project, design_with_results)
-        service.load_traces_for_report(project, design_with_results, report_name)
+        service.load_reports_for_design(project, design)
+        service.load_traces_for_report(project, design, report_name)
 
         extension._ex_cascade.project_var.set(project)
-        extension._ex_cascade.design_var.set(design_with_results)
+        extension._ex_cascade.design_var.set(design)
         extension.ex_report.set(report_name)
         extension.ex_trace.set(trace_name)
 
@@ -251,27 +247,25 @@ def test_import_existing_report_trace(rc_extension_get_results):
         assert len(entry["y"]) > 0
 
 
-def _select_existing_trace(extension, project, report_name, trace_name):
+def _select_existing_trace(extension, project, design, report_name, trace_name):
     """Select an existing report trace in the extension and return all its plot data.
 
     Test names must stay short: the pytest temporary folder is named after the test, and
     the AEDT results files exceed the Windows 260 characters path limit otherwise.
     """
-    design_with_results = "with_results"
-
     service = extension.service
     service.load_designs(project)
-    service.load_reports_for_design(project, design_with_results)
-    service.load_traces_for_report(project, design_with_results, report_name)
+    service.load_reports_for_design(project, design)
+    service.load_traces_for_report(project, design, report_name)
 
     extension._ex_cascade.project_var.set(project)
-    extension._ex_cascade.design_var.set(design_with_results)
+    extension._ex_cascade.design_var.set(design)
     extension.ex_report.set(report_name)
     extension.ex_trace.set(trace_name)
 
     extension._ex_trace_changed()
 
-    return service.get_trace_data(project, design_with_results, report_name, trace_name, plot_index=None)
+    return service.get_trace_data(project, design, report_name, trace_name, plot_index=None)
 
 
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
@@ -279,9 +273,9 @@ def _select_existing_trace(extension, project, report_name, trace_name):
 @patch.object(ResultCalculatorExtension, "_run_async", _sync_run_async)
 def test_ex_plot_multiple(rc_extension_get_results):
     """The Plot dropdown lists an 'All' entry and each plot when the trace has multiple plots."""
-    extension, results_app, project = rc_extension_get_results
+    extension, results_app, project, design = rc_extension_get_results
 
-    all_data = _select_existing_trace(extension, project, "Gain_3Curves", "dB(GainTheta)")
+    all_data = _select_existing_trace(extension, project, design, "Gain_3Curves", "dB(GainTheta)")
     n_plots = len(all_data["plot_names"])
     assert n_plots > 1
 
@@ -307,9 +301,9 @@ def test_ex_plot_multiple(rc_extension_get_results):
 @patch.object(ResultCalculatorExtension, "_run_async", _sync_run_async)
 def test_ex_plot_single(rc_extension_get_results):
     """The Plot dropdown is disabled and the import is enabled when the trace has a single plot."""
-    extension, results_app, project = rc_extension_get_results
+    extension, results_app, project, design = rc_extension_get_results
 
-    all_data = _select_existing_trace(extension, project, "S11", "dB(S(1,1))")
+    all_data = _select_existing_trace(extension, project, design, "S11", "dB(S(1,1))")
     assert len(all_data["plot_names"]) == 1
 
     values = list(extension.ex_plot_cb["values"])
