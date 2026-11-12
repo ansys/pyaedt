@@ -48,6 +48,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import deprecated_doc
 from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.checks import requires_graphical_dependency
+from ansys.aedt.core.internal.errors import GrpcApiError
 
 # Type variable to be used in methods that might receive a subclass of EmitNode
 T = TypeVar("T", bound="EmitNode")
@@ -114,8 +115,11 @@ class EmitNode:
         """
         try:
             yield
-        except Exception as e:
-            errors = self._emit_obj.logger.aedt_messages.error_level
+        except GrpcApiError as e:
+            try:
+                errors = self._emit_obj.logger.aedt_messages.error_level
+            except GrpcApiError: # no messages found (logger bug triggers the exception)
+                raise e
             if errors:
                 last_message = str(errors[-1])
                 if "[error]  " in last_message:
@@ -622,7 +626,7 @@ class EmitNode:
             kv_pairs = [prop.split("=") for prop in props]
             selected_kv_pairs = [kv for kv in kv_pairs if kv[0].rstrip() == prop]
             if len(selected_kv_pairs) < 1:
-                raise ValueError(f"Property {prop} not found or not available for {self._node_type} configuration.")
+                raise ValueError(f"Property {prop} not found or not available for {self._node_type}.")
 
             selected_kv_pair = selected_kv_pairs[0]
             val = selected_kv_pair[1]
@@ -1301,29 +1305,30 @@ class EmitNode:
             Data to populate the table with.
             [(x1, y1, z1), (x2, y2, z2)]
         """
-        with self._catch_aedt_errors(f"Failed to set table data for node {self.name}. Error: {{e}}"):
-            if self._is_column_data_table():
-                # Column Data tables
-                # Data formatted using compact string serialization
-                # with '|' separating rows and ';' separating columns
-                if self._node_type in [
-                    "TxHarmonicNode",
-                    "TxNbEmissionNode",
-                    "TxBbEmissionNode",
-                    "RxMixerProductNode",
-                    "RxSaturationNode",
-                    "RxSelectivityNode",
-                ]:
-                    table = self._check_column_table_data(table)
-                data = "|".join(";".join(map(str, row)) for row in table)
+        if self._is_column_data_table():
+            # Column Data tables
+            # Data formatted using compact string serialization
+            # with '|' separating rows and ';' separating columns
+            if self._node_type in [
+                "TxHarmonicNode",
+                "TxNbEmissionNode",
+                "TxBbEmissionNode",
+                "RxMixerProductNode",
+                "RxSaturationNode",
+                "RxSelectivityNode",
+            ]:
+                table = self._check_column_table_data(table)
+            data = "|".join(";".join(map(str, row)) for row in table)
+            with self._catch_aedt_errors(f"Failed to set table data for node {self.name}. Error: {{e}}"):
                 self._oRevisionData.SetTableData(self._result_id, self._node_id, data)
-            else:
-                # Node Prop tables
-                # Data formatted using compact string serialization
-                # with ';' separating rows and '|' separating columns
-                table = self._check_node_prop_table_data(table)
-                table_key = self._get_property("TableKey", True)
-                data = ";".join("|".join(map(str, row)) for row in table)
+        else:
+            # Node Prop tables
+            # Data formatted using compact string serialization
+            # with ';' separating rows and '|' separating columns
+            table = self._check_node_prop_table_data(table)
+            table_key = self._get_property("TableKey", True)
+            data = ";".join("|".join(map(str, row)) for row in table)
+            with self._catch_aedt_errors(f"Failed to table key for node {self.name}. Error: {{e}}"):
                 self._set_property(table_key, data, True)
 
     @min_aedt_version("2025.2")
