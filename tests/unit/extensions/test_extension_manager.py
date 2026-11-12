@@ -23,11 +23,13 @@
 # SOFTWARE.
 
 import io
+from pathlib import Path
 import tkinter
 from unittest.mock import MagicMock
 from unittest.mock import PropertyMock
 from unittest.mock import patch
 
+import PIL.Image
 import pytest
 
 from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
@@ -603,6 +605,41 @@ def test_extension_manager_pin_custom_extension_exception(
             f"Failed to pin custom extension {extension_name}: Test error"
         )
         mock_showerror.assert_called_once()
+
+    extension.root.destroy()
+
+
+@patch("ansys.aedt.core.extensions.misc.Desktop")
+@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
+@patch("ansys.aedt.core.extensions.installer.extension_manager.add_script_to_menu")
+def test_extension_manager_pin_custom_extension_large_icon(
+    mock_add_script, mock_toolkits, mock_desktop, mock_aedt_app, tmp_path
+) -> None:
+    """A large custom icon is installed as a 32x32 RGBA PNG in the extension folder."""
+    mock_desktop.return_value = MagicMock()
+    mock_toolkits.return_value = {"HFSS": {}}
+    mock_aedt_app.personallib = str(tmp_path / "personal")
+    large_icon = tmp_path / "large_icon.png"
+    PIL.Image.new("RGB", (4096, 2048), (255, 0, 0)).save(large_icon)
+
+    extension = ExtensionManager(withdraw=True)
+    extension.current_category = "HFSS"
+
+    with (
+        patch.object(
+            extension, "handle_custom_extension", return_value=(tmp_path / "script.py", "MyExtension", large_icon)
+        ),
+        patch.object(extension, "load_extensions"),
+    ):
+        extension.pin_extension("HFSS", "custom")
+
+    icon = Path(mock_add_script.call_args.kwargs["icon_file"])
+    assert icon == tmp_path / "personal" / "Toolkits" / "HFSS" / "MyExtension" / "icon.png"
+    with PIL.Image.open(icon) as img:
+        assert (img.format, img.mode, img.size) == ("PNG", "RGBA", (32, 32))
+        # Aspect ratio is kept: transparent padding above, image in the middle
+        assert img.getpixel((16, 0))[3] == 0
+        assert img.getpixel((16, 16)) == (255, 0, 0, 255)
 
     extension.root.destroy()
 

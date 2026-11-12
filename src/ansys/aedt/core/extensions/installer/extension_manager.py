@@ -50,6 +50,7 @@ from ansys.aedt.core.extensions.customize_automation_tab import get_custom_exten
 from ansys.aedt.core.extensions.customize_automation_tab import get_custom_extensions_from_tabconfig
 from ansys.aedt.core.extensions.customize_automation_tab import is_extension_in_panel
 from ansys.aedt.core.extensions.customize_automation_tab import remove_script_from_menu
+from ansys.aedt.core.extensions.customize_automation_tab import tab_map
 from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
 from ansys.aedt.core.extensions.misc import ToolTip
 from ansys.aedt.core.extensions.misc import check_for_pyaedt_update_on_startup
@@ -745,9 +746,9 @@ class ExtensionManager(ExtensionProjectCommon):
             else:
                 messagebox.showinfo("Error", "Wrong extension.")
                 return
-        icon = custom_icon or EXTENSIONS_PATH / "images" / "large" / "pyansys.png"
         if is_custom and script_field is None:
             try:
+                icon = self._install_custom_icon(custom_icon, category, option_label)
                 add_script_to_menu(
                     name=option_label,
                     script_file=str(script_file),
@@ -999,12 +1000,12 @@ class ExtensionManager(ExtensionProjectCommon):
             return
         if option.lower() == "custom":
             script_file, custom_option, custom_icon = self.handle_custom_extension()
-            icon = custom_icon or EXTENSIONS_PATH / "images" / "large" / "pyansys.png"
             # If the user selected a script, copy it into personal lib Toolkits/<product>/<option>/Lib
             if not script_file or custom_option is None:
                 self.desktop.logger.info("No script selected for custom extension. Aborting pin.")
                 return
             try:
+                icon = self._install_custom_icon(custom_icon, category, custom_option)
                 add_script_to_menu(
                     name=custom_option,
                     script_file=str(script_file),
@@ -1056,6 +1057,20 @@ class ExtensionManager(ExtensionProjectCommon):
 
         # Refresh the extension manager UI to show the unpin button
         self.load_extensions(category)
+
+    def _install_custom_icon(self, icon_file: Path | None, category: str, name: str) -> Path:
+        """Return the icon to install for a custom extension.
+
+        A selected icon is saved as a 32x32 RGBA PNG in the extension folder in PersonalLib, so
+        AEDT does not depend on the original file and the icon is removed with the extension.
+        """
+        if not icon_file:
+            return EXTENSIONS_PATH / "images" / "large" / "pyansys.png"
+        icon = Path(self.desktop.personallib) / "Toolkits" / tab_map(category) / name.replace("/", "_") / "icon.png"
+        icon.parent.mkdir(parents=True, exist_ok=True)
+        with PIL.Image.open(icon_file) as img:
+            PIL.ImageOps.pad(img.convert("RGBA"), (32, 32), color=(0, 0, 0, 0)).save(icon, format="PNG")
+        return icon
 
     def handle_custom_extension(self) -> tuple[Path | None, str | None, Path | None]:
         """Handle custom extension pin to the top bar.
