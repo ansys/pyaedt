@@ -60,15 +60,12 @@ def desktop() -> None:
 _MODULE = "ansys.aedt.core.extensions.common.result_calculator"
 
 
-def _make_service(active_sessions_return=None) -> ResultDataService:
+@patch(f"{_MODULE}._check_psutil_connections", new=MagicMock(return_value={}))
+@patch(f"{_MODULE}.active_sessions")
+def _make_service(mock_active_sessions: MagicMock, active_sessions_return=None) -> ResultDataService:
     """Create a ResultDataService with mocked session discovery."""
-    if active_sessions_return is None:
-        active_sessions_return = {}
-    with (
-        patch(f"{_MODULE}.active_sessions", return_value=active_sessions_return),
-        patch(f"{_MODULE}._check_psutil_connections", return_value={}),
-    ):
-        return ResultDataService()
+    mock_active_sessions.return_value = {} if active_sessions_return is None else active_sessions_return
+    return ResultDataService()
 
 
 def _add_trace(store: ResultStore, name: str | None = None, n: int = 5) -> str:
@@ -668,32 +665,33 @@ class TestResultDataService:
 
     # ---- format_session_label ----------------------------------------------
 
+    @patch(f"{_MODULE}.AEDT_PROCESS_ID", 9999)
     def test_format_session_label_basic(self) -> None:
         session = {"pid": 1234, "version": "2026.1", "port": 50051, "student_version": False, "non_graphical": False}
-        with patch(f"{_MODULE}.AEDT_PROCESS_ID", 9999):
-            label = ResultDataService.format_session_label(session)
+        label = ResultDataService.format_session_label(session)
         assert "1234" in label
         assert "2026.1" in label
         assert "50051" in label
 
+    @patch(f"{_MODULE}.AEDT_PROCESS_ID", 9999)
     def test_format_session_label_student_version(self) -> None:
         session = {"pid": 1234, "version": "2026.1", "port": 50051, "student_version": True, "non_graphical": False}
-        with patch(f"{_MODULE}.AEDT_PROCESS_ID", 9999):
-            label = ResultDataService.format_session_label(session)
+        label = ResultDataService.format_session_label(session)
         assert "student" in label
 
+    @patch(f"{_MODULE}.AEDT_PROCESS_ID", 9999)
     def test_format_session_label_non_graphical(self) -> None:
         session = {"pid": 1234, "version": "2026.1", "port": 50051, "student_version": False, "non_graphical": True}
-        with patch(f"{_MODULE}.AEDT_PROCESS_ID", 9999):
-            label = ResultDataService.format_session_label(session)
+        label = ResultDataService.format_session_label(session)
         assert "non-graphical" in label
 
+    @patch(f"{_MODULE}.AEDT_PROCESS_ID", 1234)
     def test_format_session_label_current_session(self) -> None:
         session = {"pid": 1234, "version": "2026.1", "port": 50051, "student_version": False, "non_graphical": False}
-        with patch(f"{_MODULE}.AEDT_PROCESS_ID", 1234):
-            label = ResultDataService.format_session_label(session)
+        label = ResultDataService.format_session_label(session)
         assert "current" in label
 
+    @patch(f"{_MODULE}.AEDT_PROCESS_ID", 9999)
     def test_format_session_label_com_port(self) -> None:
         session = {
             "pid": 1234,
@@ -702,14 +700,13 @@ class TestResultDataService:
             "student_version": False,
             "non_graphical": False,
         }
-        with patch(f"{_MODULE}.AEDT_PROCESS_ID", 9999):
-            label = ResultDataService.format_session_label(session)
+        label = ResultDataService.format_session_label(session)
         assert "n/a (com)" in label
 
+    @patch(f"{_MODULE}.AEDT_PROCESS_ID", 9999)
     def test_format_session_label_no_student_no_ng_no_current(self) -> None:
         session = {"pid": 5555, "version": "2025.2", "port": 50099, "student_version": False, "non_graphical": False}
-        with patch(f"{_MODULE}.AEDT_PROCESS_ID", 9999):
-            label = ResultDataService.format_session_label(session)
+        label = ResultDataService.format_session_label(session)
         assert "student" not in label
         assert "non-graphical" not in label
         assert "current" not in label
@@ -818,56 +815,53 @@ class TestResultDataService:
         assert service._cache_by_session == {}
         assert service.current_session_pid is None
 
+    @patch(f"{_MODULE}._check_psutil_connections", new=MagicMock(return_value={}))
+    @patch(f"{_MODULE}.active_sessions", new=MagicMock(return_value={7777: 50070}))
     def test_clear_all_caches_re_discovers_sessions(self) -> None:
         service = _make_service()
-        new_map = {7777: 50070}
-        with (
-            patch(f"{_MODULE}.active_sessions", return_value=new_map),
-            patch(f"{_MODULE}._check_psutil_connections", return_value={}),
-        ):
-            service.clear_all_caches()
+        service.clear_all_caches()
         assert any(s["pid"] == 7777 for s in service.active_sessions)
 
     # ---- set_session -------------------------------------------------------
 
+    @patch(f"{_MODULE}.Desktop", new=MagicMock())
     def test_set_session_pid_not_found_raises(self) -> None:
         service = _make_service()
         service.active_sessions = [{"pid": 111, "port": 50051}]
         with pytest.raises(AEDTRuntimeError, match="not found"):
-            with patch(f"{_MODULE}.Desktop"):
-                service.set_session(999)
+            service.set_session(999)
 
-    def test_set_session_already_connected_returns_early(self) -> None:
+    @patch.object(ResultDataService, "_connect_to_session")
+    def test_set_session_already_connected_returns_early(self, mock_connect: MagicMock) -> None:
         service = _make_service()
         service.active_sessions = [{"pid": 111, "port": 50051}]
         service.current_session_pid = 111
         service.desktop = MagicMock()
-        with patch.object(service, "_connect_to_session") as mock_connect:
-            service.set_session(111)
-            mock_connect.assert_not_called()
+        service.set_session(111)
+        mock_connect.assert_not_called()
 
+    @patch.object(ResultDataService, "_connect_to_session", new=MagicMock())
     def test_set_session_creates_empty_cache_for_new_pid(self) -> None:
         service = _make_service()
         service.active_sessions = [{"pid": 222, "port": 50052}]
-        with patch.object(service, "_connect_to_session"):
-            service.set_session(222)
+        service.set_session(222)
         assert 222 in service._cache_by_session
 
+    @patch.object(ResultDataService, "_connect_to_session", new=MagicMock())
     def test_set_session_resets_aedtapp_cache_on_reconnect(self) -> None:
         service = _make_service()
         service.active_sessions = [{"pid": 333, "port": 50053}]
         # Pre-populate with stale aedtapp handles.
         service._cache_by_session[333] = ResultDataService._empty_session_cache()
         service._cache_by_session[333]["aedtapp_cache"][("proj", "des")] = MagicMock()
-        with patch.object(service, "_connect_to_session"):
-            service.set_session(333)
+        service.set_session(333)
         assert service._cache_by_session[333]["aedtapp_cache"] == {}
 
+    @patch.object(ResultDataService, "_connect_to_session", new=MagicMock())
     def test_set_session_sets_current_pid(self) -> None:
         service = _make_service()
         service.active_sessions = [{"pid": 444, "port": 50054}]
-        with patch.object(service, "_connect_to_session"):
-            service.set_session(444)
+        service.set_session(444)
         assert service.current_session_pid == 444
 
     # ---- load_designs ------------------------------------------------------
@@ -935,7 +929,8 @@ class TestResultDataService:
 
     # ---- load_reports_for_design -------------------------------------------
 
-    def test_load_reports_for_design_lazy_fetch(self) -> None:
+    @patch.object(ResultDataService, "_get_aedtapp")
+    def test_load_reports_for_design_lazy_fetch(self, mock_get_aedtapp: MagicMock) -> None:
         service = _make_service()
         service.desktop = MagicMock()
         service.current_session_pid = 1
@@ -948,12 +943,13 @@ class TestResultDataService:
 
         aedtapp = MagicMock()
         aedtapp.post.plots = [report1, report2]
-        with patch.object(service, "_get_aedtapp", return_value=aedtapp):
-            reports, msg = service.load_reports_for_design("Proj", "Des")
+        mock_get_aedtapp.return_value = aedtapp
+        reports, msg = service.load_reports_for_design("Proj", "Des")
         assert sorted(reports) == ["Gain", "SParams"]
         assert msg is None
 
-    def test_load_reports_for_design_uses_cache(self) -> None:
+    @patch.object(ResultDataService, "_get_aedtapp")
+    def test_load_reports_for_design_uses_cache(self, mock_get_aedtapp: MagicMock) -> None:
         service = _make_service()
         service.desktop = MagicMock()
         service.current_session_pid = 1
@@ -961,12 +957,12 @@ class TestResultDataService:
         # Pre-populate the cache.
         service.existing_reports.setdefault("Proj", {})["Des"] = {"CachedReport": {}}
 
-        with patch.object(service, "_get_aedtapp") as mock_app:
-            reports, _ = service.load_reports_for_design("Proj", "Des")
-            mock_app.assert_not_called()
+        reports, _ = service.load_reports_for_design("Proj", "Des")
+        mock_get_aedtapp.assert_not_called()
         assert reports == ["CachedReport"]
 
-    def test_load_reports_for_design_empty_returns_message(self) -> None:
+    @patch.object(ResultDataService, "_get_aedtapp")
+    def test_load_reports_for_design_empty_returns_message(self, mock_get_aedtapp: MagicMock) -> None:
         service = _make_service()
         service.desktop = MagicMock()
         service.current_session_pid = 1
@@ -974,25 +970,26 @@ class TestResultDataService:
 
         aedtapp = MagicMock()
         aedtapp.post.plots = []
-        with patch.object(service, "_get_aedtapp", return_value=aedtapp):
-            reports, msg = service.load_reports_for_design("Proj", "Des")
+        mock_get_aedtapp.return_value = aedtapp
+        reports, msg = service.load_reports_for_design("Proj", "Des")
         assert reports == []
         assert msg is not None
 
-    def test_load_reports_for_design_exception_returns_error(self) -> None:
+    @patch.object(ResultDataService, "_get_aedtapp", side_effect=RuntimeError("AEDT crashed"))
+    def test_load_reports_for_design_exception_returns_error(self, mock_get_aedtapp: MagicMock) -> None:
         service = _make_service()
         service.desktop = MagicMock()
         service.current_session_pid = 1
         service._cache_by_session[1] = ResultDataService._empty_session_cache()
 
-        with patch.object(service, "_get_aedtapp", side_effect=RuntimeError("AEDT crashed")):
-            reports, msg = service.load_reports_for_design("Proj", "Des")
+        reports, msg = service.load_reports_for_design("Proj", "Des")
         assert reports == []
         assert msg is not None
 
     # ---- load_traces_for_report --------------------------------------------
 
-    def test_load_traces_for_report_lazy_fetch(self) -> None:
+    @patch.object(ResultDataService, "_get_aedtapp")
+    def test_load_traces_for_report_lazy_fetch(self, mock_get_aedtapp: MagicMock) -> None:
         service = _make_service()
         service.desktop = MagicMock()
         service.current_session_pid = 1
@@ -1004,24 +1001,25 @@ class TestResultDataService:
         report.expressions = ["S11", "S21"]
         aedtapp = MagicMock()
         aedtapp.post.plots = [report]
-        with patch.object(service, "_get_aedtapp", return_value=aedtapp):
-            traces, msg = service.load_traces_for_report("Proj", "Des", "Report1")
+        mock_get_aedtapp.return_value = aedtapp
+        traces, msg = service.load_traces_for_report("Proj", "Des", "Report1")
         assert sorted(traces) == ["S11", "S21"]
         assert msg is None
 
-    def test_load_traces_for_report_uses_cache(self) -> None:
+    @patch.object(ResultDataService, "_get_aedtapp")
+    def test_load_traces_for_report_uses_cache(self, mock_get_aedtapp: MagicMock) -> None:
         service = _make_service()
         service.desktop = MagicMock()
         service.current_session_pid = 1
         service._cache_by_session[1] = ResultDataService._empty_session_cache()
         service.existing_reports.setdefault("Proj", {}).setdefault("Des", {})["Report1"] = {"S11": None}
 
-        with patch.object(service, "_get_aedtapp") as mock_app:
-            traces, _ = service.load_traces_for_report("Proj", "Des", "Report1")
-            mock_app.assert_not_called()
+        traces, _ = service.load_traces_for_report("Proj", "Des", "Report1")
+        mock_get_aedtapp.assert_not_called()
         assert traces == ["S11"]
 
-    def test_load_traces_for_report_empty_raises_message(self) -> None:
+    @patch.object(ResultDataService, "_get_aedtapp")
+    def test_load_traces_for_report_empty_raises_message(self, mock_get_aedtapp: MagicMock) -> None:
         service = _make_service()
         service.desktop = MagicMock()
         service.current_session_pid = 1
@@ -1033,20 +1031,20 @@ class TestResultDataService:
         report.expressions = []
         aedtapp = MagicMock()
         aedtapp.post.plots = [report]
-        with patch.object(service, "_get_aedtapp", return_value=aedtapp):
-            traces, msg = service.load_traces_for_report("Proj", "Des", "Report1")
+        mock_get_aedtapp.return_value = aedtapp
+        traces, msg = service.load_traces_for_report("Proj", "Des", "Report1")
         assert traces == []
         assert msg is not None
 
-    def test_load_traces_for_report_exception_returns_error(self) -> None:
+    @patch.object(ResultDataService, "_get_aedtapp", side_effect=RuntimeError("boom"))
+    def test_load_traces_for_report_exception_returns_error(self, mock_get_aedtapp: MagicMock) -> None:
         service = _make_service()
         service.desktop = MagicMock()
         service.current_session_pid = 1
         service._cache_by_session[1] = ResultDataService._empty_session_cache()
         service.existing_reports.setdefault("Proj", {}).setdefault("Des", {})["Report1"] = {}
 
-        with patch.object(service, "_get_aedtapp", side_effect=RuntimeError("boom")):
-            traces, msg = service.load_traces_for_report("Proj", "Des", "Report1")
+        traces, msg = service.load_traces_for_report("Proj", "Des", "Report1")
         assert traces == []
         assert msg is not None
 
@@ -1061,13 +1059,14 @@ class TestResultDataService:
         service.existing_reports.setdefault("Proj", {}).setdefault("Des", {})["Rep"] = {trace: None}
         return service, _make_aedtapp(report)
 
-    def test_get_trace_data_fetches_and_caches(self) -> None:
+    @patch.object(ResultDataService, "_get_aedtapp")
+    def test_get_trace_data_fetches_and_caches(self, mock_get_aedtapp: MagicMock) -> None:
         x = np.array([1.0, 2.0, 3.0])
         y_real = np.array([-10.0, -20.0, -30.0])
         service, aedtapp = self._service_with_report(_make_report([({}, x, y_real, None)]))
+        mock_get_aedtapp.return_value = aedtapp
 
-        with patch.object(service, "_get_aedtapp", return_value=aedtapp):
-            data = service.get_trace_data("Proj", "Des", "Rep", "S11")
+        data = service.get_trace_data("Proj", "Des", "Rep", "S11")
 
         assert len(data["curves"]) == 1
         np.testing.assert_array_equal(data["curves"][0]["x"], x)
@@ -1077,7 +1076,8 @@ class TestResultDataService:
         assert data["y_label"] == "S11"
         assert data["plot_names"] == ["Plot 1"]
 
-    def test_get_trace_data_uses_cache(self) -> None:
+    @patch.object(ResultDataService, "_get_aedtapp")
+    def test_get_trace_data_uses_cache(self, mock_get_aedtapp: MagicMock) -> None:
         service = _make_service()
         service.desktop = MagicMock()
         service.current_session_pid = 1
@@ -1090,42 +1090,45 @@ class TestResultDataService:
         }
         service.existing_reports.setdefault("Proj", {}).setdefault("Des", {})["Rep"] = {"S11": cached}
 
-        with patch.object(service, "_get_aedtapp") as mock_app:
-            data = service.get_trace_data("Proj", "Des", "Rep", "S11")
-            mock_app.assert_not_called()
+        data = service.get_trace_data("Proj", "Des", "Rep", "S11")
+        mock_get_aedtapp.assert_not_called()
         np.testing.assert_array_equal(data["curves"][0]["y"], [2.0])
 
-    def test_get_trace_data_report_not_found_raises(self) -> None:
+    @patch.object(ResultDataService, "_get_aedtapp")
+    def test_get_trace_data_report_not_found_raises(self, mock_get_aedtapp: MagicMock) -> None:
         service, aedtapp = self._service_with_report(None)
-        with patch.object(service, "_get_aedtapp", return_value=aedtapp):
-            with pytest.raises(AEDTRuntimeError, match="not found"):
-                service.get_trace_data("Proj", "Des", "Rep", "S11")
+        mock_get_aedtapp.return_value = aedtapp
+        with pytest.raises(AEDTRuntimeError, match="not found"):
+            service.get_trace_data("Proj", "Des", "Rep", "S11")
 
-    def test_get_trace_data_no_data_raises(self) -> None:
+    @patch.object(ResultDataService, "_get_aedtapp")
+    def test_get_trace_data_no_data_raises(self, mock_get_aedtapp: MagicMock) -> None:
         report = _make_report([({}, [1.0], [1.0], None)])
         report.get_expression_data_all_curves.side_effect = None
         report.get_expression_data_all_curves.return_value = False
         service, aedtapp = self._service_with_report(report)
-        with patch.object(service, "_get_aedtapp", return_value=aedtapp):
-            with pytest.raises(AEDTRuntimeError, match="No data"):
-                service.get_trace_data("Proj", "Des", "Rep", "S11")
+        mock_get_aedtapp.return_value = aedtapp
+        with pytest.raises(AEDTRuntimeError, match="No data"):
+            service.get_trace_data("Proj", "Des", "Rep", "S11")
 
-    def test_get_trace_data_stores_result_as_ndarray(self) -> None:
+    @patch.object(ResultDataService, "_get_aedtapp")
+    def test_get_trace_data_stores_result_as_ndarray(self, mock_get_aedtapp: MagicMock) -> None:
         service, aedtapp = self._service_with_report(_make_report([({}, [1.0, 2.0], [-10.0, -20.0], None)]))
-        with patch.object(service, "_get_aedtapp", return_value=aedtapp):
-            data = service.get_trace_data("Proj", "Des", "Rep", "S11")
+        mock_get_aedtapp.return_value = aedtapp
+        data = service.get_trace_data("Proj", "Des", "Rep", "S11")
         assert isinstance(data["curves"][0]["x"], np.ndarray)
         assert isinstance(data["curves"][0]["y"], np.ndarray)
 
-    def test_get_trace_data_complex_trace_returns_complex_y(self) -> None:
+    @patch.object(ResultDataService, "_get_aedtapp")
+    def test_get_trace_data_complex_trace_returns_complex_y(self, mock_get_aedtapp: MagicMock) -> None:
         """When the imaginary part is non-zero, y must be a complex ndarray."""
         x = np.array([1e9, 2e9, 3e9])
         y_real = np.array([0.5, 0.3, 0.1])
         y_imag = np.array([-0.2, -0.4, -0.6])
         service, aedtapp = self._service_with_report(_make_report([({}, x, y_real, y_imag)]))
+        mock_get_aedtapp.return_value = aedtapp
 
-        with patch.object(service, "_get_aedtapp", return_value=aedtapp):
-            data = service.get_trace_data("Proj", "Des", "Rep", "S11")
+        data = service.get_trace_data("Proj", "Des", "Rep", "S11")
 
         y = data["curves"][0]["y"]
         assert data["is_complex"] is True
@@ -1133,13 +1136,14 @@ class TestResultDataService:
         np.testing.assert_allclose(y.real, y_real, atol=1e-12)
         np.testing.assert_allclose(y.imag, y_imag, atol=1e-12)
 
-    def test_get_trace_data_real_only_trace_is_not_complex(self) -> None:
+    @patch.object(ResultDataService, "_get_aedtapp")
+    def test_get_trace_data_real_only_trace_is_not_complex(self, mock_get_aedtapp: MagicMock) -> None:
         """A trace with all-zero imaginary part must be marked as not complex."""
         report = _make_report([({}, [0.0, 1.0], [1.0, 2.0], [0.0, 0.0])], expression="Mag")
         service, aedtapp = self._service_with_report(report, trace="Mag")
+        mock_get_aedtapp.return_value = aedtapp
 
-        with patch.object(service, "_get_aedtapp", return_value=aedtapp):
-            data = service.get_trace_data("Proj", "Des", "Rep", "Mag")
+        data = service.get_trace_data("Proj", "Des", "Rep", "Mag")
 
         assert data["is_complex"] is False
         assert not np.iscomplexobj(data["curves"][0]["y"])
@@ -1156,63 +1160,70 @@ class TestResultDataService:
             ]
         )
 
-    def test_get_trace_data_multiple_plots_all(self) -> None:
+    @patch.object(ResultDataService, "_get_aedtapp")
+    def test_get_trace_data_multiple_plots_all(self, mock_get_aedtapp: MagicMock) -> None:
         """plot_index=None returns every plot of the trace."""
         service, aedtapp = self._service_with_report(self._multi_plot_report())
-        with patch.object(service, "_get_aedtapp", return_value=aedtapp):
-            data = service.get_trace_data("Proj", "Des", "Rep", "S11", plot_index=None)
+        mock_get_aedtapp.return_value = aedtapp
+        data = service.get_trace_data("Proj", "Des", "Rep", "S11", plot_index=None)
 
         assert data["plot_names"] == ["Theta=0deg", "Theta=45deg", "Theta=90deg"]
         assert [c["name"] for c in data["curves"]] == data["plot_names"]
         np.testing.assert_array_equal(data["curves"][2]["y"], [7.0, 8.0, 9.0])
 
-    def test_get_trace_data_multiple_plots_single_index(self) -> None:
+    @patch.object(ResultDataService, "_get_aedtapp")
+    def test_get_trace_data_multiple_plots_single_index(self, mock_get_aedtapp: MagicMock) -> None:
         """A numeric plot_index returns only that plot, while plot_names lists all of them."""
         service, aedtapp = self._service_with_report(self._multi_plot_report())
-        with patch.object(service, "_get_aedtapp", return_value=aedtapp):
-            data = service.get_trace_data("Proj", "Des", "Rep", "S11", plot_index=1)
+        mock_get_aedtapp.return_value = aedtapp
+        data = service.get_trace_data("Proj", "Des", "Rep", "S11", plot_index=1)
 
         assert len(data["curves"]) == 1
         assert data["curves"][0]["name"] == "Theta=45deg"
         np.testing.assert_array_equal(data["curves"][0]["y"], [4.0, 5.0, 6.0])
         assert len(data["plot_names"]) == 3
 
-    def test_get_trace_data_multiple_plots_fetched_once(self) -> None:
+    @patch.object(ResultDataService, "_get_aedtapp")
+    def test_get_trace_data_multiple_plots_fetched_once(self, mock_get_aedtapp: MagicMock) -> None:
         """Switching plot does not query AEDT again."""
         report = self._multi_plot_report()
         service, aedtapp = self._service_with_report(report)
-        with patch.object(service, "_get_aedtapp", return_value=aedtapp):
-            service.get_trace_data("Proj", "Des", "Rep", "S11", plot_index=None)
-            service.get_trace_data("Proj", "Des", "Rep", "S11", plot_index=2)
+        mock_get_aedtapp.return_value = aedtapp
+        service.get_trace_data("Proj", "Des", "Rep", "S11", plot_index=None)
+        service.get_trace_data("Proj", "Des", "Rep", "S11", plot_index=2)
 
         # One call for the real part and one for the imaginary part.
         assert report.get_expression_data_all_curves.call_count == 2
 
-    def test_get_trace_data_multiple_complex_plots(self) -> None:
+    @patch.object(ResultDataService, "_get_aedtapp")
+    def test_get_trace_data_multiple_complex_plots(self, mock_get_aedtapp: MagicMock) -> None:
         service, aedtapp = self._service_with_report(self._multi_plot_report(complex_data=True))
-        with patch.object(service, "_get_aedtapp", return_value=aedtapp):
-            data = service.get_trace_data("Proj", "Des", "Rep", "S11", plot_index=None)
+        mock_get_aedtapp.return_value = aedtapp
+        data = service.get_trace_data("Proj", "Des", "Rep", "S11", plot_index=None)
 
         assert data["is_complex"] is True
         assert all(np.iscomplexobj(c["y"]) for c in data["curves"])
         np.testing.assert_allclose(data["curves"][1]["y"], np.array([4.0, 5.0, 6.0]) + 1j * np.array([0.1, 0.2, 0.3]))
 
-    def test_get_trace_data_duplicate_plot_names_are_made_unique(self) -> None:
+    @patch.object(ResultDataService, "_get_aedtapp")
+    def test_get_trace_data_duplicate_plot_names_are_made_unique(self, mock_get_aedtapp: MagicMock) -> None:
         report = _make_report([({"Theta": "0deg"}, [1.0], [1.0], None), ({"Theta": "0deg"}, [1.0], [2.0], None)])
         service, aedtapp = self._service_with_report(report)
-        with patch.object(service, "_get_aedtapp", return_value=aedtapp):
-            data = service.get_trace_data("Proj", "Des", "Rep", "S11", plot_index=None)
+        mock_get_aedtapp.return_value = aedtapp
+        data = service.get_trace_data("Proj", "Des", "Rep", "S11", plot_index=None)
         assert data["plot_names"] == ["Theta=0deg", "Theta=0deg (2)"]
 
-    def test_get_trace_data_out_of_range_index_falls_back_to_first(self) -> None:
+    @patch.object(ResultDataService, "_get_aedtapp")
+    def test_get_trace_data_out_of_range_index_falls_back_to_first(self, mock_get_aedtapp: MagicMock) -> None:
         service, aedtapp = self._service_with_report(self._multi_plot_report())
-        with patch.object(service, "_get_aedtapp", return_value=aedtapp):
-            data = service.get_trace_data("Proj", "Des", "Rep", "S11", plot_index=10)
+        mock_get_aedtapp.return_value = aedtapp
+        data = service.get_trace_data("Proj", "Des", "Rep", "S11", plot_index=10)
         assert data["curves"][0]["name"] == "Theta=0deg"
 
     # ---- load_datasets_for_design ------------------------------------------
 
-    def test_load_datasets_for_design_returns_2d_datasets_only(self) -> None:
+    @patch.object(ResultDataService, "_get_aedtapp")
+    def test_load_datasets_for_design_returns_2d_datasets_only(self, mock_get_aedtapp: MagicMock) -> None:
         service = _make_service()
         service.desktop = MagicMock()
         service.current_session_pid = 1
@@ -1223,13 +1234,14 @@ class TestResultDataService:
         aedtapp = MagicMock()
         aedtapp.project_datasets = {"ds_2d": ds_2d}
         aedtapp.design_datasets = {"ds_3d": ds_3d}
-        with patch.object(service, "_get_aedtapp", return_value=aedtapp):
-            names, msg = service.load_datasets_for_design("Proj", "Des")
+        mock_get_aedtapp.return_value = aedtapp
+        names, msg = service.load_datasets_for_design("Proj", "Des")
         assert "ds_2d" in names
         assert "ds_3d" not in names
         assert msg is None
 
-    def test_load_datasets_for_design_empty_returns_message(self) -> None:
+    @patch.object(ResultDataService, "_get_aedtapp")
+    def test_load_datasets_for_design_empty_returns_message(self, mock_get_aedtapp: MagicMock) -> None:
         service = _make_service()
         service.desktop = MagicMock()
         service.current_session_pid = 1
@@ -1238,12 +1250,13 @@ class TestResultDataService:
         aedtapp = MagicMock()
         aedtapp.project_datasets = {}
         aedtapp.design_datasets = {}
-        with patch.object(service, "_get_aedtapp", return_value=aedtapp):
-            names, msg = service.load_datasets_for_design("Proj", "Des")
+        mock_get_aedtapp.return_value = aedtapp
+        names, msg = service.load_datasets_for_design("Proj", "Des")
         assert names == []
         assert msg is not None
 
-    def test_load_datasets_for_design_uses_cache(self) -> None:
+    @patch.object(ResultDataService, "_get_aedtapp")
+    def test_load_datasets_for_design_uses_cache(self, mock_get_aedtapp: MagicMock) -> None:
         service = _make_service()
         service.desktop = MagicMock()
         service.current_session_pid = 1
@@ -1251,12 +1264,12 @@ class TestResultDataService:
         ds = SimpleNamespace(x=[0.0], y=[1.0], z=[])
         service.solution_info.setdefault("Proj", {})["Des"] = {"datasets": {"cached_ds": ds}}
 
-        with patch.object(service, "_get_aedtapp") as mock_app:
-            names, _ = service.load_datasets_for_design("Proj", "Des")
-            mock_app.assert_not_called()
+        names, _ = service.load_datasets_for_design("Proj", "Des")
+        mock_get_aedtapp.assert_not_called()
         assert "cached_ds" in names
 
-    def test_load_datasets_for_design_merges_project_and_design_datasets(self) -> None:
+    @patch.object(ResultDataService, "_get_aedtapp")
+    def test_load_datasets_for_design_merges_project_and_design_datasets(self, mock_get_aedtapp: MagicMock) -> None:
         service = _make_service()
         service.desktop = MagicMock()
         service.current_session_pid = 1
@@ -1267,8 +1280,8 @@ class TestResultDataService:
         aedtapp = MagicMock()
         aedtapp.project_datasets = {"proj_dataset": proj_ds}
         aedtapp.design_datasets = {"des_dataset": des_ds}
-        with patch.object(service, "_get_aedtapp", return_value=aedtapp):
-            names, _ = service.load_datasets_for_design("Proj", "Des")
+        mock_get_aedtapp.return_value = aedtapp
+        names, _ = service.load_datasets_for_design("Proj", "Des")
         assert "proj_dataset" in names
         assert "des_dataset" in names
 
@@ -1307,7 +1320,8 @@ class TestResultDataService:
         with pytest.raises(AEDTRuntimeError, match="No AEDT session selected"):
             service.create_dataset("Proj", "Des", "NewDS", [1.0], [2.0])
 
-    def test_create_dataset_delegates_to_aedtapp(self) -> None:
+    @patch.object(ResultDataService, "_get_aedtapp")
+    def test_create_dataset_delegates_to_aedtapp(self, mock_get_aedtapp: MagicMock) -> None:
         service = _make_service()
         service.current_session_pid = 1
         service._cache_by_session[1] = ResultDataService._empty_session_cache()
@@ -1315,20 +1329,21 @@ class TestResultDataService:
 
         aedtapp = MagicMock()
         aedtapp.create_dataset.return_value = MagicMock()
-        with patch.object(service, "_get_aedtapp", return_value=aedtapp):
-            service.create_dataset("Proj", "Des", "NewDS", [1.0, 2.0], [3.0, 4.0], is_project_dataset=True)
+        mock_get_aedtapp.return_value = aedtapp
+        service.create_dataset("Proj", "Des", "NewDS", [1.0, 2.0], [3.0, 4.0], is_project_dataset=True)
 
         aedtapp.create_dataset.assert_called_once_with("NewDS", x=[1.0, 2.0], y=[3.0, 4.0], is_project_dataset=True)
 
-    def test_create_dataset_design_scope(self) -> None:
+    @patch.object(ResultDataService, "_get_aedtapp")
+    def test_create_dataset_design_scope(self, mock_get_aedtapp: MagicMock) -> None:
         service = _make_service()
         service.current_session_pid = 1
         service._cache_by_session[1] = ResultDataService._empty_session_cache()
         service.desktop = MagicMock()
 
         aedtapp = MagicMock()
-        with patch.object(service, "_get_aedtapp", return_value=aedtapp):
-            service.create_dataset("Proj", "Des", "DDS", [0.0], [1.0], is_project_dataset=False)
+        mock_get_aedtapp.return_value = aedtapp
+        service.create_dataset("Proj", "Des", "DDS", [0.0], [1.0], is_project_dataset=False)
 
         aedtapp.create_dataset.assert_called_once_with("DDS", x=[0.0], y=[1.0], is_project_dataset=False)
 
@@ -1338,73 +1353,56 @@ class TestResultDataService:
         service = _make_service(active_sessions_return={})
         assert service.active_sessions == []
 
+    @patch(f"{_MODULE}._check_psutil_connections", new=MagicMock(return_value={}))
+    @patch(f"{_MODULE}.active_sessions", new=MagicMock(return_value={1234: 50051}))
     def test_discover_aedt_sessions_populates_from_active_sessions(self) -> None:
-        sessions_map = {1234: 50051}
-        with (
-            patch(f"{_MODULE}.active_sessions", return_value=sessions_map),
-            patch(f"{_MODULE}._check_psutil_connections", return_value={}),
-        ):
-            service = ResultDataService()
+        service = ResultDataService()
         assert len(service.active_sessions) == 1
         assert service.active_sessions[0]["pid"] == 1234
         assert service.active_sessions[0]["port"] == 50051
 
+    @patch(f"{_MODULE}.is_linux", new=False)
+    @patch(f"{_MODULE}._check_psutil_connections", new=MagicMock(return_value={}))
+    @patch(f"{_MODULE}.active_sessions", new=MagicMock(return_value={5678: -1}))
     def test_discover_aedt_sessions_com_port_on_windows(self) -> None:
-        sessions_map = {5678: -1}
-        with (
-            patch(f"{_MODULE}.active_sessions", return_value=sessions_map),
-            patch(f"{_MODULE}._check_psutil_connections", return_value={}),
-            patch(f"{_MODULE}.is_linux", False),
-        ):
-            service = ResultDataService()
+        service = ResultDataService()
         assert any(s["pid"] == 5678 for s in service.active_sessions)
         assert service.active_sessions[0]["port"] == "n/a (com)"
 
+    @patch(
+        f"{_MODULE}._check_psutil_connections",
+        new=MagicMock(return_value={9999: [{"cmdline": r"C:\ANSYS\v261\Win64\ansysedt.exe -ng"}]}),
+    )
+    @patch(f"{_MODULE}.active_sessions", new=MagicMock(return_value={9999: 50060}))
     def test_discover_aedt_sessions_enriches_from_cmdline(self) -> None:
-        sessions_map = {9999: 50060}
-        cmdline = r"C:\ANSYS\v261\Win64\ansysedt.exe -ng"
-        connections = {9999: [{"cmdline": cmdline}]}
-        with (
-            patch(f"{_MODULE}.active_sessions", return_value=sessions_map),
-            patch(f"{_MODULE}._check_psutil_connections", return_value=connections),
-        ):
-            service = ResultDataService()
+        service = ResultDataService()
         sess = service.active_sessions[0]
         assert "2026" in str(sess["version"])
         assert sess["non_graphical"] is True
 
+    @patch(f"{_MODULE}._check_psutil_connections", new=MagicMock(return_value={}))
+    @patch(f"{_MODULE}.active_sessions", new=MagicMock(return_value={300: 50053, 100: 50051, 200: 50052}))
     def test_discover_aedt_sessions_sorted_by_pid(self) -> None:
-        sessions_map = {300: 50053, 100: 50051, 200: 50052}
-        with (
-            patch(f"{_MODULE}.active_sessions", return_value=sessions_map),
-            patch(f"{_MODULE}._check_psutil_connections", return_value={}),
-        ):
-            service = ResultDataService()
+        service = ResultDataService()
         pids = [s["pid"] for s in service.active_sessions]
         assert pids == sorted(pids)
 
     # ---- refresh_sessions --------------------------------------------------
 
+    @patch(f"{_MODULE}._check_psutil_connections", new=MagicMock(return_value={}))
+    @patch(f"{_MODULE}.active_sessions", new=MagicMock(return_value={1111: 50061}))
     def test_refresh_sessions_re_discovers_sessions(self) -> None:
         service = _make_service()
-        new_map = {1111: 50061}
-        with (
-            patch(f"{_MODULE}.active_sessions", return_value=new_map),
-            patch(f"{_MODULE}._check_psutil_connections", return_value={}),
-        ):
-            sessions = service.refresh_sessions()
+        sessions = service.refresh_sessions()
         assert len(sessions) == 1
         assert sessions[0]["pid"] == 1111
 
+    @patch(f"{_MODULE}._check_psutil_connections", new=MagicMock(return_value={}))
+    @patch(f"{_MODULE}.active_sessions", new=MagicMock(return_value={2222: 50062}))
     def test_refresh_sessions_updates_active_sessions_attribute(self) -> None:
         service = _make_service()
         assert service.active_sessions == []
-        new_map = {2222: 50062}
-        with (
-            patch(f"{_MODULE}.active_sessions", return_value=new_map),
-            patch(f"{_MODULE}._check_psutil_connections", return_value={}),
-        ):
-            service.refresh_sessions()
+        service.refresh_sessions()
         assert any(s["pid"] == 2222 for s in service.active_sessions)
 
 
