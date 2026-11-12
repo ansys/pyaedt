@@ -33,7 +33,6 @@ from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.edb import Edb
 from ansys.aedt.core.generic.constants import Axis
 from ansys.aedt.core.generic.data_handlers import _dict2arg
-from ansys.aedt.core.generic.file_utils import _uname
 from ansys.aedt.core.generic.general_methods import _merge_props
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.props import Props as UserDefinedComponentProps
@@ -46,7 +45,6 @@ if TYPE_CHECKING:
     from ansys.aedt.core import Icepak
     from ansys.aedt.core.generic.constants import Axis
     from ansys.aedt.core.modeler.cad.object_3d import Object3d
-    from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
 
 
 class UserDefinedComponentParameters(dict):
@@ -105,19 +103,16 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
     def __init__(
         self,
-        primitives: Primitives3D,
+        app: Icepak,
         name: str | None = None,
         props: dict | None = None,
         component_type: str | None = None,
         definition_name: str | None = None,
     ) -> None:
-        self._primitives = primitives
-        self._app = self._primitives._app
+        self._app = app
+        self._primitives = self._app.modeler
 
-        if name:
-            self._m_name = name
-        else:
-            self._m_name = _uname()
+        self._name = name
 
         # Props can not be retrieved from AEDT file, so only components created by PyAEDT will have it
         self._legacy_props = {}
@@ -137,27 +132,19 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
             "Version",
         ]
 
-        # Get definition name (parent component)
-        self.definition_name = definition_name or None
-        if definition_name is None:
-            defined_components = self._app.oeditor.Get3DComponentDefinitionNames()
-            defined_components = defined_components if defined_components else []
-            for component in defined_components:
-                if self._m_name in self._app.oeditor.Get3DComponentInstanceNames(component):
-                    self.definition_name = component
-                    break
+        self.definition = definition_name
 
         if component_type:
             self._legacy_props = {
                 "TargetCS": "Global",
-                "SubmodelDefinitionName": self.definition_name or self._m_name,
+                "SubmodelDefinitionName": self._name,
                 "ComponentPriorityLists": {},
                 "NextUniqueID": 0,
                 "MoveBackwards": False,
                 "DatasetType": "ComponentDatasetType",
                 "DatasetDefinitions": {},
                 "BasicComponentInfo": {
-                    "ComponentName": self.definition_name or self._m_name,
+                    "ComponentName": self._name,
                     "Company": "",
                     "Company URL": "",
                     "Model Number": "",
@@ -1377,10 +1364,10 @@ class NativeComponentObject(UserDefinedComponent):
 
     """
 
-    def __init__(
-        self, app: Icepak, component_type: str, name: str, props: dict, definition_name: str | None = None
-    ) -> None:
-        super().__init__(app.modeler, name, props, component_type, definition_name)
+    def __init__(self, app: Icepak, component_type: str, name: str, definition_name: str, props: dict) -> None:
+        super().__init__(
+            app=app, name=name, props=props, component_type=component_type, definition_name=definition_name
+        )
         self.__child_object = None
         self.__excitation_name = None
 
@@ -1621,70 +1608,72 @@ class NativeComponentPCB(NativeComponentObject):
 
     """
 
-    def __init__(self, app: Icepak, name: str, props: dict, definition_name: str | None = None) -> None:
-        NativeComponentObject.__init__(self, app, "PCB", name, props, definition_name)
+    def __init__(self, app: Icepak, name: str, definition_name: str, props: dict) -> None:
+        NativeComponentObject.__init__(
+            self, app=app, component_type="PCB", name=name, props=props, definition_name=definition_name
+        )
 
-    @pyaedt_function_handler()
-    def set_resolution(self, resolution: int) -> bool:
-        """Set metal fraction mapping resolution.
-
-        Parameters
-        ----------
-        resolution : int
-            Resolution level. Accepted variables between 1 and 5.
-
-        Returns
-        -------
-        bool
-            True if successful, else False.
+    @property
+    def board_cutout_material(self) -> str:
+        """Material applied to cutout regions.
 
         Examples
         --------
         >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
         >>> obj = NativeComponentPCB()
-        >>> obj.set_resolution(resolution=1)
+        >>> obj.board_cutout_material
 
         """
-        if resolution < 1 or resolution > 5:
-            self._app.logger.add_message(
-                message_type=2,
-                message_text="Valid resolution values are between 1 and 5.",
-                level="Design",
-                proj_name=self._app.project_name,
-                des_name=self._app.design_name,
-            )
-            return False
-        self.props["NativeComponentDefinitionProvider"]["Resolution"] = resolution
-        self.props["NativeComponentDefinitionProvider"]["CustomResolution"] = False
-        return True
+        return self.props["NativeComponentDefinitionProvider"].get("BoardCutoutMaterial", "air ")
 
-    @pyaedt_function_handler()
-    def set_custom_resolution(self, row: int, col: int) -> bool:
-        """Set custom metal fraction mapping resolution.
+    @board_cutout_material.setter
+    def board_cutout_material(self, value: str) -> None:
+        """Set material to apply to cutout regions.
 
         Parameters
         ----------
-        row : int
-            Resolution level in rows direction.
-        col : int
-            Resolution level in columns direction.
-
-        Returns
-        -------
-        bool
-            True if successful, else False.
+        value : str
+            Material to apply to cutout regions.
 
         Examples
         --------
         >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
         >>> obj = NativeComponentPCB()
-        >>> obj.set_custom_resolution(row=1, col=1)
+        >>> obj.board_cutout_material = "FR4"
 
         """
-        self.props["NativeComponentDefinitionProvider"]["CustomResolutionRow"] = row
-        self.props["NativeComponentDefinitionProvider"]["CustomResolutionCol"] = col
-        self.props["NativeComponentDefinitionProvider"]["CustomResolution"] = True
-        return True
+        self.props["NativeComponentDefinitionProvider"]["BoardCutoutMaterial"] = value
+
+    @property
+    def via_holes_material(self) -> str:
+        """Material applied to via hole regions.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
+        >>> obj = NativeComponentPCB()
+        >>> obj.via_holes_material
+
+        """
+        return self.props["NativeComponentDefinitionProvider"].get("ViaHoleMaterial", "copper")
+
+    @via_holes_material.setter
+    def via_holes_material(self, value: str) -> None:
+        """Set material to apply to via hole regions.
+
+        Parameters
+        ----------
+        value : str
+            Material to apply to via hole regions.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
+        >>> obj = NativeComponentPCB()
+        >>> obj.via_holes_material = "copper"
+
+        """
+        self.props["NativeComponentDefinitionProvider"]["ViaHoleMaterial"] = value
 
     @property
     def power(self):
@@ -1698,56 +1687,6 @@ class NativeComponentPCB(NativeComponentObject):
 
         """
         return self.props["NativeComponentDefinitionProvider"].get("Power", "0W")
-
-    @pyaedt_function_handler()
-    def set_high_side_radiation(
-        self,
-        enabled: bool,
-        surface_material: str | None = "Steel-oxidised-surface",
-        radiate_to_ref_temperature: bool = False,
-        view_factor: int = 1,
-        ref_temperature: str = "AmbientTemp",
-    ) -> bool:
-        """Set high side radiation properties.
-
-        Parameters
-        ----------
-        enabled : bool
-            Whether high side radiation is enabled.
-        surface_material : str, optional
-            Surface material to apply. Default is ``"Steel-oxidised-surface"``.
-        radiate_to_ref_temperature : bool, optional
-            Whether to radiate to a reference temperature instead of objects in the model.
-            Default is ``False``.
-        view_factor : float, optional
-            View factor to use for radiation computation if ``radiate_to_ref_temperature``
-            is set to ``True``. Default is 1.
-        ref_temperature : str, optional
-            Reference temperature to use for radiation computation if
-            ``radiate_to_ref_temperature`` is set to True. Default is ``"AmbientTemp"``.
-
-        Returns
-        -------
-        bool
-            ``True`` if successful, else ``False``.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
-        >>> obj = NativeComponentPCB()
-        >>> obj.set_high_side_radiation(enabled=True)
-
-        """
-        high_rad = {
-            "Radiate": enabled,
-            "RadiateTo - High": "RefTemperature - High" if radiate_to_ref_temperature else "AllObjects - High",
-            "Surface Material - High": surface_material,
-        }
-        if radiate_to_ref_temperature:
-            high_rad["Ref. Temperature - High"] = (ref_temperature,)
-            high_rad["View Factor - High"] = view_factor
-        self.props["NativeComponentDefinitionProvider"]["HighSide"] = high_rad
-        return True
 
     @power.setter
     def power(self, value: str) -> None:
@@ -1899,74 +1838,6 @@ class NativeComponentPCB(NativeComponentObject):
                 des_name=self._app.design_name,
             )
 
-    @pyaedt_function_handler()
-    def set_low_side_radiation(
-        self,
-        enabled: bool,
-        surface_material: str | None = "Steel-oxidised-surface",
-        radiate_to_ref_temperature: bool = False,
-        view_factor: int = 1,
-        ref_temperature: str = "AmbientTemp",
-    ) -> bool:
-        """Set low side radiation properties.
-
-        Parameters
-        ----------
-        enabled : bool
-            Whether high side radiation is enabled.
-        surface_material : str, optional
-            Surface material to apply. Default is ``"Steel-oxidised-surface"``.
-        radiate_to_ref_temperature : bool, optional
-            Whether to radiate to a reference temperature instead of objects in the model.
-            Default is ``False``.
-        view_factor : float, optional
-            View factor to use for radiation computation if ``radiate_to_ref_temperature``
-            is set to True. Default is 1.
-        ref_temperature : str, optional
-            Reference temperature to use for radiation computation if
-            ``radiate_to_ref_temperature`` is set to ``True``. Default is ``"AmbientTemp"``.
-
-        Returns
-        -------
-        bool
-            ``True`` if successful, else ``False``.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
-        >>> obj = NativeComponentPCB()
-        >>> obj.set_low_side_radiation(enabled=True)
-
-        """
-        low_side = {
-            "Radiate": enabled,
-            "RadiateTo": "RefTemperature - High" if radiate_to_ref_temperature else "AllObjects",
-            "Surface Material": surface_material,
-        }
-        if radiate_to_ref_temperature:
-            low_side["Ref. Temperature"] = (ref_temperature,)
-            low_side["View Factor"] = view_factor
-        self.props["NativeComponentDefinitionProvider"]["LowSide"] = low_side
-        return True
-
-    @power.setter
-    def power(self, value: str) -> None:
-        """Assign power dissipation to the PCB.
-
-        Parameters
-        ----------
-        value : str
-            Power to apply to the PCB.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
-        >>> obj = NativeComponentPCB()
-        >>> obj.power = "5W"
-
-        """
-        self.props["NativeComponentDefinitionProvider"]["Power"] = value
-
     @force_source_solve.setter
     def force_source_solve(self, val: bool) -> None:
         """Set Whether to force source solution.
@@ -2015,38 +1886,6 @@ class NativeComponentPCB(NativeComponentObject):
             return
         return self.props["NativeComponentDefinitionProvider"]["DefnLink"].update({"PreservePartnerSoln": val})
 
-    @included_parts.setter
-    def included_parts(self, value: str | int | None) -> None:
-        """Set PCB parts incusion option.
-
-        Parameters
-        ----------
-        value : str or int
-            Valid options are ``"None"``, ``"Device"``, and ``"Package"`` (or 0, 1, and 2 respectivaly)
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
-        >>> obj = NativeComponentPCB()
-        >>> obj.included_parts = "Device"
-        """
-        if value is None:
-            value = "None"
-        part_map = {"None": 0, "Device": 1, "Package": 2}
-        if not isinstance(value, int):
-            value = part_map.get(value, None)
-        if value is not None:
-            self.props["NativeComponentDefinitionProvider"]["PartsChoice"] = value
-        else:
-            self._app.logger.add_message(
-                message_type=2,
-                message_text='Invalid part choice. Valid options are "None", "Device", and "Package" (or 0, 1, and 2'
-                " respectively).",
-                level="Design",
-                proj_name=self._app.project_name,
-                des_name=self._app.design_name,
-            )
-
     @pyaedt_function_handler()
     def identify_extent_poly(self) -> str | bool:
         """Get polygon that defines board extent.
@@ -2091,68 +1930,6 @@ class NativeComponentPCB(NativeComponentObject):
             )
             return False
         return outlines[0].name
-
-    @property
-    def board_cutout_material(self) -> str:
-        """Material applied to cutout regions.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
-        >>> obj = NativeComponentPCB()
-        >>> obj.board_cutout_material
-
-        """
-        return self.props["NativeComponentDefinitionProvider"].get("BoardCutoutMaterial", "air ")
-
-    @property
-    def via_holes_material(self) -> str:
-        """Material applied to via hole regions.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
-        >>> obj = NativeComponentPCB()
-        >>> obj.via_holes_material
-
-        """
-        return self.props["NativeComponentDefinitionProvider"].get("ViaHoleMaterial", "copper")
-
-    @board_cutout_material.setter
-    def board_cutout_material(self, value: str) -> None:
-        """Set material to apply to cutout regions.
-
-        Parameters
-        ----------
-        value : str
-            Material to apply to cutout regions.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
-        >>> obj = NativeComponentPCB()
-        >>> obj.board_cutout_material = "FR4"
-
-        """
-        self.props["NativeComponentDefinitionProvider"]["BoardCutoutMaterial"] = value
-
-    @via_holes_material.setter
-    def via_holes_material(self, value: str) -> None:
-        """Set material to apply to via hole regions.
-
-        Parameters
-        ----------
-        value : str
-            Material to apply to via hole regions.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
-        >>> obj = NativeComponentPCB()
-        >>> obj.via_holes_material = "copper"
-
-        """
-        self.props["NativeComponentDefinitionProvider"]["ViaHoleMaterial"] = value
 
     @pyaedt_function_handler()
     def set_board_extents(self, extent_type: str = None, extent_polygon: str = None) -> bool:
@@ -2200,6 +1977,168 @@ class NativeComponentPCB(NativeComponentObject):
                     if not extent_polygon:
                         return False
                 self.props["NativeComponentDefinitionProvider"]["OutlinePolygon"] = extent_polygon
+        return True
+
+    @pyaedt_function_handler()
+    def set_high_side_radiation(
+        self,
+        enabled: bool,
+        surface_material: str | None = "Steel-oxidised-surface",
+        radiate_to_ref_temperature: bool = False,
+        view_factor: int = 1,
+        ref_temperature: str = "AmbientTemp",
+    ) -> bool:
+        """Set high side radiation properties.
+
+        Parameters
+        ----------
+        enabled : bool
+            Whether high side radiation is enabled.
+        surface_material : str, optional
+            Surface material to apply. Default is ``"Steel-oxidised-surface"``.
+        radiate_to_ref_temperature : bool, optional
+            Whether to radiate to a reference temperature instead of objects in the model.
+            Default is ``False``.
+        view_factor : float, optional
+            View factor to use for radiation computation if ``radiate_to_ref_temperature``
+            is set to ``True``. Default is 1.
+        ref_temperature : str, optional
+            Reference temperature to use for radiation computation if
+            ``radiate_to_ref_temperature`` is set to True. Default is ``"AmbientTemp"``.
+
+        Returns
+        -------
+        bool
+            ``True`` if successful, else ``False``.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
+        >>> obj = NativeComponentPCB()
+        >>> obj.set_high_side_radiation(enabled=True)
+
+        """
+        high_rad = {
+            "Radiate": enabled,
+            "RadiateTo - High": "RefTemperature - High" if radiate_to_ref_temperature else "AllObjects - High",
+            "Surface Material - High": surface_material,
+        }
+        if radiate_to_ref_temperature:
+            high_rad["Ref. Temperature - High"] = (ref_temperature,)
+            high_rad["View Factor - High"] = view_factor
+        self.props["NativeComponentDefinitionProvider"]["HighSide"] = high_rad
+        return True
+
+    @pyaedt_function_handler()
+    def set_resolution(self, resolution: int) -> bool:
+        """Set metal fraction mapping resolution.
+
+        Parameters
+        ----------
+        resolution : int
+            Resolution level. Accepted variables between 1 and 5.
+
+        Returns
+        -------
+        bool
+            True if successful, else False.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
+        >>> obj = NativeComponentPCB()
+        >>> obj.set_resolution(resolution=1)
+
+        """
+        if resolution < 1 or resolution > 5:
+            self._app.logger.add_message(
+                message_type=2,
+                message_text="Valid resolution values are between 1 and 5.",
+                level="Design",
+                proj_name=self._app.project_name,
+                des_name=self._app.design_name,
+            )
+            return False
+        self.props["NativeComponentDefinitionProvider"]["Resolution"] = resolution
+        self.props["NativeComponentDefinitionProvider"]["CustomResolution"] = False
+        return True
+
+    @pyaedt_function_handler()
+    def set_custom_resolution(self, row: int, col: int) -> bool:
+        """Set custom metal fraction mapping resolution.
+
+        Parameters
+        ----------
+        row : int
+            Resolution level in rows direction.
+        col : int
+            Resolution level in columns direction.
+
+        Returns
+        -------
+        bool
+            True if successful, else False.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
+        >>> obj = NativeComponentPCB()
+        >>> obj.set_custom_resolution(row=1, col=1)
+
+        """
+        self.props["NativeComponentDefinitionProvider"]["CustomResolutionRow"] = row
+        self.props["NativeComponentDefinitionProvider"]["CustomResolutionCol"] = col
+        self.props["NativeComponentDefinitionProvider"]["CustomResolution"] = True
+        return True
+
+    @pyaedt_function_handler()
+    def set_low_side_radiation(
+        self,
+        enabled: bool,
+        surface_material: str | None = "Steel-oxidised-surface",
+        radiate_to_ref_temperature: bool = False,
+        view_factor: int = 1,
+        ref_temperature: str = "AmbientTemp",
+    ) -> bool:
+        """Set low side radiation properties.
+
+        Parameters
+        ----------
+        enabled : bool
+            Whether high side radiation is enabled.
+        surface_material : str, optional
+            Surface material to apply. Default is ``"Steel-oxidised-surface"``.
+        radiate_to_ref_temperature : bool, optional
+            Whether to radiate to a reference temperature instead of objects in the model.
+            Default is ``False``.
+        view_factor : float, optional
+            View factor to use for radiation computation if ``radiate_to_ref_temperature``
+            is set to True. Default is 1.
+        ref_temperature : str, optional
+            Reference temperature to use for radiation computation if
+            ``radiate_to_ref_temperature`` is set to ``True``. Default is ``"AmbientTemp"``.
+
+        Returns
+        -------
+        bool
+            ``True`` if successful, else ``False``.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
+        >>> obj = NativeComponentPCB()
+        >>> obj.set_low_side_radiation(enabled=True)
+
+        """
+        low_side = {
+            "Radiate": enabled,
+            "RadiateTo": "RefTemperature - High" if radiate_to_ref_temperature else "AllObjects",
+            "Surface Material": surface_material,
+        }
+        if radiate_to_ref_temperature:
+            low_side["Ref. Temperature"] = (ref_temperature,)
+            low_side["View Factor"] = view_factor
+        self.props["NativeComponentDefinitionProvider"]["LowSide"] = low_side
         return True
 
 

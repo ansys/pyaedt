@@ -2316,7 +2316,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                 if native_dict["Type"] == "PCB":
                     native = NativeComponentPCB(self._app, native_dict["Type"], native_name, nc_dict)
                 else:
-                    native = NativeComponentObject(self._app, native_dict["Type"], native_name, nc_dict)
+                    native = NativeComponentObject(self._app, native_dict["Type"], native_name, nc_dict, nc_dict)
                 prj_list = set(self._app.desktop_class.project_list)
                 definition_names = set(self._app.oeditor.Get3DComponentDefinitionNames())
                 instance_names = {
@@ -2362,7 +2362,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                 new_name = [
                     i
                     for i in list(
-                        self._app.modeler.oeditor.Get3DComponentInstanceNames(user_defined_component.definition_name)
+                        self._app.modeler.oeditor.Get3DComponentInstanceNames(user_defined_component.definition)
                     )
                     if i not in component3d_names
                 ][0]

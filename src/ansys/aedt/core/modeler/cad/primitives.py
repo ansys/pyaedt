@@ -57,6 +57,7 @@ from ansys.aedt.core.generic.quaternion import Quaternion
 from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
+from ansys.aedt.core.modeler.cad.components_3d import NativeComponentObject
 from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
@@ -325,7 +326,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         self.points = Objects(self, "p")
 
         self.__components_data = SetupDict()
-        self.__user_defined_components = SetupDict()
+        self.__components = SetupDict()
 
         self.refresh()
 
@@ -1131,22 +1132,42 @@ class GeometryModeler(Modeler, PyAedtBase):
         return component_definitions
 
     @property
-    def user_defined_components(self) -> SetupDict:
-        user_define_components = self.user_defined_component_names
-        aedt_data = None
-        for udm in user_define_components:
-            if udm not in self.__user_defined_components:
-                if not aedt_data:
-                    # AEDT API does not have a method to get the 3D Component properties
-                    aedt_data = self._get_native_data()
+    def components(self) -> SetupDict:
+        for component_name, component_data in self.components_data.items():
+            if component_name not in self.__components:
+                component_definition = component_data.get("definition", None)
+                component_type = component_data.get("type", None)
+                if component_type == "PCB":
+                    self.__components[component_name] = NativeComponentPCB(
+                        app=self._app, name=component_name, definition_name=component_definition, props={}
+                    )
+                elif component_type not in ["3d_component", "layout_component"] and component_definition:
+                    self.__components[component_name] = NativeComponentObject(
+                        app=self._app,
+                        component_type=component_type,
+                        name=component_name,
+                        definition_name=component_definition,
+                        props={},
+                    )
+                elif component_type == "layout_component":
+                    # self.__components[component_name] = LayoutComponent
+                    pass
+                else:
+                    self.__components[component_name] = UserDefinedComponent(
+                        app=self._app,
+                        component_type=component_type,
+                        name=component_name,
+                        definition_name=component_definition,
+                        props={},
+                    )
 
-                pass
+        # If component is deleted, these lines will refresh the dictionary
+        current_components = self.component_names
+        for comp in list(self.__components.keys()):
+            if comp not in current_components:
+                del self.__components[comp]
 
-        for comp in list(self.__user_defined_components.keys()):
-            if comp not in user_define_components:
-                del self.__user_defined_components[comp]
-
-        return self.__user_defined_components
+        return self.__components
 
     @property
     def groups(self):
