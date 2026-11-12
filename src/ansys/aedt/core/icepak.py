@@ -2060,6 +2060,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             native_props["NativeComponentDefinitionProvider"]["DefnLink"] = hfss_link_info["DefnLink"]
 
         props = {
+            "TargetCS": coordinate_system,
             "SubmodelDefinitionName": definition_name,
             "ComponentPriorityLists": {},
             "NextUniqueID": 0,
@@ -2094,7 +2095,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         native.definition_type = "PCB"
 
         if native.create():
-            native.target_coordinate_system = coordinate_system
             if extent_type == "Polygon" and not outline_polygon:
                 outline_polygon = native.identify_extent_poly()
                 if outline_polygon:

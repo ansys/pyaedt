@@ -161,9 +161,12 @@ def ipk_app(add_app):
 
 def test_import_pcb(board_3dl_app) -> None:
     component_name = "RadioBoard1"
+    cs = board_3dl_app.modeler.create_coordinate_system()
+
     pcb = board_3dl_app.create_ipk_3dcomponent_pcb(
         setup_link=LINK_DATA,
         name=component_name,
+        coordinate_system=cs.name,
         frequency=SOLUTION_FREQ,
         resolution=RESOLUTION,
         custom_x_resolution=400,
@@ -173,9 +176,11 @@ def test_import_pcb(board_3dl_app) -> None:
     assert len(board_3dl_app.modeler.component_names) == 1
     assert len(board_3dl_app.modeler.components) == 1
     assert isinstance(board_3dl_app.modeler.components[0], NativeComponentPCB)
+    assert len(board_3dl_app.modeler.objects) == 12
+
     comp = board_3dl_app.modeler.components[0]
     assert comp.name == component_name
-    assert comp.properties == component_name
+    assert "Name" in comp.properties
     assert comp.board_cutout_material
     assert comp.bounding_box
     assert comp.center
@@ -186,7 +191,7 @@ def test_import_pcb(board_3dl_app) -> None:
     assert comp.included_parts
     assert comp.power
     assert comp.preserve_partner_solution
-    assert comp.target_coordinate_system
+    assert comp.target_coordinate_system == cs.name
     assert comp.via_holes_material
     assert board_3dl_app.modeler.get_object_from_name("RadioBoard1_001_TOP_BBox")
 

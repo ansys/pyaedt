@@ -40,7 +40,6 @@ from ansys.aedt.core.internal.desktop_sessions import _edb_sessions
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 
 if TYPE_CHECKING:
-    from ansys.aedt.core import Icepak
     from ansys.aedt.core.generic.constants import Axis
     from ansys.aedt.core.modeler.cad.object_3d import Object3d
 
@@ -118,7 +117,7 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
             native_props = self._get_native_props()
 
             # Props of 3D Component can not be retrieved
-            self._legacy_props = {
+            self._legacy_props: dict = {
                 "SubmodelDefinitionName": self.definition_name,
                 "ComponentPriorityLists": {},
                 "NextUniqueID": 0,
@@ -250,6 +249,11 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
                 property_name="Name",
                 property_value=component_name,
             )
+            self.__child_object = None
+            object.__setattr__(self, "_name", component_name)
+            object.__setattr__(self, "_tree_node_initialized", False)
+            object.__setattr__(self, "_props", None)
+            object.__setattr__(self, "_children_loaded", False)
         else:  # pragma: no cover
             self._app.logger.warning(f"Name {component_name} already assigned in the design.")
 
@@ -1299,7 +1303,7 @@ class NativeComponent(UserDefinedComponent):
 
     """
 
-    def __init__(self, app: Icepak, name: str, props: dict) -> None:
+    def __init__(self, app: _AppWithOProject, name: str, props: dict) -> None:
         super().__init__(app=app, name=name, props=props)
         self.__child_object = None
         self.__excitation_name = None
@@ -1327,6 +1331,9 @@ class NativeComponent(UserDefinedComponent):
             self._name = created_name
             self.name = name
 
+        # This is needed because TargetCS is needed to create the component, but later for the update, it is not valid
+        if "TargetCS" in self._legacy_props:
+            del self._legacy_props["TargetCS"]
         self._app.modeler._GeometryModeler__components[name] = self
         return self
 
@@ -1346,24 +1353,24 @@ class NativeComponent(UserDefinedComponent):
         >>> obj.update()
 
         """
-        update_props = {}
-        update_props["DefinitionName"] = self._legacy_props.get("SubmodelDefinitionName", "")
-
-        update_props["GeometryDefinitionParameters"] = self._legacy_props["GeometryDefinitionParameters"]
-        update_props["DesignDefinitionParameters"] = self._legacy_props["DesignDefinitionParameters"]
-        update_props["MaterialDefinitionParameters"] = self._legacy_props["MaterialDefinitionParameters"]
-        update_props["NextUniqueID"] = self._legacy_props["NextUniqueID"]
-        update_props["MoveBackwards"] = self._legacy_props["MoveBackwards"]
-        update_props["DatasetType"] = self._legacy_props["DatasetType"]
-        update_props["DatasetDefinitions"] = self._legacy_props["DatasetDefinitions"]
-        update_props["NativeComponentDefinitionProvider"] = self._legacy_props["NativeComponentDefinitionProvider"]
-        update_props["ComponentName"] = self._legacy_props["BasicComponentInfo"]["ComponentName"]
-        update_props["Company"] = self._legacy_props["BasicComponentInfo"]["Company"]
-        update_props["Model Number"] = self._legacy_props["BasicComponentInfo"]["Model Number"]
-        update_props["Help URL"] = self._legacy_props["BasicComponentInfo"]["Help URL"]
-        update_props["Version"] = self._legacy_props["BasicComponentInfo"]["Version"]
-        update_props["Notes"] = self._legacy_props["BasicComponentInfo"]["Notes"]
-        update_props["IconType"] = self._legacy_props["BasicComponentInfo"]["IconType"]
+        update_props = {
+            "DefinitionName": self._legacy_props.get("SubmodelDefinitionName", ""),
+            "GeometryDefinitionParameters": self._legacy_props["GeometryDefinitionParameters"],
+            "DesignDefinitionParameters": self._legacy_props["DesignDefinitionParameters"],
+            "MaterialDefinitionParameters": self._legacy_props["MaterialDefinitionParameters"],
+            "NextUniqueID": self._legacy_props["NextUniqueID"],
+            "MoveBackwards": self._legacy_props["MoveBackwards"],
+            "DatasetType": self._legacy_props["DatasetType"],
+            "DatasetDefinitions": self._legacy_props["DatasetDefinitions"],
+            "NativeComponentDefinitionProvider": self._legacy_props["NativeComponentDefinitionProvider"],
+            "ComponentName": self._legacy_props["BasicComponentInfo"]["ComponentName"],
+            "Company": self._legacy_props["BasicComponentInfo"]["Company"],
+            "Model Number": self._legacy_props["BasicComponentInfo"]["Model Number"],
+            "Help URL": self._legacy_props["BasicComponentInfo"]["Help URL"],
+            "Version": self._legacy_props["BasicComponentInfo"]["Version"],
+            "Notes": self._legacy_props["BasicComponentInfo"]["Notes"],
+            "IconType": self._legacy_props["BasicComponentInfo"]["IconType"],
+        }
 
         self._app.modeler.oeditor.EditNativeComponentDefinition(self._get_args_edit(update_props))
         return True
@@ -1418,151 +1425,119 @@ class UserDefinedModel(UserDefinedComponent):
 
 
 class NativeComponentPCB(NativeComponent):
-    """Manages native component PCB data and execution.
+    """Manages native component PCB.
 
     Parameters
     ----------
-    app : object
+    app : _AppWithOProject
         AEDT application from the ``ansys.aedt.core.application`` class.
-    component_type : str
-        Type of the component.
-    component_name : str
+    name : str
         Name of the component.
     props : dict
-        Properties of the boundary.
+        Properties of the component.
 
     Examples
     --------
-    >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
-    >>> obj = NativeComponentPCB()
+    >>> from ansys.aedt.core import Icepak
+    >>> app = Icepak()
+    >>> comp = app.modeler.components[0]
+    >>> comp.board_cutout_material
 
     """
 
-    def __init__(self, app: Icepak, name: str, props: dict) -> None:
+    def __init__(self, app: _AppWithOProject, name: str, props: dict) -> None:
         NativeComponent.__init__(self, app=app, name=name, props=props)
 
     @property
-    def board_cutout_material(self) -> str:
+    def board_cutout_material(self) -> str | None:
         """Material applied to cutout regions.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
-        >>> obj = NativeComponentPCB()
-        >>> obj.board_cutout_material
+        >>> from ansys.aedt.core import Icepak
+        >>> app = Icepak()
+        >>> comp = app.modeler.components[0]
+        >>> comp.board_cutout_material
 
         """
-        return self.props["NativeComponentDefinitionProvider"].get("BoardCutoutMaterial", "air ")
+        board_cutout_material: str | None = None
+        if self._legacy_props:
+            component_provider = self._legacy_props.get("NativeComponentDefinitionProvider", {})
+            board_cutout_material = component_provider.get("BoardCutoutMaterial", "air")
+        return board_cutout_material
 
     @board_cutout_material.setter
     def board_cutout_material(self, value: str) -> None:
-        """Set material to apply to cutout regions.
-
-        Parameters
-        ----------
-        value : str
-            Material to apply to cutout regions.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
-        >>> obj = NativeComponentPCB()
-        >>> obj.board_cutout_material = "FR4"
-
-        """
-        self.props["NativeComponentDefinitionProvider"]["BoardCutoutMaterial"] = value
+        self._legacy_props["NativeComponentDefinitionProvider"]["BoardCutoutMaterial"] = value
+        self.update()
 
     @property
-    def via_holes_material(self) -> str:
+    def via_holes_material(self) -> str | None:
         """Material applied to via hole regions.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
-        >>> obj = NativeComponentPCB()
-        >>> obj.via_holes_material
+        >>> from ansys.aedt.core import Icepak
+        >>> app = Icepak()
+        >>> comp = app.modeler.components[0]
+        >>> comp.via_holes_material
 
         """
-        return self.props["NativeComponentDefinitionProvider"].get("ViaHoleMaterial", "copper")
+        via_holes_material: str | None = None
+        if self._legacy_props:
+            component_provider = self._legacy_props.get("NativeComponentDefinitionProvider", {})
+            via_holes_material = component_provider.get("ViaHoleMaterial", "copper")
+        return via_holes_material
 
     @via_holes_material.setter
     def via_holes_material(self, value: str) -> None:
-        """Set material to apply to via hole regions.
-
-        Parameters
-        ----------
-        value : str
-            Material to apply to via hole regions.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
-        >>> obj = NativeComponentPCB()
-        >>> obj.via_holes_material = "copper"
-
-        """
-        self.props["NativeComponentDefinitionProvider"]["ViaHoleMaterial"] = value
+        self._legacy_props["NativeComponentDefinitionProvider"]["ViaHoleMaterial"] = value
+        self.update()
 
     @property
-    def power(self):
+    def power(self) -> str | None:
         """Power dissipation assigned to the PCB.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
-        >>> obj = NativeComponentPCB()
-        >>> obj.power
+        >>> from ansys.aedt.core import Icepak
+        >>> app = Icepak()
+        >>> comp = app.modeler.components[0]
+        >>> comp.power
 
         """
-        return self.props["NativeComponentDefinitionProvider"].get("Power", "0W")
+        power: str | None = None
+        if self._legacy_props:
+            component_provider = self._legacy_props.get("NativeComponentDefinitionProvider", {})
+            power = component_provider.get("Power", "0W")
+        return power
 
     @power.setter
     def power(self, value: str) -> None:
-        """Assign power dissipation to the PCB.
-
-        Parameters
-        ----------
-        value : str
-            Power to apply to the PCB.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
-        >>> obj = NativeComponentPCB()
-        >>> obj.power = "5W"
-
-        """
-        self.props["NativeComponentDefinitionProvider"]["Power"] = value
+        self._legacy_props["NativeComponentDefinitionProvider"]["Power"] = value
+        self.update()
 
     @property
-    def force_source_solve(self):
+    def force_source_solve(self) -> bool | None:
         """Force source solution option.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
-        >>> obj = NativeComponentPCB()
-        >>> obj.force_source_solve
+        >>> from ansys.aedt.core import Icepak
+        >>> app = Icepak()
+        >>> comp = app.modeler.components[0]
+        >>> comp.force_source_solve
 
         """
-        return self.props["NativeComponentDefinitionProvider"].get("DefnLink", {}).get("ForceSourceToSolve", False)
+        force_source_solve: bool | None = None
+        if self._legacy_props:
+            component_provider = self._legacy_props.get("NativeComponentDefinitionProvider", {})
+            defnlink = component_provider.get("DefnLink", {})
+            force_source_solve = defnlink.get("ForceSourceToSolve", False)
+        return force_source_solve
 
     @force_source_solve.setter
     def force_source_solve(self, val: bool) -> None:
-        """Set Whether to force source solution.
-
-        Parameters
-        ----------
-        value : bool
-            Whether to force source solution.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
-        >>> obj = NativeComponentPCB()
-        >>> obj.force_source_solve = True
-
-        """
         if not isinstance(val, bool):
             self._app.logger.add_message(
                 message_type=2,
@@ -1571,38 +1546,33 @@ class NativeComponentPCB(NativeComponent):
                 proj_name=self._app.project_name,
                 des_name=self._app.design_name,
             )
-            return
-        return self.props["NativeComponentDefinitionProvider"]["DefnLink"].update({"ForceSourceToSolve": val})
+        else:
+            if "DefnLink" not in self._legacy_props["NativeComponentDefinitionProvider"]:
+                self._legacy_props["NativeComponentDefinitionProvider"]["DefnLink"] = {}
+            self._legacy_props["NativeComponentDefinitionProvider"]["DefnLink"].update({"ForceSourceToSolve": val})
+            self.update()
 
     @property
-    def preserve_partner_solution(self) -> bool:
+    def preserve_partner_solution(self) -> bool | None:
         """Preserve parner solution option.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
-        >>> obj = NativeComponentPCB()
-        >>> obj.preserve_partner_solution
+        >>> from ansys.aedt.core import Icepak
+        >>> app = Icepak()
+        >>> comp = app.modeler.components[0]
+        >>> comp.preserve_partner_solution
 
         """
-        return self.props["NativeComponentDefinitionProvider"].get("DefnLink", {}).get("PreservePartnerSoln", False)
+        preserve_partner_solution: bool | None = None
+        if self._legacy_props:
+            component_provider = self._legacy_props.get("NativeComponentDefinitionProvider", {})
+            defnlink = component_provider.get("DefnLink", {})
+            preserve_partner_solution = defnlink.get("PreservePartnerSoln", False)
+        return preserve_partner_solution
 
     @preserve_partner_solution.setter
     def preserve_partner_solution(self, val: bool) -> None:
-        """Set Whether to preserve partner solution.
-
-        Parameters
-        ----------
-        val : bool
-            Whether to preserve partner solution.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
-        >>> obj = NativeComponentPCB()
-        >>> obj.preserve_partner_solution = True
-
-        """
         if not isinstance(val, bool):
             self._app.logger.add_message(
                 message_type=2,
@@ -1611,51 +1581,45 @@ class NativeComponentPCB(NativeComponent):
                 proj_name=self._app.project_name,
                 des_name=self._app.design_name,
             )
-            return
-        return self.props["NativeComponentDefinitionProvider"]["DefnLink"].update({"PreservePartnerSoln": val})
+        else:
+            if "DefnLink" not in self._legacy_props["NativeComponentDefinitionProvider"]:
+                self._legacy_props["NativeComponentDefinitionProvider"]["DefnLink"] = {}
+            self._legacy_props["NativeComponentDefinitionProvider"]["DefnLink"].update({"PreservePartnerSoln": val})
+            self.update()
 
     @property
-    def included_parts(self) -> "None | PCBSettingsDeviceParts | PCBSettingsPackageParts":
+    def included_parts(self) -> None | PCBSettingsDeviceParts | PCBSettingsPackageParts:
         """Parts options.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
-        >>> obj = NativeComponentPCB()
-        >>> obj.included_parts
+        >>> from ansys.aedt.core import Icepak
+        >>> app = Icepak()
+        >>> comp = app.modeler.components[0]
+        >>> comp.included_parts
 
         """
-        p = self.props["NativeComponentDefinitionProvider"].get("PartsChoice", 0)
-        if p == 0:
-            return None
-        elif p == 1:
-            return PCBSettingsDeviceParts(self, self._app)
-        elif p == 2:
-            return PCBSettingsPackageParts(self, self._app)
+        if self._legacy_props:
+            component_provider = self._legacy_props.get("NativeComponentDefinitionProvider", {})
+            p = component_provider.get("PartsChoice", 0)
+            if p == 0:
+                return None
+            elif p == 1:
+                return PCBSettingsDeviceParts(self, self._app)
+            elif p == 2:
+                return PCBSettingsPackageParts(self, self._app)
 
     @included_parts.setter
     def included_parts(self, value: str | int | None) -> None:
-        """Set PCB parts incusion option.
-
-        Parameters
-        ----------
-        value : str or int
-            Valid options are ``"None"``, ``"Device"``, and ``"Package"`` (or 0, 1, and 2 respectivaly)
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
-        >>> obj = NativeComponentPCB()
-        >>> obj.included_parts = "Device"
-
-        """
         if value is None:
             value = "None"
         part_map = {"None": 0, "Device": 1, "Package": 2}
         if not isinstance(value, int):
             value = part_map.get(value, None)
+
         if value is not None:
-            self.props["NativeComponentDefinitionProvider"]["PartsChoice"] = value
+            self._legacy_props["NativeComponentDefinitionProvider"]["PartsChoice"] = value
+            self.update()
         else:
             self._app.logger.add_message(
                 message_type=2,
@@ -1666,55 +1630,7 @@ class NativeComponentPCB(NativeComponent):
                 des_name=self._app.design_name,
             )
 
-    @force_source_solve.setter
-    def force_source_solve(self, val: bool) -> None:
-        """Set Whether to force source solution.
-
-        Parameters
-        ----------
-        value : bool
-            Whether to force source solution.
-
-        """
-        if not isinstance(val, bool):
-            self._app.logger.add_message(
-                message_type=2,
-                message_text="Only Boolean value can be accepted.",
-                level="Design",
-                proj_name=self._app.project_name,
-                des_name=self._app.design_name,
-            )
-            return
-        return self.props["NativeComponentDefinitionProvider"]["DefnLink"].update({"ForceSourceToSolve": val})
-
-    @preserve_partner_solution.setter
-    def preserve_partner_solution(self, val: bool) -> None:
-        """Set Whether to preserve partner solution.
-
-        Parameters
-        ----------
-        val : bool
-            Whether to preserve partner solution.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
-        >>> obj = NativeComponentPCB()
-        >>> obj.preserve_partner_solution = True
-
-        """
-        if not isinstance(val, bool):
-            self._app.logger.add_message(
-                message_type=2,
-                message_text="Only boolean can be accepted.",
-                level="Design",
-                proj_name=self._app.project_name,
-                des_name=self._app.design_name,
-            )
-            return
-        return self.props["NativeComponentDefinitionProvider"]["DefnLink"].update({"PreservePartnerSoln": val})
-
-    @pyaedt_function_handler()
+    @property
     def identify_extent_poly(self) -> str | bool:
         """Get polygon that defines board extent.
 
@@ -1725,17 +1641,30 @@ class NativeComponentPCB(NativeComponent):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
-        >>> obj = NativeComponentPCB()
-        >>> obj.identify_extent_poly
+        >>> from ansys.aedt.core import Icepak
+        >>> app = Icepak()
+        >>> comp = app.modeler.components[0]
+        >>> comp.identify_extent_poly
 
         """
         from ansys.aedt.core import Hfss3dLayout
 
-        prj = self.props["NativeComponentDefinitionProvider"]["DefnLink"]["Project"]
+        prj = None
+        if self._legacy_props and self._legacy_props.get("DefnLink", {}):
+            prj = self._legacy_props["DefnLink"].get("Project", None)
+        if not prj:
+            return False
         if prj == "This Project*":
             prj = self._app.project_name
-        layout = Hfss3dLayout(project=prj, design=self.props["NativeComponentDefinitionProvider"]["DefnLink"]["Design"])
+
+        design = None
+        if self._legacy_props and self._legacy_props.get("DefnLink", {}):
+            design = self._legacy_props["DefnLink"].get("Design", None)
+
+        if not design:  # pragma: no cover
+            return False
+
+        layout = Hfss3dLayout(project=prj, design=design)
         layer = [o for o in layout.modeler.stackup.drawing_layers if o.type == "outline"][0]
         outlines = [p for p in layout.modeler.polygons.values() if p.placement_layer == layer.name]
         if len(outlines) > 1:
@@ -1779,9 +1708,10 @@ class NativeComponentPCB(NativeComponent):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
-        >>> obj = NativeComponentPCB()
-        >>> obj.set_board_extents(extent_type=1, extent_polygon=1)
+        >>> from ansys.aedt.core import Icepak
+        >>> app = Icepak()
+        >>> comp = app.modeler.components[0]
+        >>> comp.set_board_extents()
 
         """
         props = self._legacy_props.get("NativeComponentDefinitionProvider", {})
@@ -1849,9 +1779,10 @@ class NativeComponentPCB(NativeComponent):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
-        >>> obj = NativeComponentPCB()
-        >>> obj.set_high_side_radiation(enabled=True)
+        >>> from ansys.aedt.core import Icepak
+        >>> app = Icepak()
+        >>> comp = app.modeler.components[0]
+        >>> comp.set_high_side_radiation(enabled=True)
 
         """
         high_rad = {
@@ -1862,8 +1793,9 @@ class NativeComponentPCB(NativeComponent):
         if radiate_to_ref_temperature:
             high_rad["Ref. Temperature - High"] = (ref_temperature,)
             high_rad["View Factor - High"] = view_factor
-        self.props["NativeComponentDefinitionProvider"]["HighSide"] = high_rad
-        return True
+
+        self._legacy_props["NativeComponentDefinitionProvider"]["HighSide"] = high_rad
+        return self.update()
 
     @pyaedt_function_handler()
     def set_resolution(self, resolution: int) -> bool:
@@ -1881,9 +1813,10 @@ class NativeComponentPCB(NativeComponent):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
-        >>> obj = NativeComponentPCB()
-        >>> obj.set_resolution(resolution=1)
+        >>> from ansys.aedt.core import Icepak
+        >>> app = Icepak()
+        >>> comp = app.modeler.components[0]
+        >>> comp.set_resolution(resolution=1)
 
         """
         if resolution < 1 or resolution > 5:
@@ -1895,9 +1828,9 @@ class NativeComponentPCB(NativeComponent):
                 des_name=self._app.design_name,
             )
             return False
-        self.props["NativeComponentDefinitionProvider"]["Resolution"] = resolution
-        self.props["NativeComponentDefinitionProvider"]["CustomResolution"] = False
-        return True
+        self._legacy_props["NativeComponentDefinitionProvider"]["Resolution"] = resolution
+        self._legacy_props["NativeComponentDefinitionProvider"]["CustomResolution"] = False
+        return self.update()
 
     @pyaedt_function_handler()
     def set_custom_resolution(self, row: int, col: int) -> bool:
@@ -1917,15 +1850,16 @@ class NativeComponentPCB(NativeComponent):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
-        >>> obj = NativeComponentPCB()
-        >>> obj.set_custom_resolution(row=1, col=1)
+        >>> from ansys.aedt.core import Icepak
+        >>> app = Icepak()
+        >>> comp = app.modeler.components[0]
+        >>> comp.set_custom_resolution(row=1, col=1)
 
         """
-        self.props["NativeComponentDefinitionProvider"]["CustomResolutionRow"] = row
-        self.props["NativeComponentDefinitionProvider"]["CustomResolutionCol"] = col
-        self.props["NativeComponentDefinitionProvider"]["CustomResolution"] = True
-        return True
+        self._legacy_props["NativeComponentDefinitionProvider"]["CustomResolutionRow"] = row
+        self._legacy_props["NativeComponentDefinitionProvider"]["CustomResolutionCol"] = col
+        self._legacy_props["NativeComponentDefinitionProvider"]["CustomResolution"] = True
+        return self.update()
 
     @pyaedt_function_handler()
     def set_low_side_radiation(
@@ -1961,9 +1895,10 @@ class NativeComponentPCB(NativeComponent):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
-        >>> obj = NativeComponentPCB()
-        >>> obj.set_low_side_radiation(enabled=True)
+        >>> from ansys.aedt.core import Icepak
+        >>> app = Icepak()
+        >>> comp = app.modeler.components[0]
+        >>> comp.set_low_side_radiation(enabled=True)
 
         """
         low_side = {
@@ -1974,8 +1909,8 @@ class NativeComponentPCB(NativeComponent):
         if radiate_to_ref_temperature:
             low_side["Ref. Temperature"] = (ref_temperature,)
             low_side["View Factor"] = view_factor
-        self.props["NativeComponentDefinitionProvider"]["LowSide"] = low_side
-        return True
+        self._legacy_props["NativeComponentDefinitionProvider"]["LowSide"] = low_side
+        return self.update()
 
 
 class PCBSettingsPackageParts(PyAedtBase):
