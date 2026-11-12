@@ -1014,7 +1014,6 @@ class FacePrimitive(PyAedtBase):
         if self._is_planar:
             return [float(i) for i in self.oeditor.GetFaceCenter(self.id)]
         else:  # pragma: no cover
-            # self.logger.clear_messages()
             vtx = self.vertices[:]
             if len(vtx) > 1:
                 return GeometryOperators.get_polygon_centroid([pos.position for pos in vtx])
