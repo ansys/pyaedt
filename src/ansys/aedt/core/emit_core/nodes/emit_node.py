@@ -107,7 +107,7 @@ class EmitNode:
 
     @min_aedt_version("2027.1")
     @contextmanager
-    def _catch_aedt_errors(self, default_error: str = "An unknown error occurred: {e}") -> None:
+    def _catch_aedt_errors(self, default_error: str) -> None:
         """Catches grpc exceptions and raises a RuntimeError with the last error message from AEDT if found.
 
         Parameters
