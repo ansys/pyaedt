@@ -2063,12 +2063,15 @@ class Lists(PropsManager, PyAedtBase):
 
         elif list_type == "Face":
             object_list_new = []
+            object_names = None
             for element in object_list:
                 if isinstance(element, str):
                     if element.isnumeric():
                         object_list_new.append(int(element))
                     else:
-                        if element in self._modeler.object_names:
+                        if object_names is None:
+                            object_names = set(self._modeler.object_names)
+                        if element in object_names:
                             obj_id = self._modeler.objects[element].id
                             for sel in self._modeler.object_list:
                                 if sel.id == obj_id:

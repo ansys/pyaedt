@@ -568,10 +568,14 @@ class Design(AedtObjects, PyAedtBase):
 
         current_boundaries = bb[::2]
         current_types = bb[1::2]
-        if hasattr(self, "excitation_names"):
-            check_boundaries = list(current_boundaries[:]) + list(self.ports[:]) + self.excitation_names[:]
-            if hasattr(self, "net_names"):
-                check_boundaries += self.net_names
+        # ``getattr`` evaluates each property once (``hasattr`` would evaluate it and then it would be re-read).
+        excitation_names = getattr(self, "excitation_names", None)
+        if excitation_names is not None:
+            check_boundaries = list(current_boundaries[:]) + list(self.ports[:]) + excitation_names[:]
+            net_names = getattr(self, "net_names", None)
+            if net_names is not None:
+                check_boundaries += net_names
+            check_boundaries = set(check_boundaries)
             for k in list(self._boundaries.keys())[:]:
                 if k not in check_boundaries:
                     del self._boundaries[k]
@@ -4882,10 +4886,20 @@ class Design(AedtObjects, PyAedtBase):
         >>> result = hfss.evaluate_expression("sqrt(width^2 + height^2)")
 
         """
+        # Fast path: plain numeric values cannot be variable names, so skip the variable lookup.
+        if isinstance(expression, (int, float)) and not isinstance(expression, bool):
+            return float(expression)
+        if isinstance(expression, str) and expression[:1] and not (expression[0].isalpha() or expression[0] in "$_"):
+            try:
+                return float(expression)
+            except ValueError:
+                pass
+
         # Strategy 1: Direct variable lookup
         # If the expression is exactly a variable name, return its SI value directly
-        if expression in self._variable_manager.variables:
-            return self._variable_manager.variables[expression].si_value
+        variables = self._variable_manager.variables
+        if expression in variables:
+            return variables[expression].si_value
 
         # Strategy 2: Check for PWL (Piecewise Linear) dataset references
         # PWL expressions reference datasets and should be returned as-is
