@@ -627,13 +627,6 @@ class Analysis(Design, PyAedtBase):
         >>> hfss.imported_solution_names
 
         """
-        return self._imported_solution_names(self.setup_names)
-
-    @pyaedt_function_handler()
-    def _imported_solution_names(self, setup_names: list[str]) -> list[str]:
-        """Return imported solution names, given the already retrieved setup names."""
-        solution_list = list(self.get_oo_name(self.oreportsetup, "Profile"))
-        setup_names = set(setup_names)
         solution_list = list(self.get_oo_name(self.oreportsetup, "Profile"))
         setup_names = set(self.setup_names)
         return [i for i in solution_list if i not in setup_names]
