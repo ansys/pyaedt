@@ -103,8 +103,9 @@ def test_rcs_matches_explicit(rcs_app) -> None:
 def test_all_curves_single(horn_app) -> None:
     plot = _get_plot(horn_app, "Realized Gain Plot1")
     curves = plot.get_expression_data_all_curves(formula="real")
-    assert len(curves) == 1
     x, y = plot.get_solution_data().get_expression_data(plot.expressions[0], formula="real")
+
+    assert len(curves) == 1
     np.testing.assert_allclose(curves[0]["x"], x)
     np.testing.assert_allclose(curves[0]["y"], y)
 
