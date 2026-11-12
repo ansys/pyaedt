@@ -57,7 +57,6 @@ from ansys.aedt.core.generic.quaternion import Quaternion
 from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
-from ansys.aedt.core.modeler.cad.components_3d import NativeComponentObject
 from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
@@ -325,8 +324,8 @@ class GeometryModeler(Modeler, PyAedtBase):
         self.objects = Objects(self, "o")
         self.points = Objects(self, "p")
 
+        self.__components_data = SetupDict()
         self.__user_defined_components = SetupDict()
-        self.__native_components = SetupDict()
 
         self.refresh()
 
@@ -924,16 +923,70 @@ class GeometryModeler(Modeler, PyAedtBase):
         return self._points
 
     @property
-    def component_definition_names(self) -> list:
-        """List of the 3D component definition names.
-
-        Returns
-        -------
-        list
+    def components_data(self) -> SetupDict:
+        """Get component instance data, including definition and type.
 
         References
         ----------
         >>> oEditor.Get3DComponentDefinitionNames
+        >>> oEditor.Get3DComponentInstanceNames
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.modeler.components_data
+
+        """
+        component_data = SetupDict()
+        if "Get3DComponentDefinitionNames" in dir(self.oeditor):
+            comp_definitions = list(self.oeditor.Get3DComponentDefinitionNames())
+            for comp3d in comp_definitions:
+                comp_instances = list(self.oeditor.Get3DComponentInstanceNames(comp3d))
+                comp3d_o = self._app.get_oo_object(self.oeditor, comp3d)
+                for instance in comp_instances:
+                    comp3d_o_methods = dir(comp3d_o)
+                    if comp3d_o and "Type" in comp3d_o_methods:
+                        comp3d_type = comp3d_o.Type
+                    elif "EDB_Definition" in comp3d_o_methods:
+                        comp3d_type = "layout_component"
+                    else:
+                        comp3d_type = "3d_component"
+                    component_data[instance] = {"definition": comp3d, "type": comp3d_type}
+
+        if "GetChildTypes" in dir(self.oeditor):
+            child_types = self.oeditor.GetChildTypes()
+            child_type = next(
+                (name for name in ("UserDefinedModels", "UserDefinedModel") if name in child_types),
+                None,
+            )
+            if child_type:
+                for udm_instance in self.oeditor.GetChildNames(child_type):
+                    component_data[udm_instance] = {"definition": None, "type": "UserDefinedModel"}
+
+        self.__components_data = component_data
+        return component_data
+
+    @property
+    def component_names(self) -> list:
+        """List of the names of all components, 3D Components and user-defined components.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.modeler.component_names
+
+        """
+        return list(self.components_data.keys())
+
+    @property
+    def component_definition_names(self) -> list:
+        """List of component definition names.
+
+        Returns
+        -------
+        list
 
         Examples
         --------
@@ -942,71 +995,140 @@ class GeometryModeler(Modeler, PyAedtBase):
         >>> hfss.modeler.component_definition_names
 
         """
-        comp_definitions = []
-        if "Get3DComponentDefinitionNames" in dir(self.oeditor):
-            comp_definitions = list(self.oeditor.Get3DComponentDefinitionNames())
-        return comp_definitions
+        definitions = (component_data.get("definition") for component_data in self.components_data.values())
+        return list(dict.fromkeys(definition for definition in definitions if definition))
 
     @property
-    def component_definition_instances(self) -> dict:
-        """Instances of each component definition.
-
-        References
-        ----------
-        >>> oEditor.Get3DComponentInstanceNames
+    def component_type_names(self) -> list:
+        """List unique component type names in component instance order.
 
         Returns
         -------
-        dict
+        list
 
         Examples
         --------
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
-        >>> hfss.modeler.component_definition_instances
+        >>> hfss.modeler.component_type_names
 
         """
-        comp_definitions = self.component_definition_names
-        instances = {}
-        for definition in comp_definitions:
-            instances[definition] = list(self.oeditor.Get3DComponentInstanceNames(definition))
-        return instances
+        types = (component_data.get("type") for component_data in self.components_data.values())
+        return list(dict.fromkeys(component_type for component_type in types if component_type))
 
     @property
-    def user_defined_component_names(self) -> list:
-        """List of the names of all 3D component objects.
+    def layout_component_names(self) -> list:
+        """List of the names of all Layout component objects.
 
-        References
-        ----------
-        >>> oEditor.Get3DComponentDefinitionNames
-        >>> oEditor.Get3DComponentInstanceNames
+        Returns
+        -------
+        list
+            Layout component names.
 
         Examples
         --------
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
-        >>> hfss.modeler.user_defined_component_names
+        >>> hfss.modeler.layout_component_names
 
         """
-        # Get 3D Components
-        comp_instances = []
-        comp_definitions = self.component_definition_names
-        for comp3d in comp_definitions:
-            comp_instances += list(self.oeditor.Get3DComponentInstanceNames(comp3d))
-        # Get UDM
-        udm = []
-        try:
-            child_types = self.oeditor.GetChildTypes()
-            child_type = next(
-                (name for name in ("UserDefinedModels", "UserDefinedModel") if name in child_types),
-                None,
-            )
-            if child_type:
-                udm = list(self.oeditor.GetChildNames(child_type))
-        except Exception:  # pragma: no cover
-            udm = []
-        obs3d = list(set(udm + comp_instances))
-        return obs3d
+        return [
+            instance_name
+            for instance_name, component_data in self.components_data.items()
+            if component_data.get("type") == "layout_component"
+        ]
+
+    @property
+    def component_names_by_definition(self) -> SetupDict:
+        """Map component instance names to their definition names.
+
+        Returns
+        -------
+        SetupDict
+            Component instance names as keys and definition names as values.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.modeler.component_names_by_definition
+
+        """
+        component_definitions_by_instance = SetupDict()
+        for instance_name, instance_data in self.components_data.items():
+            component_definitions_by_instance[instance_name] = instance_data.get("definition")
+        return component_definitions_by_instance
+
+    @property
+    def component_names_by_type(self) -> SetupDict:
+        """Map component instance names to their type names.
+
+        Returns
+        -------
+        SetupDict
+            Component instance names as keys and types names as values.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.modeler.component_names_by_type
+
+        """
+        component_names_by_type = SetupDict()
+        for instance_name, instance_data in self.components_data.items():
+            component_names_by_type[instance_name] = instance_data.get("type")
+        return component_names_by_type
+
+    @property
+    def component_types(self) -> SetupDict:
+        """Map component type names to their instance names.
+
+        Instances without a type are omitted.
+
+        Returns
+        -------
+        SetupDict
+            Component type names as keys and instance names as values.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.modeler.component_types
+
+        """
+        component_types = SetupDict()
+        for instance_name, instance_data in self.components_data.items():
+            instance_type = instance_data.get("type")
+            if instance_type:
+                component_types.setdefault(instance_type, []).append(instance_name)
+        return component_types
+
+    @property
+    def component_definitions(self) -> SetupDict:
+        """Map component definition names to their instance names.
+
+        Instances without a definition are omitted.
+
+        Returns
+        -------
+        SetupDict
+            Component definition names as keys and instance names as values.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.modeler.component_definitions
+
+        """
+        component_definitions = SetupDict()
+        for instance_name, instance_data in self.components_data.items():
+            instance_definition = instance_data.get("definition")
+            if instance_definition:
+                component_definitions.setdefault(instance_definition, []).append(instance_name)
+        return component_definitions
 
     @property
     def user_defined_components(self) -> SetupDict:
@@ -1025,29 +1147,6 @@ class GeometryModeler(Modeler, PyAedtBase):
                 del self.__user_defined_components[comp]
 
         return self.__user_defined_components
-
-    @property
-    def layout_component_names(self) -> list:
-        """List of the names of all Layout component objects.
-
-        Returns
-        -------
-        list
-            Layout component names.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.layout_component_names
-
-        """
-        lc_names = []
-        if self.user_defined_components.keys():
-            for name, value in self.user_defined_components.items():
-                if value.layout_component:
-                    lc_names.append(name)
-        return lc_names
 
     @property
     def groups(self):
@@ -10762,60 +10861,26 @@ class GeometryModeler(Modeler, PyAedtBase):
     @pyaedt_function_handler()
     def _get_native_data(self):
         """Retrieve native components data."""
-        boundaries = SetupDict()
-
+        native_definitions = {}
         dp = self._app.design_properties
-
         if not isinstance(dp, dict):  # pragma: no cover
-            return boundaries
-
+            # This could happen if the project is not saved or has an encrypted component
+            return {}
         model_setup = dp.get("ModelSetup", {})
         geometry_core = model_setup.get("GeometryCore", {})
         geometry_operations = geometry_core.get("GeometryOperations", {})
         sub_model_definitions = geometry_operations.get("SubModelDefinitions", {})
         native_component_definitions = sub_model_definitions.get("NativeComponentDefinition", {})
-
-        if not native_component_definitions:  # pragma: no cover
-            return boundaries
-
         component_definitions = copy.deepcopy(native_component_definitions)
-
-        if not isinstance(component_definitions, list) and isinstance(component_definitions, dict):
-            component_definitions = [component_definitions]
-
-        component_definitions = None
-        if component_definitions:
-            try:
-                component_definitions = {}
-                for definition in self.oeditor.Get3DComponentDefinitionNames() or []:
-                    for instance_name in self.oeditor.Get3DComponentInstanceNames(definition) or []:
-                        component_definitions.setdefault(instance_name, definition)
-            except Exception:
-                component_definitions = None
-                self.logger.debug("Failed to retrieve native component definitions.")
-        for ds in component_definitions:
-            try:
-                component_name = "undefined"
-                if isinstance(ds, dict):
-                    component_type = ds["NativeComponentDefinitionProvider"]["Type"]
-                    component_name = ds["BasicComponentInfo"]["ComponentName"]
-                    definition_name = (
-                        component_definitions.get(component_name, "") if component_definitions is not None else None
-                    )
-                    if component_type == "PCB":
-                        native_component_object = NativeComponentPCB(
-                            self._app, component_name, ds, definition_name=definition_name
-                        )
-                    else:
-                        native_component_object = NativeComponentObject(
-                            self, component_type, component_name, ds, definition_name=definition_name
-                        )
-                    boundaries[component_name] = native_component_object
-            except Exception:
-                msg = "Failed to add native component object."
-                msg_end = "." if component_name == "undefined" else f"(named {component_name})."
-                self.logger.debug(msg + msg_end)
-        return boundaries
+        for native_comp in component_definitions:
+            native_name = native_comp.get("SubmodelDefinitionName", None)
+            native_type = None
+            if native_name:
+                native_provider = native_comp.get("NativeComponentDefinitionProvider", None)
+                if native_provider:
+                    native_type = native_provider.get("Type", None)
+                native_definitions[native_name] = native_type
+        return native_definitions
 
 
 class PrimitivesBuilder(PyAedtBase):
