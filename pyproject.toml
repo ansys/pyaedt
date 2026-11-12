@@ -51,6 +51,7 @@ dotnet = [
 # NOTE: Any modification to graphics should be extended in internal checks (decorators)
 graphics = [
     "ansys-tools-visualization-interface",
+    "tables",
     "pyvista[io]>=0.38.0,<0.50",
     "matplotlib>=3.5.0",
     "vtk>=9.0,<9.8",
@@ -70,6 +71,7 @@ all = [
     "pyvista[io]>=0.38.0,<0.50",
     "fast-simplification>=0.1.7",
     "ansys-tools-visualization-interface",
+    "tables",
     "scikit-rf>=0.30.0",
     "pyaedt[jupyter]",
     "requests",
@@ -86,6 +88,7 @@ all-dotnet = [
     "pyvista[io]>=0.38.0,<0.50",
     "fast-simplification>=0.1.7",
     "ansys-tools-visualization-interface",
+    "tables",
     "scikit-rf>=0.30.0",
     "pyaedt[jupyter]",
     "requests",
@@ -110,6 +113,7 @@ examples = [
     "scikit-rf>=0.30.0",
     "pdf-oxide",
     "rpyc>=6.0.0",
+    "tables",
 ]
 
 [dependency-groups]

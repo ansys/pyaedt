@@ -30,7 +30,7 @@ on:
            - 'no'
       python-version:
          description: "Python version to build for (choose 'all' for all supported versions)"
-         default: '3.12'
+         default: '3.13'
          type: choice
          options:
            - 'all'

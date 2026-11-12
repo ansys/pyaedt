@@ -34,7 +34,7 @@ env:
   TESTMON_CACHE_KEY_LAYOUT_LINUX: 'testmondata-layout-linux'
   TESTMON_CACHE_KEY_FILTER_WIN: 'testmondata-filter-win'
   TESTMON_CACHE_KEY_EMIT_WIN: 'testmondata-emit-win'
-  TESTS_VERSION: '3.12'
+  TESTS_VERSION: '3.13'
 
 jobs:
   # ------------------------------------------------------------------
@@ -71,7 +71,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
-          python-version: '3.12'
+          python-version: '3.13'
 
       - name: Analyze changes
         id: analyze

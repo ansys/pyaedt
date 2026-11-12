@@ -16,7 +16,7 @@ env:
   PYAEDT_OSM_XFAIL: "1"
   PYAEDT_SOLVER_XFAIL: "1"
   PYAEDT_TCL_INIT_XFAIL: "1"
-  TESTS_VERSION: '3.12'
+  TESTS_VERSION: '3.13'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
