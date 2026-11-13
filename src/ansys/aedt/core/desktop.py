@@ -2380,7 +2380,6 @@ class Desktop(PyAedtBase):
         >>> desktop.enable_autosave(interval=10)
 
         """
-
         if interval is not None:
             if interval < 1:
                 raise ValueError("interval must be 1 or more")
