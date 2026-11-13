@@ -895,7 +895,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
     @pyaedt_function_handler()
     def export_equivalent_circuit(
         self,
-        output_file: str = None,
+        output_file: str | list | None = None,
         setup: str | None = None,
         sweep: str | None = None,
         variations: list | str | None = None,
@@ -930,7 +930,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
 
         Parameters
         ----------
-        output_file : str
+        output_file : str, list
             Full path for saving the matrix data to.
             Options for file extensions are CIR, SML, SP, PKG, SPC, LIB, CKT, BSP,
             DML, and ICM.
@@ -942,8 +942,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
             the default adaptive is used.
         variations : list or str, optional
             Design variation. The default is ``None``, in which case the
-            current nominal variation is used. If you provide a
-            design variation, use the format ``{Name}:{Value}``.
+            current nominal variation is used.
         matrix : str, optional
             Name of the matrix to show. The default is ``"Original"``.
         cells : int, optional
@@ -1056,8 +1055,11 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         >>> aedtapp.modeler.duplicate_along_line(objid="Box1", vector=[0, "d", 0])
         >>> mysetup = aedtapp.create_setup()
         >>> aedtapp.analyze_setup(mysetup.name)
+        >>> variations = aedtapp.available_variations.variations(
+        ...     setup_sweep=f"{mysetup.name} : LastAdaptive", output_as_dict=True
+        ... )
         >>> aedtapp.export_equivalent_circuit(
-        ...     output_file="test_export_circuit.cir", setup=mysetup.name, sweep="LastAdaptive", variations=["d: 20mm"]
+        ...     output_file="test_export_circuit.cir", setup=mysetup.name, sweep="LastAdaptive", variations=variations
         ... )
 
         """
@@ -1077,8 +1079,38 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         if self.modeler._is3d:
             available_formats.append(".cir")
 
-        if Path(output_file).suffix not in available_formats:
-            raise AEDTRuntimeError(f"Extension is invalid. Possible extensions are: {available_formats}.")
+        if variations is None:
+            nominal_values = self.available_variations.nominal_variation(dependent_params=False)
+            if not nominal_values:
+                variations = [""]
+            else:
+                variations = [self.available_variations.variation_string(nominal_values)]
+        elif isinstance(variations, list):
+            # If user passes a dictionary, it is converted to list, which is the format AEDT needs
+            variation_list = []
+            for var in variations:
+                if isinstance(var, dict):
+                    variation_list.append(self.available_variations.variation_string(var))
+                else:
+                    variation_list.append(var)
+            variations = variation_list
+        elif isinstance(variations, str):
+            variations = [variations]
+
+        if not isinstance(output_file, list):
+            output_file = [output_file]
+
+        if isinstance(variations, list) and not isinstance(output_file, list):
+            raise AttributeError(
+                "If `variations` is a list, user must pass list of files, "
+                "because each equivalent circuit is saved in different files."
+            )
+        elif isinstance(variations, list) and isinstance(output_file, list) and len(variations) != len(output_file):
+            raise AttributeError("The length of `variations` and `output_file` must be the same.")
+
+        for file in output_file:
+            if Path(file).suffix not in available_formats:
+                raise AEDTRuntimeError(f"Extension of {file} is invalid. Possible extensions are: {available_formats}.")
 
         if setup is None:
             setup = self.active_setup
@@ -1092,32 +1124,6 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
             if sweep.replace(" ", "") not in sweep_array:
                 raise AEDTRuntimeError("Sweep is invalid. Provide a valid sweep.")
         analysis_setup = setup + " : " + sweep.replace(" ", "")
-
-        if variations is None:
-            nominal_values = self.available_variations.nominal_variation(dependent_params=False)
-
-            if not nominal_values:
-                variations = ""
-            else:
-                variations_list = []
-                for x in range(0, len(nominal_values)):
-                    variation = f"{list(nominal_values.keys())[x]}='{list(nominal_values.values())[x]}'"
-                    variations_list.append(variation)
-                variations = ",".join(variations_list)
-        else:
-            variations_list = []
-            if not isinstance(variations, list):
-                raise AEDTRuntimeError("Variations must be provided as a list.")
-            for x in range(0, len(variations)):
-                name = variations[x].replace(" ", "").split(":")[0]
-                value = variations[x].replace(" ", "").split(":")[1]
-                solved_variations = self.post.get_solution_data(variations={name: [value]})
-
-                if not solved_variations or not solved_variations.variations[0]:
-                    raise AEDTRuntimeError("Provided variation doesn't exist.")
-                variation = f"{name}='{value}'"
-                variations_list.append(variation)
-            variations = ",".join(variations_list)
 
         if matrix is None:
             matrix = "Original"
@@ -1284,51 +1290,55 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
                     export_circuit_context.append(include_cpp)
                     export_circuit_context.append(cpp_settings)
 
-                self.oanalysis.ExportCircuit(
-                    analysis_setup,
-                    variations,
-                    str(output_file),
-                    export_circuit_context,
-                    model,
-                    frequency,
-                )
+                for count, var in enumerate(variations):
+                    file = output_file[count]
+                    self.oanalysis.ExportCircuit(
+                        analysis_setup,
+                        var,
+                        str(file),
+                        export_circuit_context,
+                        model,
+                        frequency,
+                    )
                 return True
             except Exception:
                 raise AEDTRuntimeError("Export of equivalent circuit was unsuccessful.")
         else:
             try:
-                self.oanalysis.ExportCircuit(
-                    analysis_setup,
-                    variations,
-                    str(output_file),
-                    [
-                        "NAME:CircuitData",
-                        "MatrixName:=",
-                        matrix,
-                        "NumberOfCells:=",
-                        str(cells),
-                        "UserHasChangedSettings:=",
-                        user_changed_settings,
-                        "IncludeCap:=",
-                        include_cap,
-                        "IncludeCond:=",
-                        include_cond,
-                        [coupling_limits],
-                        "IncludeR:=",
-                        include_r,
-                        "IncludeL:=",
-                        include_l,
-                        "ExportDistributed:=",
-                        export_distributed,
-                        "LumpedLength:=",
-                        lumped_length,
-                        "RiseTime:=",
-                        rise_time,
-                    ],
-                    model,
-                    file_type,
-                    frequency,
-                )
+                for count, var in enumerate(variations):
+                    file = output_file[count]
+                    self.oanalysis.ExportCircuit(
+                        analysis_setup,
+                        var,
+                        str(file),
+                        [
+                            "NAME:CircuitData",
+                            "MatrixName:=",
+                            matrix,
+                            "NumberOfCells:=",
+                            str(cells),
+                            "UserHasChangedSettings:=",
+                            user_changed_settings,
+                            "IncludeCap:=",
+                            include_cap,
+                            "IncludeCond:=",
+                            include_cond,
+                            [coupling_limits],
+                            "IncludeR:=",
+                            include_r,
+                            "IncludeL:=",
+                            include_l,
+                            "ExportDistributed:=",
+                            export_distributed,
+                            "LumpedLength:=",
+                            lumped_length,
+                            "RiseTime:=",
+                            rise_time,
+                        ],
+                        model,
+                        file_type,
+                        frequency,
+                    )
                 return True
             except Exception:
                 raise AEDTRuntimeError("Export of equivalent circuit was unsuccessful.")
