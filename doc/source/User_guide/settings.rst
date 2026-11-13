@@ -141,6 +141,8 @@ Below is the content that can be updated through the YAML file.
         use_multi_desktop: false
         # Enable or disable the use of the flag `-waitforlicense` when launching Electronic Desktop
         wait_for_license: false
+        # Extra command line arguments appended when launching AEDT in gRPC mode
+        custom_desktop_launch_args: null
         # State whether the remote API is used or not
         remote_api: false
         # Specify the port the RPyC server is to listen to
