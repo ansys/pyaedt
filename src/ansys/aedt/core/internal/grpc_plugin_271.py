@@ -60,7 +60,7 @@ class AEDT:
         return self._odesktop
 
     def recreate_application(self, force: bool = False) -> None:
-        self.CreateAedtApplication(self.machine, self.port)
+        self.CreateAedtApplication(machine=self.machine, port=self.port)
         return self.odesktop
 
     def Release(self) -> None:

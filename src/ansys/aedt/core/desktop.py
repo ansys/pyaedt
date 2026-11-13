@@ -1698,7 +1698,10 @@ class Desktop(PyAedtBase):
 
         """
         if not name:
-            active_project = self.odesktop.GetActiveProject()
+            try:
+                active_project = self.odesktop.GetActiveProject()
+            except Exception:
+                active_project = None
             if not active_project and self.project_list:
                 active_project = self.odesktop.SetActiveProject(self.project_list[0])
         else:
