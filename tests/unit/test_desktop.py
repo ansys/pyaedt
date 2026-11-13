@@ -168,6 +168,51 @@ def test_desktop_active_design_name(mock_desktop) -> None:
     assert desktop.active_design_name == "Design1"
 
 
+def test_desktop_enable_autosave_without_interval(mock_desktop) -> None:
+    desktop = Desktop()
+    desktop.grpc_plugin = MagicMock()
+    odesktop = MagicMock()
+    desktop.grpc_plugin.odesktop = odesktop
+
+    assert desktop.enable_autosave() is True
+    odesktop.SetRegistryInt.assert_not_called()
+    odesktop.EnableAutoSave.assert_called_once_with(True)
+
+
+def test_desktop_enable_autosave_with_interval(mock_desktop) -> None:
+    desktop = Desktop()
+    desktop.grpc_plugin = MagicMock()
+    odesktop = MagicMock()
+    desktop.grpc_plugin.odesktop = odesktop
+
+    assert desktop.enable_autosave(interval=10) is True
+    odesktop.SetRegistryInt.assert_called_once_with("Desktop/Settings/ProjectOptions/AutoSaveInterval", 10)
+    odesktop.EnableAutoSave.assert_called_once_with(True)
+
+
+@pytest.mark.parametrize("interval", [0, -5])
+def test_desktop_enable_autosave_invalid_interval(mock_desktop, interval) -> None:
+    desktop = Desktop()
+    desktop.grpc_plugin = MagicMock()
+    odesktop = MagicMock()
+    desktop.grpc_plugin.odesktop = odesktop
+
+    with pytest.raises(ValueError, match="interval must be 1 or more"):
+        desktop.enable_autosave(interval=interval)
+    odesktop.SetRegistryInt.assert_not_called()
+    odesktop.EnableAutoSave.assert_not_called()
+
+
+def test_desktop_disable_autosave(mock_desktop) -> None:
+    desktop = Desktop()
+    desktop.grpc_plugin = MagicMock()
+    odesktop = MagicMock()
+    desktop.grpc_plugin.odesktop = odesktop
+
+    desktop.disable_autosave()
+    odesktop.EnableAutoSave.assert_called_once_with(False)
+
+
 def test_desktop_check_settings_failure_with_lsf_num_cores(mock_settings) -> None:
     """Test _check_settings failure due to num_cores value."""
     settings = Settings()
