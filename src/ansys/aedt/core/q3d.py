@@ -1020,7 +1020,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         frequency : str, optional
             Sweep frequency in Hz.
             Default value is 0.
-        file_type : str, optional
+        file_type : str
             The type of file format.
             Type of HSPICE file format. (All HSPICE file formats have the same extension,
             which is ``*.sp``.) Options are:
