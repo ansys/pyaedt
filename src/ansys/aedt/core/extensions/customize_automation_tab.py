@@ -197,9 +197,19 @@ def add_automation_tab(
     default_icon_path = Path(ansys.aedt.core.extensions.__file__).parent / "images" / "large" / "pyansys.png"
 
     images_dir_name = "images"
-    if is_linux:  # pragma: no cover
+    linux_icon_path = None
+    extensions_root = Path(ansys.aedt.core.extensions.__file__).parent.resolve()
+    if is_linux and icon_file and not Path(icon_file).resolve().is_relative_to(extensions_root):
+        # Icon outside the package (custom icon): copy only this file next to the toolkit
+        # instead of symlinking its whole parent folder (for example ~/Documents).
+        icon_target = lib_dir / product / name.replace("/", "_") / Path(icon_file).name
+        icon_target.parent.mkdir(parents=True, exist_ok=True)
+        if icon_target.resolve() != Path(icon_file).resolve():
+            shutil.copy2(icon_file, icon_target)
+        linux_icon_path = icon_target.relative_to(lib_dir / product).as_posix()
+    elif is_linux:  # pragma: no cover
         # Absolute image paths are not supported by AEDT's TabConfig.xml on Linux, so
-        # built-in and custom extension icons alike must be symlinked into a relative path.
+        # icons shipped with PyAEDT are symlinked into a relative path.
         if icon_file:
             images_source = Path(icon_file).parent
         else:
@@ -222,6 +232,8 @@ def add_automation_tab(
             return None
         if is_linux and is_group_icon:
             return f"{images_dir_name}/gallery/{path_value.name}"
+        elif linux_icon_path:
+            return linux_icon_path
         elif is_linux:
             return f"{images_dir_name}/{path_value.name}"
         return path_value.as_posix()
