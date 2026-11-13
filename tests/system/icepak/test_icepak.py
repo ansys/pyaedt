@@ -38,6 +38,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
 from ansys.aedt.core.modeler.cad.components_3d import PCBSettingsDeviceParts
 from ansys.aedt.core.modeler.cad.components_3d import PCBSettingsPackageParts
+from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponentParameters
 from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
 from ansys.aedt.core.visualization.post.field_data import FolderPlotSettings
 from ansys.aedt.core.visualization.post.field_data import SpecifiedScale
@@ -180,20 +181,61 @@ def test_import_pcb(board_3dl_app) -> None:
 
     comp = board_3dl_app.modeler.components[0]
     assert comp.name == component_name
-    assert "Name" in comp.properties
-    assert comp.board_cutout_material
+
+    assert comp.board_cutout_material == "air"
+    comp.board_cutout_material = "copper"
+
     assert comp.bounding_box
     assert comp.center
-    assert comp.definition_name
-    assert comp.definition_type
+
+    assert comp.definition_name == "PCB_PyAEDT"
+    assert comp.definition_type == "PCB"
+
     assert comp.force_source_solve
+    comp.force_source_solve = False
+
+    assert comp.group_name == "Model"
+    comp.group_name = "NewGroup"
+
+    assert comp.identify_extent_poly
+
+    assert not comp.included_parts
+
     assert not comp.mesh_assembly
-    assert comp.included_parts
-    assert comp.power
+
+    assert isinstance(comp.parameters, UserDefinedComponentParameters)
+
+    assert len(comp.parts) == 11
+
+    assert comp.power == "0W"
+    comp.power = "1W"
+
     assert comp.preserve_partner_solution
+    comp.preserve_partner_solution = False
+
+    assert "Name" in comp.properties
+
     assert comp.target_coordinate_system == cs.name
-    assert comp.via_holes_material
+    comp.target_coordinate_system = "Global"
+
+    assert comp.via_holes_material == "copper"
+    comp.via_holes_material = "Al-Extruded"
+
     assert board_3dl_app.modeler.get_object_from_name("RadioBoard1_001_TOP_BBox")
+
+    pcb2 = board_3dl_app.create_ipk_3dcomponent_pcb(
+        setup_link=LINK_DATA,
+        coordinate_system=cs.name,
+        frequency=SOLUTION_FREQ,
+        resolution=RESOLUTION,
+        custom_x_resolution=400,
+        custom_y_resolution=500,
+        definition_name=pcb.definition_name,
+        name=pcb.name,
+    )
+    assert pcb2.name != pcb.name
+    assert pcb2.definition_name != pcb.definition_name
+    assert pcb2.name in board_3dl_app.modeler.component_names
 
 
 def test_pcb_devices(board_ipk_app) -> None:

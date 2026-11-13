@@ -2040,7 +2040,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
                     "HighSide": {"Radiate": high_radiation},
                 }
             }
-        native_props["BasicComponentInfo"] = {"IconType": "PCB"}
         if settings.aedt_version > "2023.2":  # pragma: no cover
             native_props["ViaHoleMaterial"] = "copper"
             native_props["IncludeMCAD"] = False
@@ -2075,7 +2074,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
                 "Help URL": "",
                 "Version": "1.0",
                 "Notes": "",
-                "IconType": "",
+                "IconType": "PCB",
             },
             "GeometryDefinitionParameters": {"VariableOrders": {}},
             "DesignDefinitionParameters": {"VariableOrders": {}},

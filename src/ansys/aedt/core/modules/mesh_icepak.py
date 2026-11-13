@@ -401,7 +401,7 @@ class MeshRegion(MeshRegionBase, BinaryTreeNode, PyAedtBase):
 
         Returns
         -------
-        class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTreeNode`
+        AEDT object if any or `None`.
 
         """
         if not self.__child_object:

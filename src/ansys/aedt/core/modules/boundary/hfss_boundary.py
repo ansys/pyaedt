@@ -68,7 +68,7 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
         Returns
         -------
-        class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTreeNode`
+        AEDT object if any or `None`.
 
         """
         child_object = None

@@ -287,7 +287,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
         Returns
         -------
-        AEDT object if any or None
+        AEDT object if any or `None`.
 
         Examples
         --------
