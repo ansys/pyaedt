@@ -1336,13 +1336,17 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
                             k += 2
                     # Far field traces do not expose the fixed sweeps in ``Families``, but they are part
                     # of the curve name, for example ``Phi='0deg' Theta='0deg' [Curve1]``.
-                    curve_families = tr.aedt_name.rpartition(tr._name)[2]
-                    for key, val in re.findall(r"(\w+)='([^']*)'", curve_families):
-                        if key == tr.properties["Primary Sweep"] or key == tr.properties.get("Secondary Sweep", None):
-                            continue
-                        values = variations.setdefault(key, [])
-                        if val not in values:
-                            values.append(val)
+                    # Project variables (``$name='value'``) are also part of the curve name and are not sweeps.
+                    if self.report_category == "Far Fields":
+                        curve_families = tr.aedt_name.rpartition(tr._name)[2]
+                        for key, val in re.findall(r"(?<![\w$])(\w+)='([^']*)'", curve_families):
+                            if key == tr.properties["Primary Sweep"] or key == tr.properties.get(
+                                "Secondary Sweep", None
+                            ):
+                                continue
+                            values = variations.setdefault(key, [])
+                            if val not in values:
+                                values.append(val)
                     variations[tr.properties["Primary Sweep"]] = ["All"]
                     if tr.properties.get("Secondary Sweep", None):
                         variations[tr.properties["Secondary Sweep"]] = ["All"]
