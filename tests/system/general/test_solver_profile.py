@@ -161,7 +161,7 @@ def _exercise_profile_object(profile) -> None:
 @pytest.mark.parametrize(
     "app_cls, folder",
     [
-        (Hfss, VISUALIZATION_GENERAL_TEST_PREFIX + "/example_models/T12/Potter_Horn_242.aedtz"),
+        (Hfss, VISUALIZATION_GENERAL_TEST_PREFIX + "/example_models/T10/Potter_Horn_242.aedtz"),
         (Hfss3dLayout, VISUALIZATION_GENERAL_TEST_PREFIX + "/example_models/T44/differential_microstrip.aedtz"),
         (Maxwell2d, EXTENSIONS_GENERAL_TEST_PREFIX + "/example_models/T45/transformer_loss_distribution.aedtz"),
         (Maxwell3d, SYSTEM_SOLVERS_TEST_PREFIX + "/example_models/T00/Transient_StrandedWindings.aedtz"),

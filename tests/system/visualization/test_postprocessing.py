@@ -499,7 +499,7 @@ def test_q2d_reports_by_category_standard_2(q2dtest) -> None:
     new_report = q2dtest.post.reports_by_category.rl_fields("Mag_H", polyline="Poly1")
     sol = new_report.get_solution_data()
     sol.enable_pandas_output = True
-    assert sol.get_expression_data(formula="magnitude", convert_to_SI=True, use_quantity=True)
+    assert sol.get_expression_data(formula="magnitude", convert_to_si=True, use_quantity=True)
     sol.enable_pandas_output = False
     new_report = q2dtest.post.reports_by_category.standard()
     assert new_report.get_solution_data()
