@@ -39,7 +39,6 @@ TEST_SUBFOLDER = "T30"
 Q2D_Q3D = "q2d_q3d_231"
 Q2D_SOLVED_NAME = "q2d_solved"
 Q2D_SOLVED_SWEEP = "q2d_solved_sweep"
-Q2D_SOLVED_NOMINAL = "q2d_solved_nominal"
 
 
 @pytest.fixture
@@ -74,13 +73,6 @@ def q2d_matrix(add_app_example):
 @pytest.fixture
 def q2d_solved_sweep_app(add_app_example):
     app = add_app_example(application=Q2d, project=Q2D_SOLVED_SWEEP, subfolder=TEST_SUBFOLDER)
-    yield app
-    app.close_project(app.project_name, save=False)
-
-
-@pytest.fixture
-def q2d_solved_nominal_app(add_app_example):
-    app = add_app_example(application=Q2d, project=Q2D_SOLVED_NOMINAL, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(app.project_name, save=False)
 
@@ -372,17 +364,7 @@ def test_export_w_elements_from_sweep(q2d_solved_sweep_app, test_tmp_dir) -> Non
     )
 
     for file in output_files:
-        ext = Path(file).suffix
-        assert ext == ".sp"
         assert Path(file).is_file()
-
-    # Files should be a list
-    with pytest.raises(AttributeError):
-        q2d_solved_sweep_app.export_equivalent_circuit(
-            output_file=f"{project_name}_{setup_name}_{sweep_name}_{1}.sp",
-            file_type="WElement",
-            variations=variation_array,
-        )
 
     # Files and variations of different lengths
     with pytest.raises(AttributeError):

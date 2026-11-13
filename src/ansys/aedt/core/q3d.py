@@ -949,14 +949,14 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
             Number of cells in export.
             Default value is 2.
         user_changed_settings : bool, optional
-            Whether user has changed settings or not, defaulted to True.
-            Default value is False.
+            Whether user has changed settings or not.
+            Default value is ``True``.
         include_cap : bool, optional
             Include Capacitance.
-            Default value is True.
+            Default value is ``True``.
         include_cond : bool, optional
             Include Conductance.
-            Default value is True.
+            Default value is ``True``.
         coupling_limit_type : int, optional
             Coupling limit types.
             Values can be: ``"By Value" -> 0`` or ``"By Fraction Of Self Term" -> 1``.
