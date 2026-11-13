@@ -544,7 +544,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
 
         """
         body_list = design.modeler.solid_names
-        udc_list = design.modeler.user_defined_component_names
+        udc_list = design.modeler.component_names
         original_design_type = design.design_type
         dest_design_type = self.design_type
         new_udc_list = []
@@ -554,11 +554,11 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
             for udc in udc_list:
                 if (
                     original_design_type != dest_design_type
-                    and not design.modeler.user_defined_components[udc].is_3d_component
+                    and not design.modeler.components[udc].definition_name
                     or original_design_type == dest_design_type
                 ):
                     new_udc_list.append(udc)
-                parts = design.modeler.user_defined_components[udc].parts
+                parts = design.modeler.components[udc].parts
                 for part_id in parts:
                     part_name = parts[part_id].name
                     if part_name in body_list:
@@ -1234,19 +1234,17 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         native_comp_names = [nc.definition_name for nc in self.native_components.values()]
         if not components:
             components = [
-                key
-                for key, val in self.modeler.user_defined_components.items()
-                if val.definition_name not in native_comp_names
+                key for key, val in self.modeler.components.items() if val.definition_name not in native_comp_names
             ]
         else:
             if isinstance(components, str):
                 components = [components]
             for cmp in components:
-                if cmp not in self.modeler.user_defined_component_names:
+                if cmp not in self.modeler.component_names:
                     raise ValueError(f"Component definition was not found for '{cmp}'.")
 
         for cmp in components:
-            comp = self.modeler.user_defined_components[cmp]
+            comp = self.modeler.components[cmp]
             # TODO: Call edit_definition only once
             target_cs = self.modeler._create_reference_cs_from_3dcomp(comp, password=password)
             app = comp.edit_definition(password=password)

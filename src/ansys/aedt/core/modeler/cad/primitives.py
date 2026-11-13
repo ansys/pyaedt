@@ -285,15 +285,17 @@ class GeometryModeler(Modeler, PyAedtBase):
         """
         if isinstance(partId, (Object3d, UserDefinedComponent, Point)):
             return partId
+
+        if partId in self.component_names:
+            try:
+                return self.components[partId]
+            except KeyError:
+                pass
         try:
             return self.objects[partId]
         except KeyError:
             pass
 
-        try:
-            return self.user_defined_components[partId]
-        except KeyError:
-            pass
         try:
             return self.planes[partId]
         except KeyError:
@@ -1370,24 +1372,6 @@ class GeometryModeler(Modeler, PyAedtBase):
             return self._app.get_oo_name(self.oeditor, name)
         except Exception:
             return []
-
-    @pyaedt_function_handler()
-    def _create_user_defined_component(self, name: str):
-        if name not in list(self.user_defined_components.keys()):
-            native_component_properties = self._get_native_component_properties(name)
-            if native_component_properties:
-                component_type = native_component_properties["NativeComponentDefinitionProvider"]["Type"]
-
-                if component_type == "PCB":
-                    o = NativeComponentPCB(self._app, component_type, name, native_component_properties)
-                else:
-                    o = NativeComponent(self._app, component_type, name, native_component_properties)
-            else:
-                o = UserDefinedComponent(self, name)
-            self.user_defined_components[name] = o
-        else:
-            o = self.user_defined_components[name]
-        return o
 
     @pyaedt_function_handler()
     def _create_point(self, name: str):
@@ -3823,11 +3807,11 @@ class GeometryModeler(Modeler, PyAedtBase):
             ]
             arg_3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
             if is_3d_comp:
-                orig_3d = [i for i in self.user_defined_component_names]
+                orig_3d = [i for i in self.component_names]
             added_objs = self.oeditor.DuplicateMirror(arg_1, arg_2, arg_3)
             self.add_new_objects()
             if is_3d_comp:
-                added_3d_comps = [i for i in self.user_defined_component_names if i not in orig_3d]
+                added_3d_comps = [i for i in self.component_names if i not in orig_3d]
                 if added_3d_comps:
                     self.logger.info("Found 3D Components Duplication")
                     return added_3d_comps

@@ -558,8 +558,8 @@ class Design(AedtObjects, PyAedtBase):
                 bb.append(thermal)
                 bb.append(self.get_oo_property_value(othermal, thermal, "Type"))
 
-            if self.modeler.user_defined_components.items():
-                for component in self.modeler.user_defined_components.keys():
+            if self.modeler.components.items():
+                for component in self.modeler.components.keys():
                     thermal_properties = self.get_oo_properties(self.oeditor, component)
 
                     is_icepak_component = True

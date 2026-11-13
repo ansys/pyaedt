@@ -1278,34 +1278,25 @@ class NativeComponent(UserDefinedComponent):
 
     Parameters
     ----------
-    app : object
-        An AEDT application from ``ansys.aedt.core.application``.
-    component_type : str
-        Type of the component.
-    component_name : str
+    app : _AppWithOProject
+        Interface definition for PyAEDT app instances.
+    name : str
         Name of the component.
     props : dict
-        Properties of the boundary.
+        Dictionary of properties.
 
     Examples
     --------
-    This example the par_beam returned object is a
-    :class:`ansys.aedt.core.modules.boundary.layout_boundary.NativeComponent`.
-
     >>> from ansys.aedt.core import Hfss
     >>> hfss = Hfss(solution_type="SBR+")
     >>> ffd_file = "path/to/ffdfile.ffd"
     >>> par_beam = hfss.create_sbr_file_based_antenna(ffd_file)
-    >>> par_beam.native_properties["Size"] = "0.1mm"
-    >>> par_beam.update()
-    >>> par_beam.delete()
 
     """
 
     def __init__(self, app: _AppWithOProject, name: str, props: dict) -> None:
         super().__init__(app=app, name=name, props=props)
         self.__child_object = None
-        self.__excitation_name = None
 
     @pyaedt_function_handler()
     def create(self) -> bool:
@@ -1318,9 +1309,10 @@ class NativeComponent(UserDefinedComponent):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
-        >>> obj = NativeComponentObject()
-        >>> obj.create()
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss(solution_type="SBR+")
+        >>> ffd_file = "path/to/ffdfile.ffd"
+        >>> par_beam = hfss.create_sbr_file_based_antenna(ffd_file)
 
         """
         name = str(self.name)
@@ -1338,7 +1330,7 @@ class NativeComponent(UserDefinedComponent):
 
     @pyaedt_function_handler()
     def update(self) -> bool:
-        """Update the Native Component in AEDT.
+        """Update the native component in AEDT.
 
         Returns
         -------
@@ -1347,9 +1339,11 @@ class NativeComponent(UserDefinedComponent):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
-        >>> obj = NativeComponentObject()
-        >>> obj.update()
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss(solution_type="SBR+")
+        >>> ffd_file = "path/to/ffdfile.ffd"
+        >>> par_beam = hfss.create_sbr_file_based_antenna(ffd_file)
+        >>> par_beam.update()
 
         """
         template_variable = {"VariableOrders": {}}
@@ -1474,11 +1468,6 @@ class NativeComponentPCB(NativeComponent):
             board_cutout_material = component_provider.get("BoardCutoutMaterial", "air")
         return board_cutout_material
 
-    @board_cutout_material.setter
-    def board_cutout_material(self, value: str) -> None:
-        self._legacy_props["NativeComponentDefinitionProvider"]["BoardCutoutMaterial"] = value
-        self.update()
-
     @property
     def via_holes_material(self) -> str | None:
         """Material applied to via hole regions.
@@ -1517,12 +1506,44 @@ class NativeComponentPCB(NativeComponent):
         power: str | None = None
         if self._legacy_props:
             component_provider = self._legacy_props.get("NativeComponentDefinitionProvider", {})
-            power = component_provider.get("Power", "0W")
+            power = component_provider.get("Power", None)
         return power
 
     @power.setter
     def power(self, value: str) -> None:
-        self._legacy_props["NativeComponentDefinitionProvider"]["Power"] = value
+        if self._legacy_props:
+            component_provider = self._legacy_props.get("NativeComponentDefinitionProvider", {})
+            component_provider["UseThermalLink"] = False
+            component_provider["Power"] = value
+            self.update()
+
+    @property
+    def user_thermal_link(self) -> bool | None:
+        """Use thermal link.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Icepak
+        >>> app = Icepak()
+        >>> comp = app.modeler.components[0]
+        >>> comp.user_thermal_link
+
+        """
+        user_thermal_link: bool | None = None
+        if self._legacy_props:
+            component_provider = self._legacy_props.get("NativeComponentDefinitionProvider", {})
+            user_thermal_link = component_provider.get("UseThermalLink", None)
+        return user_thermal_link
+
+    @user_thermal_link.setter
+    def user_thermal_link(self, value: bool) -> None:
+        if self._legacy_props:
+            component_provider = self._legacy_props.get("NativeComponentDefinitionProvider", {})
+            component_provider["UseThermalLink"] = value
+            if not value and "Power" not in component_provider:
+                component_provider["Power"] = "0W"
+            elif value and "Power" in component_provider:
+                del component_provider["Power"]
         self.update()
 
     @property
@@ -1555,14 +1576,17 @@ class NativeComponentPCB(NativeComponent):
                 des_name=self._app.design_name,
             )
         else:
-            if "DefnLink" not in self._legacy_props["NativeComponentDefinitionProvider"]:
-                self._legacy_props["NativeComponentDefinitionProvider"]["DefnLink"] = {}
-            self._legacy_props["NativeComponentDefinitionProvider"]["DefnLink"].update({"ForceSourceToSolve": val})
-            self.update()
+            if self._legacy_props:
+                component_provider = self._legacy_props.get("NativeComponentDefinitionProvider", {})
+                defnlink = component_provider.get("DefnLink", {})
+                if not defnlink:
+                    component_provider["DefnLink"] = {}
+                component_provider["DefnLink"].update({"ForceSourceToSolve": val})
+                self.update()
 
     @property
     def preserve_partner_solution(self) -> bool | None:
-        """Preserve parner solution option.
+        """Preserve partner solution option.
 
         Examples
         --------
@@ -1590,10 +1614,13 @@ class NativeComponentPCB(NativeComponent):
                 des_name=self._app.design_name,
             )
         else:
-            if "DefnLink" not in self._legacy_props["NativeComponentDefinitionProvider"]:
-                self._legacy_props["NativeComponentDefinitionProvider"]["DefnLink"] = {}
-            self._legacy_props["NativeComponentDefinitionProvider"]["DefnLink"].update({"PreservePartnerSoln": val})
-            self.update()
+            if self._legacy_props:
+                component_provider = self._legacy_props.get("NativeComponentDefinitionProvider", {})
+                defnlink = component_provider.get("DefnLink", {})
+                if not defnlink:
+                    component_provider["DefnLink"] = {}
+                component_provider["DefnLink"].update({"PreservePartnerSoln": val})
+                self.update()
 
     @property
     def included_parts(self) -> None | PCBSettingsDeviceParts | PCBSettingsPackageParts:
@@ -1626,8 +1653,10 @@ class NativeComponentPCB(NativeComponent):
             value = part_map.get(value, None)
 
         if value is not None:
-            self._legacy_props["NativeComponentDefinitionProvider"]["PartsChoice"] = value
-            self.update()
+            if self._legacy_props:
+                component_provider = self._legacy_props.get("NativeComponentDefinitionProvider", {})
+                component_provider["PartsChoice"] = value
+                self.update()
         else:
             self._app.logger.add_message(
                 message_type=2,
@@ -1658,16 +1687,20 @@ class NativeComponentPCB(NativeComponent):
         from ansys.aedt.core import Hfss3dLayout
 
         prj = None
-        if self._legacy_props and self._legacy_props.get("DefnLink", {}):
-            prj = self._legacy_props["DefnLink"].get("Project", None)
+        design = None
+
+        if self._legacy_props:
+            component_provider = self._legacy_props.get("NativeComponentDefinitionProvider", {})
+            defnlink = component_provider.get("DefnLink", {})
+            if not defnlink:
+                component_provider["DefnLink"] = {}
+            prj = component_provider["DefnLink"].get("Project", None)
+            design = component_provider["DefnLink"].get("Design", None)
+
         if not prj:
             return False
         if prj == "This Project*":
             prj = self._app.project_name
-
-        design = None
-        if self._legacy_props and self._legacy_props.get("DefnLink", {}):
-            design = self._legacy_props["DefnLink"].get("Design", None)
 
         if not design:  # pragma: no cover
             return False
@@ -1722,6 +1755,8 @@ class NativeComponentPCB(NativeComponent):
         >>> comp.set_board_extents()
 
         """
+        if not self._legacy_props:  # pragma: no cover
+            return False
         props = self._legacy_props.get("NativeComponentDefinitionProvider", {})
 
         if not props:  # pragma: no cover
@@ -1793,6 +1828,8 @@ class NativeComponentPCB(NativeComponent):
         >>> comp.set_high_side_radiation(enabled=True)
 
         """
+        if not self._legacy_props:  # pragma: no cover
+            return False
         high_rad = {
             "Radiate": enabled,
             "RadiateTo - High": "RefTemperature - High" if radiate_to_ref_temperature else "AllObjects - High",
@@ -1802,7 +1839,9 @@ class NativeComponentPCB(NativeComponent):
             high_rad["Ref. Temperature - High"] = (ref_temperature,)
             high_rad["View Factor - High"] = view_factor
 
-        self._legacy_props["NativeComponentDefinitionProvider"]["HighSide"] = high_rad
+        props = self._legacy_props.get("NativeComponentDefinitionProvider", {})
+        if props:
+            self._legacy_props["NativeComponentDefinitionProvider"]["HighSide"] = high_rad
         return self.update()
 
     @pyaedt_function_handler()
@@ -1827,6 +1866,8 @@ class NativeComponentPCB(NativeComponent):
         >>> comp.set_resolution(resolution=1)
 
         """
+        if not self._legacy_props:  # pragma: no cover
+            return False
         if resolution < 1 or resolution > 5:
             self._app.logger.add_message(
                 message_type=2,
@@ -1864,6 +1905,8 @@ class NativeComponentPCB(NativeComponent):
         >>> comp.set_custom_resolution(row=1, col=1)
 
         """
+        if not self._legacy_props:  # pragma: no cover
+            return False
         self._legacy_props["NativeComponentDefinitionProvider"]["CustomResolutionRow"] = row
         self._legacy_props["NativeComponentDefinitionProvider"]["CustomResolutionCol"] = col
         self._legacy_props["NativeComponentDefinitionProvider"]["CustomResolution"] = True
@@ -1909,6 +1952,8 @@ class NativeComponentPCB(NativeComponent):
         >>> comp.set_low_side_radiation(enabled=True)
 
         """
+        if not self._legacy_props:  # pragma: no cover
+            return False
         low_side = {
             "Radiate": enabled,
             "RadiateTo": "RefTemperature - High" if radiate_to_ref_temperature else "AllObjects",
@@ -1928,17 +1973,20 @@ class PCBSettingsPackageParts(PyAedtBase):
     ----------
     pcb_obj : :class:`ansys.aedt.core.modules.layout_boundary.NativeComponentPCB`
             Inherited pcb object.
-    app : :class:`ansys.aedt.core.Icepak`
-            Inherited application object.
+    app : _AppWithOProject
+        AEDT application from the ``ansys.aedt.core.application`` class.
 
     Examples
     --------
-    >>> from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsPackageParts
-    >>> obj = PCBSettingsPackageParts()
+    >>> from ansys.aedt.core import Icepak
+    >>> app = Icepak()
+    >>> comp = app.modeler.components[0]
+    >>> comp.included_parts = 1
+    >>> package_parts = comp.included_parts
 
     """
 
-    def __init__(self, pcb_obj, app) -> None:
+    def __init__(self, pcb_obj: NativeComponentPCB, app: _AppWithOProject) -> None:
         self._app = app
         self.pcb = pcb_obj
         self._solderbumps_map = {"Lumped": "SbLumped", "Cylinders": "SbCylinder", "Boxes": "SbBlock"}
@@ -1954,8 +2002,11 @@ class PCBSettingsPackageParts(PyAedtBase):
     def __ne__(self, other) -> bool:
         return not self.__eq__(other)
 
+    def __repr__(self) -> str:
+        return "Package"
+
     @pyaedt_function_handler()
-    def set_solderballs_modeling(self, modeling: str = None) -> bool:
+    def set_solderballs_modeling(self, modeling: str | None = None) -> bool:
         """Set how to model solderballs.
 
         Parameters
@@ -1977,18 +2028,21 @@ class PCBSettingsPackageParts(PyAedtBase):
         >>> obj.set_solderballs_modeling(modeling=1)
 
         """
+        if not self.pcb._legacy_props:  # pragma: no cover
+            return False
+
         update_properties = {
             "CreateBottomSolderballs": modeling is not None,
             "BottomSolderballsModelType": self._solderbumps_map[modeling],
         }
 
-        self.pcb.props["NativeComponentDefinitionProvider"].update(update_properties)
-        return True
+        self.pcb._legacy_props["NativeComponentDefinitionProvider"].update(update_properties)
+        return self.pcb.update()
 
     @pyaedt_function_handler()
     def set_connectors_modeling(
         self,
-        modeling: str = None,
+        modeling: str | None = None,
         solderbumps_modeling: str = "Boxes",
         bondwire_material: str | None = "Au-Typical",
         bondwire_diameter: str = "0.05mm",
@@ -2019,11 +2073,17 @@ class PCBSettingsPackageParts(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsPackageParts
-        >>> obj = PCBSettingsPackageParts()
-        >>> obj.set_connectors_modeling(modeling=1, solderbumps_modeling=1)
+        >>> from ansys.aedt.core import Icepak
+        >>> app = Icepak()
+        >>> comp = app.modeler.components[0]
+        >>> comp.included_parts = 1
+        >>> package_parts = comp.included_parts
+        >>> package_parts.set_connectors_modeling(modeling="Bondwire", solderbumps_modeling="Boxes")
 
         """
+        if not self.pcb._legacy_props:  # pragma: no cover
+            return False
+
         valid_connectors = ["Solderbump", "Bondwire"]
         if modeling is not None and modeling not in valid_connectors:
             self._app.logger.add_message(
@@ -2063,11 +2123,8 @@ class PCBSettingsPackageParts(PyAedtBase):
             "BondwireDiameter": bondwire_diameter,
         }
 
-        self.pcb.props["NativeComponentDefinitionProvider"].update(update_properties)
-        return True
-
-    def __repr__(self) -> str:
-        return "Package"
+        self.pcb._legacy_props["NativeComponentDefinitionProvider"].update(update_properties)
+        return self.pcb.update()
 
 
 class PCBSettingsDeviceParts(PyAedtBase):
@@ -2077,17 +2134,20 @@ class PCBSettingsDeviceParts(PyAedtBase):
     ----------
     pcb_obj : :class:`ansys.aedt.core.modules.layout_boundary.NativeComponentPCB`
             Inherited pcb object.
-    app : :class:`ansys.aedt.core.Icepak`
-            Inherited application object.
+    app : _AppWithOProject
+        AEDT application from the ``ansys.aedt.core.application`` class.
 
     Examples
     --------
-    >>> from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
-    >>> obj = PCBSettingsDeviceParts()
+    >>> from ansys.aedt.core import Icepak
+    >>> app = Icepak()
+    >>> comp = app.modeler.components[0]
+    >>> comp.included_parts = 2
+    >>> device_parts = comp.included_parts
 
     """
 
-    def __init__(self, pcb_obj, app) -> None:
+    def __init__(self, pcb_obj: NativeComponentPCB, app: _AppWithOProject) -> None:
         self._app = app
         self.pcb = pcb_obj
         self._filter_map2name = {"Cap": "Capacitors", "Ind": "Inductors", "Res": "Resistors"}
@@ -2107,84 +2167,70 @@ class PCBSettingsDeviceParts(PyAedtBase):
         return "Device"
 
     @property
-    @pyaedt_function_handler()
-    def simplify_parts(self) -> bool:
+    def simplify_parts(self) -> bool | None:
         """Get whether parts are simplified as cuboid.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
-        >>> obj = PCBSettingsDeviceParts()
-        >>> obj.simplify_parts
+        >>> from ansys.aedt.core import Icepak
+        >>> app = Icepak()
+        >>> comp = app.modeler.components[0]
+        >>> comp.included_parts = 2
+        >>> device_parts = comp.included_parts
+        >>> device_parts.simplify_parts
 
         """
-        return self.pcb.props["NativeComponentDefinitionProvider"]["ModelDeviceAsRect"]
+        if not self.pcb._legacy_props:  # pragma: no cover
+            return False
+        return self.pcb._legacy_props["NativeComponentDefinitionProvider"].get("ModelDeviceAsRect", None)
 
     @simplify_parts.setter
-    @pyaedt_function_handler()
     def simplify_parts(self, value: bool) -> None:
-        """Set whether parts are simplified as cuboid.
-
-        Parameters
-        ----------
-        value : bool
-            Whether parts are simplified as cuboid.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
-        >>> obj = PCBSettingsDeviceParts()
-        >>> obj.simplify_parts = True
-
-        """
-        self.pcb.props["NativeComponentDefinitionProvider"]["ModelDeviceAsRect"] = value
+        if self.pcb._legacy_props:  # pragma: no cover
+            self.pcb._legacy_props["NativeComponentDefinitionProvider"]["ModelDeviceAsRect"] = value
+            self.pcb.update()
 
     @property
-    @pyaedt_function_handler()
-    def surface_material(self) -> str:
+    def surface_material(self) -> str | None:
         """Surface material to apply to parts.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
-        >>> obj = PCBSettingsDeviceParts()
-        >>> obj.surface_material
+        >>> from ansys.aedt.core import Icepak
+        >>> app = Icepak()
+        >>> comp = app.modeler.components[0]
+        >>> comp.included_parts = 2
+        >>> device_parts = comp.included_parts
+        >>> device_parts.surface_material
 
         """
-        return self.pcb.props["NativeComponentDefinitionProvider"]["DeviceSurfaceMaterial"]
+        if not self.pcb._legacy_props:  # pragma: no cover
+            return None
+        return self.pcb._legacy_props["NativeComponentDefinitionProvider"]["DeviceSurfaceMaterial"]
 
     @surface_material.setter
-    @pyaedt_function_handler()
     def surface_material(self, value: str) -> None:
-        """Set surface material to apply to parts.
-
-        Parameters
-        ----------
-        value : str
-            Surface material to apply to parts.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
-        >>> obj = PCBSettingsDeviceParts()
-        >>> obj.surface_material = "Aluminum"
-
-        """
-        self.pcb.props["NativeComponentDefinitionProvider"]["DeviceSurfaceMaterial"] = value
+        if self.pcb._legacy_props:  # pragma: no cover
+            self.pcb._legacy_props["NativeComponentDefinitionProvider"]["DeviceSurfaceMaterial"] = value
+            self.pcb.update()
 
     @property
-    @pyaedt_function_handler()
     def footprint_filter(self) -> str | None:
         """Minimum component footprint for filtering.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
-        >>> obj = PCBSettingsDeviceParts()
-        >>> obj.footprint_filter
+        >>> from ansys.aedt.core import Icepak
+        >>> app = Icepak()
+        >>> comp = app.modeler.components[0]
+        >>> comp.included_parts = 2
+        >>> device_parts = comp.included_parts
+        >>> device_parts.footprint_filter
 
         """
-        if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
+        if not self.pcb._legacy_props:  # pragma: no cover
+            return None
+        if self.pcb._legacy_props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
             self._app.logger.add_message(
                 message_type=2,
                 message_text="Device parts modeling is not active.  No filtering or override option is available.",
@@ -2193,45 +2239,32 @@ class PCBSettingsDeviceParts(PyAedtBase):
                 des_name=self._app.design_name,
             )
             return None
-        if self._app.settings.aedt_version < "2024.2":
+        if self._app.desktop_class.aedt_version < "2024.2":
             return None
         return self.filters.get("FootPrint", {}).get("Value", None)
 
     @footprint_filter.setter
-    @pyaedt_function_handler()
     def footprint_filter(self, minimum_footprint: str | None) -> None:
-        """Set minimum component footprint for filtering.
-
-        Parameters
-        ----------
-        minimum_footprint : str
-            Value with unit of the minimum component footprint for filtering.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
-        >>> obj = PCBSettingsDeviceParts()
-        >>> obj.footprint_filter = "1mm2"
-
-        """
-        if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
-            self._app.logger.add_message(
-                message_type=2,
-                message_text="Device parts modeling is not active.  No filtering or override option is available.",
-                level="Design",
-                proj_name=self._app.project_name,
-                des_name=self._app.design_name,
-            )
-            return
-        if self._app.settings.aedt_version < "2024.2":
-            return
-        new_filters = self.pcb.props["NativeComponentDefinitionProvider"].get("Filters", [])
-        if "FootPrint" in new_filters:
-            new_filters.remove("FootPrint")
-        if minimum_footprint is not None:
-            new_filters.append("FootPrint")
-            self.pcb.props["NativeComponentDefinitionProvider"]["FootPrint"] = minimum_footprint
-        self.pcb.props["NativeComponentDefinitionProvider"]["Filters"] = new_filters
+        if self.pcb._legacy_props:
+            if self.pcb._legacy_props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
+                self._app.logger.add_message(
+                    message_type=2,
+                    message_text="Device parts modeling is not active.  No filtering or override option is available.",
+                    level="Design",
+                    proj_name=self._app.project_name,
+                    des_name=self._app.design_name,
+                )
+            elif self._app.desktop_class.aedt_version < "2024.2":
+                return
+            else:
+                new_filters = self.pcb._legacy_props["NativeComponentDefinitionProvider"].get("Filters", [])
+                if "FootPrint" in new_filters:
+                    new_filters.remove("FootPrint")
+                if minimum_footprint is not None:
+                    new_filters.append("FootPrint")
+                    self.pcb._legacy_props["NativeComponentDefinitionProvider"]["FootPrint"] = minimum_footprint
+                self.pcb._legacy_props["NativeComponentDefinitionProvider"]["Filters"] = new_filters
+                self.pcb.update()
 
     @property
     def power_filter(self) -> str | None:
@@ -2239,12 +2272,18 @@ class PCBSettingsDeviceParts(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
-        >>> obj = PCBSettingsDeviceParts()
-        >>> obj.power_filter
+        >>> from ansys.aedt.core import Icepak
+        >>> app = Icepak()
+        >>> comp = app.modeler.components[0]
+        >>> comp.included_parts = 2
+        >>> device_parts = comp.included_parts
+        >>> device_parts.power_filter
 
         """
-        if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
+        if not self.pcb._legacy_props:  # pragma: no cover
+            return None
+
+        if self.pcb._legacy_props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
             self._app.logger.add_message(
                 message_type=2,
                 message_text="Device parts modeling is not active.  No filtering or override option is available.",
@@ -2257,50 +2296,42 @@ class PCBSettingsDeviceParts(PyAedtBase):
 
     @power_filter.setter
     def power_filter(self, minimum_power: str | None) -> None:
-        """Set minimum component power for filtering.
-
-        Parameters
-        ----------
-        minimum_power : str | None
-            Value with unit of the minimum component power for filtering.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
-        >>> obj = PCBSettingsDeviceParts()
-        >>> obj.power_filter = "1W"
-
-        """
-        if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
-            self._app.logger.add_message(
-                message_type=2,
-                message_text="Device parts modeling is not active.  No filtering or override option is available.",
-                level="Design",
-                proj_name=self._app.project_name,
-                des_name=self._app.design_name,
-            )
-            return
-        new_filters = self.pcb.props["NativeComponentDefinitionProvider"].get("Filters", [])
-        if "Power" in new_filters:
-            new_filters.remove("Power")
-        if minimum_power is not None:
-            new_filters.append("Power")
-            self.pcb.props["NativeComponentDefinitionProvider"]["PowerVal"] = minimum_power
-        self.pcb.props["NativeComponentDefinitionProvider"]["Filters"] = new_filters
+        if self.pcb._legacy_props:
+            if self.pcb._legacy_props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
+                self._app.logger.add_message(
+                    message_type=2,
+                    message_text="Device parts modeling is not active.  No filtering or override option is available.",
+                    level="Design",
+                    proj_name=self._app.project_name,
+                    des_name=self._app.design_name,
+                )
+            else:
+                new_filters = self.pcb._legacy_props["NativeComponentDefinitionProvider"].get("Filters", [])
+                if "Power" in new_filters:
+                    new_filters.remove("Power")
+                if minimum_power is not None:
+                    new_filters.append("Power")
+                    self.pcb._legacy_props["NativeComponentDefinitionProvider"]["PowerVal"] = minimum_power
+                self.pcb._legacy_props["NativeComponentDefinitionProvider"]["Filters"] = new_filters
+                self.pcb.update()
 
     @property
-    @pyaedt_function_handler()
     def type_filters(self) -> list | None:
         """Types of component that are filtered.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
-        >>> obj = PCBSettingsDeviceParts()
-        >>> obj.type_filters
+        >>> from ansys.aedt.core import Icepak
+        >>> app = Icepak()
+        >>> comp = app.modeler.components[0]
+        >>> comp.included_parts = 2
+        >>> device_parts = comp.included_parts
+        >>> device_parts.type_filters
 
         """
-        if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
+        if not self.pcb._legacy_props:  # pragma: no cover
+            return None
+        if self.pcb._legacy_props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
             self._app.logger.add_message(
                 message_type=2,
                 message_text="Device parts modeling is not active.  No filtering or override option is available.",
@@ -2313,58 +2344,50 @@ class PCBSettingsDeviceParts(PyAedtBase):
 
     @type_filters.setter
     def type_filters(self, object_type: str | list) -> None:
-        """Set types of component to filter.
-
-        Parameters
-        ----------
-        object_type : str or list
-            Types of object to filter. Options are ``"Capacitors"``, ``"Inductors"``, and ``"Resistors"``.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
-        >>> obj = PCBSettingsDeviceParts()
-        >>> obj.type_filters = ["Capacitors", "Inductors"]
-
-        """
-        if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
-            self._app.logger.add_message(
-                message_type=2,
-                message_text="Device parts modeling is not active.  No filtering or override option is available.",
-            )
-            return
-        if not isinstance(object_type, list):
-            object_type = [object_type]
-        if not all(o in self._filter_map2name.values() for o in object_type):
-            self._app.logger.add_message(
-                message_type=2,
-                message_text=f"Accepted elements of the list are: {', '.join(list(self._filter_map2name.values()))}",
-                level="Design",
-                proj_name=self._app.project_name,
-                des_name=self._app.design_name,
-            )
-        else:
-            new_filters = self.pcb.props["NativeComponentDefinitionProvider"].get("Filters", [])
-            map2arg = {v: k for k, v in self._filter_map2name.items()}
-            for f, _ in self._filter_map2name.items():
-                if f in new_filters:
-                    new_filters.remove(f)
-            new_filters += [map2arg[o] for o in object_type]
-            self.pcb.props["NativeComponentDefinitionProvider"]["Filters"] = new_filters
+        if self.pcb._legacy_props:
+            if not isinstance(object_type, list):
+                object_type = [object_type]
+            if self.pcb._legacy_props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
+                self._app.logger.add_message(
+                    message_type=2,
+                    message_text="Device parts modeling is not active.  No filtering or override option is available.",
+                )
+            elif not all(o in self._filter_map2name.values() for o in object_type):
+                self._app.logger.add_message(
+                    message_type=2,
+                    message_text=f"Accepted elements of the list are: "
+                    f"{', '.join(list(self._filter_map2name.values()))}",
+                    level="Design",
+                    proj_name=self._app.project_name,
+                    des_name=self._app.design_name,
+                )
+            else:
+                new_filters = self.pcb._legacy_props["NativeComponentDefinitionProvider"].get("Filters", [])
+                map2arg = {v: k for k, v in self._filter_map2name.items()}
+                for f, _ in self._filter_map2name.items():
+                    if f in new_filters:
+                        new_filters.remove(f)
+                new_filters += [map2arg[o] for o in object_type]
+                self.pcb._legacy_props["NativeComponentDefinitionProvider"]["Filters"] = new_filters
+                self.pcb.update()
 
     @property
-    @pyaedt_function_handler()
     def height_filter(self) -> str | None:
         """Minimum component height for filtering.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
-        >>> obj = PCBSettingsDeviceParts()
-        >>> obj.height_filter
+        >>> from ansys.aedt.core import Icepak
+        >>> app = Icepak()
+        >>> comp = app.modeler.components[0]
+        >>> comp.included_parts = 2
+        >>> device_parts = comp.included_parts
+        >>> device_parts.height_filter
 
         """
-        if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
+        if not self.pcb._legacy_props:  # pragma: no cover
+            return None
+        if self.pcb._legacy_props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
             self._app.logger.add_message(
                 message_type=2,
                 message_text="Device parts modeling is not active.  No filtering or override option is available.",
@@ -2377,50 +2400,41 @@ class PCBSettingsDeviceParts(PyAedtBase):
 
     @height_filter.setter
     def height_filter(self, minimum_height: str | None) -> None:
-        """Set minimum component height for filtering and whether to filter 2D objects.
-
-        Parameters
-        ----------
-        minimum_height : str | None
-            Value with unit of the minimum component power for filtering.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
-        >>> obj = PCBSettingsDeviceParts()
-        >>> obj.height_filter = "1mm"
-
-        """
-        if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
-            self._app.logger.add_message(
-                message_type=2,
-                message_text="Device parts modeling is not active.  No filtering or override option is available.",
-                level="Design",
-                proj_name=self._app.project_name,
-                des_name=self._app.design_name,
-            )
-            return
-        new_filters = self.pcb.props["NativeComponentDefinitionProvider"].get("Filters", [])
-        if "Height" in new_filters:
-            new_filters.remove("Height")
-        if minimum_height is not None:
-            new_filters.append("Height")
-            self.pcb.props["NativeComponentDefinitionProvider"]["HeightVal"] = minimum_height
-        self.pcb.props["NativeComponentDefinitionProvider"]["Filters"] = new_filters
+        if self.pcb._legacy_props:
+            if self.pcb._legacy_props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
+                self._app.logger.add_message(
+                    message_type=2,
+                    message_text="Device parts modeling is not active.  No filtering or override option is available.",
+                    level="Design",
+                    proj_name=self._app.project_name,
+                    des_name=self._app.design_name,
+                )
+            else:
+                new_filters = self.pcb._legacy_props["NativeComponentDefinitionProvider"].get("Filters", [])
+                if "Height" in new_filters:
+                    new_filters.remove("Height")
+                if minimum_height is not None:
+                    new_filters.append("Height")
+                    self.pcb._legacy_props["NativeComponentDefinitionProvider"]["HeightVal"] = minimum_height
+                self.pcb._legacy_props["NativeComponentDefinitionProvider"]["Filters"] = new_filters
 
     @property
-    @pyaedt_function_handler()
     def objects_2d_filter(self) -> bool | None:
         """Whether 2d objects are filtered.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
-        >>> obj = PCBSettingsDeviceParts()
-        >>> obj.objects_2d_filter
+        >>> from ansys.aedt.core import Icepak
+        >>> app = Icepak()
+        >>> comp = app.modeler.components[0]
+        >>> comp.included_parts = 2
+        >>> device_parts = comp.included_parts
+        >>> device_parts.objects_2d_filter
 
         """
-        if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
+        if not self.pcb._legacy_props:  # pragma: no cover
+            return None
+        if self.pcb._legacy_props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
             self._app.logger.add_message(
                 message_type=2,
                 message_text="Device parts modeling is not active.  No filtering or override option is available.",
@@ -2433,49 +2447,41 @@ class PCBSettingsDeviceParts(PyAedtBase):
 
     @objects_2d_filter.setter
     def objects_2d_filter(self, enable: bool) -> None:
-        """Set whether 2d objects are filtered.
-
-        Parameters
-        ----------
-        enable : bool
-            Whether 2d objects are filtered.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
-        >>> obj = PCBSettingsDeviceParts()
-        >>> obj.objects_2d_filter = True
-
-        """
-        if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
-            self._app.logger.add_message(
-                message_type=2,
-                message_text="Device parts modeling is not active.  No filtering or override option is available.",
-                level="Design",
-                proj_name=self._app.project_name,
-                des_name=self._app.design_name,
-            )
-            return
-        new_filters = self.pcb.props["NativeComponentDefinitionProvider"].get("Filters", [])
-        if "HeightExclude2D" in new_filters:
-            new_filters.remove("HeightExclude2D")
-        if enable:
-            new_filters.append("HeightExclude2D")
-        self.pcb.props["NativeComponentDefinitionProvider"]["Filters"] = new_filters
+        if self.pcb._legacy_props:
+            if self.pcb._legacy_props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
+                self._app.logger.add_message(
+                    message_type=2,
+                    message_text="Device parts modeling is not active.  No filtering or override option is available.",
+                    level="Design",
+                    proj_name=self._app.project_name,
+                    des_name=self._app.design_name,
+                )
+            else:
+                new_filters = self.pcb._legacy_props["NativeComponentDefinitionProvider"].get("Filters", [])
+                if "HeightExclude2D" in new_filters:
+                    new_filters.remove("HeightExclude2D")
+                if enable:
+                    new_filters.append("HeightExclude2D")
+                self.pcb._legacy_props["NativeComponentDefinitionProvider"]["Filters"] = new_filters
+                self.pcb.update()
 
     @property
-    @pyaedt_function_handler()
     def filters(self) -> dict | None:
         """All active filters.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
-        >>> obj = PCBSettingsDeviceParts()
-        >>> obj.filters
+        >>> from ansys.aedt.core import Icepak
+        >>> app = Icepak()
+        >>> comp = app.modeler.components[0]
+        >>> comp.included_parts = 2
+        >>> device_parts = comp.included_parts
+        >>> device_parts.filters
 
         """
-        if self.pcb.props["NativeComponentDefinitionProvider"].get("PartsChoice", None) != 1:
+        if not self.pcb._legacy_props:  # pragma: no cover
+            return None
+        if self.pcb._legacy_props["NativeComponentDefinitionProvider"].get("PartsChoice", None) != 1:
             self._app.logger.add_message(
                 message_type=2,
                 message_text="Device parts modeling is not active.  No filtering or override option is available.",
@@ -2485,7 +2491,7 @@ class PCBSettingsDeviceParts(PyAedtBase):
             )
             return None
         out_filters = {"Type": {"Capacitors": False, "Inductors": False, "Resistors": False}}
-        filters = self.pcb.props["NativeComponentDefinitionProvider"].get("Filters", [])
+        filters = self.pcb._legacy_props["NativeComponentDefinitionProvider"].get("Filters", [])
         filter_map2type = {
             "Cap": "Type",
             "FootPrint": "FootPrint",
@@ -2506,19 +2512,23 @@ class PCBSettingsDeviceParts(PyAedtBase):
         return out_filters
 
     @property
-    @pyaedt_function_handler()
     def overridden_components(self) -> dict:
         """All overridden components.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
-        >>> obj = PCBSettingsDeviceParts()
-        >>> obj.overridden_components
+        >>> from ansys.aedt.core import Icepak
+        >>> app = Icepak()
+        >>> comp = app.modeler.components[0]
+        >>> comp.included_parts = 2
+        >>> device_parts = comp.included_parts
+        >>> device_parts.overridden_components
 
         """
+        if not self.pcb._legacy_props:  # pragma: no cover
+            return None
         override_component = (
-            self.pcb.props["NativeComponentDefinitionProvider"]
+            self.pcb._legacy_props["NativeComponentDefinitionProvider"]
             .get("instanceOverridesMap", {})
             .get("oneOverrideBlk", [])
         )
@@ -2537,8 +2547,10 @@ class PCBSettingsDeviceParts(PyAedtBase):
         r_jc=None,
         height=None,
     ) -> bool:
+        if not self.pcb._legacy_props:  # pragma: no cover
+            return False
         override_component = (
-            self.pcb.props["NativeComponentDefinitionProvider"]
+            self.pcb._legacy_props["NativeComponentDefinitionProvider"]
             .get(map_name, {})  # "instanceOverridesMap"
             .get("oneOverrideBlk", [])
         )
@@ -2572,8 +2584,8 @@ class PCBSettingsDeviceParts(PyAedtBase):
                 }
             )
             override_component.append(new_filter)
-        self.pcb.props["NativeComponentDefinitionProvider"][map_name] = {"oneOverrideBlk": override_component}
-        return True
+        self.pcb._legacy_props["NativeComponentDefinitionProvider"][map_name] = {"oneOverrideBlk": override_component}
+        return self.pcb.update()
 
     @pyaedt_function_handler()
     def override_definition(
@@ -2581,10 +2593,10 @@ class PCBSettingsDeviceParts(PyAedtBase):
         package: str,
         part: str,
         filter_component: bool = False,
-        power: str = None,
-        r_jb: str = None,
-        r_jc: str = None,
-        height: str = None,
+        power: str | None = None,
+        r_jb: str | None = None,
+        r_jc: str | None = None,
+        height: str | None = None,
     ) -> bool:
         """Set component override.
 
@@ -2612,9 +2624,12 @@ class PCBSettingsDeviceParts(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
-        >>> obj = PCBSettingsDeviceParts()
-        >>> obj.override_definition(package=1, part="Box1")
+        >>> from ansys.aedt.core import Icepak
+        >>> app = Icepak()
+        >>> comp = app.modeler.components[0]
+        >>> comp.included_parts = 2
+        >>> device_parts = comp.included_parts
+        >>> device_parts.override_definition(package=1, part="Box1")
 
         """
         if self._app.settings.aedt_version < "2024.2":
@@ -2643,10 +2658,10 @@ class PCBSettingsDeviceParts(PyAedtBase):
         self,
         reference_designator: str,
         filter_component: bool = False,
-        power: str = None,
-        r_jb: str = None,
-        r_jc: str = None,
-        height: str = None,
+        power: str | None = None,
+        r_jb: str | None = None,
+        r_jc: str | None = None,
+        height: str | None = None,
     ) -> bool:
         """Set instance override.
 
@@ -2672,9 +2687,12 @@ class PCBSettingsDeviceParts(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
-        >>> obj = PCBSettingsDeviceParts()
-        >>> obj.override_instance(reference_designator=1)
+        >>> from ansys.aedt.core import Icepak
+        >>> app = Icepak()
+        >>> comp = app.modeler.components[0]
+        >>> comp.included_parts = 2
+        >>> device_parts = comp.included_parts
+        >>> device_parts.override_instance(reference_designator=1)
 
         """
         return self._override_common(

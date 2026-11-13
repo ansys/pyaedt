@@ -181,25 +181,32 @@ def test_import_pcb(board_3dl_app) -> None:
 
     comp = board_3dl_app.modeler.components[0]
     assert comp.name == component_name
+    comp1 = board_3dl_app.modeler["RadioBoard1"]
+    assert isinstance(comp1, NativeComponentPCB)
 
     assert comp.board_cutout_material == "air"
-    comp.board_cutout_material = "copper"
 
     assert comp.bounding_box
     assert comp.center
 
-    assert comp.definition_name == "PCB_PyAEDT"
+    assert comp.definition_name
     assert comp.definition_type == "PCB"
 
     assert comp.force_source_solve
     comp.force_source_solve = False
+    assert not comp.force_source_solve
 
     assert comp.group_name == "Model"
     comp.group_name = "NewGroup"
+    assert comp.group_name == "NewGroup"
 
-    assert comp.identify_extent_poly
+    assert not comp.identify_extent_poly
 
     assert not comp.included_parts
+    comp.included_parts = 1
+    assert isinstance(comp.included_parts, PCBSettingsDeviceParts)
+    comp.included_parts = 2
+    assert isinstance(comp.included_parts, PCBSettingsPackageParts)
 
     assert not comp.mesh_assembly
 
@@ -207,11 +214,26 @@ def test_import_pcb(board_3dl_app) -> None:
 
     assert len(comp.parts) == 11
 
+    assert not comp.power
+    assert comp.user_thermal_link
+
+    comp.user_thermal_link = False
+    assert not comp.user_thermal_link
     assert comp.power == "0W"
+
+    comp.user_thermal_link = True
+    assert comp.user_thermal_link
+    assert not comp.power
+
     comp.power = "1W"
+    assert not comp.user_thermal_link
+    assert comp.power == "1W"
+    comp.user_thermal_link = True
+    assert not comp.power
 
     assert comp.preserve_partner_solution
     comp.preserve_partner_solution = False
+    assert not comp.preserve_partner_solution
 
     assert "Name" in comp.properties
 
@@ -219,9 +241,8 @@ def test_import_pcb(board_3dl_app) -> None:
     comp.target_coordinate_system = "Global"
 
     assert comp.via_holes_material == "copper"
-    comp.via_holes_material = "Al-Extruded"
-
-    assert board_3dl_app.modeler.get_object_from_name("RadioBoard1_001_TOP_BBox")
+    comp.via_holes_material = "air"
+    assert comp.via_holes_material == "air"
 
     pcb2 = board_3dl_app.create_ipk_3dcomponent_pcb(
         setup_link=LINK_DATA,
@@ -239,7 +260,7 @@ def test_import_pcb(board_3dl_app) -> None:
 
 
 def test_pcb_devices(board_ipk_app) -> None:
-    cmp2 = board_ipk_app.native_components["Board_w_cmp"]
+    cmp2 = board_ipk_app.modeler["Board_w_cmp"]
     cmp2.included_parts = 1
     assert isinstance(cmp2.included_parts, PCBSettingsDeviceParts)
     cmp2.included_parts = None
