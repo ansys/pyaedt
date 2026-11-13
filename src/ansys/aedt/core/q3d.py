@@ -1102,8 +1102,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
 
         if isinstance(variations, list) and not isinstance(output_file, list):
             raise AttributeError(
-                "If `variations` is a list, user must pass list of files, "
-                "because each equivalent circuit is saved in different files."
+                "If `variations` is a list, `output_file` must be a list of files with the same length."
             )
         elif isinstance(variations, list) and isinstance(output_file, list) and len(variations) != len(output_file):
             raise AttributeError("The length of `variations` and `output_file` must be the same.")
