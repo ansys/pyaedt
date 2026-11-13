@@ -321,6 +321,49 @@ def test_setup_y_connection(aedt_app) -> None:
     assert aedt_app.setup_y_connection()
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.2", reason="Feature not available before 2025R2")
+def test_setup_pwm_excitation(m2d_app) -> None:
+    m2d_app.solution_type = SolutionsMaxwell2D.TransientXY
+    for i, name in enumerate(["PhaseA", "PhaseB", "PhaseC"]):
+        rect = m2d_app.modeler.create_rectangle([i * 20, 0, 0], [10, 10], material="copper")
+        m2d_app.assign_winding(rect.name, winding_type="PWM Voltage", is_solid=False, resistance=1, name=name)
+    rect = m2d_app.modeler.create_rectangle([60, 0, 0], [10, 10], material="copper")
+    m2d_app.assign_winding(rect.name, winding_type="Voltage", is_solid=False, resistance=1, name="PhaseV")
+    windings = ["PhaseA", "PhaseB", "PhaseC"]
+
+    with pytest.raises(AEDTRuntimeError, match="setup_y_connection"):
+        m2d_app.setup_pwm_excitation(windings)
+    assert m2d_app.setup_y_connection(windings)
+    assert m2d_app.setup_pwm_excitation(windings)
+    m2d_app["BusDC"] = "400V"
+    assert m2d_app.setup_pwm_excitation(
+        windings,
+        dc_bus_voltage="BusDC",
+        output_voltage_frequency=50,
+        switching_frequency="20kHz",
+        phase=30,
+        modulation_index=0.9,
+        reference_phase_voltage=None,
+        min_time_step=5e-7,
+        max_time_step="5us",
+        connection_type="DeltaConnection",
+        preview_end_time=0.02,
+    )
+    with pytest.raises(ValueError):
+        m2d_app.setup_pwm_excitation(["PhaseA", "PhaseB"])
+    with pytest.raises(ValueError):
+        m2d_app.setup_pwm_excitation(windings, modulation_index=2)
+    with pytest.raises(ValueError):
+        m2d_app.setup_pwm_excitation(windings, connection_type="Star")
+    with pytest.raises(AEDTRuntimeError):
+        m2d_app.setup_pwm_excitation(["PhaseA", "PhaseB", "PhaseV"])
+    with pytest.raises(AEDTRuntimeError):
+        m2d_app.setup_pwm_excitation(["PhaseA", "PhaseB", "Invalid"])
+    m2d_app.solution_type = SolutionsMaxwell2D.MagnetostaticXY
+    with pytest.raises(AEDTRuntimeError):
+        m2d_app.setup_pwm_excitation(windings)
+
+
 def test_change_symmetry_multiplier(aedt_app) -> None:
     assert aedt_app.change_symmetry_multiplier(2)
 

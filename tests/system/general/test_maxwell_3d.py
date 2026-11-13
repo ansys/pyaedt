@@ -156,6 +156,31 @@ def test_assign_winding(m3d_app) -> None:
     assert bounds_name == bounds.name
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.2", reason="Feature not available before 2025R2")
+def test_setup_pwm_excitation(m3d_app) -> None:
+    m3d_app.solution_type = SolutionsMaxwell3D.Transient
+    windings = ["PhaseA", "PhaseB", "PhaseC"]
+    for i, name in enumerate(windings):
+        box = m3d_app.modeler.create_box([i * 20, 0, 0], [10, 10, 10], material="copper")
+        m3d_app.assign_winding(box.faces[0].id, winding_type="PWM Voltage", is_solid=False, resistance=1, name=name)
+
+    assert m3d_app.setup_y_connection(windings)
+    assert m3d_app.setup_pwm_excitation(windings)
+    assert m3d_app.setup_pwm_excitation(
+        windings,
+        dc_bus_voltage=400,
+        reference_phase_voltage=None,
+        modulation_index=0.5,
+        max_time_step="5us",
+        connection_type="DeltaConnection",
+    )
+    with pytest.raises(ValueError):
+        m3d_app.setup_pwm_excitation(["PhaseA", "PhaseB"])
+    m3d_app.solution_type = SolutionsMaxwell3D.Magnetostatic
+    with pytest.raises(AEDTRuntimeError):
+        m3d_app.setup_pwm_excitation(windings)
+
+
 def test_assign_coil(m3d_app) -> None:
     coil_hole = m3d_app.modeler.create_box([-50, -50, 0], [100, 100, 100], name="Coil_Hole")
     coil = m3d_app.modeler.create_box([-100, -100, 0], [200, 200, 100], name="Coil")
