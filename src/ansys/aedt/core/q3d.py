@@ -1027,7 +1027,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
             "Hspice": simple HSPICE file format.
             "Welement": Nexxim/HSPICE W Element file format
             "RLGC": Nexxim/HSPICE RLGC W Element file format
-            Default value is Hspice.
+            Default value is "HSPICE".
         include_cpp : bool, optional
             Whether to include chip package control.
             Default value is False.
