@@ -923,7 +923,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         cond_limit: str | None = None,
         model: str | None = None,
         frequency: int | str | None = 0,
-        file_type: str | None = "HSPICE",
+        file_type: str = "HSPICE",
         include_cpp: bool | None = False,
     ) -> bool:
         """Export matrix data.
