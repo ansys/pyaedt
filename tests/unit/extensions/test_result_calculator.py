@@ -344,6 +344,77 @@ class TestFormulaCalculator:
         assert "r3" not in used
         assert set(used) == {"r1", "r2"}
 
+    # ---- documented formula syntax keeps working ----------------------------
+
+    @pytest.mark.parametrize(
+        "formula, expected",
+        [
+            ("sqrt(r1)", 1.0),
+            ("np.sqrt(r1)", 1.0),
+            ("numpy.sqrt(r1)", 1.0),
+            ("np.log10(r1)", 0.0),
+            ("20*log10(abs(r1))", 0.0),
+            ("r1 * pi", np.pi),
+            ("r1 * np.pi", np.pi),
+            ("r1 * numpy.pi", np.pi),
+            ("np.mean(r1)", 1.0),
+            ("real(r1)", 1.0),
+            ("numpy.abs(r1)", 1.0),
+            ("arctan2(r1, r1)", np.pi / 4),
+            ("np.arctan2(r1, r1)", np.pi / 4),
+            ("-r1", -1.0),
+            ("r1 ** 2", 1.0),
+            ("r1 > 0.5", 1.0),
+        ],
+    )
+    def test_evaluate_documented_syntax(self, formula: str, expected: float) -> None:
+        """Bare-name aliases and np./numpy.-prefixed forms must all still evaluate."""
+        calc = FormulaCalculator(num_points=5)
+        x = np.linspace(0.0, 1.0, 5)
+        store_data = {"r1": {"x": x, "y": np.ones(5)}}
+        _, y_out, _ = calc.evaluate(formula, store_data)
+        np.testing.assert_allclose(y_out, np.full(5, expected), atol=1e-10)
+
+    # ---- sandboxing: escape attempts raise ValueError ------------------------
+
+    @pytest.mark.parametrize(
+        "formula",
+        [
+            "np.load('/tmp/evil.npy') + r1",
+            "numpy.load('/tmp/evil.npy') + r1",
+            "np.fromfile('/etc/passwd') + r1",
+            "np.save('/tmp/evil.npy', r1)",
+            "np.__spec__ + r1",
+            "np.__builtins__['__import__']('os') + r1",
+            "np.__spec__.__name__ + r1",
+            "clip.__globals__['__builtins__'] + r1",
+            "sqrt.__globals__ + r1",
+            "x.__class__ + r1",
+            "r1.__class__ + r1",
+            "x.real + r1",
+            "[abs(v) for v in r1]",
+            "{v for v in r1}",
+            "import os + r1",
+            "__import__('os') + r1",
+            "r1[0]",
+            "lambda: r1",
+            "f'{r1}'",
+            "(r1 := 1)",
+            "str(1) + r1",
+            "'evil' + r1",
+            "r1 if True else 0",
+            "np.random.rand(3) + r1",
+            "getattr(np, 'load') + r1",
+        ],
+    )
+    def test_evaluate_rejects_escape_attempts(self, formula: str) -> None:
+        """Formulas reaching outside the whitelist must raise ValueError, not execute."""
+        calc = FormulaCalculator(num_points=5)
+        x = np.linspace(0.0, 1.0, 5)
+        store_data = {"r1": {"x": x, "y": np.ones(5)}}
+        with pytest.raises(ValueError, match="Formula rejected|Invalid formula syntax"):
+            calc.evaluate(formula, store_data)
+
     # ---- alignment strategies ----------------------------------------------
 
     def test_align_common_interval(self) -> None:
@@ -1432,3 +1503,13 @@ class TestResultCalculatorExtensionHelpers:
         payload = {"source": "existing_report", "metadata": {}}
         label = ResultCalculatorExtension._trace_info_label(payload)
         assert label == ""
+
+
+def test_formula_rejects_in_place_numpy_arguments() -> None:
+    """Test that numpy keyword arguments which write into the stored traces are rejected."""
+    calculator = FormulaCalculator()
+    store = {"r1": {"x": np.linspace(0, 1, 5), "y": np.linspace(0, 1, 5)}}
+
+    for formula in ("np.maximum(r1, 0, out=r1)", "np.nan_to_num(r1, copy=False)"):
+        with pytest.raises(ValueError, match="not allowed"):
+            calculator.evaluate(formula, store)
