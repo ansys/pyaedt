@@ -16,7 +16,7 @@ env:
   PYAEDT_OSM_XFAIL: "1"
   PYAEDT_SOLVER_XFAIL: "1"
   PYAEDT_TCL_INIT_XFAIL: "1"
-  TESTS_VERSION: '3.10'
+  TESTS_VERSION: '3.13'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -141,7 +141,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
+        python-version: ['3.12', '3.13', '3.14']
         target: ['all', 'all-dotnet']
     steps:
       - name: Build wheelhouse and perform smoke test
@@ -172,7 +172,7 @@ jobs:
     uses: $/.github/workflows/reusable-smoke-tests-rocky.yml
     with:
       attest-provenance: true
-      python-versions: '["3.10", "3.11", "3.12", "3.13", "3.14"]'
+      python-versions: '["3.12", "3.13", "3.14"]'
       extras: '["all", "all-dotnet"]'
 
   unit-tests:

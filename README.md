@@ -15,7 +15,7 @@
 [![PyPI downloads](https://static.pepy.tech/badge/pyaedt/month)](https://www.pepy.tech/projects/pyaedt)
 [![Conda](https://anaconda.org/conda-forge/pyaedt/badges/version.svg)](https://anaconda.org/conda-forge/pyaedt)
 [![Conda downloads](https://img.shields.io/conda/dn/conda-forge/pyaedt?label=Conda%20downloads)](https://anaconda.org/conda-forge/pyaedt)
-[![Python version](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![Python version](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![GitHub CI](https://github.com/ansys/pyaedt/actions/workflows/nightly-tests.yml/badge.svg)](https://github.com/ansys/pyaedt/actions/workflows/nightly-tests.yml)
 [![codecov](https://codecov.io/gh/ansys/pyaedt/branch/main/graph/badge.svg)](https://codecov.io/gh/ansys/pyaedt)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/blog/license/mit)
@@ -42,7 +42,7 @@ the API.
 
 ## Install on CPython from PyPI
 
-You can install PyAEDT on CPython 3.10 through 3.14 from PyPI with this command:
+You can install PyAEDT on CPython 3.12 through 3.14 from PyPI with this command:
 
 
 ```sh
@@ -80,18 +80,22 @@ PyAEDT has different compatibility requirements based on its version. Below is a
     - Version 0.9.x has been tested using AEDT 2024 R1.
     - From versions 0.10.0 to 0.13.3, all tests have been performed with AEDT 2024 R2.
     - Starting from version 0.14.0, all tests are performed with AEDT 2025 R1.
-- PyAEDT Version ≥ 0.18.0:
+- PyAEDT Version >= 0.18.0:
   - Python Compatibility:
     - Dropped support for Python 3.8 and 3.9.
     - Compatible with Python 3.10 and versions up to Python 3.13.
   - AEDT Compatibility:
     - All tests were conducted using AEDT 2025 R1.
-- PyAEDT Version ≥ 0.27.0:
+- PyAEDT Version >= 0.27.0:
   - Python Compatibility:
     - Compatible with Python 3.10 and versions up to Python 3.14.
   - AEDT Compatibility:
     - All tests were conducted using AEDT 2026 R1.
-
+- PyAEDT Version >= 1.11.0:
+  - Python Compatibility:
+    - Compatible with Python 3.12 and versions up to Python 3.14.
+  - AEDT Compatibility:
+    - All tests were conducted using AEDT 2026 R1.
 
 ## About PyAnsys
 

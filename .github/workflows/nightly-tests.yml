@@ -7,7 +7,7 @@ on:
 
 env:
   ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
-  TESTS_VERSION: '3.10'
+  TESTS_VERSION: '3.13'
   ON_CI: True
   PYAEDT_EDB_XFAIL: "1"
   PYAEDT_LOCAL_SETTINGS_PATH: 'tests/pyaedt_settings.yaml'

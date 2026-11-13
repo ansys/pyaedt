@@ -34,6 +34,7 @@ env:
   TESTMON_CACHE_KEY_LAYOUT_LINUX: 'testmondata-layout-linux'
   TESTMON_CACHE_KEY_FILTER_WIN: 'testmondata-filter-win'
   TESTMON_CACHE_KEY_EMIT_WIN: 'testmondata-emit-win'
+  TESTS_VERSION: '3.13'
 
 jobs:
   # ------------------------------------------------------------------
@@ -70,7 +71,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
-          python-version: '3.10'
+          python-version: '3.13'
 
       - name: Analyze changes
         id: analyze
@@ -100,8 +101,6 @@ jobs:
     permissions:
       actions: write # Needed to delete cache
       contents: write # Needed to save cache
-    env:
-      TESTS_VERSION: '3.10'
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -160,7 +159,6 @@ jobs:
       actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
-      TESTS_VERSION: '3.10'
       ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
@@ -218,8 +216,6 @@ jobs:
     permissions:
       actions: write # Needed to delete cache
       contents: write # Needed to save cache
-    env:
-      TESTS_VERSION: '3.10'
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -279,7 +275,6 @@ jobs:
       actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
-      TESTS_VERSION: '3.10'
       ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
@@ -338,7 +333,6 @@ jobs:
       actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
-      TESTS_VERSION: '3.10'
       MPLBACKEND: 'Agg'
     steps:
       - name: Install Git and checkout project
@@ -399,7 +393,6 @@ jobs:
       actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
-      TESTS_VERSION: '3.10'
       ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
       MPLBACKEND: 'Agg'
@@ -458,8 +451,6 @@ jobs:
     permissions:
       actions: write # Needed to delete cache
       contents: write # Needed to save cache
-    env:
-      TESTS_VERSION: '3.10'
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -518,7 +509,6 @@ jobs:
       actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
-      TESTS_VERSION: '3.10'
       ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
@@ -576,8 +566,6 @@ jobs:
     permissions:
       actions: write # Needed to delete cache
       contents: write # Needed to save cache
-    env:
-      TESTS_VERSION: '3.10'
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -636,7 +624,6 @@ jobs:
       actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
-      TESTS_VERSION: '3.10'
       ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
@@ -694,8 +681,6 @@ jobs:
     permissions:
       actions: write # Needed to delete cache
       contents: write # Needed to save cache
-    env:
-      TESTS_VERSION: '3.10'
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -753,8 +738,6 @@ jobs:
 #    permissions:
 #      actions: write # Needed to delete cache
 #      contents: write # Needed to save cache
-#    env:
-#      TESTS_VERSION: '3.10'
 #    steps:
 #      - name: Install Git and checkout project
 #        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0

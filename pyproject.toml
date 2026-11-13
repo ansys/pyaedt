@@ -7,7 +7,7 @@ name = "pyaedt"
 dynamic = ["version"]
 description = "High-level Python API for Ansys Electronics Desktop Framework"
 readme = "README.md"
-requires-python = ">=3.10,<4"
+requires-python = ">=3.12,<4"
 license = "MIT"
 license-files = ["LICENSE"]
 authors = [{ name = "Synopsys, Inc. and ANSYS, Inc.", email = "pyansys-core@synopsys.com" }]
@@ -19,8 +19,6 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "Intended Audience :: Manufacturing",
     "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
@@ -53,6 +51,7 @@ dotnet = [
 # NOTE: Any modification to graphics should be extended in internal checks (decorators)
 graphics = [
     "ansys-tools-visualization-interface",
+    "tables",
     "pyvista[io]>=0.38.0,<0.50",
     "matplotlib>=3.5.0",
     "vtk>=9.0,<9.8",
@@ -72,7 +71,7 @@ all = [
     "pyvista[io]>=0.38.0,<0.50",
     "fast-simplification>=0.1.7",
     "ansys-tools-visualization-interface",
-    "tables; python_version >= '3.10'",
+    "tables",
     "scikit-rf>=0.30.0",
     "pyaedt[jupyter]",
     "requests",
@@ -89,7 +88,7 @@ all-dotnet = [
     "pyvista[io]>=0.38.0,<0.50",
     "fast-simplification>=0.1.7",
     "ansys-tools-visualization-interface",
-    "tables; python_version >= '3.10'",
+    "tables",
     "scikit-rf>=0.30.0",
     "pyaedt[jupyter]",
     "requests",
@@ -114,7 +113,7 @@ examples = [
     "scikit-rf>=0.30.0",
     "pdf-oxide",
     "rpyc>=6.0.0",
-    "tables; python_version >= '3.10'",
+    "tables",
 ]
 
 [dependency-groups]

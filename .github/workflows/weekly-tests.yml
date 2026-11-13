@@ -7,7 +7,6 @@ on:
 
 env:
   ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
-  MAIN_PYTHON_VERSION: '3.10'
   ON_CI: True
   PYAEDT_EDB_XFAIL: "1"
   PYAEDT_LOCAL_SETTINGS_PATH: 'tests/pyaedt_settings.yaml'
@@ -29,6 +28,7 @@ env:
   TESTMON_CACHE_KEY_LAYOUT_LINUX: 'testmondata-layout-linux'
   TESTMON_CACHE_KEY_FILTER_WIN: 'testmondata-filter-win'
   TESTMON_CACHE_KEY_EMIT_WIN: 'testmondata-emit-win'
+  TESTS_VERSION: '3.13'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -45,8 +45,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write # Needed to save cache
-    env:
-      TESTS_VERSION: '3.10'
     steps:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -77,8 +75,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write # Needed to save cache
-    env:
-      TESTS_VERSION: '3.10'
     steps:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -105,8 +101,6 @@ jobs:
     permissions:
       actions: write # Needed to delete cache
       contents: write # Needed to save cache
-    env:
-      TESTS_VERSION: '3.10'
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -154,7 +148,6 @@ jobs:
       actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
-      TESTS_VERSION: '3.10'
       ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
@@ -201,8 +194,6 @@ jobs:
     permissions:
       actions: write # Needed to delete cache
       contents: write # Needed to save cache
-    env:
-      TESTS_VERSION: '3.10'
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -251,7 +242,6 @@ jobs:
       actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
-      TESTS_VERSION: '3.10'
       ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
@@ -299,7 +289,6 @@ jobs:
       actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
-      TESTS_VERSION: '3.10'
       MPLBACKEND: 'Agg'
     steps:
       - name: Install Git and checkout project
@@ -349,7 +338,6 @@ jobs:
       actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
-      TESTS_VERSION: '3.10'
       ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
       MPLBACKEND: 'Agg'
@@ -397,8 +385,6 @@ jobs:
     permissions:
       actions: write # Needed to delete cache
       contents: write # Needed to save cache
-    env:
-      TESTS_VERSION: '3.10'
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -446,7 +432,6 @@ jobs:
       actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
-      TESTS_VERSION: '3.10'
       ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
@@ -493,8 +478,6 @@ jobs:
     permissions:
       actions: write # Needed to delete cache
       contents: write # Needed to save cache
-    env:
-      TESTS_VERSION: '3.10'
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -542,7 +525,6 @@ jobs:
       actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
-      TESTS_VERSION: '3.10'
       ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
@@ -588,8 +570,6 @@ jobs:
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       contents: write # Needed to save cache
-    env:
-      TESTS_VERSION: '3.10'
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -619,7 +599,6 @@ jobs:
     permissions:
       contents: write # Needed to save cache
     env:
-      TESTS_VERSION: '3.10'
       ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
@@ -648,8 +627,6 @@ jobs:
     permissions:
       actions: write # Needed to delete cache
       contents: write # Needed to save cache
-    env:
-      TESTS_VERSION: '3.10'
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -695,8 +672,6 @@ jobs:
 #    runs-on: [ self-hosted, Windows, pyaedt ]
 #    permissions:
 #      contents: write # Needed to save cache
-#    env:
-#      TESTS_VERSION: '3.10'
 #    steps:
 #      - name: Install Git and checkout project
 #        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0

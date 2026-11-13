@@ -6,7 +6,7 @@ on:
       python-versions:
         description: JSON array of Python versions for the matrix
         required: false
-        default: '["3.10", "3.11", "3.12", "3.13", "3.14"]'
+        default: '["3.12", "3.13", "3.14"]'
         type: string
       checkout-ref:
         description: Optional git ref to checkout before building
