@@ -42,12 +42,15 @@ matplotlib.use("Agg")
 # specifically compiled for each supported Python version.
 # Prior to 2025R1, the Emit API supported Python 3.8,3.9,3.10,3.11
 # Starting with 2025R1, the Emit API supports Python 3.10,3.11,3.12
+# Starting with 2027R1, the Emit API supports Python 3.10+
 if (
     DESKTOP_VERSION >= "2027.1"
     or ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1")
     or ((3, 10) <= sys.version_info[0:2] <= (3, 12) and DESKTOP_VERSION > "2024.2")
 ):
     from ansys.aedt.core import Emit
+    from ansys.aedt.core.emit_core.emit_constants import PowerType
+    from ansys.aedt.core.emit_core.emit_constants import ResultType
     from ansys.aedt.core.emit_core.nodes.generated import Amplifier
     from ansys.aedt.core.emit_core.nodes.generated import AntennaNode
     from ansys.aedt.core.emit_core.nodes.generated import Band
@@ -73,6 +76,7 @@ if (
     from ansys.aedt.core.emit_core.nodes.generated import TxNbEmissionNode
     from ansys.aedt.core.emit_core.nodes.generated import TxSpectralProfNode
     from ansys.aedt.core.emit_core.nodes.generated import TxSpurNode
+    from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 
 TEST_SUBFOLDER = TESTS_EMIT_PATH / "example_models/TEMIT"
 
@@ -101,8 +105,12 @@ def _setup_two_radio_project(emit_app):
 
 @pytest.mark.skipif(is_linux, reason="Emit API is not supported on linux.")
 @pytest.mark.skipif(
-    (sys.version_info < (3, 10) or sys.version_info[:2] > (3, 12)) and DESKTOP_VERSION > "2024.2",
-    reason="Emit API is only available for Python 3.10-3.12 in AEDT versions 2025.1 and later.",
+    sys.version_info < (3, 10) and DESKTOP_VERSION > "2024.2",
+    reason="Emit API is only available for Python 3.10+ in AEDT versions 2025.1 and later.",
+)
+@pytest.mark.skipif(
+    sys.version_info > (3, 12) and DESKTOP_VERSION < "2027.1",
+    reason="Emit API is only available for Python 3.13+ in AEDT versions 2027.1 and later.",
 )
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="export_to_csv requires 2027 R1 or later.")
 class TestEmitExports:
@@ -692,3 +700,87 @@ class TestEmitExports:
             png_path = os.path.join(export_dir, "rx_spurs_plot.png")
             fig.savefig(png_path)
             assert os.path.isfile(png_path) and Path(png_path).stat().st_size > 0
+
+    def test_emi_export(self, emit_app):
+        """Test export_to_csv and plot on a point emi spectrum."""
+        revision = _setup_two_radio_project(emit_app)
+        sim = revision.get_simulation()
+        domain = InteractionDomain(emit_app)
+        interaction = sim.run(domain)
+        worst_case = interaction.get_worst_instance(ResultType.EMI)
+
+        data = worst_case.export_emi_spectrum_to_csv("")
+        assert data is not None
+        assert len(data) > 0, "EMI CSV export should return non-empty data."
+
+        fig = worst_case.plot_emi_spectrum()
+        assert fig is not None
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            png_path = os.path.join(tmp_dir, "emi_plot.png")
+            fig.savefig(png_path)
+            assert os.path.isfile(png_path), "EMI plot figure was not saved."
+            assert Path(png_path).stat().st_size > 0, "EMI plot file is empty."
+
+        # add a third system to test N to 1
+        radio3, ant3 = emit_app.schematic.create_radio_antenna("New Radio")
+        ant3.position_defined = True
+        ant3.position = "0 20 0"
+        revision = emit_app.results.analyze()
+
+        sim = revision.get_simulation()
+        domain = InteractionDomain(emit_app)
+        interaction = sim.run(domain)
+        worst_case = interaction.get_worst_instance(ResultType.EMI)
+        assert len(worst_case.domain.interferer_names) == 2, "Expected 2 interferers in the worst case instance."
+
+        data = worst_case.export_emi_spectrum_to_csv("")
+        assert data is not None
+        assert len(data) > 0, "N to 1 EMI CSV export should return non-empty data."
+
+    def test_power_at_port_export(self, emit_app):
+        """Test export_to_csv and plot of power output by a tx radio."""
+        revision = _setup_two_radio_project(emit_app)
+        sim = revision.get_simulation()
+        domain = InteractionDomain(emit_app)
+        interaction = sim.run(domain)
+        worst_case = interaction.get_worst_instance(ResultType.EMI)
+
+        data = worst_case.export_power_at_port_to_csv(PowerType.NARROWBAND, "Radio 2", "Port 1", False, "")
+        assert data is not None
+        assert len(data) > 0, "Narrowband power CSV export should return non-empty data."
+
+        data = worst_case.export_power_at_port_to_csv(PowerType.BROADBAND, "Radio 2", "Port 1", False, "")
+        assert data is not None
+        assert len(data) > 0, "Broadband power CSV export should return non-empty data."
+
+        fig = worst_case.plot_power_at_port(PowerType.NARROWBAND, "Radio 2", "Port 1")
+        assert fig is not None
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            png_path = os.path.join(tmp_dir, "power_at_port_plot.png")
+            fig.savefig(png_path)
+            assert os.path.isfile(png_path), "Power at port plot figure was not saved."
+            assert Path(png_path).stat().st_size > 0, "Power at port plot file is empty."
+
+    def test_power_at_rx_export(self, emit_app):
+        """Test export_to_csv and plot of power at rx."""
+        revision = _setup_two_radio_project(emit_app)
+        sim = revision.get_simulation()
+        domain = InteractionDomain(emit_app)
+        interaction = sim.run(domain)
+        worst_case = interaction.get_worst_instance(ResultType.EMI)
+
+        data = worst_case.export_power_at_rx_to_csv(PowerType.NARROWBAND, "")
+        assert data is not None
+        assert len(data) > 0, "Narrowband power at rx CSV export should return non-empty data."
+
+        data = worst_case.export_power_at_rx_to_csv(PowerType.BROADBAND, "")
+        assert data is not None
+        assert len(data) > 0, "Broadband power at rx CSV export should return non-empty data."
+
+        fig = worst_case.plot_power_at_rx(PowerType.NARROWBAND)
+        assert fig is not None
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            png_path = os.path.join(tmp_dir, "power_at_rx_plot.png")
+            fig.savefig(png_path)
+            assert os.path.isfile(png_path), "Power at rx plot figure was not saved."
+            assert Path(png_path).stat().st_size > 0, "Power at rx plot file is empty."

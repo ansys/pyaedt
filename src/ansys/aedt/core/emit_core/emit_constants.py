@@ -79,6 +79,11 @@ class EMIInterfererType(MutableEnum):
     OUT_OF_CHANNEL_TX_BROADBAND = (1, 3)
 
 
+class PowerType(MutableEnum):
+    NARROWBAND = 0
+    BROADBAND = 1
+
+
 # Maps raw interference category integers from gRPC GetLargestEmiProblemType to EMIInterfererType enums
 EMI_CATEGORY_TO_INTERFERER_TYPE = {
     0: EMIInterfererType.OUT_OF_CHANNEL_TX_FUNDAMENTAL,
