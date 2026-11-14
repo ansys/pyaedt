@@ -387,9 +387,9 @@ class RoadPrep(PyAedtBase):
                 line += pv.lines_from_points(pts, close=False)
             except ValueError:
                 pass
-            end_shape = pv.Circle(road_width, resolution=16).delaunay_2d()
+            end_shape = pv.Circle(radius=road_width, resolution=16).delaunay_2d()
             road_ends += end_shape.translate(pts[0], inplace=False)
-            end_shape = pv.Circle(road_width, resolution=16).delaunay_2d()
+            end_shape = pv.Circle(radius=road_width, resolution=16).delaunay_2d()
             road_ends += end_shape.translate(pts[-1], inplace=False)
             lines.append(line)
 
