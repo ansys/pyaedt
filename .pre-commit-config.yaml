@@ -107,7 +107,7 @@ repos:
 
 # NOTE: Whenever this version is updated, please align the version in the lock file.
 - repo: https://github.com/astral-sh/ty-pre-commit
-  rev: ae754a05e63248249a242ce594d8eaa88cbb989d  # frozen: v0.0.92
+  rev: c7c033957b32915cd7f904e97be28de58f572300  # frozen: v0.0.99
   hooks:
     - id: ty
       name: Type check with Ty
