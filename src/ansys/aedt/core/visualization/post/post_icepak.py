@@ -245,7 +245,10 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         if variations is None:
             variations = {}
         facelist_name = generate_unique_name(quantity)
-        self._app.modeler.create_face_list(faces, facelist_name)
+        if self._app.desktop_class.aedt_version_id < "2026.1":
+            self._app.modeler.create_face_list(faces, facelist_name)
+        else:
+            self._app.modeler.create_named_selection(assignment=faces, name=facelist_name)
         fs = self.create_field_summary()
         fs.add_calculation(
             "Object", "Surface", facelist_name, quantity, side=side, ref_temperature=ref_temperature, time=time
