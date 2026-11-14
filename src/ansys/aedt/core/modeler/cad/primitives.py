@@ -5539,10 +5539,10 @@ class GeometryModeler(Modeler, PyAedtBase):
         """
         list2 = self.select_allfaces_fromobjects(assignment)  # find ALL faces of outer objects
 
-        if settings.aedt_version >= "2026.1":
-            self.create_named_selection(assignment=list2, name=name)
-        else:
+        if settings.aedt_version < "2026.1":
             self.create_face_list(assignment=list2, name=name)
+        else:
+            self.create_named_selection(assignment=list2, name=name)
         return True
 
     @pyaedt_function_handler()
