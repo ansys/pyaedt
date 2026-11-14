@@ -334,7 +334,7 @@ def test_create_optimization(aedtapp) -> None:
     setup3 = aedtapp.optimizations.add(
         calculation, ranges={"Freq": "2.5GHz"}, solution=f"{new_setup.name} : {sweep.name}"
     )
-    setup3.props["Optimizer"] = "Screening"
+    setup3.props["Optimizer"] = "DX SCREENING"
     setup3.add_variation("w1", 0.1, 10, 5, min_step=0.5, max_step=1, use_manufacturable=True, levels=[1, 20])
     if not isinstance(setup3.props["Variables"]["w1"], list):
         assert setup3.props["Variables"]["w1"]["Level"] == "[1, 20] mm"

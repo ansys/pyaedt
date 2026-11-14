@@ -255,11 +255,7 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
 
     @props.setter
     def props(self, value: dict) -> None:
-        # Merge with existing props to support partial updates
-        current_props = self.props.to_dict() if self._legacy_props else {}
-        current_props.update(value)
-        # Each Setup class must have an update method
-        self.update(current_props)
+        self.update(value)
 
     def update(self, properties: dict | None = None) -> bool:
         """Update setup properties in the concrete setup implementation."""

@@ -35,6 +35,7 @@ from ansys.aedt.core.edb import Edb
 from ansys.aedt.core.generic.constants import Axis
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.props import Props as ComponentProps
 from ansys.aedt.core.generic.protocols import _AppWithOProject
 from ansys.aedt.core.internal.desktop_sessions import _edb_sessions
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
@@ -1303,6 +1304,29 @@ class NativeComponent(UserDefinedComponent):
     def __init__(self, app: _AppWithOProject, name: str, props: dict) -> None:
         super().__init__(app=app, name=name, props=props)
         self.__child_object = None
+
+    @property
+    def props(self) -> ComponentProps:
+        """Properties of the native component.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.generic.props.Props`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss(solution_type="SBR+")
+        >>> ffd_file = "path/to/ffdfile.ffd"
+        >>> par_beam = hfss.create_sbr_file_based_antenna(ffd_file)
+        >>> par_beam.props
+
+        """
+        return ComponentProps(self, self._legacy_props)
+
+    @props.setter
+    def props(self, value: dict) -> None:
+        self.update(value)
 
     @pyaedt_function_handler()
     def create(self) -> bool:

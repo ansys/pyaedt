@@ -215,16 +215,12 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
             return SetupProps(self, self._legacy_props)
 
         if self._has_getobject:
-            setup_data = _get_obj_data(self._child_object)
-
-            for prop_name, prop_value in setup_data.items():
-                self._legacy_props[prop_name] = prop_value
+            self._legacy_props = _get_obj_data(self._child_object)
         else:
             try:
                 setups_data = self._app.design_properties["Optimetrics"]["OptimetricsSetups"]
                 if self.name in setups_data:
-                    self._legacy_props = SetupProps(self, setups_data[self._name])
-
+                    self._legacy_props = setups_data[self._name]
             except Exception:
                 self._legacy_props = {}
                 self._app.logger.debug(
@@ -235,13 +231,7 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
 
     @props.setter
     def props(self, value: dict) -> None:
-        # Merge with existing props to support partial updates
-        current_props = self.props.to_dict() if self._legacy_props else {}
-        current_props.update(value)
-
-        props = SetupProps(self, current_props)
-
-        self.update(props)
+        self.update(value)
 
     @property
     def setup_type(self) -> str | None:
@@ -441,6 +431,8 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         props = self.props.to_dict()
 
         setupname = solution.split(" ")[0]
+        if "Sim. Setups" not in props:
+            props["Sim. Setups"] = []
         if setupname not in props["Sim. Setups"]:
             props["Sim. Setups"].append(setupname)
         domain = self._get_domain(ranges)
@@ -2202,7 +2194,7 @@ class Optimetrics(PyAedtBase):
             if setup_name not in self.__setups:
                 self.__setups[setup_name] = setup
 
-        active_names = set(parametric_setups) | set(optimization_setups)
+        active_names = set(parametric_setups.keys()) | set(optimization_setups.keys())
         for setup_name in list(self.__setups.keys()):
             if setup_name not in active_names:
                 del self.__setups[setup_name]

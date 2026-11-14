@@ -260,11 +260,16 @@ def test_import_pcb(board_3dl_app) -> None:
 
 
 def test_pcb_devices(board_ipk_app) -> None:
-    cmp2 = board_ipk_app.modeler["Board_w_cmp"]
+    cmp2 = board_ipk_app.modeler["Board_w_cmp1"]
+    assert isinstance(cmp2, NativeComponentPCB)
+    assert cmp2.name in board_ipk_app.modeler.component_names
+
+    assert not cmp2.included_parts
     cmp2.included_parts = 1
     assert isinstance(cmp2.included_parts, PCBSettingsDeviceParts)
     cmp2.included_parts = None
     assert cmp2.included_parts is None
+
     # Test Device parts
     cmp2.included_parts = "Device"
     assert cmp2.included_parts == "Device"

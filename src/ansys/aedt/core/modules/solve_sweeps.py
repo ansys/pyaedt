@@ -343,13 +343,7 @@ class SweepHFSS(SweepCommon):
 
     @props.setter
     def props(self, value: dict) -> None:
-        # Merge with existing props to support partial updates
-        current_props = self.props.to_dict() if self._legacy_props else {}
-        current_props.update(value)
-
-        props = SweepProps(self, current_props)
-
-        self.update(props)
+        self.update(value)
 
     @property
     def is_solved(self) -> bool:
@@ -743,13 +737,7 @@ class SweepHFSS3DLayout(SweepCommon):
 
     @props.setter
     def props(self, value: dict) -> None:
-        # Merge with existing props to support partial updates
-        current_props = self.props.to_dict() if self._legacy_props else {}
-        current_props.update(value)
-
-        props = SweepProps(self, current_props)
-
-        self.update(props)
+        self.update(value)
 
     @property
     def is_solved(self) -> bool:
@@ -1133,10 +1121,7 @@ class SweepMatrix(SweepCommon):
 
     @props.setter
     def props(self, value: dict) -> None:
-        """Update the sweep properties."""
-        current_props = self.props.to_dict() if self._legacy_props else {}
-        current_props.update(value)
-        self.update(current_props)
+        self.update(value)
 
     @property
     def is_solved(self) -> bool:
