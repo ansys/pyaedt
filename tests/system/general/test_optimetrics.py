@@ -346,8 +346,14 @@ def test_create_optimization(aedtapp) -> None:
         ranges={"Freq": "2.5GHz"},
         variables={"w_opt": None},
         solution=f"{new_setup.name} : {sweep.name}",
+        is_goal=True,
+        goal_value=2,
     )
     assert aedtapp.variable_manager["w_opt"].is_optimization_enabled
+    if isinstance(setup3.props["Goals"]["Goal"][1]["GoalValue"]["bG"], list):
+        assert setup3.props["Goals"]["Goal"][1]["GoalValue"]["bG"][1] == "[2;]"
+    else:
+        assert setup3.props["Goals"]["Goal"][1]["GoalValue"]["bG"]["v"] == "[2;]"
 
 
 def test_create_doe(aedtapp) -> None:

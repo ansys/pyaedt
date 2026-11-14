@@ -107,16 +107,14 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         else:
             self.__setup_type = self._parent.setups_by_type.get(self._name)
 
-        self.__child_object = None
-
         # GetObjData is available for some objects in 2026R1
         self._has_getobject = _has_get_obj_data(self._child_object)
 
     def __repr__(self) -> str:
-        return self.name
+        return self._name
 
     def __str__(self) -> str:
-        return self.name
+        return self._name
 
     @pyaedt_function_handler()
     def _initialize_tree_node(self) -> bool:
@@ -143,15 +141,14 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         >>> setup.child_object.GetChildNames()
 
         """
-        if not self.__child_object:
-            design_childs = self._app.get_oo_name(self._app.odesign)
-
-            if "Optimetrics" in design_childs:
-                cc = self._app.get_oo_object(self._app.odesign, "Optimetrics")
-                cc_names = self._app.get_oo_name(cc)
-                if self._name in cc_names:
-                    self.__child_object = self._app.get_oo_object(cc, self._name)
-        return self.__child_object
+        child_object = None
+        design_childs = self._app.get_oo_name(self._app.odesign)
+        if "Optimetrics" in design_childs:
+            cc = self._app.get_oo_object(self._app.odesign, "Optimetrics")
+            cc_names = self._app.get_oo_name(cc)
+            if self._name in cc_names:
+                child_object = self._app.get_oo_object(cc, self._name)
+        return child_object
 
     @property
     def name(self) -> str:
@@ -184,7 +181,6 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         # RenameSetup method is not working well, using Object oriented method
         self.child_object.Rename(str(new_name))
 
-        self.__child_object = None
         object.__setattr__(self, "_name", new_name)
         object.__setattr__(self, "_tree_node_initialized", False)
         object.__setattr__(self, "_props", None)
@@ -339,6 +335,9 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
     def delete(self) -> bool:
         """Delete a defined Optimetrics Setup.
 
+        Cached tree handles are cleared after deletion. Subsequent object lookups
+        check the setups currently available in AEDT.
+
         Returns
         -------
         bool
@@ -431,9 +430,7 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         props = self.props.to_dict()
 
         setupname = solution.split(" ")[0]
-        if "Sim. Setups" not in props:
-            props["Sim. Setups"] = []
-        if setupname not in props["Sim. Setups"]:
+        if "Sim. Setups" in props and setupname not in props["Sim. Setups"]:
             props["Sim. Setups"].append(setupname)
         domain = self._get_domain(ranges)
 
@@ -484,7 +481,7 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
             if type(props[optigoalname]["Goal"]) is not list:
                 props[optigoalname]["Goal"] = [
                     props[optigoalname]["Goal"],
-                    SetupProps(self, sweepdefinition),
+                    sweepdefinition,
                 ]
             else:
                 props[optigoalname]["Goal"].append(sweepdefinition)

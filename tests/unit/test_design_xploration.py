@@ -30,6 +30,8 @@ import pytest
 
 from ansys.aedt.core.generic.general_methods import SetupDict
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
+from ansys.aedt.core.modules.design_xploration import OptimetricsSetup
 from ansys.aedt.core.modules.design_xploration import Optimizations
 from ansys.aedt.core.modules.design_xploration import Parametrics
 from ansys.aedt.core.modules.design_xploration import ParametricSetup
@@ -98,6 +100,46 @@ def test_optimizations_add_unsupported_type(mock_app) -> None:
     optimizations = _manager(Optimizations, mock_app)
     with pytest.raises(ValueError, match="Unsupported optimization type"):
         optimizations.add(optimization_type="Invented")
+
+
+def test_optimetrics_child_lookup_does_not_reuse_deleted_handle(mock_app):
+    setup = OptimetricsSetup.__new__(OptimetricsSetup)
+    setup._app = mock_app
+    setup._name = "Opt1"
+    folder = MagicMock()
+    handle = MagicMock()
+    mock_app.get_oo_object.side_effect = lambda parent, name: folder if name == "Optimetrics" else handle
+    mock_app.get_oo_name.side_effect = [["Optimetrics"], ["Opt1"], ["Optimetrics"], []]
+
+    assert setup._child_object is handle
+    assert setup._child_object is None
+    assert repr(setup) == "Opt1"
+    assert str(setup) == "Opt1"
+    handle.GetPropValue.assert_not_called()
+
+
+def test_delete_clears_optimetrics_tree_and_parent_cache(mock_app):
+    parent = MagicMock()
+    setup = OptimetricsSetup.__new__(OptimetricsSetup)
+    setup._parent = parent
+    setup._name = "Opt1"
+    BinaryTreeNode.__init__(setup, "Opt1", MagicMock(), app=mock_app)
+    setup._children = {"Goal": MagicMock()}
+    setup._props = MagicMock()
+    setup._legacy_props = {"IsEnabled": True}
+    parent.setups = {"Opt1": setup}
+    mock_app.get_oo_name.return_value = []
+
+    assert setup.delete()
+
+    mock_app.ooptimetrics.DeleteSetups.assert_called_once_with(["Opt1"])
+    assert setup._BinaryTreeNode__child_object is None
+    assert setup._props is None
+    assert setup._legacy_props == {}
+    assert parent.setups == {}
+    assert setup.child_object is None
+    assert setup.children == {}
+    assert setup.name == "Opt1"
 
 
 def test_optimizations_add_duplicate_name(mock_app) -> None:
