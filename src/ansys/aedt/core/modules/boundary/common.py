@@ -613,6 +613,8 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
                 self.name,
                 self.props["RenormalizeModes"],
             )
+        elif bound_type == "Terminal":
+            self._app.oboundary.AssignTerminal(self._get_args())
         elif bound_type == "SBRTxRxSettings":
             self._app.oboundary.SetSBRTxRxSettings(self._get_args())
             return True
