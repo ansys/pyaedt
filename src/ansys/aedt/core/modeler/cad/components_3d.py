@@ -263,8 +263,13 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         if "Group" in self.properties and name not in self._app.modeler.groups:
             self._app.modeler.create_group(group_name=name, components=[self.name])
         else:
-            pcs = ["NAME:Group", "Value:=", name]
-            self._change_property(pcs)
+            self._app.change_property(
+                aedt_object=self._app.oeditor,
+                tab_name="General",
+                property_object=self.name,
+                property_name="Group",
+                property_value=name,
+            )
 
     @property
     def mesh_assembly(self) -> bool | None:
@@ -394,8 +399,13 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         ):
             options = self.child_object.Target_Coordinate_System_Choices
             if value in options:
-                pcs = ["NAME:Target Coordinate System", "Value:=", value]
-                self._change_property(pcs)
+                self._app.change_property(
+                    aedt_object=self._app.oeditor,
+                    tab_name="General",
+                    property_object=self.name,
+                    property_name="Target Coordinate System",
+                    property_value=value,
+                )
 
     @property
     def bounding_box(self) -> list:
@@ -775,10 +785,6 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         arg = ["NAME:EditNativeComponentDefinitionData"]
         _dict2arg(props, arg)
         return arg
-
-    @pyaedt_function_handler()
-    def _change_property(self, vPropChange):
-        return self._primitives._change_component_property(vPropChange, self._name)
 
     @pyaedt_function_handler()
     def update_definition(self, password: str | None = None, output_file: str = "", local_update: bool = False) -> bool:
