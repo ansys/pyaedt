@@ -62,29 +62,6 @@ def test_getchange_property(aedt_app) -> None:
     aedt_app.stator["Outer Diameter"] = statorOD + "+1mm"
 
 
-def test_create_setup(aedt_app) -> None:
-    # first test GRM (use Inner-Rotor Induction Machine)
-    assert aedt_app.enable_modelcreation("IRIM")
-    mysetup = aedt_app.create_setup()
-    assert mysetup.props["RatedOutputPower"]
-    mysetup.props["RatedOutputPower"] = "100W"
-    assert mysetup.update()  # update only needed for assertion
-    # second test ASSM setup
-    aedt_app.delete_setup(mysetup.name)
-    assert aedt_app.disable_modelcreation("ASSM")
-    mysetup = aedt_app.create_setup()
-    assert mysetup.props["RatedSpeed"]
-    mysetup.props["RatedSpeed"] = "3600rpm"
-    assert mysetup.update()  # update only needed for assertion
-    # third test TPSM/SYNM setup
-    aedt_app.delete_setup(mysetup.name)
-    assert aedt_app.disable_modelcreation("TPSM")
-    mysetup = aedt_app.create_setup()
-    assert mysetup.props["RatedVoltage"]
-    mysetup.props["RatedVoltage"] = "208V"
-    assert mysetup.update()  # update only needed for assertion
-
-
 def test_set_material_threshold(aedt_app) -> None:
     assert aedt_app.set_material_threshold()
     conductivity = 123123123

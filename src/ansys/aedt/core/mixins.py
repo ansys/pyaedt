@@ -78,7 +78,6 @@ class CreateBoundaryMixin:
             bound = BoundaryObject(self, name, props, boundary_type)
             if not bound.create():
                 raise AEDTRuntimeError(f"Failed to create boundary {boundary_type} {name}")
-
             self._boundaries[bound.name] = bound
             self.logger.info(f"Boundary {boundary_type} {name} has been created.")
             return bound

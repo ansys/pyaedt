@@ -148,9 +148,9 @@ class PostProcessorCommon(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
-        >>> obj = PostProcessorCommon()
-        >>> obj.plots
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.post.plots
 
         """
         if self.__plots is None:
@@ -185,9 +185,9 @@ class PostProcessorCommon(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
-        >>> obj = PostProcessorCommon()
-        >>> obj.available_report_types
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report_types = hfss.post.available_report_types
 
         """
         return list(self.oreportsetup.GetAvailableReportTypes())
@@ -202,9 +202,9 @@ class PostProcessorCommon(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
-        >>> obj = PostProcessorCommon()
-        >>> obj.update_report_dynamically
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.post.update_report_dynamically
 
         """
         return (
@@ -247,9 +247,9 @@ class PostProcessorCommon(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
-        >>> obj = PostProcessorCommon()
-        >>> obj.available_display_types()
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.post.available_display_types(report_category="Modal Solution Data")
 
         """
         if not report_category:
@@ -297,9 +297,19 @@ class PostProcessorCommon(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
-        >>> obj = PostProcessorCommon()
-        >>> obj.available_quantities_categories()
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> setup = hfss.create_setup()
+        >>> categories = hfss.post.available_quantities_categories(
+        ...     report_category="Modal Solution Data",
+        ...     display_type="Rectangular Plot",
+        ...     solution=hfss.nominal_adaptive,
+        ... )
+        >>> quantities = hfss.post.available_report_quantities(
+        ...     report_category="Modal Solution Data",
+        ...     quantities_category=categories[0],
+        ...     solution=hfss.nominal_adaptive,
+        ... )
 
         """
         if not report_category:
@@ -563,7 +573,7 @@ class PostProcessorCommon(PyAedtBase):
 
         Parameters
         ----------
-        solution : str optional
+        solution : str, optional
             Solution to get the report quantities.
             The default is ``None``, in which case the all solutions are used.
         context : str, dict, optional
@@ -582,9 +592,10 @@ class PostProcessorCommon(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
-        >>> obj = PostProcessorCommon()
-        >>> obj.get_all_report_quantities()
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> setup = hfss.create_setup()
+        >>> all_quantities = hfss.post.get_all_report_quantities()
 
         """
         rep_quantities = {}
@@ -639,9 +650,10 @@ class PostProcessorCommon(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
-        >>> obj = PostProcessorCommon()
-        >>> obj.available_report_solutions()
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> setup = hfss.create_setup()
+        >>> hfss.post.available_report_solutions(report_category="Modal Solution Data")
 
         """
         if not report_category:
@@ -692,20 +704,11 @@ class PostProcessorCommon(PyAedtBase):
                 if report_type == "Standard" and any("Bit Error Rate" in i for i in obj_child_names):
                     report_type = "AMI Contour"
                 report = TEMPLATES_BY_NAME.get(report_type, TEMPLATES_BY_NAME["Standard"])
-                traces = self._app.get_oo_name(obj)
                 solution = None
-                for trc_name in traces:
-                    try:
-                        new_trace_name = self._rename_internal_object(trc_name)
-                        solution = self._app.get_oo_property_value(obj, new_trace_name, "Solution")
-                        break
-                    except Exception:  # nosec
-                        pass
                 plots.append(report(self, report_type, solution))
                 plots[-1]._legacy_props["plot_name"] = name
                 plots[-1]._is_created = True
                 plots[-1].report_type = obj.GetPropValue("Display Type")
-                plots[-1]._initialize_tree_node()
         return plots
 
     @property
@@ -722,9 +725,9 @@ class PostProcessorCommon(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
-        >>> obj = PostProcessorCommon()
-        >>> obj.oreportsetup
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.post.oreportsetup
 
         """
         return self._app.oreportsetup
@@ -735,9 +738,9 @@ class PostProcessorCommon(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
-        >>> obj = PostProcessorCommon()
-        >>> obj.logger
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.post.logger
 
         """
         return self._app.logger
@@ -776,9 +779,9 @@ class PostProcessorCommon(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
-        >>> obj = PostProcessorCommon()
-        >>> obj.post_solution_type
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.post.post_solution_type
 
         """
         return self._app.solution_type
@@ -797,9 +800,9 @@ class PostProcessorCommon(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
-        >>> obj = PostProcessorCommon()
-        >>> obj.all_report_names
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.post.all_report_names
 
         """
         return list(self.oreportsetup.GetAllReportNames())
@@ -827,9 +830,10 @@ class PostProcessorCommon(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
-        >>> obj = PostProcessorCommon()
-        >>> obj.copy_report_data(my_report)
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report("dB(S(1,1))")
+        >>> hfss.post.copy_report_data(report.plot_name)
 
         """
         self.oreportsetup.CopyReportsData([plot_name])
@@ -852,9 +856,11 @@ class PostProcessorCommon(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
-        >>> obj = PostProcessorCommon()
-        >>> obj.paste_report_data()
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report("dB(S(1,1))")
+        >>> hfss.post.copy_report_data(report.plot_name, paste=False)
+        >>> hfss.post.paste_report_data()
 
         """
         self.oreportsetup.PasteReports()
@@ -880,9 +886,10 @@ class PostProcessorCommon(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
-        >>> obj = PostProcessorCommon()
-        >>> obj.delete_report()
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report("dB(S(1,1))")
+        >>> hfss.post.delete_report(report.plot_name)
 
         """
         try:
@@ -920,9 +927,10 @@ class PostProcessorCommon(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
-        >>> obj = PostProcessorCommon()
-        >>> obj.rename_report("my_plot", "my_new_plot")
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report("dB(S(1,1))")
+        >>> hfss.post.rename_report(report.plot_name, "my_new_plot")
 
         """
         try:
@@ -973,9 +981,14 @@ class PostProcessorCommon(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
-        >>> obj = PostProcessorCommon()
-        >>> obj.get_solution_data_per_variation()
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> data = hfss.post.get_solution_data_per_variation(
+        ...     solution_type="Modal Solution Data",
+        ...     setup_sweep_name=hfss.nominal_sweep,
+        ...     sweeps={"Freq": "All"},
+        ...     expressions="dB(S(1,1))",
+        ... )
 
         """
         if sweeps is None:
@@ -1023,9 +1036,9 @@ class PostProcessorCommon(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
-        >>> obj = PostProcessorCommon()
-        >>> obj.steal_focus_oneditor()
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.post.steal_focus_oneditor()
 
         """
         self._desktop.RestoreWindow()
@@ -1177,9 +1190,10 @@ class PostProcessorCommon(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
-        >>> obj = PostProcessorCommon()
-        >>> obj.export_report_to_csv("my_dir", "my_plot")
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report("dB(S(1,1))")
+        >>> hfss.post.export_report_to_csv("my_dir", report.plot_name)
 
         """
         return self.export_report_to_file(
@@ -1223,9 +1237,10 @@ class PostProcessorCommon(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
-        >>> obj = PostProcessorCommon()
-        >>> obj.export_report_to_jpg("my_dir", "my_plot")
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report("dB(S(1,1))")
+        >>> hfss.post.export_report_to_jpg("my_dir", report.plot_name)
 
         """
         if Path(project_path).is_dir():
@@ -1497,7 +1512,7 @@ class PostProcessorCommon(PyAedtBase):
         if not domain:
             domain = "Sweep"
             if setup_name:
-                if "Time" in self._app.design_setups[setup_name].default_intrinsics:
+                if "Time" in self._app.setups[setup_name].default_intrinsics:
                     domain = "Time"
 
         # Expressions
@@ -1553,8 +1568,8 @@ class PostProcessorCommon(PyAedtBase):
             variations = self._app.available_variations.nominal_variation(dependent_params=False)
         elif not variations and domain != "Sweep":
             variations = self._app.available_variations.nominal_variation(dependent_params=False)
-        if setup_name in self._app.design_setups:
-            for v in self._app.design_setups[setup_name].default_intrinsics.keys():
+        if setup_name in self._app.setup_names:
+            for v in self._app.setups[setup_name].default_intrinsics.keys():
                 if v not in variations:
                     variations[v] = "All"
         if primary_sweep_variable and primary_sweep_variable not in variations:
@@ -2503,8 +2518,9 @@ class Reports(PyAedtBase):
 
     Examples
     --------
-    >>> from ansys.aedt.core.visualization.post.common import Reports
-    >>> obj = Reports()
+    >>> from ansys.aedt.core import Hfss
+    >>> hfss = Hfss()
+    >>> reports = hfss.post.reports_by_category
 
     """
 

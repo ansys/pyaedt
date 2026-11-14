@@ -26,7 +26,7 @@ import pytest
 
 from ansys.aedt.core import Icepak
 from ansys.aedt.core.generic.constants import Plane
-from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
+from ansys.aedt.core.modeler.cad.components_3d import NativeComponent
 from tests.conftest import USE_GRPC
 
 TEST_SUBFOLDER = "icepak"
@@ -144,7 +144,7 @@ def test_advanced_3d_component_export(ipk) -> None:
     cs1.props["OriginZ"] = 10
     fan2_prop = dict(fan.props).copy()
     fan2_prop["TargetCS"] = "CS1"
-    fan2 = NativeComponentObject(ipk, "Fan", "Fan2", fan2_prop)
+    fan2 = NativeComponent(ipk, "Fan", "Fan2", fan2_prop)
     fan2.create()
     ipk.create_ipk_3dcomponent_pcb(
         "Board", link_data, solution_freq, resolution, custom_x_resolution=400, custom_y_resolution=500

@@ -85,3 +85,48 @@ def test_batch_update_defers_object_cleanup(mock_hfss_app) -> None:
 
     gm.cleanup_solids.assert_called_once()
     gm.cleanup_points.assert_called_once()
+
+
+@patch(
+    "ansys.aedt.core.modeler.cad.primitives.GeometryModeler.components_data",
+    new_callable=PropertyMock,
+    return_value={
+        "instance_1": {"definition": "DefinitionA", "type": "TypeA"},
+        "instance_2": {"definition": "DefinitionA", "type": "TypeA"},
+        "instance_3": {"definition": "DefinitionB", "type": "TypeB"},
+        "instance_4": {"definition": None, "type": None},
+        "layout_instance": {"definition": "LayoutDefinition", "type": "layout_component"},
+    },
+)
+def test_component_properties(mock_components_data, mock_hfss_app) -> None:
+    """Test component names and mappings derived from component data."""
+    gm = GeometryModeler(mock_hfss_app)
+
+    assert gm.component_names == ["instance_1", "instance_2", "instance_3", "instance_4", "layout_instance"]
+    assert gm.component_definition_names == ["DefinitionA", "DefinitionB", "LayoutDefinition"]
+    assert gm.component_type_names == ["TypeA", "TypeB", "layout_component"]
+    assert gm.layout_component_names == ["layout_instance"]
+    assert gm.component_names_by_definition == {
+        "instance_1": "DefinitionA",
+        "instance_2": "DefinitionA",
+        "instance_3": "DefinitionB",
+        "instance_4": None,
+        "layout_instance": "LayoutDefinition",
+    }
+    assert gm.component_names_by_type == {
+        "instance_1": "TypeA",
+        "instance_2": "TypeA",
+        "instance_3": "TypeB",
+        "instance_4": None,
+        "layout_instance": "layout_component",
+    }
+    assert gm.component_types == {
+        "TypeA": ["instance_1", "instance_2"],
+        "TypeB": ["instance_3"],
+        "layout_component": ["layout_instance"],
+    }
+    assert gm.component_definitions == {
+        "DefinitionA": ["instance_1", "instance_2"],
+        "DefinitionB": ["instance_3"],
+        "LayoutDefinition": ["layout_instance"],
+    }

@@ -21,3 +21,8 @@ You can edit a setup after it is created. Here is an example:
 .. pprint:: ansys.aedt.core.modules.setup_templates.Electrostatic
 .. pprint:: ansys.aedt.core.modules.setup_templates.EddyCurrent
 .. pprint:: ansys.aedt.core.modules.setup_templates.ElectricTransient
+.. pprint:: ansys.aedt.core.modules.setup_templates.DCConduction
+.. pprint:: ansys.aedt.core.modules.setup_templates.ElectroDCConduction
+.. pprint:: ansys.aedt.core.modules.setup_templates.ACConduction
+.. pprint:: ansys.aedt.core.modules.setup_templates.SweepEddyCurrent
+.. pprint:: ansys.aedt.core.modules.setup_templates.DCBiasedEddyCurrent

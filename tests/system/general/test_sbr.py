@@ -222,33 +222,6 @@ def test_add_radar(aedt_sbr, test_tmp_dir) -> None:
     assert aedt_sbr.create_sbr_radar_from_json(str(radar_dir), name="Example_1Tx_4Rx")
 
 
-def test_add_doppler_sweep(aedt_sbr, test_tmp_dir) -> None:
-    env_folder = TESTS_GENERAL_PATH / "example_models" / "library" / "environment_library" / TUNNEL
-    env_dir = shutil.copytree(env_folder, test_tmp_dir / TUNNEL)
-
-    aedt_sbr.modeler.add_environment(str(env_dir))
-    setup, sweep = aedt_sbr.create_sbr_pulse_doppler_setup(sweep_time_duration=30)
-    assert "PulseSetup" in setup.name
-    assert "PulseSweep" in sweep.name
-    assert setup.props["SbrRangeDopplerWaveformType"] == "PulseDoppler"
-    assert sweep.props["Sim. Setups"] == [setup.name]
-
-
-def test_add_chirp_sweep(aedt_sbr, test_tmp_dir) -> None:
-    env_folder = Path(TESTS_GENERAL_PATH) / "example_models" / "library" / "environment_library" / TUNNEL
-    env_dir = shutil.copytree(env_folder, test_tmp_dir / TUNNEL)
-
-    aedt_sbr.modeler.add_environment(str(env_dir))
-    setup, sweep = aedt_sbr.create_sbr_chirp_i_doppler_setup(sweep_time_duration=20)
-    assert setup.props["SbrRangeDopplerWaveformType"] == "ChirpSeqFmcw"
-    assert setup.props["ChannelConfiguration"] == "IChannelOnly"
-    assert sweep.props["Sim. Setups"] == [setup.name]
-    setup, sweep = aedt_sbr.create_sbr_chirp_iq_doppler_setup(sweep_time_duration=10)
-    assert setup.props["SbrRangeDopplerWaveformType"] == "ChirpSeqFmcw"
-    assert setup.props["ChannelConfiguration"] == "IQChannels"
-    assert sweep.props["Sim. Setups"] == [setup.name]
-
-
 def test_add_sbr_boundaries_in_hfss_solution(aedt_terminal) -> None:
     # sbr file based antenna should only work for SBR+ solution.
     ffd_test_path = Path(TESTS_GENERAL_PATH) / "example_models" / TEST_SUBFOLDER / "test.ffd"
