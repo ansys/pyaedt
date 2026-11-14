@@ -1,0 +1,6 @@
+ground\_sources
+===============
+
+.. currentmodule:: ansys.aedt.core.modules.boundary.maxwell_boundary
+
+.. autoproperty:: MaxwellMatrix.ground_sources

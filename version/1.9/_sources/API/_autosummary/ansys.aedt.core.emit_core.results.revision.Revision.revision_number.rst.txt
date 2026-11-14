@@ -1,0 +1,6 @@
+revision\_number
+================
+
+.. currentmodule:: ansys.aedt.core.emit_core.results.revision
+
+.. autoattribute:: Revision.revision_number

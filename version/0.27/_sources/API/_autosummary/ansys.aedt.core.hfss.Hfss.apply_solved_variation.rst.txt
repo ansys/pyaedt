@@ -1,0 +1,6 @@
+apply\_solved\_variation
+========================
+
+.. currentmodule:: ansys.aedt.core.hfss
+
+.. automethod:: Hfss.apply_solved_variation

@@ -1,0 +1,6 @@
+notes
+=====
+
+.. currentmodule:: ansys.aedt.core.emit_core.results.revision
+
+.. autoproperty:: Revision.notes

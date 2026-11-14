@@ -1,0 +1,6 @@
+convert\_frequency\_range
+=========================
+
+.. currentmodule:: ansys.aedt.core.visualization.advanced.frtm_visualization
+
+.. automethod:: FRTMData.convert_frequency_range

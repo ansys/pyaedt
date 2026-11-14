@@ -1,0 +1,6 @@
+el\_sample\_interval
+====================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.antenna_node
+
+.. autoproperty:: AntennaNode.el_sample_interval

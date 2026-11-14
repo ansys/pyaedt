@@ -1,0 +1,6 @@
+harmonic\_table\_units
+======================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.tx_harmonic_node
+
+.. autoproperty:: TxHarmonicNode.harmonic_table_units

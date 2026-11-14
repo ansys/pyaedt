@@ -1,0 +1,6 @@
+calculator\_entry
+=================
+
+.. currentmodule:: ansys.aedt.core.visualization.post.field_calculator_expressions
+
+.. autoattribute:: Volume.calculator_entry

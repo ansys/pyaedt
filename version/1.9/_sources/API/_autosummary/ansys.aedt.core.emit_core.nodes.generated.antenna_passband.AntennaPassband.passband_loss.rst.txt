@@ -1,0 +1,6 @@
+passband\_loss
+==============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.antenna_passband
+
+.. autoproperty:: AntennaPassband.passband_loss

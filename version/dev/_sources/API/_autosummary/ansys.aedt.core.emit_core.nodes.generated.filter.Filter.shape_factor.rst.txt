@@ -1,0 +1,6 @@
+shape\_factor
+=============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.filter
+
+.. autoproperty:: Filter.shape_factor

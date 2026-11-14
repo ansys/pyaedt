@@ -1,0 +1,6 @@
+rx\_noise\_figure
+=================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.rx_susceptibility_prof_node
+
+.. autoproperty:: RxSusceptibilityProfNode.rx_noise_figure

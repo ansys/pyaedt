@@ -1,0 +1,104 @@
+﻿CoordinateSystem
+================
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.mcad_assembly
+
+.. autoclass:: CoordinateSystem
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      CoordinateSystem.construct
+      
+      
+      CoordinateSystem.copy
+      
+      
+      CoordinateSystem.dict
+      
+      
+      CoordinateSystem.from_orm
+      
+      
+      CoordinateSystem.json
+      
+      
+      CoordinateSystem.model_construct
+      
+      
+      CoordinateSystem.model_copy
+      
+      
+      CoordinateSystem.model_dump
+      
+      
+      CoordinateSystem.model_dump_json
+      
+      
+      CoordinateSystem.model_json_schema
+      
+      
+      CoordinateSystem.model_parametrized_name
+      
+      
+      CoordinateSystem.model_post_init
+      
+      
+      CoordinateSystem.model_rebuild
+      
+      
+      CoordinateSystem.model_validate
+      
+      
+      CoordinateSystem.model_validate_json
+      
+      
+      CoordinateSystem.model_validate_strings
+      
+      
+      CoordinateSystem.parse_file
+      
+      
+      CoordinateSystem.parse_obj
+      
+      
+      CoordinateSystem.parse_raw
+      
+      
+      CoordinateSystem.schema
+      
+      
+      CoordinateSystem.schema_json
+      
+      
+      CoordinateSystem.update_forward_refs
+      
+      
+      CoordinateSystem.validate
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      CoordinateSystem.model_computed_fields
+      CoordinateSystem.model_config
+      CoordinateSystem.model_extra
+      CoordinateSystem.model_fields
+      CoordinateSystem.model_fields_set
+      CoordinateSystem.origin
+      CoordinateSystem.reference_coordinate_system
+      CoordinateSystem.name
+   
+   

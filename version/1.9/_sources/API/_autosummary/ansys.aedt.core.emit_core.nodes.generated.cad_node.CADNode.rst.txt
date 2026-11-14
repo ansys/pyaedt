@@ -1,0 +1,70 @@
+﻿CADNode
+=======
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.cad_node
+
+.. autoclass:: CADNode
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      CADNode.delete
+      
+      
+      CADNode.duplicate
+      
+      
+      CADNode.get_is_component
+      
+      
+      CADNode.get_properties
+      
+      
+      CADNode.props_to_dict
+      
+      
+      CADNode.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      CADNode.allowed_child_types
+      CADNode.children
+      CADNode.color
+      CADNode.file
+      CADNode.max
+      CADNode.min
+      CADNode.name
+      CADNode.node_type
+      CADNode.notes
+      CADNode.number_of_surfaces
+      CADNode.odesktop
+      CADNode.orientation
+      CADNode.orientation_mode
+      CADNode.parent
+      CADNode.parent_name
+      CADNode.position
+      CADNode.properties
+      CADNode.relative_orientation
+      CADNode.relative_position
+      CADNode.render_mode
+      CADNode.show_axes
+      CADNode.show_relative_coordinates
+      CADNode.valid
+      CADNode.visible
+      CADNode.warnings
+   
+   

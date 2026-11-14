@@ -1,0 +1,6 @@
+animate\_contour
+================
+
+.. currentmodule:: ansys.aedt.core.visualization.plot.matplotlib
+
+.. automethod:: ReportPlotter.animate_contour

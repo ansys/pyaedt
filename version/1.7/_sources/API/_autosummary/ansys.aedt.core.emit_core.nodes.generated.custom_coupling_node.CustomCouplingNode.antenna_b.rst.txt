@@ -1,0 +1,6 @@
+antenna\_b
+==========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.custom_coupling_node
+
+.. autoproperty:: CustomCouplingNode.antenna_b

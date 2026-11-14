@@ -1,0 +1,6 @@
+parse\_obj
+==========
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.mcad_assembly
+
+.. automethod:: MCADAssembly.parse_obj

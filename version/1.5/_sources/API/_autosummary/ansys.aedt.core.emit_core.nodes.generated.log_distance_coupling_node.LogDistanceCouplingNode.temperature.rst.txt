@@ -1,0 +1,6 @@
+temperature
+===========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.log_distance_coupling_node
+
+.. autoproperty:: LogDistanceCouplingNode.temperature

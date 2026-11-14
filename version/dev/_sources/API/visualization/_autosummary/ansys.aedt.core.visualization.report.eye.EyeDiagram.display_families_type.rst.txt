@@ -1,0 +1,6 @@
+display\_families\_type
+=======================
+
+.. currentmodule:: ansys.aedt.core.visualization.report.eye
+
+.. autoproperty:: EyeDiagram.display_families_type

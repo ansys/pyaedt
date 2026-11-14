@@ -1,0 +1,101 @@
+﻿Revision
+========
+
+.. currentmodule:: ansys.aedt.core.emit_core.results.revision
+
+.. autoclass:: Revision
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      Revision.get_active_frequencies
+      
+      
+      Revision.get_all_band_nodes
+      
+      
+      Revision.get_all_component_nodes
+      
+      
+      Revision.get_all_emitter_radios
+      
+      
+      Revision.get_all_nodes
+      
+      
+      Revision.get_all_radio_nodes
+      
+      
+      Revision.get_all_top_level_nodes
+      
+      
+      Revision.get_band_names
+      
+      
+      Revision.get_band_node
+      
+      
+      Revision.get_component_node
+      
+      
+      Revision.get_coupling_data_node
+      
+      
+      Revision.get_interferer_names
+      
+      
+      Revision.get_preferences_node
+      
+      
+      Revision.get_radio_node
+      
+      
+      Revision.get_receiver_names
+      
+      
+      Revision.get_result_categorization_node
+      
+      
+      Revision.get_result_plot_node
+      
+      
+      Revision.get_scene_node
+      
+      
+      Revision.get_simulation
+      
+      
+      Revision.get_simulation_node
+      
+      
+      Revision.result_mode_error
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      Revision.notes
+      Revision.emit_project
+      Revision.odesktop
+      Revision.parent_results
+      Revision.aedt_version
+      Revision.name
+      Revision.path
+      Revision.results_index
+      Revision.revision_number
+      Revision.timestamp
+      Revision.revision_loaded
+   
+   

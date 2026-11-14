@@ -1,0 +1,22 @@
+﻿PolylineSegment
+===============
+
+.. currentmodule:: ansys.aedt.core.modeler.cad.polylines
+
+.. autoclass:: PolylineSegment
+
+   
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      PolylineSegment.public_dir
+   
+   

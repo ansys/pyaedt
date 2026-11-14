@@ -1,0 +1,6 @@
+axis\_directions
+================
+
+.. currentmodule:: ansys.aedt.core.hfss
+
+.. autoproperty:: Hfss.axis_directions

@@ -1,0 +1,78 @@
+﻿SceneGroupNode
+==============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.scene_group_node
+
+.. autoclass:: SceneGroupNode
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      SceneGroupNode.add_antenna
+      
+      
+      SceneGroupNode.add_emitter
+      
+      
+      SceneGroupNode.add_group
+      
+      
+      SceneGroupNode.delete
+      
+      
+      SceneGroupNode.duplicate
+      
+      
+      SceneGroupNode.get_is_component
+      
+      
+      SceneGroupNode.get_properties
+      
+      
+      SceneGroupNode.import_cad
+      
+      
+      SceneGroupNode.props_to_dict
+      
+      
+      SceneGroupNode.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      SceneGroupNode.allowed_child_types
+      SceneGroupNode.articulation_points
+      SceneGroupNode.attach_points
+      SceneGroupNode.box_color
+      SceneGroupNode.children
+      SceneGroupNode.name
+      SceneGroupNode.node_type
+      SceneGroupNode.notes
+      SceneGroupNode.odesktop
+      SceneGroupNode.orientation
+      SceneGroupNode.orientation_mode
+      SceneGroupNode.parent
+      SceneGroupNode.parent_name
+      SceneGroupNode.position
+      SceneGroupNode.properties
+      SceneGroupNode.relative_orientation
+      SceneGroupNode.relative_position
+      SceneGroupNode.show_axes
+      SceneGroupNode.show_relative_coordinates
+      SceneGroupNode.valid
+      SceneGroupNode.warnings
+   
+   

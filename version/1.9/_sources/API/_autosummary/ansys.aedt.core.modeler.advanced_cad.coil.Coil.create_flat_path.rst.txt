@@ -1,0 +1,6 @@
+create\_flat\_path
+==================
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.coil
+
+.. automethod:: Coil.create_flat_path

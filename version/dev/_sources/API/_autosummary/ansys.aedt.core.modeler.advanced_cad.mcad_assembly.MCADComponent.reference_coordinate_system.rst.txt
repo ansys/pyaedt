@@ -1,0 +1,6 @@
+reference\_coordinate\_system
+=============================
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.mcad_assembly
+
+.. autoattribute:: MCADComponent.reference_coordinate_system

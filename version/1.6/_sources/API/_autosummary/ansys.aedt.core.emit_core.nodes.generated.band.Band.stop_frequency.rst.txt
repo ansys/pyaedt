@@ -1,0 +1,6 @@
+stop\_frequency
+===============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.band
+
+.. autoproperty:: Band.stop_frequency

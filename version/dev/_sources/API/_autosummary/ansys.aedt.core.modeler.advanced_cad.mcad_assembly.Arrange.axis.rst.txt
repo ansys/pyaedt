@@ -1,0 +1,6 @@
+axis
+====
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.mcad_assembly
+
+.. autoattribute:: Arrange.axis

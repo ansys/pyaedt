@@ -1,0 +1,6 @@
+finite\_isolation
+=================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.tr_switch
+
+.. autoproperty:: TR_Switch.finite_isolation

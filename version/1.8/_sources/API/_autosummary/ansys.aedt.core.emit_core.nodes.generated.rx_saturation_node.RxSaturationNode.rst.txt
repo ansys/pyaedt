@@ -1,0 +1,63 @@
+﻿RxSaturationNode
+================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.rx_saturation_node
+
+.. autoclass:: RxSaturationNode
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      RxSaturationNode.delete
+      
+      
+      RxSaturationNode.export_to_csv
+      
+      
+      RxSaturationNode.get_is_component
+      
+      
+      RxSaturationNode.get_properties
+      
+      
+      RxSaturationNode.import_csv_file
+      
+      
+      RxSaturationNode.plot
+      
+      
+      RxSaturationNode.props_to_dict
+      
+      
+      RxSaturationNode.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      RxSaturationNode.allowed_child_types
+      RxSaturationNode.children
+      RxSaturationNode.enabled
+      RxSaturationNode.name
+      RxSaturationNode.node_type
+      RxSaturationNode.odesktop
+      RxSaturationNode.parent
+      RxSaturationNode.parent_name
+      RxSaturationNode.properties
+      RxSaturationNode.table_data
+      RxSaturationNode.valid
+      RxSaturationNode.warnings
+   
+   

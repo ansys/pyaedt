@@ -1,0 +1,6 @@
+public\_dir
+===========
+
+.. currentmodule:: ansys.aedt.core.modules.mesh_icepak
+
+.. autoproperty:: IcepakMesh.public_dir

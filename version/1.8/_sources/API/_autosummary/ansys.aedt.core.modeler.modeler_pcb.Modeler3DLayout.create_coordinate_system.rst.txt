@@ -1,0 +1,6 @@
+create\_coordinate\_system
+==========================
+
+.. currentmodule:: ansys.aedt.core.modeler.modeler_pcb
+
+.. automethod:: Modeler3DLayout.create_coordinate_system

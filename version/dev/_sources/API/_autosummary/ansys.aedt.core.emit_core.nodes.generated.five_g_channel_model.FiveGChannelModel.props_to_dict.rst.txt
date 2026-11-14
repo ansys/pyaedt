@@ -1,0 +1,6 @@
+props\_to\_dict
+===============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.five_g_channel_model
+
+.. automethod:: FiveGChannelModel.props_to_dict

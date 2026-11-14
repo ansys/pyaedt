@@ -1,0 +1,6 @@
+axis\_label\_font
+=================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.result_plot_node
+
+.. autoproperty:: ResultPlotNode.axis_label_font

@@ -1,0 +1,6 @@
+stop\_time
+==========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.waveform
+
+.. autoproperty:: Waveform.stop_time

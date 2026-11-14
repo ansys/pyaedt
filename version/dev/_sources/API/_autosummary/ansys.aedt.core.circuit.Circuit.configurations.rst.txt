@@ -1,0 +1,6 @@
+configurations
+==============
+
+.. currentmodule:: ansys.aedt.core.circuit
+
+.. autoproperty:: Circuit.configurations

@@ -1,0 +1,6 @@
+get\_named\_selection\_objects
+==============================
+
+.. currentmodule:: ansys.aedt.core.modeler.modeler_2d
+
+.. automethod:: Modeler2D.get_named_selection_objects

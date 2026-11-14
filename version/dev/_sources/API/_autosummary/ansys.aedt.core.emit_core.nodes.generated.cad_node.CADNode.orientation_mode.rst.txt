@@ -1,0 +1,6 @@
+orientation\_mode
+=================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.cad_node
+
+.. autoproperty:: CADNode.orientation_mode

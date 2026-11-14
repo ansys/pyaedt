@@ -1,0 +1,6 @@
+real\_time
+==========
+
+.. currentmodule:: ansys.aedt.core.modules.profile
+
+.. autoproperty:: TransientProfile.real_time

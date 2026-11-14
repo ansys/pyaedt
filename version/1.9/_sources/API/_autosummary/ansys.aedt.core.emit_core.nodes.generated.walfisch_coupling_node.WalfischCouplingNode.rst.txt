@@ -1,0 +1,84 @@
+﻿WalfischCouplingNode
+====================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.walfisch_coupling_node
+
+.. autoclass:: WalfischCouplingNode
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      WalfischCouplingNode.delete
+      
+      
+      WalfischCouplingNode.duplicate
+      
+      
+      WalfischCouplingNode.export_to_csv
+      
+      
+      WalfischCouplingNode.get_is_component
+      
+      
+      WalfischCouplingNode.get_properties
+      
+      
+      WalfischCouplingNode.plot
+      
+      
+      WalfischCouplingNode.props_to_dict
+      
+      
+      WalfischCouplingNode.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      WalfischCouplingNode.allowed_child_types
+      WalfischCouplingNode.base_antenna
+      WalfischCouplingNode.children
+      WalfischCouplingNode.custom_fading_margin
+      WalfischCouplingNode.distance_between_buildings
+      WalfischCouplingNode.enabled
+      WalfischCouplingNode.environment
+      WalfischCouplingNode.fading_availability
+      WalfischCouplingNode.fading_type
+      WalfischCouplingNode.incidence_angle
+      WalfischCouplingNode.include_atmospheric_absorption
+      WalfischCouplingNode.include_rain_attenuation
+      WalfischCouplingNode.mobile_antenna
+      WalfischCouplingNode.name
+      WalfischCouplingNode.node_type
+      WalfischCouplingNode.odesktop
+      WalfischCouplingNode.parent
+      WalfischCouplingNode.parent_name
+      WalfischCouplingNode.path_loss_type
+      WalfischCouplingNode.pointing_error_loss
+      WalfischCouplingNode.polarization_mismatch
+      WalfischCouplingNode.polarization_tilt_angle
+      WalfischCouplingNode.properties
+      WalfischCouplingNode.rain_availability
+      WalfischCouplingNode.rain_rate
+      WalfischCouplingNode.roof_height
+      WalfischCouplingNode.std_deviation
+      WalfischCouplingNode.street_width
+      WalfischCouplingNode.temperature
+      WalfischCouplingNode.total_air_pressure
+      WalfischCouplingNode.valid
+      WalfischCouplingNode.warnings
+      WalfischCouplingNode.water_vapor_concentration
+   
+   

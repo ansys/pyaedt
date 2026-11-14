@@ -1,0 +1,15 @@
+﻿MaxwellReducedMatrixOperation
+=============================
+
+.. currentmodule:: ansys.aedt.core.modules.boundary.maxwell_boundary
+
+.. autoclass:: MaxwellReducedMatrixOperation
+
+   
+
+   
+   
+
+   
+   
+   

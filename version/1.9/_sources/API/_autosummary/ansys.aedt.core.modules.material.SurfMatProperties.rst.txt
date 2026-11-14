@@ -1,0 +1,37 @@
+﻿SurfMatProperties
+=================
+
+.. currentmodule:: ansys.aedt.core.modules.material
+
+.. autoclass:: SurfMatProperties
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      SurfMatProperties.get_defaultunit
+      
+      
+      SurfMatProperties.get_defaultvalue
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      SurfMatProperties.aedtname
+      SurfMatProperties.defaultunit
+      SurfMatProperties.defaultvalue
+      SurfMatProperties.public_dir
+   
+   

@@ -1,0 +1,24 @@
+﻿GroupSourcesMagnetostatic
+=========================
+
+.. currentmodule:: ansys.aedt.core.modules.boundary.maxwell_boundary
+
+.. autoclass:: GroupSourcesMagnetostatic
+
+   
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      GroupSourcesMagnetostatic.branches_number
+      GroupSourcesMagnetostatic.name
+      GroupSourcesMagnetostatic.source_names
+   
+   

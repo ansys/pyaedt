@@ -1,0 +1,6 @@
+from\_dict
+==========
+
+.. currentmodule:: ansys.aedt.core.modules.substrate_circuit
+
+.. automethod:: SubstrateDataBlock.from_dict

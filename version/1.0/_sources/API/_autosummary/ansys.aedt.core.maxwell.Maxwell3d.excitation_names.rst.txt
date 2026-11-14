@@ -1,0 +1,6 @@
+excitation\_names
+=================
+
+.. currentmodule:: ansys.aedt.core.maxwell
+
+.. autoproperty:: Maxwell3d.excitation_names

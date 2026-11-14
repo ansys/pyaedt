@@ -1,0 +1,6 @@
+max\_intermod\_order
+====================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.tx_spectral_prof_node
+
+.. autoproperty:: TxSpectralProfNode.max_intermod_order

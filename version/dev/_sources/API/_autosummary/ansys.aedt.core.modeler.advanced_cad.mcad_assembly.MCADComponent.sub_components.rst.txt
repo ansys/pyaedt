@@ -1,0 +1,6 @@
+sub\_components
+===============
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.mcad_assembly
+
+.. autoproperty:: MCADComponent.sub_components

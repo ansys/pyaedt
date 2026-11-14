@@ -1,0 +1,6 @@
+loss\_per\_length
+=================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.cable
+
+.. autoproperty:: Cable.loss_per_length

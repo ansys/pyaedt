@@ -1,0 +1,6 @@
+setup\_sweeps\_names
+====================
+
+.. currentmodule:: ansys.aedt.core.twinbuilder
+
+.. autoproperty:: TwinBuilder.setup_sweeps_names

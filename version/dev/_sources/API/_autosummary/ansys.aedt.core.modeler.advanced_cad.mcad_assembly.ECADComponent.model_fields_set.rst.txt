@@ -1,0 +1,6 @@
+model\_fields\_set
+==================
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.mcad_assembly
+
+.. autoproperty:: ECADComponent.model_fields_set

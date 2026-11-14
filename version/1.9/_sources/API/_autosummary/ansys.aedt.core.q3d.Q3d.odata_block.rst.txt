@@ -1,0 +1,6 @@
+odata\_block
+============
+
+.. currentmodule:: ansys.aedt.core.q3d
+
+.. autoproperty:: Q3d.odata_block

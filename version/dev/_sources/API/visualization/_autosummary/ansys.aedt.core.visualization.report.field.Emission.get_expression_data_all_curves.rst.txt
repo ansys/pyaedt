@@ -1,0 +1,6 @@
+get\_expression\_data\_all\_curves
+==================================
+
+.. currentmodule:: ansys.aedt.core.visualization.report.field
+
+.. automethod:: Emission.get_expression_data_all_curves

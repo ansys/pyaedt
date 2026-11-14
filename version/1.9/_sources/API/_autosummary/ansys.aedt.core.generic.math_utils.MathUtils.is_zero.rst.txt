@@ -1,0 +1,6 @@
+is\_zero
+========
+
+.. currentmodule:: ansys.aedt.core.generic.math_utils
+
+.. automethod:: MathUtils.is_zero

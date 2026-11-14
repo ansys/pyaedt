@@ -1,0 +1,6 @@
+update\_var
+===========
+
+.. currentmodule:: ansys.aedt.core.application.variables
+
+.. automethod:: Variable.update_var
