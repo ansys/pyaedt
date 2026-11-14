@@ -304,7 +304,11 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         if boundary_name is None:
             boundary_name = generate_unique_name("Grille")
 
-        self.modeler.create_face_list(air_faces, "boundary_faces" + boundary_name)
+        if self.desktop_class.aedt_version_id < "2026.1":
+            self.modeler.create_face_list(air_faces, "boundary_faces" + boundary_name)
+        else:
+            self.modeler.create_named_selection(assignment=air_faces, name="boundary_faces" + boundary_name)
+
         props = {}
         air_faces = self.modeler.convert_to_selections(air_faces, True)
 
@@ -357,7 +361,11 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         boundary_name = generate_unique_name("Opening")
         props = {}
         air_faces = self.modeler.convert_to_selections(air_faces, True)
-        self.modeler.create_face_list(air_faces, "boundary_faces" + boundary_name)
+
+        if self.desktop_class.aedt_version_id < "2026.1":
+            self.modeler.create_face_list(air_faces, "boundary_faces" + boundary_name)
+        else:
+            self.modeler.create_named_selection(assignment=air_faces, name="boundary_faces" + boundary_name)
 
         props["Faces"] = air_faces
         props["Temperature"] = "AmbientTemp"
@@ -1383,7 +1391,12 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             parameter_dict_with_values = self.available_variations.nominal_values
 
         name = generate_unique_name(quantity_name)
-        self.modeler.create_face_list(faces_list, name)
+
+        if self.desktop_class.aedt_version_id < "2026.1":
+            self.modeler.create_face_list(faces_list, name)
+        else:
+            self.modeler.create_named_selection(assignment=faces_list, name=name)
+
         if not savedir:
             savedir = self.working_directory
         if not filename:

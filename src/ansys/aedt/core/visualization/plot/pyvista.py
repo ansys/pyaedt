@@ -1363,8 +1363,8 @@ class ModelPlotter(CommonPlotter):
                 self.text = []
 
             def __call__(self, state):
-                while len(self.plot.button_widgets) > 1:
-                    self.plot.button_widgets.pop(-1)
+                while len(self.plot.widgets.button_widgets) > 1:
+                    self.plot.widgets.button_widgets.pop(-1)
                 self.id += 1
                 k = 0
                 startpos = self.startpos
@@ -1421,8 +1421,11 @@ class ModelPlotter(CommonPlotter):
                 color_off=axes_color,
             )
             self.pv.add_text("Next", position=(50.0, self.pv.window_size[1]), font_size=size // 3, color="grey")
-            self.pv.button_widgets.insert(
-                0, self.pv.button_widgets.pop(self.pv.button_widgets.index(self.pv.button_widgets[-1]))
+            self.pv.widgets.button_widgets.insert(
+                0,
+                self.pv.widgets.button_widgets.pop(
+                    self.pv.widgets.button_widgets.index(self.pv.widgets.button_widgets[-1])
+                ),
             )
 
     @pyaedt_function_handler()

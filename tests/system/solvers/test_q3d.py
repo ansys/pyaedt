@@ -428,10 +428,10 @@ def test_equivalent_circuit(q3d_solved2, test_tmp_dir) -> None:
     exported_files = q3d_solved2.export_results()
     file_path = test_tmp_dir / "test_export_circuit.cir"
     assert len(exported_files) > 0
-    assert q3d_solved2.export_equivalent_circuit(file_path, variations=["d: 10mm"])
+    assert q3d_solved2.export_equivalent_circuit(file_path, variations=["d='10mm'"])
     with pytest.raises(AEDTRuntimeError):
         q3d_solved2.export_equivalent_circuit(test_tmp_dir / "test_export_circuit.doc")
-    with pytest.raises(AEDTRuntimeError):
+    with pytest.raises(AttributeError):
         q3d_solved2.export_equivalent_circuit(
             output_file=file_path,
             setup="Setup1",

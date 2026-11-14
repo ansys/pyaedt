@@ -5538,8 +5538,11 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         """
         list2 = self.select_allfaces_fromobjects(assignment)  # find ALL faces of outer objects
-        self.create_face_list(list2, name)
-        self.logger.info("Extfaces of thermal model = " + str(len(list2)))
+
+        if settings.aedt_version < "2026.1":
+            self.create_face_list(assignment=list2, name=name)
+        else:
+            self.create_named_selection(assignment=list2, name=name)
         return True
 
     @pyaedt_function_handler()
