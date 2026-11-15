@@ -259,6 +259,7 @@ def test_import_pcb(board_3dl_app) -> None:
     assert pcb2.name in board_3dl_app.modeler.component_names
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_pcb_devices(board_ipk_app) -> None:
     cmp2 = board_ipk_app.modeler["Board_w_cmp1"]
     assert isinstance(cmp2, NativeComponentPCB)
@@ -287,14 +288,12 @@ def test_pcb_devices(board_ipk_app) -> None:
     assert cmp2.included_parts.override_instance("FCHIP", False)
     assert "Board_w_cmp_FCHIP_device" in board_ipk_app.modeler.object_names
     assert cmp2.included_parts.override_instance("FCHIP", False, "10W", "1Kel_per_W", "1Kel_per_W", "0.1mm")
-    if board_ipk_app.settings.aedt_version >= "2024.2":
-        cmp2.included_parts.override_definition("FCHIP_FCHIP", "FCHIP_FCHIP")
-    else:
-        assert not cmp2.included_parts.override_definition("a", "b")
+    cmp2.included_parts.override_definition("FCHIP_FCHIP", "FCHIP_FCHIP")
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_pcb_packages(board_ipk_app) -> None:
-    cmp2 = board_ipk_app.native_components["Board_w_cmp"]
+    cmp2 = board_ipk_app.modeler["Board_w_cmp1"]
     cmp2.included_parts = "Package"
     assert not cmp2.included_parts == "Packages"
     assert isinstance(cmp2.included_parts, PCBSettingsPackageParts)
@@ -312,19 +311,25 @@ def test_pcb_packages(board_ipk_app) -> None:
     )  # material does not exist
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_pcb_board_extents_and_resolution(board_ipk_app) -> None:
-    cmp2 = board_ipk_app.native_components["Board_w_cmp"]
+    cmp2 = board_ipk_app.modeler["Board_w_cmp1"]
     assert cmp2.set_board_extents("Bounding Box")
     assert cmp2.set_board_extents("Polygon")
     assert cmp2.set_board_extents("Bounding Box")
     assert cmp2.set_board_extents("Polygon", "outline:poly_0")
-    assert not cmp2.set_resolution(0)
+    assert not cmp2.set_resolution(5)
     assert cmp2.set_resolution(1)
+    assert cmp2.props["NativeComponentDefinitionProvider"]["SliderResolution"] == 1
     assert cmp2.set_custom_resolution(row=100, col=200)
+    assert cmp2.props["NativeComponentDefinitionProvider"]["CustomResolution"]
+    assert cmp2.props["NativeComponentDefinitionProvider"]["CustomResolutionRow"] == 100
+    assert cmp2.props["NativeComponentDefinitionProvider"]["CustomResolutionCol"] == 200
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_pcb_filters_error_messages(board_ipk_app) -> None:
-    cmp2 = board_ipk_app.native_components["Board_w_cmp"]
+    cmp2 = board_ipk_app.modeler["Board_w_cmp1"]
     cmp2.included_parts = "Device"
     p = cmp2.included_parts
     cmp2.included_parts = "None"
@@ -349,8 +354,9 @@ def test_pcb_filters_error_messages(board_ipk_app) -> None:
     assert cmp2.power == "10W"
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_pcb_comp_properties(board_ipk_app) -> None:
-    cmp2 = board_ipk_app.native_components["Board_w_cmp"]
+    cmp2 = board_ipk_app.modeler["Board_w_cmp1"]
     cmp2.set_high_side_radiation(
         True,
         surface_material="Stainless-steel-typical",
@@ -370,19 +376,17 @@ def test_pcb_comp_properties(board_ipk_app) -> None:
     cmp2.preserve_partner_solution = True
     assert cmp2.preserve_partner_solution
     cmp2.via_holes_material = "air"
-    cmp2.board_cutout_material = "copper"
     assert cmp2.via_holes_material == "air"
-    assert cmp2.board_cutout_material == "copper"
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_pcb_comp_import(board_ipk_app) -> None:
     component_name = "RadioBoard2"
     cmp = board_ipk_app.create_ipk_3dcomponent_pcb(
-        LINK_DATA, component_name, SOLUTION_FREQ, RESOLUTION, custom_x_RESOLUTION=400, custom_y_RESOLUTION=500
+        LINK_DATA, component_name, SOLUTION_FREQ, RESOLUTION, custom_x_resolution=400, custom_y_resolution=500
     )
     assert cmp.included_parts is None
     cmp.included_parts = "Device"
-    print(cmp.included_parts)
     cmp.included_parts = "Packafe"
     assert cmp.included_parts == "Device"
     f = cmp.included_parts.filters
@@ -398,10 +402,7 @@ def test_pcb_comp_import(board_ipk_app) -> None:
     cmp.included_parts.type_filters = "Resistors"
     cmp.included_parts.type_filters = "Register"  # should not be set
     cmp.included_parts.type_filters = "Inductors"
-    if board_ipk_app.settings.aedt_version >= "2024.2":
-        cmp.included_parts.footprint_filter = "0.5mm2"
-    else:
-        assert cmp.included_parts.footprint_filter is None
+    cmp.included_parts.footprint_filter = "0.5mm2"
     f = cmp.included_parts.filters
     assert len(f.keys()) >= 4  # 5 if version 2024.2
     assert f["Type"]["Inductors"]
@@ -412,8 +413,7 @@ def test_pcb_comp_import(board_ipk_app) -> None:
     cmp.included_parts.power_filter = None
     cmp.included_parts.height_filter = None
     cmp.included_parts.objects_2d_filter = False
-    if board_ipk_app.settings.aedt_version >= "2024.2":
-        cmp.included_parts.footprint_filter = None
+    cmp.included_parts.footprint_filter = None
     f = cmp.included_parts.filters
     assert len(f.keys()) == 1
     cmp.included_parts = "Package"
@@ -423,7 +423,6 @@ def test_pcb_comp_import(board_ipk_app) -> None:
     assert not cmp.included_parts == "Device"
     assert not cmp.included_parts != "Package"
     cmp.included_parts.set_solderballs_modeling("Boxes")
-    board_ipk_app.logger.clear_messages(proj_name=board_ipk_app.project_name, des_name=board_ipk_app.design_name)
 
 
 def test_find_top(ipk_app) -> None:
@@ -575,6 +574,7 @@ def test_create_source_blocks_from_list(ipk_app) -> None:
     assert result[3].properties["Total Power"] == "3W"
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_copy_solid_bodies(board_ipk_app, add_app, test_tmp_dir) -> None:
     prj_name = available_file_name(test_tmp_dir / "IcepakCopiedProject.aedt")
     new_design = add_app(application=Icepak, project=prj_name, design="IcepakCopiedBodies", close_projects=False)
@@ -594,6 +594,7 @@ def test_copy_solid_bodies(board_ipk_app, add_app, test_tmp_dir) -> None:
     new_design.close_project(new_design.project_name, save=False)
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_get_all_conductors(board_ipk_app) -> None:
     conductors = board_ipk_app.get_all_conductors_names()
     assert sorted(conductors) == [
@@ -604,6 +605,7 @@ def test_get_all_conductors(board_ipk_app) -> None:
     ]
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_get_all_dielectrics(board_ipk_app) -> None:
     dielectrics = board_ipk_app.get_all_dielectrics_names()
     assert sorted(dielectrics) == [

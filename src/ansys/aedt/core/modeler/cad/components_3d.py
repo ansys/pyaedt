@@ -1809,7 +1809,7 @@ class NativeComponentPCB(NativeComponent):
             props["ExtentsType"] = extent_type
             if extent_type == "Polygon":
                 if extent_polygon is None:
-                    extent_polygon = self.identify_extent_poly()
+                    extent_polygon = self.identify_extent_poly
                     if not extent_polygon:
                         return False
                 props["OutlinePolygon"] = extent_polygon
@@ -1881,12 +1881,12 @@ class NativeComponentPCB(NativeComponent):
         Parameters
         ----------
         resolution : int
-            Resolution level. Accepted variables between 1 and 5.
+            Resolution level. Accepted variables between 0 and 4.
 
         Returns
         -------
         bool
-            True if successful, else False.
+            ``True`` if successful, else ``False``.
 
         Examples
         --------
@@ -1898,16 +1898,16 @@ class NativeComponentPCB(NativeComponent):
         """
         if not self._legacy_props:  # pragma: no cover
             return False
-        if resolution < 1 or resolution > 5:
+        if resolution < 0 or resolution > 4:
             self._app.logger.add_message(
                 message_type=2,
-                message_text="Valid resolution values are between 1 and 5.",
+                message_text="Valid resolution values are between 0 and 4.",
                 level="Design",
                 proj_name=self._app.project_name,
                 des_name=self._app.design_name,
             )
             return False
-        self._legacy_props["NativeComponentDefinitionProvider"]["Resolution"] = resolution
+        self._legacy_props["NativeComponentDefinitionProvider"]["SliderResolution"] = resolution
         self._legacy_props["NativeComponentDefinitionProvider"]["CustomResolution"] = False
         return self.update()
 
