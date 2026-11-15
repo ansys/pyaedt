@@ -33,14 +33,12 @@ from ansys.aedt.core.generic.file_utils import get_dxf_layers
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from tests import TESTS_GENERAL_PATH
-from tests.conftest import DESKTOP_VERSION
 from tests.conftest import NON_GRAPHICAL
 
 TEST_SUBFOLDER = "T30"
 Q2D_Q3D = "q2d_q3d_231"
 Q2D_SOLVED_NAME = "q2d_solved"
 Q2D_SOLVED_SWEEP = "q2d_solved_sweep"
-Q2D_SOLVED_NOMINAL = "q2d_solved_nominal"
 
 
 @pytest.fixture
@@ -75,13 +73,6 @@ def q2d_matrix(add_app_example):
 @pytest.fixture
 def q2d_solved_sweep_app(add_app_example):
     app = add_app_example(application=Q2d, project=Q2D_SOLVED_SWEEP, subfolder=TEST_SUBFOLDER)
-    yield app
-    app.close_project(app.project_name, save=False)
-
-
-@pytest.fixture
-def q2d_solved_nominal_app(add_app_example):
-    app = add_app_example(application=Q2d, project=Q2D_SOLVED_NOMINAL, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(app.project_name, save=False)
 
@@ -222,9 +213,11 @@ def test_export_equivalent_circuit(q2d_solved, test_tmp_dir) -> None:
     assert q2d_solved.matrices[-1].name == "Test4"
     assert len(q2d_solved.setups[0].sweeps[0].frequencies) > 0
     assert q2d_solved.setups[0].sweeps[0].basis_frequencies == []
+
     file_path = test_tmp_dir / "test_export_circuit.sml"
     assert q2d_solved.export_equivalent_circuit(file_path)
     assert file_path.is_file()
+
     with pytest.raises(AEDTRuntimeError):
         q2d_solved.export_equivalent_circuit(str(test_tmp_dir / "test_export_circuit.cir"))
     with pytest.raises(AEDTRuntimeError):
@@ -236,78 +229,98 @@ def test_export_equivalent_circuit(q2d_solved, test_tmp_dir) -> None:
     with pytest.raises(AEDTRuntimeError):
         q2d_solved.export_equivalent_circuit(output_file=str(test_tmp_dir / "test_export_circuit.sml"), setup="Setup2")
 
-    file_path = test_tmp_dir / "test_export_circuit2.sml"
+    file_path2 = test_tmp_dir / "test_export_circuit2.sml"
     assert q2d_solved.export_equivalent_circuit(
-        output_file=str(file_path),
+        output_file=str(file_path2),
         setup="Setup1",
         sweep="LastAdaptive",
         variations=["r1:0.3mm"],
     )
-    assert file_path.is_file()
+    assert file_path2.is_file()
 
-    file_path = test_tmp_dir / "test_export_circuit3.sml"
+    file_path3 = test_tmp_dir / "test_export_circuit3.sml"
     assert q2d_solved.export_equivalent_circuit(
-        output_file=str(file_path),
+        output_file=str(file_path3),
         setup="Setup1",
         sweep="LastAdaptive",
         variations=[" r1 : 0.3 mm "],
     )
-    with pytest.raises(AEDTRuntimeError):
-        q2d_solved.export_equivalent_circuit(
-            output_file=str(file_path),
-            setup="Setup1",
-            sweep="LastAdaptive",
-            variations="r1:0.3mm",
-        )
-    assert q2d_solved.export_equivalent_circuit(output_file=str(file_path), matrix="Original")
+    assert file_path3.is_file()
+
+    file_path4 = test_tmp_dir / "test_export_circuit4.sml"
     assert q2d_solved.export_equivalent_circuit(
-        output_file=str(test_tmp_dir / "test_export_circuit.sml"), matrix="Test1"
+        output_file=str(file_path4),
+        setup="Setup1",
+        sweep="LastAdaptive",
+        variations="r1:0.3mm",
     )
+    assert file_path4.is_file()
+
+    file_path5 = test_tmp_dir / "test_export_circuit5.sml"
+    assert q2d_solved.export_equivalent_circuit(output_file=str(file_path5), matrix="Original")
+    assert file_path5.is_file()
+
+    file_path6 = test_tmp_dir / "test_export_circuit6.sml"
+    assert q2d_solved.export_equivalent_circuit(output_file=str(file_path6), matrix="Test1")
+    assert file_path6.is_file()
+
     with pytest.raises(AEDTRuntimeError):
         q2d_solved.export_equivalent_circuit(
             output_file=str(test_tmp_dir / "test_export_circuit.sml"), coupling_limit_type=2
         )
+
+    file_path7 = test_tmp_dir / "test_export_circuit7.sml"
+    assert q2d_solved.export_equivalent_circuit(output_file=str(file_path7), coupling_limit_type=0)
+    assert file_path7.is_file()
+
+    file_path8 = test_tmp_dir / "test_export_circuit8.sml"
+    assert q2d_solved.export_equivalent_circuit(output_file=str(file_path8), coupling_limit_type=1)
+    assert file_path8.is_file()
+
+    file_path9 = test_tmp_dir / "test_export_circuit9.sml"
     assert q2d_solved.export_equivalent_circuit(
-        output_file=str(test_tmp_dir / "test_export_circuit.sml"), coupling_limit_type=0
-    )
-    assert q2d_solved.export_equivalent_circuit(
-        output_file=str(test_tmp_dir / "test_export_circuit.sml"), coupling_limit_type=1
-    )
-    assert q2d_solved.export_equivalent_circuit(
-        output_file=str(test_tmp_dir / "test_export_circuit.sml"),
+        output_file=str(file_path9),
         coupling_limit_type=0,
         ind_limit="12nH",
         res_limit="6Mohm",
     )
-    assert q2d_solved.export_equivalent_circuit(
-        output_file=str(test_tmp_dir / "test_export_circuit.sml"), lumped_length="34mm"
-    )
+    assert file_path9.is_file()
+
+    file_path10 = test_tmp_dir / "test_export_circuit10.sml"
+    assert q2d_solved.export_equivalent_circuit(output_file=str(file_path10), lumped_length="34mm")
+    assert file_path10.is_file()
+
     with pytest.raises(AEDTRuntimeError):
         q2d_solved.export_equivalent_circuit(
             output_file=str(test_tmp_dir / "test_export_circuit.sml"), lumped_length="34nounits"
         )
+    file_path11 = test_tmp_dir / "test_export_circuit11.sml"
     assert q2d_solved.export_equivalent_circuit(
-        output_file=str(test_tmp_dir / "test_export_circuit.sml"),
+        output_file=str(file_path11),
         rise_time_value="1e-6",
         rise_time_unit="s",
     )
+    assert file_path11.is_file()
+
     with pytest.raises(AEDTRuntimeError):
         q2d_solved.export_equivalent_circuit(
             output_file=str(test_tmp_dir / "test_export_circuit.sml"),
             rise_time_value="23",
             rise_time_unit="m",
         )
-    assert q2d_solved.export_equivalent_circuit(
-        output_file=str(test_tmp_dir / "test_export_circuit.sml"), file_type="WELement"
-    )
+
     with pytest.raises(AEDTRuntimeError):
         q2d_solved.export_equivalent_circuit(
             output_file=str(test_tmp_dir / "test_export_circuit.sml"), file_type="test"
         )
-    assert q2d_solved.export_equivalent_circuit(
-        output_file=str(test_tmp_dir / "test_export_circuit.sml"), model=Q2D_Q3D
-    )
-    assert q2d_solved.export_equivalent_circuit(output_file=str(test_tmp_dir / "test_export_circuit.sml"), model="test")
+
+    file_path12 = test_tmp_dir / "test_export_circuit12.sml"
+    assert q2d_solved.export_equivalent_circuit(output_file=str(file_path12), model=Q2D_Q3D)
+    assert file_path12.is_file()
+
+    file_path13 = test_tmp_dir / "test_export_circuit13.sml"
+    assert q2d_solved.export_equivalent_circuit(output_file=str(file_path13), model="test")
+    assert file_path13.is_file()
 
 
 def test_export_results(q2d_solved) -> None:
@@ -323,32 +336,58 @@ def test_import_dxf(aedt_app) -> None:
     assert aedt_app.import_dxf(dxf_file, dxf_layers)
 
 
-@pytest.mark.skipif(DESKTOP_VERSION >= "2027.1", reason="Crashes from AEDT 2027.1 due to native API change.")
 def test_export_w_elements_from_sweep(q2d_solved_sweep_app, test_tmp_dir) -> None:
-    export_folder = test_tmp_dir / "export_folder"
-    files = q2d_solved_sweep_app.export_w_elements(export_folder)
-    assert len(files) == 3
-    for file in files:
-        ext = Path(file).suffix
-        assert ext == ".sp"
+    project_name = q2d_solved_sweep_app.project_name
+    setup_name = q2d_solved_sweep_app.setups[0].name
+    sweep_name = q2d_solved_sweep_app.setups[0].sweeps[0].name
+    variation_array = q2d_solved_sweep_app.available_variations.variations(
+        setup_sweep=f"{setup_name} : {sweep_name}", output_as_dict=True
+    )
+
+    output_files = [
+        test_tmp_dir / f"{project_name}_{setup_name}_{sweep_name}_{1}.sp",
+        test_tmp_dir / f"{project_name}_{setup_name}_{sweep_name}_{2}.sp",
+        test_tmp_dir / f"{project_name}_{setup_name}_{sweep_name}_{3}.sp",
+    ]
+
+    assert q2d_solved_sweep_app.export_equivalent_circuit(
+        output_file=output_files,
+        file_type="WElement",
+        variations=variation_array,
+        cells=1,
+        include_cap=False,
+        include_cond=False,
+        include_r=False,
+        include_l=False,
+        setup=setup_name,
+        sweep=sweep_name,
+    )
+
+    for file in output_files:
         assert Path(file).is_file()
 
+    # Files and variations of different lengths
+    with pytest.raises(AttributeError):
+        q2d_solved_sweep_app.export_equivalent_circuit(
+            output_file=[f"{project_name}_{setup_name}_{sweep_name}_{1}.sp"],
+            file_type="WElement",
+            variations=variation_array,
+        )
 
-@pytest.mark.skipif(DESKTOP_VERSION >= "2027.1", reason="Crashes from AEDT 2027.1 due to native API change.")
-def test_export_w_elements_from_nominal(q2d_solved_nominal_app, test_tmp_dir) -> None:
-    export_folder = test_tmp_dir / "export_folder"
-    files = q2d_solved_nominal_app.export_w_elements(export_folder)
-    assert len(files) == 1
-    for file in files:
-        ext = Path(file).suffix
-        assert ext == ".sp"
-        assert Path(file).is_file()
+    output_file2 = test_tmp_dir / f"{project_name}_{setup_name}_{sweep_name}_{4}.sp"
+    variation = q2d_solved_sweep_app.available_variations.variation_string(variation_array[0])
+    assert q2d_solved_sweep_app.export_equivalent_circuit(
+        output_file=output_file2, file_type="WElement", variations=variation, setup=setup_name, sweep=sweep_name
+    )
+    ext = Path(output_file2).suffix
+    assert ext == ".sp"
+    assert Path(output_file2).is_file()
 
-    files = q2d_solved_nominal_app.export_w_elements()
-    assert len(files) == 1
-    for file in files:
-        ext = Path(file).suffix
-        assert ext == ".sp"
-        assert Path(file).is_file()
-        file_dir = Path(file).parent.absolute()
-        assert file_dir == Path(q2d_solved_nominal_app.working_directory).absolute()
+    # No Variation
+    output_file3 = test_tmp_dir / f"{project_name}_{setup_name}_{sweep_name}_{5}.sp"
+    assert q2d_solved_sweep_app.export_equivalent_circuit(
+        output_file=output_file3, file_type="WElement", setup=setup_name, sweep=sweep_name
+    )
+    ext = Path(output_file3).suffix
+    assert ext == ".sp"
+    assert Path(output_file3).is_file()

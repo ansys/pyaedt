@@ -447,7 +447,7 @@ def test_add_automation_tab_resolves_image_linux(tmp_path) -> None:
     assert parser.has_button("Panel_PyAEDT_Extensions", "MyToolkit")
     panel = parser.get_panel("Panel_PyAEDT_Extensions")
     button = panel.find("./button")
-    assert button.attrib["image"] == f"images/{icon_file.name}"
+    assert button.attrib["image"] == f"MyToolkit/{icon_file.name}"
     assert button.attrib["script"] == "MyToolkit/run_pyaedt_toolkit_script"
 
 
@@ -487,13 +487,15 @@ def test_add_automation_tab_resolves_image_linux_avoids_collision(tmp_path) -> N
 
 @patch("ansys.aedt.core.extensions.customize_automation_tab.is_linux", True)
 def test_add_automation_tab_resolves_image_linux_custom(tmp_path) -> None:
-    """Custom extension icons must use a relative symlinked path on Linux too."""
-    icon_file = tmp_path / "custom_icon.png"
+    """Custom icons are copied as a single file on Linux, without symlinking their folder."""
+    icon_file = tmp_path / "Documents" / "custom_icon.png"
+    icon_file.parent.mkdir()
     icon_file.write_text("icon")
+    lib_dir = tmp_path / "Toolkits"
 
     tabconfig_path = add_automation_tab(
         name="CustomToolkit",
-        lib_dir=tmp_path,
+        lib_dir=lib_dir,
         icon_file=str(icon_file),
         product="Project",
         template="run_pyaedt_toolkit_script",
@@ -503,8 +505,9 @@ def test_add_automation_tab_resolves_image_linux_custom(tmp_path) -> None:
     parser = TabConfigParser(tabconfig_path)
     panel = parser.get_panel("Panel_PyAEDT_Extensions")
     button = panel.find("./button")
-    assert button.attrib["image"] == f"images/{icon_file.name}"
-    assert not Path(button.attrib["image"]).is_absolute()
+    assert button.attrib["image"] == f"CustomToolkit/{icon_file.name}"
+    assert (lib_dir / "Project" / "CustomToolkit" / icon_file.name).read_text() == "icon"
+    assert not any(p.is_symlink() for p in (lib_dir / "Project").rglob("*"))
 
 
 @patch("ansys.aedt.core.extensions.customize_automation_tab.is_linux", False)

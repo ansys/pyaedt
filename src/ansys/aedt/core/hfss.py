@@ -829,8 +829,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         userlst = self.modeler.convert_to_selections(assignment, True)
         lstobj = []
         lstface = []
+        model_objects = set(self.modeler.model_objects)
         for selection in userlst:
-            if selection in self.modeler.model_objects:
+            if selection in model_objects:
                 lstobj.append(selection)
             elif isinstance(selection, int) and self.modeler._find_object_from_face_id(selection):
                 lstface.append(selection)
@@ -935,8 +936,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         userlst = self.modeler.convert_to_selections(assignment, True)
         lstobj = []
         lstface = []
+        model_objects = set(self.modeler.model_objects)
         for selection in userlst:
-            if selection in self.modeler.model_objects:
+            if selection in model_objects:
                 lstobj.append(selection)
             elif isinstance(selection, int) and self.modeler._find_object_from_face_id(selection):
                 lstface.append(selection)
@@ -1007,8 +1009,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         userlst = self.modeler.convert_to_selections(assignment, True)
         lstobj = []
         lstface = []
+        model_objects = set(self.modeler.model_objects)
         for selection in userlst:
-            if selection in self.modeler.model_objects:
+            if selection in model_objects:
                 lstobj.append(selection)
             elif isinstance(selection, int) and self.modeler._find_object_from_face_id(selection):
                 lstface.append(selection)
@@ -1100,8 +1103,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         userlst = self.modeler.convert_to_selections(assignment, True)
         lstobj = []
         lstface = []
+        model_objects = set(self.modeler.model_objects)
         for selection in userlst:
-            if selection in self.modeler.model_objects:
+            if selection in model_objects:
                 lstobj.append(selection)
             elif isinstance(selection, int) and self.modeler._find_object_from_face_id(selection):
                 lstface.append(selection)
@@ -7241,8 +7245,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         selections = self.modeler.convert_to_selections(assignment, True)
         list_obj = []
         list_face = []
+        model_objects = set(self.modeler.model_objects)
         for selection in selections:
-            if selection in self.modeler.model_objects:
+            if selection in model_objects:
                 list_obj.append(selection)
             elif isinstance(selection, int) and self.modeler._find_object_from_face_id(selection):
                 list_face.append(selection)
@@ -7502,8 +7507,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         userlst = self.modeler.convert_to_selections(assignment, True)
         lstobj = []
         lstface = []
+        model_objects = set(self.modeler.model_objects)
         for selection in userlst:
-            if selection in self.modeler.model_objects:
+            if selection in model_objects:
                 lstobj.append(selection)
             elif isinstance(selection, int) and self.modeler._find_object_from_face_id(selection):
                 lstface.append(selection)
@@ -8799,8 +8805,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         userlst = self.modeler.convert_to_selections(assignment, True)
         lstobj = []
         lstface = []
+        model_objects = set(self.modeler.model_objects)
         for selection in userlst:
-            if selection in self.modeler.model_objects:
+            if selection in model_objects:
                 lstobj.append(selection)
             elif isinstance(selection, int) and self.modeler._find_object_from_face_id(selection):
                 lstface.append(selection)
