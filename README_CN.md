@@ -21,7 +21,7 @@
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/blog/license/mit)
 [![ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![pre-commit.ci](https://results.pre-commit.ci/badge/github/ansys/pyaedt/main.svg)](https://results.pre-commit.ci/latest/github/ansys/pyaedt/main)
-[![deep-wiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/ansys/pyaedt)
+[![DeepWiki](https://img.shields.io/badge/DeepWiki-Open%20wiki-6C5CE7)](https://deepwiki.com/ansys/pyaedt)
 
 ## PyAEDT 简介
 

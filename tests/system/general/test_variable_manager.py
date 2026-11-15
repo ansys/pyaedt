@@ -77,7 +77,7 @@ def app(request, add_app):
 
 @pytest.fixture(
     params=[
-        (Hfss, Path(VISUALIZATION_GENERAL_TEST_PREFIX) / "example_models" / "T12", "Potter_Horn_242"),
+        (Hfss, Path(VISUALIZATION_GENERAL_TEST_PREFIX) / "example_models" / "T10", "Potter_Horn_242"),
         (Q2d, Path(SYSTEM_GENERAL_TEST_PREFIX) / "example_models" / "T30", "q2d_solved_sweep"),
         (Icepak, Path(SYSTEM_SOLVERS_TEST_PREFIX) / "example_models" / "T00", "icepak_summary_solved"),
         (Maxwell3d, Path(SYSTEM_SOLVERS_TEST_PREFIX) / "example_models" / "T00", "maxwell_variations"),

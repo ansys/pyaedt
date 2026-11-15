@@ -206,7 +206,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         ]
         arg_2 = self._default_object_attributes(name=name, material=material)
         new_object_name = self.oeditor.CreateBox(arg_1, arg_2)
-        return self._create_object(new_object_name, **kwargs)
+        return self._create_object(new_object_name, is_polyline=False, **kwargs)
 
     @pyaedt_function_handler()
     def create_cylinder(
@@ -303,7 +303,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         ]
         arg_2 = self._default_object_attributes(name=name, material=material)
         new_object_name = self.oeditor.CreateCylinder(arg_1, arg_2)
-        return self._create_object(new_object_name, **kwargs)
+        return self._create_object(new_object_name, is_polyline=False, **kwargs)
 
     # fmt: off
     @pyaedt_function_handler()
@@ -395,7 +395,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         ]
         arg_2 = self._default_object_attributes(name=name, material=material)
         new_object_name = self.oeditor.CreateRegularPolyhedron(arg_1, arg_2)
-        return self._create_object(new_object_name, **kwargs)
+        return self._create_object(new_object_name, is_polyline=False, **kwargs)
 
     @pyaedt_function_handler()
     def create_cone(
@@ -488,7 +488,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
                  "TopRadius:=", top_radius]
         arg_2 = self._default_object_attributes(name=name, material=material)
         new_object_name = self.oeditor.CreateCone(arg_1, arg_2)
-        return self._create_object(new_object_name, **kwargs)
+        return self._create_object(new_object_name, is_polyline=False, **kwargs)
 
     @pyaedt_function_handler()
     def create_sphere(
@@ -557,7 +557,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         ]
         arg_2 = self._default_object_attributes(name=name, material=material)
         new_object_name = self.oeditor.CreateSphere(arg_1, arg_2)
-        return self._create_object(new_object_name, **kwargs)
+        return self._create_object(new_object_name, is_polyline=False, **kwargs)
 
     @pyaedt_function_handler()
     def create_torus(
@@ -641,7 +641,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         first_argument.append("WhichAxis:="), first_argument.append(axis)
         second_argument = self._default_object_attributes(name=name, material=material)
         new_object_name = self.oeditor.CreateTorus(first_argument, second_argument)
-        return self._create_object(new_object_name, **kwargs)
+        return self._create_object(new_object_name, is_polyline=False, **kwargs)
 
     @pyaedt_function_handler()
     def create_bondwire(
@@ -801,7 +801,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         first_argument.append("ReverseDirection:="), first_argument.append(False)
         second_argument = self._default_object_attributes(name=name, material=material)
         new_object_name = self.oeditor.CreateBondwire(first_argument, second_argument)
-        return self._create_object(new_object_name, **kwargs)
+        return self._create_object(new_object_name, is_polyline=False, **kwargs)
 
     @pyaedt_function_handler()
     def create_rectangle(
