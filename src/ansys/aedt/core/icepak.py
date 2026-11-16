@@ -57,7 +57,6 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modeler.cad.components_3d import NativeComponent
 from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
-from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
@@ -1809,8 +1808,9 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         radius: str | float | None = "0.008mm",
         hub_radius: str | float | None = "0mm",
         origin: list | None = None,
-    ) -> NativeComponent:
-        """Create a fan component in Icepak that is linked to an HFSS 3D Layout object.
+        definition_name: str | None = None,
+    ) -> NativeComponent | bool:
+        """Create a fan component.
 
         Parameters
         ----------
@@ -1823,13 +1823,15 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             Fan shape. Options are ``"Circular"`` and ``"Rectangular"``. The default
             is ``"Circular"``.
         cross_section : str, optional
-            Cross section plane of the fan. The default is ``"XY"``.
+            Cross-section plane of the fan. The default is ``"XY"``.
         radius : str, float, optional
             Radius of the fan in modeler units. The default is ``"0.008mm"``.
         hub_radius : str, float, optional
             Hub radius of the fan in modeler units. The default is ``"0mm"``,
         origin : list, optional
             List of ``[x,y,z]`` coordinates for the position of the fan in the modeler.
+        definition_name : str, optional
+            The default is ``None``.
 
         Returns
         -------
@@ -1844,19 +1846,21 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         --------
         >>> from ansys.aedt.core import Icepak
         >>> ipk = Icepak()
-
-        Create a circular fan with the cross section in the YZ plane.
-
         >>> fan = ipk.create_fan("Fan1", cross_section="YZ", radius="15mm", hub_radius="5mm", origin=[5, 21, 1])
-        >>> fan.name
-        'Fan1'
 
         """
         if not name:
             name = generate_unique_name("Fan")
+        elif name in self.modeler.components:
+            name = generate_unique_name(name)
+
+        if not definition_name:
+            definition_name = generate_unique_name("Fan")
+        elif definition_name in self.modeler.component_definition_names:
+            definition_name = generate_unique_name(definition_name)
 
         basic_component = {
-            "ComponentName": name,
+            "ComponentName": definition_name,
             "Company": "",
             "Company URL": "",
             "Model Number": "",
@@ -1870,6 +1874,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             model = "2D"
         else:
             model = "3D"
+
         cross_section = GeometryOperators.cs_plane_to_plane_str(cross_section)
         native_component = {
             "Type": "Fan",
@@ -1895,12 +1900,11 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             "IntakeTemp": "AmbientTemp",
             "Swirl": "0",
             "OperatingRPM": "0",
-            "Magnitude": "1",
         }
 
         native_props = {
             "TargetCS": "Global",
-            "SubmodelDefinitionName": name,
+            "SubmodelDefinitionName": definition_name,
             "ComponentPriorityLists": {},
             "NextUniqueID": 0,
             "MoveBackwards": False,
@@ -1921,20 +1925,14 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             "InstanceParameters": {"GeometryParameters": "", "MaterialParameters": "", "DesignParameters": ""},
         }
 
-        udc = set(self.modeler.user_defined_components)
+        native = NativeComponent(app=self, name=name, props=native_props)
 
-        native = NativeComponent(self, "Fan", name, native_props)
+        native.definition_name = definition_name
+        native.definition_type = "Fan"
+
         if native.create():
-            user_defined_component = UserDefinedComponent(
-                self.modeler, native.name, native_props["NativeComponentDefinitionProvider"], "Fan"
-            )
-            self.modeler.user_defined_components[native.name] = user_defined_component
-            new_name = list(set(self.modeler.user_defined_components) - udc)[0]
-            self.modeler.refresh_all_ids()
-            self.materials._load_from_project()
-            self._native_components.append(native)
             if origin:
-                self.modeler.move(new_name, origin)
+                native.move(origin)
             return native
         return False
 
@@ -2218,7 +2216,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         source_design: str,
         source_project_name: str | None = None,
         source_project_path: str | None = None,
-        **kwargs,
     ) -> bool:
         """Copy a group from another design.
 
@@ -2255,22 +2252,26 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
 
         """
         pj_names = self.desktop_class.project_list
-
-        if source_project_name == self.project_name or source_project_name is None:
+        original_project = self.project_name
+        original_design = self.design_name
+        if source_project_name == original_project or source_project_name is None:
             active_project = self.desktop_class.active_project()
         else:
             self.oproject = source_project_path
             active_project = self.desktop_class.active_project(source_project_name)
 
-        active_design = self.desktop_class.active_design(active_project, source_design)
-        active_editor = active_design.SetActiveEditor("3D Modeler")
-        active_editor.Copy(["NAME:Selections", "Selections:=", group_name])
+        new_project = active_project.GetName()
+        active_design = self.desktop_class[new_project, source_design]
+        active_design.oeditor.Copy(["NAME:Selections", "Selections:=", group_name])
 
-        self.modeler.oeditor.Paste()
+        # Paste the copied group into the current design
+        self.oproject = original_project
+        self.desktop_class.active_design(project_object=self.oproject, name=original_design, design_type="Icepak")
+        self.oeditor.Paste()
         self.modeler.refresh_all_ids()
         self.materials._load_from_project()
-        if not (source_project_name in pj_names or source_project_name is None):
-            active_project.close()
+        if not (new_project in pj_names or source_project_name is None):
+            active_design.close_project(save=False, name=new_project)
         return True
 
     @pyaedt_function_handler()
@@ -2299,10 +2300,10 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         True
 
         """
-        arg = ["NAME:Selections", "Selections:=", comp_name]
-
-        self.modeler.oeditor.Delete(arg)
-        return True
+        if comp_name in self.modeler.component_names:
+            self.modeler.components[comp_name].delete()
+            return True
+        return False
 
     @pyaedt_function_handler()
     def get_liquid_objects(self):

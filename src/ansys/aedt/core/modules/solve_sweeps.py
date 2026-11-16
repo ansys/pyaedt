@@ -150,6 +150,7 @@ class SweepCommon(BinaryTreeNode, PyAedtBase):
 
         self._name = name
 
+        self.__child_object = None
         self._has_getobject = _has_get_obj_data(self._child_object)
 
     def __getitem__(self, key: str) -> Any:
@@ -182,13 +183,13 @@ class SweepCommon(BinaryTreeNode, PyAedtBase):
         AEDT object if any or None
 
         """
-        child_object = None
-        setup_object = self._setup.child_object
-        if setup_object:
-            cc_names = self._app.get_oo_name(setup_object)
-            if self._name in cc_names:
-                child_object = self._app.get_oo_object(setup_object, self._name)
-        return child_object
+        if not self.__child_object:
+            setup_object = self._setup.child_object
+            if setup_object:
+                cc_names = self._app.get_oo_name(setup_object)
+                if self._name in cc_names:
+                    self.__child_object = self._app.get_oo_object(setup_object, self._name)
+        return self.__child_object
 
     @property
     def name(self) -> str:
@@ -219,7 +220,9 @@ class SweepCommon(BinaryTreeNode, PyAedtBase):
         if name in sweep_names:
             raise ValueError(f"Name {name} already assigned in the design.")
 
-        self._app.oanalysis.RenameSweep(self.setup_name, self.name, str(name))
+        old_name = self.name
+
+        self._app.oanalysis.RenameSweep(self.setup_name, old_name, str(name))
 
         # Reset object
         self.__child_object = None
@@ -227,6 +230,17 @@ class SweepCommon(BinaryTreeNode, PyAedtBase):
         object.__setattr__(self, "_tree_node_initialized", False)
         object.__setattr__(self, "_props", None)
         object.__setattr__(self, "_children_loaded", False)
+
+        # Add the sweep to the setup's sweeps dictionary
+        for attr in ("_SetupHFSS__sweeps", "_Setup3DLayout__sweeps", "_SetupQ3D__sweeps"):
+            sweeps = getattr(self._setup, attr, None)
+            if sweeps is not None:
+                break
+
+        if sweeps is not None:
+            sweeps[name] = self
+            if old_name in sweeps:
+                sweeps.pop(old_name, None)
 
     @property
     def sweep_type(self) -> str | None:
@@ -531,7 +545,14 @@ class SweepHFSS(SweepCommon):
         >>> sweep.delete()
 
         """
-        self._app.oanalysis.DeleteSweep(self._setup.name, self.name)
+        old_name = self.name
+        self._app.oanalysis.DeleteSweep(self._setup.name, old_name)
+
+        # Delete the sweep from the setup's sweeps dictionary
+        sweeps = getattr(self._setup, "_SetupHFSS__sweeps", None)
+        if sweeps is not None:
+            if old_name in sweeps:
+                sweeps.pop(old_name, None)
         return True
 
     @pyaedt_function_handler()
@@ -845,7 +866,13 @@ class SweepHFSS3DLayout(SweepCommon):
         >>> sweep.delete()
 
         """
-        self._app.oanalysis.DeleteSweep(self._setup.name, self.name)
+        old_name = self.name
+        self._app.oanalysis.DeleteSweep(self._setup.name, old_name)
+        # Delete the sweep from the setup's sweeps dictionary
+        sweeps = getattr(self._setup, "_Setup3DLayout__sweeps", None)
+        if sweeps is not None:
+            if old_name in sweeps:
+                sweeps.pop(old_name, None)
         return True
 
     @pyaedt_function_handler()
@@ -1343,7 +1370,12 @@ class SweepMatrix(SweepCommon):
         >>> sweep.delete()
 
         """
-        self._app.oanalysis.DeleteSweep(self.setup_name, self.name)
+        old_name = self.name
+        self._app.oanalysis.DeleteSweep(self.setup_name, old_name)
+        sweeps = getattr(self._setup, "_SetupQ3D__sweeps", None)
+        if sweeps is not None:
+            if old_name in sweeps:
+                sweeps.pop(old_name, None)
         return True
 
     @pyaedt_function_handler()

@@ -8120,7 +8120,7 @@ class GeometryModeler(Modeler, PyAedtBase):
             if not isinstance(parts, list):
                 parts = [parts]
             normal_parts = [p for p in parts if p in self._app.modeler.objects_by_name]
-            submodel_parts = [p for p in parts if p in self._app.modeler.user_defined_components]
+            submodel_parts = [p for p in parts if p in self._app.modeler.component_names]
             arg += [["NAME:SubRegionPartNames"] + normal_parts, ["NAME:SubRegionSubmodelNames"] + submodel_parts]
             flags = "NonModel#Wireframe"
         arg2 = [

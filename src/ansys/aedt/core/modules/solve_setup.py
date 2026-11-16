@@ -4360,8 +4360,6 @@ class SetupMaxwell(Setup, PyAedtBase):
     """
 
     def __init__(self, app: Maxwell3d | Maxwell2d, name: str, props: dict) -> None:
-        self.__sweeps = SetupDict()
-
         self.solver_type = app.solution_type
 
         Setup.__init__(self, app, name, props)

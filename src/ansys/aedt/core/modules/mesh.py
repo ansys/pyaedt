@@ -322,6 +322,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
 
     @name.setter
     def name(self, meshop_name: str) -> None:
+        old_name = self.name
         if isinstance(self._mesh, Mesh):
             operation_names = self._mesh.operation_names
         else:
@@ -345,6 +346,15 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
             object.__setattr__(self, "_tree_node_initialized", False)
             object.__setattr__(self, "_props", None)
             object.__setattr__(self, "_children_loaded", False)
+
+            if hasattr(self._mesh, "_Mesh__operations"):
+                self._mesh._Mesh__operations[meshop_name] = self
+                if old_name in self._mesh._Mesh__operations:
+                    del self._mesh._Mesh__operations[old_name]
+            elif hasattr(self._mesh, "_IcepakMesh__operations"):
+                self._mesh._IcepakMesh__operations[meshop_name] = self
+                if old_name in self._mesh._IcepakMesh__operations:
+                    del self._mesh._IcepakMesh__operations[old_name]
 
     @pyaedt_function_handler()
     def create(self) -> MeshOperation | bool:
@@ -592,14 +602,19 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         >>> surface.delete()
 
         """
+        old_name = self.name
         mesh_module = _get_mesh_module(self._app)
         mesh_methods = dir(mesh_module)
         if "DeleteOp" in mesh_methods:
-            mesh_module.DeleteOp([self.name])
+            mesh_module.DeleteOp([old_name])
         elif "DeleteMeshOperations" in mesh_methods:
-            mesh_module.DeleteMeshOperations([self.name])
+            mesh_module.DeleteMeshOperations([old_name])
         else:  # pragma: no cover
             return False
+        if hasattr(self._mesh, "_Mesh__operations") and old_name in self._mesh._Mesh__operations:
+            del self._mesh._Mesh__operations[old_name]
+        elif hasattr(self._mesh, "_IcepakMesh__operations") and old_name in self._mesh._IcepakMesh__operations:
+            del self._mesh._IcepakMesh__operations[old_name]
         return True
 
     @pyaedt_function_handler()

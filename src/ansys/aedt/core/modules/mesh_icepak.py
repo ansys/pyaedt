@@ -487,7 +487,7 @@ class MeshRegion(MeshRegionBase, BinaryTreeNode, PyAedtBase):
     @name.setter
     def name(self, value: str) -> None:
         region_names = self._mesh.region_names
-
+        old_name = self.name
         if value in region_names:
             raise ValueError(f"Name {value} already assigned in the design.")
 
@@ -498,6 +498,11 @@ class MeshRegion(MeshRegionBase, BinaryTreeNode, PyAedtBase):
         object.__setattr__(self, "_tree_node_initialized", False)
         object.__setattr__(self, "_props", None)
         object.__setattr__(self, "_children_loaded", False)
+
+        if hasattr(self._mesh, "_IcepakMesh__regions"):
+            self._mesh._IcepakMesh__regions[value] = self
+            if old_name in self._mesh._IcepakMesh__regions:
+                del self._mesh._IcepakMesh__regions[old_name]
 
     @property
     def assignment(self) -> list:
@@ -630,7 +635,10 @@ class MeshRegion(MeshRegionBase, BinaryTreeNode, PyAedtBase):
         >>> region.delete()
 
         """
+        old_name = self.name
         cast("_OMeshModule", self._app.omeshmodule).DeleteMeshRegions([self.name])
+        if hasattr(self._mesh, "_IcepakMesh__regions") and old_name in self._mesh._IcepakMesh__regions:
+            del self._mesh._IcepakMesh__regions[old_name]
         return True
 
     @pyaedt_function_handler()
@@ -1327,7 +1335,7 @@ class IcepakMesh(PyAedtBase):
 
         # AEDT API can not get the available mesh regions in 3D Components,
         # so we need to use the design properties to get them.
-        component_names = self._app.modeler.user_defined_component_names
+        component_names = self._app.modeler.component_names
         if component_names:
             child_names.append("Global")
             component_regions, component_operations = self._get_mesh_3d_components(child_names)

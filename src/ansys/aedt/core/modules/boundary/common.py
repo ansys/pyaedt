@@ -45,10 +45,10 @@ class BoundaryCommon(PyAedtBase):
     """Provide boundary common."""
 
     def __repr__(self) -> str:
-        return self.name
+        return self._name
 
     def __str__(self) -> str:
-        return self.name
+        return self._name
 
     @property
     def assignment(self) -> str:
@@ -155,8 +155,6 @@ class BoundaryCommon(PyAedtBase):
             self._app.omodelsetup.DeleteMotionSetup([self.name])
         else:
             self._app.oboundary.DeleteBoundaries([self.name])
-            if self.name in self._app.design_excitations.keys():
-                self._app.design_excitations.pop(self.name)
         return True
 
     def _get_boundary_data(self, ds):

@@ -35,6 +35,7 @@ from ansys.aedt.core.generic.file_utils import available_file_name
 from ansys.aedt.core.generic.file_utils import get_dxf_layers
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from ansys.aedt.core.modeler.cad.components_3d import NativeComponent
 from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
 from ansys.aedt.core.modeler.cad.components_3d import PCBSettingsDeviceParts
 from ansys.aedt.core.modeler.cad.components_3d import PCBSettingsPackageParts
@@ -257,6 +258,14 @@ def test_import_pcb(board_3dl_app) -> None:
     assert pcb2.name != pcb.name
     assert pcb2.definition_name != pcb.definition_name
     assert pcb2.name in board_3dl_app.modeler.component_names
+
+    # Rename
+    comp.name = "NewName"
+    assert comp.name in board_3dl_app.modeler.component_names
+
+    # Edit
+    comp["NativeComponentDefinitionProvider"]["ViaHoleMaterial"] = "copper"
+    assert comp["NativeComponentDefinitionProvider"]["ViaHoleMaterial"] == "copper"
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
@@ -531,7 +540,6 @@ def test_assign_openings(ipk_app) -> None:
     airfaces = [ipk_app.modeler["Region"].top_face_x.id]
     openings = ipk_app.assign_openings(airfaces)
     openings.name = "Test_Opening"
-    assert openings.update()
     assert ipk_app.oboundary.GetBoundariesOfType("Opening") == ["Test_Opening"]
 
 
@@ -539,14 +547,13 @@ def test_assign_grille(ipk_app) -> None:
     airfaces = [ipk_app.modeler["Region"].top_face_y.id]
     grille = ipk_app.assign_grille(airfaces)
     grille.props["Free Area Ratio"] = 0.7
-    assert grille.update()
+    assert grille.properties["Free Area Ratio"] == "0.7"
     ipk_app.modeler.user_lists[0].delete()
     airfaces = [ipk_app.modeler["Region"].bottom_face_x.id]
     grille2 = ipk_app.assign_grille(airfaces, free_loss_coeff=False, x_curve=["0", "3", "5"], y_curve=["0", "2", "3"])
     assert grille2.props["X"] == ["0", "3", "5"]
     assert grille2.props["Y"] == ["0", "2", "3"]
     grille2.name = "Grille_test"
-    assert grille2.update()
     assert len(ipk_app.oboundary.GetBoundariesOfType("Grille")) == 2
 
 
@@ -719,25 +726,33 @@ def test_import_idf(ipk_app, test_tmp_dir) -> None:
 
 
 def test_create_fan(ipk_app, test_tmp_dir) -> None:
-    ipk_app.mesh.global_mesh_region.global_region.padding_types = "Absolute Position"
-    ipk_app.mesh.global_mesh_region.global_region.padding_values = "300mm"
+    if "Region" in ipk_app.modeler.object_names:
+        ipk_app.modeler.delete("Region")
+    ipk_app.modeler.create_region(pad_type="Absolute Position", pad_value=[300, -300, 300, -300, 300, -300])
     fan = ipk_app.create_fan("Fan1", cross_section="YZ", radius="15mm", hub_radius="5mm", origin=[5, 21, 1])
-    assert fan
+    assert isinstance(fan, NativeComponent)
+    assert fan.name in ipk_app.modeler.component_names
+    assert fan.name == "Fan1"
     assert fan.name in ipk_app.modeler.oeditor.Get3DComponentInstanceNames(fan.definition_name)[0]
+
     fan.name = "Fan2"
     assert fan.name in ipk_app.modeler.oeditor.Get3DComponentInstanceNames(fan.definition_name)[0]
-    assert fan.name in ipk_app.modeler.user_defined_components
-    assert fan.name in ipk_app.native_components
-    assert "Fan1" not in ipk_app.native_components
-    assert "Fan1" not in ipk_app.modeler.user_defined_components
-    temp_prj = str(test_tmp_dir / "fan_test.aedt")
-    ipk_app.save_project(temp_prj)
-    ipk_app = Icepak(temp_prj)
-    ipk_app.modeler.user_defined_components["Fan2"].native_properties["Swirl"] = "10"
-    ipk_app.modeler.user_defined_components["Fan2"].update_native()
-    ipk_app.save_project(temp_prj)
-    ipk_app = Icepak(temp_prj)
-    assert ipk_app.native_components["Fan1"].props["NativeComponentDefinitionProvider"]["Swirl"] == "10"
+    assert fan.name in ipk_app.modeler.component_names
+    assert "Fan1" not in ipk_app.modeler.component_names
+
+    ipk_app.modeler.components["Fan2"]["NativeComponentDefinitionProvider"]["Swirl"] = "10"
+    assert ipk_app.modeler.components["Fan2"]["NativeComponentDefinitionProvider"]["Swirl"] == "10"
+
+    fan_props = fan.props.to_dict()
+    fan_props["NativeComponentDefinitionProvider"]["Swirl"] = "20"
+    fan.props = fan_props
+    assert fan_props["NativeComponentDefinitionProvider"]["Swirl"] == "20"
+
+    fan2 = ipk_app.create_fan(fan.name, cross_section="YZ", radius="15mm", hub_radius="5mm", origin=[5, 21, 1])
+    assert fan2.name in ipk_app.modeler.component_names
+
+    assert fan.delete()
+    assert "Fan2" not in ipk_app.modeler.component_names
 
 
 def test_create_heat_sink(ipk_app) -> None:
@@ -899,6 +914,7 @@ def test_face_monitor(ipk_app) -> None:
     assert not ipk_app.monitor.assign_face_monitor(face_1.id, monitor_quantity="Thermogen")
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_delete_monitors(board_ipk_app) -> None:
     for _, mon_obj in board_ipk_app.monitor.all_monitors.items():
         mon_obj.delete()
@@ -906,7 +922,8 @@ def test_delete_monitors(board_ipk_app) -> None:
     assert not board_ipk_app.monitor.delete_monitor("Test")
 
 
-@pytest.mark.skipif(not USE_GRPC, reason="Not running in COM mode")
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
+@pytest.mark.skipif(not USE_GRPC, reason="Not running in COM mode.")
 def test_advanced3dcomp_import(board_ipk_app, test_tmp_dir) -> None:
     cs2 = board_ipk_app.modeler.create_coordinate_system(name="CS2")
     cs2.props["OriginX"] = 20
@@ -1931,6 +1948,7 @@ def test_get_max_temp_location_steady_state(max_temp_app) -> None:
     assert isinstance(min_temp[1], float)
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_mesh_priority(board_ipk_app) -> None:
     b = board_ipk_app.modeler.create_box([0, 0, 0], [20, 50, 80])
     board = board_ipk_app.create_ipk_3dcomponent_pcb(
@@ -1947,5 +1965,6 @@ def test_mesh_priority(board_ipk_app) -> None:
     assert board_ipk_app.modeler.assign_priorities([[fan.name, board.name], [b.name, rect.name]])
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_mesh_priority_3d_comp(comp_priority_app) -> None:
     assert comp_priority_app.mesh.assign_priorities([["all_2d_objects1"], ["IcepakDesign1_1"]])

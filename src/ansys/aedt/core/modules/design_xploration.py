@@ -107,6 +107,8 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         else:
             self.__setup_type = self._parent.setups_by_type.get(self._name)
 
+        self.__child_object = None
+
         # GetObjData is available for some objects in 2026R1
         self._has_getobject = _has_get_obj_data(self._child_object)
 
@@ -141,14 +143,14 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         >>> setup.child_object.GetChildNames()
 
         """
-        child_object = None
-        design_childs = self._app.get_oo_name(self._app.odesign)
-        if "Optimetrics" in design_childs:
-            cc = self._app.get_oo_object(self._app.odesign, "Optimetrics")
-            cc_names = self._app.get_oo_name(cc)
-            if self._name in cc_names:
-                child_object = self._app.get_oo_object(cc, self._name)
-        return child_object
+        if not self.__child_object:
+            design_childs = self._app.get_oo_name(self._app.odesign)
+            if "Optimetrics" in design_childs:
+                cc = self._app.get_oo_object(self._app.odesign, "Optimetrics")
+                cc_names = self._app.get_oo_name(cc)
+                if self._name in cc_names:
+                    self.__child_object = self._app.get_oo_object(cc, self._name)
+        return self.__child_object
 
     @property
     def name(self) -> str:
@@ -178,17 +180,26 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         if new_name in self._app.optimetrics.setup_names:
             raise ValueError(f"Name {new_name} already assigned in the design.")
 
+        old_name = self.name
+
         # RenameSetup method is not working well, using Object oriented method
         self.child_object.Rename(str(new_name))
 
+        self.__child_object = None
         object.__setattr__(self, "_name", new_name)
         object.__setattr__(self, "_tree_node_initialized", False)
         object.__setattr__(self, "_props", None)
         object.__setattr__(self, "_children_loaded", False)
 
-        if not self._has_getobject:
-            # If object does not have GetObjData, PyAEDT needs to save the project
-            self._app.save_project()
+        # Add the component to the modeler components dictionary
+        if hasattr(self._parent, "_Parametrics__setups"):
+            self._parent._Parametrics__setups[self.name] = self
+            if old_name in self._parent._Parametrics__setups:
+                del self._parent._Parametrics__setups[old_name]
+        elif hasattr(self._parent, "_Optimizations__setups"):
+            self._parent._Optimizations__setups[self.name] = self
+            if old_name in self._parent._Optimizations__setups:
+                del self._parent._Optimizations__setups[old_name]
 
     @property
     def props(self) -> SetupProps:
@@ -327,8 +338,10 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
 
         if not self._has_getobject:  # pragma: no cover
             # Without GetObjData, props only live in memory, so keep this instance in the parent cache.
-            self._parent.setups[self.name] = self
-
+            if hasattr(self._parent, "_Parametrics__setups"):
+                self._parent._Parametrics__setups[self.name] = self
+            elif hasattr(self._child_object, "_Optimizations__setups"):
+                self._child_object._Optimizations__setups[self.name] = self
         return self
 
     @pyaedt_function_handler()
@@ -352,7 +365,12 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         >>> setup.delete()
 
         """
-        self._app.ooptimetrics.DeleteSetups([self.name])
+        old_name = self.name
+        self._app.ooptimetrics.DeleteSetups([old_name])
+        if hasattr(self._parent, "_Parametrics__setups") and old_name in self._parent._Parametrics__setups:
+            del self._parent._Parametrics__setups[old_name]
+        elif hasattr(self._parent, "_Optimizations__setups") and old_name in self._parent._Optimizations__setups:
+            del self._parent._Optimizations__setups[old_name]
         return True
 
     @pyaedt_function_handler()

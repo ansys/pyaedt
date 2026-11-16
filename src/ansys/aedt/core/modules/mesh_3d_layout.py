@@ -221,6 +221,8 @@ class Mesh3dLayoutOperation(PyAedtBase):
 
         """
         cast("_OMesh3DLayoutModule", self._app.omeshmodule).AddMeshOperation(self.setup, self._get_args())
+        if hasattr(self._mesh, "_Mesh3dLayout__operations"):
+            self._mesh._Mesh3dLayout__operations[self._name] = self
         return self
 
     @pyaedt_function_handler()
@@ -280,10 +282,13 @@ class Mesh3dLayoutOperation(PyAedtBase):
         >>> operation.delete()
 
         """
+        old_name = self.name
         cast("_OMesh3DLayoutModule", self._app.omeshmodule).DeleteMeshOperation(
             self.setup,
             self.name,
         )
+        if hasattr(self._mesh, "_Mesh3dLayout__operations") and old_name in self._mesh._Mesh3dLayout__operations:
+            del self._mesh._Mesh3dLayout__operations[old_name]
         return True
 
     @pyaedt_function_handler()

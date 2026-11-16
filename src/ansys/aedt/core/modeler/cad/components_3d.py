@@ -29,6 +29,7 @@ import os
 import re
 import secrets
 from typing import TYPE_CHECKING
+from typing import Any
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.edb import Edb
@@ -163,6 +164,14 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         # TODO: GetObjData is not available yet
         self._has_getobject = False
 
+    def __getitem__(self, key: str) -> Any:
+        """Return a setup property by key."""
+        return self.props[key]
+
+    def __setitem__(self, key: str, value: Any) -> None:
+        """Set a setup property by key."""
+        self.props[key] = value
+
     @pyaedt_function_handler()
     def _initialize_tree_node(self) -> bool:
         if self._child_object:
@@ -193,6 +202,29 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         return self.__child_object
 
     @property
+    def props(self) -> ComponentProps:
+        """Properties of the native component.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.generic.props.Props`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss(solution_type="SBR+")
+        >>> ffd_file = "path/to/ffdfile.ffd"
+        >>> par_beam = hfss.create_sbr_file_based_antenna(ffd_file)
+        >>> par_beam.props
+
+        """
+        return ComponentProps(self, self._legacy_props)
+
+    @props.setter
+    def props(self, value: dict) -> None:
+        self.update(value)
+
+    @property
     def name(self) -> str:
         """Name of the component.
 
@@ -215,25 +247,32 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
             if "Name" in child_object_methods:
                 self._name = child_object.Name
             elif "GetObjName" in child_object_methods:
-                self._name = self.child_object.GetObjName()
+                self._name = child_object.GetObjName()
         return self._name
 
     @name.setter
     def name(self, component_name: str) -> None:
         not_valid_names = self._app.modeler.component_names
         if component_name not in not_valid_names:
+            old_name = self.name
             self._app.change_property(
                 aedt_object=self._app.oeditor,
                 tab_name="General",
-                property_object=self.name,
+                property_object=old_name,
                 property_name="Name",
                 property_value=component_name,
             )
+
             self.__child_object = None
             object.__setattr__(self, "_name", component_name)
             object.__setattr__(self, "_tree_node_initialized", False)
             object.__setattr__(self, "_props", None)
             object.__setattr__(self, "_children_loaded", False)
+
+            # Add the component to the modeler components dictionary
+            self._app.modeler._GeometryModeler__components[component_name] = self
+            if old_name in self._app.modeler._GeometryModeler__components:
+                del self._app.modeler._GeometryModeler__components[old_name]
         else:  # pragma: no cover
             self._app.logger.warning(f"Name {component_name} already assigned in the design.")
 
@@ -475,7 +514,7 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         return self._app.get_oo_property_value(self._app.oeditor, self.definition_name, "3D Component File Path")
 
     @pyaedt_function_handler()
-    def delete(self) -> None:
+    def delete(self) -> bool:
         """Delete the object.
 
         References
@@ -490,10 +529,13 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         >>> comp.delete()
 
         """
-        arg = ["NAME:Selections", "Selections:=", self._m_name]
+        old_name = self.name
+        arg = ["NAME:Selections", "Selections:=", old_name]
         self._app.oeditor.Delete(arg)
-        self._primitives.cleanup_objects()
-        self.__dict__ = {}
+        self._app.modeler.cleanup_objects()
+        if old_name in self._app.modeler._GeometryModeler__components:
+            del self._app.modeler._GeometryModeler__components[old_name]
+        return True
 
     @pyaedt_function_handler()
     def duplicate_and_mirror(self, origin: list | object, vector: list | object) -> list:
@@ -525,7 +567,7 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         >>> comp.duplicate_and_mirror(origin=[0, 0, 0], vector=[1, 0, 0])
 
         """
-        return self._primitives.duplicate_and_mirror(self.name, origin=origin, vector=vector, is_3d_comp=True)
+        return self._app.modeler.duplicate_and_mirror(self.name, origin=origin, vector=vector, is_3d_comp=True)
 
     @pyaedt_function_handler()
     def mirror(self, origin: list | object, vector: list | object) -> UserDefinedComponent | bool:
@@ -558,11 +600,11 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
         """
         if self.is_3d_component:
-            if self._primitives.mirror(self.name, origin=origin, vector=vector):
+            if self._app.modeler.mirror(self.name, origin=origin, vector=vector):
                 return self
         else:
             for part in self.parts:
-                self._primitives.mirror(part, origin=origin, vector=vector)
+                self._app.modeler.mirror(part, origin=origin, vector=vector)
             return self
         return False
 
@@ -601,11 +643,11 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
         """
         if self.is_3d_component:
-            if self._primitives.rotate(self.name, axis=axis, angle=angle, units=units):
+            if self._app.modeler.rotate(self.name, axis=axis, angle=angle, units=units):
                 return self
         else:
             for part in self.parts:
-                self._primitives.rotate(part, axis=axis, angle=angle, units=units)
+                self._app.modeler.rotate(part, axis=axis, angle=angle, units=units)
             return self
         return False
 
@@ -637,12 +679,12 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         >>> component.move(vector=[1, 0, 0])
 
         """
-        if self.is_3d_component:
-            if self._primitives.move(self.name, vector):
+        if self.definition_name:
+            if self._app.modeler.move(self.name, vector):
                 return self
         else:
             for part in self.parts:
-                self._primitives.move(part, vector)
+                self._app.modeler.move(part, vector)
             return self
 
         return False
@@ -684,7 +726,7 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
         """
         if self.is_3d_component:
-            ret, added_objects = self._primitives.duplicate_around_axis(
+            ret, added_objects = self._app.modeler.duplicate_around_axis(
                 self.name, axis, angle, clones, create_new_objects=create_new_objects, is_3d_comp=True
             )
             return added_objects
@@ -724,8 +766,8 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
         """
         if self.is_3d_component:
-            old_component_list = self._primitives.component_names
-            _, added_objects = self._primitives.duplicate_along_line(
+            old_component_list = self._app.modeler.component_names
+            _, added_objects = self._app.modeler.duplicate_along_line(
                 self.name, vector, clones, attach=attach, is_3d_comp=True
             )
             return list(set(added_objects) - set(old_component_list))
@@ -767,7 +809,7 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         self.update_props["Version"] = self._props["BasicComponentInfo"]["Version"]
         self.update_props["Notes"] = self._props["BasicComponentInfo"]["Notes"]
         self.update_props["IconType"] = self._props["BasicComponentInfo"]["IconType"]
-        self._primitives.oeditor.EditNativeComponentDefinition(self._get_args(self.update_props))
+        self._app.modeler.oeditor.EditNativeComponentDefinition(self._get_args(self.update_props))
 
         return True
 
@@ -863,7 +905,7 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
         project_list = [i for i in self._app.desktop_class.project_list]
 
-        self._primitives.oeditor.Edit3DComponentDefinition(
+        self._app.modeler.oeditor.Edit3DComponentDefinition(
             [
                 "NAME:EditDefinitionData",
                 ["NAME:DefinitionAndPassword", "Definition:=", self.definition_name, "Password:=", password],
@@ -876,7 +918,7 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
             from ansys.aedt.core.generic.design_types import get_pyaedt_app
 
             project = self._app.desktop_class.active_project(new_project[0])
-            # project = self._primitives._app.odesktop.GetActiveProject()
+            # project = self._app.modeler._app.odesktop.GetActiveProject()
             project_name = project.GetName()
             project.GetDesigns()[0].GetName()
             design_name = project.GetDesigns()[0].GetName()
@@ -940,7 +982,7 @@ class LayoutComponent(PyAedtBase):
     """
 
     def __init__(self, component) -> None:
-        self._primitives = component._primitives
+        self._app.modeler = component._primitives
         self._name = component.name
         self._component = component
         self._edb_definition = None
@@ -1004,8 +1046,8 @@ class LayoutComponent(PyAedtBase):
             app = Edb(
                 edbpath=aedb_component_path,
                 isreadonly=True,
-                version=self._primitives._app._aedt_version,
-                student_version=self._primitives._app.student_version,
+                version=self._app.modeler._app._aedt_version,
+                student_version=self._app.modeler._app.student_version,
             )
 
             _edb_sessions.append(app)
@@ -1031,15 +1073,15 @@ class LayoutComponent(PyAedtBase):
 
         """
         key = "EDB Definition"
-        if key in self._primitives._app.get_oo_properties(self._primitives.oeditor, self._component.definition_name):
-            edb_definition = self._primitives._app.get_oo_property_value(
-                self._primitives.oeditor, self._component.definition_name, key
+        if key in self._app.modeler._app.get_oo_properties(self._app.modeler.oeditor, self._component.definition_name):
+            edb_definition = self._app.modeler._app.get_oo_property_value(
+                self._app.modeler.oeditor, self._component.definition_name, key
             )
             self._edb_definition = edb_definition
             aedb_folder = os.path.abspath(
                 os.path.join(
-                    self._primitives._app.project_path,
-                    self._primitives._app.project_name + ".aedb",
+                    self._app.modeler._app.project_path,
+                    self._app.modeler._app.project_name + ".aedb",
                     "LayoutComponents",
                     edb_definition,
                 )
@@ -1071,8 +1113,8 @@ class LayoutComponent(PyAedtBase):
 
         """
         key = "Show Layout"
-        if key in self._primitives._app.get_oo_properties(self._primitives.oeditor, self._name):
-            show_layout = self._primitives._app.get_oo_property_value(self._primitives.oeditor, self._name, key)
+        if key in self._app.modeler._app.get_oo_properties(self._app.modeler.oeditor, self._name):
+            show_layout = self._app.modeler._app.get_oo_property_value(self._app.modeler.oeditor, self._name, key)
             self._show_layout = show_layout
             return show_layout
         else:  # pragma: no cover
@@ -1081,10 +1123,10 @@ class LayoutComponent(PyAedtBase):
     @show_layout.setter
     def show_layout(self, show_layout: bool) -> None:
         key = "Show Layout"
-        if isinstance(show_layout, bool) and key in self._primitives._app.get_oo_properties(
-            self._primitives.oeditor, self._name
+        if isinstance(show_layout, bool) and key in self._app.modeler._app.get_oo_properties(
+            self._app.modeler.oeditor, self._name
         ):
-            self._primitives._app.set_oo_property_value(self._primitives.oeditor, self._name, key, show_layout)
+            self._app.modeler._app.set_oo_property_value(self._app.modeler.oeditor, self._name, key, show_layout)
             self._show_layout = show_layout
 
     @property
@@ -1104,8 +1146,10 @@ class LayoutComponent(PyAedtBase):
 
         """
         key = "Fast Transformation"
-        if key in self._primitives._app.get_oo_properties(self._primitives.oeditor, self._name):
-            fast_transformation = self._primitives._app.get_oo_property_value(self._primitives.oeditor, self._name, key)
+        if key in self._app.modeler._app.get_oo_properties(self._app.modeler.oeditor, self._name):
+            fast_transformation = self._app.modeler._app.get_oo_property_value(
+                self._app.modeler.oeditor, self._name, key
+            )
             self._fast_transformation = fast_transformation
             return fast_transformation
         else:  # pragma: no cover
@@ -1114,10 +1158,12 @@ class LayoutComponent(PyAedtBase):
     @fast_transformation.setter
     def fast_transformation(self, fast_transformation: bool) -> None:
         key = "Fast Transformation"
-        if isinstance(fast_transformation, bool) and key in self._primitives._app.get_oo_properties(
-            self._primitives.oeditor, self._name
+        if isinstance(fast_transformation, bool) and key in self._app.modeler._app.get_oo_properties(
+            self._app.modeler.oeditor, self._name
         ):
-            self._primitives._app.set_oo_property_value(self._primitives.oeditor, self._name, key, fast_transformation)
+            self._app.modeler._app.set_oo_property_value(
+                self._app.modeler.oeditor, self._name, key, fast_transformation
+            )
             self._fast_transformation = fast_transformation
 
     @property
@@ -1138,8 +1184,8 @@ class LayoutComponent(PyAedtBase):
         """
         key = "Object Attributes/ShowDielectric"
 
-        if key in self._primitives._app.get_oo_properties(self._primitives.oeditor, self._name):
-            show_dielectric = self._primitives._app.get_oo_property_value(self._primitives.oeditor, self._name, key)
+        if key in self._app.modeler._app.get_oo_properties(self._app.modeler.oeditor, self._name):
+            show_dielectric = self._app.modeler._app.get_oo_property_value(self._app.modeler.oeditor, self._name, key)
             self._show_dielectric = show_dielectric
             return show_dielectric
         else:  # pragma: no cover
@@ -1148,10 +1194,10 @@ class LayoutComponent(PyAedtBase):
     @show_dielectric.setter
     def show_dielectric(self, show_dielectric: bool) -> None:
         key = "Object Attributes/ShowDielectric"
-        if isinstance(show_dielectric, bool) and key in self._primitives._app.get_oo_properties(
-            self._primitives.oeditor, self._name
+        if isinstance(show_dielectric, bool) and key in self._app.modeler._app.get_oo_properties(
+            self._app.modeler.oeditor, self._name
         ):
-            self._primitives._app.set_oo_property_value(self._primitives.oeditor, self._name, key, show_dielectric)
+            self._app.modeler._app.set_oo_property_value(self._app.modeler.oeditor, self._name, key, show_dielectric)
             self._show_dielectric = show_dielectric
 
     @property
@@ -1175,8 +1221,8 @@ class LayoutComponent(PyAedtBase):
         """
         key = "Object Attributes/DisplayMode"
 
-        if key in self._primitives._app.get_oo_properties(self._primitives.oeditor, self._name):
-            display_mode = self._primitives._app.get_oo_property_value(self._primitives.oeditor, self._name, key)
+        if key in self._app.modeler._app.get_oo_properties(self._app.modeler.oeditor, self._name):
+            display_mode = self._app.modeler._app.get_oo_property_value(self._app.modeler.oeditor, self._name, key)
             self._display_mode = display_mode
             return display_mode
         else:  # pragma: no cover
@@ -1185,10 +1231,10 @@ class LayoutComponent(PyAedtBase):
     @display_mode.setter
     def display_mode(self, display_mode: int) -> None:
         key = "Object Attributes/DisplayMode"
-        if isinstance(display_mode, int) and key in self._primitives._app.get_oo_properties(
-            self._primitives.oeditor, self._name
+        if isinstance(display_mode, int) and key in self._app.modeler._app.get_oo_properties(
+            self._app.modeler.oeditor, self._name
         ):
-            self._primitives._app.set_oo_property_value(self._primitives.oeditor, self._name, key, display_mode)
+            self._app.modeler._app.set_oo_property_value(self._app.modeler.oeditor, self._name, key, display_mode)
             self._display_mode = display_mode
 
     @pyaedt_function_handler()
@@ -1275,7 +1321,7 @@ class LayoutComponent(PyAedtBase):
         vPropServers = ["NAME:PropServers", self._name]
         vGeo3d = ["NAME:Visualization", vPropServers, vChangedProps]
         vOut = ["NAME:AllTabs", vGeo3d]
-        self._primitives.oeditor.ChangeProperty(vOut)
+        self._app.modeler.oeditor.ChangeProperty(vOut)
 
         return True
 
@@ -1305,29 +1351,6 @@ class NativeComponent(UserDefinedComponent):
         super().__init__(app=app, name=name, props=props)
         self.__child_object = None
 
-    @property
-    def props(self) -> ComponentProps:
-        """Properties of the native component.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.generic.props.Props`
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss(solution_type="SBR+")
-        >>> ffd_file = "path/to/ffdfile.ffd"
-        >>> par_beam = hfss.create_sbr_file_based_antenna(ffd_file)
-        >>> par_beam.props
-
-        """
-        return ComponentProps(self, self._legacy_props)
-
-    @props.setter
-    def props(self, value: dict) -> None:
-        self.update(value)
-
     @pyaedt_function_handler()
     def create(self) -> bool:
         """Create a Native Component in AEDT.
@@ -1355,11 +1378,13 @@ class NativeComponent(UserDefinedComponent):
         # This is needed because TargetCS is needed to create the component, but later for the update, it is not valid
         if "TargetCS" in self._legacy_props:
             del self._legacy_props["TargetCS"]
+
+        # Add the component to the modeler components dictionary
         self._app.modeler._GeometryModeler__components[name] = self
         return self
 
     @pyaedt_function_handler()
-    def update(self) -> bool:
+    def update(self, props: dict | None = None) -> bool:
         """Update the native component in AEDT.
 
         Returns
@@ -1376,22 +1401,23 @@ class NativeComponent(UserDefinedComponent):
         >>> par_beam.update()
 
         """
+        if props is None:
+            props = self.props.to_dict()
+
         template_variable = {"VariableOrders": {}}
         template_native_type = {"Type": self.definition_type}
-        basic_component_info = self._legacy_props.get("BasicComponentInfo", {})
+        basic_component_info = props.get("BasicComponentInfo", {})
 
         update_props = {
-            "DefinitionName": self._legacy_props.get("SubmodelDefinitionName", self.definition_name),
-            "GeometryDefinitionParameters": self._legacy_props.get("GeometryDefinitionParameters", template_variable),
-            "DesignDefinitionParameters": self._legacy_props.get("DesignDefinitionParameters", template_variable),
-            "MaterialDefinitionParameters": self._legacy_props.get("MaterialDefinitionParameters", template_variable),
-            "NextUniqueID": self._legacy_props.get("NextUniqueID", 0),
-            "MoveBackwards": self._legacy_props.get("MoveBackwards", False),
-            "DatasetType": self._legacy_props.get("DatasetType", "ComponentDatasetType"),
-            "DatasetDefinitions": self._legacy_props.get("DatasetDefinitions", {}),
-            "NativeComponentDefinitionProvider": self._legacy_props.get(
-                "NativeComponentDefinitionProvider", template_native_type
-            ),
+            "DefinitionName": props.get("SubmodelDefinitionName", self.definition_name),
+            "GeometryDefinitionParameters": props.get("GeometryDefinitionParameters", template_variable),
+            "DesignDefinitionParameters": props.get("DesignDefinitionParameters", template_variable),
+            "MaterialDefinitionParameters": props.get("MaterialDefinitionParameters", template_variable),
+            "NextUniqueID": props.get("NextUniqueID", 0),
+            "MoveBackwards": props.get("MoveBackwards", False),
+            "DatasetType": props.get("DatasetType", "ComponentDatasetType"),
+            "DatasetDefinitions": props.get("DatasetDefinitions", {}),
+            "NativeComponentDefinitionProvider": props.get("NativeComponentDefinitionProvider", template_native_type),
             "ComponentName": basic_component_info.get("ComponentName", self.definition_name),
             "Company": basic_component_info.get("Company", ""),
             "Model Number": basic_component_info.get("Model Number", ""),
