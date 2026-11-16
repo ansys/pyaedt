@@ -25,6 +25,7 @@
 import copy
 from pathlib import Path
 from typing import TYPE_CHECKING
+from typing import cast
 
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
@@ -40,6 +41,7 @@ from ansys.aedt.core.modules.solve_setup import Setup3DLayout
 from ansys.aedt.core.modules.solve_setup import SetupHFSSAuto
 
 if TYPE_CHECKING:
+    from ansys.aedt.core.generic.protocols import _OMesh3DLayoutModule
     from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
     from ansys.aedt.core.visualization.post.post_3dlayout import PostProcessor3DLayout
     from ansys.aedt.core.visualization.post.post_circuit import PostProcessorCircuit
@@ -202,6 +204,11 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
 
             self._post = post_processor(self)
         return self._post
+
+    @property
+    def omeshmodule(self) -> _OMesh3DLayoutModule:
+        """3D Layout mesh module."""
+        return cast("_OMesh3DLayoutModule", super().omeshmodule)
 
     @property
     def mesh(self) -> Mesh3dLayout | None:

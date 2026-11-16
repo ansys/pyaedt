@@ -44,7 +44,6 @@ from ansys.aedt.core.modules.mesh import MeshProps
 if TYPE_CHECKING:
     from ansys.aedt.core.application.analysis_3d_layout import FieldAnalysis3DLayout
     from ansys.aedt.core.generic.protocols import _OAnalysis3DLayout
-    from ansys.aedt.core.generic.protocols import _OMesh3DLayoutModule
 
 
 class Mesh3dLayoutOperation(PyAedtBase):
@@ -220,7 +219,7 @@ class Mesh3dLayoutOperation(PyAedtBase):
         >>> op1 = app.mesh.assign_length_mesh(setup=setup.name, layer="Top", net="GND")
 
         """
-        cast("_OMesh3DLayoutModule", self._app.omeshmodule).AddMeshOperation(self.setup, self._get_args())
+        self._app.omeshmodule.AddMeshOperation(self.setup, self._get_args())
         if hasattr(self._mesh, "_Mesh3dLayout__operations"):
             self._mesh._Mesh3dLayout__operations[self._name] = self
         return self
@@ -254,7 +253,7 @@ class Mesh3dLayoutOperation(PyAedtBase):
 
         args = self._get_args(props)
         try:
-            cast("_OMesh3DLayoutModule", self._app.omeshmodule).EditMeshOperation(self.setup, self.name, args)
+            self._app.omeshmodule.EditMeshOperation(self.setup, self.name, args)
             self._legacy_props = props
         except Exception:  # pragma: no cover
             self._app.logger.error("Mesh operation could not be updated.")
@@ -283,7 +282,7 @@ class Mesh3dLayoutOperation(PyAedtBase):
 
         """
         old_name = self.name
-        cast("_OMesh3DLayoutModule", self._app.omeshmodule).DeleteMeshOperation(
+        self._app.omeshmodule.DeleteMeshOperation(
             self.setup,
             self.name,
         )
