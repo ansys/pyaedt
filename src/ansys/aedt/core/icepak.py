@@ -754,16 +754,16 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         self,
         top_face: FacePrimitive,
         relative: bool | None = True,
-        hs_basethick: float | None = 0.1,
-        fin_thick: float | None = 0.05,
-        fin_length: float | None = 0.25,
-        fin_height: float | None = 0.5,
+        hs_basethick: float | int | None = 0.1,
+        fin_thick: float | int | None = 0.05,
+        fin_length: float | int | None = 0.25,
+        fin_height: float | int | None = 0.5,
         draft_angle: int | None = 0,
         pattern_angle: int | None = 10,
-        separation: float | None = 0.05,
-        column_separation: float | None = 0.05,
+        separation: float | int | None = 0.05,
+        column_separation: float | int | None = 0.05,
         symmetric: bool | None = True,
-        symmetric_separation: float | None = 0.05,
+        symmetric_separation: float | int | None = 0.05,
         numcolumn_perside: int | None = 2,
         material: str | None = "Al-Extruded",
     ) -> Object3d | dict:
@@ -777,32 +777,32 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             Whether the dimensions used as arguments of the function are
             absolute or relative to the width and the height of the
             top face.
-        hs_basethick : float, optional
+        hs_basethick : float, int, optional
             Thickness of the heat sink base. If ``relative==True``, it is the
             fraction of the ``top_face`` width. The default is ``0.1``.
-        fin_thick : float, optional
+        fin_thick : float, int, optional
             Thickness of the fin. If ``relative==True``, it is the fraction of
              the ``top_face`` height. The default is ``0.50``.
-        fin_length : float, optional
+        fin_length : float, int, optional
             Length of the fin. If ``relative==True``, it is the fraction of
             the ``top_face`` width. The default is ``0.25``.
-        fin_height : float, optional
+        fin_height : float, int, optional
             Height of the fin. If ``relative==True``, it is the fraction of
             the ``top_face`` height. The default is ``1``.
-        draft_angle : float, optional
+        draft_angle : float, int, optional
             Draft angle in degrees. The default is ``0``.
-        pattern_angle : float, optional
+        pattern_angle : float, int, optional
             Pattern angle in degrees. The default is ``10``.
-        separation : float, optional
+        separation : float, int, optional
             Separation among the fins of one column. If ``relative==True``,
             it is the fraction of the ``top_face`` width. The default is
             ``0.05``.
-        column_separation : float, optional
+        column_separation : float, int, optional
             Separation among columns of fins. If ``relative==True``, it is the
             fraction of the ``top_face`` height. The default is ``0.1``.
         symmetric : bool, optional
             Whether the heat sink is symmetric. The default is ``True``.
-        symmetric_separation : float, optional
+        symmetric_separation : float, int, optional
             Separation between the two sides. If ``relative==True``, it is the
             fraction of the ``top_face`` height. The default is ``0.01``.
         numcolumn_perside : int, optional
@@ -2126,7 +2126,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         custom_y_resolution: int | None = None,
         power_in: float | None = 0,
         rad: str | None = "Nothing",
-        **kwargs,  # fmt: skip
     ) -> bool:
         """Create a PCB component in Icepak that is linked to an HFSS 3DLayout object linking only to the geometry file.
 

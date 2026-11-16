@@ -7641,7 +7641,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         if not volume_padding and assignment:
             for comp in assignment:
-                if comp in self.modeler.user_defined_component_names:
+                if comp in self.modeler.component_names:
                     mesh_assembly_arg = ["NAME:" + comp]
                     mesh_assembly_arg.append("MeshAssemblyBoundingVolumePadding:=")
                     mesh_assembly_arg.append(["0", "0", "0", "0", "0", "0"])
@@ -7653,7 +7653,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             count = 0
             for comp in assignment:
                 padding = [str(pad) for pad in volume_padding[count]]
-                if comp in self.modeler.user_defined_component_names:
+                if comp in self.modeler.component_names:
                     mesh_assembly_arg = ["NAME:" + comp]
                     mesh_assembly_arg.append("MeshAssemblyBoundingVolumePadding:=")
                     mesh_assembly_arg.append(padding)
@@ -7669,7 +7669,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         if assignment and priority:
             for p in priority:
-                if p in self.modeler.user_defined_component_names:
+                if p in self.modeler.component_names:
                     arg3.append(p)
                 else:
                     self.logger.warning(f"{str(p)} does not exist")

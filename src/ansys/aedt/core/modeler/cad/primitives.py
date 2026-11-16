@@ -3736,7 +3736,6 @@ class GeometryModeler(Modeler, PyAedtBase):
         return self.mirror(
             assignment, origin, vector, duplicate=True, is_3d_comp=is_3d_comp, duplicate_assignment=duplicate_assignment
         )
-        # selections = self.convert_to_selections(objid)
 
     @pyaedt_function_handler()
     def mirror(
@@ -3747,7 +3746,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         duplicate: bool = False,
         is_3d_comp: bool = False,
         duplicate_assignment: bool = True,
-    ) -> list:
+    ) -> list | bool:
         """Mirror a selection.
 
         Parameters
@@ -3885,8 +3884,8 @@ class GeometryModeler(Modeler, PyAedtBase):
     @pyaedt_function_handler()
     def duplicate_around_axis(
         self,
-        assignment: "str | int | list | Object3d",
-        axis: "str | Axis",
+        assignment: str | int | list | Object3d | UserDefinedComponent,
+        axis: str | Axis,
         angle: int = 90,
         clones: int = 2,
         create_new_objects: bool = True,
@@ -3924,8 +3923,10 @@ class GeometryModeler(Modeler, PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.generic.constants import Axis
         >>> app = Hfss()
-        >>> app.modeler.duplicate_around_axis(assignment="Box1", axis="Z")
+        >>> box = app.modeler.create_box([0, 0, 0], [1, 1, 1])
+        >>> app.modeler.duplicate_around_axis(assignment=box.name, axis=Axis.Z)
 
         """
         selections = self.convert_to_selections(assignment)
@@ -3945,24 +3946,25 @@ class GeometryModeler(Modeler, PyAedtBase):
             str(clones),
         ]
         vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
+
+        if is_3d_comp:
+            orig_3d = [i for i in self.component_names]
+
         self.add_new_objects()
         added_objs = self.oeditor.DuplicateAroundAxis(vArg1, vArg2, vArg3)
         self._duplicate_added_objects_tuple()
         if is_3d_comp:
-            return self._duplicate_added_components_tuple()
+            added_3d_comps = [i for i in self.component_names if i not in orig_3d]
+            if added_3d_comps:
+                return True, added_3d_comps
+            else:  # pragma: no cover
+                return False, []
         return True, list(added_objs)
 
     def _duplicate_added_objects_tuple(self):
         added_objects = self.add_new_objects()
         if added_objects:
             return True, added_objects
-        else:
-            return False, []
-
-    def _duplicate_added_components_tuple(self):
-        added_component = self.add_new_user_defined_component()
-        if added_component:
-            return True, added_component
         else:
             return False, []
 
@@ -4027,10 +4029,20 @@ class GeometryModeler(Modeler, PyAedtBase):
             str(clones),
         ]
         arg_3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
+
+        if is_3d_comp:
+            orig_3d = [i for i in self.component_names]
+
         self.add_new_objects()
         self.oeditor.DuplicateAlongLine(arg_1, arg_2, arg_3)
-        if is_3d_comp:
-            return self._duplicate_added_components_tuple()
+
+        if is_3d_comp and not attach:
+            added_3d_comps = [i for i in self.component_names if i not in orig_3d]
+            if added_3d_comps:
+                return True, added_3d_comps
+            else:  # pragma: no cover
+                return False, []
+
         if attach:
             return True, []
         return self._duplicate_added_objects_tuple()

@@ -924,7 +924,7 @@ def test_delete_monitors(board_ipk_app) -> None:
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
 @pytest.mark.skipif(not USE_GRPC, reason="Not running in COM mode.")
-def test_advanced3dcomp_import(board_ipk_app, test_tmp_dir) -> None:
+def test_advanced_3dcomp_import(board_ipk_app, test_tmp_dir) -> None:
     cs2 = board_ipk_app.modeler.create_coordinate_system(name="CS2")
     cs2.props["OriginX"] = 20
     cs2.props["OriginY"] = 20
@@ -940,32 +940,34 @@ def test_advanced3dcomp_import(board_ipk_app, test_tmp_dir) -> None:
         test_tmp_dir / "Advanced3DComp.a3dcomp.json",
     )
 
-    board_ipk_app.modeler.insert_3d_component(
+    comp, _, _ = board_ipk_app.modeler.insert_3d_component(
         input_file=str(file),
         coordinate_system=cs2.name,
         auxiliary_parameters=True,
     )
-    assert all(i in board_ipk_app.native_components.keys() for i in ["Fan1", "Fan2"])
+    name = comp.name
+    assert all(i in board_ipk_app.modeler.components.keys() for i in ["Fan1", "Fan2"])
     assert all(
         i in board_ipk_app.monitor.all_monitors
-        for i in ["board_assembly1_FaceMonitor", "board_assembly1_BoxMonitor", "board_assembly1_SurfaceMonitor"]
+        for i in [f"{name}_FaceMonitor", f"{name}_BoxMonitor", f"{name}_SurfaceMonitor"]
     )
     assert "test_dataset" in board_ipk_app.design_datasets
     assert "board_assembly1_CS1" in [i.name for i in board_ipk_app.modeler.coordinate_systems]
-    dup = board_ipk_app.modeler.user_defined_components["board_assembly1"].duplicate_and_mirror([0, 0, 0], [1, 2, 0])
+
+    dup = comp.duplicate_and_mirror([0, 0, 0], [1, 2, 0])
+    board_ipk_app.modeler.components[dup[0]].delete()
+
+    dup = board_ipk_app.modeler.components["board_assembly1"].duplicate_along_line([1, 2, 0], clones=2)
     board_ipk_app.modeler.refresh_all_ids()
-    board_ipk_app.modeler.user_defined_components[dup[0]].delete()
-    dup = board_ipk_app.modeler.user_defined_components["board_assembly1"].duplicate_along_line([1, 2, 0], clones=2)
-    board_ipk_app.modeler.refresh_all_ids()
-    board_ipk_app.modeler.user_defined_components[dup[0]].delete()
-    board_ipk_app.delete_design()
-    board_ipk_app.insert_design("test_51_2")
-    board_ipk_app.modeler.insert_3d_component(
+    board_ipk_app.modeler.components[dup[0]].delete()
+
+    comp = board_ipk_app.modeler.insert_3d_component(
         input_file=str(file),
         coordinate_system="Global",
         name="test",
         auxiliary_parameters=False,
     )
+    assert comp.name in board_ipk_app.modeler.component_names
 
 
 def test_create_conduting_plate(ipk_app) -> None:

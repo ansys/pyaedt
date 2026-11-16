@@ -49,7 +49,6 @@ from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 from ansys.aedt.core.modeler.cad.components_3d import NativeComponent
 from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
-from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
@@ -2308,15 +2307,14 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
             self._app.modeler.set_working_coordinate_system(cache_cs)
             return True
 
-        for _, instance_dict in native_dict["Instances"].items():
+        for instance_name, instance_dict in native_dict["Instances"].items():
             if instance_dict["CS"]:
                 nc_dict = copy.deepcopy(native_dict["Properties"])
                 nc_dict["TargetCS"] = instance_dict["CS"]
-                component3d_names = list(self._app.modeler.oeditor.Get3DComponentInstanceNames(native_name))
                 if native_dict["Type"] == "PCB":
-                    native = NativeComponentPCB(self._app, native_dict["Type"], native_name)
+                    native = NativeComponentPCB(app=self._app, name=instance_name, props=nc_dict)
                 else:
-                    native = NativeComponent(self._app, native_dict["Type"], native_name)
+                    native = NativeComponent(app=self._app, name=instance_name, props=nc_dict)
                 prj_list = set(self._app.desktop_class.project_list)
                 definition_names = set(self._app.oeditor.Get3DComponentDefinitionNames())
                 instance_names = {
@@ -2342,8 +2340,9 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                         - instance_names[definition_names]
                     )[0]
                 # TODO: See https://github.com/ansys/pyaedt/issues/7919
-                native.component_name = definition_names
+                native.definition_name = definition_names
                 native.name = instance_names
+
                 if nc_dict["NativeComponentDefinitionProvider"]["Type"] == "PCB" and nc_dict[
                     "NativeComponentDefinitionProvider"
                 ]["DefnLink"]["Project"] not in [self._app.project_file or "This Project*"]:
@@ -2355,26 +2354,12 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                     if app is None:
                         raise ValueError(f"Could not get the PyAEDT application for design {design} in project {prj}.")
                     app.oproject.Close()
-                user_defined_component = UserDefinedComponent(
-                    self._app.modeler, instance_names, nc_dict["NativeComponentDefinitionProvider"]
-                )
-                self._app.modeler.user_defined_components[instance_names] = user_defined_component
-                new_name = [
-                    i
-                    for i in list(
-                        self._app.modeler.oeditor.Get3DComponentInstanceNames(user_defined_component.definition_name)
-                    )
-                    if i not in component3d_names
-                ][0]
-                self._app.modeler.refresh_all_ids()
-                self._app.materials._load_from_project()
+
                 # TODO: See https://github.com/ansys/pyaedt/issues/7919
-                if native.component_name not in self._app.native_components:  # ty: ignore[unresolved-attribute]
-                    self._app._native_components.append(native)
                 if instance_dict.get("Operations", None):
                     for _, operation_dict in instance_dict["Operations"].items():
                         apply_operations_to_native_components(
-                            self._app.modeler.user_defined_components[new_name],
+                            self._app.modeler.components[instance_name],
                             operation_dict,
                             native_dict["Instances"],
                         )

@@ -66,14 +66,14 @@ class UserDefinedComponentParameters(dict):
     def __init__(self, component: UserDefinedComponent, *args, **kw) -> None:
         dict.__init__(self, *args, **kw)
         self._app = component._app
-        self.component: UserDefinedComponent = component
+        self._component: UserDefinedComponent = component
 
     def __setitem__(self, key, value):
         try:
             self._app.change_property(
                 aedt_object=self._app.oeditor,
                 tab_name="Parameters",
-                property_object=self.component.name,
+                property_object=self._component.name,
                 property_name=key,
                 property_value=str(value),
             )
@@ -200,29 +200,6 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
             if self._name in cc_names:
                 self.__child_object = self._app.get_oo_object(self._app.oeditor, self._name)
         return self.__child_object
-
-    @property
-    def props(self) -> ComponentProps:
-        """Properties of the native component.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.generic.props.Props`
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss(solution_type="SBR+")
-        >>> ffd_file = "path/to/ffdfile.ffd"
-        >>> par_beam = hfss.create_sbr_file_based_antenna(ffd_file)
-        >>> par_beam.props
-
-        """
-        return ComponentProps(self, self._legacy_props)
-
-    @props.setter
-    def props(self, value: dict) -> None:
-        self.update(value)
 
     @property
     def name(self) -> str:
@@ -493,8 +470,8 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         z_center = (z_min + z_max) / 2
         return [x_center, y_center, z_center]
 
-    @pyaedt_function_handler()
-    def component_filepath(self) -> str:
+    @property
+    def component_filepath(self) -> str | None:
         """Get 3d component file path.
 
         Returns
@@ -511,7 +488,37 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         >>> component.component_filepath
 
         """
-        return self._app.get_oo_property_value(self._app.oeditor, self.definition_name, "3D Component File Path")
+        if "3D Component File Path" in self._app.get_oo_properties(self._app.oeditor, self.definition_name):
+            return self._app.get_oo_property_value(self._app.oeditor, self.definition_name, "3D Component File Path")
+        return None
+
+    @pyaedt_function_handler()
+    def create(self) -> bool:
+        """Create a 3d component in AEDT.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> file = "path/to/3dcomponent.a3dcomp"
+        >>> hfss.modeler.insert_3d_component(input_file=str(file))
+
+        """
+        name = str(self.name)
+        created_name = self._app.oeditor.Insert3DComponent(self._get_args_create())
+        if created_name != name:
+            # AEDT renames the component automatically
+            self._name = created_name
+            self.name = name
+
+        # Add the component to the modeler components dictionary
+        self._app.modeler._GeometryModeler__components[name] = self
+        return self
 
     @pyaedt_function_handler()
     def delete(self) -> bool:
@@ -599,7 +606,7 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         >>> component.mirror(origin=[0, 0, 0], vector=[1, 0, 0])
 
         """
-        if self.is_3d_component:
+        if self.definition_name:
             if self._app.modeler.mirror(self.name, origin=origin, vector=vector):
                 return self
         else:
@@ -642,7 +649,7 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         >>> component.rotate(axis=Axis.Z)
 
         """
-        if self.is_3d_component:
+        if self.definition_name:
             if self._app.modeler.rotate(self.name, axis=axis, angle=angle, units=units):
                 return self
         else:
@@ -725,8 +732,8 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         >>> component.duplicate_around_axis(axis=Axis.Z)
 
         """
-        if self.is_3d_component:
-            ret, added_objects = self._app.modeler.duplicate_around_axis(
+        if self.definition_name:
+            _, added_objects = self._app.modeler.duplicate_around_axis(
                 self.name, axis, angle, clones, create_new_objects=create_new_objects, is_3d_comp=True
             )
             return added_objects
@@ -734,7 +741,7 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def duplicate_along_line(self, vector: list | object, clones: int = 2, attach: bool = False) -> list | bool:
+    def duplicate_along_line(self, vector: list | object, clones: int = 2) -> list | bool:
         """Duplicate the object along a line.
 
         Parameters
@@ -743,8 +750,6 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
             List of ``[x1 ,y1, z1]`` coordinates for the vector or the Application.Position object.
         clones : int, optional
             Number of clones. The default is ``2``.
-        attach : bool, optional
-            Whether to attach the object. The default is ``False``.
 
         Returns
         -------
@@ -765,59 +770,23 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         >>> component.duplicate_along_line(vector=[1, 0, 0])
 
         """
-        if self.is_3d_component:
+        if self.definition_name:
             old_component_list = self._app.modeler.component_names
             _, added_objects = self._app.modeler.duplicate_along_line(
-                self.name, vector, clones, attach=attach, is_3d_comp=True
+                self.name, vector, clones, attach=False, is_3d_comp=True
             )
             return list(set(added_objects) - set(old_component_list))
         self._app.logger.warning("User-defined models do not support this operation.")
         return False
 
     @pyaedt_function_handler()
-    def update_native(self) -> bool:
-        """Update the native component in AEDT.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> app = Hfss()
-        >>> component_names = app.modeler.component_names
-        >>> component = app.modeler.components[component_names[0]]
-        >>> component.update_native()
-
-        """
-        self.update_props = {}
-        self.update_props["DefinitionName"] = self._props["SubmodelDefinitionName"]
-        self.update_props["GeometryDefinitionParameters"] = self._props["GeometryDefinitionParameters"]
-        self.update_props["DesignDefinitionParameters"] = self._props["DesignDefinitionParameters"]
-        self.update_props["MaterialDefinitionParameters"] = self._props["MaterialDefinitionParameters"]
-        self.update_props["NextUniqueID"] = self._props["NextUniqueID"]
-        self.update_props["MoveBackwards"] = self._props["MoveBackwards"]
-        self.update_props["DatasetType"] = self._props["DatasetType"]
-        self.update_props["DatasetDefinitions"] = self._props["DatasetDefinitions"]
-        self.update_props["NativeComponentDefinitionProvider"] = self._props["NativeComponentDefinitionProvider"]
-        self.update_props["ComponentName"] = self._props["BasicComponentInfo"]["ComponentName"]
-        self.update_props["Company"] = self._props["BasicComponentInfo"]["Company"]
-        self.update_props["Model Number"] = self._props["BasicComponentInfo"]["Model Number"]
-        self.update_props["Help URL"] = self._props["BasicComponentInfo"]["Help URL"]
-        self.update_props["Version"] = self._props["BasicComponentInfo"]["Version"]
-        self.update_props["Notes"] = self._props["BasicComponentInfo"]["Notes"]
-        self.update_props["IconType"] = self._props["BasicComponentInfo"]["IconType"]
-        self._app.modeler.oeditor.EditNativeComponentDefinition(self._get_args(self.update_props))
-
-        return True
-
-    @pyaedt_function_handler()
     def _get_args_create(self, props=None):
         if props is None:
             props = self._legacy_props
-        arg = ["NAME:InsertNativeComponentData"]
+        if isinstance(self, NativeComponent) or isinstance(self, NativeComponentPCB):
+            arg = ["NAME:InsertNativeComponentData"]
+        else:
+            arg = ["NAME:InsertComponentData"]
         _dict2arg(props, arg)
         return arg
 
@@ -915,18 +884,12 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         new_project = [i for i in self._app.desktop_class.project_list if i not in project_list]
 
         if new_project:
-            from ansys.aedt.core.generic.design_types import get_pyaedt_app
-
-            project = self._app.desktop_class.active_project(new_project[0])
-            # project = self._app.modeler._app.odesktop.GetActiveProject()
-            project_name = project.GetName()
-            project.GetDesigns()[0].GetName()
-            design_name = project.GetDesigns()[0].GetName()
-            # if is_linux:
-            #     design_name = project.GetDesigns()[0].GetName()
-            # else:
-            #     design_name = project.GetActiveDesign().GetName()
-            return get_pyaedt_app(project_name, design_name, desktop=self._app.desktop_class)
+            component_project_name = new_project[0]
+            self._app.oproject = component_project_name
+            active_project = self._app.desktop_class.active_project(component_project_name)
+            component_project_name = active_project.GetName()
+            design_name = active_project.GetDesigns()[0].GetName()
+            return self._app.desktop_class[component_project_name, design_name]
         return None
 
     @pyaedt_function_handler()
@@ -1350,6 +1313,29 @@ class NativeComponent(UserDefinedComponent):
     def __init__(self, app: _AppWithOProject, name: str, props: dict) -> None:
         super().__init__(app=app, name=name, props=props)
         self.__child_object = None
+
+    @property
+    def props(self) -> ComponentProps:
+        """Properties of the native component.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.generic.props.Props`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss(solution_type="SBR+")
+        >>> ffd_file = "path/to/ffdfile.ffd"
+        >>> par_beam = hfss.create_sbr_file_based_antenna(ffd_file)
+        >>> par_beam.props
+
+        """
+        return ComponentProps(self, self._legacy_props)
+
+    @props.setter
+    def props(self, value: dict) -> None:
+        self.update(value)
 
     @pyaedt_function_handler()
     def create(self) -> bool:

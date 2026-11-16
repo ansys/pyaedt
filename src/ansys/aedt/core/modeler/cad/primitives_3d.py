@@ -54,12 +54,12 @@ from ansys.aedt.core.modeler.advanced_cad.actors import Person
 from ansys.aedt.core.modeler.advanced_cad.actors import Vehicle
 from ansys.aedt.core.modeler.advanced_cad.multiparts import Environment
 from ansys.aedt.core.modeler.advanced_cad.multiparts import MultiPartComponent
+from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 if TYPE_CHECKING:
     from ansys.aedt.core.generic.constants import Plane
-    from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
     from ansys.aedt.core.modeler.cad.object_3d import Object3d
     from ansys.aedt.core.modeler.cad.polylines import Polyline
 
@@ -1564,7 +1564,11 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             Name of the created coordinate system that mirrors the reference one of the
             3d component.
         """
+        original_project = self._app.project_name
+        original_design = self._app.design_name
+
         app = assignment.edit_definition(password=password)
+
         wcs = app.modeler.get_working_coordinate_system()
         if wcs != "Global":
             temp_folder = (Path(self._app.toolkit_directory)
@@ -1575,7 +1579,12 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             new_proj_name = Path(temp_folder) / (generate_unique_name("project") + ".aedt")
             app.save_project(new_proj_name)
             o, q = app.modeler.invert_cs(wcs, to_global=True)
-            app.oproject.Close()
+            new_project_name = app.project_name
+
+            self._app.oproject = original_project
+            self._app.desktop_class.active_design(project_object=self._app.oproject, name=original_design)
+            app.close_project(save=False, name=new_project_name)
+
             for root, dirs, files in os.walk(temp_folder, topdown=False):
                 for name in files:
                     file_dir = Path(root) / name
@@ -1612,6 +1621,9 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         else:
             results_directory = Path(app.results_directory)
             project_file = Path(app.project_file)
+
+            self._app.oproject = original_project
+            self._app.desktop_class.active_design(project_object=self._app.oproject, name=original_design)
             app.close_project(save=False)
             try:
                 if results_directory.is_dir():
@@ -1753,12 +1765,20 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         >>> obj.insert_3d_component(input_file="example.txt")
 
         """
+        if not name:
+            name = generate_unique_name("Component")
+        elif name in self._app.modeler.component_names:
+            name = generate_unique_name(name)
+
+        file_name = Path(input_file).stem
+
         if isinstance(input_file, Path):
             input_file = str(input_file)
         if password is None:
             password = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
         if not input_file.endswith(".a3dcomp"):
             input_file += ".a3dcomp"
+
         aedt_fh = open_file(input_file, "rb")
         if aedt_fh:
             temp = aedt_fh.read().splitlines()
@@ -1783,26 +1803,31 @@ class Primitives3D(GeometryModeler, PyAedtBase):
 
         if geometry_parameters:
             sz_geo_params = "".join([f"{par}='{val}' " for par, val in geometry_parameters.items()])
-        arg_1 = [
-            "NAME:InsertComponentData",
-            "TargetCS:=", coordinate_system,
-            "ComponentFile:=", input_file,
-            "IsLocal:=", False,
-            "UniqueIdentifier:=", ""
-        ]
-        arg_2 = [
-            "NAME:InstanceParameters",
-            "GeometryParameters:=", sz_geo_params,
-            "MaterialParameters:=", material_parameters,
-            "DesignParameters:=", design_parameters,
-        ]
-        arg_1 += [arg_2, "Password:=", password]
+
+        props = {
+            "TargetCS": coordinate_system,
+            "ComponentFile": input_file,
+            "IsLocal": False,
+            "UniqueIdentifier": "",
+            "InstanceParameters": {
+                "GeometryParameters": sz_geo_params,
+                "MaterialParameters": material_parameters,
+                "DesignParameters": design_parameters,
+            },
+            "Password": password,
+        }
+
         try:
-            new_object_name = self.oeditor.Insert3DComponent(arg_1)
-            if new_object_name:
-                obj_list = list(self.oeditor.Get3DComponentPartNames(new_object_name))
-                for new_name in obj_list:
-                    self._create_object(new_name)
+            old_definition_names = self.component_definition_names
+            component = UserDefinedComponent(app=self._app, name=name, props=props)
+            if component.create():
+                definition_name_difference = list(set(self.component_definition_names) - set(old_definition_names))
+                if not definition_name_difference:
+                    component.definition_name = file_name
+                else:
+                    component.definition_name = definition_name_difference[0]
+                component.definition_type = "3d_component"
+
                 if auxiliary_parameters:
                     if isinstance(auxiliary_parameters, bool):
                         auxiliary_parameters = input_file + ".json"
@@ -1818,29 +1843,29 @@ class Primitives3D(GeometryModeler, PyAedtBase):
                                 dsname = key
                             self._app.create_dataset(dsname, dat["x"], dat["y"], dat["z"], dat["v"], is_project_dataset,
                                                      dat["xunit"], dat["yunit"], dat["zunit"], dat["vunit"])
-                udm_obj = self._create_user_defined_component(new_object_name)
                 if name and not auxiliary_parameters:
-                    udm_obj.name = name
+                    component.name = name
         except Exception:  # pragma: no cover
-            udm_obj = False
-        if auxiliary_parameters and udm_obj:
+            component = False
+
+        if auxiliary_parameters and component:
             mapping_dict = {}
             if aux_dict.get("native components", None):
                 if aux_dict.get("coordinatesystems", None):
                     for cs in list(aux_dict["coordinatesystems"].keys()):
-                        aux_dict["coordinatesystems"][udm_obj.name + "_" + cs] = aux_dict["coordinatesystems"][cs]
+                        aux_dict["coordinatesystems"][component.name + "_" + cs] = aux_dict["coordinatesystems"][cs]
                         aux_dict["coordinatesystems"].pop(cs)
-                        if aux_dict["coordinatesystems"][udm_obj.name + "_" + cs]["Reference CS"] != "Global":
-                            aux_dict["coordinatesystems"][udm_obj.name + "_" + cs]["Reference CS"] = (
-                                    udm_obj.name
+                        if aux_dict["coordinatesystems"][component.name + "_" + cs]["Reference CS"] != "Global":
+                            aux_dict["coordinatesystems"][component.name + "_" + cs]["Reference CS"] = (
+                                    component.name
                                     + "_"
-                                    + aux_dict["coordinatesystems"][udm_obj.name + "_" + cs]["Reference CS"]
+                                    + aux_dict["coordinatesystems"][component.name + "_" + cs]["Reference CS"]
                             )
                 for _, ncdict in aux_dict["native components"].items():
                     for _, inst_dict in ncdict["Instances"].items():
                         if inst_dict["CS"]:
                             if inst_dict["CS"] != "Global":
-                                inst_dict["CS"] = udm_obj.name + "_" + inst_dict["CS"]
+                                inst_dict["CS"] = component.name + "_" + inst_dict["CS"]
                 temp_dict = {}
                 temp_dict["native components"] = copy.deepcopy(aux_dict["native components"])
                 temp_dict["coordinatesystems"] = copy.deepcopy(aux_dict["coordinatesystems"])
@@ -1848,7 +1873,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
                 to_remove = []
                 for mon in aux_dict["monitors"]:
                     if mon.get("Native Assignment", None):
-                        temp_dict["monitors"][udm_obj.name + "_" + mon["Name"]] = mon
+                        temp_dict["monitors"][component.name + "_" + mon["Name"]] = mon
                         to_remove.append(mon)
                 for mon in to_remove:
                     aux_dict["monitors"].remove(mon)
@@ -1859,15 +1884,15 @@ class Primitives3D(GeometryModeler, PyAedtBase):
                 with open_file(temp_dict_file, "w") as f:
                     json.dump(temp_dict, f)
                 exclude_set = set([obj.name for _, obj in self._app.modeler.objects.items()])
-                old_udm = set(list(self._app.modeler.user_defined_components))
+                old_udm = set(list(self._app.modeler.component_names))
                 old_cs = set(self._app.modeler.coordinate_systems)
                 self._app.configurations.import_config(temp_dict_file, exclude_set)
-                coordinate_system = self._create_reference_cs_from_3dcomp(udm_obj, password)
+                coordinate_system = self._create_reference_cs_from_3dcomp(component, password)
                 if coordinate_system != "Global":
                     self._app.modeler.refresh_all_ids()
-                    for udm in set(list(self._app.modeler.user_defined_components)) - old_udm:
-                        if self._app.modeler.user_defined_components[udm].target_coordinate_system == "Global":
-                            self._app.modeler.user_defined_components[udm].target_coordinate_system = coordinate_system
+                    for udm in set(list(self._app.modeler.component_names)) - old_udm:
+                        if self._app.modeler.components[udm].target_coordinate_system == "Global":
+                            self._app.modeler.components[udm].target_coordinate_system = coordinate_system
                 for cs in set(self._app.modeler.coordinate_systems) - old_cs:
                     if cs.ref_cs == "Global":
                         cs.ref_cs = coordinate_system
@@ -1875,7 +1900,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
                 temp_proj = self.__create_temp_project(self._app)
                 parts = self.__get_all_mapping(temp_proj)
                 for mon in aux_dict["monitors"]:
-                    key = udm_obj.name + "_" + mon["Name"]
+                    key = component.name + "_" + mon["Name"]
                     m_case = mon["Type"]
                     if m_case == "Point":
                         cs_old = self._app.odesign.SetActiveEditor("3D Modeler").GetActiveCoordinateSystem()
@@ -1911,11 +1936,11 @@ class Primitives3D(GeometryModeler, PyAedtBase):
                                 monitor_name=key,
                             )
             if name:
-                udm_obj.name = name
+                component.name = name
             os.remove(temp_proj)
-            return udm_obj, mapping_dict, aux_dict
+            return component, mapping_dict, aux_dict
         else:
-            return udm_obj
+            return component
 
     @pyaedt_function_handler()
     def add_layout_component_definition(

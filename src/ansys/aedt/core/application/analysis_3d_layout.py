@@ -33,6 +33,7 @@ from ansys.aedt.core.generic.configurations import Configurations3DLayout
 from ansys.aedt.core.generic.constants import Setups
 from ansys.aedt.core.generic.general_methods import _merge_props
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.protocols import _OMesh3DLayoutModule
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modules.mesh_3d_layout import Mesh3dLayout
@@ -41,7 +42,6 @@ from ansys.aedt.core.modules.solve_setup import Setup3DLayout
 from ansys.aedt.core.modules.solve_setup import SetupHFSSAuto
 
 if TYPE_CHECKING:
-    from ansys.aedt.core.generic.protocols import _OMesh3DLayoutModule
     from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
     from ansys.aedt.core.visualization.post.post_3dlayout import PostProcessor3DLayout
     from ansys.aedt.core.visualization.post.post_circuit import PostProcessorCircuit

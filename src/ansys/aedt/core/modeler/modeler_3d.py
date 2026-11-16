@@ -79,26 +79,26 @@ class Modeler3D(Primitives3D, PyAedtBase):
     def create_3dcomponent(
         self,
         input_file: str,
-        name: str = None,
-        variables_to_include: list = None,
-        assignment: list = None,
-        boundaries: list = None,
-        excitations: list = None,
-        coordinate_systems: list = None,
+        name: str | None = None,
+        variables_to_include: list | None = None,
+        assignment: list | None = None,
+        boundaries: list | None = None,
+        excitations: list | None = None,
+        coordinate_systems: list | None = None,
         reference_coordinate_system: str = "Global",
         is_encrypted: bool = False,
         allow_edit: bool = False,
         security_message: str = "",
-        password: str = None,  # nosec
-        edit_password: str = None,
+        password: str | None = None,  # nosec
+        edit_password: str | None = None,
         password_type: str = "UserSuppliedPassword",
         hide_contents: bool = False,
         replace_names: bool = False,
         component_outline: str = "BoundingBox",
         export_auxiliary: bool = False,
-        monitor_objects: list = None,
-        datasets: list = None,
-        native_components: list = None,
+        monitor_objects: list | None = None,
+        datasets: list | None = None,
+        native_components: list | None = None,
         create_folder: bool = True,
     ) -> bool:
         """Create a 3D component file.
@@ -178,9 +178,10 @@ class Modeler3D(Primitives3D, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.modeler_3d import Modeler3D
-        >>> obj = Modeler3D()
-        >>> obj.create_3dcomponent(input_file="example.txt")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> box = app.modeler.create_box([0, 0, 0], [10, 10, 5], name, "Copper")
+        >>> app.modeler.create_3dcomponent(input_file="comp.a3dcomp", assignment=[box.name])
 
         """
         # If design name has a white space (as it usually happens with Maxwell 2D/3D new designs),
@@ -248,7 +249,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         if assignment:
             objs = assignment
         else:
-            native_objs = [obj.name for _, v in self.user_defined_components.items() for _, obj in v.parts.items()]
+            native_objs = [obj.name for _, v in self.components.items() for _, obj in v.parts.items()]
             objs = [obj for obj in self.object_names if obj not in native_objs]
             if not native_components and native_objs and not export_auxiliary:
                 self.logger.warning(
@@ -318,18 +319,18 @@ class Modeler3D(Primitives3D, PyAedtBase):
             excitations = list(set([i.split(":")[0] for i in excitations]))
             if excitations:
                 arg2 += ["Excitations:=", excitations]
-        meshops = [el.name for el in self._app.mesh.meshoperations]
+        meshops = [el.name for el in self._app.mesh.operations]
         if meshops:
             used_mesh_ops = []
             for mesh in range(0, len(meshops)):
                 mesh_comp = []
-                for item in self._app.mesh.meshoperations[mesh].props["Objects"]:
+                for item in self._app.mesh.operations[mesh].props["Objects"]:
                     if isinstance(item, str):
                         mesh_comp.append(item)
                     else:
                         mesh_comp.append(self.objects[item].name)
                 if all(included_obj in objs for included_obj in mesh_comp):
-                    used_mesh_ops.append(self._app.mesh.meshoperations[mesh].name)
+                    used_mesh_ops.append(self._app.mesh.operations[mesh].name)
             arg2 += ["MeshOperations:=", used_mesh_ops]
         else:
             arg2 += ["MeshOperations:=", meshops]
@@ -415,14 +416,14 @@ class Modeler3D(Primitives3D, PyAedtBase):
     @pyaedt_function_handler()
     def replace_3dcomponent(
         self,
-        name: str = None,
-        variables_to_include: list = None,
-        assignment: list = None,
-        boundaries: list = None,
-        excitations: list = None,
-        coordinate_systems: list = None,
+        name: str | None = None,
+        variables_to_include: list | None = None,
+        assignment: list | None = None,
+        boundaries: list | None = None,
+        excitations: list | None = None,
+        coordinate_systems: list | None = None,
         reference_coordinate_system: str = "Global",
-    ) -> "UserDefinedComponent":
+    ) -> UserDefinedComponent:
         """Replace with 3D component.
 
         Parameters
@@ -453,15 +454,20 @@ class Modeler3D(Primitives3D, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.modeler_3d import Modeler3D
-        >>> obj = Modeler3D()
-        >>> obj.replace_3dcomponent(assignment="Box1", name="MyObject")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> box = app.modeler.create_box([0, 0, 0], [10, 10, 5], name, "Copper")
+        >>> app.modeler.replace_3dcomponent(assignment=[box.name])
 
         """
         if not variables_to_include:
             variables_to_include = []
+
         if not name:
             name = generate_unique_name(self._app.design_name)
+        elif name in self.component_names:
+            name = generate_unique_name(name)
+
         dt_string = datetime.datetime.now().strftime("%H:%M:%S %p %b %d, %Y")
         arg = [
             "NAME:CreateData",
@@ -493,7 +499,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         if assignment:
             objs = assignment
         else:
-            native_objs = [obj.name for _, v in self.user_defined_components.items() for _, obj in v.parts.items()]
+            native_objs = [obj.name for _, v in self.components.items() for _, obj in v.parts.items()]
             objs = [obj for obj in self.object_names if obj not in native_objs]
             if native_objs:
                 self.logger.warning(
@@ -557,27 +563,26 @@ class Modeler3D(Primitives3D, PyAedtBase):
             excitations = list(set([i.split(":")[0] for i in excitations]))
             if excitations:
                 arg2 += ["Excitations:=", excitations]
-        meshops = [el.name for el in self._app.mesh.meshoperations]
+        meshops = [el.name for el in self._app.mesh.operations]
         if meshops:
             used_mesh_ops = []
             for mesh in range(0, len(meshops)):
                 mesh_comp = []
-                for item in self._app.mesh.meshoperations[mesh].props["Objects"]:
+                for item in self._app.mesh.operations[mesh].props["Objects"]:
                     if isinstance(item, str):
                         mesh_comp.append(item)
                     else:
                         mesh_comp.append(self.objects[item].name)
                 if all(included_obj in objs for included_obj in mesh_comp):
-                    used_mesh_ops.append(self._app.mesh.meshoperations[mesh].name)
+                    used_mesh_ops.append(self._app.mesh.operations[mesh].name)
             arg2 += ["MeshOperations:=", used_mesh_ops]
         else:
             arg2 += ["MeshOperations:=", meshops]
         arg3 = ["NAME:ImageFile", "ImageFile:=", ""]
-        old_components = self.user_defined_component_names
+        old_components = self.component_names
         self.oeditor.ReplaceWith3DComponent(arg, arg2, arg3)
-        self.refresh_all_ids()
-        new_name = list(set(self.user_defined_component_names) - set(old_components))
-        return self.user_defined_components[new_name[0]]
+        new_name = list(set(self.component_names) - set(old_components))
+        return self.components[new_name[0]]
 
     @pyaedt_function_handler()
     def create_coaxial(
@@ -1653,7 +1658,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         self._app.logger.info(
             "Parsing input objects information for priority assignment. This operation can take time."
         )
-        udc = self._modeler.user_defined_components
+        udc = self._modeler.components
         udc._parse_objs()
         for level, objects in enumerate(assignment):
             level += 1
