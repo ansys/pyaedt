@@ -77,7 +77,7 @@ class FieldsCalculator(PyAedtBase):
     ...     ],
     ...     "report": ["Data Table", "Rectangular Plot"],
     ... }
-    >>> expr_name = hfss.post.fields_calculator.add_expression(my_expression, "Polyline1")
+    >>> expr_name = hfss.post.fields_calculator.add_expression(calculation=my_expression, assignment="Polyline1")
     >>> hfss.desktop_class.release_desktop(False, False)
 
     or they can be added from the ``expression_catalog.toml``:
@@ -85,7 +85,7 @@ class FieldsCalculator(PyAedtBase):
     >>> from ansys.aedt.core import Hfss
     >>> hfss = Hfss()
     >>> poly = hfss.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
-    >>> expr_name = hfss.post.fields_calculator.add_expression("voltage_line", "Polyline1")
+    >>> expr_name = hfss.post.fields_calculator.add_expression(calculation="voltage_line", assignment="Polyline1")
     >>> hfss.desktop_class.release_desktop(False, False)
 
     """
@@ -112,9 +112,13 @@ class FieldsCalculator(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
-        >>> obj = FieldsCalculator()
-        >>> obj.expression_names
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> # These are the built-in expression keys from expression_catalog.toml
+        >>> # that can be passed to ``add_expression``.
+        >>> available = hfss.post.fields_calculator.expression_names
+        >>> "voltage_line" in available
+        True
 
         """
         return list(self.expression_catalog.keys())
@@ -200,7 +204,7 @@ class FieldsCalculator(PyAedtBase):
         ...     ],
         ...     "report": ["Data Table", "Rectangular Plot"],
         ... }
-        >>> expr_name = hfss.post.fields_calculator.add_expression(my_expression, "Polyline1")
+        >>> expr_name = hfss.post.fields_calculator.add_expression(calculation=my_expression, assignment="Polyline1")
         >>> hfss.desktop_class.release_desktop(False, False)
 
         """
@@ -306,9 +310,12 @@ class FieldsCalculator(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
-        >>> obj = FieldsCalculator()
-        >>> obj.create_expression_file(name="MyObject", operations=["Box1"])
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d()
+        >>> # Each operation string is a raw AEDT Fields Calculator stack directive
+        >>> # (the same lines AEDT writes to a named-expression .clc file), applied in order.
+        >>> operations = ["NameOfExpression('<Ex,Ey,0>')", "Operation('Tangent')", "Operation('Dot')"]
+        >>> clc_file = m2d.post.fields_calculator.create_expression_file(name="e_line", operations=operations)
 
         """
         file_name = generate_unique_project_name(
@@ -353,8 +360,10 @@ class FieldsCalculator(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> poly = hfss.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
-        >>> expr_name = hfss.post.fields_calculator.add_expression("voltage_line", "Polyline1")
-        >>> reports = hfss.post.fields_calculator.expression_plot("voltage_line", "Polyline1", [name])
+        >>> expr_name = hfss.post.fields_calculator.add_expression(calculation="voltage_line", assignment="Polyline1")
+        >>> reports = hfss.post.fields_calculator.expression_plot(
+        ...     calculation="voltage_line", assignment="Polyline1", names=[expr_name]
+        ... )
         >>> hfss.desktop_class.release_desktop(False, False)
 
         """
@@ -441,8 +450,8 @@ class FieldsCalculator(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> poly = hfss.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
-        >>> expr_name = hfss.post.fields_calculator.add_expression("voltage_line", "Polyline1")
-        >>> hfss.post.fields_calculator.delete_expression(expr_name)
+        >>> expr_name = hfss.post.fields_calculator.add_expression(calculation="voltage_line", assignment="Polyline1")
+        >>> hfss.post.fields_calculator.delete_expression(name=expr_name)
         >>> hfss.desktop_class.release_desktop(False, False)
 
         """
@@ -470,9 +479,13 @@ class FieldsCalculator(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
-        >>> obj = FieldsCalculator()
-        >>> obj.is_expression_defined(name="MyObject")
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> poly = hfss.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
+        >>> # add_expression returns the registered expression name (here "Voltage_Line").
+        >>> expr_name = hfss.post.fields_calculator.add_expression(calculation="voltage_line", assignment="Polyline1")
+        >>> hfss.post.fields_calculator.is_expression_defined(name=expr_name)
+        True
 
         """
         is_defined = self.ofieldsreporter.DoesNamedExpressionExists(name)
@@ -496,9 +509,12 @@ class FieldsCalculator(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
-        >>> obj = FieldsCalculator()
-        >>> obj.is_general_expression(name="MyObject")
+        >>> from ansys.aedt.core import Q3d
+        >>> q3d = Q3d()
+        >>> # "voltage_drop" is a built-in expression key from expression_catalog.toml.
+        >>> # It is "general" because its operations do not reference an "assignment".
+        >>> q3d.post.fields_calculator.is_general_expression(name="voltage_drop")
+        True
 
         """
         if name not in self.expression_names:
@@ -530,7 +546,7 @@ class FieldsCalculator(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> my_toml = str(Path("my_path_to_toml") / "my_toml.toml")
-        >>> new_catalog = hfss.post.fields_calculator.load_expression_file(my_toml)
+        >>> new_catalog = hfss.post.fields_calculator.load_expression_file(input_file=my_toml)
         >>> hfss.desktop_class.release_desktop(False, False)
 
         """
@@ -564,9 +580,19 @@ class FieldsCalculator(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
-        >>> obj = FieldsCalculator()
-        >>> obj.validate_expression(expression="dB(S(1,1))")
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d()
+        >>> # A valid expression must contain at least the schema-required keys:
+        >>> # design_type, fields_type, primary_sweep, assignment_type, operations.
+        >>> my_expression = {
+        ...     "name": "e_line",
+        ...     "design_type": ["Maxwell 2D"],
+        ...     "fields_type": ["Fields"],
+        ...     "primary_sweep": "Distance",
+        ...     "assignment_type": ["Line"],
+        ...     "operations": ["NameOfExpression('<Ex,Ey,0>')", "Operation('Tangent')", "Operation('Dot')"],
+        ... }
+        >>> validated = m2d.post.fields_calculator.validate_expression(expression=my_expression)
 
         """
         from jsonschema import exceptions
@@ -624,9 +650,11 @@ class FieldsCalculator(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> poly = hfss.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
-        >>> expr_name = hfss.post.fields_calculator.add_expression("voltage_line", "Polyline1")
+        >>> expr_name = hfss.post.fields_calculator.add_expression(calculation="voltage_line", assignment="Polyline1")
         >>> file_path = Path(hfss.working_directory) / "my_expr.fld"
-        >>> hfss.post.fields_calculator.write("voltage_line", file_path, hfss.nominal_adaptive)
+        >>> hfss.post.fields_calculator.write(
+        ...     expression="voltage_line", output_file=file_path, setup=hfss.nominal_adaptive
+        ... )
         >>> hfss.desktop_class.release_desktop(False, False)
 
         """
@@ -696,9 +724,11 @@ class FieldsCalculator(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
-        >>> obj = FieldsCalculator()
-        >>> obj.evaluate(expression="dB(S(1,1))")
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d()
+        >>> # Register a named expression, then evaluate it on the nominal adaptive solution.
+        >>> expr_name = m3d.post.fields_calculator.add_expression(calculation="electric_charge", assignment=None)
+        >>> value = m3d.post.fields_calculator.evaluate(expression=expr_name, setup=m3d.nominal_adaptive)
 
         """
         out_file = Path(self.__app.working_directory) / (generate_unique_name("expression") + ".fld")
@@ -835,9 +865,18 @@ class FieldsCalculator(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
-        >>> obj = FieldsCalculator()
-        >>> obj.export(quantity=1)
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> # Export the field quantity mapped onto a calculated 3D Cartesian grid
+        >>> # (the alternative mode maps it onto points supplied via ``sample_points``).
+        >>> field_file = hfss.post.fields_calculator.export(
+        ...     quantity="Mag_E",
+        ...     solution="Setup1 : LastAdaptive",
+        ...     grid_type="Cartesian",
+        ...     grid_start=[0, 0, 0],
+        ...     grid_stop=[1, 1, 1],
+        ...     grid_step=[0.1, 0.1, 0.1],
+        ... )
 
         """
         if sample_points:
@@ -920,19 +959,16 @@ class FieldsCalculator(PyAedtBase):
         ----------
         >>> oModule.GetFieldsCalculatorExpressions
 
-        Example
-        -------
+        Examples
+        --------
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> poly = hfss.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
-        >>> exprs = hfss.post.fields_calculator.get_expressions()
-        >>> hfss.desktop_class.release_desktop(False, False)
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
-        >>> obj = FieldsCalculator()
-        >>> obj.get_expressions(field_type=1)
+        >>> # Register a built-in catalog expression, then list what is defined in AEDT.
+        >>> hfss.post.fields_calculator.add_expression(calculation="voltage_line", assignment="Polyline1")
+        >>> defined = hfss.post.fields_calculator.get_expressions()
+        >>> "Voltage_Line" in defined
+        True
 
         """
         expressions = {}
