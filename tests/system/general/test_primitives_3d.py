@@ -2882,6 +2882,9 @@ def test_layout_component_coordinate(aedt_app, test_tmp_dir) -> None:
     assert comp4.name in aedt_app.modeler.layout_component_names
     assert comp4.name in aedt_app.modeler.component_names
     assert len(aedt_app.modeler.components) == 2
+    cs_names = comp4.coordinate_system_names
+    assert comp4.coordinate_system == cs_names[0]
+    assert len(comp4.coordinate_system_names) == 1
 
     comp5 = aedt_app.modeler.insert_layout_component(
         name="PCB_B", definition_name=component_name, layout_coordinate_systems=["CS_2"]
@@ -2890,7 +2893,10 @@ def test_layout_component_coordinate(aedt_app, test_tmp_dir) -> None:
     assert comp5.name in aedt_app.modeler.layout_component_names
     assert comp5.name in aedt_app.modeler.component_names
     assert len(aedt_app.modeler.components) == 3
-    comp5.coordinate_system
+    cs_names = comp5.coordinate_system_names
+    assert comp5.coordinate_system == cs_names[0]
+    comp5.coordinate_system = cs_names[1]
+    assert comp5.coordinate_system == cs_names[1]
 
     comp6 = aedt_app.modeler.insert_layout_component(
         name="PCB_C", definition_name=component_name3, layout_coordinate_systems=["L8_1"]
@@ -2899,6 +2905,10 @@ def test_layout_component_coordinate(aedt_app, test_tmp_dir) -> None:
     assert comp6.name in aedt_app.modeler.layout_component_names
     assert comp6.name in aedt_app.modeler.component_names
     assert len(aedt_app.modeler.components) == 4
+    cs_names = comp6.coordinate_system_names
+    assert comp6.coordinate_system == cs_names[0]
+    comp6.coordinate_system = cs_names[1]
+    assert comp6.coordinate_system == cs_names[1]
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Method available in beta from 2026.1")

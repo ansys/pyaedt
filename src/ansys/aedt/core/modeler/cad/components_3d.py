@@ -1173,9 +1173,23 @@ class LayoutComponent(NativeComponent):
         return args
 
     @property
-    def coordinate_system(self) -> str:
-        pass
-        _ = list(self._app.oeditor.Get3DComponentPartNames(self.name))
+    def coordinate_system_names(self) -> list:
+        coordinate_system_names = []
+        if self.child_object and "Handle_Choices" in dir(self.child_object):
+            coordinate_system_names = self.child_object.Handle_Choices
+        return coordinate_system_names
+
+    @property
+    def coordinate_system(self) -> str | None:
+        coordinate_system = None
+        if self.coordinate_system_names and "Handle" in dir(self.child_object):
+            coordinate_system = self.child_object.Handle
+        return coordinate_system
+
+    @coordinate_system.setter
+    def coordinate_system(self, value: str) -> None:
+        if value in self.coordinate_system_names and "Handle" in dir(self.child_object):
+            self.child_object.Handle = value
 
     @property
     def layers(self) -> dict | None:
