@@ -39,10 +39,15 @@ from ansys.aedt.core.modules.solve_setup import SetupRmxprt
 class RMXprtModule(PyAedtBase):
     """Provides RMxprt module properties.
 
+    An ``RMXprtModule`` is not instantiated directly. It is accessed through one of the
+    machine-component attributes of a :class:`ansys.aedt.core.rmxprt.Rmxprt` instance, such as
+    ``stator``, ``rotor``, ``shaft``, ``general``, or ``circuit``.
+
     Examples
     --------
-    >>> from ansys.aedt.core.rmxprt import RMXprtModule
-    >>> obj = RMXprtModule()
+    >>> from ansys.aedt.core import Rmxprt
+    >>> app = Rmxprt()
+    >>> stator = app.stator  # an RMXprtModule for the stator
 
     """
 
@@ -64,9 +69,10 @@ class RMXprtModule(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.rmxprt import RMXprtModule
-        >>> obj = RMXprtModule()
-        >>> obj.properties
+        >>> from ansys.aedt.core import Rmxprt
+        >>> app = Rmxprt()
+        >>> stator_properties = app.stator.properties
+        >>> outer_diameter = stator_properties.properties["Outer Diameter"]
 
         """
         try:
@@ -126,10 +132,15 @@ class RMXprtModule(PyAedtBase):
 class Stator(RMXprtModule):
     """Provides stator properties.
 
+    Accessed through the ``stator`` attribute of a :class:`ansys.aedt.core.rmxprt.Rmxprt`
+    instance.
+
     Examples
     --------
-    >>> from ansys.aedt.core.rmxprt import Stator
-    >>> obj = Stator()
+    >>> from ansys.aedt.core import Rmxprt
+    >>> app = Rmxprt()
+    >>> stator = app.stator
+    >>> app.stator["Outer Diameter"] = "120mm"
 
     """
 
@@ -140,10 +151,15 @@ class Stator(RMXprtModule):
 class Rotor(RMXprtModule):
     """Provides rotor properties.
 
+    Accessed through the ``rotor`` attribute of a :class:`ansys.aedt.core.rmxprt.Rmxprt`
+    instance.
+
     Examples
     --------
-    >>> from ansys.aedt.core.rmxprt import Rotor
-    >>> obj = Rotor()
+    >>> from ansys.aedt.core import Rmxprt
+    >>> app = Rmxprt()
+    >>> rotor = app.rotor
+    >>> outer_diameter = app.rotor["Outer Diameter"]
 
     """
 
@@ -152,12 +168,16 @@ class Rotor(RMXprtModule):
 
 
 class Shaft(RMXprtModule):
-    """Provides rotor properties.
+    """Provides shaft properties.
+
+    Accessed through the ``shaft`` attribute of a :class:`ansys.aedt.core.rmxprt.Rmxprt`
+    instance.
 
     Examples
     --------
-    >>> from ansys.aedt.core.rmxprt import Shaft
-    >>> obj = Shaft()
+    >>> from ansys.aedt.core import Rmxprt
+    >>> app = Rmxprt()
+    >>> shaft = app.shaft
 
     """
 
@@ -166,12 +186,16 @@ class Shaft(RMXprtModule):
 
 
 class Machine(RMXprtModule):
-    """Provides rotor properties.
+    """Provides general machine properties.
+
+    Accessed through the ``general`` attribute of a :class:`ansys.aedt.core.rmxprt.Rmxprt`
+    instance.
 
     Examples
     --------
-    >>> from ansys.aedt.core.rmxprt import Machine
-    >>> obj = Machine()
+    >>> from ansys.aedt.core import Rmxprt
+    >>> app = Rmxprt()
+    >>> general = app.general
 
     """
 
@@ -180,12 +204,16 @@ class Machine(RMXprtModule):
 
 
 class Circuit(RMXprtModule):
-    """Provides rotor properties.
+    """Provides circuit properties.
+
+    Accessed through the ``circuit`` attribute of a :class:`ansys.aedt.core.rmxprt.Rmxprt`
+    instance.
 
     Examples
     --------
-    >>> from ansys.aedt.core.rmxprt import Circuit
-    >>> obj = Circuit()
+    >>> from ansys.aedt.core import Rmxprt
+    >>> app = Rmxprt()
+    >>> circuit = app.circuit
 
     """
 
@@ -330,9 +358,9 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.rmxprt import Rmxprt
-        >>> obj = Rmxprt()
-        >>> obj.design_type
+        >>> from ansys.aedt.core import Rmxprt
+        >>> app = Rmxprt()
+        >>> machine_type = app.design_type
 
         """
         return str(self.design_solutions._design_type)
@@ -366,7 +394,7 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
         --------
         >>> from ansys.aedt.core import Rmxprt
         >>> app = Rmxprt()
-        >>> app.create_setup()
+        >>> setup = app.create_setup(name="MySetup")
 
         """
         setup_keys = SetupKeys.get_setup_templates()
@@ -408,9 +436,9 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.rmxprt import Rmxprt
-        >>> obj = Rmxprt()
-        >>> obj.export_configuration(r"C:\\Temp\\rmxprt_config.json")
+        >>> from ansys.aedt.core import Rmxprt
+        >>> app = Rmxprt()
+        >>> app.export_configuration(output_file=r"C:\\Temp\\rmxprt_config.json")
 
         """
 
@@ -449,9 +477,9 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.rmxprt import Rmxprt
-        >>> obj = Rmxprt()
-        >>> obj.import_configuration(r"C:\\Temp\\rmxprt_config.json")
+        >>> from ansys.aedt.core import Rmxprt
+        >>> app = Rmxprt()
+        >>> app.import_configuration(input_file=r"C:\\Temp\\rmxprt_config.json")
 
         """
         from ansys.aedt.core.generic.file_utils import read_configuration_file
