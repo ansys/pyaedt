@@ -58,10 +58,10 @@ from ansys.aedt.core.generic.quaternion import Quaternion
 from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
+from ansys.aedt.core.modeler.cad.components_3d import LayoutComponent
 from ansys.aedt.core.modeler.cad.components_3d import NativeComponent
 from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
-from ansys.aedt.core.modeler.cad.components_3d import UserDefinedModel
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import Plane
@@ -968,10 +968,10 @@ class GeometryModeler(Modeler, PyAedtBase):
                 comp3d_o = self._app.get_oo_object(self.oeditor, comp3d)
                 for instance in comp_instances:
                     comp3d_o_methods = dir(comp3d_o)
-                    if comp3d_o and "Type" in comp3d_o_methods:
-                        comp3d_type = comp3d_o.Type
-                    elif "EDB_Definition" in comp3d_o_methods:
+                    if "EDB_Definition" in comp3d_o_methods:
                         comp3d_type = "layout_component"
+                    elif comp3d_o and "Type" in comp3d_o_methods:
+                        comp3d_type = comp3d_o.Type
                     else:
                         comp3d_type = "3d_component"
                     component_data[instance] = {"definition": comp3d, "type": comp3d_type}
@@ -1167,14 +1167,7 @@ class GeometryModeler(Modeler, PyAedtBase):
                         props={},
                     )
                 elif component_type == "layout_component":
-                    # self.__components[component_name] = LayoutComponent
-                    pass
-                elif component_type == "UserDefinedModel":
-                    self.__components[component_name] = UserDefinedModel(
-                        app=self._app,
-                        name=component_name,
-                        props={},
-                    )
+                    self.__components[component_name] = LayoutComponent(app=self._app, name=component_name, props={})
                 else:
                     self.__components[component_name] = UserDefinedComponent(
                         app=self._app,
@@ -3812,8 +3805,9 @@ class GeometryModeler(Modeler, PyAedtBase):
             if is_3d_comp:
                 added_3d_comps = [i for i in self.component_names if i not in orig_3d]
                 if added_3d_comps:
-                    self.logger.info("Found 3D Components Duplication")
                     return added_3d_comps
+                else:
+                    return []
             return added_objs
         else:
             arg_1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]

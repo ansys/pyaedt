@@ -21,8 +21,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 import os
+from pathlib import Path
 import shutil
 
 import pytest
@@ -34,6 +34,7 @@ from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.hfss import Hfss
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from ansys.aedt.core.modeler.cad.components_3d import LayoutComponent
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.modeler import NamedSelections
 from ansys.aedt.core.modeler.cad.object_3d import Object3d
@@ -2549,7 +2550,6 @@ def test_set_mesh_fusion_settings(aedt_app) -> None:
     assert aedt_app.set_mesh_fusion_settings(assignment=None, volume_padding=None, priority=None)
 
 
-@pytest.mark.skipif(DESKTOP_VERSION < "2023.1", reason="Method failing 2022.2")
 def test_3dcomponent_operations(aedt_app) -> None:
     aedt_app.solution_type = "Modal"
     aedt_app["l_dipole"] = "13.5cm"
@@ -2562,8 +2562,8 @@ def test_3dcomponent_operations(aedt_app) -> None:
     assert obj_3dcomp.name in aedt_app.modeler.component_names
 
     # Duplicate and mirror
-    new_comps = obj_3dcomp.duplicate_and_mirror([0, 0, 0], [1, 0, 0])
-    assert new_comps[0] in aedt_app.modeler.component_names
+    new_comp = obj_3dcomp.duplicate_and_mirror([0, 0, 0], [1, 0, 0])
+    assert new_comp.name in aedt_app.modeler.component_names
     assert len(aedt_app.modeler.component_names) == 2
 
     # Mirror
@@ -2587,31 +2587,30 @@ def test_3dcomponent_operations(aedt_app) -> None:
     # Duplicate around axis
     new_comps5 = obj_3dcomp.duplicate_around_axis(axis=Axis.Z, angle=8, clones=3)
     assert len(new_comps5) == 2
+    assert isinstance(new_comps5[0], UserDefinedComponent)
+    assert isinstance(new_comps5[1], UserDefinedComponent)
     assert len(aedt_app.modeler.component_names) == 4
 
     # Duplicate along line
     udp = aedt_app.modeler.Position(5, 5, 5)
     attached_clones = obj_3dcomp.duplicate_along_line(udp, 5)
     assert len(attached_clones) == 4
+    assert isinstance(attached_clones[0], UserDefinedComponent)
+    assert isinstance(attached_clones[1], UserDefinedComponent)
+    assert isinstance(attached_clones[2], UserDefinedComponent)
+    assert isinstance(attached_clones[3], UserDefinedComponent)
     assert len(aedt_app.modeler.component_names) == 8
 
 
-@pytest.mark.skipif(DESKTOP_VERSION > "2022.2", reason="Method failing in version higher than 2022.2")
-@pytest.mark.skipif(DESKTOP_VERSION < "2023.1", reason="Method failing 2022.2")
-def test_udm_operations(aedt_app) -> None:
-    my_udmPairs = []
-    mypair = ["OuterRadius", "20.2mm"]
-    my_udmPairs.append(mypair)
-    mypair = ["Tau", "0.65"]
-    my_udmPairs.append(mypair)
-    mypair = ["Sigma", "0.81"]
-    my_udmPairs.append(mypair)
-    mypair = ["Delta_Angle", "45deg"]
-    my_udmPairs.append(mypair)
-    mypair = ["Beta_Angle", "45deg"]
-    my_udmPairs.append(mypair)
-    mypair = ["Port_Gap_Width", "8.1mm"]
-    my_udmPairs.append(mypair)
+def test_insert_udm(aedt_app) -> None:
+    my_udmPairs = [
+        ["OuterRadius", "20.2mm"],
+        ["Tau", "0.65"],
+        ["Sigma", "0.81"],
+        ["Delta_Angle", "45deg"],
+        ["Beta_Angle", "45deg"],
+        ["Port_Gap_Width", "8.1mm"],
+    ]
     obj_udm = aedt_app.modeler.create_udm(
         udm_full_name="HFSS/Antenna Toolkit/Log Periodic/Log Tooth.py",
         parameters=my_udmPairs,
@@ -2619,91 +2618,98 @@ def test_udm_operations(aedt_app) -> None:
         name="test_udm",
     )
     assert isinstance(obj_udm, UserDefinedComponent)
-    assert len(aedt_app.modeler.user_defined_component_names) == len(aedt_app.modeler.user_defined_components)
+
+    comp_name = obj_udm.name
+    assert comp_name in aedt_app.modeler.components_data
+    assert comp_name in aedt_app.modeler.component_names
+    assert not aedt_app.modeler.component_definition_names
+    assert "UserDefinedModel" in aedt_app.modeler.component_type_names
+    assert not aedt_app.modeler.component_names_by_definition[comp_name]
+    assert aedt_app.modeler.component_names_by_type[comp_name] == "UserDefinedModel"
+    assert aedt_app.modeler.component_types["UserDefinedModel"] == [comp_name]
+    assert not aedt_app.modeler.component_definitions
+    assert isinstance(aedt_app.modeler.components[comp_name], UserDefinedComponent)
+
     assert obj_udm.group_name == "Model"
     obj_udm.group_name = "test_group1"
     assert obj_udm.group_name == "test_group1"
     obj_udm.group_name = "test_group"
     assert obj_udm.group_name == "test_group"
-    assert not obj_udm.is_3d_component
+    assert not obj_udm.definition_name
+    assert obj_udm.definition_type == "UserDefinedModel"
     assert not obj_udm.mesh_assembly
-    obj_udm.mesh_assembly = True
-    assert not obj_udm.mesh_assembly
-    obj_udm.name = "antenna_pyaedt"
-    assert "antenna_pyaedt" in aedt_app.modeler.user_defined_component_names
-    obj_udm.name = "MyTorus"
-    assert obj_udm.name == "antenna_pyaedt"
-    assert obj_udm.parameters["OuterRadius"] == "20.2mm"
-    obj_udm.parameters["OuterRadius"] = "21mm"
-    assert obj_udm.parameters["OuterRadius"] == "21mm"
+
+    obj_udm.name = "new_name"
+    assert "new_name" in aedt_app.modeler.component_names
+    assert aedt_app.modeler["new_name"]
+    assert obj_udm.name == "new_name"
+
+    assert obj_udm.parameters["Tau"] == "0.65"
+    aedt_app["tau2"] = "0.7"
+    obj_udm.parameters["Tau"] = "tau2"
+    assert obj_udm.parameters["Tau"] == "tau2"
+
     cs = aedt_app.modeler.create_coordinate_system()
     obj_udm.target_coordinate_system = cs.name
     assert obj_udm.target_coordinate_system == cs.name
+
+    assert len(obj_udm.parts) == 2
+    assert obj_udm.center
+    assert obj_udm.bounding_box
+
     obj_udm.delete()
-    aedt_app.save_project()
-    aedt_app._project_dictionary = None
-    assert "antenna_pyaedt" not in aedt_app.modeler.user_defined_component_names
-    udp = aedt_app.modeler.Position(0, 0, 0)
-    udp2 = aedt_app.modeler.Position(30, 40, 40)
+    assert "new_name" not in aedt_app.modeler.component_names
+
+
+def test_udm_operations(aedt_app) -> None:
+    my_udmPairs = [
+        ["OuterRadius", "20.2mm"],
+        ["Tau", "0.65"],
+        ["Sigma", "0.81"],
+        ["Delta_Angle", "45deg"],
+        ["Beta_Angle", "45deg"],
+        ["Port_Gap_Width", "8.1mm"],
+    ]
     obj_udm = aedt_app.modeler.create_udm(
         udm_full_name="HFSS/Antenna Toolkit/Log Periodic/Log Tooth.py",
         parameters=my_udmPairs,
         library="syslib",
         name="test_udm",
     )
-    assert obj_udm.mirror(udp, udp2)
-    assert obj_udm.rotate(axis="Y", angle=180)
-    assert obj_udm.move(udp2)
-    assert not obj_udm.duplicate_around_axis(axis="Z", angle=8, clones=3)
+    assert isinstance(obj_udm, UserDefinedComponent)
+
+    # Duplicate and mirror
+    new_comp = obj_udm.duplicate_and_mirror([0, 0, 0], [1, 0, 0])
+    assert new_comp.name in aedt_app.modeler.component_names
+    assert len(aedt_app.modeler.component_names) == 2
+
+    # Mirror
+    udp = aedt_app.modeler.Position(0, 0, 0)
+    udp2 = aedt_app.modeler.Position(30, 40, 40)
+    aedt_app.modeler.set_working_coordinate_system("Global")
+    new_comp2 = obj_udm.mirror(udp, udp2)
+    assert isinstance(new_comp2, UserDefinedComponent)
+    assert len(aedt_app.modeler.component_names) == 2
+
+    # Rotate
+    new_comps3 = obj_udm.rotate(axis=Axis.Y, angle=180)
+    assert isinstance(new_comps3, UserDefinedComponent)
+    assert len(aedt_app.modeler.component_names) == 2
+
+    # Move
+    new_comps4 = obj_udm.move(udp2)
+    assert isinstance(new_comps4, UserDefinedComponent)
+    assert len(aedt_app.modeler.component_names) == 2
+
+    # Duplicate around axis
+    assert not obj_udm.duplicate_around_axis(axis=Axis.Z, angle=8, clones=3)
+
+    # Duplicate along line
     udp = aedt_app.modeler.Position(5, 5, 5)
-    num_clones = 5
-    assert not obj_udm.duplicate_along_line(udp, num_clones)
+    assert not obj_udm.duplicate_along_line(udp, 5)
 
 
-def test_component_bounding_box(aedt_app) -> None:
-    aedt_app["tau_variable"] = "0.65"
-    my_udmPairs = []
-    mypair = ["OuterRadius", "20.2mm"]
-    my_udmPairs.append(mypair)
-    mypair = ["Tau", "tau_variable"]
-    my_udmPairs.append(mypair)
-    mypair = ["Sigma", "0.81"]
-    my_udmPairs.append(mypair)
-    mypair = ["Delta_Angle", "45deg"]
-    my_udmPairs.append(mypair)
-    mypair = ["Beta_Angle", "45deg"]
-    my_udmPairs.append(mypair)
-    mypair = ["Port_Gap_Width", "8.1mm"]
-    my_udmPairs.append(mypair)
-    aedt_app.modeler.create_udm(
-        udm_full_name="HFSS/Antenna Toolkit/Log Periodic/Log Tooth.py",
-        parameters=my_udmPairs,
-        library="syslib",
-        name="test_udm_83",
-    )
-    assert (
-        GeometryOperators.v_norm(
-            GeometryOperators.v_sub(
-                aedt_app.modeler.user_defined_components["test_udm_83"].bounding_box,
-                [-18.662366556727996, -20.2, 0.0, 18.662366556727996, 20.2, 0.0],
-            )
-        )
-        < 1e-10
-    )
-
-    assert (
-        GeometryOperators.v_norm(
-            GeometryOperators.v_sub(
-                aedt_app.modeler.user_defined_components["test_udm_83"].center,
-                [0.0, 0.0, 0.0],
-            )
-        )
-        < 1e-10
-    )
-
-
-@pytest.mark.skipif(DESKTOP_VERSION < "2023.1", reason="Method available in beta from 2023.1")
-@pytest.mark.skipif(is_linux, reason="EDB object is not loaded")
+@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Method available in beta from 2026.1")
 def test_insert_layout_component(aedt_app, test_tmp_dir) -> None:
     file_original = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / LAYOUT_COMP
     input_file = shutil.copy2(file_original, test_tmp_dir / LAYOUT_COMP)
@@ -2711,44 +2717,138 @@ def test_insert_layout_component(aedt_app, test_tmp_dir) -> None:
     file_original2 = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / LAYOUT_COMP_SI_VERSE_SFP
     input_file2 = shutil.copy2(file_original2, test_tmp_dir / LAYOUT_COMP_SI_VERSE_SFP)
 
+    # Modal solution type does not support layout components, so it should raise a ValueError.
     aedt_app.solution_type = "Modal"
+    with pytest.raises(ValueError):
+        aedt_app.modeler.insert_layout_component(input_file=str(input_file), name=None, parameter_mapping=False)
 
-    assert not aedt_app.modeler.insert_layout_component(str(input_file), name=None, parameter_mapping=False)
+    # Change to terminal solution type, which supports layout components.
     aedt_app.solution_type = "Terminal"
-    comp = aedt_app.modeler.insert_layout_component(str(input_file), name=None, parameter_mapping=False)
-    assert comp.layout_component.edb_object
-    comp2 = aedt_app.modeler.insert_layout_component(str(input_file2), name=None, parameter_mapping=False)
-    assert comp2.layout_component.edb_object
-    assert comp.layout_component.edb_object
-    assert comp.name in aedt_app.modeler.layout_component_names
-    assert isinstance(comp, UserDefinedComponent)
-    assert len(aedt_app.modeler.user_defined_components[comp.name].parts) == 3
-    assert comp.layout_component.edb_object
 
-    # Import again file
+    with pytest.raises(TypeError):
+        aedt_app.modeler.insert_layout_component(input_file=str(input_file), parameter_mapping=5)
+
+    with pytest.raises(ValueError):
+        aedt_app.modeler.insert_layout_component(input_file=None, definition_name=None, parameter_mapping=False)
+
+    with pytest.raises(ValueError):
+        aedt_app.modeler.insert_layout_component(input_file=None, definition_name="invented", parameter_mapping=False)
+
+    with pytest.raises(AEDTRuntimeError):
+        aedt_app.modeler.insert_layout_component(
+            input_file="invented.aedbcomp", definition_name=None, parameter_mapping=False
+        )
+
+    # Import layout component with Terminal solution type
+    comp = aedt_app.modeler.insert_layout_component(str(input_file), name=None, parameter_mapping=False)
+    assert isinstance(comp, LayoutComponent)
+    assert comp.name in aedt_app.modeler.layout_component_names
+    assert comp.name in aedt_app.modeler.component_names
+    assert len(aedt_app.modeler.components) == 1
+
+    assert comp.bounding_box
+    assert comp.center
+    assert not comp.component_filepath
+    assert "LC" in comp.definition_name
+    assert comp.definition_type == "layout_component"
+
+    assert comp.display_mode == 0
+    comp.display_mode = 1
+    assert comp.display_mode == 1
+    comp.display_mode = 0
+
+    assert comp.edb_definition == "Layoutcomponent_231"
+    assert comp.edb_object.cell_names == ["16x16 Patch"]
+    assert Path(comp.edb_path).exists()
+
+    assert comp.fast_transformation
+    comp.fast_transformation = False
+    assert not comp.fast_transformation
+
+    assert comp.group_name == "Model"
+    comp.group_name = "test_group1"
+    assert comp.group_name == "test_group1"
+
+    assert len(comp.layers) == 3
+    layers = comp.layers
+    layers["Trace"] = [True, True, 90]
+    comp.layers = layers
+    assert comp.layers["Trace"] == [True, True, 90]
+
+    assert not comp.mesh_assembly
+
+    comp.name = "new_name"
+    assert "new_name" in aedt_app.modeler.component_names
+    assert aedt_app.modeler["new_name"]
+    assert len(aedt_app.modeler.components) == 1
+
+    assert "Port1" in comp.nets
+    nets = comp.nets
+    nets["Port1"] = [True, True, 90]
+    comp.nets = nets
+    assert comp.nets["Port1"] == [True, True, 90]
+
+    assert len(comp.objects) == 53
+    comp_objects = comp.objects
+    comp_objects["poly100"] = [False, False, 90]
+    comp.objects = comp_objects
+    assert comp.objects["poly100"] == [False, False, 90]
+
+    assert not comp.parameters
+
+    assert len(comp.parts) == 3
+
+    assert comp.show_dielectric
+    comp.show_dielectric = False
+    assert not comp.show_dielectric
+
+    assert comp.show_layout
+    comp.show_layout = False
+    assert not comp.show_layout
+
+    cs = aedt_app.modeler.create_coordinate_system()
+    assert comp.target_coordinate_system == "Global"
+    comp.target_coordinate_system = cs.name
+    assert comp.target_coordinate_system == cs.name
+
+    assert comp.close_edb_object()
+
+    # Import another layout component
+    comp2 = aedt_app.modeler.insert_layout_component(str(input_file2), name=comp.name, parameter_mapping=False)
+    assert isinstance(comp2, LayoutComponent)
+    assert comp2.name in aedt_app.modeler.layout_component_names
+    assert comp2.name in aedt_app.modeler.component_names
+    assert len(aedt_app.modeler.components) == 2
+
+    assert comp2.edb_object
+    assert len(comp2.parts) == 1
+
+    # Import again the same layout component with parameter mapping enabled
     comp3 = aedt_app.modeler.insert_layout_component(str(input_file), name="new_layout", parameter_mapping=True)
 
-    assert isinstance(comp3, UserDefinedComponent)
-    assert len(comp3.parameters) == 2
-    assert comp3.layout_component.show_layout
-    comp3.layout_component.show_layout = False
-    assert not comp3.layout_component.show_layout
-    comp3.layout_component.show_layout = True
-    comp3.layout_component.fast_transformation = True
-    assert comp3.layout_component.fast_transformation
-    comp3.layout_component.fast_transformation = False
-    assert comp3.layout_component.show_dielectric
-    comp3.layout_component.show_dielectric = False
-    assert not comp3.layout_component.show_dielectric
-    assert comp3.layout_component.display_mode == 0
-    comp3.layout_component.display_mode = 1
-    assert comp3.layout_component.display_mode == 1
-    comp3.layout_component.layers["Trace"] = [True, True, 90]
-    assert comp3.layout_component.update_visibility()
-    assert comp.layout_component.close_edb_object()
+    assert isinstance(comp3, LayoutComponent)
+    assert comp3.name in aedt_app.modeler.layout_component_names
+    assert comp3.name in aedt_app.modeler.component_names
+    assert len(aedt_app.modeler.components) == 3
+
+    assert comp3.edb_object
+    assert len(comp3.parts) == 3
+    assert comp3.parameters
+
+    # Add instance
+    comp4 = aedt_app.modeler.insert_layout_component(definition_name=comp3.edb_definition)
+
+    assert isinstance(comp4, LayoutComponent)
+    assert comp4.name in aedt_app.modeler.layout_component_names
+    assert comp4.name in aedt_app.modeler.component_names
+    assert len(aedt_app.modeler.components) == 4
+
+    assert comp4.edb_object
+    assert len(comp4.parts) == 3
 
 
-def test_insert_layout_component_2(aedt_app, test_tmp_dir) -> None:
+@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Method available in beta from 2026.1")
+def test_layout_component_coordinate(aedt_app, test_tmp_dir) -> None:
     file_original = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / LAYOUT_COMP
     input_file = shutil.copy2(file_original, test_tmp_dir / LAYOUT_COMP)
 
@@ -2763,9 +2863,12 @@ def test_insert_layout_component_2(aedt_app, test_tmp_dir) -> None:
         name="ann",
     )
     aedt_app["b1"] = "3.2mm"
-    aedt_app.modeler._insert_layout_component_instance(
+    aedt_app.solution_type = "Terminal"
+    comp = aedt_app.modeler.insert_layout_component(
         definition_name="ann", name=None, parameter_mapping={"a": "1.4mm", "b": "b1"}
     )
+    assert isinstance(comp, LayoutComponent)
+    assert aedt_app.modeler.components[comp.name] is comp
     aedt_app.modeler.add_layout_component_definition(
         file_path=str(input_file2),
         name="SiVerse_SFP",
@@ -2775,13 +2878,18 @@ def test_insert_layout_component_2(aedt_app, test_tmp_dir) -> None:
         name="SiVerse_SFP_aedb",
     )
 
-    aedt_app.modeler._insert_layout_component_instance(
+    assert aedt_app.modeler.insert_layout_component(
         name="PCB_A",
         definition_name="SiVerse_SFP",
     )
-    aedt_app.modeler._insert_layout_component_instance(
-        name="PCB_B", definition_name="SiVerse_SFP", import_coordinate_systems=["L8_1"]
+    assert aedt_app.modeler.insert_layout_component(
+        name="PCB_B", definition_name="SiVerse_SFP", layout_coordinate_systems=["L8_1"]
     )
-    aedt_app.modeler._insert_layout_component_instance(
-        name="PCB_C", definition_name="SiVerse_SFP_aedb", import_coordinate_systems=["L8_1"]
+    assert aedt_app.modeler.insert_layout_component(
+        name="PCB_C", definition_name="SiVerse_SFP_aedb", layout_coordinate_systems=["L8_1"]
     )
+
+
+@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Method available in beta from 2026.1")
+def test_layout_component_operations(aedt_app, test_tmp_dir) -> None:
+    pass

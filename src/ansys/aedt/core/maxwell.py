@@ -2248,9 +2248,9 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
 
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d(project="C:/Temp/layout_component.aedt", solution_type="TransientAPhiFormulation")
-        >>> component = m3d.modeler.user_defined_components["LC1_1"]
-        >>> layers = list(component.layout_component.layers.keys())
-        >>> nets = list(component.layout_component.nets.keys())
+        >>> component = m3d.modeler.components["LC1_1"]
+        >>> layers = list(component.layers.keys())
+        >>> nets = list(component.nets.keys())
         >>> m3d.enable_harmonic_force_on_layout_component(
         ...     assignment=component.name,
         ...     nets={nets[0]: layers[1::2], nets[1]: layers[1::2]},
@@ -3398,9 +3398,9 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
 
         List the nets and layers available in the layout component.
 
-        >>> component = m3d.modeler.user_defined_components["LC1_1"]
-        >>> layers = list(component.layout_component.layers.keys())
-        >>> nets = list(component.layout_component.nets.keys())
+        >>> component = m3d.modeler.components["LC1_1"]
+        >>> layers = list(component.layers.keys())
+        >>> nets = list(component.nets.keys())
 
         Map each net to the layers to compute the force on, and assign the layout force.
 

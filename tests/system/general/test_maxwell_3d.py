@@ -1018,9 +1018,9 @@ def test_layout_force(layout_comp) -> None:
 
 @pytest.mark.skipif(is_linux, reason="EDB object is not loaded.")
 def test_layout_harmonic(layout_comp) -> None:
-    comp = layout_comp.modeler.user_defined_components["LC1_1"]
-    layers = list(comp.layout_component.layers.keys())
-    nets = list(comp.layout_component.nets.keys())
+    comp = layout_comp.modeler.components["LC1_1"]
+    layers = list(comp.layers.keys())
+    nets = list(comp.nets.keys())
     layout_comp.enable_harmonic_force_on_layout_component(
         comp.name,
         {nets[0]: layers[1::2], nets[1]: layers[1::2]},

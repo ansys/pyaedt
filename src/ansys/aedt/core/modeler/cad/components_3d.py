@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import copy
 import os
+from pathlib import Path
 import re
 import secrets
 from typing import TYPE_CHECKING
@@ -347,7 +348,20 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
                 self.__parameters = UserDefinedComponentParameters(self, parameters)
             elif not self.definition_name and self.definition_type == "UserDefinedModel":
                 props = list(self.properties)
-                parameters_aedt = list(set(props) - set(self._fix_udm_props))
+                fix_udm_props = [
+                    "General[Name]",
+                    "Group",
+                    "Target Coordinate System",
+                    "Target Coordinate System/Choices",
+                    "Info[Name]",
+                    "Location",
+                    "Location/Choices",
+                    "Company",
+                    "Date",
+                    "Purpose",
+                    "Version",
+                ]
+                parameters_aedt = list(set(props) - set(fix_udm_props))
                 parameter_name = [par for par in parameters_aedt if not re.findall(r"/", par)]
                 parameters = {}
                 for parameter in parameter_name:
@@ -510,7 +524,11 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
         """
         name = str(self.name)
-        created_name = self._app.oeditor.Insert3DComponent(self._get_args_create())
+        args = self._get_args_create()
+        if self.definition_type == "UserDefinedModel":
+            created_name = self._app.oeditor.CreateUserDefinedModel(args)
+        else:
+            created_name = self._app.oeditor.Insert3DComponent(args)
         if created_name != name:
             # AEDT renames the component automatically
             self._name = created_name
@@ -545,7 +563,7 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def duplicate_and_mirror(self, origin: list | object, vector: list | object) -> list:
+    def duplicate_and_mirror(self, origin: list | object, vector: list | object) -> UserDefinedComponent:
         """Duplicate and mirror a selection.
 
         Parameters
@@ -559,8 +577,8 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
         Returns
         -------
-        list
-            List of objects created or an empty list.
+        UserDefinedComponent
+            3D object when successful, ``False`` when failed.
 
         References
         ----------
@@ -574,7 +592,18 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         >>> comp.duplicate_and_mirror(origin=[0, 0, 0], vector=[1, 0, 0])
 
         """
-        return self._app.modeler.duplicate_and_mirror(self.name, origin=origin, vector=vector, is_3d_comp=True)
+        if self.definition_name:
+            new_obj = self._app.modeler.duplicate_and_mirror(
+                assignment=self.name, origin=origin, vector=vector, is_3d_comp=True
+            )
+            return self._app.modeler.components[new_obj[0]] if new_obj else False
+        else:
+            new_udm = UserDefinedComponent(app=self._app, name=self.name + "_copy", props=self._legacy_props)
+            new_udm.definition_type = "UserDefinedModel"
+            new_udm.create()
+            self._app.modeler.refresh_all_ids()
+            new_udm.mirror(origin=origin, vector=vector)
+            return new_udm
 
     @pyaedt_function_handler()
     def mirror(self, origin: list | object, vector: list | object) -> UserDefinedComponent | bool:
@@ -732,11 +761,14 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         >>> component.duplicate_around_axis(axis=Axis.Z)
 
         """
+        components = []
         if self.definition_name:
             _, added_objects = self._app.modeler.duplicate_around_axis(
                 self.name, axis, angle, clones, create_new_objects=create_new_objects, is_3d_comp=True
             )
-            return added_objects
+            for obj in added_objects:
+                components.append(self._app.modeler.components[obj])
+            return components if added_objects else False
         self._app.logger.warning("User-defined models do not support this operation.")
         return False
 
@@ -770,12 +802,14 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         >>> component.duplicate_along_line(vector=[1, 0, 0])
 
         """
+        components = []
         if self.definition_name:
-            old_component_list = self._app.modeler.component_names
             _, added_objects = self._app.modeler.duplicate_along_line(
                 self.name, vector, clones, attach=False, is_3d_comp=True
             )
-            return list(set(added_objects) - set(old_component_list))
+            for obj in added_objects:
+                components.append(self._app.modeler.components[obj])
+            return components if added_objects else False
         self._app.logger.warning("User-defined models do not support this operation.")
         return False
 
@@ -783,11 +817,16 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
     def _get_args_create(self, props=None):
         if props is None:
             props = self._legacy_props
+        arg = []
         if isinstance(self, NativeComponent) or isinstance(self, NativeComponentPCB):
             arg = ["NAME:InsertNativeComponentData"]
-        else:
+        elif self.definition_type == "3d_component":
             arg = ["NAME:InsertComponentData"]
-        _dict2arg(props, arg)
+        elif self.definition_type == "UserDefinedModel":
+            arg = ["NAME:UserDefinedModelParameters"]
+
+        if arg:
+            _dict2arg(props, arg)
         return arg
 
     @pyaedt_function_handler()
@@ -927,368 +966,6 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         return native_comp_properties
 
 
-class LayoutComponent(PyAedtBase):
-    """Manages object attributes for Layout components.
-
-    Parameters
-    ----------
-    primitives : :class:`ansys.aedt.core.modeler.cad.primitives_3d.Primitives3D`
-        Inherited parent object.
-    name : str, optional
-        Name of the component. The default value is ``None``.
-
-    Examples
-    --------
-    >>> from ansys.aedt.core.modeler.cad.components_3d import LayoutComponent
-    >>> obj = LayoutComponent()
-
-    """
-
-    def __init__(self, component) -> None:
-        self._app.modeler = component._primitives
-        self._name = component.name
-        self._component = component
-        self._edb_definition = None
-        self._show_layout = None
-        self._fast_transformation = None
-        self._show_dielectric = None
-        self._display_mode = None
-        self.layers = {}
-        self.nets = {}
-        self.objects = {}
-        self._edb_object = None
-        self._edb_path = None
-        if self.edb_definition and self.edb_path:
-            self._get_edb_info()
-
-    @property
-    def edb_path(self) -> str:
-        """EDB path.
-
-        Returns
-        -------
-        str
-           EDB file path.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import LayoutComponent
-        >>> obj = LayoutComponent()
-        >>> obj.edb_path
-
-        """
-        return self._edb_path
-
-    @property
-    def edb_object(self) -> Edb | bool:
-        """EDB object.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.edb.Edb`
-           EDB object.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import LayoutComponent
-        >>> obj = LayoutComponent()
-        >>> obj.edb_object
-
-        """
-        if not self._edb_object:
-            aedb_component_path = self._edb_path
-
-            for edb_object in _edb_sessions:
-                if edb_object.edbpath == aedb_component_path:
-                    self._edb_object = edb_object
-                    return self._edb_object
-
-            if not aedb_component_path or not os.path.exists(aedb_component_path):  # pragma: no cover
-                return False
-
-            app = Edb(
-                edbpath=aedb_component_path,
-                isreadonly=True,
-                version=self._app.modeler._app._aedt_version,
-                student_version=self._app.modeler._app.student_version,
-            )
-
-            _edb_sessions.append(app)
-
-            self._edb_object = app
-
-        return self._edb_object
-
-    @property
-    def edb_definition(self) -> str | None:
-        """Edb definition.
-
-        Returns
-        -------
-        str
-           EDB definition.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import LayoutComponent
-        >>> obj = LayoutComponent()
-        >>> obj.edb_definition
-
-        """
-        key = "EDB Definition"
-        if key in self._app.modeler._app.get_oo_properties(self._app.modeler.oeditor, self._component.definition_name):
-            edb_definition = self._app.modeler._app.get_oo_property_value(
-                self._app.modeler.oeditor, self._component.definition_name, key
-            )
-            self._edb_definition = edb_definition
-            aedb_folder = os.path.abspath(
-                os.path.join(
-                    self._app.modeler._app.project_path,
-                    self._app.modeler._app.project_name + ".aedb",
-                    "LayoutComponents",
-                    edb_definition,
-                )
-            )
-            if os.path.exists(aedb_folder):
-                subdirs = next(os.walk(aedb_folder))[1]
-                for subdir in subdirs:
-                    if subdir.endswith(".aedb"):
-                        self._edb_path = os.path.abspath(os.path.join(aedb_folder, subdir))
-                        break
-            return edb_definition
-        else:
-            return None
-
-    @property
-    def show_layout(self) -> bool | None:
-        """Show layout flag.
-
-        Returns
-        -------
-        bool
-           `Show layout check box.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import LayoutComponent
-        >>> obj = LayoutComponent()
-        >>> obj.show_layout
-
-        """
-        key = "Show Layout"
-        if key in self._app.modeler._app.get_oo_properties(self._app.modeler.oeditor, self._name):
-            show_layout = self._app.modeler._app.get_oo_property_value(self._app.modeler.oeditor, self._name, key)
-            self._show_layout = show_layout
-            return show_layout
-        else:  # pragma: no cover
-            return None
-
-    @show_layout.setter
-    def show_layout(self, show_layout: bool) -> None:
-        key = "Show Layout"
-        if isinstance(show_layout, bool) and key in self._app.modeler._app.get_oo_properties(
-            self._app.modeler.oeditor, self._name
-        ):
-            self._app.modeler._app.set_oo_property_value(self._app.modeler.oeditor, self._name, key, show_layout)
-            self._show_layout = show_layout
-
-    @property
-    def fast_transformation(self) -> bool | None:
-        """Show layout flag.
-
-        Returns
-        -------
-        bool
-           Fast transformation check box.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import LayoutComponent
-        >>> obj = LayoutComponent()
-        >>> obj.fast_transformation
-
-        """
-        key = "Fast Transformation"
-        if key in self._app.modeler._app.get_oo_properties(self._app.modeler.oeditor, self._name):
-            fast_transformation = self._app.modeler._app.get_oo_property_value(
-                self._app.modeler.oeditor, self._name, key
-            )
-            self._fast_transformation = fast_transformation
-            return fast_transformation
-        else:  # pragma: no cover
-            return None
-
-    @fast_transformation.setter
-    def fast_transformation(self, fast_transformation: bool) -> None:
-        key = "Fast Transformation"
-        if isinstance(fast_transformation, bool) and key in self._app.modeler._app.get_oo_properties(
-            self._app.modeler.oeditor, self._name
-        ):
-            self._app.modeler._app.set_oo_property_value(
-                self._app.modeler.oeditor, self._name, key, fast_transformation
-            )
-            self._fast_transformation = fast_transformation
-
-    @property
-    def show_dielectric(self) -> bool | None:
-        """Show dielectric flag.
-
-        Returns
-        -------
-        bool
-           Show dielectric check box.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import LayoutComponent
-        >>> obj = LayoutComponent()
-        >>> obj.show_dielectric
-
-        """
-        key = "Object Attributes/ShowDielectric"
-
-        if key in self._app.modeler._app.get_oo_properties(self._app.modeler.oeditor, self._name):
-            show_dielectric = self._app.modeler._app.get_oo_property_value(self._app.modeler.oeditor, self._name, key)
-            self._show_dielectric = show_dielectric
-            return show_dielectric
-        else:  # pragma: no cover
-            return None
-
-    @show_dielectric.setter
-    def show_dielectric(self, show_dielectric: bool) -> None:
-        key = "Object Attributes/ShowDielectric"
-        if isinstance(show_dielectric, bool) and key in self._app.modeler._app.get_oo_properties(
-            self._app.modeler.oeditor, self._name
-        ):
-            self._app.modeler._app.set_oo_property_value(self._app.modeler.oeditor, self._name, key, show_dielectric)
-            self._show_dielectric = show_dielectric
-
-    @property
-    def display_mode(self) -> int | None:
-        """Show layout flag.
-
-        Returns
-        -------
-        int
-           Layout display mode. Available modes are:
-            * 0 : Layer.
-            * 1 : Net.
-            * 2 : Object.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import LayoutComponent
-        >>> obj = LayoutComponent()
-        >>> obj.display_mode
-
-        """
-        key = "Object Attributes/DisplayMode"
-
-        if key in self._app.modeler._app.get_oo_properties(self._app.modeler.oeditor, self._name):
-            display_mode = self._app.modeler._app.get_oo_property_value(self._app.modeler.oeditor, self._name, key)
-            self._display_mode = display_mode
-            return display_mode
-        else:  # pragma: no cover
-            return None
-
-    @display_mode.setter
-    def display_mode(self, display_mode: int) -> None:
-        key = "Object Attributes/DisplayMode"
-        if isinstance(display_mode, int) and key in self._app.modeler._app.get_oo_properties(
-            self._app.modeler.oeditor, self._name
-        ):
-            self._app.modeler._app.set_oo_property_value(self._app.modeler.oeditor, self._name, key, display_mode)
-            self._display_mode = display_mode
-
-    @pyaedt_function_handler()
-    def close_edb_object(self) -> bool:
-        """Close EDB object.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import LayoutComponent
-        >>> obj = LayoutComponent()
-        >>> obj.close_edb_object()
-
-        """
-        if self.edb_object:
-            try:
-                self.edb_object.close()
-                return True
-            except Exception:  # pragma: no cover
-                self._app.logger.error("EDB object cannot be closed.")
-                return False
-        else:  # pragma: no cover
-            self._app.logger.warning("EDB object was not created.")
-            return False
-
-    @pyaedt_function_handler()
-    def _get_edb_info(self) -> bool:
-        """Get EDB information."""
-        if self.edb_object:
-            self.nets = {key: [True, False, 60] for key in self.edb_object.nets.netlist}
-            self.layers = {key: [True, False, 60] for key in list(self.edb_object.stackup.layers.keys())}
-            self.objects = {key: [True, False, 60] for key in list(self.edb_object.components.instances.keys())}
-            return True
-        else:  # pragma: no cover
-            return False
-
-    @pyaedt_function_handler()
-    def update_visibility(self) -> bool:
-        """Update layer visibility.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oEditor.ChangeProperty
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import LayoutComponent
-        >>> obj = LayoutComponent()
-        >>> obj.update_visibility()
-
-        """
-        vPropChange = [
-            "NAME:Object Attributes",
-            "ShowDielectric:=",
-            self.show_dielectric,
-            "DisplayMode:=",
-            self.display_mode,
-        ]
-
-        if self.layers:
-            layer_mode = ["NAME:ObjectAttributesInLayerMode"]
-            for layer in self.layers:
-                layer_mode.append(layer + ":=")
-                layer_mode.append(self.layers[layer])
-            vPropChange.append(layer_mode)
-        if self.nets:
-            net_mode = ["NAME:ObjectAttributesInNetMode"]
-            for net in self.nets:
-                net_mode.append(layer + ":=")
-                net_mode.append(self.nets[net])
-            vPropChange.append(net_mode)
-        if self.objects:
-            objects_mode = ["NAME:ObjectAttributesInObjectMode"]
-            for objects in self.objects:
-                objects_mode.append(objects + ":=")
-                objects_mode.append(self.objects[objects])
-            vPropChange.append(objects_mode)
-
-        vChangedProps = ["NAME:ChangedProps", vPropChange]
-        vPropServers = ["NAME:PropServers", self._name]
-        vGeo3d = ["NAME:Visualization", vPropServers, vChangedProps]
-        vOut = ["NAME:AllTabs", vGeo3d]
-        self._app.modeler.oeditor.ChangeProperty(vOut)
-
-        return True
-
-
 class NativeComponent(UserDefinedComponent):
     """Manages Native Component data and execution.
 
@@ -1309,10 +986,6 @@ class NativeComponent(UserDefinedComponent):
     >>> par_beam = hfss.create_sbr_file_based_antenna(ffd_file)
 
     """
-
-    def __init__(self, app: _AppWithOProject, name: str, props: dict) -> None:
-        super().__init__(app=app, name=name, props=props)
-        self.__child_object = None
 
     @property
     def props(self) -> ComponentProps:
@@ -1338,13 +1011,13 @@ class NativeComponent(UserDefinedComponent):
         self.update(value)
 
     @pyaedt_function_handler()
-    def create(self) -> bool:
-        """Create a Native Component in AEDT.
+    def create(self) -> NativeComponent | bool:
+        """Create a native component in AEDT and register its instance.
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        NativeComponent or bool
+            Component when successful, ``False`` when failed.
 
         Examples
         --------
@@ -1356,17 +1029,16 @@ class NativeComponent(UserDefinedComponent):
         """
         name = str(self.name)
         created_name = self._app.oeditor.InsertNativeComponent(self._get_args_create())
+        if not created_name:
+            self._app.logger.error(f"Failed to insert native component {name}.")
+            return False
+        self._name = created_name
         if created_name != name:
-            # AEDT renames the component automatically
-            self._name = created_name
             self.name = name
 
-        # This is needed because TargetCS is needed to create the component, but later for the update, it is not valid
-        if "TargetCS" in self._legacy_props:
-            del self._legacy_props["TargetCS"]
-
-        # Add the component to the modeler components dictionary
-        self._app.modeler._GeometryModeler__components[name] = self
+        # TargetCS is required for creation but is not accepted by updates.
+        self._legacy_props.pop("TargetCS", None)
+        self._app.modeler._GeometryModeler__components[self.name] = self
         return self
 
     @pyaedt_function_handler()
@@ -1414,58 +1086,466 @@ class NativeComponent(UserDefinedComponent):
         }
 
         self._app.modeler.oeditor.EditNativeComponentDefinition(self._get_args_edit(update_props))
-
-        # Update legacy props with new set props
         self._legacy_props.update(update_props)
         return True
 
 
-class UserDefinedModel(UserDefinedComponent):
-    """Manages Native Component data and execution.
+class LayoutComponent(NativeComponent):
+    """Manages object attributes for Layout components.
 
     Parameters
     ----------
-    app : object
-        An AEDT application from ``ansys.aedt.core.application``.
-    component_type : str
-        Type of the component.
-    component_name : str
-        Name of the component.
+    app : _AppWithOProject
+        AEDT application.
+    name : str
+        Name of the component instance.
     props : dict
-        Properties of the boundary.
+        Native component properties.
 
     Examples
     --------
-    This example the par_beam returned object is a
-    :class:`ansys.aedt.core.modules.boundary.layout_boundary.NativeComponent`.
-
     >>> from ansys.aedt.core import Hfss
-    >>> hfss = Hfss(solution_type="SBR+")
-    >>> ffd_file = "path/to/ffdfile.ffd"
-    >>> par_beam = hfss.create_sbr_file_based_antenna(ffd_file)
-    >>> par_beam.native_properties["Size"] = "0.1mm"
-    >>> par_beam.update()
-    >>> par_beam.delete()
+    >>> app = Hfss()
+    >>> obj = app.modeler.insert_layout_component("board.aedbcomp")
 
     """
 
     def __init__(self, app: _AppWithOProject, name: str, props: dict) -> None:
-        # Internal variables
-        self._fix_udm_props = [
-            "General[Name]",
-            "Group",
-            "Target Coordinate System",
-            "Target Coordinate System/Choices",
-            "Info[Name]",
-            "Location",
-            "Location/Choices",
-            "Company",
-            "Date",
-            "Purpose",
-            "Version",
+        super().__init__(app=app, name=name, props=props)
+        self.definition_type = "layout_component"
+        if props:
+            self.definition_name = props["SubmodelDefinitionName"]
+        self._legacy_props["NativeComponentDefinitionProvider"]["Type"] = "Layout Component"
+        self._edb_definition = None
+        self._layers = None
+        self._nets = None
+        self._objects = None
+        self._edb_object = None
+        self._owns_edb_object = False
+        self._edb_path = None
+
+    def _map_parameters(self, mapping: bool | dict[str, str]) -> None:
+        """Prepare literal values and design-variable bindings for insertion."""
+        if isinstance(mapping, dict):
+            variable_map = dict(mapping)
+        else:
+            edb = self.edb_object
+            if not edb:
+                raise RuntimeError(f"Cannot read layout parameters for {self.name}.")
+            try:
+                variable_map = {key: str(variable.value) for key, variable in edb.design_variables.items()}
+            finally:
+                if self._owns_edb_object:
+                    self.close_edb_object()
+            if mapping:
+                for key, value in variable_map.items():
+                    variable_name = key + "_" + self._name
+                    self._app[variable_name] = value
+                    variable_map[key] = variable_name
+
+        variables = self._app.variable_manager.variables
+        mapped_variables = list(dict.fromkeys(value for value in variable_map.values() if value in variables))
+        geometry = {}
+        if mapped_variables:
+            geometry["VariableProp"] = [[key, "D", "", variables[key].expression] for key in mapped_variables]
+        geometry["VariableOrders"] = {}
+        self._legacy_props["GeometryDefinitionParameters"] = geometry
+        self._legacy_props["NativeComponentDefinitionProvider"]["VariableMap"] = variable_map
+        self._legacy_props["InstanceParameters"]["GeometryParameters"] = " ".join(
+            f"{key}='{key}'" for key in mapped_variables
+        )
+
+    def _get_args_create(self, props=None):
+        return self._expand_variable_props(super()._get_args_create(props))
+
+    def _get_args_edit(self, props=None):
+        return self._expand_variable_props(super()._get_args_edit(props))
+
+    @staticmethod
+    def _expand_variable_props(args):
+        # AEDT expects repeated VariableProp:= entries, not a nested list.
+        for block in args:
+            if isinstance(block, list) and block and block[0] == "NAME:GeometryDefinitionParameters":
+                if "VariableProp:=" in block:
+                    index = block.index("VariableProp:=")
+                    values = block[index + 1]
+                    block[index : index + 2] = [item for value in values for item in ("VariableProp:=", value)]
+        return args
+
+    @property
+    def layers(self) -> dict | None:
+        """Layout layers and their visibility, highlighting, and transparency.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> comp = app.modeler.insert_layout_component("board.aedbcomp")
+        >>> comp.layers
+
+        """
+        if self._layers is None and not self._get_edb_info():
+            raise RuntimeError(f"Cannot read layout layers for {self.name}.")
+        return self._layers
+
+    @layers.setter
+    def layers(self, value: dict) -> None:
+        self._layers = value
+        self.update_visibility()
+
+    @property
+    def nets(self) -> dict | None:
+        """Layout nets and their visibility, highlighting, and transparency.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> comp = app.modeler.insert_layout_component("board.aedbcomp")
+        >>> comp.nets
+
+        """
+        if self._nets is None and not self._get_edb_info():
+            raise RuntimeError(f"Cannot read layout nets for {self.name}.")
+        return self._nets
+
+    @nets.setter
+    def nets(self, value: dict) -> None:
+        self._nets = value
+        self.update_visibility()
+
+    @property
+    def objects(self) -> dict | None:
+        """Layout objects and their visibility, highlighting, and transparency.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> comp = app.modeler.insert_layout_component("board.aedbcomp")
+        >>> comp.objects
+
+        """
+        if self._objects is None and not self._get_edb_info():
+            raise RuntimeError(f"Cannot read layout objects for {self.name}.")
+        return self._objects
+
+    @objects.setter
+    def objects(self, value: dict) -> None:
+        self._objects = value
+        self.update_visibility()
+
+    @property
+    def edb_path(self) -> str | None:
+        """EDB path.
+
+        Returns
+        -------
+        str
+           EDB file path.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> comp = app.modeler.insert_layout_component("board.aedbcomp")
+        >>> comp.edb_path
+
+        """
+        if self._edb_path is None:
+            # The initialization of _edb_path is deferred until the first access to avoid unnecessary computation.
+            _ = self.edb_definition
+        return self._edb_path
+
+    @property
+    def edb_object(self) -> Edb | bool:
+        """EDB object.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.edb.Edb`
+           EDB object.
+
+        Examples
+        --------
+        >>> obj = app.modeler.components["board"]
+        >>> obj.edb_object
+
+        """
+        if self._edb_object and self._edb_object not in _edb_sessions:
+            self._edb_object = None
+            self._owns_edb_object = False
+        if not self._edb_object:
+            aedb_component_path = self.edb_path
+
+            if not aedb_component_path or not Path(aedb_component_path).exists():
+                self._app.logger.error(f"Layout component EDB does not exist: {aedb_component_path}.")
+                return False
+
+            for edb_object in _edb_sessions:
+                if Path(edb_object.edbpath).resolve() == Path(aedb_component_path).resolve():
+                    self._edb_object = edb_object
+                    return self._edb_object
+
+            app = Edb(
+                edbpath=aedb_component_path,
+                isreadonly=True,
+                version=self._app._aedt_version,
+                student_version=self._app.student_version,
+            )
+
+            _edb_sessions.append(app)
+
+            self._edb_object = app
+            self._owns_edb_object = True
+
+        return self._edb_object
+
+    @property
+    def edb_definition(self) -> str | None:
+        """EDB definition.
+
+        Returns
+        -------
+        str
+           EDB definition.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> comp = app.modeler.insert_layout_component("board.aedbcomp")
+        >>> comp.edb_definition
+
+        """
+        key = "EDB Definition"
+        if self._child_object and key in self._app.get_oo_properties(self._app.oeditor, self.definition_name):
+            self._edb_definition = self._app.get_oo_property_value(self._app.oeditor, self.definition_name, key)
+        else:  # pragma: no cover
+            self._edb_definition = self._legacy_props.get("NativeComponentDefinitionProvider", {}).get("EDBDefinition")
+        if self._edb_definition:
+            aedb_folder = (
+                Path(self._app.project_path)
+                / (self._app.project_name + ".aedb")
+                / "LayoutComponents"
+                / self._edb_definition
+            )
+            if aedb_folder.is_dir():
+                for subdir in aedb_folder.iterdir():
+                    if subdir.is_dir() and subdir.suffix.lower() == ".aedb":
+                        self._edb_path = str(subdir.resolve())
+                        break
+        return self._edb_definition
+
+    @property
+    def show_layout(self) -> bool | None:
+        """Show layout flag.
+
+        Returns
+        -------
+        bool
+           `Show layout check box.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> comp = app.modeler.insert_layout_component("board.aedbcomp")
+        >>> comp.show_layout
+
+        """
+        key = "Show Layout"
+        show_layout = None
+        if key in self.properties:
+            show_layout = self.properties[key]
+        return show_layout
+
+    @show_layout.setter
+    def show_layout(self, show_layout: bool) -> None:
+        key = "Show Layout"
+        if isinstance(show_layout, bool) and key in self.properties:
+            self.properties[key] = show_layout
+
+    @property
+    def fast_transformation(self) -> bool | None:
+        """Show layout flag.
+
+        Returns
+        -------
+        bool
+           Fast transformation check box.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> comp = app.modeler.insert_layout_component("board.aedbcomp")
+        >>> comp.fast_transformation
+
+        """
+        key = "Fast Transformation"
+        fast_transformation = None
+        if key in self.properties:
+            fast_transformation = self.properties[key]
+        return fast_transformation
+
+    @fast_transformation.setter
+    def fast_transformation(self, fast_transformation: bool) -> None:
+        key = "Fast Transformation"
+        if isinstance(fast_transformation, bool) and key in self.properties:
+            self.properties[key] = fast_transformation
+
+    @property
+    def show_dielectric(self) -> bool | None:
+        """Show dielectric flag.
+
+        Returns
+        -------
+        bool
+           Show dielectric check box.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> comp = app.modeler.insert_layout_component("board.aedbcomp")
+        >>> comp.show_dielectric
+
+        """
+        key = "Object Attributes/ShowDielectric"
+        show_dielectric = None
+        if key in self.properties:
+            show_dielectric = self.properties[key]
+        return show_dielectric
+
+    @show_dielectric.setter
+    def show_dielectric(self, show_dielectric: bool) -> None:
+        key = "Object Attributes/ShowDielectric"
+        if isinstance(show_dielectric, bool) and key in self.properties:
+            self.properties[key] = show_dielectric
+
+    @property
+    def display_mode(self) -> int | None:
+        """Show layout flag.
+
+        Returns
+        -------
+        int
+           Layout display mode. Available modes are:
+            * 0 : Layer.
+            * 1 : Net.
+            * 2 : Object.
+
+        Examples
+        --------
+        >>> obj = app.modeler.components["board"]
+        >>> obj.display_mode
+
+        """
+        key = "Object Attributes/DisplayMode"
+        display_mode = None
+        if key in self.properties:
+            display_mode = self.properties[key]
+        return display_mode
+
+    @display_mode.setter
+    def display_mode(self, display_mode: int) -> None:
+        key = "Object Attributes/DisplayMode"
+        if isinstance(display_mode, int) and key in self.properties:
+            self.properties[key] = display_mode
+
+    @pyaedt_function_handler()
+    def close_edb_object(self) -> bool:
+        """Close an EDB session opened by this component without saving.
+
+        Borrowed sessions are left open.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> comp = app.modeler.insert_layout_component("board.aedbcomp")
+        >>> comp.close_edb_object()
+
+        """
+        if not self._edb_object:
+            self._app.logger.warning("EDB object was not created.")
+            return False
+        if not self._owns_edb_object:
+            self._app.logger.warning("EDB session belongs to another component or caller and was left open.")
+            return False
+        self._edb_object.close(False)
+        if self._edb_object in _edb_sessions:
+            _edb_sessions.remove(self._edb_object)
+        self._edb_object = None
+        self._owns_edb_object = False
+        return True
+
+    @pyaedt_function_handler()
+    def _get_edb_info(self) -> bool:
+        """Get EDB information."""
+        if self.edb_object:
+            self._nets = {key: [True, False, 60] for key in self.edb_object.nets.netlist}
+            self._layers = {key: [True, False, 60] for key in self.edb_object.stackup.layers}
+            self._objects = {key.aedt_name: [True, False, 60] for key in self.edb_object.modeler.primitives}
+            return True
+        else:  # pragma: no cover
+            return False
+
+    @pyaedt_function_handler()
+    def update_visibility(self) -> bool:
+        """Update layer visibility.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oEditor.ChangeProperty
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> comp = app.modeler.insert_layout_component("board.aedbcomp")
+        >>> comp.update_visibility()
+
+        """
+        vPropChange = [
+            "NAME:Object Attributes",
+            "ShowDielectric:=",
+            self.show_dielectric,
+            "DisplayMode:=",
+            self.display_mode,
         ]
 
-        super().__init__(app=app, name=name, props=props)
+        if self.layers:
+            layer_mode = ["NAME:ObjectAttributesInLayerMode"]
+            for layer in self.layers:
+                layer_mode.append(layer + ":=")
+                layer_mode.append(self.layers[layer])
+            vPropChange.append(layer_mode)
+        if self.nets:
+            net_mode = ["NAME:ObjectAttributesInNetMode"]
+            for net in self.nets:
+                net_mode.append(net + ":=")
+                net_mode.append(self.nets[net])
+            vPropChange.append(net_mode)
+        if self.objects:
+            objects_mode = ["NAME:ObjectAttributesInObjectMode"]
+            for objects in self.objects:
+                objects_mode.append(objects + ":=")
+                objects_mode.append(self.objects[objects])
+            vPropChange.append(objects_mode)
+
+        vChangedProps = ["NAME:ChangedProps", vPropChange]
+        vPropServers = ["NAME:PropServers", self._name]
+        vGeo3d = ["NAME:Visualization", vPropServers, vChangedProps]
+        vOut = ["NAME:AllTabs", vGeo3d]
+        self._app.modeler.oeditor.ChangeProperty(vOut)
+        return True
 
 
 class NativeComponentPCB(NativeComponent):
