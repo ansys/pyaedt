@@ -2858,36 +2858,47 @@ def test_layout_component_coordinate(aedt_app, test_tmp_dir) -> None:
     file_original3 = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / LAYOUT_COMP_SI_VERSE_SFP
     input_file3 = shutil.copy2(file_original3, test_tmp_dir / LAYOUT_COMP_SI_VERSE_SFP)
 
-    aedt_app.modeler.add_layout_component_definition(
-        file_path=str(input_file),
-        name="ann",
-    )
+    component_name = aedt_app.modeler.add_layout_component_definition(file_path=str(input_file), name="ann")
     aedt_app["b1"] = "3.2mm"
     aedt_app.solution_type = "Terminal"
     comp = aedt_app.modeler.insert_layout_component(
-        definition_name="ann", name=None, parameter_mapping={"a": "1.4mm", "b": "b1"}
+        definition_name=component_name, name=None, parameter_mapping={"a": "1.4mm", "b": "b1"}
     )
     assert isinstance(comp, LayoutComponent)
-    assert aedt_app.modeler.components[comp.name] is comp
-    aedt_app.modeler.add_layout_component_definition(
-        file_path=str(input_file2),
-        name="SiVerse_SFP",
-    )
-    aedt_app.modeler.add_layout_component_definition(
-        file_path=str(input_file3),
-        name="SiVerse_SFP_aedb",
-    )
+    assert comp.name in aedt_app.modeler.layout_component_names
+    assert comp.name in aedt_app.modeler.component_names
+    assert len(aedt_app.modeler.components) == 1
+    assert comp.parameters["b1"] == "b1"
+    component_name2 = aedt_app.modeler.add_layout_component_definition(file_path=str(input_file2), name="SiVerse_SFP")
 
-    assert aedt_app.modeler.insert_layout_component(
+    component_name3 = aedt_app.modeler.add_layout_component_definition(
+        file_path=str(input_file3), name="SiVerse_SFP_aedb"
+    )
+    comp4 = aedt_app.modeler.insert_layout_component(
         name="PCB_A",
-        definition_name="SiVerse_SFP",
+        definition_name=component_name2,
     )
-    assert aedt_app.modeler.insert_layout_component(
-        name="PCB_B", definition_name="SiVerse_SFP", layout_coordinate_systems=["L8_1"]
+    assert isinstance(comp4, LayoutComponent)
+    assert comp4.name in aedt_app.modeler.layout_component_names
+    assert comp4.name in aedt_app.modeler.component_names
+    assert len(aedt_app.modeler.components) == 2
+
+    comp5 = aedt_app.modeler.insert_layout_component(
+        name="PCB_B", definition_name=component_name, layout_coordinate_systems=["CS_2"]
     )
-    assert aedt_app.modeler.insert_layout_component(
-        name="PCB_C", definition_name="SiVerse_SFP_aedb", layout_coordinate_systems=["L8_1"]
+    assert isinstance(comp5, LayoutComponent)
+    assert comp5.name in aedt_app.modeler.layout_component_names
+    assert comp5.name in aedt_app.modeler.component_names
+    assert len(aedt_app.modeler.components) == 3
+    comp5.coordinate_system
+
+    comp6 = aedt_app.modeler.insert_layout_component(
+        name="PCB_C", definition_name=component_name3, layout_coordinate_systems=["L8_1"]
     )
+    assert isinstance(comp6, LayoutComponent)
+    assert comp6.name in aedt_app.modeler.layout_component_names
+    assert comp6.name in aedt_app.modeler.component_names
+    assert len(aedt_app.modeler.components) == 4
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Method available in beta from 2026.1")

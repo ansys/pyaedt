@@ -1173,6 +1173,11 @@ class LayoutComponent(NativeComponent):
         return args
 
     @property
+    def coordinate_system(self) -> str:
+        pass
+        _ = list(self._app.oeditor.Get3DComponentPartNames(self.name))
+
+    @property
     def layers(self) -> dict | None:
         """Layout layers and their visibility, highlighting, and transparency.
 
