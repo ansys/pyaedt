@@ -24,6 +24,8 @@
 
 """The module contains these classes: ``Q2d``, ``Q3d``, and ``QExtractor``."""
 
+from __future__ import annotations
+
 from pathlib import Path
 import re
 import sys
@@ -50,10 +52,10 @@ from ansys.aedt.core.modules.boundary.hfss_boundary import NearFieldSetup
 from ansys.aedt.core.modules.boundary.q3d_boundary import Matrix
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.modules.solve_setup import SetupQ3D
-from ansys.aedt.core.visualization.post.solution_data import SolutionData
 
 if TYPE_CHECKING:
     from ansys.aedt.core.modeler.cad.object_3d import Object3d
+    from ansys.aedt.core.visualization.post.solution_data import SolutionData
 
 
 class QExtractor(FieldAnalysis3D, PyAedtBase):
