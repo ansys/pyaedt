@@ -35,6 +35,7 @@ from typing import Optional
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import Gravity
+from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
 from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import write_configuration_file
@@ -42,6 +43,7 @@ from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.maxwellcircuit import MaxwellCircuit
@@ -759,17 +761,38 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
 
         Examples
         --------
-        Set up the Y connection for three existing windings named ``PhaseA``, ``PhaseB``, and ``PhaseC``.
-        This creates one ``YConnection`` group containing these three phases.
+        Create three copper coils in a Maxwell 2D transient design, assign a stranded voltage
+        winding to each phase, and connect the three phases in a Y (star) configuration.
 
         >>> from ansys.aedt.core import Maxwell2d
-        >>> m2d = Maxwell2d("Motor_EM_R2019R3.aedt")
-        >>> m2d.set_active_design("Basis_Model_For_Test")
-        >>> m2d.setup_y_connection(["PhaseA", "PhaseB", "PhaseC"])
+        >>> m2d = Maxwell2d(solution_type="TransientXY")
+        >>> phases = ["PhaseA", "PhaseB", "PhaseC"]
+        >>> for i, phase in enumerate(phases):
+        ...     coil = m2d.modeler.create_rectangle(
+        ...         origin=[i * 20, 0, 0], sizes=[10, 5], material="copper", name=f"Coil_{phase}"
+        ...     )
+        ...     m2d.assign_winding(
+        ...         assignment=coil.name,
+        ...         winding_type="Voltage",
+        ...         is_solid=False,
+        ...         resistance=0.1,
+        ...         voltage=230,
+        ...         phase=i * 120,
+        ...         name=phase,
+        ...     )
+        >>> m2d.setup_y_connection(phases)
+
+        Remove the Y connection from the design.
+
+        >>> m2d.setup_y_connection()
         >>> m2d.desktop_class.close_desktop()
 
         """
-        if self.solution_type != SolutionsMaxwell3D.Transient:
+        if self.solution_type not in [
+            SolutionsMaxwell3D.Transient,
+            SolutionsMaxwell2D.TransientXY,
+            SolutionsMaxwell2D.TransientZ,
+        ]:
             raise AEDTRuntimeError("Y connections only available for Transient solutions.")
 
         if assignment:
@@ -778,6 +801,199 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
             self.oboundary.SetupYConnection(assignment)
         else:
             self.oboundary.SetupYConnection()
+        return True
+
+    @pyaedt_function_handler()
+    @min_aedt_version("2025.2")
+    def setup_pwm_excitation(
+        self,
+        assignment: list[str],
+        dc_bus_voltage: float | str = "100V",
+        output_voltage_frequency: float | str = "100Hz",
+        switching_frequency: float | str = "10000Hz",
+        phase: float | str = "0deg",
+        modulation_index: float = 1.0,
+        reference_phase_voltage: float | str | None = "50V",
+        min_time_step: float | str = "1us",
+        max_time_step: float | str | None = None,
+        connection_type: str = "YConnection",
+        preview_end_time: float | str = "0.01s",
+    ) -> bool:
+        """Set up a space vector pulse width modulation (SVPWM) voltage excitation on windings.
+
+        The generated waveform represents the phase-neutral voltage of a three-phase inverter.
+        This method is valid for both Maxwell 2D and Maxwell 3D transient designs.
+
+        Method valid from AEDT 2025.2.
+
+        .. note::
+           To set up an SVPWM winding excitation, the windings must already exist and their
+           winding type must be set to ``"PWM Voltage"``. For example, use
+           ``assign_winding(winding_type="PWM Voltage", ...)``.
+           This excitation is available only for the transient solution type.
+           When ``connection_type="YConnection"``, the windings must first be connected
+           in a Y (star) configuration with the
+           :meth:`setup_y_connection <ansys.aedt.core.maxwell.Maxwell.setup_y_connection>` method.
+
+        Parameters
+        ----------
+        assignment : list
+            Names of the windings to apply the excitation to. At least three windings
+            of the ``"PWM Voltage"`` type must be given.
+        dc_bus_voltage : float or str, optional
+            Voltage available at the main DC bus as input to the inverter.
+            If a float is given, the unit is volts. The default is ``"100V"``.
+        output_voltage_frequency : float or str, optional
+            Fundamental frequency of the reference signal and of the PWM output voltage.
+            It must be consistent with the motor speed. If a float is given, the unit is hertz.
+            The default is ``"100Hz"``.
+        switching_frequency : float or str, optional
+            Carrier signal frequency used to generate the PWM switching signal.
+            If a float is given, the unit is hertz. The default is ``"10000Hz"``.
+        phase : float or str, optional
+            Phase delay angle of the reference signal. If a float is given, the unit
+            is degrees. The default is ``"0deg"``.
+        modulation_index : float, optional
+            Ratio between the reference signal and the carrier signal. Valid range is
+            ``0 < modulation_index <= 1.1547``. Variables are not supported.
+            This value is used only when ``reference_phase_voltage`` is ``None``.
+            The default is ``1.0``.
+        reference_phase_voltage : float, str, or None, optional
+            Reference phase voltage. When given, AEDT computes the modulation index as
+            ``reference_phase_voltage / (dc_bus_voltage / 2)``. If ``None``,
+            ``modulation_index`` is used instead. If a float is given, the unit is volts.
+            The default is ``"50V"``.
+        min_time_step : float or str, optional
+            Rate at which the carrier and reference signals are compared to generate the
+            switching signals. The recommended value is ``1/(100 * switching_frequency)``
+            or smaller. If a float is given, the unit is seconds. The default is ``"1us"``.
+        max_time_step : float, str, or None, optional
+            Largest time step used to generate the switching signal. If ``None``,
+            no maximum time step is used. If a float is given, the unit is seconds.
+            The default is ``None``.
+        connection_type : str, optional
+            Winding connection type. Options are ``"YConnection"`` and ``"DeltaConnection"``.
+            For ``"YConnection"``, call ``setup_y_connection`` on the same windings first.
+            The default is ``"YConnection"``.
+        preview_end_time : float or str, optional
+            End time of the dataset preview. If a float is given, the unit is seconds.
+            The default is ``"0.01s"``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful.
+
+        References
+        ----------
+        >>> oModule.SetupPWMExcitation
+
+        Examples
+        --------
+        Create three copper coils in a Maxwell 2D transient design, assign a ``"PWM Voltage"``
+        winding to each phase, connect the phases in a Y configuration, and set up the
+        SVPWM excitation.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(solution_type="TransientXY")
+        >>> phases = ["PhaseA", "PhaseB", "PhaseC"]
+        >>> for i, phase in enumerate(phases):
+        ...     coil = m2d.modeler.create_rectangle(
+        ...         origin=[i * 20, 0, 0], sizes=[10, 5], material="copper", name=f"Coil_{phase}"
+        ...     )
+        ...     m2d.assign_winding(
+        ...         assignment=coil.name, winding_type="PWM Voltage", is_solid=False, resistance=0.1, name=phase
+        ...     )
+        >>> m2d.setup_y_connection(phases)
+        >>> m2d["BusDC"] = "400V"
+        >>> m2d.setup_pwm_excitation(
+        ...     assignment=phases,
+        ...     dc_bus_voltage="BusDC",
+        ...     output_voltage_frequency="50Hz",
+        ...     switching_frequency="10kHz",
+        ...     phase="30deg",
+        ...     reference_phase_voltage="100V",
+        ...     min_time_step="1us",
+        ...     max_time_step="10us",
+        ...     connection_type="YConnection",
+        ... )
+        >>> m2d.desktop_class.close_desktop()
+
+        """
+        if self.solution_type not in (
+            SolutionsMaxwell3D.Transient,
+            SolutionsMaxwell2D.TransientXY,
+            SolutionsMaxwell2D.TransientZ,
+        ):
+            raise AEDTRuntimeError("PWM excitations are only available for Transient solutions.")
+
+        if isinstance(assignment, str):
+            assignment = [assignment]
+        if len(assignment) < 3:
+            raise ValueError("At least three windings must be assigned to a PWM excitation.")
+
+        excitations = self.design_excitations
+        for winding in assignment:
+            if winding not in excitations:
+                raise AEDTRuntimeError(f"Winding '{winding}' does not exist in the design.")
+            if excitations[winding].props.get("Type", "") != "PWM Voltage":
+                raise AEDTRuntimeError(f"Winding '{winding}' must be of type 'PWM Voltage'.")
+
+        if connection_type not in ("YConnection", "DeltaConnection"):
+            raise ValueError("Connection type must be either 'YConnection' or 'DeltaConnection'.")
+        if not 0 < modulation_index <= 1.1547:
+            raise ValueError("Modulation index must be greater than 0 and less than or equal to 1.1547.")
+
+        use_reference_voltage = reference_phase_voltage is not None
+        dc_bus_voltage = self.value_with_units(dc_bus_voltage, "V")
+        if use_reference_voltage:
+            reference_phase_voltage = self.value_with_units(reference_phase_voltage, "V")
+        else:
+            # AEDT rejects a null reference voltage, so pass the value consistent with the modulation index.
+            reference_phase_voltage = f"{modulation_index}*({dc_bus_voltage})/2"
+        use_max_time_step = max_time_step is not None
+        min_time_step = self.value_with_units(min_time_step, "s")
+        if use_max_time_step:
+            max_time_step = self.value_with_units(max_time_step, "s")
+        else:
+            max_time_step = f"10*{min_time_step}"
+
+        props = [
+            "NAME:PWMExcitation",
+            "Windings:=",
+            ",".join(assignment),
+            "DCBusVoltage:=",
+            dc_bus_voltage,
+            "ModulationIndex:=",
+            modulation_index,
+            "OutputVoltageFrequency:=",
+            self.value_with_units(output_voltage_frequency, "Hz"),
+            "SwitchingFrequency:=",
+            self.value_with_units(switching_frequency, "Hz"),
+            "Phase:=",
+            self.value_with_units(phase, "deg"),
+            "ModulationIndexType:=",
+            0 if use_reference_voltage else 1,
+            "ReferencePhaseVoltage:=",
+            reference_phase_voltage,
+            "MinTimeStep:=",
+            min_time_step,
+            "MaxTimeStep:=",
+            max_time_step,
+            "WindingConnectionType:=",
+            connection_type,
+            "UseMaxTimeStep:=",
+            use_max_time_step,
+            "PreviewEndTime:=",
+            self.value_with_units(preview_end_time, "s"),
+        ]
+        try:
+            self.oboundary.SetupPWMExcitation(props)
+        except GrpcApiError as e:
+            msg = "Failed to set up the PWM excitation."
+            if connection_type == "YConnection":
+                msg += " Make sure the windings are Y-connected with the 'setup_y_connection' method."
+            raise AEDTRuntimeError(msg) from e
         return True
 
     @pyaedt_function_handler()
@@ -1373,7 +1589,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
             The default is ``None``.
         winding_type : str, optional
             Type of the winding. Options are ``"Current"``, ``"Voltage"``,
-            and ``"External"``. The default is ``"Current"``.
+            ``"External"``, and ``"PWM Voltage"``. The default is ``"Current"``.
         is_solid : bool, optional
             Whether the winding is the solid type. The default is ``True``. If ``False``,
             the winding is the stranded type.
@@ -1409,8 +1625,9 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
 
         >>> from ansys.aedt.core import Maxwell2d
         >>> m2d = Maxwell2d(solution_type="TransientZ")
-        >>> terminal = m2d.modeler.create_rectangle(origin=[0, 0, 0], sizes=[10, 5])
-        >>> winding = m2d.assign_winding(assignment=terminal.name, current=3, name="winding")
+        >>> for i, name in enumerate(["PhaseA", "PhaseB", "PhaseC"]):
+        ...     rect = m2d.modeler.create_rectangle([i * 20, 0, 0], [10, 10], material="copper")
+        ...     m2d.assign_winding(rect.name, winding_type="PWM Voltage", is_solid=False, resistance=1, name=name)
         >>> m2d.desktop_class.close_desktop()
 
         """
