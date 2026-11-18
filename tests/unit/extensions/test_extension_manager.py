@@ -23,11 +23,13 @@
 # SOFTWARE.
 
 import io
+from pathlib import Path
 import tkinter
 from unittest.mock import MagicMock
 from unittest.mock import PropertyMock
 from unittest.mock import patch
 
+import PIL.Image
 import pytest
 
 from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
@@ -228,7 +230,7 @@ def test_extension_manager_custom_extension_cancel(mock_toolkits, mock_desktop, 
         patch("tkinter.filedialog.askopenfilename", return_value=""),
         patch.object(extension.root, "wait_window"),
     ):
-        script_file, name = extension.handle_custom_extension()
+        script_file, name, icon = extension.handle_custom_extension()
         assert script_file is None
         assert name is None
 
@@ -536,7 +538,7 @@ def test_extension_manager_pin_custom_extension_no_script(
     extension = ExtensionManager(withdraw=True)
     extension.current_category = "HFSS"
 
-    with patch.object(extension, "handle_custom_extension", return_value=(None, None)) as mock_handle_custom:
+    with patch.object(extension, "handle_custom_extension", return_value=(None, None, None)) as mock_handle_custom:
         extension.pin_extension("HFSS", "custom")
         mock_handle_custom.assert_called_once()
         extension.desktop.logger.info.assert_called_with("No script selected for custom extension. Aborting pin.")
@@ -562,7 +564,7 @@ def test_extension_manager_pin_custom_extension_success(
 
     with (
         patch.object(
-            extension, "handle_custom_extension", return_value=(script_file, extension_name)
+            extension, "handle_custom_extension", return_value=(script_file, extension_name, None)
         ) as mock_handle_custom,
         patch.object(extension, "load_extensions") as mock_load_extensions,
     ):
@@ -594,7 +596,7 @@ def test_extension_manager_pin_custom_extension_exception(
     extension_name = "MyCustomExtension"
 
     with patch.object(
-        extension, "handle_custom_extension", return_value=(script_file, extension_name)
+        extension, "handle_custom_extension", return_value=(script_file, extension_name, None)
     ) as mock_handle_custom:
         extension.pin_extension("HFSS", "custom")
         mock_handle_custom.assert_called_once()
@@ -603,6 +605,41 @@ def test_extension_manager_pin_custom_extension_exception(
             f"Failed to pin custom extension {extension_name}: Test error"
         )
         mock_showerror.assert_called_once()
+
+    extension.root.destroy()
+
+
+@patch("ansys.aedt.core.extensions.misc.Desktop")
+@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
+@patch("ansys.aedt.core.extensions.installer.extension_manager.add_script_to_menu")
+def test_extension_manager_pin_custom_extension_large_icon(
+    mock_add_script, mock_toolkits, mock_desktop, mock_aedt_app, tmp_path
+) -> None:
+    """A large custom icon is installed as a 32x32 RGBA PNG in the extension folder."""
+    mock_desktop.return_value = MagicMock()
+    mock_toolkits.return_value = {"HFSS": {}}
+    mock_aedt_app.personallib = str(tmp_path / "personal")
+    large_icon = tmp_path / "large_icon.png"
+    PIL.Image.new("RGB", (4096, 2048), (255, 0, 0)).save(large_icon)
+
+    extension = ExtensionManager(withdraw=True)
+    extension.current_category = "HFSS"
+
+    with (
+        patch.object(
+            extension, "handle_custom_extension", return_value=(tmp_path / "script.py", "MyExtension", large_icon)
+        ),
+        patch.object(extension, "load_extensions"),
+    ):
+        extension.pin_extension("HFSS", "custom")
+
+    icon = Path(mock_add_script.call_args.kwargs["icon_file"])
+    assert icon == tmp_path / "personal" / "Toolkits" / "HFSS" / "MyExtension" / "icon.png"
+    with PIL.Image.open(icon) as img:
+        assert (img.format, img.mode, img.size) == ("PNG", "RGBA", (32, 32))
+        # Aspect ratio is kept: transparent padding above, image in the middle
+        assert img.getpixel((16, 0))[3] == 0
+        assert img.getpixel((16, 16)) == (255, 0, 0, 255)
 
     extension.root.destroy()
 
@@ -910,6 +947,8 @@ def test_extension_manager_handle_custom_extension_with_script(
     mock_dialog = MagicMock()
     mock_script_var = MagicMock()
     mock_name_var = MagicMock()
+    mock_icon_var = MagicMock()
+    mock_icon_var.get.return_value = ""
 
     mock_script_var.get.return_value = "/path/to/script.py"
     mock_name_var.get.return_value = "My Custom Extension"
@@ -925,13 +964,13 @@ def test_extension_manager_handle_custom_extension_with_script(
     def mock_wait_window(dialog) -> None:
         # Simulate the OK button being clicked
         if captured_on_ok:
-            captured_on_ok[1]()  # Call the first (and only) function in the list
+            captured_on_ok[2]()  # Call the first (and only) function in the list
 
     with (
         patch("tkinter.Toplevel", return_value=mock_dialog),
         patch(
             "tkinter.StringVar",
-            side_effect=[mock_script_var, mock_name_var],
+            side_effect=[mock_script_var, mock_icon_var, mock_name_var],
         ),
         patch("tkinter.ttk.Label"),
         patch("tkinter.ttk.Entry"),
@@ -942,9 +981,61 @@ def test_extension_manager_handle_custom_extension_with_script(
             side_effect=mock_wait_window,
         ),
     ):
-        script_file, name = extension.handle_custom_extension()
+        script_file, name, icon = extension.handle_custom_extension()
         assert script_file.as_posix().endswith("/path/to/script.py")
         assert name == "My Custom Extension"
+        assert icon is None
+
+    extension.root.destroy()
+
+
+@patch("ansys.aedt.core.extensions.misc.Desktop")
+@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
+def test_extension_manager_handle_custom_extension_with_icon(
+    mock_toolkits, mock_desktop, mock_aedt_app, tmp_path
+) -> None:
+    """The icon selected in the dialog is returned, and invalid icons are rejected."""
+    mock_desktop.return_value = MagicMock()
+    mock_toolkits.return_value = {"HFSS": {}}
+    png = tmp_path / "my_icon.png"
+    png.touch()
+    bad = tmp_path / "my_icon.jpg"
+    bad.touch()
+
+    extension = ExtensionManager(withdraw=True)
+
+    def run_dialog(icon_path):
+        script_var, icon_var, name_var = MagicMock(), MagicMock(), MagicMock()
+        script_var.get.return_value = str(tmp_path / "script.py")
+        icon_var.get.return_value = str(icon_path)
+        name_var.get.return_value = "My Custom Extension"
+        commands = []
+
+        def mock_button(*args, **kwargs):
+            commands.append(kwargs.get("command"))
+            return MagicMock()
+
+        def mock_wait_window(dialog) -> None:
+            commands[2]()  # OK
+
+        with (
+            patch("tkinter.Toplevel", return_value=MagicMock()),
+            patch("tkinter.StringVar", side_effect=[script_var, icon_var, name_var]),
+            patch("tkinter.ttk.Label"),
+            patch("tkinter.ttk.Entry"),
+            patch("tkinter.ttk.Button", side_effect=mock_button),
+            patch("tkinter.messagebox.showerror") as mock_showerror,
+            patch.object(extension.root, "wait_window", side_effect=mock_wait_window),
+        ):
+            return extension.handle_custom_extension(), mock_showerror
+
+    (script_file, name, icon), mock_showerror = run_dialog(png)
+    assert icon == png.resolve()
+    mock_showerror.assert_not_called()
+
+    (script_file, name, icon), mock_showerror = run_dialog(bad)
+    assert script_file is None and icon is None
+    mock_showerror.assert_called_once()
 
     extension.root.destroy()
 
@@ -1057,19 +1148,19 @@ def test_handle_custom_extension_on_cancel(mock_desktop, mock_toolkits, mock_aed
 
     def mock_wait_window(dialog) -> None:
         # Call only cancel
-        if len(commands) > 2:
-            commands[2]()
+        if len(commands) > 3:
+            commands[3]()
 
     with (
         patch("tkinter.Toplevel", return_value=MagicMock()),
-        patch("tkinter.StringVar", side_effect=[MagicMock(), MagicMock()]),
+        patch("tkinter.StringVar", side_effect=[MagicMock(), MagicMock(), MagicMock()]),
         patch("tkinter.ttk.Label"),
         patch("tkinter.ttk.Entry"),
         patch("tkinter.ttk.Button", side_effect=mock_button),
         patch.object(extension.root, "wait_window", side_effect=mock_wait_window),
     ):
-        script_file, name = extension.handle_custom_extension()
-        assert script_file is None and name is None
+        script_file, name, icon = extension.handle_custom_extension()
+        assert script_file is None and name is None and icon is None
 
     extension.root.destroy()
 

@@ -24,7 +24,6 @@
 
 import csv
 from pathlib import Path
-import sys
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -40,11 +39,6 @@ from ansys.aedt.core.generic.constants import SpeedOfLight
 from ansys.aedt.core.generic.general_methods import conversion_function
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.visualization.advanced.doa import DirectionOfArrival
-
-current_python_version = sys.version_info[:2]
-"""Value for current python version."""
-if current_python_version < (3, 10):  # pragma: no cover
-    raise Exception("Python 3.10 or higher is required for Monostatic RCS post-processing.")
 
 
 class FRTMData(PyAedtBase):

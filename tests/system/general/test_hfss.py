@@ -132,6 +132,36 @@ def test_create_primitive(aedt_app) -> None:
     assert aedt_app.modeler.subtract(outer_1, inner_1, keep_originals=True)
 
 
+def test_batch_update_defers_cleanup(aedt_app, monkeypatch) -> None:
+    """Test multiple subtract operations are cleaned up once after the batch."""
+    modeler = aedt_app.modeler
+    target = modeler.create_box([0, 0, 0], [10, 10, 10], name="batch_target")
+    cutters = [
+        modeler.create_cylinder(Axis.Z, [x, 5, -1], 1, 12, name=f"batch_cutter_{index}")
+        for index, x in enumerate([3, 7])
+    ]
+    cutter_names = [cutter.name for cutter in cutters]
+    cleanup_calls = 0
+    cleanup_objects_now = modeler._cleanup_objects_now
+
+    def count_cleanup_objects_now():
+        nonlocal cleanup_calls
+        cleanup_calls += 1
+        cleanup_objects_now()
+
+    monkeypatch.setattr(modeler, "_cleanup_objects_now", count_cleanup_objects_now)
+
+    with modeler.batch_geometry_operations():
+        for cutter_name in cutter_names:
+            assert modeler.subtract(target.name, cutter_name, keep_originals=False)
+        assert cleanup_calls == 0
+
+    assert cleanup_calls == 1
+    object_names = set(modeler.object_names)
+    assert target.name in object_names
+    assert not set(cutter_names) & object_names
+
+
 def test_assign_material(aedt_app) -> None:
     udp = aedt_app.modeler.Position(0, 0, 0)
     coax_length = 80

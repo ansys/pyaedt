@@ -1084,8 +1084,9 @@ class MeshRegion(MeshRegionCommon):
         if isinstance(assignment, SubRegion):
             a += ["Objects:=", [assignment.name]]
         else:
-            if any(o in self._app.modeler.object_names for o in assignment):
-                obj_assignment = [o for o in assignment if o in self._app.modeler.object_names]
+            object_names = set(self._app.modeler.object_names)
+            if any(o in object_names for o in assignment):
+                obj_assignment = [o for o in assignment if o in object_names]
                 a += ["Objects:=", obj_assignment]
             if any(o in self._app.modeler.user_defined_components for o in assignment):
                 obj_assignment = [o for o in assignment if o in self._app.modeler.user_defined_components]
@@ -1108,7 +1109,7 @@ class MeshRegion(MeshRegionCommon):
 
         """
         if self._child_object:
-            self._name = str(self.properties["Name"])
+            self._name = str(self._get_property_value("Name"))
         return self._name
 
     @name.setter

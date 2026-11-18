@@ -32,6 +32,7 @@ from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.file_utils import write_csv
+from ansys.aedt.core.generic.general_methods import deprecate_argument
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import Quantity
 from ansys.aedt.core.generic.settings import settings
@@ -646,11 +647,12 @@ class SolutionData(PyAedtBase):
         )  # last column
 
     @pyaedt_function_handler()
+    @deprecate_argument("convert_to_SI", "convert_to_si", version="2.0.0")
     def get_expression_data(
         self,
         expression: str = None,
         formula: str = "real",
-        convert_to_SI: bool = False,
+        convert_to_si: bool = False,
         use_quantity: bool = False,
         sweeps: list | str = None,
     ) -> tuple[np.ndarray, np.ndarray]:
@@ -664,7 +666,7 @@ class SolutionData(PyAedtBase):
         formula : str, optional
             Data type to be retrieved. Default is ``real``. Options are ``real``, ``imag``, ``mag``, ``magnitude``,
             ``db10``, ``db20``, ``phase``, ``phaserad``.
-        convert_to_SI : bool, optional
+        convert_to_si : bool, optional
             Whether to convert the data to the SI unit system.
             The default is ``False``.
         use_quantity : bool, optional
@@ -740,7 +742,7 @@ class SolutionData(PyAedtBase):
             position,
         )
 
-        if convert_to_SI and self._quantity(self.units_data[expression]):
+        if convert_to_si and self._quantity(self.units_data[expression]):
             sol = self._convert_list_to_SI(
                 sol, self._quantity(self.units_data[expression]), self.units_data[expression]
             )
@@ -757,8 +759,8 @@ class SolutionData(PyAedtBase):
             sol = 10 * np.log10(sol)
         elif formula.lower() == "db20":
             sol = 20 * np.log10(sol)
-        elif formula.lower() == "phaserad":
-            sol = sol * np.pi / 180
+        elif formula.lower() == "phasedeg":
+            sol = np.degrees(sol)
         return x_axis, sol
 
     @pyaedt_function_handler()
