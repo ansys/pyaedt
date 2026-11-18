@@ -2199,7 +2199,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             user_defined_component = UserDefinedComponent(
                 self.modeler, native.name, native_props["NativeComponentDefinitionProvider"], antenna_type
             )
-            self.modeler.user_defined_components[native.name] = user_defined_component
+            self.modeler.components[native.name] = user_defined_component
             self._native_components.append(native)
             self.logger.info("Native component %s %s has been correctly created.", antenna_type, antenna_name)
             return native

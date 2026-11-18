@@ -2873,7 +2873,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
                 [
                     pcb_layer
                     for pcb_layer in self.modeler.get_3d_component_object_list(name=pcb)
-                    if re.search(self.modeler.user_defined_components[pcb].definition_name + r"_\d\d\d.*", pcb_layer)
+                    if re.search(self.modeler.components[pcb].definition_name + r"_\d\d\d.*", pcb_layer)
                 ]
             )
 

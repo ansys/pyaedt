@@ -1092,9 +1092,9 @@ def test_assign_stationary_wall(ipk_app) -> None:
 @pytest.mark.skipif(DESKTOP_VERSION < "2023.1" and USE_GRPC, reason="Not working in 2022.2 gRPC")
 def test_native_components_history(ipk_app) -> None:
     fan = ipk_app.create_fan("test_fan")
-    ipk_app.modeler.user_defined_components[fan.name].move([1, 2, 3])
-    ipk_app.modeler.user_defined_components[fan.name].duplicate_along_line([4, 5, 6])
-    fan_1_history = ipk_app.modeler.user_defined_components[fan.name].history()
+    ipk_app.modeler.components[fan.name].move([1, 2, 3])
+    ipk_app.modeler.components[fan.name].duplicate_along_line([4, 5, 6])
+    fan_1_history = ipk_app.modeler.components[fan.name].history()
     assert fan_1_history.command == "Move"
     assert all(
         fan_1_history.properties["Move Vector/" + i] == j + "mm" for i, j in [("X", "1"), ("Y", "2"), ("Z", "3")]
@@ -1482,14 +1482,14 @@ def test_update_3d_component(ipk_app, test_tmp_dir) -> None:
     component_file = Path(file_path) / file_name
     ipk_app.modeler.create_3dcomponent(str(component_file))
     ipk_app.modeler.insert_3d_component(input_file=str(component_file), name="test")
-    component_filepath = ipk_app.modeler.user_defined_components["test"].get_component_filepath()
+    component_filepath = ipk_app.modeler.components["test"].get_component_filepath()
     assert component_filepath
-    comp = ipk_app.modeler.user_defined_components["test"].edit_definition()
+    comp = ipk_app.modeler.components["test"].edit_definition()
     comp.modeler.refresh_all_ids()
     comp.modeler.objects_by_name["surf1"].move([1, 1, 1])
     comp.modeler.create_3dcomponent(component_filepath)
     comp.close_project(save=False)
-    assert ipk_app.modeler.user_defined_components["test"].update_definition()
+    assert ipk_app.modeler.components["test"].update_definition()
 
 
 def test_import_dxf(ipk_app, test_tmp_dir) -> None:

@@ -93,7 +93,7 @@ def test_configuration_file_1(icepak_a, add_app) -> None:
     f = icepak_a.create_fan("test_fan")
     idx = 0
     icepak_a.monitor.assign_point_monitor_to_vertex(
-        list(icepak_a.modeler.user_defined_components[f.name].parts.values())[idx].vertices[0].id
+        list(icepak_a.modeler.components[f.name].parts.values())[idx].vertices[0].id
     )
     assert icepak_a.configurations.export_config()
     f.delete()
@@ -170,13 +170,13 @@ def test_configuration_file_2(icepak_b, add_app) -> None:
     filename = icepak_b.design_name
     icepak_b.export_3d_model(filename, icepak_b.working_directory, ".x_b", [], [])
     fan = icepak_b.create_fan("test_fan")
-    icepak_b.modeler.user_defined_components[fan.name].move([1, 2, 3])
-    fan2 = icepak_b.modeler.user_defined_components[fan.name].duplicate_along_line([4, 5, 6])
-    icepak_b.modeler.user_defined_components[fan.name].rotate("Y")
-    _ = icepak_b.modeler.user_defined_components[fan.name].duplicate_around_axis("Z")
-    icepak_b.modeler.user_defined_components[fan.name].move([1, 2, 3])
-    _ = icepak_b.modeler.user_defined_components[fan.name].duplicate_around_axis("Z")
-    icepak_b.modeler.user_defined_components[fan2[0]].duplicate_and_mirror([4, 5, 6], [1, 2, 3])
+    icepak_b.modeler.components[fan.name].move([1, 2, 3])
+    fan2 = icepak_b.modeler.components[fan.name].duplicate_along_line([4, 5, 6])
+    icepak_b.modeler.components[fan.name].rotate("Y")
+    _ = icepak_b.modeler.components[fan.name].duplicate_around_axis("Z")
+    icepak_b.modeler.components[fan.name].move([1, 2, 3])
+    _ = icepak_b.modeler.components[fan.name].duplicate_around_axis("Z")
+    icepak_b.modeler.components[fan2[0]].duplicate_and_mirror([4, 5, 6], [1, 2, 3])
     conf_file = icepak_b.configurations.export_config()
     assert icepak_b.configurations.validate(conf_file)
     file_parasolid = filename + ".x_b"

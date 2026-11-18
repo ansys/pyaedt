@@ -1499,9 +1499,9 @@ class Configurations(PyAedtBase):
         dict_monitors = []
         native_parts = [
             part.name
-            for udc_name, udc in self._app.modeler.user_defined_components.items()
+            for udc_name, udc in self._app.modeler.components.items()
             for part_name, part in udc.parts.items()
-            if self._app.modeler.user_defined_components[udc_name].definition_name in self._app.native_components
+            if self._app.modeler.components[udc_name].definition_name in self._app.native_components
         ]
         if self._app.monitor.all_monitors != {}:
             for mon_name in self._app.monitor.all_monitors:
@@ -1514,7 +1514,7 @@ class Configurations(PyAedtBase):
                 if dict_monitor["Geometry Assignment"] in native_parts:
                     dict_monitor["Native Assignment"] = [
                         name
-                        for name, dict_comp in self._app.modeler.user_defined_components.items()
+                        for name, dict_comp in self._app.modeler.components.items()
                         if dict_monitor["Geometry Assignment"]
                         in [part.name for part_id, part in dict_comp.parts.items()]
                     ][0]
@@ -1808,9 +1808,9 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
     def _export_objects_properties(self, dict_out):
         dict_out["objects"] = {}
         udc_parts_id = []
-        if hasattr(self._app.modeler, "user_defined_components"):
+        if hasattr(self._app.modeler, "components"):
             self._app.modeler.refresh_all_ids()
-            udc_parts_id = [part for _, uc in self._app.modeler.user_defined_components.items() for part in uc.parts]
+            udc_parts_id = [part for _, uc in self._app.modeler.components.items() for part in uc.parts]
         for val in self._app.modeler.objects.values():
             if val.id in udc_parts_id or val.history().command == "CreateSubRegion":
                 continue
@@ -2062,7 +2062,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
         self._app.modeler.delete(
             list(
                 set([id for id, obj in self._app.modeler.objects.items() if obj.is_model])
-                - set([id for _, obj in self._app.modeler.user_defined_components.items() for id in obj.parts])
+                - set([id for _, obj in self._app.modeler.components.items() for id in obj.parts])
             )
         )
         self._app.oproject.CopyDesign(self._app.design_name)
@@ -2155,7 +2155,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                 nc_props["NativeComponentDefinitionProvider"]["DefnLink"]["Project"] = self._app.project_file
             dict_out["native components"][instance_name]["Properties"] = nc_props
             dict_out["native components"][instance_name]["Instances"] = {}
-            for i, v in self._app.modeler.user_defined_components.items():
+            for i, v in self._app.modeler.components.items():
                 cs_name = None
                 if v.definition_name == instance_name:
                     if "Target Coordinate System" in self._app.get_oo_properties(self._app.oeditor, i):
@@ -2182,7 +2182,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
             self._app.modeler.set_working_coordinate_system(operation_dict["Props"]["Coordinate System"])
             new_objs = None
             self._app.modeler.refresh_all_ids()
-            old_objs = list(self._app.modeler.user_defined_components.keys())
+            old_objs = list(self._app.modeler.components.keys())
             if operation_dict["Props"]["Command"] == "Move":
                 if len(operation_dict["Props"]["Move Vector"]) == 6:
                     operation_list = [
@@ -2300,7 +2300,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                         for dup_obj in operation_dict["Props"]["Duplicate Object"]:
                             for _, operation_dict in native_dict[dup_obj]["Operations"].items():
                                 apply_operations_to_native_components(
-                                    self._app.modeler.user_defined_components[new_obj], operation_dict, native_dict
+                                    self._app.modeler.components[new_obj], operation_dict, native_dict
                                 )
             for _, operation_dict in operation_dict["Children"].items():
                 apply_operations_to_native_components(obj, operation_dict, native_dict)

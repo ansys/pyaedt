@@ -1818,7 +1818,7 @@ def test_component_array(component_array_app, test_tmp_dir) -> None:
     assert len(array.get_cell_position()) == array.a_size
 
     # Delete 3D Component
-    component_array_app.modeler.user_defined_components["03_Radome_Side1"].delete()
+    component_array_app.modeler.components["03_Radome_Side1"].delete()
     array.update_properties()
     assert len(array.component_names) == 3
     assert len(array.post_processing_cells) == 3

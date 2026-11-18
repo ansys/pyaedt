@@ -10867,34 +10867,6 @@ class GeometryModeler(Modeler, PyAedtBase):
         return None
 
     @pyaedt_function_handler()
-    def _get_native_component_properties(self, name: str):
-        """Get properties of native component.
-
-        Returns
-        -------
-        list
-           List of names for native components.
-        """
-        dp = copy.deepcopy(self._app.design_properties)
-        if dp and dp.get("ModelSetup", None) and name in self.user_defined_component_names:
-            try:
-                native_comp_entry = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["SubModelDefinitions"][
-                    "NativeComponentDefinition"
-                ]
-                if native_comp_entry:
-                    if isinstance(native_comp_entry, dict):
-                        native_comp_entry = [native_comp_entry]
-                    for data in native_comp_entry:
-                        native_comp_name = data["SubmodelDefinitionName"]
-                        if native_comp_name == name:
-                            native_comp_properties = data
-                            break
-            except Exception:
-                return native_comp_properties
-
-        return native_comp_properties
-
-    @pyaedt_function_handler()
     def _get_object_dict_by_material(self, material: str):
         obj_dict = {}
         # Evaluate the object list and parametric materials once, not once per material.

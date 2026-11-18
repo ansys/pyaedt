@@ -115,10 +115,10 @@ def test_add_antennas(aedt_sbr) -> None:
     assert aedt_sbr.create_sbr_antenna(aedt_sbr.SbrAntennas.ConicalHorn, parameters=dict1, name="RX1")
     par_beam.native_properties["Unit"] = "in"
     assert par_beam.update()
-    aedt_sbr.modeler.user_defined_components["TX1_1"].native_properties["Unit"] = "mm"
+    aedt_sbr.modeler.components["TX1_1"].native_properties["Unit"] = "mm"
 
     assert len(aedt_sbr.native_components) == 2
-    assert len(aedt_sbr.modeler.user_defined_components) == 2
+    assert len(aedt_sbr.modeler.components) == 2
     assert aedt_sbr.set_sbr_txrx_settings({"TX1_1_p1": "RX1_1_p1"})
     assert aedt_sbr.create_sbr_antenna(aedt_sbr.SbrAntennas.CrossDipole, use_current_source_representation=True)
     assert aedt_sbr.create_sbr_antenna(aedt_sbr.SbrAntennas.HalfWaveDipole, use_current_source_representation=True)

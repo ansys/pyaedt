@@ -506,6 +506,26 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
             return self._app.get_oo_property_value(self._app.oeditor, self.definition_name, "3D Component File Path")
         return None
 
+    @property
+    def native_properties(self) -> dict | None:
+        """Get native properties.
+
+        Returns
+        -------
+        dict
+            Get ``NativeComponentDefinitionProvider`` props.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> component_names = app.modeler.component_names
+        >>> component = app.modeler.components[component_names[0]]
+        >>> component.native_properties
+
+        """
+        return self._legacy_props.get("NativeComponentDefinitionProvider", None)
+
     @pyaedt_function_handler()
     def create(self) -> bool:
         """Create a 3d component in AEDT.

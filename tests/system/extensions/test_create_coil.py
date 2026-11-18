@@ -80,9 +80,9 @@ def test_flat_coil_success(m3d_app) -> None:
         distance_turns=5.0,
         looping_position=0.5,
     )
-    assert len(m3d_app.modeler.user_defined_components) == 0
+    assert len(m3d_app.modeler.components) == 0
     assert main(data)
-    assert len(m3d_app.modeler.user_defined_components) == 1
+    assert len(m3d_app.modeler.components) == 1
     assert "my_coil" in m3d_app.modeler.user_defined_component_names[0]
     assert {"wire_radius", "arc_segmentation", "section_segmentation"}.issubset(
         m3d_app.variable_manager.design_variable_names
@@ -107,9 +107,9 @@ def test_vertical_coil_success(m3d_app) -> None:
         arc_segmentation=3,
         section_segmentation=4,
     )
-    assert len(m3d_app.modeler.user_defined_components) == 0
+    assert len(m3d_app.modeler.components) == 0
     assert main(data)
-    assert len(m3d_app.modeler.user_defined_components) == 1
+    assert len(m3d_app.modeler.components) == 1
     assert "my_coil" in m3d_app.modeler.user_defined_component_names[0]
     assert {"wire_radius", "arc_segmentation", "section_segmentation"}.issubset(
         m3d_app.variable_manager.design_variable_names

@@ -106,7 +106,7 @@ def test_flatten_3d_components(aedt_app) -> None:
         input_file=str(aedt_app.toolkit_directory / file_name), coordinate_system="CS2", auxiliary_parameters=True
     )
     mon_name = aedt_app.monitor.assign_face_monitor(
-        list(aedt_app.modeler.user_defined_components["board_assembly1"].parts.values())[0].faces[0].id
+        list(aedt_app.modeler.components["board_assembly1"].parts.values())[0].faces[0].id
     )
     mon_point_name = aedt_app.monitor.assign_point_monitor([20, 20, 20])
     assert aedt_app.flatten_3d_components()
@@ -165,14 +165,10 @@ def test_advanced_3d_component_export(ipk) -> None:
     )
     file_name = "Advanced3DComp.a3dcomp"
     fan_obj = ipk.create_fan(is_2d=True)
-    ipk.monitor.assign_surface_monitor(list(ipk.modeler.user_defined_components[fan_obj.name].parts.values())[0].name)
-    ipk.monitor.assign_face_monitor(
-        list(ipk.modeler.user_defined_components[fan_obj.name].parts.values())[0].faces[0].id
-    )
+    ipk.monitor.assign_surface_monitor(list(ipk.modeler.components[fan_obj.name].parts.values())[0].name)
+    ipk.monitor.assign_face_monitor(list(ipk.modeler.components[fan_obj.name].parts.values())[0].faces[0].id)
     fan_obj_3d = ipk.create_fan(is_2d=False)
-    ipk.monitor.assign_point_monitor_in_object(
-        list(ipk.modeler.user_defined_components[fan_obj_3d.name].parts.values())[0].name
-    )
+    ipk.monitor.assign_point_monitor_in_object(list(ipk.modeler.components[fan_obj_3d.name].parts.values())[0].name)
     component_file = ipk.toolkit_directory / file_name
     assert ipk.modeler.create_3dcomponent(
         str(component_file),
