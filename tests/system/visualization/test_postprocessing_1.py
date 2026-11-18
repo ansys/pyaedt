@@ -177,8 +177,31 @@ def test_export_field_plot(aedt_app) -> None:
     assert Path(export_status).suffix == ".case"
 
 
+def test_delete_field_plot(aedt_app) -> None:
+    quantity_name = "ComplexMag_E"
+    setup_name = aedt_app.existing_analysis_sweeps[0]
+    intrinsic = {"Freq": "5GHz", "Phase": "180deg"}
+    plot = aedt_app.post.create_fieldplot_volume("inner", quantity_name, setup_name, intrinsic)
+    assert plot.name in aedt_app.post.field_plot_names
+    assert aedt_app.post.delete_field_plot(name=plot.name)
+    assert plot.name not in aedt_app.post.field_plot_names
+
+
+def test_export_model_obj(aedt_app, test_tmp_dir) -> None:
+    # Export as a single object.
+    single = aedt_app.post.export_model_obj(assignment="inner", export_path=test_tmp_dir)
+    assert single
+    assert all(Path(obj_file).is_file() for obj_file, _, _ in single)
+    multiple = aedt_app.post.export_model_obj(
+        assignment=["inner", "outer"], export_path=test_tmp_dir, export_as_multiple_objects=True
+    )
+    assert len(multiple) >= 2
+    assert all(Path(obj_file).is_file() for obj_file, _, _ in multiple)
+
+
 def test_create_fieldplot_surface(aedt_app) -> None:
     frequency = Quantity("5GHz")
+
     phase = Quantity("180deg")
     setup_name = aedt_app.existing_analysis_sweeps[0]
     intrinsic = {"Freq": frequency, "Phase": phase}
