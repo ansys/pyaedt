@@ -56,7 +56,7 @@ repos:
       additional_dependencies: [black==26.5.1]
 
 - repo: https://github.com/ansys/pre-commit-hooks
-  rev: 55c5b6a5439abd847613579c6924da750e8b78b2  # frozen: v0.8.0
+  rev: dbcd0a4ad0060f78ac3c7d53d342f510edc48eab  # frozen: v0.8.1
   hooks:
     - id: add-license-headers
       exclude: |
