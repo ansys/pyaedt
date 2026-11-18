@@ -249,7 +249,13 @@ class Modeler3D(Primitives3D, PyAedtBase):
         if assignment:
             objs = assignment
         else:
-            native_objs = [obj.name for _, v in self.components.items() for _, obj in v.parts.items()]
+            native_objs = []
+            for _, v in self.components.items():
+                for _, obj in v.parts.items():
+                    if isinstance(obj, str):
+                        native_objs.append(obj)
+                    elif "name" in dir(obj) and obj.name in self.object_names:
+                        native_objs.append(obj.name)
             objs = [obj for obj in self.object_names if obj not in native_objs]
             if not native_components and native_objs and not export_auxiliary:
                 self.logger.warning(

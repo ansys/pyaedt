@@ -933,7 +933,6 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
         """
         # TODO: Edit documentation to include all supported returned classes.
-        # from ansys.aedt.core.generic.general_methods import is_linux
         if password is None:
             password = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
 

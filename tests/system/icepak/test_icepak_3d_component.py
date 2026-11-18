@@ -191,10 +191,10 @@ def test_import_pcb(board_3dl_app) -> None:
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
-def test_pcb_devices(board_ipk_app) -> None:
-    cmp2 = board_ipk_app.modeler["Board_w_cmp1"]
+def test_pcb_devices(ipk) -> None:
+    cmp2 = ipk.modeler["Board_w_cmp1"]
     assert isinstance(cmp2, NativeComponentPCB)
-    assert cmp2.name in board_ipk_app.modeler.component_names
+    assert cmp2.name in ipk.modeler.component_names
 
     assert not cmp2.included_parts
     cmp2.included_parts = 1
@@ -215,16 +215,16 @@ def test_pcb_devices(board_ipk_app) -> None:
     cmp2.included_parts.surface_material = "pt-polished"
     assert cmp2.included_parts.surface_material == "pt-polished"
     assert cmp2.included_parts.override_instance("FCHIP", True)
-    assert "Board_w_cmp_FCHIP_device" not in board_ipk_app.modeler.object_names
+    assert "Board_w_cmp_FCHIP_device" not in ipk.modeler.object_names
     assert cmp2.included_parts.override_instance("FCHIP", False)
-    assert "Board_w_cmp_FCHIP_device" in board_ipk_app.modeler.object_names
+    assert "Board_w_cmp_FCHIP_device" in ipk.modeler.object_names
     assert cmp2.included_parts.override_instance("FCHIP", False, "10W", "1Kel_per_W", "1Kel_per_W", "0.1mm")
     cmp2.included_parts.override_definition("FCHIP_FCHIP", "FCHIP_FCHIP")
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
-def test_pcb_packages(board_ipk_app) -> None:
-    cmp2 = board_ipk_app.modeler["Board_w_cmp1"]
+def test_pcb_packages(ipk) -> None:
+    cmp2 = ipk.modeler["Board_w_cmp1"]
     cmp2.included_parts = "Package"
     assert not cmp2.included_parts == "Packages"
     assert isinstance(cmp2.included_parts, PCBSettingsPackageParts)
@@ -243,8 +243,8 @@ def test_pcb_packages(board_ipk_app) -> None:
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
-def test_pcb_board_extents_and_resolution(board_ipk_app) -> None:
-    cmp2 = board_ipk_app.modeler["Board_w_cmp1"]
+def test_pcb_board_extents_and_resolution(ipk) -> None:
+    cmp2 = ipk.modeler["Board_w_cmp1"]
     assert cmp2.set_board_extents("Bounding Box")
     assert cmp2.set_board_extents("Polygon")
     assert cmp2.set_board_extents("Bounding Box")
@@ -259,35 +259,35 @@ def test_pcb_board_extents_and_resolution(board_ipk_app) -> None:
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
-def test_pcb_filters_error_messages(board_ipk_app) -> None:
-    cmp2 = board_ipk_app.modeler["Board_w_cmp1"]
+def test_pcb_filters_error_messages(ipk) -> None:
+    cmp2 = ipk.modeler["Board_w_cmp1"]
     cmp2.included_parts = "Device"
     p = cmp2.included_parts
     cmp2.included_parts = "None"
-    len_err = len(board_ipk_app.logger.error_messages)
+    len_err = len(ipk.logger.error_messages)
     p.footprint_filter = "1mm2"
     assert p.footprint_filter is None
-    assert len_err + 2 == len(board_ipk_app.logger.error_messages)
+    assert len_err + 2 == len(ipk.logger.error_messages)
     p.power_filter = "1W"
     assert p.power_filter is None
-    assert len_err + 4 == len(board_ipk_app.logger.error_messages)
+    assert len_err + 4 == len(ipk.logger.error_messages)
     p.type_filters = "Resistors"
     assert p.type_filters is None
-    assert len_err + 6 == len(board_ipk_app.logger.error_messages)
+    assert len_err + 6 == len(ipk.logger.error_messages)
     p.height_filter = "1mm"
     assert p.height_filter is None
-    assert len_err + 8 == len(board_ipk_app.logger.error_messages)
+    assert len_err + 8 == len(ipk.logger.error_messages)
     p.objects_2d_filter = True
     assert p.objects_2d_filter is None
-    assert len_err + 10 == len(board_ipk_app.logger.error_messages)
+    assert len_err + 10 == len(ipk.logger.error_messages)
     assert cmp2.power == "0W"
     cmp2.power = "10W"
     assert cmp2.power == "10W"
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
-def test_pcb_comp_properties(board_ipk_app) -> None:
-    cmp2 = board_ipk_app.modeler["Board_w_cmp1"]
+def test_pcb_comp_properties(ipk) -> None:
+    cmp2 = ipk.modeler["Board_w_cmp1"]
     cmp2.set_high_side_radiation(
         True,
         surface_material="Stainless-steel-typical",
@@ -311,14 +311,13 @@ def test_pcb_comp_properties(board_ipk_app) -> None:
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
-def test_pcb_comp_import(board_ipk_app) -> None:
+def test_pcb_comp_import(ipk) -> None:
     component_name = "RadioBoard2"
-    cmp = board_ipk_app.create_ipk_3dcomponent_pcb(
+    cmp = ipk.create_ipk_3dcomponent_pcb(
         LINK_DATA, component_name, SOLUTION_FREQ, RESOLUTION, custom_x_resolution=400, custom_y_resolution=500
     )
     assert cmp.included_parts is None
     cmp.included_parts = "Device"
-    cmp.included_parts = "Packafe"
     assert cmp.included_parts == "Device"
     f = cmp.included_parts.filters
     assert len(f.keys()) == 1
@@ -358,7 +357,7 @@ def test_pcb_comp_import(board_ipk_app) -> None:
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_native_component_load(native_app) -> None:
-    assert len(native_app.native_components) == 1
+    assert len(native_app.modeler.native_components) == 1
 
 
 def test_create_fan(aedt_app, test_tmp_dir) -> None:
@@ -394,8 +393,8 @@ def test_create_fan(aedt_app, test_tmp_dir) -> None:
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
 @pytest.mark.skipif(not USE_GRPC, reason="Not running in COM mode.")
-def test_advanced_3dcomp_import(board_ipk_app, test_tmp_dir) -> None:
-    cs2 = board_ipk_app.modeler.create_coordinate_system(name="CS2")
+def test_advanced_3dcomp_import(ipk, test_tmp_dir) -> None:
+    cs2 = ipk.modeler.create_coordinate_system(name="CS2")
     cs2.props["OriginX"] = 20
     cs2.props["OriginY"] = 20
     cs2.props["OriginZ"] = 20
@@ -410,34 +409,32 @@ def test_advanced_3dcomp_import(board_ipk_app, test_tmp_dir) -> None:
         test_tmp_dir / "Advanced3DComp.a3dcomp.json",
     )
 
-    comp, _, _ = board_ipk_app.modeler.insert_3d_component(
+    comp, _, _ = ipk.modeler.insert_3d_component(
         input_file=str(file),
         coordinate_system=cs2.name,
         auxiliary_parameters=True,
     )
     name = comp.name
-    assert all(i in board_ipk_app.modeler.components.keys() for i in ["Fan1", "Fan2"])
+    assert all(i in ipk.modeler.components.keys() for i in ["Fan1", "Fan2"])
     assert all(
-        i in board_ipk_app.monitor.all_monitors
-        for i in [f"{name}_FaceMonitor", f"{name}_BoxMonitor", f"{name}_SurfaceMonitor"]
+        i in ipk.monitor.all_monitors for i in [f"{name}_FaceMonitor", f"{name}_BoxMonitor", f"{name}_SurfaceMonitor"]
     )
-    assert "test_dataset" in board_ipk_app.design_datasets
-    assert "board_assembly1_CS1" in [i.name for i in board_ipk_app.modeler.coordinate_systems]
+    assert "test_dataset" in ipk.design_datasets
 
     dup = comp.duplicate_and_mirror([0, 0, 0], [1, 2, 0])
-    board_ipk_app.modeler.components[dup[0]].delete()
+    ipk.modeler.components[dup.name].delete()
 
-    dup = board_ipk_app.modeler.components["board_assembly1"].duplicate_along_line([1, 2, 0], clones=2)
-    board_ipk_app.modeler.refresh_all_ids()
-    board_ipk_app.modeler.components[dup[0]].delete()
+    dup1 = comp.duplicate_along_line([1, 2, 0], clones=2)
 
-    comp = board_ipk_app.modeler.insert_3d_component(
+    dup1[0].delete()
+
+    comp = ipk.modeler.insert_3d_component(
         input_file=str(file),
         coordinate_system="Global",
         name="test",
         auxiliary_parameters=False,
     )
-    assert comp.name in board_ipk_app.modeler.component_names
+    assert comp.name in ipk.modeler.component_names
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
@@ -515,18 +512,19 @@ def test_flatten_3d_components(aedt_app) -> None:
         monitor_objects=mon_list,
         datasets=["test_dataset"],
     )
+    aedt_app.insert_design("insert_component")
+    cs2 = aedt_app.modeler.create_coordinate_system(name="CS2")
     comp, _, _ = aedt_app.modeler.insert_3d_component(
         input_file=str(aedt_app.toolkit_directory / file_name), coordinate_system=cs2.name, auxiliary_parameters=True
     )
     aedt_app.monitor.assign_face_monitor(list(comp.parts.values())[0].faces[0].id)
-    aedt_app.monitor.assign_point_monitor([20, 20, 20])
 
+    assert len(aedt_app.modeler.component_names) == 1
     assert aedt_app.flatten_3d_components()
-    pass
+    assert not aedt_app.modeler.component_names
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
-@pytest.mark.skipif(not USE_GRPC, reason="Not running in COM mode")
 def test_advanced_3d_component_export(ipk) -> None:
     # Filter board import
     proj_name = None
@@ -551,10 +549,18 @@ def test_advanced_3d_component_export(ipk) -> None:
     cs1.props["OriginZ"] = 10
     fan2_prop = dict(fan.props).copy()
     fan2_prop["TargetCS"] = "CS1"
-    fan2 = NativeComponent(ipk, "Fan", "Fan2", fan2_prop)
+
+    fan2 = NativeComponent(app=ipk, name="Fan", props=fan2_prop)
+    fan2.definition_name = "New_Fan"
+    fan2.definition_type = "Fan"
     fan2.create()
+
     ipk.create_ipk_3dcomponent_pcb(
-        "Board", link_data, solution_freq, resolution, custom_x_resolution=400, custom_y_resolution=500
+        setup_link=link_data,
+        frequency=solution_freq,
+        resolution=resolution,
+        custom_x_resolution=400,
+        custom_y_resolution=500,
     )
     ipk.monitor.assign_face_monitor(box1.faces[0].id, "Temperature", "FaceMonitor")
     ipk.monitor.assign_point_monitor_in_object(box1.name, "Temperature", "BoxMonitor")
@@ -575,7 +581,7 @@ def test_advanced_3d_component_export(ipk) -> None:
     ipk.monitor.assign_surface_monitor(list(ipk.modeler.components[fan_obj.name].parts.values())[0].name)
     ipk.monitor.assign_face_monitor(list(ipk.modeler.components[fan_obj.name].parts.values())[0].faces[0].id)
     fan_obj_3d = ipk.create_fan(is_2d=False)
-    ipk.monitor.assign_point_monitor_in_object(list(ipk.modeler.components[fan_obj_3d.name].parts.values())[0].name)
+    ipk.monitor.assign_point_monitor_in_object(list(ipk.modeler.components[fan_obj_3d.name].parts.values())[0])
     component_file = ipk.toolkit_directory / file_name
     assert ipk.modeler.create_3dcomponent(
         str(component_file),

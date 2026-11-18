@@ -1247,7 +1247,12 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
             comp = self.modeler.components[cmp]
             # TODO: Call edit_definition only once
             target_cs = self.modeler._create_reference_cs_from_3dcomp(comp, password=password)
+            original_project = self.project_name
+            original_design = self.design_name
+
             app = comp.edit_definition(password=password)
+            new_project_name = app.project_name
+
             for var, val in comp.parameters.items():
                 self[var] = val
             if purge_history:
@@ -1293,7 +1298,10 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
                             m_type, m_obj, dict_in["monitor"][monitor_obj]["Quantity"], monitor_obj
                         ):  # pragma: no cover
                             return False
-            app.close_project(save=False)
+
+            self.oproject = original_project
+            self.desktop_class.active_design(project_object=self.oproject, name=original_design)
+            app.close_project(save=False, name=new_project_name)
 
         return True
 
