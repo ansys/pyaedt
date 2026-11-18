@@ -2967,7 +2967,7 @@ class Desktop(PyAedtBase):
             specified_version += "SV"
         elif self.hfss_ic:
             specified_version += "IC"
-
+        print(specified_version)
         if not _is_version_format_valid(specified_version):
             raise AEDTRuntimeError(f"Internal version format is not correct: specified_version: {specified_version}")
 

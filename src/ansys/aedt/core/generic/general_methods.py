@@ -676,7 +676,7 @@ def _is_version_format_valid(version):
     """
     if not isinstance(version, str):
         return False
-    return bool(re.match(r"^\d{4}\.[1-9]\d*(SV)?$", version))
+    return bool(re.match(r"^\d{4}\.[1-9]\d*(SV)?$", version)) or bool(re.match(r"^\d{4}\.[1-9]\d*(IC)?$", version))
 
 
 @pyaedt_function_handler()
