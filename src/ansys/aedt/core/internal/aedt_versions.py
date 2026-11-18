@@ -172,6 +172,11 @@ class AedtVersions(PyAedtBase):
                     student = False
                     client = False
                     ansys_common = True
+                elif "HFSSIC_ROOT" in version_env_var:
+                    current_version_id = version_env_var.replace("HFSSIC_ROOT", "")
+                    student = False
+                    client = False
+                    ansys_common = False
                 elif "ANSYSEMSV_ROOT" in version_env_var:
                     current_version_id = version_env_var.replace("ANSYSEMSV_ROOT", "")
                     student = True
