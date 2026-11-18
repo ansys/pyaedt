@@ -1572,7 +1572,7 @@ def active_sessions(
         # Linux needs both variants (with and without .exe extension)
         target = ["ansysedtsv.exe"]
     else:
-        target = ["ansysedt.exe"]
+        target = ["ansysedt.exe", "hfssic.exe"]
 
     # Step 2: Normalize version format to ensure consistent version matching
     # Converts various formats ("2022.2", "222") to a standardized string

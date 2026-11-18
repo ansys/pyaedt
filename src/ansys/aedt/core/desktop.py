@@ -403,6 +403,7 @@ def launch_aedt(
         "ansysedtsv",
         "ansysedtsv.exe",
         "ansysedt.exe",
+        "hfssic",
     }:
         raise ValueError(f"The path {full_path} is not a valid executable.")
 
@@ -455,7 +456,7 @@ def launch_aedt(
         if student_version:
             target = ["ansysedtsv", "ansysedtsv.exe"] if is_linux else ["ansysedtsv.exe"]
         else:
-            target = ["ansysedt", "ansysedt.exe"] if is_linux else ["ansysedt.exe"]
+            target = ["ansysedt", "ansysedt.exe", "hfssic.exe"] if is_linux else ["ansysedt.exe"]
         target_processes = _get_target_processes(target)
         for process in target_processes:
             if "-grpcsrv" in process:

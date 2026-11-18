@@ -123,7 +123,7 @@ class AedtVersions(PyAedtBase):
 
         """
         if self._list_installed_ansysem is None:
-            version_pattern = re.compile(r"^(ANSYSEM_ROOT|ANSYSEM_PY_CLIENT_ROOT|ANSYSEMSV_ROOT)\d{3}$")
+            version_pattern = re.compile(r"^(ANSYSEM_ROOT|ANSYSEM_PY_CLIENT_ROOT|ANSYSEMSV_ROOT|HFSSIC_ROOT)\d{3}$")
             version_list = sorted([x for x in os.environ if version_pattern.match(x)], reverse=True)
 
             version_pattern = re.compile(r"^(AWP_ROOT)\d{3}$")
