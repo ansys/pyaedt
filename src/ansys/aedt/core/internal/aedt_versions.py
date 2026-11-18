@@ -62,6 +62,7 @@ class AedtVersions(PyAedtBase):
         self._stable_versions = None
         self._current_version = None
         self._current_student_version = None
+        self._current_ic_version = None
         self._latest_version = None
         # NOTE: Attributes related the logic of using the PyAEDT bundled in AEDT
         self._is_pyaedt_in_edt = None
@@ -167,26 +168,31 @@ class AedtVersions(PyAedtBase):
                     student = False
                     client = False
                     ansys_common = False
+                    ic = False
                 elif "AWP_ROOT" in version_env_var:
                     current_version_id = version_env_var.replace("AWP_ROOT", "")
                     student = False
                     client = False
                     ansys_common = True
+                    ic = False
                 elif "HFSSIC_ROOT" in version_env_var:
                     current_version_id = version_env_var.replace("HFSSIC_ROOT", "")
                     student = False
                     client = False
                     ansys_common = False
+                    ic = True
                 elif "ANSYSEMSV_ROOT" in version_env_var:
                     current_version_id = version_env_var.replace("ANSYSEMSV_ROOT", "")
                     student = True
                     client = False
                     ansys_common = False
+                    ic = False
                 else:
                     current_version_id = version_env_var.replace("ANSYSEM_PY_CLIENT_ROOT", "")
                     student = False
                     client = True
                     ansys_common = False
+                    ic = False
                 try:
                     version = int(current_version_id[0:2])
                     release = int(current_version_id[2])
@@ -197,6 +203,8 @@ class AedtVersions(PyAedtBase):
                             release -= 2
                     if student:
                         v_key = f"20{version}.{release}SV"
+                    elif ic:
+                        v_key = f"20{version}.{release}IC"
                     elif client:
                         v_key = f"20{version}.{release}CL"
                     elif ansys_common:
@@ -270,6 +278,25 @@ class AedtVersions(PyAedtBase):
             else:
                 self._current_student_version = ""
         return self._current_student_version
+
+    @property
+    def current_ic_version(self) -> str | None:
+        """Get the current stable HFSS IC version.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.internal.aedt_versions import AedtVersions
+        >>> obj = AedtVersions()
+        >>> obj.current_ic_version
+
+        """
+        if self._current_ic_version is None:
+            stable_ic_versions = [v for v in self.stable_versions if "IC" in v]
+            if stable_ic_versions:
+                self._current_student_version = stable_ic_versions[0]
+            else:
+                self._current_ic_version = ""
+        return self._current_ic_version
 
     @property
     def latest_version(self) -> str:

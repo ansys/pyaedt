@@ -1381,6 +1381,19 @@ class Desktop(PyAedtBase):
         return aedt_versions.current_student_version
 
     @property
+    def current_ic_version(self) -> str:
+        """Current AEDT IC  version.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1", hfss_ic=True)
+        >>> desktop.current_ic_version
+
+        """
+        return aedt_versions.current_ic_version
+
+    @property
     def installed_versions(self) -> dict:
         """Dictionary of AEDT versions installed on the system and their installation paths.
 
@@ -2930,6 +2943,12 @@ class Desktop(PyAedtBase):
                     ),
                     None,
                 )
+            elif self.hfss_ic and self.current_ic_version:
+                specified_version = self.current_ic_version
+            elif self.hfss_ic and self.current_version:
+                specified_version = self.current_version
+                self.hfss_ic = False
+                self.logger.warning("HFSS IC Version not found on the system. Using regular version.")
             elif student_version and self.current_student_version:
                 specified_version = self.current_student_version
             elif student_version and self.current_version:
@@ -2946,6 +2965,8 @@ class Desktop(PyAedtBase):
                     self.logger.warning("Only AEDT Student Version found on the system. Using Student Version.")
         elif student_version:
             specified_version += "SV"
+        elif self.hfss_ic:
+            specified_version += "IC"
 
         if not _is_version_format_valid(specified_version):
             raise AEDTRuntimeError(f"Internal version format is not correct: specified_version: {specified_version}")
