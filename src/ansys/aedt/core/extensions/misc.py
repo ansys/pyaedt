@@ -800,8 +800,13 @@ class ExtensionCommon(PyAedtBase):
                 student_version=True,
                 non_graphical=None,
             )
+            hfssic_active_sessions = active_sessions(
+                version=version,
+                hfss_ic=True,
+                non_graphical=None,
+            )
 
-            if not aedt_active_sessions and not student_active_sessions:
+            if not aedt_active_sessions and not student_active_sessions and not hfssic_active_sessions:
                 raise AEDTRuntimeError(f"AEDT {version} session not found. Launch AEDT and try again.")
 
             self.__desktop = Desktop(

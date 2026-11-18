@@ -695,6 +695,8 @@ class Desktop(PyAedtBase):
     aedt_process_id : int, optional
         Process ID for the instance of AEDT to point PyAEDT at. The default is
         ``None``. This parameter is only used when ``new_desktop = False``.
+    hfss_ic : bool, optional
+        Whether to run AEDT or HFSS IC. This parameter is only used in linux.
 
     Examples
     --------
@@ -781,6 +783,7 @@ class Desktop(PyAedtBase):
         machine: str | None = None,
         port: int | None = 0,
         aedt_process_id: int | None = None,
+        hfss_ic: bool | None = False,
     ) -> None:
         """Initialize desktop."""
         # Check if already initialized and returning object if so.
@@ -834,7 +837,9 @@ class Desktop(PyAedtBase):
         self._connected_app_instances = 0
         self.__logger = None
         self.__logfile = None
-
+        self.hfss_ic = hfss_ic
+        # if hfss_ic and not is_linux:
+        #    self.hfss_ic = False
         # Check version arguments and installed AEDT versions.
         self.__check_version(version, student_version)
 
@@ -1194,6 +1199,7 @@ class Desktop(PyAedtBase):
                 version=self.aedt_version_id,
                 student_version=self.student_version,
                 non_graphical=self.non_graphical,
+                hfss_ic=self.hfss_ic,
             )
             self.logger.debug(f"Available sessions: {sessions}")
             if self.aedt_process_id in sessions:
@@ -2918,7 +2924,9 @@ class Desktop(PyAedtBase):
                         for installed_aedt in aedt_versions.installed_versions.keys()
                         if is_number(installed_aedt[0:6])
                         and self.aedt_process_id
-                        in active_sessions(installed_aedt[0:6], self.student_version, self.non_graphical)
+                        in active_sessions(
+                            installed_aedt[0:6], self.student_version, self.non_graphical, hfss_ic=self.hfss_ic
+                        )
                     ),
                     None,
                 )
@@ -3015,7 +3023,9 @@ class Desktop(PyAedtBase):
         self.logger.debug(launch_msg)
         processID = []
         if is_windows:
-            processID = com_active_sessions(self.aedt_version_id, self.student_version, self.non_graphical)
+            processID = com_active_sessions(
+                self.aedt_version_id, self.student_version, self.non_graphical, hfss_ic=self.hfss_ic
+            )
         if self.student_version and not processID:  # Opens an instance if processID is an empty list
             self.__run_student()
         else:
@@ -3024,7 +3034,9 @@ class Desktop(PyAedtBase):
 
         processID2 = []
         if is_windows:
-            processID2 = com_active_sessions(self.aedt_version_id, self.student_version, self.non_graphical)
+            processID2 = com_active_sessions(
+                self.aedt_version_id, self.student_version, self.non_graphical, hfss_ic=self.hfss_ic
+            )
         proc = [i for i in processID2 if i not in processID]  # Looking for the "new" process
         if (
             not proc and (not self.new_desktop) and self.aedt_process_id
@@ -3253,6 +3265,7 @@ class Desktop(PyAedtBase):
                 version=self.aedt_version_id,
                 student_version=self.student_version,
                 non_graphical=self.non_graphical,
+                hfss_ic=self.hfss_ic,
             )
             if sessions:
                 self.__port = sessions[0]
@@ -3401,6 +3414,8 @@ class Desktop(PyAedtBase):
             installer = Path(self.aedt_install_dir) / "ansysedt"
             if self.student_version:  # pragma: no cover
                 installer = Path(self.aedt_install_dir) / "ansysedtsv"
+            elif self.hfss_ic:
+                installer = Path(self.aedt_install_dir) / "hfssic"
             if not is_linux:
                 if self.student_version:  # pragma: no cover
                     installer = Path(self.aedt_install_dir) / "ansysedtsv.exe"

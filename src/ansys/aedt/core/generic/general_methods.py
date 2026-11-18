@@ -1496,6 +1496,7 @@ def active_sessions(
     version: str | None = None,
     student_version: bool | None = False,
     non_graphical: bool | None = None,
+    hfss_ic: bool | None = False,
 ) -> dict[int, int]:
     """Get information for active AEDT sessions.
 
@@ -1571,6 +1572,8 @@ def active_sessions(
     if student_version:
         # Linux needs both variants (with and without .exe extension)
         target = ["ansysedtsv.exe"]
+    if hfss_ic:
+        target = ["hfssic.exe"]
     else:
         target = ["ansysedt.exe", "hfssic.exe"]
 
