@@ -995,7 +995,7 @@ def _run_ss() -> dict[int, int]:
         # Only process lines that belong to AEDT gRPC.
         # Skip lines that don't mention the AEDT executable or belong to the
         # standalone API process ("apip-standalone").
-        if "ansysedt.exe" not in line or "apip-standalone" in line:
+        if ("ansysedt.exe" not in line and "hfssic.exe" not in line) or "apip-standalone" in line:
             continue
 
         # Extract the PID from the line: "ansysedt.exe",pid=NNNN
@@ -1003,7 +1003,10 @@ def _run_ss() -> dict[int, int]:
         pid = int(pid_match.group(1)) if pid_match else None
 
         if not pid:
-            continue
+            pid_match = re.search(r"['\"]?hfssic\.exe['\"]?\s*,\s*pid=(\d+)", line)
+            pid = int(pid_match.group(1)) if pid_match else None
+            if not pid:
+                continue
 
         if pid not in results_pid:
             results_pid[pid] = [line]
