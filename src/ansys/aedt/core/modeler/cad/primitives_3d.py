@@ -1920,25 +1920,25 @@ class Primitives3D(GeometryModeler, PyAedtBase):
                         self._app.modeler.set_working_coordinate_system(cs_old)
                     else:
                         part = self.__parse_mapping(parts[mon["Geometry Assignment"]])
-                        if m_case == "Face":
+                        if m_case == "Face" and part:
                             self._app.monitor.assign_face_monitor(
                                 part["FaceKeyIDMap"][str(mon["ID"])],
                                 monitor_quantity=mon["Quantity"],
                                 monitor_name=key,
                             )
-                        elif m_case == "Vertex":
+                        elif m_case == "Vertex" and part:
                             self._app.monitor.assign_point_monitor_to_vertex(
                                 part["VertexKeyIDMap"][str(mon["ID"])],
                                 monitor_quantity=mon["Quantity"],
                                 monitor_name=key,
                             )
-                        elif m_case == "Surface":
+                        elif m_case == "Surface" and part:
                             self._app.monitor.assign_surface_monitor(
                                 self._app.modeler.objects[part["BodyKeyIDMap"][str(mon["ID"])]].name,
                                 monitor_quantity=mon["Quantity"],
                                 monitor_name=key,
                             )
-                        elif m_case == "Object":
+                        elif m_case == "Object" and part:
                             self._app.monitor.assign_point_monitor_in_object(
                                 self._app.modeler.objects[part["BodyKeyIDMap"][str(mon["ID"])]].name,
                                 monitor_quantity=mon["Quantity"],
