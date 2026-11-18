@@ -1034,10 +1034,10 @@ class Materials(PyAedtBase):
             for prop in MatProperties.aedtname:
                 if (
                     prop in keys
-                    and val[keys.index(prop)]
-                    and not (isinstance(val[keys.index(prop)], float) and math.isnan(val[keys.index(prop)]))
+                    and val.iloc[keys.index(prop)]
+                    and not (isinstance(val.iloc[keys.index(prop)], float) and math.isnan(val.iloc[keys.index(prop)]))
                 ):
-                    props[prop] = float(val[keys.index(prop)])
+                    props[prop] = float(val.iloc[keys.index(prop)])
             new_material = Material(self, newname, props, material_update=False)
             new_material.update()
             new_material._material_update = True

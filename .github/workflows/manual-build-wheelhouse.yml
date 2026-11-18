@@ -30,12 +30,10 @@ on:
            - 'no'
       python-version:
          description: "Python version to build for (choose 'all' for all supported versions)"
-         default: '3.10'
+         default: '3.13'
          type: choice
          options:
            - 'all'
-           - '3.10'
-           - '3.11'
            - '3.12'
            - '3.13'
            - '3.14'
@@ -67,7 +65,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.10','3.11','3.12','3.13', '3.14']
+        python-version: ['3.12','3.13', '3.14']
     steps:
       - name: Clone PyAEDT using specified input branch
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -131,7 +129,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.10','3.11','3.12','3.13', '3.14']
+        python-version: ['3.12','3.13', '3.14']
     steps:
       - name: Clone PyAEDT using specified input branch
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -197,7 +195,7 @@ jobs:
       id-token: write       # Required for OIDC token generation (for provenance signing)
     uses: $/.github/workflows/reusable-smoke-tests-rocky.yml
     with:
-      python-versions: '["3.10", "3.11", "3.12", "3.13", "3.14"]'
+      python-versions: '["3.12", "3.13", "3.14"]'
       extras: ${{ format('["{0}"]', github.event.inputs.target) }}
       checkout-ref: ${{ github.event.inputs.pyaedt-branch }}
 
