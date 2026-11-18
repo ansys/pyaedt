@@ -1154,6 +1154,20 @@ class GeometryModeler(Modeler, PyAedtBase):
 
     @property
     def components(self) -> SetupDict:
+        """Map component instance.
+
+        Returns
+        -------
+        SetupDict
+            Component instances.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.modeler.components
+
+        """
         for component_name, component_data in self.components_data.items():
             if component_name not in self.__components:
                 component_definition = component_data.get("definition", None)
@@ -1182,6 +1196,48 @@ class GeometryModeler(Modeler, PyAedtBase):
                 del self.__components[comp]
 
         return self.__components
+
+    @property
+    def native_components(self) -> SetupDict:
+        """Map native component instances.
+
+        Returns
+        -------
+        SetupDict
+            Component instances.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.modeler.native_components
+
+        """
+        native_components = SetupDict()
+        component_types = self.component_types
+        for comp_type, comp_names in component_types.items():
+            if comp_type != "3d_component":
+                for comp_name in comp_names:
+                    native_components[comp_name] = self.components[comp_name]
+        return native_components
+
+    @property
+    def native_component_names(self) -> list:
+        """Map native component instance names.
+
+        Returns
+        -------
+        list
+            Component instance names.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.modeler.native_component_names
+
+        """
+        return list(self.native_components.keys())
 
     @property
     def groups(self):

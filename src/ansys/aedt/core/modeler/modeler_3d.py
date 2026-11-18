@@ -358,7 +358,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
                 datasets.update(self._app.project_datasets)
                 datasets.update(self._app.design_datasets)
             if native_components is None:
-                native_components = self._app.native_components
+                native_components = self._app.modeler.native_component_names
             with open_file(configfile) as f:
                 config_dict = json.load(f)
             out_dict = {}
@@ -384,7 +384,9 @@ class Modeler3D(Primitives3D, PyAedtBase):
                     out_dict["datasets"].remove(dat)
                 out_dict["datasets"] = config_dict["datasets"]
             if native_components:
-                out_dict["native components"] = config_dict["native components"]
+                out_dict["native components"] = {
+                    k: v for k, v in config_dict["native components"].items() if k in native_components
+                }
                 cs_set = set()
                 for _, native_dict in out_dict["native components"].items():
                     for _, instance_dict in native_dict["Instances"].items():

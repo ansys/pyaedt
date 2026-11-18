@@ -84,7 +84,6 @@ from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modeler import cad
 from ansys.aedt.core.modeler.cad.component_array import ComponentArray
 from ansys.aedt.core.modeler.cad.components_3d import NativeComponent
-from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
@@ -2166,45 +2165,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                     save_rad_fields=save_rad_fields,
                 )
         return False
-
-    @pyaedt_function_handler()
-    def _create_native_component(
-        self, antenna_type, target_cs=None, model_units=None, parameters_dict=None, antenna_name=None
-    ):
-        from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
-
-        if antenna_name is None:
-            antenna_name = generate_unique_name(antenna_type.replace(" ", "").replace("-", ""))
-        if not model_units:
-            model_units = self.modeler.model_units
-
-        native_props = dict({"NativeComponentDefinitionProvider": dict({"Type": antenna_type, "Unit": model_units})})
-        if isinstance(target_cs, CoordinateSystem):
-            target_cs = target_cs.name
-        native_props["TargetCS"] = target_cs
-        if isinstance(parameters_dict, dict):
-            for el in parameters_dict:
-                if (
-                    el not in ["antenna_type", "offset", "rotation", "rotation_axis", "mode"]
-                    and parameters_dict[el] is not None
-                ):
-                    native_props["NativeComponentDefinitionProvider"][el.replace("_", " ").title()] = parameters_dict[
-                        el
-                    ]
-        native = NativeComponent(self, antenna_type, antenna_name, native_props)
-
-        _ = self.native_components
-
-        if native.create():
-            user_defined_component = UserDefinedComponent(
-                self.modeler, native.name, native_props["NativeComponentDefinitionProvider"], antenna_type
-            )
-            self.modeler.components[native.name] = user_defined_component
-            self._native_components.append(native)
-            self.logger.info("Native component %s %s has been correctly created.", antenna_type, antenna_name)
-            return native
-
-        raise AEDTRuntimeError(f"Failed to create native component {antenna_type} {antenna_name}")
 
     class SbrAntennas:
         (

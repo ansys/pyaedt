@@ -184,7 +184,6 @@ class Analysis(Design, PyAedtBase):
         self._parametrics = None
         self._optimizations = None
         self.__setups = SetupDict()
-        self._native_components = []
 
         if not settings.lazy_load:
             self._materials = self.materials

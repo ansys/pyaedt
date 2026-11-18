@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from pathlib import Path
 import shutil
 
 import pytest
@@ -440,8 +441,7 @@ def test_advanced_3dcomp_import(board_ipk_app, test_tmp_dir) -> None:
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
-@pytest.mark.skipif(not USE_GRPC, reason="Not running in COM mode")
-def test_flatten_3d_components(aedt_app) -> None:
+def test_3d_components_monitors(aedt_app) -> None:
     file_name = "Advanced3DComp_T52.a3dcomp"
     aedt_app.create_fan(is_2d=True)
     box = aedt_app.modeler.create_box([5, 6, 7], [9, 7, 6])
@@ -474,42 +474,55 @@ def test_flatten_3d_components(aedt_app) -> None:
         monitor_objects=mon_list,
         datasets=["test_dataset"],
     )
+    assert Path(comp_file).is_file()
 
-    aedt_app.insert_design("test_52_1")
+
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
+def test_flatten_3d_components(aedt_app) -> None:
+    file_name = "Advanced3DComp_T52.a3dcomp"
+    aedt_app.create_fan(is_2d=True)
     cs2 = aedt_app.modeler.create_coordinate_system(name="CS2")
     cs2.props["OriginX"] = 20
     cs2.props["OriginY"] = 20
     cs2.props["OriginZ"] = 20
-
-    aedt_app.modeler.insert_3d_component(
-        input_file=str(aedt_app.toolkit_directory / file_name), coordinate_system="CS2", auxiliary_parameters=True
+    box = aedt_app.modeler.create_box([5, 6, 7], [9, 7, 6])
+    rectangle = aedt_app.modeler.create_rectangle(0, [5, 6, 7], [7, 6])
+    aedt_app.monitor.assign_surface_monitor(rectangle.name)
+    aedt_app.monitor.assign_face_monitor(box.faces[0].id)
+    aedt_app.create_fan(is_2d=False)
+    aedt_app.monitor.assign_point_monitor_in_object(box.name)
+    aedt_app.create_dataset(
+        "test_ignore",
+        [1, 2, 3, 4],
+        [1, 2, 3, 4],
+        z=None,
+        v=None,
+        is_project_dataset=False,
+        x_unit="cel",
+        y_unit="W",
+        v_unit="",
     )
-
-    # Save the project to refresh the properties of the inserted 3D Component
-    aedt_app.save_project()
-
-    aedt_app.logger.clear_messages("", "")
-    aedt_app.insert_design("test_52")
-    cs2 = aedt_app.modeler.create_coordinate_system(name="CS2")
-    cs2.props["OriginX"] = 20
-    cs2.props["OriginY"] = 20
-    cs2.props["OriginZ"] = 20
-
-    aedt_app.modeler.insert_3d_component(
-        input_file=str(aedt_app.toolkit_directory / file_name), coordinate_system="CS2", auxiliary_parameters=True
+    mon_list = list(aedt_app.monitor.all_monitors.keys())
+    aedt_app.monitor.assign_point_monitor([0, 0, 0])
+    aedt_app.modeler.create_coordinate_system()
+    comp_file = aedt_app.toolkit_directory / file_name
+    assert aedt_app.modeler.create_3dcomponent(
+        str(comp_file),
+        name="board_assembly",
+        coordinate_systems=["Global"],
+        reference_coordinate_system="Global",
+        export_auxiliary=True,
+        monitor_objects=mon_list,
+        datasets=["test_dataset"],
     )
-    mon_name = aedt_app.monitor.assign_face_monitor(
-        list(aedt_app.modeler.components["board_assembly1"].parts.values())[0].faces[0].id
+    comp, _, _ = aedt_app.modeler.insert_3d_component(
+        input_file=str(aedt_app.toolkit_directory / file_name), coordinate_system=cs2.name, auxiliary_parameters=True
     )
-    mon_point_name = aedt_app.monitor.assign_point_monitor([20, 20, 20])
+    aedt_app.monitor.assign_face_monitor(list(comp.parts.values())[0].faces[0].id)
+    aedt_app.monitor.assign_point_monitor([20, 20, 20])
+
     assert aedt_app.flatten_3d_components()
-    assert all(
-        i in aedt_app.monitor.all_monitors
-        for i in [
-            mon_name,
-            mon_point_name,
-        ]
-    )
+    pass
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")

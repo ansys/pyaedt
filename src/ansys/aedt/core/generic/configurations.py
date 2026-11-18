@@ -1497,12 +1497,12 @@ class Configurations(PyAedtBase):
         if self._app.design_type in ["Twin Builder", "RMxprt", "ModelCreation", "Circuit Design", "Circuit Netlist"]:
             return
         dict_monitors = []
-        native_parts = [
-            part.name
-            for udc_name, udc in self._app.modeler.components.items()
-            for part_name, part in udc.parts.items()
-            if self._app.modeler.components[udc_name].definition_name in self._app.native_components
-        ]
+        native_parts = []
+        for udc_name, udc in self._app.modeler.components.items():
+            if udc_name not in self._app.modeler.native_component_names:
+                for part_name, part in udc.parts.items():
+                    native_parts.append(part.name)
+
         if self._app.monitor.all_monitors != {}:
             for mon_name in self._app.monitor.all_monitors:
                 dict_monitor = {
@@ -2142,7 +2142,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                 for node_name, node in node["Children"].items():
                     add_duplicate_dic_to_history(node_name, node, obj_name)
 
-        for _, nc in self._app.native_components.items():
+        for _, nc in self._app.modeler.native_components.items():
             instance_name = nc.props["SubmodelDefinitionName"]
             dict_out["native components"][instance_name] = {}
             nc_props = dict(nc.props).copy()
@@ -2160,13 +2160,13 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                 if v.definition_name == instance_name:
                     if "Target Coordinate System" in self._app.get_oo_properties(self._app.oeditor, i):
                         cs_name = v.target_coordinate_system
-                    obj_history = v.history()
-                    if obj_history:
-                        obj_history = obj_history.jsonalize_tree()
+
+                    obj_history = None
+                    if v.child_object and "jsonalize_tree" in dir(v):
+                        obj_history = v.jsonalize_tree()
                         for node_name, node in obj_history.items():
                             add_duplicate_dic_to_history(node_name, node, i)
-                    else:
-                        obj_history = None
+
                     dict_out["native components"][instance_name]["Instances"][v.name] = {
                         "CS": cs_name,
                         "Operations": obj_history,
