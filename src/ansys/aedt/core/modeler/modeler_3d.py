@@ -306,7 +306,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         if boundaries:
             arg2 += ["Boundaries:=", boundaries]
         if self._app.design_type == "Icepak":
-            mesh_regions = [mr.name for mr in self._app.mesh.meshregions if mr.name != "Global"]
+            mesh_regions = [mr.name for mr in self._app.mesh.regions if mr.name != "Global"]
             if mesh_regions:
                 arg2 += ["MeshRegions:=", mesh_regions]
         else:

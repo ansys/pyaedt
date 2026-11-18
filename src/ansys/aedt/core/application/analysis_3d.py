@@ -1209,7 +1209,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         Parameters
         ----------
         components : str, list, optional
-            List of user defined components. The Default is ``None`` for all 3d Components.
+            List of user defined components. The default is ``None`` for all 3d Components.
         purge_history : bool, optional
             Define if the 3D Component will be purged before copied.
             This is needed when more than 1 component with the same definition is present.
@@ -1231,11 +1231,11 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         """
         if password is None:
             password = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
-        native_comp_names = [nc.definition_name for nc in self.native_components.values()]
         if not components:
-            components = [
-                key for key, val in self.modeler.components.items() if val.definition_name not in native_comp_names
-            ]
+            components = []
+            for comp in self.modeler.components.values():
+                if comp.definition_type == "3d_component":
+                    components.append(comp.name)
         else:
             if isinstance(components, str):
                 components = [components]
