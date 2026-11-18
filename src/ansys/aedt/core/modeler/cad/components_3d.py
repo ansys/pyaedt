@@ -372,12 +372,12 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         return self.__parameters
 
     @property
-    def parts(self) -> dict[str, Object3d]:
+    def parts(self) -> dict[str, Object3d] | dict[str, str]:
         """Dictionary of objects that belong to the user-defined component.
 
         Returns
         -------
-        dict[str, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
+        dict[str, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`] | dict[str, str]
 
         Examples
         --------
@@ -399,6 +399,9 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
             modeler.objects_by_name[part].id for part in modeler.objects_by_name.keys() if part in component_parts
         ]
         parts_dict = {part_id: modeler.objects[part_id] for part_id in parts_id}
+
+        if not parts_dict and component_parts:  # pragma: no cover
+            parts_dict = {part: part for part in component_parts}
         return parts_dict
 
     @property
@@ -457,7 +460,10 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         """
         bb = [float("inf")] * 3 + [float("-inf")] * 3
         for _, obj in self.parts.items():
-            bbox = obj.bounding_box
+            if isinstance(obj, str):  # pragma: no cover
+                bbox = self._app.modeler[obj].bounding_box
+            else:
+                bbox = obj.bounding_box
             bb = [min(bb[i], bbox[i]) for i in range(3)] + [max(bb[i + 3], bbox[i + 3]) for i in range(3)]
         return bb
 

@@ -55,7 +55,7 @@ RESOLUTION = 2
 
 @pytest.fixture
 def aedt_app(add_app):
-    app = add_app(application=Icepak, project="icepak_3d_component")
+    app = add_app(application=Icepak)
     project_name = app.project_name
     yield app
     app.close_project(name=project_name, save=False)
@@ -360,34 +360,35 @@ def test_native_component_load(native_app) -> None:
     assert len(native_app.native_components) == 1
 
 
-def test_create_fan(ipk_app, test_tmp_dir) -> None:
-    if "Region" in ipk_app.modeler.object_names:
-        ipk_app.modeler.delete("Region")
-    ipk_app.modeler.create_region(pad_type="Absolute Position", pad_value=[300, -300, 300, -300, 300, -300])
-    fan = ipk_app.create_fan("Fan1", cross_section="YZ", radius="15mm", hub_radius="5mm", origin=[5, 21, 1])
+def test_create_fan(aedt_app, test_tmp_dir) -> None:
+    if "Region" in aedt_app.modeler.object_names:
+        aedt_app.modeler.delete("Region")
+    aedt_app.modeler.create_region(pad_type="Absolute Position", pad_value=[300, -300, 300, -300, 300, -300])
+    fan = aedt_app.create_fan("Fan1", cross_section="YZ", radius="15mm", hub_radius="5mm", origin=[5, 21, 1])
     assert isinstance(fan, NativeComponent)
-    assert fan.name in ipk_app.modeler.component_names
+    assert fan.name in aedt_app.modeler.component_names
     assert fan.name == "Fan1"
-    assert fan.name in ipk_app.modeler.oeditor.Get3DComponentInstanceNames(fan.definition_name)[0]
+    assert fan.name in aedt_app.modeler.oeditor.Get3DComponentInstanceNames(fan.definition_name)[0]
+    assert fan.native_properties["Type"] == "Fan"
 
     fan.name = "Fan2"
-    assert fan.name in ipk_app.modeler.oeditor.Get3DComponentInstanceNames(fan.definition_name)[0]
-    assert fan.name in ipk_app.modeler.component_names
-    assert "Fan1" not in ipk_app.modeler.component_names
+    assert fan.name in aedt_app.modeler.oeditor.Get3DComponentInstanceNames(fan.definition_name)[0]
+    assert fan.name in aedt_app.modeler.component_names
+    assert "Fan1" not in aedt_app.modeler.component_names
 
-    ipk_app.modeler.components["Fan2"]["NativeComponentDefinitionProvider"]["Swirl"] = "10"
-    assert ipk_app.modeler.components["Fan2"]["NativeComponentDefinitionProvider"]["Swirl"] == "10"
+    aedt_app.modeler.components["Fan2"]["NativeComponentDefinitionProvider"]["Swirl"] = "10"
+    assert aedt_app.modeler.components["Fan2"]["NativeComponentDefinitionProvider"]["Swirl"] == "10"
 
     fan_props = fan.props.to_dict()
     fan_props["NativeComponentDefinitionProvider"]["Swirl"] = "20"
     fan.props = fan_props
     assert fan_props["NativeComponentDefinitionProvider"]["Swirl"] == "20"
 
-    fan2 = ipk_app.create_fan(fan.name, cross_section="YZ", radius="15mm", hub_radius="5mm", origin=[5, 21, 1])
-    assert fan2.name in ipk_app.modeler.component_names
+    fan2 = aedt_app.create_fan(fan.name, cross_section="YZ", radius="15mm", hub_radius="5mm", origin=[5, 21, 1])
+    assert fan2.name in aedt_app.modeler.component_names
 
     assert fan.delete()
-    assert "Fan2" not in ipk_app.modeler.component_names
+    assert "Fan2" not in aedt_app.modeler.component_names
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
@@ -438,6 +439,7 @@ def test_advanced_3dcomp_import(board_ipk_app, test_tmp_dir) -> None:
     assert comp.name in board_ipk_app.modeler.component_names
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
 @pytest.mark.skipif(not USE_GRPC, reason="Not running in COM mode")
 def test_flatten_3d_components(aedt_app) -> None:
     file_name = "Advanced3DComp_T52.a3dcomp"
@@ -472,6 +474,7 @@ def test_flatten_3d_components(aedt_app) -> None:
         monitor_objects=mon_list,
         datasets=["test_dataset"],
     )
+
     aedt_app.insert_design("test_52_1")
     cs2 = aedt_app.modeler.create_coordinate_system(name="CS2")
     cs2.props["OriginX"] = 20
@@ -509,6 +512,7 @@ def test_flatten_3d_components(aedt_app) -> None:
     )
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
 @pytest.mark.skipif(not USE_GRPC, reason="Not running in COM mode")
 def test_advanced_3d_component_export(ipk) -> None:
     # Filter board import

@@ -129,6 +129,7 @@ def test_insert_3dcomponent(aedt_app) -> None:
     assert "Dipole_pyaedt" not in aedt_app.modeler.component_names
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Method available from AEDT 2025.1.")
 def test_insert_encrypted_3dcomp(aedt_app, test_tmp_dir) -> None:
     file_original = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / ENCRYPTED_CYL
     input_file = shutil.copy2(file_original, test_tmp_dir / ENCRYPTED_CYL)
@@ -142,6 +143,7 @@ def test_insert_encrypted_3dcomp(aedt_app, test_tmp_dir) -> None:
     assert comp.properties
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Method available from AEDT 2025.1.")
 def test_encrypted_3dcomp_design(encrypted_app) -> None:
     # Open a design with an encrypted 3D component and check that the component is loaded correctly.
     comp = encrypted_app.modeler.components[0]

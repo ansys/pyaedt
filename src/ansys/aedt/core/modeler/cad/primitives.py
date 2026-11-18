@@ -1199,7 +1199,10 @@ class GeometryModeler(Modeler, PyAedtBase):
         >>> app.modeler.groups
 
         """
-        return list(self.oeditor.GetChildNames("Groups"))
+        groups = list(self.oeditor.GetChildNames("Groups"))
+        if not groups:  # pragma: no cover
+            groups = ["Model"]
+        return groups
 
     @property
     def _oproject(self):

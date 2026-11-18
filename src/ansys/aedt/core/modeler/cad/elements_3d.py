@@ -2092,12 +2092,15 @@ class BinaryTreeNode:
                             props[p] = child_object.GetPropValue(p)
                         except Exception:
                             props[p] = None
-            else:
+            else:  # pragma: no cover
                 for p in child_object.GetPropNames():
-                    try:
-                        props[p] = child_object.GetPropValue(p)
-                    except Exception:
-                        props[p] = None
+                    if p == "General[Name]":
+                        props["Name"] = child_object.GetPropValue("Name")
+                    else:
+                        try:
+                            props[p] = child_object.GetPropValue(p)
+                        except Exception:
+                            props[p] = None
         self._props = HistoryProps(self, props)
         return self._props
 
