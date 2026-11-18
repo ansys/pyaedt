@@ -184,7 +184,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core import Circuit
-        >>> app = Circuit()
+        >>> circuit = Circuit()
         >>> circuit.setups
 
         """
@@ -198,8 +198,8 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
             self.__active_setup = self.__setups[0].name
 
         for setup in list(self.__setups.keys()):
-            if setup.name not in setup_names:
-                del self.__setups[setup.name]
+            if setup not in setup_names:
+                del self.__setups[setup]
 
         return self.__setups
 
