@@ -31,13 +31,14 @@ from ansys.aedt.core.extensions.hfss3dlayout.export_layout import main
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
 from tests import TESTS_EXTENSIONS_PATH
+from tests.conftest import edb_ignore_logger_warn
 from tests.conftest import edb_xfail
 
 AEDB_FILE_NAME = "siverse_sfp"
 TEST_SUBFOLDER = "post_layout_design"
 AEDT_FILE_PATH = TESTS_EXTENSIONS_PATH / "example_models" / TEST_SUBFOLDER / (AEDB_FILE_NAME + ".aedb")
 
-pytestmark = pytest.mark.skipif(is_linux, reason="PyEDB stability issues on Linux")
+pytestmark = [pytest.mark.skipif(is_linux, reason="PyEDB stability issues on Linux"), edb_ignore_logger_warn]
 
 
 def cleanup_files(*files) -> None:
