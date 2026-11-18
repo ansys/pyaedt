@@ -30,9 +30,10 @@ from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design import PostLayou
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_EXTENSIONS_PATH
+from tests.conftest import edb_ignore_logger_warn
 from tests.conftest import edb_xfail
 
-pytestmark = pytest.mark.skipif(is_linux, reason="PyEDB stability issues on Linux")
+pytestmark = [pytest.mark.skipif(is_linux, reason="PyEDB stability issues on Linux"), edb_ignore_logger_warn]
 
 
 def test_post_layout_design_data_class() -> None:
