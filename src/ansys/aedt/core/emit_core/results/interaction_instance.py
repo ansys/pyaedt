@@ -26,8 +26,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from matplotlib.figure import Figure
-
 from ansys.aedt.core.emit_core.emit_constants import EMI_CATEGORY_TO_INTERFERER_TYPE
 from ansys.aedt.core.emit_core.emit_constants import EMIInterfererType
 from ansys.aedt.core.emit_core.emit_constants import PowerType
@@ -38,6 +36,8 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import min_aedt_version
 
 if TYPE_CHECKING:
+    from matplotlib.figure import Figure
+
     from ansys.aedt.core.emit_core.results.interaction import Interaction
     from ansys.aedt.core.emit_core.results.revision import Revision
 

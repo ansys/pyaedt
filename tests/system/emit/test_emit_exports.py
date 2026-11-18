@@ -24,19 +24,23 @@
 
 from __future__ import annotations
 
+from importlib.util import find_spec
 import os
 from pathlib import Path
 import sys
 import tempfile
 
-import matplotlib
 import pytest
 
 from ansys.aedt.core.generic.general_methods import is_linux
 from tests import TESTS_EMIT_PATH
 from tests.conftest import DESKTOP_VERSION
 
-matplotlib.use("Agg")
+HAS_MATPLOTLIB = find_spec("matplotlib") is not None
+if HAS_MATPLOTLIB:
+    import matplotlib
+
+    matplotlib.use("Agg")
 
 # AEDT 2027R1 removes the EmitApiPython dependency which needed to be
 # specifically compiled for each supported Python version.
@@ -113,6 +117,7 @@ def _setup_two_radio_project(emit_app):
     reason="Emit API is only available for Python 3.13+ in AEDT versions 2027.1 and later.",
 )
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="export_to_csv requires 2027 R1 or later.")
+@pytest.mark.skipif(not HAS_MATPLOTLIB, reason="EMIT plot tests require matplotlib.")
 class TestEmitExports:
     """Tests for the export_to_csv method on various EMIT node types."""
 
