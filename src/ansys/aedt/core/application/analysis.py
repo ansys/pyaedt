@@ -81,6 +81,7 @@ from ansys.aedt.core.modules.solve_setup import SetupRmxprt
 from ansys.aedt.core.modules.solve_setup import SetupSBR
 
 if TYPE_CHECKING:
+    from ansys.aedt.core.modeler.cad.components_3d import NativeComponent
     from ansys.aedt.core.modules.boundary.common import BoundaryObject
     from ansys.aedt.core.modules.material_lib import Materials
 
@@ -192,6 +193,63 @@ class Analysis(Design, PyAedtBase):
             self._optimizations = self.optimizations
             self._optimetrics = self.optimetrics
             self._available_variations = self.available_variations
+
+    @property
+    @deprecated_doc(version="2.0.0")
+    @deprecated("Use `setups` instead.")
+    def design_setups(self) -> dict[str, Setup]:
+        """All design setups ordered by name.
+
+        Returns
+        -------
+        dict[str, :class:`ansys.aedt.core.modules.solve_setup.Setup`]
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.design_setups
+
+        """
+        return {i.name.split(":")[0].strip(): i for i in self.setups}
+
+    @property
+    @deprecated_doc(version="2.0.0")
+    @deprecated("Use `modeler.native_components` instead.")
+    def native_components(self) -> dict[str, NativeComponent]:
+        """Native Component dictionary.
+
+        Returns
+        -------
+        dict[str, :class:`ansys.aedt.core.modeler.cad.components_3d.NativeComponent`]
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.native_components
+
+        """
+        return {nc.name: nc for nc in self.modeler.native_components}
+
+    @property
+    @deprecated_doc(version="2.0.0")
+    @deprecated("Use `modeler.native_component_names` instead.")
+    def native_component_names(self) -> list[str]:
+        """Native component names.
+
+        Returns
+        -------
+        list
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.native_component_names
+
+        """
+        return self.modeler.native_component_names
 
     @property
     def output_variables(self) -> list[str]:
@@ -329,7 +387,7 @@ class Analysis(Design, PyAedtBase):
         --------
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
-        >>> hfss.parametrics
+        >>> hfss.optimizations
 
         """
         if not self._optimizations:
