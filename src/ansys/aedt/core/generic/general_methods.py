@@ -1815,6 +1815,7 @@ def grpc_active_sessions(
     version: str | None = None,
     student_version: bool | None = False,
     non_graphical: bool | None = False,
+    hfss_ic: bool | None = False,
 ) -> list[int]:
     """Get information for the active gRPC AEDT sessions.
 
@@ -1840,7 +1841,7 @@ def grpc_active_sessions(
     >>> grpc_active_sessions("2025.1")
 
     """
-    all_sessions = active_sessions(version, student_version, non_graphical)
+    all_sessions = active_sessions(version, student_version, non_graphical, hfss_ic)
 
     return_list = []
     for _, p in all_sessions.items():
