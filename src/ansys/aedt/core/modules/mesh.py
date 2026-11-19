@@ -69,6 +69,21 @@ mesh_props = {
 }
 """Value for mesh props."""
 
+_EDITABLE_MESH_OPERATION_TYPES = (
+    "SurfApproxBased",
+    "DefeatureBased",
+    "SurfaceRepPriority",
+    "LengthBased",
+    "SkinDepthBased",
+    "Curvilinear",
+    "RotationalLayerMesh",
+    "DensityControlBased",
+    "Icepak",
+    "CurvatureExtraction",
+    "CylindricalGap",
+)
+"""Mesh operation types updated through ``Edit*`` methods."""
+
 
 class MeshProps(dict):
     """AEDT Mesh Component Internal Parameters.
@@ -338,7 +353,10 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
             except Exception:
                 self._app.logger.info("Failed to use Child Object. Trying with legacy update.")
 
-        if self.type == "SurfApproxBased":
+        if is_native_grpc_api(self._app) and self.type in _EDITABLE_MESH_OPERATION_TYPES:
+            # The native gRPC API replaces the type-specific ``Edit*`` methods with a single ``Edit`` method.
+            self._mesh.omeshmodule.Edit(self.name, self._get_args())
+        elif self.type == "SurfApproxBased":
             self._mesh.omeshmodule.EditTrueSurfOp(self.name, self._get_args())
         elif self.type == "DefeatureBased":
             self._mesh.omeshmodule.EditModelResolutionOp(self.name, self._get_args())
