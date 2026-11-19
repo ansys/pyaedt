@@ -33,7 +33,10 @@ from ansys.aedt.core.extensions.hfss3dlayout.cutout import main
 from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
 from tests import TESTS_EXTENSIONS_PATH
 from tests.conftest import DESKTOP_VERSION
+from tests.conftest import edb_ignore_logger_warn
 from tests.conftest import edb_xfail
+
+pytestmark = edb_ignore_logger_warn
 
 AEDB_FILE_NAME = "ANSYS-HSD_V1"
 TEST_SUBFOLDER = "T45"
