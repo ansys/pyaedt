@@ -33,6 +33,7 @@ objects (points, lines, sheets, and solids) within the AEDT 3D Modeler.
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 import math
 from pathlib import Path
 import re
@@ -60,6 +61,13 @@ from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 if TYPE_CHECKING:
     from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
+
+
+def _normalize_ids(ids: int | str | Iterable[int | str]) -> list[int | str]:
+    """Normalize scalar native gRPC IDs to the legacy sequence shape."""
+    if isinstance(ids, (int, str)):
+        return [ids]
+    return list(ids)
 
 
 class Object3d(PyAedtBase):
@@ -477,12 +485,12 @@ class Object3d(PyAedtBase):
         """
         if self.object_type == "Unclassified":
             return []
-        face_ids = list(self._oeditor.GetFaceIDs(self.name))
+        face_ids = _normalize_ids(self._oeditor.GetFaceIDs(self.name))
         if set(face_ids) == set(self._face_ids):
             return self._faces
         self._face_ids = face_ids
         self._faces = []
-        for face in list(self._oeditor.GetFaceIDs(self.name)):
+        for face in _normalize_ids(self._oeditor.GetFaceIDs(self.name)):
             face = int(face)
             self._faces.append(FacePrimitive(self, face))
         return self._faces

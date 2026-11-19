@@ -70,6 +70,7 @@ from ansys.aedt.core.modeler.cad.modeler import NamedSelections
 from ansys.aedt.core.modeler.cad.modeler import ObjectCoordinateSystem
 from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.cad.object_3d import PolylineSegment
+from ansys.aedt.core.modeler.cad.object_3d import _normalize_ids
 from ansys.aedt.core.modeler.cad.polylines import Polyline
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modules.material_lib import Material
@@ -5647,7 +5648,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         """
         for obj in self.solid_names + self.sheet_names + self.line_names:
             try:
-                oEdgeIDs = self.oeditor.GetEdgeIDsFromObject(obj)
+                oEdgeIDs = _normalize_ids(self.oeditor.GetEdgeIDsFromObject(obj))
                 if str(assignment) in oEdgeIDs:
                     return obj
             except Exception:
@@ -6415,7 +6416,7 @@ class GeometryModeler(Modeler, PyAedtBase):
             objs.extend(list(self.oeditor.GetObjectsByMaterial(mat.lower())))
 
             for i in objs:
-                oFaceIDs = self.oeditor.GetFaceIDs(i)
+                oFaceIDs = _normalize_ids(self.oeditor.GetFaceIDs(i))
 
                 for face in oFaceIDs:
                     sel.append(int(face))
@@ -6488,7 +6489,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         sel = []
 
         for i in assignment:
-            oFaceIDs = self.oeditor.GetFaceIDs(i)
+            oFaceIDs = _normalize_ids(self.oeditor.GetFaceIDs(i))
 
             for face in oFaceIDs:
                 sel.append(int(face))
@@ -6561,7 +6562,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         directions = {}
         assignment = self.convert_to_selections(assignment, True)
         for el in assignment:
-            objID = self.oeditor.GetFaceIDs(el)
+            objID = _normalize_ids(self.oeditor.GetFaceIDs(el))
             faceCenter = self.oeditor.GetFaceCenter(int(objID[0]))
             directionfound = False
             thickness = 10
@@ -6602,7 +6603,7 @@ class GeometryModeler(Modeler, PyAedtBase):
                     ["NAME:SheetThickenParameters", "Thickness:=", str(value) + "mm", "BothSides:=", False],
                 )
             if extrude_internally:
-                objID2 = self.oeditor.GetFaceIDs(el)
+                objID2 = _normalize_ids(self.oeditor.GetFaceIDs(el))
                 for fid in objID2:
                     try:
                         faceCenter2 = self.oeditor.GetFaceCenter(int(fid))
@@ -9143,12 +9144,12 @@ class GeometryModeler(Modeler, PyAedtBase):
         """
         oFaceIDs = []
         if isinstance(assignment, str) and assignment in self.objects_by_name:
-            oFaceIDs = self.oeditor.GetFaceIDs(assignment)
+            oFaceIDs = _normalize_ids(self.oeditor.GetFaceIDs(assignment))
             oFaceIDs = [int(i) for i in oFaceIDs]
         elif assignment in self.objects:
             o = self.objects[assignment]
             name = o.name
-            oFaceIDs = self.oeditor.GetFaceIDs(name)
+            oFaceIDs = _normalize_ids(self.oeditor.GetFaceIDs(name))
             oFaceIDs = [int(i) for i in oFaceIDs]
         return oFaceIDs
 
@@ -9179,11 +9180,11 @@ class GeometryModeler(Modeler, PyAedtBase):
         """
         oEdgeIDs = []
         if isinstance(assignment, str) and assignment in self._object_names_to_ids:
-            oEdgeIDs = self.oeditor.GetEdgeIDsFromObject(assignment)
+            oEdgeIDs = _normalize_ids(self.oeditor.GetEdgeIDsFromObject(assignment))
             oEdgeIDs = [int(i) for i in oEdgeIDs]
         elif assignment in self.objects:
             o = self.objects[assignment]
-            oEdgeIDs = self.oeditor.GetEdgeIDsFromObject(o.name)
+            oEdgeIDs = _normalize_ids(self.oeditor.GetEdgeIDsFromObject(o.name))
             oEdgeIDs = [int(i) for i in oEdgeIDs]
         return oEdgeIDs
 
@@ -10518,7 +10519,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         if len(objListSolids) > 0:
             objList.extend(objListSolids)
         for obj in objList:
-            val = self.oeditor.GetEdgeIDsFromObject(obj)
+            val = _normalize_ids(self.oeditor.GetEdgeIDsFromObject(obj))
             if not (isinstance(val, bool)) and str(lval) in list(val):
                 return obj
         return None
@@ -10534,7 +10535,7 @@ class GeometryModeler(Modeler, PyAedtBase):
             if len(objListSolids) > 0:
                 objList.extend(objListSolids)
             for obj in objList:
-                face_ids = list(self.oeditor.GetFaceIDs(obj))
+                face_ids = _normalize_ids(self.oeditor.GetFaceIDs(obj))
                 if str(lval) in face_ids:
                     return obj
 
