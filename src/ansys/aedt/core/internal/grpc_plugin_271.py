@@ -64,9 +64,18 @@ class AEDT:
         return self.odesktop
 
     def Release(self) -> None:
-        from ScriptEnv import Release
+        import ScriptEnv
 
-        Release()
+        try:
+            ScriptEnv.Release()
+        finally:
+            channel = ScriptEnv.gChannel
+            ScriptEnv.gChannel = None
+            ScriptEnv.gDesktop = None
+            ScriptEnv.gSSLClientCredentials = None
+            self._odesktop = None
+            if channel is not None:
+                channel.close()
 
     def Shutdown(self) -> None:
         from ScriptEnv import Shutdown
