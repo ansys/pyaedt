@@ -1586,6 +1586,8 @@ def active_sessions(
         # Remove "SV" suffix for student versions ("2022.2SV" to "2022.2")
         if student_version and version.endswith("SV"):
             version = version[:-2]
+        if hfss_ic and version.endswith("IC"):
+            version = version[:-2]
         # Extract last 4 characters and remove dot ("2022.2" to "222")
         version = version[-4:].replace(".", "")
 

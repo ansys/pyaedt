@@ -293,8 +293,11 @@ class AedtVersions(PyAedtBase):
         if self._current_ic_version is None:
             stable_ic_versions = [v for v in self.stable_versions if "IC" in v]
             if stable_ic_versions:
-                self._current_student_version = stable_ic_versions[0]
+                self._current_ic_version = stable_ic_versions[0]
             else:
+                stable_ic_versions = [v for v, _ in self.installed_versions.items() if "IC" in v]
+                if stable_ic_versions:
+                    self._current_ic_version = stable_ic_versions[0]
                 self._current_ic_version = ""
         return self._current_ic_version
 
