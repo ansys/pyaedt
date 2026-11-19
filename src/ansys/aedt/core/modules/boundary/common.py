@@ -29,10 +29,20 @@ from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import _units_assignment
+from ansys.aedt.core.internal.checks import is_native_grpc_api
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
+
+# Boundary types updated through ``Assign*`` or ``Set*`` methods instead of ``Edit*`` methods.
+_UPDATE_BY_ASSIGNMENT_TYPES = (
+    "CurrentDensity",
+    "CurrentDensityGroup",
+    "CurrentDensityTerminal",
+    "CurrentDensityTerminalGroup",
+    "SetSBRTxRxSettings",
+)
 
 
 class BoundaryProps(dict):
@@ -148,14 +158,26 @@ class BoundaryCommon(PropsManager, PyAedtBase):
         >>> obj.delete()
 
         """
+        # Read the name before deleting: the AEDT object handle is invalid afterward.
+        name = self.name
+        native_api = is_native_grpc_api(self._app)
         if self.type == "Matrix" or self.type == "Force" or self.type == "Torque":
-            self._app.omaxwell_parameters.DeleteParameters([self.name])
+            if native_api:
+                self._app.omaxwell_parameters.Delete([name])
+            else:
+                self._app.omaxwell_parameters.DeleteParameters([name])
         elif self.type == "Band":
-            self._app.omodelsetup.DeleteMotionSetup([self.name])
+            if native_api:
+                self._app.omodelsetup.Delete([name])
         else:
-            self._app.oboundary.DeleteBoundaries([self.name])
-            if self.name in self._app.design_excitations.keys():
-                self._app.design_excitations.pop(self.name)
+                self._app.omodelsetup.DeleteMotionSetup([name])
+        else:
+            if native_api:
+                self._app.oboundary.Delete([name])
+            else:
+                self._app.oboundary.DeleteBoundaries([name])
+            if name in self._app.design_excitations.keys():
+                self._app.design_excitations.pop(name)
         return True
 
     def _get_boundary_data(self, ds):
@@ -648,6 +670,11 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
         """
         bound_type = self.type
+        if is_native_grpc_api(self._app) and bound_type not in _UPDATE_BY_ASSIGNMENT_TYPES:
+            # The native gRPC API replaces the type-specific ``Edit*`` methods with a single ``Edit`` method.
+            module = self._app.omodelsetup if bound_type == "Band" else self._app.oboundary
+            module.Edit(self.name, self._get_args())
+            return True
         if bound_type == "Perfect E":
             self._app.oboundary.EditPerfectE(self.name, self._get_args())
         elif bound_type == "Perfect H":
