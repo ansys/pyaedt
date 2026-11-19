@@ -101,6 +101,16 @@ Examples
 True
 """
 
+_NATIVE_GRPC_FEATURE_FLAG = "ANSYSEM_FEATURE_S540447_NATIVE_GRPC_ENABLE"
+
+
+def _is_native_grpc_enabled() -> bool:
+    """Check whether the AEDT native gRPC feature flag is enabled."""
+    # Match the settings-over-environment precedence used when launching AEDT.
+    flag = settings.aedt_environment_variables.get(_NATIVE_GRPC_FEATURE_FLAG, os.getenv(_NATIVE_GRPC_FEATURE_FLAG))
+    return flag == "1"
+
+
 pathname = Path(__file__)
 """Value for pathname."""
 pyaedtversion = __version__
@@ -805,6 +815,7 @@ class Desktop(PyAedtBase):
         self.__machine = machine if machine else None
         self.__port = port if port is not None else 0
         self.__is_grpc_api = True
+        self.__is_native_grpc_api = False
         self.__student_version = False
         self.__aedt_version_string = ""
         self.__starting_mode = "grpc"
@@ -1056,6 +1067,23 @@ class Desktop(PyAedtBase):
     @is_grpc_api.setter
     def is_grpc_api(self, value: bool) -> None:
         self.__is_grpc_api = value
+
+    @property
+    def is_native_grpc_api(self) -> bool:
+        """Whether the connection is through the AEDT native gRPC API.
+
+        The ``ANSYSEM_FEATURE_S540447_NATIVE_GRPC_ENABLE`` AEDT environment variable selects
+        the native gRPC API when set to ``"1"``. The selected backend is retained for the
+        lifetime of the connection.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> d = Desktop(non_graphical=True)
+        >>> d.is_native_grpc_api
+
+        """
+        return self.__is_native_grpc_api
 
     @property
     def student_version(self) -> bool:
@@ -2139,9 +2167,11 @@ class Desktop(PyAedtBase):
                 if settings.use_multi_desktop:  # pragma: no cover
                     os.kill(pid, 9)
                 else:
-                    self.odesktop.QuitApplication()
-                    if self.is_grpc_api:
-                        self.grpc_plugin.Release()
+                    try:
+                        self.odesktop.QuitApplication()
+                    finally:
+                        if is_grpc_api:
+                            self.grpc_plugin.Release()
                     timeout = 20
                     while pid in active_sessions():
                         time.sleep(1)
@@ -3075,7 +3105,8 @@ class Desktop(PyAedtBase):
             self.is_grpc_api = True
             base_path = self.aedt_install_dir
             sys.path.insert(0, base_path)
-            if self.aedt_version_id >= "2027.1":
+            self.__is_native_grpc_api = _is_native_grpc_enabled()
+            if self.__is_native_grpc_api:
                 from ansys.aedt.core.internal.grpc_plugin_271 import AEDT
 
                 launch_msg = f"AEDT installation Path {base_path}"

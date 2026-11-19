@@ -263,3 +263,27 @@ def is_notebook() -> bool:
             return False
     except NameError:
         return False  # Probably standard Python interpreter
+
+
+def is_native_grpc_api(app) -> bool:
+    """Check if an application is connected through the AEDT native gRPC API.
+
+    Parameters
+    ----------
+    app : object
+        PyAEDT application or desktop object exposing ``desktop_class``.
+
+    Returns
+    -------
+    bool
+        ``True`` when the AEDT native gRPC API is used, ``False`` otherwise.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.internal.checks import is_native_grpc_api
+    >>> is_native_grpc_api(None)
+    False
+
+    """
+    desktop = getattr(app, "desktop_class", None)
+    return getattr(desktop, "is_native_grpc_api", False) is True
