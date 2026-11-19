@@ -136,7 +136,7 @@ def test_insert_encrypted_3dcomp(aedt_app, test_tmp_dir) -> None:
 
     comp = aedt_app.modeler.insert_3d_component(str(input_file), password="test")
 
-    assert comp.name in aedt_app.modeler.components_names
+    assert comp.name in aedt_app.modeler.component_names
     assert len(aedt_app.modeler.object_list) == 1
     assert "HFSS_" in comp.definition_name
     assert comp.definition_type == "3d_component"
@@ -377,7 +377,7 @@ def test_insert_udm(aedt_app) -> None:
     assert aedt_app.modeler["new_name"]
     assert obj_udm.name == "new_name"
 
-    assert obj_udm.parameters["Tau"] == "0.65"
+    assert str(obj_udm.parameters["Tau"]) == "0.65"
     aedt_app["tau2"] = "0.7"
     obj_udm.parameters["Tau"] = "tau2"
     assert obj_udm.parameters["Tau"] == "tau2"
