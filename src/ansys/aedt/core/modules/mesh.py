@@ -474,6 +474,9 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         >>> obj.delete()
 
         """
+        if is_native_grpc_api(self._app):
+            self._mesh.omeshmodule.Delete([self.name])
+        else:
         self._mesh.omeshmodule.DeleteOp([self.name])
         for el in self._mesh.meshoperations[:]:
             if el.name == self.name:
@@ -1211,7 +1214,13 @@ class Mesh(PyAedtBase):
             if mesh_type in mesh_op_types:
                 mesh_op_types = [mesh_type]
 
+        native_api = is_native_grpc_api(self._app)
         for mesh_op_type in mesh_op_types:
+            if native_api:
+                opnames = self.omeshmodule.GetMeshOps(mesh_op_type)
+                if opnames:
+                    self.omeshmodule.Delete(opnames)
+            else:
             opnames = self.omeshmodule.GetOperationNames(mesh_op_type)
             if opnames:
                 self.omeshmodule.DeleteOp(opnames)
