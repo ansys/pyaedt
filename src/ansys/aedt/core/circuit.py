@@ -55,6 +55,7 @@ from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
+from ansys.aedt.core.internal.checks import is_native_grpc_api
 from ansys.aedt.core.internal.filesystem import search_files
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
 from ansys.aedt.core.modules.boundary.circuit_boundary import CurrentSinSource
@@ -770,7 +771,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
             port = "Circuit Port"
         if not port:
             return False
-        pins = list(tmp_oModule.GetExcitationsOfType(port))
+        if is_native_grpc_api(self):
+            pins = list(tmp_oModule.GetExcitations(port))
+        else:
+            pins = list(tmp_oModule.GetExcitationsOfType(port))
         self.logger.info("%s Excitations Pins found.", len(pins))
         return pins
 
