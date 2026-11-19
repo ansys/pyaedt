@@ -7805,7 +7805,10 @@ class GeometryModeler(Modeler, PyAedtBase):
             name = generate_unique_name("SubRegion")
         is_percentage = padding_types in ["Percentage Offset", "Transverse Percentage Offset"]
         arg, arg2 = self._parse_region_args(padding_values, padding_types, name, assignment, "SubRegion", is_percentage)
-        self.oeditor.CreateSubregion(arg, arg2)
+        if is_native_grpc_api(self._app):
+            self.oeditor.CreateSubRegion(arg, arg2)
+        else:
+            self.oeditor.CreateSubregion(arg, arg2)
         return self._create_object(name)
 
     def reassign_subregion(self, region: Object3d, parts: list[str]) -> bool:
@@ -7838,7 +7841,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         arg, arg2 = self._parse_region_args(
             region.padding_values, region.padding_types, region.name, parts, "SubRegion", is_percentage
         )
-        self.oeditor.ReassignSubregion(arg, arg2)
+        self.oeditor.ReassignSubregion(["NAME:Selections", "Selections:=", region.name], arg, arg2)
         if self._create_object(region.name):
             return True
         return False
