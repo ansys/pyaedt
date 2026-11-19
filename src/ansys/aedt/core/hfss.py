@@ -44,6 +44,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from ansys.aedt.core.generic.aedt_constants import Setups
+from ansys.aedt.core.generic.data_handlers import random_string
 from ansys.aedt.core.generic.general_methods import _merge_props
 from ansys.aedt.core.modeler.advanced_cad.actors import Radar
 from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
@@ -266,7 +267,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
     @pyaedt_function_handler()
     # NOTE: Extend Mixin behaviour to handle near field setups
-    def _create_boundary(self, name: str, props, boundary_type) -> "NearFieldSetup | BoundaryObject":
+    def _create_boundary(self, name: str, props, boundary_type) -> NearFieldSetup | BoundaryObject:
         # No-near field cases
         if boundary_type not in (
             "NearFieldSphere",
@@ -2397,7 +2398,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         is_array: bool = False,
         custom_array: str | None = None,
         name: str | None = None,
-    ) -> NativeComponent:
+        definition_name: str | None = None,
+    ) -> NativeComponent | bool:
         """Create a parametric beam antennas in SBR+.
 
         Parameters
@@ -2407,7 +2409,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             The default is ``"SbrAntennas.Conical Horn"``.
         target_cs : str, optional
             Target coordinate system. The default is ``None``, in which case
-            the active coodiante system is used.
+            the active coordinate system is used.
         units : str, optional
             Model units to apply to the object. The default is
             ``None``, in which case the active modeler units are applied.
@@ -2423,6 +2425,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         name : str, optional
             Name of the 3D component. The default is ``None``, in which case the
             name is auto-generated based on the antenna type.
+        definition_name : str, optional
+            The default is ``None``.
 
         Returns
         -------
@@ -2446,6 +2450,17 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         """
         if self.solution_type != "SBR+":
             raise AEDTRuntimeError("This native component only applies to a SBR+ solution.")
+
+        if not name:
+            name = generate_unique_name("Antenna")
+        elif name in self.modeler.components:
+            name = generate_unique_name(name)
+
+        if not definition_name:
+            definition_name = generate_unique_name("Antenna")
+        elif definition_name in self.modeler.component_definition_names:
+            definition_name = generate_unique_name(definition_name)
+
         if target_cs is None:
             target_cs = self.modeler.get_working_coordinate_system()
 
@@ -2462,6 +2477,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         if "Unit" in parameters_defaults:
             parameters_defaults["Unit"] = units
 
+        parameters_defaults["Type"] = antenna_type
+
         if use_current_source_representation and antenna_type in [
             "Conical Horn",
             "Horizontal Dipole",
@@ -2476,6 +2493,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             parameters_defaults["Current Source Conformance"] = "Disable"
             parameters_defaults["Thin Sources"] = False
             parameters_defaults["Power Fraction"] = "0.95"
+
         if is_array:
             parameters_defaults["Is Parametric Array"] = True
             parameters_defaults["Sheet"] = -1
@@ -2505,7 +2523,46 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             for el, value in parameters.items():
                 parameters_defaults[el] = value
 
-        return self._create_native_component(antenna_type, target_cs, units, parameters_defaults, name)
+        basic_component = {
+            "ComponentName": definition_name,
+            "Company": "",
+            "Company URL": "",
+            "Model Number": "",
+            "Help URL": "",
+            "Version": "1.0",
+            "Notes": "",
+            "IconType": antenna_type,
+        }
+
+        props = {
+            "TargetCS": target_cs,
+            "SubmodelDefinitionName": definition_name,
+            "ComponentPriorityLists": {},
+            "NextUniqueID": 0,
+            "MoveBackwards": False,
+            "DatasetType": "ComponentDatasetType",
+            "DatasetDefinitions": {},
+            "BasicComponentInfo": basic_component,
+            "GeometryDefinitionParameters": {"VariableOrders": {}},
+            "DesignDefinitionParameters": {"VariableOrders": {}},
+            "MaterialDefinitionParameters": {"VariableOrders": {}},
+            "MapInstanceParameters": "DesignVariable",
+            "UniqueDefinitionIdentifier": "57c8ab4e-4db9-4881-b6bb-" + random_string(12, char_set="abcdef0123456789"),
+            "OriginFilePath": "",
+            "IsLocal": False,
+            "ChecksumString": "",
+            "ChecksumHistory": [],
+            "VersionHistory": [],
+            "NativeComponentDefinitionProvider": parameters_defaults,
+            "InstanceParameters": {"GeometryParameters": "", "MaterialParameters": "", "DesignParameters": ""},
+        }
+
+        native = NativeComponent(app=self, name=name, props=props)
+
+        native.definition_name = definition_name
+        native.definition_type = antenna_type
+
+        return native.create()
 
     @pyaedt_function_handler()
     def create_sbr_file_based_antenna(
@@ -2519,7 +2576,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         is_array: bool = False,
         custom_array: str | None = None,
         name: str | None = None,
-    ) -> NativeComponent:
+        definition_name: str | None = None,
+    ) -> NativeComponent | bool:
         """Create a linked antenna.
 
         Parameters
@@ -2547,6 +2605,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         name : str, optional
             Name of the 3D component. The default is ``None``, in which case
             the name is auto-generated based on the antenna type.
+        definition_name : str, optional
+            The default is ``None``.
 
         Returns
         -------
@@ -2567,6 +2627,16 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         if self.solution_type != "SBR+":
             raise AEDTRuntimeError("This native component only applies to a SBR+ solution.")
 
+        if not name:
+            name = generate_unique_name("Antenna")
+        elif name in self.modeler.components:
+            name = generate_unique_name(name)
+
+        if not definition_name:
+            definition_name = generate_unique_name("Antenna")
+        elif definition_name in self.modeler.component_definition_names:
+            definition_name = generate_unique_name(definition_name)
+
         if target_cs is None:
             target_cs = self.modeler.oeditor.GetActiveCoordinateSystem()
 
@@ -2578,8 +2648,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         if not units:
             units = self.modeler.model_units
 
+        antenna_type = "File Based Antenna"
+
         parameters_defaults = dict(
             {
+                "Type": antenna_type,
                 "Size": antenna_size,
                 "MatchedPortImpedance": antenna_impedance,
                 "Representation": representation_type,
@@ -2588,8 +2661,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                 "Unit": units,
             }
         )
-
-        antenna_type = "File Based Antenna"
 
         if is_array:
             parameters_defaults["Is Parametric Array"] = True
@@ -2616,12 +2687,51 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
             antenna_type = "Parametric Array"
 
-        return self._create_native_component(antenna_type, target_cs, units, parameters_defaults, name)
+        basic_component = {
+            "ComponentName": definition_name,
+            "Company": "",
+            "Company URL": "",
+            "Model Number": "",
+            "Help URL": "",
+            "Version": "1.0",
+            "Notes": "",
+            "IconType": antenna_type,
+        }
+
+        props = {
+            "TargetCS": target_cs,
+            "SubmodelDefinitionName": definition_name,
+            "ComponentPriorityLists": {},
+            "NextUniqueID": 0,
+            "MoveBackwards": False,
+            "DatasetType": "ComponentDatasetType",
+            "DatasetDefinitions": {},
+            "BasicComponentInfo": basic_component,
+            "GeometryDefinitionParameters": {"VariableOrders": {}},
+            "DesignDefinitionParameters": {"VariableOrders": {}},
+            "MaterialDefinitionParameters": {"VariableOrders": {}},
+            "MapInstanceParameters": "DesignVariable",
+            "UniqueDefinitionIdentifier": "57c8ab4e-4db9-4881-b6bb-" + random_string(12, char_set="abcdef0123456789"),
+            "OriginFilePath": "",
+            "IsLocal": False,
+            "ChecksumString": "",
+            "ChecksumHistory": [],
+            "VersionHistory": [],
+            "NativeComponentDefinitionProvider": parameters_defaults,
+            "InstanceParameters": {"GeometryParameters": "", "MaterialParameters": "", "DesignParameters": ""},
+        }
+
+        native = NativeComponent(app=self, name=name, props=props)
+
+        native.definition_name = definition_name
+        native.definition_type = antenna_type
+
+        return native.create()
 
     @pyaedt_function_handler()
     def create_sbr_linked_antenna(
         self,
-        assignment: "Hfss",
+        assignment: Hfss,
         target_cs: str | None = "Global",
         setup: str | None = None,
         field_type: str | None = "nearfield",
@@ -2634,7 +2744,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         is_array: bool | None = False,
         custom_array: str | None = None,
         name: str | None = None,
-    ) -> NativeComponent:
+        definition_name: str | None = None,
+    ) -> NativeComponent | bool:
         """Create a linked antennas.
 
         Parameters
@@ -2669,6 +2780,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         name : str, optional
             Name of the source.
             The default is ``None`` in which case a name is automatically assigned.
+        definition_name : str, optional
+            The default is ``None``.
 
         References
         ----------
@@ -2681,22 +2794,25 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> source_project = "my/path/to/sourceProject.aedt"
         >>> target = Hfss(project=target_project, solution_type="SBR+", version="2026.1", new_desktop=False)
         >>> source = Hfss(project=source_project, design="feeder", version="2026.1", new_desktop=False)
-        >>> target.create_sbr_linked_antenna(
-        ...     source, target_cs="feederPosition", field_type="farfield"
-        ... )  # doctest: +SKIP
+        >>> target.create_sbr_linked_antenna(source, target_cs="feederPosition", field_type="farfield")
 
         """
         if self.solution_type != "SBR+":
             raise AEDTRuntimeError("Native components only apply to the SBR+ solution.")
 
         if name is None:
-            uniquename = generate_unique_name(assignment.design_name)
-        else:
-            uniquename = generate_unique_name(name)
+            name = generate_unique_name(assignment.design_name)
+        elif name in self.modeler.component_names:
+            name = generate_unique_name(name)
+
+        if not definition_name:
+            definition_name = generate_unique_name("linked_antenna")
+        elif definition_name in self.modeler.component_definition_names:
+            definition_name = generate_unique_name(definition_name)
 
         if assignment.project_name == self.project_name:
             project_name = "This Project*"
-        else:
+        else:  # pragma: no cover
             project_name = Path(assignment.project_path) / (assignment.project_name + ".aedt")
         design_name = assignment.design_name
         if not setup:
@@ -2706,7 +2822,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         for el in pars:
             params[el] = pars[el]
-        native_props = dict(
+
+        native_component = dict(
             {
                 "Type": "Linked Antenna",
                 "Unit": self.modeler.model_units,
@@ -2725,16 +2842,17 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                 "SourceBlockageStructure": dict({"NonModelObject": []}),
             }
         )
+
         if field_type == "nearfield":
-            native_props["UseGlobalCurrentSrcOption"] = use_global_current
+            native_component["UseGlobalCurrentSrcOption"] = use_global_current
             if current_conformance:
-                native_props["Current Source Conformance"] = "Enable"
+                native_component["Current Source Conformance"] = "Enable"
             else:
-                native_props["Current Source Conformance"] = "Disable"
-            native_props["Thin Sources"] = thin_sources
-            native_props["Power Fraction"] = power_fraction
+                native_component["Current Source Conformance"] = "Disable"
+            native_component["Thin Sources"] = thin_sources
+            native_component["Power Fraction"] = power_fraction
         if visible:
-            native_props["VisualizationObjects"] = assignment.modeler.solid_names
+            native_component["VisualizationObjects"] = assignment.modeler.solid_names
 
         if custom_array:
             is_array = True
@@ -2744,10 +2862,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         antenna_type = "Linked Antenna"
 
         if is_array:
-            native_props["Is Parametric Array"] = True
-            native_props["Sheet"] = -1
+            native_component["Is Parametric Array"] = True
+            native_component["Sheet"] = -1
 
-            element_parameters = native_props.copy()
+            element_parameters = native_component.copy()
 
             array_parameters = self.SBRAntennaDefaults.array_parameters
             array_parameters["Array Element Type"] = self.SBRAntennaDefaults.default_type_id[antenna_type]
@@ -2757,7 +2875,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                 array_parameters["Array Layout Type"] = 1
             array_parameters["Custom Array Filename"] = custom_array
 
-            native_props = {
+            native_component = {
                 "Type": "Parametric Array",
                 "Unit": element_parameters["Unit"],
                 "Version": element_parameters["Version"],
@@ -2768,9 +2886,46 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
             antenna_type = "Parametric Array"
 
-        return self._create_native_component(
-            antenna_type, target_cs, self.modeler.model_units, native_props, uniquename
-        )
+        basic_component = {
+            "ComponentName": definition_name,
+            "Company": "",
+            "Company URL": "",
+            "Model Number": "",
+            "Help URL": "",
+            "Version": "1.0",
+            "Notes": "",
+            "IconType": antenna_type,
+        }
+
+        props = {
+            "TargetCS": target_cs,
+            "SubmodelDefinitionName": definition_name,
+            "ComponentPriorityLists": {},
+            "NextUniqueID": 0,
+            "MoveBackwards": False,
+            "DatasetType": "ComponentDatasetType",
+            "DatasetDefinitions": {},
+            "BasicComponentInfo": basic_component,
+            "GeometryDefinitionParameters": {"VariableOrders": {}},
+            "DesignDefinitionParameters": {"VariableOrders": {}},
+            "MaterialDefinitionParameters": {"VariableOrders": {}},
+            "MapInstanceParameters": "DesignVariable",
+            "UniqueDefinitionIdentifier": "57c8ab4e-4db9-4881-b6bb-" + random_string(12, char_set="abcdef0123456789"),
+            "OriginFilePath": "",
+            "IsLocal": False,
+            "ChecksumString": "",
+            "ChecksumHistory": [],
+            "VersionHistory": [],
+            "NativeComponentDefinitionProvider": native_component,
+            "InstanceParameters": {"GeometryParameters": "", "MaterialParameters": "", "DesignParameters": ""},
+        }
+
+        native = NativeComponent(app=self, name=name, props=props)
+
+        native.definition_name = definition_name
+        native.definition_type = antenna_type
+
+        return native.create()
 
     @pyaedt_function_handler()
     def create_sbr_custom_array_file(

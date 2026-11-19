@@ -1902,7 +1902,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             "OperatingRPM": "0",
         }
 
-        native_props = {
+        props = {
             "TargetCS": "Global",
             "SubmodelDefinitionName": definition_name,
             "ComponentPriorityLists": {},
@@ -1925,7 +1925,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             "InstanceParameters": {"GeometryParameters": "", "MaterialParameters": "", "DesignParameters": ""},
         }
 
-        native = NativeComponent(app=self, name=name, props=native_props)
+        native = NativeComponent(app=self, name=name, props=props)
 
         native.definition_name = definition_name
         native.definition_type = "Fan"
