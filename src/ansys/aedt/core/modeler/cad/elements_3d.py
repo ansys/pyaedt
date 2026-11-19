@@ -2006,8 +2006,10 @@ class BinaryTreeNode:
             try:
                 from ansys.aedt.core.application import _get_data_model
 
+                # Native AEDT crashes on GetDataModel for a stale handle, while GetPropNames fails safely.
+                prop_names = list(self.child_object.GetPropNames())
                 props = _get_data_model(self.child_object)
-                for p in self.child_object.GetPropNames():
+                for p in prop_names:
                     self._props[p] = props.get(p, None)
             except Exception:
                 for p in self.child_object.GetPropNames():
