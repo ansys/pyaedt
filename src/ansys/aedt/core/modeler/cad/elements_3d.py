@@ -30,6 +30,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import rgb_color_codes
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.generic.numbers_utils import _units_assignment
+from ansys.aedt.core.internal.checks import is_native_grpc_api
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
@@ -413,7 +414,11 @@ class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
         >>> obj.segment_info
 
         """
-        autosave = self._object3d._primitives._app.odesktop.GetAutosaveEnabled()
+        app = self._object3d._primitives._app
+        if is_native_grpc_api(app):
+            autosave = app.odesktop.GetAutoSaveEnabled()
+        else:
+            autosave = app.odesktop.GetAutosaveEnabled()
         try:
             self.oeditor.GetChildNames()
         except Exception:  # pragma: no cover

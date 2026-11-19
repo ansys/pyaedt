@@ -32,7 +32,37 @@ from ansys.aedt.core.generic.constants import SolutionsHfss
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
+from ansys.aedt.core.internal.checks import is_native_grpc_api
 from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
+
+
+class _NativeModelerEditor:
+    """Expose the native 3D modeler editor with the legacy editor-rooted object tree.
+
+    The native ``Model3DEditorWrapper`` resolves ``GetChildObject`` and ``GetChildNames`` from the design root,
+    where modeler objects live under ``3D Modeler``. The legacy editor resolves them from the modeler root.
+    """
+
+    __slots__ = ("_editor",)
+    _MODELER_ROOT = "3D Modeler"
+
+    def __init__(self, editor) -> None:
+        object.__setattr__(self, "_editor", editor)
+
+    def __getattr__(self, name):
+        return getattr(self._editor, name)
+
+    def __setattr__(self, name, value) -> None:
+        setattr(self._editor, name, value)
+
+    def __dir__(self):
+        return dir(self._editor)
+
+    def GetChildObject(self, path):
+        return self._editor.GetChildObject(f"{self._MODELER_ROOT}/{path}")
+
+    def GetChildNames(self, type=""):
+        return self._editor.GetChildObject(self._MODELER_ROOT).GetChildNames(type)
 
 
 class AedtObjects(PyAedtBase):
@@ -590,6 +620,8 @@ class AedtObjects(PyAedtBase):
                 self._oeditor = None
             else:
                 self._oeditor = self._odesign.SetActiveEditor("3D Modeler")
+                if is_native_grpc_api(self):
+                    self._oeditor = _NativeModelerEditor(self._oeditor)
         return self._oeditor
 
     @property
