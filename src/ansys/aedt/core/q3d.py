@@ -34,6 +34,7 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.checks import is_native_grpc_api
 from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.mixins import CreateBoundaryMixin
@@ -1796,10 +1797,11 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
             return True
         self.oboundary.AutoIdentifyNets()
         new_nets = [i for i in self.net_names if i not in original_nets]
+        get_assignment = (
+            self.oboundary.GetAssignment if is_native_grpc_api(self) else self.oboundary.GetExcitationAssignment
+        )
         for net in new_nets:
-            objects = self.modeler.convert_to_selections(
-                [int(i) for i in list(self.oboundary.GetExcitationAssignment(net))], True
-            )
+            objects = self.modeler.convert_to_selections([int(i) for i in list(get_assignment(net))], True)
             props = dict({"Objects": objects})
             bound = BoundaryObject(self, net, props, "SignalNet")
             self._boundaries[bound.name] = bound
@@ -2967,11 +2969,12 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         original_nets = list(self.oboundary.GetExcitations())
         self.oboundary.AutoAssignSignals()
         new_nets = [i for i in list(self.oboundary.GetExcitations()) if i not in original_nets]
+        get_assignment = (
+            self.oboundary.GetAssignment if is_native_grpc_api(self) else self.oboundary.GetExcitationAssignment
+        )
         i = 0
         while i < len(new_nets):
-            objects = self.modeler.convert_to_selections(
-                [int(k) for k in list(self.oboundary.GetExcitationAssignment(new_nets[i]))], True
-            )
+            objects = self.modeler.convert_to_selections([int(k) for k in list(get_assignment(new_nets[i]))], True)
             props = dict({"Objects": objects})
             bound = BoundaryObject(self, new_nets[i], props, new_nets[i + 1])
             self._boundaries[bound.name] = bound
