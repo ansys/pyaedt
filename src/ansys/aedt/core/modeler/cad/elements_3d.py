@@ -2073,6 +2073,11 @@ class BinaryTreeNode:
             if result:
                 if prop_name == "Name" and getattr(self, "_name", False):
                     setattr(self, "_name", prop_value)
+                    if is_native_grpc_api(getattr(self, "_app", None)):
+                        # Native AEDT invalidates the handle on rename, so resolve it again by the new name.
+                        child_object = getattr(self, "_child_object", None)
+                        if child_object:
+                            self.child_object = child_object
             else:
                 settings.logger.warning(f"Property {prop_name} is read-only.")
                 # Property Name duplicated
