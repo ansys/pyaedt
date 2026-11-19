@@ -2445,7 +2445,7 @@ class Variable(PyAedtBase):
             val, _ = decompose_variable_value(evaluated_value)
             return val
         except Exception:
-            self._value_fallback()
+            return self._value_fallback()
 
     @property
     def unit_system(self) -> str | bool:
