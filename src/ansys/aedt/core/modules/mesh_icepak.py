@@ -27,7 +27,6 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
-from typing import cast
 
 from ansys.aedt.core.application import _get_obj_data
 from ansys.aedt.core.application import _has_get_obj_data
@@ -44,9 +43,9 @@ from ansys.aedt.core.modules.mesh import MeshOperation
 
 if TYPE_CHECKING:
     from ansys.aedt.core.application.analysis_icepak import FieldAnalysisIcepak
-    from ansys.aedt.core.generic.protocols import _OMeshDesign
+    from ansys.aedt.core.generic.protocols import _OChildObject
+    from ansys.aedt.core.generic.protocols import _ODesign
     from ansys.aedt.core.generic.protocols import _OMeshModule
-    from ansys.aedt.core.generic.protocols import _OMeshTypedObject
 
 
 UserSpecifiedSettings = dict(
@@ -106,6 +105,14 @@ GeneralSettings = dict(
     }
 )
 """Value for GeneralSettings."""
+
+
+def _require_mesh_module(app: FieldAnalysisIcepak) -> _OMeshModule:
+    """Return the mesh module or raise if it is unavailable."""
+    mesh_module = app.omeshmodule
+    if mesh_module is None:
+        raise AEDTRuntimeError("The AEDT mesh module is not available.")
+    return mesh_module
 
 
 class MeshRegionBase:
@@ -396,7 +403,7 @@ class MeshRegion(MeshRegionBase, BinaryTreeNode, PyAedtBase):
         return False
 
     @property
-    def _child_object(self):
+    def _child_object(self) -> _OChildObject | None:
         """Object-oriented properties.
 
         Returns
@@ -499,10 +506,7 @@ class MeshRegion(MeshRegionBase, BinaryTreeNode, PyAedtBase):
         object.__setattr__(self, "_props", None)
         object.__setattr__(self, "_children_loaded", False)
 
-        if hasattr(self._mesh, "_IcepakMesh__regions"):
-            self._mesh._IcepakMesh__regions[value] = self
-            if old_name in self._mesh._IcepakMesh__regions:
-                del self._mesh._IcepakMesh__regions[old_name]
+        self._mesh._rename_region(old_name, value, self)
 
     @property
     def assignment(self) -> list:
@@ -610,7 +614,8 @@ class MeshRegion(MeshRegionBase, BinaryTreeNode, PyAedtBase):
 
         """
         try:
-            cast("_OMeshModule", self._app.omeshmodule).EditMeshRegion(self.name, aedt_props)
+            mesh_module = _require_mesh_module(self._app)
+            mesh_module.EditMeshRegion(self.name, aedt_props)
         except Exception:  # pragma: no cover
             raise AEDTRuntimeError("Update mesh region failed.")
 
@@ -636,9 +641,9 @@ class MeshRegion(MeshRegionBase, BinaryTreeNode, PyAedtBase):
 
         """
         old_name = self.name
-        cast("_OMeshModule", self._app.omeshmodule).DeleteMeshRegions([self.name])
-        if hasattr(self._mesh, "_IcepakMesh__regions") and old_name in self._mesh._IcepakMesh__regions:
-            del self._mesh._IcepakMesh__regions[old_name]
+        mesh_module = _require_mesh_module(self._app)
+        mesh_module.DeleteMeshRegions([self.name])
+        self._mesh._unregister_region(old_name)
         return True
 
     @pyaedt_function_handler()
@@ -668,7 +673,8 @@ class MeshRegion(MeshRegionBase, BinaryTreeNode, PyAedtBase):
         if settings.aedt_version is None or settings.aedt_version <= "2023.2":
             non_model_solids = list(self._app.modeler.non_model_objects)
 
-        cast("_OMeshModule", self._app.omeshmodule).AssignMeshRegion(aedt_props)
+        mesh_module = _require_mesh_module(self._app)
+        mesh_module.AssignMeshRegion(aedt_props)
 
         # GetObjData is available for some objects in 2026R1
         self._has_getobject = _has_get_obj_data(self._child_object)
@@ -774,7 +780,8 @@ class GlobalMeshRegion(MeshRegionBase):
 
         """
         try:
-            cast("_OMeshModule", self._app.omeshmodule).EditGlobalMeshRegion(aedt_props)
+            mesh_module = _require_mesh_module(self._app)
+            mesh_module.EditGlobalMeshRegion(aedt_props)
         except Exception:  # pragma: no cover
             raise AEDTRuntimeError("Update global mesh region properties failed.")
 
@@ -802,8 +809,7 @@ class IcepakMesh(PyAedtBase):
         if not hasattr(self._app._design_type, "mesher"):  # pragma: no cover
             raise RuntimeError(f"Invalid design type {design_type}.")
 
-        self._odesign: _OMeshDesign = cast("_OMeshDesign", self._app.odesign)
-
+        self._odesign: _ODesign = self._app.odesign
         self.__operations = SetupDict()
         self.__regions = SetupDict()
         self.__global_mesh_region = None
@@ -814,9 +820,27 @@ class IcepakMesh(PyAedtBase):
         """Store a newly created mesh operation in the local cache."""
         self.__operations[operation.name] = operation
 
+    def _rename_operation(self, old_name: str, new_name: str, operation: MeshOperation) -> None:
+        """Update the cached name of a mesh operation."""
+        self.__operations[new_name] = operation
+        self.__operations.pop(old_name, None)
+
+    def _unregister_operation(self, name: str) -> None:
+        """Remove a mesh operation from the local cache."""
+        self.__operations.pop(name, None)
+
     def _register_region(self, region: MeshRegion) -> None:
         """Store a newly created mesh region in the local cache."""
         self.__regions[region.name] = region
+
+    def _rename_region(self, old_name: str, new_name: str, region: MeshRegion) -> None:
+        """Update the cached name of a mesh region."""
+        self.__regions[new_name] = region
+        self.__regions.pop(old_name, None)
+
+    def _unregister_region(self, name: str) -> None:
+        """Remove a mesh region from the local cache."""
+        self.__regions.pop(name, None)
 
     @property
     def global_region(self) -> GlobalMeshRegion | None:
@@ -1322,7 +1346,7 @@ class IcepakMesh(PyAedtBase):
             if child_object:
                 child_object_attributes = dir(child_object)
                 if "GetObjType" in child_object_attributes:
-                    object_type = cast("_OMeshTypedObject", child_object).GetObjType()
+                    object_type = child_object.GetObjType()
                     if object_type.lower() in ["mesh region", "meshregion"]:
                         region_names.append(name)
                     elif object_type.lower() in ["mesh operation", "meshoperation"]:

@@ -32,6 +32,7 @@ from ansys.aedt.core.generic.constants import SolutionsHfss
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
+from ansys.aedt.core.generic.protocols import _OMeshModule
 from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
 
@@ -81,7 +82,7 @@ class AedtObjects(PyAedtBase):
         self._omatrix = None
         self._ofieldsreporter = None
         self._oreportsetup = None
-        self._omeshmodule = None
+        self._omeshmodule: _OMeshModule | None = None
         self._oeditor = None
         self._layouteditor = None
         self._ocomponent_manager = None
@@ -538,7 +539,7 @@ class AedtObjects(PyAedtBase):
         return self._oreportsetup
 
     @property
-    def omeshmodule(self) -> object:
+    def omeshmodule(self) -> _OMeshModule | None:
         """Icepak Mesh Module.
 
         References

@@ -39,11 +39,21 @@ from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import SetupDict
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modules.mesh import MeshProps
 
 if TYPE_CHECKING:
     from ansys.aedt.core.application.analysis_3d_layout import FieldAnalysis3DLayout
     from ansys.aedt.core.generic.protocols import _OAnalysis3DLayout
+    from ansys.aedt.core.generic.protocols import _OMeshModule
+
+
+def _require_mesh_module(app: FieldAnalysis3DLayout) -> _OMeshModule:
+    """Return the mesh module or raise if it is unavailable."""
+    mesh_module = app.omeshmodule
+    if mesh_module is None:
+        raise AEDTRuntimeError("The AEDT mesh module is not available.")
+    return mesh_module
 
 
 class Mesh3dLayoutOperation(PyAedtBase):
@@ -219,9 +229,9 @@ class Mesh3dLayoutOperation(PyAedtBase):
         >>> op1 = app.mesh.assign_length_mesh(setup=setup.name, layer="Top", net="GND")
 
         """
-        self._app.omeshmodule.AddMeshOperation(self.setup, self._get_args())
-        if hasattr(self._mesh, "_Mesh3dLayout__operations"):
-            self._mesh._Mesh3dLayout__operations[self._name] = self
+        mesh_module = _require_mesh_module(self._app)
+        mesh_module.AddMeshOperation(self.setup, self._get_args())
+        self._mesh._register_operation(self)
         return self
 
     @pyaedt_function_handler()
@@ -252,8 +262,9 @@ class Mesh3dLayoutOperation(PyAedtBase):
             props = dict(props)
 
         args = self._get_args(props)
+        mesh_module = _require_mesh_module(self._app)
         try:
-            self._app.omeshmodule.EditMeshOperation(self.setup, self.name, args)
+            mesh_module.EditMeshOperation(self.setup, self.name, args)
             self._legacy_props = props
         except Exception:  # pragma: no cover
             self._app.logger.error("Mesh operation could not be updated.")
@@ -282,12 +293,12 @@ class Mesh3dLayoutOperation(PyAedtBase):
 
         """
         old_name = self.name
-        self._app.omeshmodule.DeleteMeshOperation(
+        mesh_module = _require_mesh_module(self._app)
+        mesh_module.DeleteMeshOperation(
             self.setup,
             self.name,
         )
-        if hasattr(self._mesh, "_Mesh3dLayout__operations") and old_name in self._mesh._Mesh3dLayout__operations:
-            del self._mesh._Mesh3dLayout__operations[old_name]
+        self._mesh._unregister_operation(self.setup, old_name)
         return True
 
     @pyaedt_function_handler()
@@ -391,6 +402,17 @@ class Mesh3dLayout(PyAedtBase):
 
         # Available mesh operations
         self.__operations = SetupDict()
+
+    def _register_operation(self, operation: Mesh3dLayoutOperation) -> None:
+        """Store a newly created mesh operation in the local cache."""
+        if operation.setup not in self.__operations:
+            self.__operations[operation.setup] = SetupDict()
+        self.__operations[operation.setup][operation.name] = operation
+
+    def _unregister_operation(self, setup: str, name: str) -> None:
+        """Remove a mesh operation from the local cache."""
+        if setup in self.__operations:
+            self.__operations[setup].pop(name, None)
 
     @property
     def operation_names(self) -> dict[str, list[str]]:

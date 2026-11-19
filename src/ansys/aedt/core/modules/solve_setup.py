@@ -85,7 +85,6 @@ if TYPE_CHECKING:
     from ansys.aedt.core import Q3d
     from ansys.aedt.core import Rmxprt
     from ansys.aedt.core import TwinBuilder
-    from ansys.aedt.core.generic.protocols import _ODesignWithEnableSolutionSetup
     from ansys.aedt.core.visualization.post.solution_data import SolutionData
     from ansys.aedt.core.visualization.report.standard import Standard
 
@@ -1883,7 +1882,7 @@ class SetupCircuit(CommonSetup):
         if not name:
             name = self.name
         if "EnableSolutionSetup" in dir(self._app.odesign):
-            cast("_ODesignWithEnableSolutionSetup", self._app.odesign).EnableSolutionSetup(name, True)
+            self._app.odesign.EnableSolutionSetup(name, True)
             return True
         elif self.properties and "Enabled" in self.properties:
             self.properties["Enabled"] = True
@@ -1920,7 +1919,7 @@ class SetupCircuit(CommonSetup):
         if not name:
             name = self.name
         if "EnableSolutionSetup" in dir(self._app.odesign):
-            cast("_ODesignWithEnableSolutionSetup", self._app.odesign).EnableSolutionSetup(name, False)
+            self._app.odesign.EnableSolutionSetup(name, False)
             return True
         elif self.properties and "Enabled" in self.properties:
             self.properties["Enabled"] = False

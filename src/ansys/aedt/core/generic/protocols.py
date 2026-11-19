@@ -86,23 +86,13 @@ class _ODesign(Protocol):
     """Interface definition for the AEDT design object."""
 
     def GetDesignType(self) -> str: ...
-
-
-class _ODesignWithEnableSolutionSetup(Protocol):
-    """Interface definition for AEDT designs that can enable or disable setups."""
-
-    def EnableSolutionSetup(self, *args: object, **kwargs: object) -> object: ...
-
-
-class _OMeshDesign(_ODesign, Protocol):
-    """Interface definition for a design that supports mesh generation."""
-
     def GenerateMesh(self, *args: object, **kwargs: object) -> int: ...
 
 
 class _OMeshModule(Protocol):
     """Interface definition for the AEDT mesh module."""
 
+    # 3D Mesh specific methods
     def AssignMeshRegion(self, *args: object, **kwargs: object) -> object: ...
     def AssignTrueSurfOp(self, *args: object, **kwargs: object) -> object: ...
     def AssignModelResolutionOp(self, *args: object, **kwargs: object) -> object: ...
@@ -139,14 +129,9 @@ class _OMeshModule(Protocol):
     def ReassignOp(self, *args: object, **kwargs: object) -> object: ...
     def Rename(self, *args: object, **kwargs: object) -> object: ...
     def RenameOp(self, *args: object, **kwargs: object) -> object: ...
-
-
-class _OMesh3DLayoutModule(Protocol):
-    """Interface definition for the AEDT 3D Layout mesh module."""
-
+    # 3D Layout specific methods
     def AddMeshOperation(self, *args: object, **kwargs: object) -> object: ...
     def DeleteMeshOperation(self, *args: object, **kwargs: object) -> object: ...
-    def EditMeshOperation(self, *args: object, **kwargs: object) -> object: ...
 
 
 class _OAnalysis3DLayout(Protocol):
@@ -156,17 +141,12 @@ class _OAnalysis3DLayout(Protocol):
     def GetMeshOperations(self, *args: object, **kwargs: object) -> list[str]: ...
 
 
-class _OMeshObject(Protocol):
-    """Interface definition for an AEDT mesh operation object."""
+class _OChildObject(Protocol):
+    """Interface definition for an AEDT child object."""
 
     Name: str
 
     def GetPropNames(self) -> list[str]: ...
-
-
-class _OMeshTypedObject(_OMeshObject, Protocol):
-    """Interface definition for AEDT mesh objects with type information."""
-
     def GetObjType(self) -> str: ...
 
 

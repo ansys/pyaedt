@@ -59,10 +59,10 @@ from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
 
 if TYPE_CHECKING:
     from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
+    from ansys.aedt.core.generic.protocols import _OChildObject
+    from ansys.aedt.core.generic.protocols import _ODesign
     from ansys.aedt.core.generic.protocols import _ODesktop
-    from ansys.aedt.core.generic.protocols import _OMeshDesign
     from ansys.aedt.core.generic.protocols import _OMeshModule
-    from ansys.aedt.core.generic.protocols import _OMeshObject
     from ansys.aedt.core.modeler.cad.object_3d import Object3d
     from ansys.aedt.core.modules.mesh_icepak import IcepakMesh
 
@@ -95,9 +95,12 @@ mesh_props = {
 """Mapping from internal mesh property names to AEDT property names."""
 
 
-def _get_mesh_module(app: FieldAnalysis3D) -> _OMeshModule:
-    """Return the raw AEDT mesh module through its API protocol."""
-    return cast("_OMeshModule", app.omeshmodule)
+def _require_mesh_module(app: FieldAnalysis3D) -> _OMeshModule:
+    """Return the mesh module or raise if it is unavailable."""
+    mesh_module = app.omeshmodule
+    if mesh_module is None:
+        raise AEDTRuntimeError("The AEDT mesh module is not available.")
+    return mesh_module
 
 
 class MeshOperation(BinaryTreeNode, PyAedtBase):
@@ -166,7 +169,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         return False
 
     @property
-    def _child_object(self) -> _OMeshObject | None:
+    def _child_object(self) -> _OChildObject | None:
         """Object-oriented properties.
 
         Returns
@@ -181,7 +184,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
                 cc = self._app.get_oo_object(self._app.odesign, "Mesh")
                 cc_names = self._app.get_oo_name(cc)
                 if self._name in cc_names:
-                    self.__child_object = cast("_OMeshObject", self._app.get_oo_object(cc, self._name))
+                    self.__child_object = self._app.get_oo_object(cc, self._name)
         return self.__child_object
 
     @property
@@ -360,7 +363,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         if meshop_name in operation_names:
             raise ValueError(f"Name {meshop_name} already assigned in the design.")
         if self.operation_type != "InitialMeshSettings":
-            mesh_module = _get_mesh_module(self._app)
+            mesh_module = _require_mesh_module(self._app)
             mesh_methods = dir(mesh_module)
             if "Rename" in mesh_methods:
                 mesh_module.Rename(self.name, str(meshop_name))
@@ -377,14 +380,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
             object.__setattr__(self, "_props", None)
             object.__setattr__(self, "_children_loaded", False)
 
-            if hasattr(self._mesh, "_Mesh__operations"):
-                self._mesh._Mesh__operations[meshop_name] = self
-                if old_name in self._mesh._Mesh__operations:
-                    del self._mesh._Mesh__operations[old_name]
-            elif hasattr(self._mesh, "_IcepakMesh__operations"):
-                self._mesh._IcepakMesh__operations[meshop_name] = self
-                if old_name in self._mesh._IcepakMesh__operations:
-                    del self._mesh._IcepakMesh__operations[old_name]
+            self._mesh._rename_operation(old_name, meshop_name, self)
 
     @pyaedt_function_handler()
     def create(self) -> MeshOperation | bool:
@@ -421,7 +417,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         if operation_type not in supported_types and self._app.design_type != "Icepak":
             return False
 
-        mesh_module = _get_mesh_module(self._app)
+        mesh_module = _require_mesh_module(self._app)
         if operation_type == "SurfApproxBased":
             mesh_module.AssignTrueSurfOp(self._get_args())
         elif operation_type == "DefeatureBased":
@@ -601,7 +597,8 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         if len(out) == 1:
             return False
 
-        _get_mesh_module(self._app).ReassignOp(self.name, out)
+        mesh_module = _require_mesh_module(self._app)
+        mesh_module.ReassignOp(self.name, out)
 
         if not self._has_getobject:
             self._legacy_props = dict(properties)
@@ -633,7 +630,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
 
         """
         old_name = self.name
-        mesh_module = _get_mesh_module(self._app)
+        mesh_module = _require_mesh_module(self._app)
         mesh_methods = dir(mesh_module)
         if "DeleteOp" in mesh_methods:
             mesh_module.DeleteOp([old_name])
@@ -641,10 +638,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
             mesh_module.DeleteMeshOperations([old_name])
         else:  # pragma: no cover
             return False
-        if hasattr(self._mesh, "_Mesh__operations") and old_name in self._mesh._Mesh__operations:
-            del self._mesh._Mesh__operations[old_name]
-        elif hasattr(self._mesh, "_IcepakMesh__operations") and old_name in self._mesh._IcepakMesh__operations:
-            del self._mesh._IcepakMesh__operations[old_name]
+        self._mesh._unregister_operation(old_name)
         return True
 
     @pyaedt_function_handler()
@@ -763,7 +757,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
     def _update_properties(self, props: dict, new_name: str | None = None) -> bool:
         """Send a complete mesh operation property dictionary to AEDT."""
         aedt_props = self._get_args(props)
-        mesh_module = _get_mesh_module(self._app)
+        mesh_module = _require_mesh_module(self._app)
 
         if new_name is not None:
             aedt_props[0] = "NAME:" + new_name
@@ -862,7 +856,7 @@ class Mesh(PyAedtBase):
         self._app: FieldAnalysis3D = app
         self.logger = self._app.logger
 
-        self._odesign: _OMeshDesign = cast("_OMeshDesign", self._app.odesign)
+        self._odesign: _ODesign = self._app.odesign
 
         # Available mesh operations
         self.__operations = SetupDict()
@@ -872,6 +866,15 @@ class Mesh(PyAedtBase):
     def _register_operation(self, operation: MeshOperation) -> None:
         """Store a newly created mesh operation in the local cache."""
         self.__operations[operation.name] = operation
+
+    def _rename_operation(self, old_name: str, new_name: str, operation: MeshOperation) -> None:
+        """Update the cached name of a mesh operation."""
+        self.__operations[new_name] = operation
+        self.__operations.pop(old_name, None)
+
+    def _unregister_operation(self, name: str) -> None:
+        """Remove a mesh operation from the local cache."""
+        self.__operations.pop(name, None)
 
     def __getitem__(self, part_id) -> MeshOperation | None:
         """Get the object ``Mesh`` for a given mesh operation name.
@@ -1147,7 +1150,9 @@ class Mesh(PyAedtBase):
             ]
         if self._app.design_type == "HFSS":
             args += ["UseAlternativeMeshMethodsAsFallBack:=", fallback, "AllowPhiForLayeredGeometry:=", phi]
-        _get_mesh_module(self._app).InitialMeshSettings(args)
+
+        mesh_module = _require_mesh_module(self._app)
+        mesh_module.InitialMeshSettings(args)
 
         # Change properties, because they are not refreshed due to API limitation
         new_props: dict[str, Any] = {}
@@ -1273,7 +1278,8 @@ class Mesh(PyAedtBase):
             ]
         if self._app.design_type == "HFSS":
             args += ["UseAlternativeMeshMethodsAsFallBack:=", fallback, "AllowPhiForLayeredGeometry:=", phi]
-        _get_mesh_module(self._app).InitialMeshSettings(args)
+        mesh_module = _require_mesh_module(self._app)
+        mesh_module.InitialMeshSettings(args)
 
         # Change properties, because they are not refreshed due to API limitation
         new_props: dict[str, Any] = {}
@@ -2249,9 +2255,10 @@ class Mesh(PyAedtBase):
         for mesh_op_type in mesh_op_types:
             if mesh_op_type not in mesh_op_types_compatible:
                 raise ValueError(f"{mesh_op_type} is not a valid mesh type.")
-            opnames = _get_mesh_module(self._app).GetOperationNames(mesh_op_type)
+            mesh_module = _require_mesh_module(self._app)
+            opnames = mesh_module.GetOperationNames(mesh_op_type)
             if opnames:
-                _get_mesh_module(self._app).DeleteOp(opnames)
+                mesh_module.DeleteOp(opnames)
         return True
 
     @pyaedt_function_handler()

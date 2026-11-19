@@ -25,7 +25,6 @@
 import copy
 from pathlib import Path
 from typing import TYPE_CHECKING
-from typing import cast
 
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
@@ -33,7 +32,6 @@ from ansys.aedt.core.generic.configurations import Configurations3DLayout
 from ansys.aedt.core.generic.constants import Setups
 from ansys.aedt.core.generic.general_methods import _merge_props
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.protocols import _OMesh3DLayoutModule
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modules.mesh_3d_layout import Mesh3dLayout
@@ -204,11 +202,6 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
 
             self._post = post_processor(self)
         return self._post
-
-    @property
-    def omeshmodule(self) -> _OMesh3DLayoutModule:
-        """3D Layout mesh module."""
-        return cast("_OMesh3DLayoutModule", super().omeshmodule)
 
     @property
     def mesh(self) -> Mesh3dLayout | None:

@@ -83,6 +83,8 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
+from ansys.aedt.core.generic.protocols import _OChildObject
+from ansys.aedt.core.generic.protocols import _ODesign
 from ansys.aedt.core.generic.protocols import _OProject
 from ansys.aedt.core.generic.settings import inner_project_settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
@@ -270,7 +272,7 @@ class Design(AedtObjects, PyAedtBase):
             self.__t.join()
             self.__t = None
         self.oproject: str = project_name
-        self.odesign: str = design_name
+        self.odesign: str | _ODesign = design_name
 
         self._logger.oproject = self.oproject
         self._logger.odesign = self.odesign
@@ -1516,7 +1518,7 @@ class Design(AedtObjects, PyAedtBase):
         return activedes, warning_msg
 
     @property
-    def odesign(self) -> object:
+    def odesign(self) -> _ODesign:
         """Design.
 
         Returns
@@ -1538,8 +1540,8 @@ class Design(AedtObjects, PyAedtBase):
         if settings.use_multi_desktop:  # pragma: no cover
             self._desktop_class.grpc_plugin.recreate_application(True)
             if self._design_name:
-                self._odesign = self.oproject.SetActiveDesign(self._design_name)
-        return self._odesign
+                self._odesign: _ODesign = self.oproject.SetActiveDesign(self._design_name)
+        return cast(_ODesign, self._odesign)
 
     @odesign.setter
     def odesign(self, des_name) -> None:
@@ -1594,7 +1596,7 @@ class Design(AedtObjects, PyAedtBase):
         return cast(_OProject, self._oproject)
 
     @oproject.setter
-    def oproject(self, proj_name: str = None) -> None:
+    def oproject(self, proj_name: str | None = None) -> None:
         if not proj_name:
             self._oproject = self.desktop_class.active_project()
             if self._oproject:
@@ -1876,7 +1878,7 @@ class Design(AedtObjects, PyAedtBase):
             return []
 
     @pyaedt_function_handler()
-    def get_oo_object(self, aedt_object: object, object_name: str) -> object:
+    def get_oo_object(self, aedt_object: object, object_name: str) -> _OChildObject:
         """Return the object-oriented AEDT Object.
 
         Parameters
