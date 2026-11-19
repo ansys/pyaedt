@@ -33,6 +33,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modules.design_xploration import OptimetricsSetup
 from ansys.aedt.core.modules.design_xploration import Optimizations
+from ansys.aedt.core.modules.design_xploration import OptimizationSetup
 from ansys.aedt.core.modules.design_xploration import Parametrics
 from ansys.aedt.core.modules.design_xploration import ParametricSetup
 
@@ -75,25 +76,76 @@ def test_optimizations_getitem_returns_optimization_setup() -> None:
     assert setup is mock_opt.return_value
 
 
-def test_create_without_get_obj_data_registers_setup_in_parent() -> None:
-    parent = MagicMock()
-    parent.setups = {}
-    setup = ParametricSetup.__new__(ParametricSetup)
+@pytest.mark.parametrize(
+    "manager_type, setup_class, setup_type",
+    [(Parametrics, ParametricSetup, "OptiParametric"), (Optimizations, OptimizationSetup, "OptiOptimization")],
+)
+def test_create_without_get_obj_data_registers_setup_in_parent(mock_app, manager_type, setup_class, setup_type) -> None:
+    parent = _manager(manager_type, mock_app)
+    setup = setup_class.__new__(setup_class)
     setup._parent = parent
     setup._app = parent._app
     setup._name = "Parametric1"
     setup._legacy_props = {"Sim. Setups": ["Setup1"]}
     setup._has_getobject = False
-    setup._OptimetricsSetup__setup_type = "OptiParametric"
+    setup._OptimetricsSetup__setup_type = setup_type
 
     with (
-        patch.object(ParametricSetup, "_child_object", new_callable=PropertyMock, return_value=None),
+        patch.object(setup_class, "_child_object", new_callable=PropertyMock, return_value=None),
         patch("ansys.aedt.core.modules.design_xploration._has_get_obj_data", return_value=False),
+        patch.object(manager_type, "setup_names", new_callable=PropertyMock, return_value=["Parametric1"]),
     ):
         assert setup.create() is setup
+        assert parent.setups["Parametric1"] is setup
 
     parent._app.ooptimetrics.InsertSetup.assert_called_once()
-    assert parent.setups["Parametric1"] is setup
+
+
+@pytest.mark.parametrize("manager_type", [Parametrics, Optimizations])
+def test_setup_registry_lifecycle_does_not_refresh_aedt(mock_app, manager_type):
+    parent = _manager(manager_type, mock_app)
+    setup = MagicMock()
+    setup.name = "Original"
+    cache = vars(parent)[f"_{manager_type.__name__}__setups"]
+
+    with patch.object(manager_type, "setup_names", new_callable=PropertyMock) as setup_names:
+        parent._register_setup(setup)
+        assert cache["Original"] is setup
+        parent._rename_setup("Original", "Renamed", setup)
+        assert "Original" not in cache
+        assert cache["Renamed"] is setup
+        parent._unregister_setup("Renamed")
+        parent._unregister_setup("Missing")
+        assert not cache
+        setup_names.assert_not_called()
+    parent.optimetrics._get_setup_types.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    "manager_type, setup_class", [(Parametrics, ParametricSetup), (Optimizations, OptimizationSetup)]
+)
+def test_setup_rename_and_delete_update_parent_cache(mock_app, manager_type, setup_class):
+    parent = _manager(manager_type, mock_app)
+    mock_app.optimetrics.setup_names = []
+    setup = setup_class.__new__(setup_class)
+    setup._parent = parent
+    setup._app = mock_app
+    setup._name = "Original"
+    cache = vars(parent)[f"_{manager_type.__name__}__setups"]
+    handle = MagicMock()
+
+    with (
+        patch.object(setup_class, "_child_object", new_callable=PropertyMock, return_value=None),
+        patch.object(setup_class, "child_object", new_callable=PropertyMock, return_value=handle),
+    ):
+        parent._register_setup(setup)
+        setup.name = "Renamed"
+        handle.Rename.assert_called_once_with("Renamed")
+        assert "Original" not in cache
+        assert cache["Renamed"] is setup
+        assert setup.delete()
+        assert not cache
+        mock_app.ooptimetrics.DeleteSetups.assert_called_once_with(["Renamed"])
 
 
 def test_optimizations_add_unsupported_type(mock_app) -> None:

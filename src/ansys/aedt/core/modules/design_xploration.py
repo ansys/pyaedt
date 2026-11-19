@@ -191,15 +191,7 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         object.__setattr__(self, "_props", None)
         object.__setattr__(self, "_children_loaded", False)
 
-        # Add the component to the modeler components dictionary
-        if hasattr(self._parent, "_Parametrics__setups"):
-            self._parent._Parametrics__setups[self.name] = self
-            if old_name in self._parent._Parametrics__setups:
-                del self._parent._Parametrics__setups[old_name]
-        elif hasattr(self._parent, "_Optimizations__setups"):
-            self._parent._Optimizations__setups[self.name] = self
-            if old_name in self._parent._Optimizations__setups:
-                del self._parent._Optimizations__setups[old_name]
+        self._parent._rename_setup(old_name, self.name, self)
 
     @property
     def props(self) -> SetupProps:
@@ -338,10 +330,7 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
 
         if not self._has_getobject:  # pragma: no cover
             # Without GetObjData, props only live in memory, so keep this instance in the parent cache.
-            if hasattr(self._parent, "_Parametrics__setups"):
-                self._parent._Parametrics__setups[self.name] = self
-            elif hasattr(self._child_object, "_Optimizations__setups"):
-                self._child_object._Optimizations__setups[self.name] = self
+            self._parent._register_setup(self)
         return self
 
     @pyaedt_function_handler()
@@ -367,10 +356,7 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         """
         old_name = self.name
         self._app.ooptimetrics.DeleteSetups([old_name])
-        if hasattr(self._parent, "_Parametrics__setups") and old_name in self._parent._Parametrics__setups:
-            del self._parent._Parametrics__setups[old_name]
-        elif hasattr(self._parent, "_Optimizations__setups") and old_name in self._parent._Optimizations__setups:
-            del self._parent._Optimizations__setups[old_name]
+        self._parent._unregister_setup(old_name)
         return True
 
     @pyaedt_function_handler()
@@ -1311,6 +1297,19 @@ class Parametrics(PyAedtBase):
 
         app.logger.info_timer("Parametrics class has been initialized!")
 
+    def _register_setup(self, setup: OptimetricsSetup) -> None:
+        """Store a newly created parametric setup in the local cache."""
+        self.__setups[setup.name] = setup
+
+    def _rename_setup(self, old_name: str, new_name: str, setup: OptimetricsSetup) -> None:
+        """Update the cached name of a parametric setup."""
+        self.__setups[new_name] = setup
+        self.__setups.pop(old_name, None)
+
+    def _unregister_setup(self, name: str) -> None:
+        """Remove a parametric setup from the local cache."""
+        self.__setups.pop(name, None)
+
     @pyaedt_function_handler()
     def __getitem__(self, name) -> ParametricSetup | None:
         """Get the parametric setup for a given setup name.
@@ -1690,6 +1689,19 @@ class Optimizations(PyAedtBase):
         self.__setups_by_type = SetupDict()
 
         app.logger.info_timer("Optimizations class has been initialized!")
+
+    def _register_setup(self, setup: OptimetricsSetup) -> None:
+        """Store a newly created optimization setup in the local cache."""
+        self.__setups[setup.name] = setup
+
+    def _rename_setup(self, old_name: str, new_name: str, setup: OptimetricsSetup) -> None:
+        """Update the cached name of an optimization setup."""
+        self.__setups[new_name] = setup
+        self.__setups.pop(old_name, None)
+
+    def _unregister_setup(self, name: str) -> None:
+        """Remove an optimization setup from the local cache."""
+        self.__setups.pop(name, None)
 
     @pyaedt_function_handler()
     def __getitem__(self, name) -> OptimizationSetup | None:
