@@ -48,10 +48,17 @@ if TYPE_CHECKING:
 class LimitLine(BinaryTreeNode, PyAedtBase):
     """Line Limit Management Class.
 
+    A ``LimitLine`` object is not created directly. Limit lines are added to a report with
+    ``add_limit_line_from_points()`` or ``add_limit_line_from_equation()`` and are then accessed
+    through the ``limit_lines`` property of the report.
+
     Examples
     --------
-    >>> from ansys.aedt.core.visualization.report.common import LimitLine
-    >>> obj = LimitLine()
+    >>> from ansys.aedt.core import Hfss
+    >>> hfss = Hfss()
+    >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+    >>> report.add_limit_line_from_points([3, 5, 5, 3], [-50, -50, -60, -60], "GHz")
+    >>> limit_line = report.limit_lines[0]
 
     """
 
@@ -139,10 +146,16 @@ class LimitLine(BinaryTreeNode, PyAedtBase):
 class Note(BinaryTreeNode, PyAedtBase):
     """Note Management Class.
 
+    A ``Note`` object is not created directly. Notes are added to a report with ``add_note()``
+    and are then accessed through the ``notes`` property of the report.
+
     Examples
     --------
-    >>> from ansys.aedt.core.visualization.report.common import Note
-    >>> obj = Note()
+    >>> from ansys.aedt.core import Hfss
+    >>> hfss = Hfss()
+    >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+    >>> report.add_note(text="Resonance", x_position=8000, y_position=1500)
+    >>> note = report.notes[0]
 
     """
 
@@ -222,9 +235,13 @@ class Note(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import Note
-        >>> obj = Note()
-        >>> obj.set_note_properties()
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+        >>> report.add_note(text="Resonance", x_position=8000, y_position=1500)
+        >>> report.notes[0].set_note_properties(
+        ...     text="Resonance at 5 GHz", back_color=(255, 255, 0), border_visibility=True, bold=True
+        ... )
 
         """
         props = ["NAME:ChangedProps"]
@@ -285,10 +302,15 @@ class Note(BinaryTreeNode, PyAedtBase):
 class Trace(BinaryTreeNode, PyAedtBase):
     """Provides trace management.
 
+    A ``Trace`` object is not created directly. It is accessed through the ``traces`` property
+    of a report.
+
     Examples
     --------
-    >>> from ansys.aedt.core.visualization.report.common import Trace
-    >>> obj = Trace()
+    >>> from ansys.aedt.core import Hfss
+    >>> hfss = Hfss()
+    >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+    >>> trace = report.traces[0]
 
     """
 
@@ -337,9 +359,10 @@ class Trace(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import Trace
-        >>> obj = Trace()
-        >>> obj.curve_properties
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+        >>> properties = report.traces[0].curve_properties
 
         """
         if self.aedt_name.split(":")[-1] in self.children:
@@ -357,9 +380,11 @@ class Trace(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import Trace
-        >>> obj = Trace()
-        >>> obj.name
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+        >>> trace_name = report.traces[0].name
+        >>> report.traces[0].name = "S11"
 
         """
         return self._name
@@ -467,9 +492,11 @@ class Trace(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import Trace
-        >>> obj = Trace()
-        >>> obj.set_symbol_properties()
+        >>> from ansys.aedt.core.generic.constants import SymbolStyle
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+        >>> report.traces[0].set_symbol_properties(style=SymbolStyle.Circle, fill=True, color=(255, 255, 0))
 
         """
         props = ["NAME:ChangedProps", ["NAME:Show Symbol", "Value:=", show]]
@@ -487,10 +514,22 @@ class Trace(BinaryTreeNode, PyAedtBase):
 class CommonReport(BinaryTreeNode, PyAedtBase):
     """Provides common reports.
 
+    This is the base class of all report types. A report object is not created directly. It is
+    returned by ``create_report()`` or by the ``reports_by_category`` methods of the application
+    ``post`` object, and existing reports are listed in ``post.plots``.
+
     Examples
     --------
-    >>> from ansys.aedt.core.visualization.report.common import CommonReport
-    >>> obj = CommonReport()
+    Create a report of the S11 magnitude in dB from the nominal sweep of a solved HFSS design.
+
+    >>> from ansys.aedt.core import Hfss
+    >>> hfss = Hfss()
+    >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+
+    Reports can also be built step by step from a category, then created in AEDT.
+
+    >>> new_report = hfss.post.reports_by_category.modal_solution("dB(S(1,1))")
+    >>> new_report.create()
 
     """
 
@@ -577,9 +616,10 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.delete()
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+        >>> report.delete()
 
         """
         self._post.oreportsetup.DeleteReports([self.plot_name])
@@ -600,9 +640,14 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.differential_pairs
+        Enable differential pairs on a Circuit report so the traces use the differential
+        (``Diff``/``Comm``) excitations defined in the design.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> report = circuit.post.reports_by_category.standard("dB(S(1,1))")
+        >>> report.differential_pairs = True
+        >>> report.create()
 
         """
         return self._legacy_props["context"].get("differential_pairs", False)
@@ -622,9 +667,17 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.matrix
+        Create a data table of the inductance quantities of a matrix in a solved Maxwell 3D eddy
+        current or AC magnetic design. The report context is the matrix name, here ``"Matrix1"``.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d()
+        >>> quantities = m3d.post.available_report_quantities(
+        ...     display_type="Data Table", quantities_category="L", context="Matrix1"
+        ... )
+        >>> report = m3d.post.create_report(expressions=quantities, plot_type="Data Table", context="Matrix1")
+        >>> report.matrix
+        'Matrix1'
 
         """
         if self._is_created and (
@@ -649,7 +702,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @property
     def reduced_matrix(self) -> str:
-        """Maxwell 2D/3D reduced matrix name for eddy current solvers.
+        """Maxwell 2D/3D reduced matrix name for eddy current/ AC Magnetic solvers.
 
         Returns
         -------
@@ -658,9 +711,21 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.reduced_matrix
+        For an eddy current/ AC Magnetic design, the report context maps the parent matrix to a reduced matrix.
+        Here ``"Matrix1"`` is the parent matrix and ``"ReducedMatrix1"`` is a reduced matrix created
+        from it.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d()
+        >>> context = {"Matrix1": "ReducedMatrix1"}
+        >>> quantities = m3d.post.available_report_quantities(
+        ...     report_category="EddyCurrent", display_type="Data Table", context=context
+        ... )
+        >>> report = m3d.post.create_report(
+        ...     expressions=quantities, report_category="EddyCurrent", plot_type="Data Table", context=context
+        ... )
+        >>> report.reduced_matrix
+        'ReducedMatrix1'
 
         """
         return self._legacy_props["context"].get("reduced_matrix", None)
@@ -680,9 +745,15 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.polyline
+        Create a field report along a polyline in a Q3D design. The polyline must be a non-model
+        object so that it does not affect the solution.
+
+        >>> from ansys.aedt.core import Q3d
+        >>> q3d = Q3d()
+        >>> q3d.modeler.create_polyline([[0, -5, 0.425], [0.5, 5, 0.5]], name="Poly1", non_model=True)
+        >>> report = q3d.post.reports_by_category.rl_fields("Mag_SurfaceJac", polyline="Poly1")
+        >>> report.polyline
+        'Poly1'
 
         """
         if self._is_created and self.report_category != "Far Fields" and self.report_category.endswith("Fields"):
@@ -707,9 +778,11 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.expressions
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+        >>> report.expressions
+        ['dB(S(1,1))']
 
         """
         # self._initialize_tree_node()
@@ -745,9 +818,10 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.report_category
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+        >>> category = report.report_category
 
         """
         if self._is_created:
@@ -775,9 +849,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.report_type
+        If not explicitly defined in ``create_report`` the default report type is ``"Rectangular Plot"``.
+
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+        >>> report.report_type
+        'Rectangular Plot'
 
         """
         if self._is_created:
@@ -816,9 +894,10 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.traces
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+        >>> trace_names = [trace.name for trace in report.traces]
 
         """
         _ = self.expressions[::]
@@ -1210,9 +1289,11 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.limit_lines
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+        >>> report.add_limit_line_from_points([3, 5, 5, 3], [-50, -50, -60, -60], "GHz")
+        >>> limit_lines = report.limit_lines
 
         """
         _traces = []
@@ -1245,9 +1326,11 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.notes
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+        >>> report.add_note(text="Resonance", x_position=8000, y_position=1500)
+        >>> notes = report.notes
 
         """
         _notes = []
@@ -1280,9 +1363,11 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.plot_name
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions="dB(S(1,1))", name="my_plot")
+        >>> name = report.plot_name
+        "my_plot"
 
         """
         return self._legacy_props["plot_name"]
@@ -1318,9 +1403,10 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.internal_plot_name
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+        >>> aedt_name = report.internal_plot_name
 
         """
         return self._post._rename_internal_object(self.plot_name)
@@ -1331,14 +1417,47 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Returns
         -------
-        str
-            Variations.
+        :class:`ansys.aedt.core.generic.props.Props`
+            Dictionary that maps each sweep or design variable name to its values.
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.variations
+        The variations select which values of each sweep and design variable the report shows. Each
+        key is a sweep (for example ``Freq``, ``Theta``, or ``Phi``) or a design variable, and each value
+        is a list of values or ``["All"]``. Start from the nominal design variation, then pick the sweep
+        values to plot. Here the far-field gain is plotted against ``Theta`` for two ``Phi`` cuts at
+        30 GHz, on a design with an infinite sphere named ``"3D"``.
+
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> variations = hfss.available_variations.nominal_variation(dependent_params=False)
+        >>> variations["Freq"] = ["30GHz"]
+        >>> variations["Theta"] = ["All"]
+        >>> variations["Phi"] = ["0deg", "90deg"]
+        >>> report = hfss.post.reports_by_category.far_field("db(RealizedGainTotal)", hfss.nominal_adaptive, "3D")
+        >>> report.variations = variations
+        >>> report.primary_sweep = "Theta"
+        >>> report.create()
+
+        Once the report is created, the variations are read back from its traces.
+
+        >>> report.variations["Phi"]
+        ['0deg', '90deg']
+
+        Design variables of a parametric sweep are selected the same way. In this Maxwell 2D motor
+        design, ``Ipeak`` and ``din`` are swept design variables. The report plots the torque of the
+        ``Moving1`` band against ``Time`` for every ``Ipeak`` value, with the inner diameter ``din``
+        fixed to 78 mm.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d()
+        >>> report = m2d.post.create_report(
+        ...     expressions="Moving1.Torque",
+        ...     domain="Sweep",
+        ...     variations={"Time": ["All"], "Ipeak": ["All"], "din": ["78mm"]},
+        ...     primary_sweep_variable="Time",
+        ... )
+
 
         """
         if self._is_created:
@@ -1402,9 +1521,31 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.primary_sweep
+        The primary sweep is the variable on the X axis of the report. Set it with the
+        ``primary_sweep_variable`` argument of ``create_report()``. When it is not given, it defaults
+        to ``"Freq"`` for the ``"Sweep"`` domain and to ``"Time"`` for the ``"Time"`` domain.
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions="dB(S(1,1))", primary_sweep_variable="Freq")
+        >>> report.primary_sweep
+        'Freq'
+
+        Plot the far-field gain against ``Theta`` instead of frequency, on a design with an infinite
+        sphere named ``"3D"``. The other sweeps are fixed with the ``variations`` argument.
+        >>> variations = hfss.available_variations.nominal_variation(dependent_params=False)
+        >>> variations["Freq"] = ["30GHz"]
+        >>> variations["Theta"] = ["All"]
+        >>> variations["Phi"] = ["0deg"]
+        >>> gain_report = hfss.post.create_report(
+        ...     expressions="db(GainTotal)",
+        ...     setup_sweep_name=hfss.nominal_adaptive,
+        ...     variations=variations,
+        ...     primary_sweep_variable="Theta",
+        ...     report_category="Far Fields",
+        ...     context="3D",
+        ... )
+        >>> gain_report.primary_sweep
+        'Theta'
 
         """
         if self._is_created:
@@ -1437,9 +1578,35 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.secondary_sweep
+        The secondary sweep is the second independent variable of reports with two sweeps, such as
+        3D polar plots and contour plots. Set it with the ``secondary_sweep_variable`` argument of
+        ``create_report()``. Reports with a single sweep, such as a rectangular plot of S-parameters
+            Secondary sweep.
+
+        Examples
+        --------
+        against frequency, have no secondary sweep and return ``None``.
+        Create a 3D polar plot of the far-field gain at 30 GHz, on a design with an infinite sphere
+        named ``"3D"``. ``Phi`` and ``Theta`` are both swept over all their values.
+
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> variations = hfss.available_variations.nominal_variation(dependent_params=False)
+        >>> variations["Freq"] = ["30GHz"]
+        >>> variations["Theta"] = ["All"]
+        >>> variations["Phi"] = ["All"]
+        >>> report = hfss.post.create_report(
+        ...     expressions="db(GainTotal)",
+        ...     setup_sweep_name=hfss.nominal_adaptive,
+        ...     variations=variations,
+        ...     primary_sweep_variable="Phi",
+        ...     secondary_sweep_variable="Theta",
+        ...     report_category="Far Fields",
+        ...     plot_type="3D Polar Plot",
+        ...     context="3D",
+        ... )
+        >>> secondary = report.secondary_sweep
+        "Theta"
 
         """
         if self._is_created:
@@ -1471,9 +1638,11 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.primary_sweep_range
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+        >>> report.primary_sweep_range
+        ['All']
 
         """
         return self._legacy_props["context"]["primary_sweep_range"]
@@ -1493,9 +1662,12 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.secondary_sweep_range
+        The secondary sweep range is used by reports with two sweeps, such as 3D and contour plots.
+
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+        >>> secondary_range = report.secondary_sweep_range
 
         """
         return self._legacy_props["context"]["secondary_sweep_range"]
@@ -1525,9 +1697,14 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.update_expressions_with_defaults()
+        Fill the expressions of a new report with all the default quantities of its category
+        before creating it.
+
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.reports_by_category.modal_solution()
+        >>> report.update_expressions_with_defaults()
+        >>> report.create()
 
         """
         self.expressions = self._post.available_report_quantities(
@@ -1662,9 +1839,11 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.domain
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+        >>> report.domain
+        'Sweep'
 
         """
         if self._is_created:
@@ -1706,9 +1885,20 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.use_pulse_in_tdr
+        Create a TDR impedance report. By default the TDR uses a step excitation, so the property
+        is ``False``.
+
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(
+        ...     expressions="TDRZ(1,1)",
+        ...     report_category="TDR Impedance",
+        ...     domain="Time",
+        ...     primary_sweep_variable="Time",
+        ...     variations={"Time": ["All"]},
+        ... )
+        >>> report.use_pulse_in_tdr
+        False
 
         """
         return self._legacy_props["context"].get("use_pulse_in_tdr", False)
@@ -1767,9 +1957,10 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.create()
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.reports_by_category.modal_solution("dB(S(1,1))")
+        >>> report.create(name="S11 Magnitude")
 
         """
         self._is_created = False
@@ -2085,9 +2276,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.export_config("c:/temp/report_config.json")
+        Export the report settings to a JSON file, which can later be used to re-create the report.
+
+        >>> from pathlib import Path
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+        >>> report.export_config(str(Path(hfss.working_directory) / f"{report.plot_name}.json"))
 
         """
         output_dict = {}
@@ -2114,9 +2309,11 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.get_solution_data()
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+        >>> data = report.get_solution_data()
+        >>> frequencies, s11_db = data.get_expression_data()
 
         """
         if self._is_created:
@@ -2227,9 +2424,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.add_limit_line_from_points([0, 0], [0, 0], "GHz", "V", "Y1")
+        Add a closed limit line that marks the region between 3 GHz and 5 GHz where S11 must
+        stay between -60 dB and -50 dB.
+
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+        >>> report.add_limit_line_from_points([3, 5, 5, 3], [-50, -50, -60, -60], "GHz")
 
         """
         x_list = [GeometryOperators.parse_dim_arg(str(i) + x_units) for i in x_list]
@@ -2284,9 +2485,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.add_limit_line_from_equation(0, 10, 1, "x", "GHz", 1)
+        Add a limit line that follows the equation ``y = x`` from 1 GHz to 20 GHz, with a point
+        every 0.5 GHz.
+
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+        >>> report.add_limit_line_from_equation(start_x=1, stop_x=20, step=0.5, units="GHz")
 
         """
         if self.plot_name and self._is_created:
@@ -2329,9 +2534,10 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.add_note("Note text", 0.0, 0.0)
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+        >>> report.add_note(text="Resonance", x_position=8000, y_position=1500)
 
         """
         note_name = generate_unique_name("Note", n=3)
@@ -2379,9 +2585,12 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.add_cartesian_x_marker("1GHz")
+        Add a vertical marker at 3 GHz. The value must include its units.
+
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+        >>> marker_name = report.add_cartesian_x_marker("3GHz")
 
         """
         if not name:
@@ -2413,9 +2622,12 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.add_cartesian_y_marker("1V", y_axis=1)
+        Add a horizontal marker at -55 dB on the first Y axis.
+
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+        >>> marker_name = report.add_cartesian_y_marker("-55", y_axis=1)
 
         """
         if not name:
@@ -2480,9 +2692,10 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.edit_grid()
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+        >>> report.edit_grid(minor_x=False, style_major="Dot", major_color=(0, 0, 125))
 
         """
         props = [
@@ -2536,9 +2749,10 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.edit_x_axis()
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+        >>> report.edit_x_axis(font="Courier", font_size=14, italic=True, color=(0, 128, 0), label="Freq")
 
         """
         props = [
@@ -2623,9 +2837,14 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.edit_x_axis_scaling()
+        Show the frequency axis from 1 GHz to 5 GHz, with tick labels in MHz.
+
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+        >>> report.edit_x_axis_scaling(
+        ...     linear_scaling=True, min_scale="1GHz", max_scale="5GHz", minor_tick_divs=10, units="MHz"
+        ... )
 
         """
         if linear_scaling:
@@ -2678,9 +2897,10 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.edit_legend()
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+        >>> report.edit_legend(show_solution_name=True, show_variation_key=False, show_trace_name=False)
 
         """
         props = [
@@ -2717,9 +2937,10 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.hide_legend()
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+        >>> report.hide_legend()
 
         """
         try:
@@ -2776,9 +2997,10 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.edit_y_axis()
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+        >>> report.edit_y_axis(font="Courier", font_size=14, italic=True, color=(0, 128, 0), label="S11 (dB)")
 
         """
         props = [
@@ -2865,9 +3087,12 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.edit_y_axis_scaling()
+        Show the S11 axis from -50 dB to 10 dB.
+
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+        >>> report.edit_y_axis_scaling(min_scale="-50", max_scale="10", minor_tick_divs=10, min_spacing="5")
 
         """
         if linear_scaling:
@@ -2923,9 +3148,12 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.edit_general_settings()
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+        >>> report.edit_general_settings(
+        ...     background_color=(128, 255, 255), plot_color=(255, 0, 255), field_width=6, precision=6
+        ... )
 
         """
         if enable_y_stripes is None:
@@ -2990,9 +3218,10 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.edit_header()
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+        >>> report.edit_header(company_name="PyAEDT", show_design_name=True, color=(0, 125, 125))
 
         """
         props = [
@@ -3095,9 +3324,16 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.import_traces("report_data.csv", "MyPlot")
+        Export the report data to a CSV file, then import it back into the same report as new
+        traces. Supported file extensions are ``.csv``, ``.tab``, ``.dat``, and ``.rdat``.
+
+        >>> from pathlib import Path
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+        >>> csv_file = str(Path(hfss.working_directory) / "s11.csv")
+        >>> report.get_solution_data().export_data_to_csv(output=csv_file)
+        >>> report.import_traces(input_file=csv_file, plot_name=report.plot_name)
 
         """
         if not os.path.exists(input_file):
@@ -3148,9 +3384,12 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.delete_traces("Plot1", ["Trace1", "Trace2"])
+        Delete the first trace of a report that shows all S-parameters.
+
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions=hfss.get_traces_for_plot(category="S"))
+        >>> report.delete_traces(plot_name=report.plot_name, traces_list=[report.expressions[0]])
 
         """
         if plot_name not in self._post.all_report_names:
@@ -3194,9 +3433,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.add_trace_to_report(["Trace1", "Trace2"], setup_name="Setup1 : LastAdaptive")
+        Add the S21 magnitude in dB to an existing S11 report. When ``setup_name`` and
+        ``variations`` are not given, those of the report are used.
+
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+        >>> report.add_trace_to_report(traces=["dB(S(2,1))"])
 
         """
         try:
@@ -3236,9 +3479,14 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.update_trace_in_report(["Trace1", "Trace2"], setup_name="Setup1 : LastAdaptive")
+        Update the existing traces of a report so they use the setup and variations of the report.
+
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+        >>> report.update_trace_in_report(
+        ...     traces=report.expressions, setup_name=report.setup, variations=report.variations
+        ... )
 
         """
         expr = copy.deepcopy(self.expressions)
@@ -3284,9 +3532,19 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.apply_report_template("template.rpt", property_type="Graphical")
+        Apply the graphical settings (colors, fonts, axes) of a report template saved from AEDT as an
+        ``.rpt`` file. The template must come from a report of the same type, here an antenna
+        parameters data table of a design with an infinite sphere named ``"3D"``.
+
+        >>> from pathlib import Path
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.reports_by_category.antenna_parameters("db(PeakRealizedGain)", infinite_sphere="3D")
+        >>> report.report_type = "Data Table"
+        >>> report.create()
+        >>> template = str(Path(hfss.working_directory) / "antenna_table_template.rpt")
+        >>> report.apply_report_template(input_file=template, property_type="Graphical")
+
 
         """
         if not os.path.exists(input_file):  # pragma: no cover
@@ -3331,9 +3589,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.add_trace_characteristics(name="XAtYVal")
+        Add the maximum value of each trace to the report legend. Use ``arguments`` for
+        characteristics that need input values, such as ``XAtYVal``.
+
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+        >>> report.add_trace_characteristics(name="max")
 
         """
         if not arguments:
@@ -3369,9 +3631,19 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import CommonReport
-        >>> obj = CommonReport()
-        >>> obj.export_table_to_file("MyPlot", "output.csv", table_type="Marker")
+        Add the maximum value of each trace to the legend, then export the legend table to a CSV
+        file.
+
+        >>> from pathlib import Path
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.create_report(expressions="dB(S(1,1))")
+        >>> report.add_trace_characteristics(name="max")
+        >>> report.export_table_to_file(
+        ...     plot_name=report.plot_name,
+        ...     output_file=str(Path(hfss.working_directory) / "legend.csv"),
+        ...     table_type="Legend",
+        ... )
 
         """
         plot_names = [plot.plot_name for plot in self._post.plots]
