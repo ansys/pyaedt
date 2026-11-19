@@ -108,7 +108,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         if is_native_grpc_api(self):
             windings = self.oboundary.GetExcitations("Winding Group")
         else:
-        windings = self.oboundary.GetExcitationsOfType("Winding Group")
+            windings = self.oboundary.GetExcitationsOfType("Winding Group")
         return list(windings)
 
     @property
@@ -1090,7 +1090,10 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         if self.solution_type != SolutionsMaxwell3D.Transient:
             raise AEDTRuntimeError("Motion applies only to the Transient setup.")
 
-        names = list(self.omodelsetup.GetMotionSetupNames())
+        if is_native_grpc_api(self):
+            names = list(self.omodelsetup.GetMotions())
+        else:
+            names = list(self.omodelsetup.GetMotionSetupNames())
         motion_name = "MotionSetup" + str(len(names) + 1)
         object_list = self.modeler.convert_to_selections(assignment, True)
         props = dict(
