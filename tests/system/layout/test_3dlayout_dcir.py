@@ -29,6 +29,9 @@ import pytest
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.generic.settings import is_linux
 from tests.conftest import DESKTOP_VERSION
+from tests.conftest import edb_ignore_logger_warn
+
+pytestmark = edb_ignore_logger_warn
 
 TEST_SUBFOLDER = "dcir"
 LAYOUT_DCIR = "ANSYS-HSD_V1_dcir"
