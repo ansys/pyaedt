@@ -32,6 +32,7 @@ from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.internal.checks import is_native_grpc_api
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modules.boundary.common import BoundaryCommon
@@ -443,14 +444,16 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> obj.update()
 
         """
-        if self.type == "Matrix":
+        if self.type not in ("Matrix", "Force", "Torque"):
+            return False
+        if is_native_grpc_api(self._app):
+            self._app.omaxwell_parameters.Edit(self.name, self._get_args())
+        elif self.type == "Matrix":
             self._app.omaxwell_parameters.EditMatrix(self.name, self._get_args())
         elif self.type == "Force":
             self._app.omaxwell_parameters.EditForce(self.name, self._get_args())
-        elif self.type == "Torque":
-            self._app.omaxwell_parameters.EditTorque(self.name, self._get_args())
         else:
-            return False
+            self._app.omaxwell_parameters.EditTorque(self.name, self._get_args())
         return True
 
 
