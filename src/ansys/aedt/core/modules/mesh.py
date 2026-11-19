@@ -33,6 +33,7 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.generic.numbers_utils import _units_assignment
+from ansys.aedt.core.internal.checks import is_native_grpc_api
 from ansys.aedt.core.internal.errors import MethodNotSupportedError
 from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
@@ -192,10 +193,15 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
                 props["Objects"] = []
                 props["Faces"] = []
                 props["Edges"] = []
-                assigned_id = self._mesh.omeshmodule.GetMeshOpAssignment(self.name)
+                assigned_id = (
+                    self._mesh.omeshmodule.GetAssignment(self.name)
+                    if is_native_grpc_api(self._app)
+                    else self._mesh.omeshmodule.GetMeshOpAssignment(self.name)
+                )
                 for comp_id in assigned_id:
                     if int(comp_id) in self._app.modeler.objects.keys():
-                        props["Objects"].append(self._app.oeditor.GetObjectNameByID(comp_id))
+                        object_id = int(comp_id) if is_native_grpc_api(self._app) else comp_id
+                        props["Objects"].append(self._app.oeditor.GetObjectNameByID(object_id))
                         continue
                     for comp in self._app.modeler.object_list:
                         faces = comp.faces
