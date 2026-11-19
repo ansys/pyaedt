@@ -32,6 +32,7 @@ from ansys.aedt.core.generic.constants import unit_system
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.internal.checks import is_native_grpc_api
 
 quantities_dict_1 = {  # pragma: no cover
     8: "Speed",
@@ -649,7 +650,10 @@ class Monitor(PyAedtBase):
 
         """
         try:
-            self._omonitor.DeleteMonitors([monitor_name])
+            if is_native_grpc_api(self._app):
+                self._omonitor.Delete([monitor_name])
+            else:
+                self._omonitor.DeleteMonitors([monitor_name])
             try:
                 del self._face_monitors[monitor_name]
             except KeyError:
