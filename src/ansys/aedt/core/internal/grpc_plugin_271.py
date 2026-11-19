@@ -35,6 +35,16 @@ def _rpc_error_types() -> tuple:
         return ()
     return (grpc.RpcError,)
 
+
+def _native_argument(value):
+    """Convert tuples, which the native API cannot serialize unlike the legacy API, to lists."""
+    if isinstance(value, (list, tuple)):
+        converted = [_native_argument(item) for item in value]
+        if isinstance(value, tuple) or any(new is not old for new, old in zip(converted, value)):
+            return converted
+    return value
+
+
 def _native_method(method, rpc_errors: tuple = (), array_result: bool = False, string_ids: bool = False):
     """Wrap a native API method to match the legacy API argument, error, and array result contracts."""
     name = method.__name__
