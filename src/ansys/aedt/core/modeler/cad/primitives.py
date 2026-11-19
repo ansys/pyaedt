@@ -52,6 +52,7 @@ from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.generic.quaternion import Quaternion
+from ansys.aedt.core.internal.checks import is_native_grpc_api
 from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
@@ -1849,7 +1850,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         else:
             vertices = []
             for vertex in list(self.oeditor.GetVertexIDsFromFace(face)):
-                vertices.append([float(i) for i in list(self.oeditor.GetVertexPosition(vertex))])
+                vertices.append([float(i) for i in list(self._get_vertex_position(vertex))])
         if len(vertices) < 3:
             raise RuntimeError("Automatic A-B assignment requires more than 2 vertices.")
 
@@ -5745,7 +5746,7 @@ class GeometryModeler(Modeler, PyAedtBase):
             vertices_on_line = vertices_on_line[::-1]
 
         for x in vertices_on_line:
-            pos = self.oeditor.GetVertexPosition(x)
+            pos = self._get_vertex_position(x)
             if self.design_type == "Maxwell 2D":
                 if self.geometry_mode == "XY":
                     position_list.append([float(pos[0]), float(pos[1])])
@@ -6590,7 +6591,7 @@ class GeometryModeler(Modeler, PyAedtBase):
                 else:
                     thickness = thickness + 10
         for el in assignment:
-            objID = self.oeditor.GetFaceIDs(el)
+            objID = _normalize_ids(self.oeditor.GetFaceIDs(el))
             faceCenter = self.oeditor.GetFaceCenter(int(objID[0]))
             if directions[el] == "Internal":
                 self.oeditor.ThickenSheet(
@@ -9377,12 +9378,18 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         """
         try:
-            pos = self.oeditor.GetVertexPosition(assignment)
+            pos = self._get_vertex_position(assignment)
         except Exception:
             position = []
         else:
             position = [float(i) for i in pos]
         return position
+
+    def _get_vertex_position(self, vertex: int | str) -> list:
+        # Native gRPC API requires an integer vertex ID.
+        if is_native_grpc_api(self._app):
+            vertex = int(vertex)
+        return self.oeditor.GetVertexPosition(vertex)
 
     @pyaedt_function_handler()
     def get_face_area(self, assignment: int) -> float:
