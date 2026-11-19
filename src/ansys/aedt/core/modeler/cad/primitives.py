@@ -1152,6 +1152,19 @@ class GeometryModeler(Modeler, PyAedtBase):
                 component_definitions.setdefault(instance_definition, []).append(instance_name)
         return component_definitions
 
+    def _register_component(self, component: UserDefinedComponent) -> None:
+        """Store a newly created component in the local cache."""
+        self.__components[component.name] = component
+
+    def _rename_component(self, old_name: str, new_name: str, component: UserDefinedComponent) -> None:
+        """Update the cached name of a component."""
+        self.__components[new_name] = component
+        self.__components.pop(old_name, None)
+
+    def _unregister_component(self, name: str) -> None:
+        """Remove a component from the local cache."""
+        self.__components.pop(name, None)
+
     @property
     def components(self) -> SetupDict:
         """Map component instance.

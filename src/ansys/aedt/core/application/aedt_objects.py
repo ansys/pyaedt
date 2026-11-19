@@ -32,6 +32,7 @@ from ansys.aedt.core.generic.constants import SolutionsHfss
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
+from ansys.aedt.core.generic.protocols import _OEditor
 from ansys.aedt.core.generic.protocols import _OMeshModule
 from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
@@ -558,7 +559,7 @@ class AedtObjects(PyAedtBase):
         return self._omeshmodule
 
     @property
-    def oeditor(self) -> object:
+    def oeditor(self) -> _OEditor | None:
         """Oeditor Module.
 
         References

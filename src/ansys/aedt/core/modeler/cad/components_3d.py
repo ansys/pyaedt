@@ -39,12 +39,14 @@ from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.data_handlers import random_string
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.props import Props as ComponentProps
-from ansys.aedt.core.generic.protocols import _AppWithOProject
 from ansys.aedt.core.internal.desktop_sessions import _edb_sessions
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 
 if TYPE_CHECKING:
     from ansys.aedt.core.generic.constants import Axis
+    from ansys.aedt.core.generic.protocols import Design3DApp
+    from ansys.aedt.core.generic.protocols import _OEditor
     from ansys.aedt.core.modeler.cad.object_3d import Object3d
 
 
@@ -53,7 +55,7 @@ class UserDefinedComponentParameters(dict):
 
     Parameters
     ----------
-    component : :class:`ansys.aedt.core.modeler.cad.components_3d.UserDefinedComponentParameters`
+    component : :class:`ansys.aedt.core.modeler.cad.components_3d.UserDefinedComponent`
         Inherited parent object.
 
     Examples
@@ -89,8 +91,8 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
     Parameters
     ----------
-    app : _AppWithOProject
-        Interface definition for PyAEDT app instances.
+    app : Design3DApp
+        HFSS, Icepak, Maxwell 3D, or Q3D application instance.
     name : str
         Name of the component.
     props : dict
@@ -106,8 +108,8 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
     """
 
-    def __init__(self, app: _AppWithOProject, name: str, props: dict) -> None:
-        self._app = app
+    def __init__(self, app: Design3DApp, name: str, props: dict) -> None:
+        self._app: Design3DApp = app
         self._name = name
 
         self.definition_name = None
@@ -166,13 +168,13 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         # TODO: GetObjData is not available yet
         self._has_getobject = False
 
-    def __getitem__(self, key: str) -> Any:
-        """Return a setup property by key."""
-        return self.props[key]
-
-    def __setitem__(self, key: str, value: Any) -> None:
-        """Set a setup property by key."""
-        self.props[key] = value
+    @property
+    def _oeditor(self) -> _OEditor:
+        """Return the editor required by component operations."""
+        editor = self._app.oeditor
+        if editor is None:
+            raise AEDTRuntimeError("Component operations require an active AEDT editor.")
+        return editor
 
     @pyaedt_function_handler()
     def _initialize_tree_node(self) -> bool:
@@ -249,9 +251,7 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
             object.__setattr__(self, "_children_loaded", False)
 
             # Add the component to the modeler components dictionary
-            self._app.modeler._GeometryModeler__components[component_name] = self
-            if old_name in self._app.modeler._GeometryModeler__components:
-                del self._app.modeler._GeometryModeler__components[old_name]
+            self._app.modeler._rename_component(old_name, component_name, self)
         else:  # pragma: no cover
             self._app.logger.warning(f"Name {component_name} already assigned in the design.")
 
@@ -327,7 +327,7 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         Returns
         -------
         dict
-            :class:`ansys.aedt.core.modeler.cad.components_3d.UserDefinedComponentParameters`.
+            :class:`ansys.aedt.core.modeler.cad.components_3d.UserDefinedComponentParameters`
 
         Examples
         --------
@@ -340,7 +340,7 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         if self.__parameters is None:
             self.__parameters = UserDefinedComponentParameters(self, {})
             if self.definition_name:
-                parameters_tuple = list(self._app.oeditor.Get3DComponentParameters(self.name))
+                parameters_tuple = list(self._oeditor.Get3DComponentParameters(self.name))
                 parameters = {}
                 for parameter in parameters_tuple:
                     if parameter[0] in self.properties:
@@ -373,12 +373,15 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         return self.__parameters
 
     @property
-    def parts(self) -> dict[str, Object3d] | dict[str, str]:
+    def parts(self) -> dict[int | None, Object3d] | dict[str, str]:
         """Dictionary of objects that belong to the user-defined component.
 
         Returns
         -------
-        dict[str, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`] | dict[str, str]
+        dict[int | None, Object3d] | dict[str, str]
+            Object IDs mapped to parts. An ID can be ``None`` if it cannot be
+            retrieved. If no objects are resolved, part names are mapped to
+            themselves.
 
         Examples
         --------
@@ -389,9 +392,9 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
         """
         if self.definition_name:
-            component_parts = list(self._app.oeditor.Get3DComponentPartNames(self.name))
+            component_parts = list(self._oeditor.Get3DComponentPartNames(self.name))
         elif self.definition_type == "UserDefinedModel":
-            component_parts = list(self._app.oeditor.GetPartsForUserDefinedModel(self.name))
+            component_parts = list(self._oeditor.GetPartsForUserDefinedModel(self.name))
         else:
             component_parts = list(self.properties)
 
@@ -534,13 +537,13 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         return self._legacy_props.get("NativeComponentDefinitionProvider", None)
 
     @pyaedt_function_handler()
-    def create(self) -> bool:
+    def create(self) -> UserDefinedComponent | bool:
         """Create a 3d component in AEDT.
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        UserDefinedComponent or bool
+            Component when successful, ``False`` when failed.
 
         Examples
         --------
@@ -553,16 +556,16 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         name = str(self.name)
         args = self._get_args_create()
         if self.definition_type == "UserDefinedModel":
-            created_name = self._app.oeditor.CreateUserDefinedModel(args)
+            created_name = self._oeditor.CreateUserDefinedModel(args)
         else:
-            created_name = self._app.oeditor.Insert3DComponent(args)
+            created_name = self._oeditor.Insert3DComponent(args)
         if created_name != name:
             # AEDT renames the component automatically
             self._name = created_name
             self.name = name
 
         # Add the component to the modeler components dictionary
-        self._app.modeler._GeometryModeler__components[name] = self
+        self._app.modeler._register_component(self)
         return self
 
     @pyaedt_function_handler()
@@ -583,10 +586,9 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         """
         old_name = self.name
         arg = ["NAME:Selections", "Selections:=", old_name]
-        self._app.oeditor.Delete(arg)
+        self._oeditor.Delete(arg)
         self._app.modeler.cleanup_objects()
-        if old_name in self._app.modeler._GeometryModeler__components:
-            del self._app.modeler._GeometryModeler__components[old_name]
+        self._app.modeler._unregister_component(old_name)
         return True
 
     @pyaedt_function_handler()
@@ -894,7 +896,7 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         """
         if password is None:
             password = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
-        self._app.oeditor.UpdateComponentDefinition(
+        self._oeditor.UpdateComponentDefinition(
             [
                 "NAME:UpdateDefinitionData",
                 "ForLocalEdit:=",
@@ -911,7 +913,7 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def edit_definition(self, password: str | None = None) -> _AppWithOProject | None:
+    def edit_definition(self, password: str | None = None) -> Design3DApp | None:
         """Edit 3d Definition. Open AEDT Project and return PyAEDT object.
 
         Parameters
@@ -921,7 +923,7 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
         Returns
         -------
-        _AppWithOProject | None
+        Design3DApp | None
             PyAEDT object.
 
         Examples
@@ -939,7 +941,7 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
         project_list = [i for i in self._app.desktop_class.project_list]
 
-        self._app.modeler.oeditor.Edit3DComponentDefinition(
+        self._oeditor.Edit3DComponentDefinition(
             [
                 "NAME:EditDefinitionData",
                 ["NAME:DefinitionAndPassword", "Definition:=", self.definition_name, "Password:=", password],
@@ -993,7 +995,7 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
 
 def _create_native_component(
-    app: _AppWithOProject,
+    app: Design3DApp,
     name: str,
     definition_name: str,
     target_cs: str | None,
@@ -1043,8 +1045,8 @@ class NativeComponent(UserDefinedComponent):
 
     Parameters
     ----------
-    app : _AppWithOProject
-        Interface definition for PyAEDT app instances.
+    app : Design3DApp
+        HFSS, Icepak, Maxwell 3D, or Q3D application instance.
     name : str
         Name of the component.
     props : dict
@@ -1058,6 +1060,14 @@ class NativeComponent(UserDefinedComponent):
     >>> par_beam = hfss.create_sbr_file_based_antenna(ffd_file)
 
     """
+
+    def __getitem__(self, key: str) -> Any:
+        """Return a setup property by key."""
+        return self.props[key]
+
+    def __setitem__(self, key: str, value: Any) -> None:
+        """Set a setup property by key."""
+        self.props[key] = value
 
     @property
     def props(self) -> ComponentProps:
@@ -1100,7 +1110,7 @@ class NativeComponent(UserDefinedComponent):
 
         """
         name = str(self.name)
-        created_name = self._app.oeditor.InsertNativeComponent(self._get_args_create())
+        created_name = self._oeditor.InsertNativeComponent(self._get_args_create())
         if not created_name:
             self._app.logger.error(f"Failed to insert native component {name}.")
             return False
@@ -1110,7 +1120,7 @@ class NativeComponent(UserDefinedComponent):
 
         # TargetCS is required for creation but is not accepted by updates.
         self._legacy_props.pop("TargetCS", None)
-        self._app.modeler._GeometryModeler__components[self.name] = self
+        self._app.modeler._register_component(self)
         return self
 
     @pyaedt_function_handler()
@@ -1157,7 +1167,7 @@ class NativeComponent(UserDefinedComponent):
             "IconType": basic_component_info.get("IconType", self.definition_type),
         }
 
-        self._app.modeler.oeditor.EditNativeComponentDefinition(self._get_args_edit(update_props))
+        self._oeditor.EditNativeComponentDefinition(self._get_args_edit(update_props))
         self._legacy_props.update(update_props)
         return True
 
@@ -1167,7 +1177,7 @@ class LayoutComponent(NativeComponent):
 
     Parameters
     ----------
-    app : _AppWithOProject
+    app : Design3DApp
         AEDT application.
     name : str
         Name of the component instance.
@@ -1182,7 +1192,7 @@ class LayoutComponent(NativeComponent):
 
     """
 
-    def __init__(self, app: _AppWithOProject, name: str, props: dict) -> None:
+    def __init__(self, app: Design3DApp, name: str, props: dict) -> None:
         super().__init__(app=app, name=name, props=props)
         self.definition_type = "layout_component"
         if props:
@@ -1635,7 +1645,7 @@ class LayoutComponent(NativeComponent):
         vPropServers = ["NAME:PropServers", self._name]
         vGeo3d = ["NAME:Visualization", vPropServers, vChangedProps]
         vOut = ["NAME:AllTabs", vGeo3d]
-        self._app.modeler.oeditor.ChangeProperty(vOut)
+        self._oeditor.ChangeProperty(vOut)
         return True
 
 
@@ -1644,7 +1654,7 @@ class NativeComponentPCB(NativeComponent):
 
     Parameters
     ----------
-    app : _AppWithOProject
+    app : Design3DApp
         AEDT application from the ``ansys.aedt.core.application`` class.
     name : str
         Name of the component.
@@ -1660,7 +1670,7 @@ class NativeComponentPCB(NativeComponent):
 
     """
 
-    def __init__(self, app: _AppWithOProject, name: str, props: dict) -> None:
+    def __init__(self, app: Design3DApp, name: str, props: dict) -> None:
         NativeComponent.__init__(self, app=app, name=name, props=props)
 
     @property
@@ -2186,7 +2196,7 @@ class PCBSettingsPackageParts(PyAedtBase):
     ----------
     pcb_obj : :class:`ansys.aedt.core.modules.layout_boundary.NativeComponentPCB`
             Inherited pcb object.
-    app : _AppWithOProject
+    app : Design3DApp
         AEDT application from the ``ansys.aedt.core.application`` class.
 
     Examples
@@ -2199,7 +2209,7 @@ class PCBSettingsPackageParts(PyAedtBase):
 
     """
 
-    def __init__(self, pcb_obj: NativeComponentPCB, app: _AppWithOProject) -> None:
+    def __init__(self, pcb_obj: NativeComponentPCB, app: Design3DApp) -> None:
         self._app = app
         self.pcb = pcb_obj
         self._solderbumps_map = {"Lumped": "SbLumped", "Cylinders": "SbCylinder", "Boxes": "SbBlock"}
@@ -2347,7 +2357,7 @@ class PCBSettingsDeviceParts(PyAedtBase):
     ----------
     pcb_obj : :class:`ansys.aedt.core.modules.layout_boundary.NativeComponentPCB`
             Inherited pcb object.
-    app : _AppWithOProject
+    app : Design3DApp
         AEDT application from the ``ansys.aedt.core.application`` class.
 
     Examples
@@ -2360,7 +2370,7 @@ class PCBSettingsDeviceParts(PyAedtBase):
 
     """
 
-    def __init__(self, pcb_obj: NativeComponentPCB, app: _AppWithOProject) -> None:
+    def __init__(self, pcb_obj: NativeComponentPCB, app: Design3DApp) -> None:
         self._app = app
         self.pcb = pcb_obj
         self._filter_map2name = {"Cap": "Capacitors", "Ind": "Inductors", "Res": "Resistors"}
