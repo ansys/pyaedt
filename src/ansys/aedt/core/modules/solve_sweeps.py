@@ -29,6 +29,8 @@ from difflib import SequenceMatcher
 from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
+from typing import Generic
+from typing import TypeVar
 
 from ansys.aedt.core.application import _get_obj_data
 from ansys.aedt.core.application import _has_get_obj_data
@@ -50,6 +52,9 @@ if TYPE_CHECKING:
     from ansys.aedt.core.modules.solve_setup import Setup3DLayout
     from ansys.aedt.core.modules.solve_setup import SetupHFSS
     from ansys.aedt.core.modules.solve_setup import SetupQ3D
+
+
+_SetupT = TypeVar("_SetupT", bound="Setup3DLayout | SetupHFSS | SetupQ3D")
 
 
 @pyaedt_function_handler()
@@ -125,7 +130,7 @@ def get_sweep_type(sweep_type: str) -> str:
     return sweep_type
 
 
-class SweepCommon(BinaryTreeNode, PyAedtBase):
+class SweepCommon(BinaryTreeNode, PyAedtBase, Generic[_SetupT]):
     """Common base class for sweeps.
 
     Parameters
@@ -144,8 +149,8 @@ class SweepCommon(BinaryTreeNode, PyAedtBase):
 
     """
 
-    def __init__(self, setup: Setup3DLayout | SetupHFSS | SetupQ3D, name: str) -> None:
-        self._setup: Setup3DLayout | SetupHFSS | SetupQ3D = setup
+    def __init__(self, setup: _SetupT, name: str) -> None:
+        self._setup: _SetupT = setup
         self._app: Any = self._setup._app
 
         self._name = name
@@ -283,7 +288,7 @@ class SweepCommon(BinaryTreeNode, PyAedtBase):
         raise NotImplementedError
 
 
-class SweepHFSS(SweepCommon):
+class SweepHFSS(SweepCommon["SetupHFSS"]):
     """Initializes, creates, and updates sweeps in HFSS.
 
     Parameters
@@ -684,7 +689,7 @@ class SweepHFSS(SweepCommon):
         return arg
 
 
-class SweepHFSS3DLayout(SweepCommon):
+class SweepHFSS3DLayout(SweepCommon["Setup3DLayout"]):
     """Initializes, creates, and updates sweeps in HFSS 3D Layout.
 
     Parameters
@@ -1087,7 +1092,7 @@ class SweepHFSS3DLayout(SweepCommon):
         return arg
 
 
-class SweepMatrix(SweepCommon):
+class SweepMatrix(SweepCommon["SetupQ3D"]):
     """Create and manage frequency sweeps in Q3D and Q2D.
 
     Parameters
