@@ -81,6 +81,7 @@ aedt_env_var:
   ANS_MESHER_PROC_DUMP_PREPOST_BEND_SM3: '1'
   ANSYSEM_FEATURE_F826442_MULTI_FINITE_ARRAYS_ENABLE: '1'
   ANSYSEM_FEATURE_F629017_HARMONIC_APHI_SOLUTION_ENABLE: '1'
+  ANSYSEM_FEATURE_S540447_NATIVE_GRPC_ENABLE: '1'
   # Environment variable useful in Linux to skip the dependency check which improves speed
   ANS_NODEPCHECK: '1'
   AnsysSendMsg: '1'
