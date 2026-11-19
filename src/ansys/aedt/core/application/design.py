@@ -79,6 +79,7 @@ from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.protocols import _OProject
 from ansys.aedt.core.generic.settings import inner_project_settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
+from ansys.aedt.core.internal.checks import is_native_grpc_api
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.internal.load_aedt_file import load_entire_aedt_file
@@ -4185,6 +4186,10 @@ class Design(AedtObjects, PyAedtBase):
                 self.logger.error("Failed to create design.")
                 return
         self.logger.info("Added design '%s' of type %s.", unique_design_name, design_type)
+        if is_native_grpc_api(self) and not hasattr(new_design, "GetName"):
+            # Native designs without a dedicated service only expose "<instance id>;<name>".
+            name = new_design.GetObjName().split(";")[-1]
+        else:
         name = new_design.GetName()
         self._odesign = new_design
         return name
