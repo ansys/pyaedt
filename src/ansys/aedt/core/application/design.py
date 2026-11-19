@@ -494,12 +494,17 @@ class Design(AedtObjects, PyAedtBase):
             current_excitation_types = ee[1::2]
             ff = [i.split(":")[0] for i in ee]
             bb.extend(ff)
+            native_api = is_native_grpc_api(self)
             for i in set(current_excitation_types):
-                if "GetExcitationsOfType" in self.oboundary.__dir__():
+                if native_api:
+                    ports = list(self.oboundary.GetExcitations(i))
+                elif "GetExcitationsOfType" in self.oboundary.__dir__():
                     ports = list(self.oboundary.GetExcitationsOfType(i))
-                    for p in ports:
-                        bb.append(p)
-                        bb.append(i)
+                else:
+                    continue
+                for p in ports:
+                    bb.append(p)
+                    bb.append(i)
         elif (
             self.oboundary
             and "Excitations" in self.get_oo_name(self.odesign)
@@ -642,9 +647,12 @@ class Design(AedtObjects, PyAedtBase):
         if self.oboundary and "GetExcitations" in self.oboundary.__dir__():
             ee = list(self.oboundary.GetExcitations())
             current_types = ee[1::2]
+            native_api = is_native_grpc_api(self)
             for i in set(current_types):
                 new_port = []
-                if "GetExcitationsOfType" in self.oboundary.__dir__():
+                if native_api:
+                    new_port = list(self.oboundary.GetExcitations(i))
+                elif "GetExcitationsOfType" in self.oboundary.__dir__():
                     new_port = list(self.oboundary.GetExcitationsOfType(i))
                 if new_port:
                     design_excitations += new_port
@@ -4190,7 +4198,7 @@ class Design(AedtObjects, PyAedtBase):
             # Native designs without a dedicated service only expose "<instance id>;<name>".
             name = new_design.GetObjName().split(";")[-1]
         else:
-        name = new_design.GetName()
+            name = new_design.GetName()
         self._odesign = new_design
         return name
 
