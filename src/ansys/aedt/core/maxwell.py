@@ -42,6 +42,7 @@ from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.checks import is_native_grpc_api
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.maxwellcircuit import MaxwellCircuit
@@ -104,6 +105,9 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         >>> obj.windings
 
         """
+        if is_native_grpc_api(self):
+            windings = self.oboundary.GetExcitations("Winding Group")
+        else:
         windings = self.oboundary.GetExcitationsOfType("Winding Group")
         return list(windings)
 
