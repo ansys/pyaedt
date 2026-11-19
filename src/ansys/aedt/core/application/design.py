@@ -4986,7 +4986,10 @@ class Design(AedtObjects, PyAedtBase):
 
     @pyaedt_function_handler()
     def _assert_consistent_design_type(self, des_name):
-        if des_name in self.design_list:
+        design_list = self.design_list
+        # AEDT design names are case-insensitive.
+        des_name = next((name for name in design_list if name.lower() == des_name.lower()), des_name)
+        if des_name in design_list:
             self._odesign = self.desktop_class.active_design(self.oproject, des_name, self.design_type)
             dtype = self._odesign.GetDesignType()
             if dtype not in ["RMxprt", "ModelCreation"]:
