@@ -353,7 +353,7 @@ exclude = [
 ]
 
 [tool.ty.rules]
-unresolved-import = "ignore"
+import-not-found = "ignore"
 deprecated = "error"
 
 [tool.codespell]

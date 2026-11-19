@@ -2006,7 +2006,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
         self.results._reset_results()
 
         # TODO: See https://github.com/ansys/pyaedt/issues/7919
-        if self.options.import_native_components and dict_in.get("native components", None):  # ty: ignore[unresolved-attribute]
+        if self.options.import_native_components and dict_in.get("native components", None):  # ty: ignore[missing-attribute]
             result_coordinate_systems = True
             add_cs = list(dict_in["coordinatesystems"].keys())
             available_cs = ["Global"] + [cs.name for cs in self._app.modeler.coordinate_systems]
@@ -2031,10 +2031,10 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
         dict_in = Configurations.import_config(self, config_file)
         # TODO: See https://github.com/ansys/pyaedt/issues/7919
         # If statement used for backward compatibility
-        if self.options.import_monitor and dict_in.get("monitor", None):  # ty: ignore[unresolved-attribute]
+        if self.options.import_monitor and dict_in.get("monitor", None):  # ty: ignore[missing-attribute]
             dict_in["monitors"] = dict_in.pop("monitor")
         # TODO: See https://github.com/ansys/pyaedt/issues/7919
-        if self.options.import_monitor and dict_in.get("monitors", None):  # ty: ignore[unresolved-attribute]
+        if self.options.import_monitor and dict_in.get("monitors", None):  # ty: ignore[missing-attribute]
             # If statement used for backward compatibility
             if not isinstance(dict_in["monitors"], list):
                 mon_list = []
@@ -2055,7 +2055,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                     self.results.import_monitor = False
         try:
             # TODO: See https://github.com/ansys/pyaedt/issues/7919
-            self.results.import_native_components = result_native_component  # ty: ignore[unresolved-attribute]
+            self.results.import_native_components = result_native_component  # ty: ignore[missing-attribute]
             self.results.import_coordinate_systems = result_coordinate_systems
         except UnboundLocalError:
             pass
@@ -2354,7 +2354,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                         - instance_names[definition_names]
                     )[0]
                 # TODO: See https://github.com/ansys/pyaedt/issues/7919
-                native.component_name = definition_names  # ty: ignore[unresolved-attribute]
+                native.component_name = definition_names  # ty: ignore[missing-attribute]
                 native.name = instance_names
                 if nc_dict["NativeComponentDefinitionProvider"]["Type"] == "PCB" and nc_dict[
                     "NativeComponentDefinitionProvider"
@@ -2381,7 +2381,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                 self._app.modeler.refresh_all_ids()
                 self._app.materials._load_from_project()
                 # TODO: See https://github.com/ansys/pyaedt/issues/7919
-                if native.component_name not in self._app.native_components:  # ty: ignore[unresolved-attribute]
+                if native.component_name not in self._app.native_components:  # ty: ignore[missing-attribute]
                     self._app._native_components.append(native)
                 if instance_dict.get("Operations", None):
                     for _, operation_dict in instance_dict["Operations"].items():
