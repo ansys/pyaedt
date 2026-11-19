@@ -426,6 +426,9 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         if len(out) == 1:
             return False
 
+        if is_native_grpc_api(self._app):
+            self._app.omeshmodule.Reassign(self.name, out)
+        else:
         self._app.omeshmodule.ReassignOp(self.name, out)
 
         return True
