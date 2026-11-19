@@ -75,7 +75,7 @@ jobs:
 
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-ubuntu
-        uses: ansys/actions/build-wheelhouse@87ff2e65e8884121f9afc97728ca9f213228ecc2 # v11.1.4
+        uses: ansys/actions/build-wheelhouse@f5e1481b9c128197a30d1dc1dfc52b8cd6865555 # v11.1.5
         with:
           checkout: false
           library-name: ${{ env.PACKAGE_NAME }}
@@ -105,7 +105,7 @@ jobs:
 
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-ubuntu
-        uses: ansys/actions/build-wheelhouse@87ff2e65e8884121f9afc97728ca9f213228ecc2 # v11.1.4
+        uses: ansys/actions/build-wheelhouse@f5e1481b9c128197a30d1dc1dfc52b8cd6865555 # v11.1.5
         with:
           checkout: false
           library-name: ${{ env.PACKAGE_NAME }}
@@ -139,7 +139,7 @@ jobs:
 
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-windows
-        uses: ansys/actions/build-wheelhouse@87ff2e65e8884121f9afc97728ca9f213228ecc2 # v11.1.4
+        uses: ansys/actions/build-wheelhouse@f5e1481b9c128197a30d1dc1dfc52b8cd6865555 # v11.1.5
         with:
           checkout: false
           library-name: ${{ env.PACKAGE_NAME }}
@@ -169,7 +169,7 @@ jobs:
 
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-windows
-        uses: ansys/actions/build-wheelhouse@87ff2e65e8884121f9afc97728ca9f213228ecc2 # v11.1.4
+        uses: ansys/actions/build-wheelhouse@f5e1481b9c128197a30d1dc1dfc52b8cd6865555 # v11.1.5
         with:
           checkout: false
           library-name: ${{ env.PACKAGE_NAME }}
