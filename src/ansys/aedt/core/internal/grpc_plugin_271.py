@@ -22,11 +22,162 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import functools
+import inspect
 from pathlib import Path
 import sys
 
 from ansys.aedt.core.generic.protocols import _ODesktop
 from ansys.aedt.core.internal.errors import GrpcApiError
+
+# AEDT methods whose result is always an array in the legacy API. The native API returns a
+# one-element array as a bare scalar and fails to convert an empty array, so the results of these
+# methods are normalized back to lists.
+_ARRAY_RESULT_METHODS = frozenset(
+    {
+        # 3D modeler
+        "CreateObjectFromEdges",
+        "CreateObjectFromFaces",
+        "CreateObjectsFromFaceGroups",
+        "DetachEdges",
+        "DetachFaces",
+        "DuplicateAlongLine",
+        "DuplicateAroundAxis",
+        "DuplicateMirror",
+        "Get3DComponentDefinitionNames",
+        "Get3DComponentInstanceNames",
+        "Get3DComponentMaterialNames",
+        "Get3DComponentParameters",
+        "Get3DComponentPartNames",
+        "GetBodyNamesByPosition",
+        "GetCoordinateSystems",
+        "GetEdgeIDsFromFace",
+        "GetEdgeIDsFromObject",
+        "GetEntityIDsContainedByEntityList",
+        "GetEntityIDsContainedByNamedSelection",
+        "GetFaceIDs",
+        "GetFaceIDsOfSheet",
+        "GetGroupSubmodelNames",
+        "GetMatchedObjectName",
+        "GetObjectsByMaterial",
+        "GetObjectsInGroup",
+        "GetPartsForUserDefinedModel",
+        "GetRelativeCoordinateSystems",
+        "GetSelections",
+        "GetSubGroupsInGroup",
+        "GetVertexIDsFromEdge",
+        "GetVertexIDsFromFace",
+        "GetVertexIDsFromObject",
+        "GetWireBodyNames",
+        "Section",
+        "SeparateBody",
+        "Split",
+        "SweepFacesAlongNormal",
+        "SweepFacesAlongNormalWithAttributes",
+        # Layout and schematic editors
+        "FilterObjectList",
+        "FindObjects",
+        "FindObjectsByPoint",
+        "FindObjectsByPolygon",
+        "GetAllComponents",
+        "GetAllElements",
+        "GetAllGraphics",
+        "GetAllLayerNames",
+        "GetAllNets",
+        "GetComponentPins",
+        "GetComponentPorts",
+        "GetNetClassNets",
+        "GetStackupLayerNames",
+        # Object tree, definition managers, and desktop
+        "GetChildNames",
+        "GetChildTypes",
+        "GetDesigns",
+        "GetInUseProjectMaterialNames",
+        "GetMessages",
+        "GetNames",
+        "GetProjectList",
+        "GetProjectMaterialNames",
+        "GetProjects",
+        "GetPropNames",
+        "GetTopDesignList",
+        # Variables
+        "GetArrayNames",
+        "GetArrayVariables",
+        "GetDerivativeVariables",
+        "GetOutputVariables",
+        "GetPostProcessingVariables",
+        "GetVariables",
+        # Boundaries, mesh, motion, and analysis modules
+        "GetAllBoundariesList",
+        "GetAllPorts",
+        "GetAllPortsList",
+        "GetAllSolutionNames",
+        "GetAllSolutionSetups",
+        "GetAllSources",
+        "GetAssignment",
+        "GetBoundaries",
+        "GetConductionPathObjects",
+        "GetConductionPaths",
+        "GetDiffPairs",
+        "GetExcitations",
+        "GetHybridRegions",
+        "GetMeshOps",
+        "GetMotions",
+        "GetSetups",
+        "GetSweepNames",
+        "GetSweeps",
+        "ListReduceMatrixes",
+        "ListReduceMatrixOperations",
+        "ListReduceMatrixReducedSources",
+        # Solutions and reports
+        "GetAllCategories",
+        "GetAllQuantities",
+        "GetAllReportNames",
+        "GetAvailableDisplayTypes",
+        "GetAvailableReportTypes",
+        "GetAvailableSolutions",
+        "GetAvailableVariations",
+        "GetDataExpressions",
+        "GetFieldsCalculatorExpressions",
+        "GetImagDataValues",
+        "GetRealDataValues",
+        "GetSweepValues",
+        "GetValidISolutionList",
+        "ListVariations",
+    }
+)
+
+# Array methods that return entity IDs as strings, which the native API returns as an integer for a single ID.
+_STRING_ID_RESULT_METHODS = frozenset(
+    {
+        "GetAssignment",
+        "GetEdgeIDsFromFace",
+        "GetEdgeIDsFromObject",
+        "GetEntityIDsContainedByEntityList",
+        "GetEntityIDsContainedByNamedSelection",
+        "GetFaceIDs",
+        "GetFaceIDsOfSheet",
+        "GetVertexIDsFromEdge",
+        "GetVertexIDsFromFace",
+        "GetVertexIDsFromObject",
+    }
+)
+
+
+def _is_empty_array_conversion_error(error: Exception) -> bool:
+    """Recognize an unset top-level AnValue, not malformed elements in an array."""
+    if str(error) != "Programmer error: Unknown type {anvalType} in anvalue_to_pyvalue function":
+        return False
+    conversions = []
+    traceback = error.__traceback__
+    while traceback is not None:
+        frame = traceback.tb_frame
+        if frame.f_globals.get("__name__") == "aedt.lib.coreutils" and frame.f_code.co_name == "anvalue2pyvalue":
+            conversions.append(frame.f_locals["anval_to_copy"])
+        traceback = traceback.tb_next
+    # The native converter also raises this message for malformed nested values.
+    return len(conversions) == 1 and conversions[0].WhichOneof("kind") is None
+
 
 def _rpc_error_types() -> tuple:
     try:
@@ -70,6 +221,7 @@ def _native_method(method, rpc_errors: tuple = (), array_result: bool = False, s
 
     wrapper._pyaedt_native_method = True
     return wrapper
+
 
 def _patch_native_wrapper_classes(classes) -> None:
     """Patch the public methods of the native API wrapper classes to follow the legacy API contracts."""
