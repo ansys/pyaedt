@@ -45,15 +45,6 @@ from ansys.aedt.core.modules.mesh import MeshProps
 if TYPE_CHECKING:
     from ansys.aedt.core.application.analysis_3d_layout import FieldAnalysis3DLayout
     from ansys.aedt.core.generic.protocols import _OAnalysis3DLayout
-    from ansys.aedt.core.generic.protocols import _OMeshModule
-
-
-def _require_mesh_module(app: FieldAnalysis3DLayout) -> _OMeshModule:
-    """Return the mesh module or raise if it is unavailable."""
-    mesh_module = app.omeshmodule
-    if mesh_module is None:
-        raise AEDTRuntimeError("The AEDT mesh module is not available.")
-    return mesh_module
 
 
 class Mesh3dLayoutOperation(PyAedtBase):
@@ -81,6 +72,7 @@ class Mesh3dLayoutOperation(PyAedtBase):
     def __init__(self, mesh: Mesh3dLayout, name: str, props: dict, setup: str) -> None:
         self._mesh: Mesh3dLayout = mesh
         self._app: FieldAnalysis3DLayout = self._mesh._app
+        self._mesh_module = self._mesh._mesh_module
         self._legacy_props = {}
         self._name = name
         self.__operation_type = None
@@ -229,8 +221,7 @@ class Mesh3dLayoutOperation(PyAedtBase):
         >>> op1 = app.mesh.assign_length_mesh(setup=setup.name, layer="Top", net="GND")
 
         """
-        mesh_module = _require_mesh_module(self._app)
-        mesh_module.AddMeshOperation(self.setup, self._get_args())
+        self._mesh_module.AddMeshOperation(self.setup, self._get_args())
         self._mesh._register_operation(self)
         return self
 
@@ -262,9 +253,8 @@ class Mesh3dLayoutOperation(PyAedtBase):
             props = dict(props)
 
         args = self._get_args(props)
-        mesh_module = _require_mesh_module(self._app)
         try:
-            mesh_module.EditMeshOperation(self.setup, self.name, args)
+            self._mesh_module.EditMeshOperation(self.setup, self.name, args)
             self._legacy_props = props
         except Exception:  # pragma: no cover
             self._app.logger.error("Mesh operation could not be updated.")
@@ -293,8 +283,7 @@ class Mesh3dLayoutOperation(PyAedtBase):
 
         """
         old_name = self.name
-        mesh_module = _require_mesh_module(self._app)
-        mesh_module.DeleteMeshOperation(
+        self._mesh_module.DeleteMeshOperation(
             self.setup,
             self.name,
         )
@@ -399,6 +388,11 @@ class Mesh3dLayout(PyAedtBase):
     def __init__(self, app: FieldAnalysis3DLayout) -> None:
         self._app: FieldAnalysis3DLayout = app
         self.logger = self._app.logger
+
+        mesh_module = app.omeshmodule
+        if mesh_module is None:  # pragma: no cover
+            raise AEDTRuntimeError("The AEDT mesh module is not available.")
+        self._mesh_module = mesh_module
 
         # Available mesh operations
         self.__operations = SetupDict()

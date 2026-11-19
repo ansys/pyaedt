@@ -45,7 +45,6 @@ if TYPE_CHECKING:
     from ansys.aedt.core.application.analysis_icepak import FieldAnalysisIcepak
     from ansys.aedt.core.generic.protocols import _OChildObject
     from ansys.aedt.core.generic.protocols import _ODesign
-    from ansys.aedt.core.generic.protocols import _OMeshModule
 
 
 UserSpecifiedSettings = dict(
@@ -105,14 +104,6 @@ GeneralSettings = dict(
     }
 )
 """Value for GeneralSettings."""
-
-
-def _require_mesh_module(app: FieldAnalysisIcepak) -> _OMeshModule:
-    """Return the mesh module or raise if it is unavailable."""
-    mesh_module = app.omeshmodule
-    if mesh_module is None:
-        raise AEDTRuntimeError("The AEDT mesh module is not available.")
-    return mesh_module
 
 
 class MeshRegionBase:
@@ -382,6 +373,7 @@ class MeshRegion(MeshRegionBase, BinaryTreeNode, PyAedtBase):
     def __init__(self, mesh: IcepakMesh, name: str, props: dict) -> None:
         self._mesh: IcepakMesh = mesh
         self._app: FieldAnalysisIcepak = self._mesh._app
+        self._mesh_module = self._mesh._mesh_module
         self._legacy_props = {}
         self._name = name
 
@@ -614,8 +606,7 @@ class MeshRegion(MeshRegionBase, BinaryTreeNode, PyAedtBase):
 
         """
         try:
-            mesh_module = _require_mesh_module(self._app)
-            mesh_module.EditMeshRegion(self.name, aedt_props)
+            self._mesh_module.EditMeshRegion(self.name, aedt_props)
         except Exception:  # pragma: no cover
             raise AEDTRuntimeError("Update mesh region failed.")
 
@@ -641,8 +632,7 @@ class MeshRegion(MeshRegionBase, BinaryTreeNode, PyAedtBase):
 
         """
         old_name = self.name
-        mesh_module = _require_mesh_module(self._app)
-        mesh_module.DeleteMeshRegions([self.name])
+        self._mesh_module.DeleteMeshRegions([self.name])
         self._mesh._unregister_region(old_name)
         return True
 
@@ -673,8 +663,7 @@ class MeshRegion(MeshRegionBase, BinaryTreeNode, PyAedtBase):
         if settings.aedt_version is None or settings.aedt_version <= "2023.2":
             non_model_solids = list(self._app.modeler.non_model_objects)
 
-        mesh_module = _require_mesh_module(self._app)
-        mesh_module.AssignMeshRegion(aedt_props)
+        self._mesh_module.AssignMeshRegion(aedt_props)
 
         # GetObjData is available for some objects in 2026R1
         self._has_getobject = _has_get_obj_data(self._child_object)
@@ -719,6 +708,11 @@ class GlobalMeshRegion(MeshRegionBase):
     def __init__(self, app: FieldAnalysisIcepak) -> None:
         self._app = app
         self._name = "Global"
+
+        mesh_module = app.omeshmodule
+        if mesh_module is None:  # pragma: no cover
+            raise AEDTRuntimeError("The AEDT mesh module is not available.")
+        self._mesh_module = mesh_module
 
         self._manual_settings = False
         self._legacy_props = {}
@@ -780,8 +774,7 @@ class GlobalMeshRegion(MeshRegionBase):
 
         """
         try:
-            mesh_module = _require_mesh_module(self._app)
-            mesh_module.EditGlobalMeshRegion(aedt_props)
+            self._mesh_module.EditGlobalMeshRegion(aedt_props)
         except Exception:  # pragma: no cover
             raise AEDTRuntimeError("Update global mesh region properties failed.")
 
@@ -808,6 +801,11 @@ class IcepakMesh(PyAedtBase):
         design_type = self._app._odesign.GetDesignType()
         if not hasattr(self._app._design_type, "mesher"):  # pragma: no cover
             raise RuntimeError(f"Invalid design type {design_type}.")
+
+        mesh_module = app.omeshmodule
+        if mesh_module is None:
+            raise AEDTRuntimeError("The AEDT mesh module is not available.")
+        self._mesh_module = mesh_module
 
         self._odesign: _ODesign = self._app.odesign
         self.__operations = SetupDict()
