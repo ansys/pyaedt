@@ -33,6 +33,7 @@ from tests.conftest import edb_ignore_logger_warn
 
 pytestmark = edb_ignore_logger_warn
 
+
 def test_export_to_3d_extension_button(add_app, test_tmp_dir) -> None:
     """Test the Export button in the Export to 3D extension."""
     data = ExportTo3DExtensionData(choice="Export to HFSS")
