@@ -24,13 +24,17 @@
 
 from typing import TYPE_CHECKING
 from typing import Any
+from typing import TypeAlias
 
 # NOTE: Do not perform pyedb imports out of TYPECHECKING or the methods below to avoid conda issues.
 # Currently pyedb isn't part of conda and importing it at the top level of The module leads to
 # errors when importing ansys.aedt.core
 if TYPE_CHECKING:
-    from pyedb.generic.design_types import Edb as EdbApp
+    from pyedb.dotnet.edb import Edb as EdbDotnet
     from pyedb.generic.design_types import Siwave
+    from pyedb.grpc.edb import Edb as EdbGrpc
+
+    EdbApp: TypeAlias = EdbDotnet | EdbGrpc
 
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions

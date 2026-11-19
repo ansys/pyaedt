@@ -3760,8 +3760,8 @@ class GeometryModeler(Modeler, PyAedtBase):
     def duplicate_and_mirror(
         self,
         assignment: str | int | list | Object3d,
-        origin: list,
-        vector: list,
+        origin: list | GeometryModeler.Position,
+        vector: list | GeometryModeler.Position,
         is_3d_comp: bool = False,
         duplicate_assignment: bool = True,
     ) -> list:
@@ -3806,8 +3806,8 @@ class GeometryModeler(Modeler, PyAedtBase):
     def mirror(
         self,
         assignment: str | int | list | Object3d,
-        origin: list,
-        vector: list,
+        origin: list | GeometryModeler.Position,
+        vector: list | GeometryModeler.Position,
         duplicate: bool = False,
         is_3d_comp: bool = False,
         duplicate_assignment: bool = True,
@@ -3902,7 +3902,7 @@ class GeometryModeler(Modeler, PyAedtBase):
             return True
 
     @pyaedt_function_handler()
-    def move(self, assignment: list | str, vector: list) -> bool:
+    def move(self, assignment: list | str, vector: list | GeometryModeler.Position) -> bool:
         """Move objects from a list.
 
         Parameters
@@ -4038,7 +4038,7 @@ class GeometryModeler(Modeler, PyAedtBase):
     def duplicate_along_line(
         self,
         assignment: str | int | list | Object3d,
-        vector: list,
+        vector: list | GeometryModeler.Position,
         clones: int = 2,
         attach: bool = False,
         is_3d_comp: bool = False,
@@ -4516,7 +4516,11 @@ class GeometryModeler(Modeler, PyAedtBase):
 
     @pyaedt_function_handler()
     def rotate(
-        self, assignment: str | int | list | Object3d, axis: str, angle: float | int | str = 90.0, units: str = "deg"
+        self,
+        assignment: str | int | list | Object3d,
+        axis: str | Axis | int,
+        angle: float | int | str = 90.0,
+        units: str = "deg",
     ) -> bool:
         """Rotate the selection.
 
@@ -4524,7 +4528,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         ----------
         assignment :  list, str, int, or  :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
              ID of the object.
-        axis : str
+        axis : str, Axis, or int
             Coordinate system axis or value of the :class:`ansys.aedt.core.generic.constants.Axis` enum.
         angle : float, str
             Angle of rotation. The units, defined by ``unit``, can be either

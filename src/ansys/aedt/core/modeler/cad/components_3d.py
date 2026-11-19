@@ -31,6 +31,7 @@ import re
 import secrets
 from typing import TYPE_CHECKING
 from typing import Any
+from typing import Literal
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.edb import Edb
@@ -44,10 +45,12 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 
 if TYPE_CHECKING:
+    from ansys.aedt.core.edb import EdbApp
     from ansys.aedt.core.generic.constants import Axis
     from ansys.aedt.core.generic.protocols import Design3DApp
     from ansys.aedt.core.generic.protocols import _OEditor
     from ansys.aedt.core.modeler.cad.object_3d import Object3d
+    from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
 
 
 class UserDefinedComponentParameters(dict):
@@ -120,8 +123,8 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         else:
             data = self._app.modeler.components_data
             if name in data:
-                self.definition_name = data[name].get("definition", None)
-                self.definition_type = data[name].get("type", None)
+                self.definition_name: str | None = data[name].get("definition", None)
+                self.definition_type: str | None = data[name].get("type", None)
 
             # This is working if model does not have encrypted components and it is saved
             native_props = self._get_native_props()
@@ -373,15 +376,14 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         return self.__parameters
 
     @property
-    def parts(self) -> dict[int | None, Object3d] | dict[str, str]:
+    def parts(self) -> dict[int, Object3d] | dict[str, str]:
         """Dictionary of objects that belong to the user-defined component.
 
         Returns
         -------
-        dict[int | None, Object3d] | dict[str, str]
-            Object IDs mapped to parts. An ID can be ``None`` if it cannot be
-            retrieved. If no objects are resolved, part names are mapped to
-            themselves.
+        dict[int, Object3d] | dict[str, str]
+            Object IDs mapped to parts. If no objects are resolved, part names
+            are mapped to themselves.
 
         Examples
         --------
@@ -399,9 +401,13 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
             component_parts = list(self.properties)
 
         modeler = self._app.modeler
-        parts_id = [
-            modeler.objects_by_name[part].id for part in modeler.objects_by_name.keys() if part in component_parts
-        ]
+        parts_id = []
+        for part, obj in modeler.objects_by_name.items():
+            if part in component_parts:
+                part_id = obj.id
+                if part_id is None:
+                    raise AEDTRuntimeError(f"Cannot retrieve the object ID for component part {part}.")
+                parts_id.append(part_id)
         parts_dict = {part_id: modeler.objects[part_id] for part_id in parts_id}
 
         if not parts_dict and component_parts:  # pragma: no cover
@@ -500,8 +506,8 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
         Returns
         -------
-        str
-            Path of the 3d component file.
+        str or None
+            Path of the 3d component file, if available.
 
         Examples
         --------
@@ -512,8 +518,12 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         >>> component.component_filepath
 
         """
-        if "3D Component File Path" in self._app.get_oo_properties(self._app.oeditor, self.definition_name):
-            return self._app.get_oo_property_value(self._app.oeditor, self.definition_name, "3D Component File Path")
+        definition_name = self.definition_name
+        if definition_name and "3D Component File Path" in self._app.get_oo_properties(self._oeditor, definition_name):
+            filepath = self._app.get_oo_property_value(self._oeditor, definition_name, "3D Component File Path")
+            if filepath is None or isinstance(filepath, str):
+                return filepath
+            raise AEDTRuntimeError("The 3D component file path returned by AEDT must be a string.")
         return None
 
     @property
@@ -592,21 +602,23 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def duplicate_and_mirror(self, origin: list | object, vector: list | object) -> UserDefinedComponent:
+    def duplicate_and_mirror(
+        self, origin: list | GeometryModeler.Position, vector: list | GeometryModeler.Position
+    ) -> UserDefinedComponent | bool:
         """Duplicate and mirror a selection.
 
         Parameters
         ----------
-        origin : float
+        origin : list or GeometryModeler.Position
             List of the ``[x, y, z]`` coordinates or
             Application.Position object for the selection.
-        vector : float
+        vector : list or GeometryModeler.Position
             List of the ``[x1, y1, z1]`` coordinates or
             Application.Position object for the vector.
 
         Returns
         -------
-        UserDefinedComponent
+        UserDefinedComponent or bool
             3D object when successful, ``False`` when failed.
 
         References
@@ -635,7 +647,9 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
             return new_udm
 
     @pyaedt_function_handler()
-    def mirror(self, origin: list | object, vector: list | object) -> UserDefinedComponent | bool:
+    def mirror(
+        self, origin: list | GeometryModeler.Position, vector: list | GeometryModeler.Position
+    ) -> UserDefinedComponent | bool:
         """Mirror a selection.
 
         Parameters
@@ -717,7 +731,7 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def move(self, vector: list | object) -> UserDefinedComponent | bool:
+    def move(self, vector: list | GeometryModeler.Position) -> UserDefinedComponent | bool:
         """Move component from a list.
 
         Parameters
@@ -749,7 +763,7 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
                 return self
         else:
             for part in self.parts:
-                self._app.modeler.move(part, vector)
+                self._app.modeler.move([part], vector)
             return self
 
         return False
@@ -802,7 +816,7 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def duplicate_along_line(self, vector: list | object, clones: int = 2) -> list | bool:
+    def duplicate_along_line(self, vector: list | GeometryModeler.Position, clones: int = 2) -> list | bool:
         """Duplicate the object along a line.
 
         Parameters
@@ -954,6 +968,8 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
             component_project_name = new_project[0]
             self._app.oproject = component_project_name
             active_project = self._app.desktop_class.active_project(component_project_name)
+            if active_project is None:
+                raise AEDTRuntimeError(f"Cannot activate component project {component_project_name}.")
             component_project_name = active_project.GetName()
             design_name = active_project.GetDesigns()[0].GetName()
             return self._app.desktop_class[component_project_name, design_name]
@@ -1359,13 +1375,13 @@ class LayoutComponent(NativeComponent):
         return self._edb_path
 
     @property
-    def edb_object(self) -> Edb | bool:
+    def edb_object(self) -> EdbApp | Literal[False]:
         """EDB object.
 
         Returns
         -------
-        :class:`ansys.aedt.core.edb.Edb`
-           EDB object.
+        EdbApp or bool
+           EDB object, or ``False`` if the component EDB does not exist.
 
         Examples
         --------
@@ -1420,10 +1436,18 @@ class LayoutComponent(NativeComponent):
 
         """
         key = "EDB Definition"
-        if self._child_object and key in self._app.get_oo_properties(self._app.oeditor, self.definition_name):
-            self._edb_definition = self._app.get_oo_property_value(self._app.oeditor, self.definition_name, key)
+        definition_name = self.definition_name
+        if (
+            self._child_object
+            and definition_name
+            and key in self._app.get_oo_properties(self._oeditor, definition_name)
+        ):
+            edb_definition = self._app.get_oo_property_value(self._oeditor, definition_name, key)
         else:  # pragma: no cover
-            self._edb_definition = self._legacy_props.get("NativeComponentDefinitionProvider", {}).get("EDBDefinition")
+            edb_definition = self._legacy_props.get("NativeComponentDefinitionProvider", {}).get("EDBDefinition")
+        if edb_definition is not None and not isinstance(edb_definition, str):
+            raise AEDTRuntimeError("The EDB definition returned by AEDT must be a string.")
+        self._edb_definition = edb_definition
         if self._edb_definition:
             aedb_folder = (
                 Path(self._app.project_path)
@@ -1575,7 +1599,9 @@ class LayoutComponent(NativeComponent):
         if not self._owns_edb_object:
             self._app.logger.warning("EDB session belongs to another component or caller and was left open.")
             return False
-        self._edb_object.close(False)
+        if not self._edb_object.close(terminate_rpc_session=False):
+            self._app.logger.error(f"Failed to close the EDB session for {self.name}.")
+            return False
         if self._edb_object in _edb_sessions:
             _edb_sessions.remove(self._edb_object)
         self._edb_object = None
@@ -1585,10 +1611,14 @@ class LayoutComponent(NativeComponent):
     @pyaedt_function_handler()
     def _get_edb_info(self) -> bool:
         """Get EDB information."""
-        if self.edb_object:
-            self._nets = {key: [True, False, 60] for key in self.edb_object.nets.netlist}
-            self._layers = {key: [True, False, 60] for key in self.edb_object.stackup.layers}
-            self._objects = {key.aedt_name: [True, False, 60] for key in self.edb_object.modeler.primitives}
+        edb = self.edb_object
+        if edb:
+            nets = edb.nets
+            if nets is None:
+                raise AEDTRuntimeError(f"Cannot read layout nets for {self.name}.")
+            self._nets = {key: [True, False, 60] for key in nets.netlist}
+            self._layers = {key: [True, False, 60] for key in edb.stackup.layers}
+            self._objects = {key.aedt_name: [True, False, 60] for key in edb.modeler.primitives}
             return True
         else:  # pragma: no cover
             return False
@@ -1891,13 +1921,13 @@ class NativeComponentPCB(NativeComponent):
             )
 
     @property
-    def identify_extent_poly(self) -> str | bool:
+    def identify_extent_poly(self) -> str | Literal[False]:
         """Get polygon that defines board extent.
 
         Returns
         -------
-        str
-            Name of the polygon to include.
+        str or bool
+            Name of the polygon to include, or ``False`` if unavailable.
 
         Examples
         --------
@@ -2002,9 +2032,10 @@ class NativeComponentPCB(NativeComponent):
             props["ExtentsType"] = extent_type
             if extent_type == "Polygon":
                 if extent_polygon is None:
-                    extent_polygon = self.identify_extent_poly
-                    if not extent_polygon:
+                    identified_polygon = self.identify_extent_poly
+                    if not identified_polygon:
                         return False
+                    extent_polygon = identified_polygon
                 props["OutlinePolygon"] = extent_polygon
 
         self._legacy_props["NativeComponentDefinitionProvider"] = props
@@ -2256,8 +2287,9 @@ class PCBSettingsPackageParts(PyAedtBase):
 
         update_properties = {
             "CreateBottomSolderballs": modeling is not None,
-            "BottomSolderballsModelType": self._solderbumps_map[modeling],
         }
+        if modeling is not None:
+            update_properties["BottomSolderballsModelType"] = self._solderbumps_map[modeling]
 
         self.pcb._legacy_props["NativeComponentDefinitionProvider"].update(update_properties)
         return self.pcb.update()
@@ -2464,7 +2496,10 @@ class PCBSettingsDeviceParts(PyAedtBase):
             return None
         if self._app.desktop_class.aedt_version < "2024.2":
             return None
-        return self.filters.get("FootPrint", {}).get("Value", None)
+        filters = self.filters
+        if filters is None:
+            return None
+        return filters.get("FootPrint", {}).get("Value", None)
 
     @footprint_filter.setter
     def footprint_filter(self, minimum_footprint: str | None) -> None:
@@ -2515,7 +2550,10 @@ class PCBSettingsDeviceParts(PyAedtBase):
                 des_name=self._app.design_name,
             )
             return None
-        return self.filters.get("Power", {}).get("Value")
+        filters = self.filters
+        if filters is None:
+            return None
+        return filters.get("Power", {}).get("Value")
 
     @power_filter.setter
     def power_filter(self, minimum_power: str | None) -> None:
@@ -2563,7 +2601,10 @@ class PCBSettingsDeviceParts(PyAedtBase):
                 des_name=self._app.design_name,
             )
             return None
-        return self.filters.get("Types")
+        filters = self.filters
+        if filters is None:
+            return None
+        return filters.get("Types")
 
     @type_filters.setter
     def type_filters(self, object_type: str | list) -> None:
@@ -2619,7 +2660,10 @@ class PCBSettingsDeviceParts(PyAedtBase):
                 des_name=self._app.design_name,
             )
             return None
-        return self.filters.get("Height", {}).get("Value", None)
+        filters = self.filters
+        if filters is None:
+            return None
+        return filters.get("Height", {}).get("Value", None)
 
     @height_filter.setter
     def height_filter(self, minimum_height: str | None) -> None:
@@ -2666,7 +2710,10 @@ class PCBSettingsDeviceParts(PyAedtBase):
                 des_name=self._app.design_name,
             )
             return None
-        return self.filters.get("Exclude2DObjects", False)
+        filters = self.filters
+        if filters is None:
+            return None
+        return filters.get("Exclude2DObjects", False)
 
     @objects_2d_filter.setter
     def objects_2d_filter(self, enable: bool) -> None:
@@ -2735,7 +2782,7 @@ class PCBSettingsDeviceParts(PyAedtBase):
         return out_filters
 
     @property
-    def overridden_components(self) -> dict:
+    def overridden_components(self) -> dict | None:
         """All overridden components.
 
         Examples
@@ -2855,7 +2902,10 @@ class PCBSettingsDeviceParts(PyAedtBase):
         >>> device_parts.override_definition(package=1, part="Box1")
 
         """
-        if self._app.settings.aedt_version < "2024.2":
+        aedt_version = self._app.settings.aedt_version
+        if aedt_version is None:
+            raise AEDTRuntimeError("Cannot override component definitions without an AEDT version.")
+        if aedt_version < "2024.2":
             self._app.logger.add_message(
                 message_type=2,
                 message_text="This method is available only with AEDT 2024 R2 or later. "

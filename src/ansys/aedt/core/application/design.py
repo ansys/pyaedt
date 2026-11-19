@@ -86,6 +86,7 @@ from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.protocols import _OChildObject
 from ansys.aedt.core.generic.protocols import _ODesign
 from ansys.aedt.core.generic.protocols import _OProject
+from ansys.aedt.core.generic.settings import Settings
 from ansys.aedt.core.generic.settings import inner_project_settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.checks import deprecated_doc
@@ -722,7 +723,7 @@ class Design(AedtObjects, PyAedtBase):
         self._mesh = None
 
     @property
-    def settings(self) -> dict:
+    def settings(self) -> Settings:
         """Settings of the current Python/Pyaedt session.
 
         Examples

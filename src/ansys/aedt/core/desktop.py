@@ -90,6 +90,7 @@ from ansys.aedt.core.internal.errors import GrpcApiError
 if TYPE_CHECKING:
     from ansys.aedt.core.generic.protocols import _OAnsoftApp
     from ansys.aedt.core.generic.protocols import _ODesktop
+    from ansys.aedt.core.generic.protocols import _OProject
 
 ON_CI = os.getenv("ON_CI", "false").lower() == "true"
 """Flag indicating whether execution is running on CI."""
@@ -1734,7 +1735,7 @@ class Desktop(PyAedtBase):
         return active_design
 
     @pyaedt_function_handler()
-    def active_project(self, name: str | None = None) -> object | None:
+    def active_project(self, name: str | None = None) -> _OProject | None:
         """Get the active project.
 
         Parameters
