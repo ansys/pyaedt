@@ -598,7 +598,9 @@ def test_desktop_local_mtls_success(machine, monkeypatch, tmp_path) -> None:
     DESKTOP_VERSION < "2026.1",
     reason="Not working in versions without grpc patch",
 )
-@pytest.mark.parametrize("machine", REMOTE_HOSTS)
+@pytest.mark.parametrize(
+    "machine", REMOTE_HOSTS, ids=lambda machine: "local_ip" if machine == LOCAL_IP else "hostname"
+)
 def test_desktop_remote_insecure_success(machine, monkeypatch) -> None:
     """Test that Desktop can connect in remote insecure mode."""
     monkeypatch.setattr(settings, "grpc_local", False)
@@ -634,7 +636,9 @@ def test_desktop_remote_insecure_success(machine, monkeypatch) -> None:
     DESKTOP_VERSION < "2026.1",
     reason="Not working in versions without grpc patch",
 )
-@pytest.mark.parametrize("machine", REMOTE_HOSTS)
+@pytest.mark.parametrize(
+    "machine", REMOTE_HOSTS, ids=lambda machine: "local_ip" if machine == LOCAL_IP else "hostname"
+)
 def test_desktop_remote_mtls_success(machine, monkeypatch, tmp_path) -> None:
     """Test that Desktop can connect in remote mTLS mode."""
     monkeypatch.setattr(settings, "grpc_local", False)
