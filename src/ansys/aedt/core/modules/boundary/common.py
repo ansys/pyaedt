@@ -169,7 +169,7 @@ class BoundaryCommon(PropsManager, PyAedtBase):
         elif self.type == "Band":
             if native_api:
                 self._app.omodelsetup.Delete([name])
-        else:
+            else:
                 self._app.omodelsetup.DeleteMotionSetup([name])
         else:
             if native_api:
@@ -852,6 +852,9 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         if len(out) == 1:
             return False
 
-        self._app.oboundary.ReassignBoundary(out)
+        if is_native_grpc_api(self._app):
+            self._app.oboundary.Reassign(out)
+        else:
+            self._app.oboundary.ReassignBoundary(out)
 
         return True
