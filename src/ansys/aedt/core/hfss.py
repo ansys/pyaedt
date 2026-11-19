@@ -78,6 +78,7 @@ from ansys.aedt.core.generic.numbers_utils import Quantity
 from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.checks import is_native_grpc_api
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modeler import cad
@@ -528,10 +529,13 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         props["IsWavePort"] = iswaveport
         props["ReferenceConductors"] = ref_conductors
         props["RenormalizeModes"] = True
-        ports = list(self.oboundary.GetExcitationsOfType("Terminal"))
+        get_excitations_of_type = (
+            self.oboundary.GetExcitations if is_native_grpc_api(self) else self.oboundary.GetExcitationsOfType
+        )
+        ports = list(get_excitations_of_type("Terminal"))
         boundary = self._create_boundary(port_name, props, "AutoIdentify")
         if boundary:
-            new_ports = list(self.oboundary.GetExcitationsOfType("Terminal"))
+            new_ports = list(get_excitations_of_type("Terminal"))
             terminals = [i for i in new_ports if i not in ports]
             for count, terminal in enumerate(terminals, start=1):
                 props_terminal = {}
