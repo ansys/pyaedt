@@ -123,6 +123,11 @@ edb_xfail = pytest.mark.xfail(
     reason="PyEDB tests are unstable",
 )
 
+# NOTE: Before 26R1 SP2, EDB_RPC_Server lacks shared-memory IPC, so ansys-edb-core falls back to gRPC and
+# calls the deprecated ``Logger.warn``. With ``-W error::DeprecationWarning`` this makes PyEDB retry forever.
+# Remove marker below once ansys-edb-core uses ``Logger.warning`` or 26R1 SP2 or later version of AEDT is used.
+edb_ignore_logger_warn = pytest.mark.filterwarnings("ignore:The 'warn' method is deprecated:DeprecationWarning")
+
 # Mark tests as xfail when PYAEDT_SOLVER_XFAIL=1
 solver_xfail = pytest.mark.xfail(
     condition=os.environ.get("PYAEDT_SOLVER_XFAIL") == "1",
