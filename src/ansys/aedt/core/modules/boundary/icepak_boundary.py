@@ -29,6 +29,7 @@ from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
+from ansys.aedt.core.internal.checks import is_native_grpc_api
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
 
 
@@ -682,7 +683,10 @@ class NetworkObject(BoundaryObject):
         if self.name in bound_names:
             if new_network_name not in bound_names:
                 if new_network_name != self._name:
-                    self._app._oboundary.RenameBoundary(self._name, new_network_name)
+                    if is_native_grpc_api(self._app):
+                        self._app._oboundary.Rename(self._name, new_network_name)
+                    else:
+                        self._app._oboundary.RenameBoundary(self._name, new_network_name)
                     self._name = new_network_name
             else:
                 self._app.logger.warning("Name %s already assigned in the design", new_network_name)
