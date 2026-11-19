@@ -52,7 +52,8 @@ from ansys.aedt.core.modules.optimetrics_templates import defaultsensitivitySetu
 from ansys.aedt.core.modules.optimetrics_templates import defaultstatisticalSetup
 
 if TYPE_CHECKING:
-    from ansys.aedt.core.application.analysis import Analysis
+    from ansys.aedt.core.generic.protocols import DesignApp
+    from ansys.aedt.core.generic.protocols import _OChildObject
 
 
 class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
@@ -60,9 +61,8 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
 
     Parameters
     ----------
-    app : class:`ansys.aedt.core.modules.design_xploration.Parametrics`
-    or class:`ansys.aedt.core.modules.design_xploration.Optimizations`
-        PyAEDT Optimetrics instance.
+    app : Optimizations | Parametrics
+        Optimizations or parametrics instance.
     name : str, optional
         Optimetrics setup name.
     props : dict, optional
@@ -77,9 +77,9 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
 
     """
 
-    def __init__(self, app: Parametrics | Optimizations, name: str, props: dict) -> None:
-        self._parent: Parametrics | Optimizations = app
-        self._app: Any = self._parent._app
+    def __init__(self, app: Optimizations | Parametrics, name: str, props: dict) -> None:
+        self._parent: Optimizations | Parametrics = app
+        self._app: DesignApp = self._parent._app
         self._legacy_props = {}
         self._name = name
 
@@ -127,7 +127,7 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         return False
 
     @property
-    def _child_object(self) -> Any | None:
+    def _child_object(self) -> _OChildObject | None:
         """Object-oriented properties.
 
         Returns
@@ -293,7 +293,7 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         arg = ["NAME:" + self.name]
         _dict2arg(props, arg)
 
-        self._app.ooptimetrics.EditSetup(self.name, arg)
+        self._parent._optimetrics_module.EditSetup(self.name, arg)
 
         if not self._has_getobject:
             self._legacy_props = dict(props)
@@ -321,9 +321,12 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         >>> app = Hfss()
         >>> setup = app.parametrics.add("width", 1, 5, step=5)
         """
+        setup_type = self.setup_type
+        if setup_type is None:
+            raise AEDTRuntimeError(f"Setup type is unavailable for {self.name}.")
         arg = ["NAME:" + self.name]
         _dict2arg(self.props, arg)
-        self._app.ooptimetrics.InsertSetup(self.setup_type, arg)
+        self._parent._optimetrics_module.InsertSetup(setup_type, arg)
 
         # GetObjData is available for some objects in 2026R1
         self._has_getobject = _has_get_obj_data(self._child_object)
@@ -355,7 +358,7 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
 
         """
         old_name = self.name
-        self._app.ooptimetrics.DeleteSetups([old_name])
+        self._parent._optimetrics_module.DeleteSetups([old_name])
         self._parent._unregister_setup(old_name)
         return True
 
@@ -440,13 +443,13 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
 
         if not report_type:
             report_type = self._app.design_solutions.report_type
-            if context and context in self._app.modeler.sheet_names:
+            if context and context in getattr(self._app.modeler, "sheet_names", ()):
                 report_type = "Fields"
             elif self._app.solution_type in ["Q3D Extractor", "2D Extractor"]:
                 report_type = "Matrix"
             elif context:
                 try:
-                    for f in self._app.field_setups:
+                    for f in getattr(self._app, "field_setups", ()):
                         if context == f.name:
                             report_type = "Far Fields"
                 except Exception:
@@ -621,7 +624,7 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
             setup_sweep_name = self._app.nominal_sweep
         sweep_definition["Solution"] = setup_sweep_name
         ctxt: dict[str, Any] = {}
-        line_names = self._app.modeler.line_names if context else []
+        line_names = getattr(self._app.modeler, "line_names", ()) if context else ()
 
         if self._app.solution_type in ["TR", "AC", "DC", "TwinbuilderTR", "TwinbuilderAC", "TwinbuilderDC"]:
             ctxt["SimValueContext"] = [did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]
@@ -768,7 +771,7 @@ class ParametricSetup(OptimetricsSetup):
         start_point : float or int
             Variation Start Point.
         end_point : float or int, optional
-            Variation End Point. This parameter is optional if a Single Value is defined.
+            Variation End Point. Required unless ``variation_type`` is ``"SingleValue"``.
         step : float or int, optional
             Variation Step or Count depending on variation_type. Default is `100`.
         units : str, optional
@@ -781,6 +784,11 @@ class ParametricSetup(OptimetricsSetup):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Raises
+        ------
+        ValueError
+            If an end point is missing for a non-single-value variation.
 
         References
         ----------
@@ -799,10 +807,12 @@ class ParametricSetup(OptimetricsSetup):
             raise AEDTRuntimeError(f"Variable {sweep_variable} does not exist.")
 
         sweep_range = ""
+        if variation_type != "SingleValue" and end_point is None:
+            raise ValueError("An end point is required for a non-single-value variation.")
         if not units:
             units = self._app.variable_manager[sweep_variable].units
         start_point = self._app.value_with_units(start_point, units)
-        if variation_type != "SingleValue":
+        if variation_type != "SingleValue" and end_point is not None:
             end_point = self._app.value_with_units(end_point, units)
         if variation_type == "LinearCount":
             sweep_range = f"LINC {start_point} {end_point} {step}"
@@ -864,7 +874,7 @@ class ParametricSetup(OptimetricsSetup):
         if self.setup_type != "OptiParametric":
             raise AEDTRuntimeError("Setup must be a parametric setup.")
 
-        self._app.ooptimetrics.ExportParametricSetupTable(self.name, output_file)
+        self._parent._optimetrics_module.ExportParametricSetupTable(self.name, output_file)
         return True
 
     @pyaedt_function_handler()
@@ -999,7 +1009,7 @@ class OptimizationSetup(OptimetricsSetup):
 
         if not min_step:
             min_step = (max_value - min_value) / 100
-        min_step = self._app.value_with_units(min_step, self._app.variable_manager[variable_name].units)
+        min_step_with_units = self._app.value_with_units(min_step, self._app.variable_manager[variable_name].units)
 
         if not max_step:
             max_step = (max_value - min_value) / 10
@@ -1009,7 +1019,7 @@ class OptimizationSetup(OptimetricsSetup):
         else:
             levels = f"{levels} {self._app.variable_manager[variable_name].units}"
 
-        max_step = self._app.value_with_units(max_step, self._app.variable_manager[variable_name].units)
+        max_step_with_units = self._app.value_with_units(max_step, self._app.variable_manager[variable_name].units)
         min_value_wuints = self._app.value_with_units(min_value, self._app.variable_manager[variable_name].units)
         max_value_wuints = self._app.value_with_units(max_value, self._app.variable_manager[variable_name].units)
         props = self.props.to_dict()
@@ -1031,7 +1041,10 @@ class OptimizationSetup(OptimetricsSetup):
                 "UseManufacturableValues:=",
                 use_manufacturable_str,
             ]
-            if self._app.desktop_class.aedt_version_id > "2023.2":
+            version = self._app.desktop_class.aedt_version_id
+            if version is None:
+                raise AEDTRuntimeError("AEDT version is unavailable.")
+            if version > "2023.2":
                 arg.extend(["DiscreteLevel:=", levels])
 
             if not props.get("Variables", None):
@@ -1081,7 +1094,9 @@ class OptimizationSetup(OptimetricsSetup):
                 if starting_point < min_value or starting_point > max_value:
                     starting_point = (max_value + min_value) / 2
 
-            starting_point = self._app.value_with_units(starting_point, self._app.variable_manager[variable_name].units)
+            starting_point_with_units = self._app.value_with_units(
+                starting_point, self._app.variable_manager[variable_name].units
+            )
 
             arg = [
                 "i:=",
@@ -1093,7 +1108,7 @@ class OptimizationSetup(OptimetricsSetup):
                 "Max:=",
                 max_value_wuints,
                 "IDisp:=",
-                starting_point,
+                starting_point_with_units,
             ]
 
             if not props.get("Variables", None):
@@ -1105,7 +1120,7 @@ class OptimizationSetup(OptimetricsSetup):
                 props["StartingPoint"] = {}
 
             props["StartingPoint"][variable_name] = self._app.value_with_units(
-                starting_point, self._app.variable_manager[variable_name].units
+                starting_point_with_units, self._app.variable_manager[variable_name].units
             )
 
         elif self.setup_type == "OptiStatistical":
@@ -1156,9 +1171,9 @@ class OptimizationSetup(OptimetricsSetup):
                 "Max:=",
                 max_value_wuints,
                 "MinStep:=",
-                min_step,
+                min_step_with_units,
                 "MaxStep:=",
-                max_step,
+                max_step_with_units,
                 "MinFocus:=",
                 min_value_wuints,
                 "MaxFocus:=",
@@ -1166,7 +1181,10 @@ class OptimizationSetup(OptimetricsSetup):
                 "UseManufacturableValues:=",
                 use_manufacturable_str,
             ]
-            if self._app.desktop_class.aedt_version_id > "2023.2":
+            version = self._app.desktop_class.aedt_version_id
+            if version is None:
+                raise AEDTRuntimeError("AEDT version is unavailable.")
+            if version > "2023.2":
                 arg.extend(["Level:=", levels])
             if not props.get("Variables", None):
                 props["Variables"] = {}
@@ -1271,6 +1289,11 @@ class Parametrics(PyAedtBase):
     import or export setup data, and delete setups. Each setup is represented
     by a :class:`ParametricSetup`.
 
+    Parameters
+    ----------
+    app : :class:`ansys.aedt.core.modules.design_xploration.Optimetrics`
+        Optimetrics instance.
+
     Examples
     --------
     >>> from ansys.aedt.core import Hfss
@@ -1286,9 +1309,14 @@ class Parametrics(PyAedtBase):
         """Initialize the parametric setup manager for an Optimetrics instance."""
         app.logger.reset_timer()
         self.optimetrics: Optimetrics = app
-        self._app: Any = self.optimetrics._app
+        self._app: DesignApp = self.optimetrics._app
         self._child_object = self.optimetrics._child_object
         self.logger = self.optimetrics.logger
+
+        module = self._app.ooptimetrics
+        if module is None:  # pragma: no cover
+            raise AEDTRuntimeError("Optimetrics module is not available for this design.")
+        self._optimetrics_module = module
 
         # Available parametric setups
         self.__setups = SetupDict()
@@ -1654,7 +1682,7 @@ class Parametrics(PyAedtBase):
                 setup._legacy_props["Sweep Operations"] = {"add": table}
 
         args = ["NAME:" + name, input_file]
-        self._app.ooptimetrics.ImportSetup("OptiParametric", args)
+        self.optimetrics._optimetrics_module.ImportSetup("OptiParametric", args)
 
         return setup
 
@@ -1666,6 +1694,11 @@ class Optimizations(PyAedtBase):
     ``app.optimizations``. Use it to create and retrieve optimization, DOE,
     Design Explorer, sensitivity, statistical, and optiSLang setups. Each
     setup is represented by an :class:`OptimizationSetup`.
+
+    Parameters
+    ----------
+    app : :class:`ansys.aedt.core.modules.design_xploration.Optimetrics`
+        Optimetrics instance.
 
     Examples
     --------
@@ -1680,9 +1713,14 @@ class Optimizations(PyAedtBase):
         """Initialize the optimization manager for an Optimetrics instance."""
         app.logger.reset_timer()
         self.optimetrics: Optimetrics = app
-        self._app: Any = self.optimetrics._app
+        self._app: DesignApp = self.optimetrics._app
         self._child_object = self.optimetrics._child_object
         self.logger = self.optimetrics.logger
+
+        module = self._app.ooptimetrics
+        if module is None:  # pragma: no cover
+            raise AEDTRuntimeError("Optimetrics module is not available for this design.")
+        self._optimetrics_module = module
 
         self.__setups = SetupDict()
         self.__setup_names = []
@@ -1946,13 +1984,13 @@ class Optimizations(PyAedtBase):
             domain = setup._get_domain(ranges)
             if not report_type:
                 report_type = self._app.design_solutions.report_type
-                if context and context in self._app.modeler.sheet_names:
+                if context and context in getattr(self._app.modeler, "sheet_names", ()):
                     report_type = "Fields"
                 elif self._app.solution_type in ["Q3D Extractor", "2D Extractor"]:
                     report_type = "Matrix"
                 elif context:
                     try:
-                        for f in self._app.field_setups:
+                        for f in getattr(self._app, "field_setups", ()):
                             if context == f.name:
                                 report_type = "Far Fields"
                     except Exception:
@@ -2057,6 +2095,11 @@ class Optimetrics(PyAedtBase):
     respective managers. Use :attr:`parametrics` or :attr:`optimizations` when
     you need the manager-specific setup collections and methods.
 
+    Parameters
+    ----------
+    app : DesignApp
+        Design application instance, such as HFSS, Maxwell, or Q3D.
+
     Examples
     --------
     >>> from ansys.aedt.core import Hfss
@@ -2067,10 +2110,15 @@ class Optimetrics(PyAedtBase):
 
     """
 
-    def __init__(self, app: Analysis) -> None:
+    def __init__(self, app: DesignApp) -> None:
         app.logger.reset_timer()
-        self._app: Any = app
+        self._app: DesignApp = app
         self.logger = self._app.logger
+
+        module = self._app.ooptimetrics
+        if module is None:  # pragma: no cover
+            raise AEDTRuntimeError("Optimetrics module is not available for this design.")
+        self._optimetrics_module = module
 
         # Lazy load parametric and optimization objects
         self._parametrics = None
@@ -2443,8 +2491,8 @@ class Optimetrics(PyAedtBase):
             else:
                 if legacy_setup_types is None:
                     legacy_setup_types = {}
-                    for setup_type in self._app.ooptimetrics.GetChildTypes():
-                        for child_name in self._app.ooptimetrics.GetChildNames(setup_type):
+                    for setup_type in self._optimetrics_module.GetChildTypes():
+                        for child_name in self._optimetrics_module.GetChildNames(setup_type):
                             legacy_setup_types[child_name] = setup_type
                 setup_type = legacy_setup_types.get(name)
             setup_types[name] = setup_type

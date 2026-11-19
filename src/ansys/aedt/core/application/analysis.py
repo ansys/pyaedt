@@ -1706,7 +1706,7 @@ class Analysis(Design, PyAedtBase):
         cores: int = None,
         tasks: int = None,
         gpus: int = None,
-        acf_file: str = None,
+        acf_file: str | None = None,
         use_auto_settings: bool = True,
         solve_in_batch: bool = False,
         machine: str = "localhost",

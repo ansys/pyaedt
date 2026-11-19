@@ -33,13 +33,29 @@ from typing import TypeAlias
 
 if TYPE_CHECKING:
     from ansys.aedt.core.aedt_logger import AedtLogger
+    from ansys.aedt.core.circuit import Circuit
     from ansys.aedt.core.hfss import Hfss
+    from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
     from ansys.aedt.core.icepak import Icepak
+    from ansys.aedt.core.maxwell import Maxwell2d
     from ansys.aedt.core.maxwell import Maxwell3d
+    from ansys.aedt.core.maxwellcircuit import MaxwellCircuit
+    from ansys.aedt.core.mechanical import Mechanical
+    from ansys.aedt.core.q3d import Q2d
     from ansys.aedt.core.q3d import Q3d
+    from ansys.aedt.core.twinbuilder import TwinBuilder
 
-    Design3DApp: TypeAlias = Hfss | Icepak | Maxwell3d | Q3d
-    """PyAEDT application instances for HFSS, Icepak, Maxwell 3D, and Q3D designs."""
+    Design3DApp: TypeAlias = Hfss | Icepak | Maxwell3d | Q3d | Mechanical | Hfss3dLayout
+    """PyAEDT application instances for HFSS, Icepak, Maxwell 3D, Q3D, and Mechanical designs."""
+
+    Design2DApp: TypeAlias = Maxwell2d | Q2d
+    """PyAEDT application instances for Maxwell 2D and Q2D designs."""
+
+    DesignCircuitApp: TypeAlias = Circuit | MaxwellCircuit | TwinBuilder
+    """PyAEDT application instances for Circuit and Maxwell Circuit designs."""
+
+    DesignApp: TypeAlias = Design2DApp | Design3DApp | DesignCircuitApp
+    """PyAEDT application instances for all supported design types."""
 
 
 class _OAnsoftApp(Protocol):
@@ -96,6 +112,20 @@ class _ODesign(Protocol):
     def GetDesignType(self) -> str: ...
     def GetName(self) -> str: ...
     def GenerateMesh(self, *args: object, **kwargs: object) -> int: ...
+
+
+class _OOptimetricsModule(Protocol):
+    """Interface definition for the AEDT Optimetrics module."""
+
+    def EditSetup(self, name: str, args: list) -> object: ...
+    def InsertSetup(self, setup_type: str, args: list) -> object: ...
+    def DeleteSetups(self, names: list[str]) -> object: ...
+    def ExportParametricSetupTable(self, name: str, output_file: str) -> object: ...
+    def ExportParametricResults(self, *args: object) -> object: ...
+    def ImportSetup(self, setup_type: str, args: list) -> object: ...
+    def SolveSetup(self, *args: object) -> object: ...
+    def GetChildTypes(self) -> list[str]: ...
+    def GetChildNames(self, setup_type: str) -> list[str]: ...
 
 
 class _OMeshModule(Protocol):

@@ -24,6 +24,7 @@
 
 import sys
 import time
+from typing import cast
 
 from ansys.aedt.core.application.aedt_units import AedtUnits
 from ansys.aedt.core.base import PyAedtBase
@@ -34,6 +35,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.generic.protocols import _OEditor
 from ansys.aedt.core.generic.protocols import _OMeshModule
+from ansys.aedt.core.generic.protocols import _OOptimetricsModule
 from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
 
@@ -70,7 +72,7 @@ class AedtObjects(PyAedtBase):
                     self._odesign = self._oproject.GetActiveDesign()
         self._oboundary = None
         self._oimport_export = None
-        self._ooptimetrics = None
+        self._ooptimetrics: _OOptimetricsModule | None = None
         self._ooutput_variable = None
         self._oanalysis = None
         self._odefinition_manager = None
@@ -245,7 +247,7 @@ class AedtObjects(PyAedtBase):
         return self._oimport_export
 
     @property
-    def ooptimetrics(self) -> object:
+    def ooptimetrics(self) -> _OOptimetricsModule | None:
         """AEDT Optimetrics Module.
 
         References
@@ -260,7 +262,7 @@ class AedtObjects(PyAedtBase):
 
         """
         if not self._ooptimetrics and self.design_type not in ["Circuit Netlist", "Maxwell Circuit", "EMIT"]:
-            self._ooptimetrics = self.get_module("Optimetrics")
+            self._ooptimetrics = cast(_OOptimetricsModule | None, self.get_module("Optimetrics"))
         return self._ooptimetrics
 
     @property
