@@ -33,6 +33,7 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.checks import is_native_grpc_api
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
@@ -1154,7 +1155,10 @@ class MeshRegion(MeshRegionCommon):
         args += self._parse_assignment_value()
         args += ["UserSpecifiedSettings:=", self.manual_settings]
         try:
-            self._app.omeshmodule.EditMeshRegion(self.name, args)
+            if is_native_grpc_api(self._app):
+                self._app.omeshmodule.Edit(self.name, args)
+            else:
+                self._app.omeshmodule.EditMeshRegion(self.name, args)
             return self._initialize_tree_node()
         except GrpcApiError:  # pragma : no cover
             return False
@@ -1179,7 +1183,10 @@ class MeshRegion(MeshRegionCommon):
         >>> obj.delete()
 
         """
-        self._app.omeshmodule.DeleteMeshRegions([self.name])
+        if is_native_grpc_api(self._app):
+            self._app.omeshmodule.Delete([self.name])
+        else:
+            self._app.omeshmodule.DeleteMeshRegions([self.name])
         self._app.mesh.meshregions.remove(self)
         return True
 
@@ -1242,7 +1249,10 @@ class MeshRegion(MeshRegionCommon):
     def assignment(self, value: list) -> None:
         arg = ["NAME:Assignment"] + self._parse_assignment_value(value)
         try:
-            self._app.omeshmodule.ReassignMeshRegion(self.name, arg)
+            if is_native_grpc_api(self._app):
+                self._app.omeshmodule.Reassign(self.name, arg)
+            else:
+                self._app.omeshmodule.ReassignMeshRegion(self.name, arg)
             self._assignment = value
         except GrpcApiError:  # pragma : no cover
             self._app.logger.error("Mesh region reassignment failed.")
