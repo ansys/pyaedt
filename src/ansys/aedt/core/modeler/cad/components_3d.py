@@ -36,6 +36,7 @@ from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.edb import Edb
 from ansys.aedt.core.generic.constants import Axis
 from ansys.aedt.core.generic.data_handlers import _dict2arg
+from ansys.aedt.core.generic.data_handlers import random_string
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.props import Props as ComponentProps
 from ansys.aedt.core.generic.protocols import _AppWithOProject
@@ -989,6 +990,52 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
                 native_comp_properties = data.get("NativeComponentDefinitionProvider", None)
                 break
         return native_comp_properties
+
+
+def _create_native_component(
+    app: _AppWithOProject,
+    name: str,
+    definition_name: str,
+    target_cs: str | None,
+    component_type: str,
+    provider: dict,
+) -> NativeComponent | bool:
+    """Create a native component using the common AEDT definition."""
+    props = {
+        "TargetCS": target_cs,
+        "SubmodelDefinitionName": definition_name,
+        "ComponentPriorityLists": {},
+        "NextUniqueID": 0,
+        "MoveBackwards": False,
+        "DatasetType": "ComponentDatasetType",
+        "DatasetDefinitions": {},
+        "BasicComponentInfo": {
+            "ComponentName": definition_name,
+            "Company": "",
+            "Company URL": "",
+            "Model Number": "",
+            "Help URL": "",
+            "Version": "1.0",
+            "Notes": "",
+            "IconType": component_type,
+        },
+        "GeometryDefinitionParameters": {"VariableOrders": {}},
+        "DesignDefinitionParameters": {"VariableOrders": {}},
+        "MaterialDefinitionParameters": {"VariableOrders": {}},
+        "MapInstanceParameters": "DesignVariable",
+        "UniqueDefinitionIdentifier": "57c8ab4e-4db9-4881-b6bb-" + random_string(12, char_set="abcdef0123456789"),
+        "OriginFilePath": "",
+        "IsLocal": False,
+        "ChecksumString": "",
+        "ChecksumHistory": [],
+        "VersionHistory": [],
+        "NativeComponentDefinitionProvider": provider,
+        "InstanceParameters": {"GeometryParameters": "", "MaterialParameters": "", "DesignParameters": ""},
+    }
+    native = NativeComponent(app=app, name=name, props=props)
+    native.definition_name = definition_name
+    native.definition_type = component_type
+    return native.create()
 
 
 class NativeComponent(UserDefinedComponent):

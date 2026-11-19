@@ -47,7 +47,6 @@ from ansys.aedt.core.generic.constants import Setups
 from ansys.aedt.core.generic.constants import SolutionsIcepak
 from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.data_handlers import _dict2arg
-from ansys.aedt.core.generic.data_handlers import random_string
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -57,6 +56,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modeler.cad.components_3d import NativeComponent
 from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
+from ansys.aedt.core.modeler.cad.components_3d import _create_native_component
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
@@ -1859,17 +1859,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         elif definition_name in self.modeler.component_definition_names:
             definition_name = generate_unique_name(definition_name)
 
-        basic_component = {
-            "ComponentName": definition_name,
-            "Company": "",
-            "Company URL": "",
-            "Model Number": "",
-            "Help URL": "",
-            "Version": "1.0",
-            "Notes": "",
-            "IconType": "Fan",
-        }
-
         if is_2d:
             model = "2D"
         else:
@@ -1902,35 +1891,8 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             "OperatingRPM": "0",
         }
 
-        props = {
-            "TargetCS": "Global",
-            "SubmodelDefinitionName": definition_name,
-            "ComponentPriorityLists": {},
-            "NextUniqueID": 0,
-            "MoveBackwards": False,
-            "DatasetType": "ComponentDatasetType",
-            "DatasetDefinitions": {},
-            "BasicComponentInfo": basic_component,
-            "GeometryDefinitionParameters": {"VariableOrders": {}},
-            "DesignDefinitionParameters": {"VariableOrders": {}},
-            "MaterialDefinitionParameters": {"VariableOrders": {}},
-            "MapInstanceParameters": "DesignVariable",
-            "UniqueDefinitionIdentifier": "57c8ab4e-4db9-4881-b6bb-" + random_string(12, char_set="abcdef0123456789"),
-            "OriginFilePath": "",
-            "IsLocal": False,
-            "ChecksumString": "",
-            "ChecksumHistory": [],
-            "VersionHistory": [],
-            "NativeComponentDefinitionProvider": native_component,
-            "InstanceParameters": {"GeometryParameters": "", "MaterialParameters": "", "DesignParameters": ""},
-        }
-
-        native = NativeComponent(app=self, name=name, props=props)
-
-        native.definition_name = definition_name
-        native.definition_type = "Fan"
-
-        if native.create():
+        native = _create_native_component(self, name, definition_name, "Global", "Fan", native_component)
+        if native:
             if origin:
                 native.move(origin)
             return native

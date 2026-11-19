@@ -44,7 +44,6 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from ansys.aedt.core.generic.aedt_constants import Setups
-from ansys.aedt.core.generic.data_handlers import random_string
 from ansys.aedt.core.generic.general_methods import _merge_props
 from ansys.aedt.core.modeler.advanced_cad.actors import Radar
 from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
@@ -85,6 +84,7 @@ from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modeler import cad
 from ansys.aedt.core.modeler.cad.component_array import ComponentArray
 from ansys.aedt.core.modeler.cad.components_3d import NativeComponent
+from ansys.aedt.core.modeler.cad.components_3d import _create_native_component
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
@@ -2387,6 +2387,24 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             "Custom Array State": "1",
         }
 
+    def _sbr_array_provider(self, antenna_type: str, provider: dict, custom_array: str) -> dict:
+        """Build the provider for a parametric or custom SBR antenna array."""
+        provider["Is Parametric Array"] = True
+        provider["Sheet"] = -1
+        element_parameters = provider.copy()
+        array_parameters = self.SBRAntennaDefaults.array_parameters
+        array_parameters["Array Element Type"] = self.SBRAntennaDefaults.default_type_id[antenna_type]
+        array_parameters["Array Layout Type"] = 0 if custom_array else 1
+        array_parameters["Custom Array Filename"] = custom_array
+        return {
+            "Type": "Parametric Array",
+            "Unit": element_parameters["Unit"],
+            "Version": element_parameters["Version"],
+            "Is Parametric Array": element_parameters["Is Parametric Array"],
+            "Antenna Array Parameters": array_parameters,
+            "Array Element Parameters": element_parameters,
+        }
+
     @pyaedt_function_handler()
     def create_sbr_antenna(
         self,
@@ -2495,74 +2513,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             parameters_defaults["Power Fraction"] = "0.95"
 
         if is_array:
-            parameters_defaults["Is Parametric Array"] = True
-            parameters_defaults["Sheet"] = -1
-
-            element_parameters = parameters_defaults.copy()
-
-            array_parameters = self.SBRAntennaDefaults.array_parameters
-            array_parameters["Array Element Type"] = self.SBRAntennaDefaults.default_type_id[antenna_type]
-            if custom_array:
-                array_parameters["Array Layout Type"] = 0
-            else:
-                array_parameters["Array Layout Type"] = 1
-            array_parameters["Custom Array Filename"] = custom_array
-
-            parameters_defaults = {
-                "Type": "Parametric Array",
-                "Unit": element_parameters["Unit"],
-                "Version": element_parameters["Version"],
-                "Is Parametric Array": element_parameters["Is Parametric Array"],
-                "Antenna Array Parameters": array_parameters,
-                "Array Element Parameters": element_parameters,
-            }
-
+            parameters_defaults = self._sbr_array_provider(antenna_type, parameters_defaults, custom_array)
             antenna_type = "Parametric Array"
 
         if parameters:
             for el, value in parameters.items():
                 parameters_defaults[el] = value
 
-        basic_component = {
-            "ComponentName": definition_name,
-            "Company": "",
-            "Company URL": "",
-            "Model Number": "",
-            "Help URL": "",
-            "Version": "1.0",
-            "Notes": "",
-            "IconType": antenna_type,
-        }
-
-        props = {
-            "TargetCS": target_cs,
-            "SubmodelDefinitionName": definition_name,
-            "ComponentPriorityLists": {},
-            "NextUniqueID": 0,
-            "MoveBackwards": False,
-            "DatasetType": "ComponentDatasetType",
-            "DatasetDefinitions": {},
-            "BasicComponentInfo": basic_component,
-            "GeometryDefinitionParameters": {"VariableOrders": {}},
-            "DesignDefinitionParameters": {"VariableOrders": {}},
-            "MaterialDefinitionParameters": {"VariableOrders": {}},
-            "MapInstanceParameters": "DesignVariable",
-            "UniqueDefinitionIdentifier": "57c8ab4e-4db9-4881-b6bb-" + random_string(12, char_set="abcdef0123456789"),
-            "OriginFilePath": "",
-            "IsLocal": False,
-            "ChecksumString": "",
-            "ChecksumHistory": [],
-            "VersionHistory": [],
-            "NativeComponentDefinitionProvider": parameters_defaults,
-            "InstanceParameters": {"GeometryParameters": "", "MaterialParameters": "", "DesignParameters": ""},
-        }
-
-        native = NativeComponent(app=self, name=name, props=props)
-
-        native.definition_name = definition_name
-        native.definition_type = antenna_type
-
-        return native.create()
+        return _create_native_component(self, name, definition_name, target_cs, antenna_type, parameters_defaults)
 
     @pyaedt_function_handler()
     def create_sbr_file_based_antenna(
@@ -2663,70 +2621,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         )
 
         if is_array:
-            parameters_defaults["Is Parametric Array"] = True
-            parameters_defaults["Sheet"] = -1
-
-            element_parameters = parameters_defaults.copy()
-
-            array_parameters = self.SBRAntennaDefaults.array_parameters
-            array_parameters["Array Element Type"] = self.SBRAntennaDefaults.default_type_id[antenna_type]
-            if custom_array:
-                array_parameters["Array Layout Type"] = 0
-            else:
-                array_parameters["Array Layout Type"] = 1
-            array_parameters["Custom Array Filename"] = custom_array
-
-            parameters_defaults = {
-                "Type": "Parametric Array",
-                "Unit": element_parameters["Unit"],
-                "Version": element_parameters["Version"],
-                "Is Parametric Array": element_parameters["Is Parametric Array"],
-                "Antenna Array Parameters": array_parameters,
-                "Array Element Parameters": element_parameters,
-            }
-
+            parameters_defaults = self._sbr_array_provider(antenna_type, parameters_defaults, custom_array)
             antenna_type = "Parametric Array"
 
-        basic_component = {
-            "ComponentName": definition_name,
-            "Company": "",
-            "Company URL": "",
-            "Model Number": "",
-            "Help URL": "",
-            "Version": "1.0",
-            "Notes": "",
-            "IconType": antenna_type,
-        }
-
-        props = {
-            "TargetCS": target_cs,
-            "SubmodelDefinitionName": definition_name,
-            "ComponentPriorityLists": {},
-            "NextUniqueID": 0,
-            "MoveBackwards": False,
-            "DatasetType": "ComponentDatasetType",
-            "DatasetDefinitions": {},
-            "BasicComponentInfo": basic_component,
-            "GeometryDefinitionParameters": {"VariableOrders": {}},
-            "DesignDefinitionParameters": {"VariableOrders": {}},
-            "MaterialDefinitionParameters": {"VariableOrders": {}},
-            "MapInstanceParameters": "DesignVariable",
-            "UniqueDefinitionIdentifier": "57c8ab4e-4db9-4881-b6bb-" + random_string(12, char_set="abcdef0123456789"),
-            "OriginFilePath": "",
-            "IsLocal": False,
-            "ChecksumString": "",
-            "ChecksumHistory": [],
-            "VersionHistory": [],
-            "NativeComponentDefinitionProvider": parameters_defaults,
-            "InstanceParameters": {"GeometryParameters": "", "MaterialParameters": "", "DesignParameters": ""},
-        }
-
-        native = NativeComponent(app=self, name=name, props=props)
-
-        native.definition_name = definition_name
-        native.definition_type = antenna_type
-
-        return native.create()
+        return _create_native_component(self, name, definition_name, target_cs, antenna_type, parameters_defaults)
 
     @pyaedt_function_handler()
     def create_sbr_linked_antenna(
@@ -2862,70 +2760,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         antenna_type = "Linked Antenna"
 
         if is_array:
-            native_component["Is Parametric Array"] = True
-            native_component["Sheet"] = -1
-
-            element_parameters = native_component.copy()
-
-            array_parameters = self.SBRAntennaDefaults.array_parameters
-            array_parameters["Array Element Type"] = self.SBRAntennaDefaults.default_type_id[antenna_type]
-            if custom_array:
-                array_parameters["Array Layout Type"] = 0
-            else:
-                array_parameters["Array Layout Type"] = 1
-            array_parameters["Custom Array Filename"] = custom_array
-
-            native_component = {
-                "Type": "Parametric Array",
-                "Unit": element_parameters["Unit"],
-                "Version": element_parameters["Version"],
-                "Is Parametric Array": element_parameters["Is Parametric Array"],
-                "Antenna Array Parameters": array_parameters,
-                "Array Element Parameters": element_parameters,
-            }
-
+            native_component = self._sbr_array_provider(antenna_type, native_component, custom_array)
             antenna_type = "Parametric Array"
 
-        basic_component = {
-            "ComponentName": definition_name,
-            "Company": "",
-            "Company URL": "",
-            "Model Number": "",
-            "Help URL": "",
-            "Version": "1.0",
-            "Notes": "",
-            "IconType": antenna_type,
-        }
-
-        props = {
-            "TargetCS": target_cs,
-            "SubmodelDefinitionName": definition_name,
-            "ComponentPriorityLists": {},
-            "NextUniqueID": 0,
-            "MoveBackwards": False,
-            "DatasetType": "ComponentDatasetType",
-            "DatasetDefinitions": {},
-            "BasicComponentInfo": basic_component,
-            "GeometryDefinitionParameters": {"VariableOrders": {}},
-            "DesignDefinitionParameters": {"VariableOrders": {}},
-            "MaterialDefinitionParameters": {"VariableOrders": {}},
-            "MapInstanceParameters": "DesignVariable",
-            "UniqueDefinitionIdentifier": "57c8ab4e-4db9-4881-b6bb-" + random_string(12, char_set="abcdef0123456789"),
-            "OriginFilePath": "",
-            "IsLocal": False,
-            "ChecksumString": "",
-            "ChecksumHistory": [],
-            "VersionHistory": [],
-            "NativeComponentDefinitionProvider": native_component,
-            "InstanceParameters": {"GeometryParameters": "", "MaterialParameters": "", "DesignParameters": ""},
-        }
-
-        native = NativeComponent(app=self, name=name, props=props)
-
-        native.definition_name = definition_name
-        native.definition_type = antenna_type
-
-        return native.create()
+        return _create_native_component(self, name, definition_name, target_cs, antenna_type, native_component)
 
     @pyaedt_function_handler()
     def create_sbr_custom_array_file(
