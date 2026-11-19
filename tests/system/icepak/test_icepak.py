@@ -75,6 +75,12 @@ RESOLUTION = 2
 on_ci = os.getenv("ON_CI", "false").lower() == "true"
 
 
+def _boundaries_of_type(app, boundary_type: str) -> list:
+    if app.desktop_class.is_native_grpc_api:
+        return app.oboundary.GetBoundaries(boundary_type)
+    return app.oboundary.GetBoundariesOfType(boundary_type)
+
+
 @pytest.fixture
 def board_3dl_app(add_app_example):
     app = add_app_example(project=BOARD_3DL, application=Icepak, subfolder=TEST_SUBFOLDER)
@@ -455,7 +461,7 @@ def test_em_loss(ipk_app, test_tmp_dir) -> None:
         parameters=param_list,
     )
     assert b
-    assert len(ipk_app.oboundary.GetBoundariesOfType("EM Loss")) == 1
+    assert len(_boundaries_of_type(ipk_app, "EM Loss")) == 1
     b.delete()
     ipk_app.solution_type = "Transient"
     ds = ipk_app.create_dataset("test", [0, 1], [0, 1], x_unit="s", is_project_dataset=False)
@@ -470,7 +476,7 @@ def test_em_loss(ipk_app, test_tmp_dir) -> None:
         parameters=param_list,
         loss_multiplier=transient_dataset,
     )
-    assert len(ipk_app.oboundary.GetBoundariesOfType("EM Loss")) == 1
+    assert len(_boundaries_of_type(ipk_app, "EM Loss")) == 1
 
 
 def test_export_step(ipk_app, test_tmp_dir) -> None:
@@ -534,7 +540,7 @@ def test_assign_openings(ipk_app) -> None:
     openings = ipk_app.assign_openings(airfaces)
     openings.name = "Test_Opening"
     assert openings.update()
-    assert ipk_app.oboundary.GetBoundariesOfType("Opening") == ["Test_Opening"]
+    assert _boundaries_of_type(ipk_app, "Opening") == ["Test_Opening"]
 
 
 def test_assign_grille(ipk_app) -> None:
@@ -549,7 +555,7 @@ def test_assign_grille(ipk_app) -> None:
     assert grille2.props["Y"] == ["0", "2", "3"]
     grille2.name = "Grille_test"
     assert grille2.update()
-    assert len(ipk_app.oboundary.GetBoundariesOfType("Grille")) == 2
+    assert len(_boundaries_of_type(ipk_app, "Grille")) == 2
 
 
 def test_edit_design_settings(ipk_app) -> None:
