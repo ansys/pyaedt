@@ -49,6 +49,7 @@ from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.checks import is_native_grpc_api
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
@@ -2117,10 +2118,12 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
 
         """
         pj_names = self.desktop_class.project_list
+        original_project = None
 
         if source_project_name == self.project_name or source_project_name is None:
             active_project = self.desktop_class.active_project()
         else:
+            original_project = self._oproject
             self.oproject = source_project_path
             active_project = self.desktop_class.active_project(source_project_name)
 
@@ -2132,7 +2135,15 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         self.modeler.refresh_all_ids()
         self.materials._load_from_project()
         if not (source_project_name in pj_names or source_project_name is None):
-            active_project.close()
+            if is_native_grpc_api(self):
+                active_project.Close()
+            else:
+                active_project.close()
+        if original_project is not None:
+            # Opening the source project repointed this app; calls on a closed project handle crash native AEDT.
+            self._oproject = original_project
+            self._project_name = None
+            self._project_path = None
         return True
 
     @pyaedt_function_handler()
