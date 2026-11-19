@@ -57,6 +57,7 @@ from ansys.aedt.core.generic.numbers_utils import Quantity
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.numbers_utils import is_array
 from ansys.aedt.core.generic.numbers_utils import is_number
+from ansys.aedt.core.internal.checks import is_native_grpc_api
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
@@ -1954,6 +1955,9 @@ class Variable(PyAedtBase):
             var_obj = self._oo(app, f"Variables/{self.name}")
             if evaluated and self._app._aedt_version <= "2024.2":  # pragma: no cover
                 return var_obj.GetPropEvaluatedValue("EvaluatedValue")
+            elif evaluated and is_native_grpc_api(self._app):
+                # Native gRPC rejects the empty default property name.
+                return var_obj.GetPropValue("EvaluatedValue")
             elif evaluated and self._app._aedt_version >= "2024.2":
                 return var_obj.GetPropEvaluatedValue()
             return var_obj.GetPropValue(prop)
