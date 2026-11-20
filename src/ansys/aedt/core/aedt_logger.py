@@ -570,14 +570,15 @@ class AedtLogger:
 
         Parameters
         ----------
-        project_name : str
+        project_name : str, optional
             Name of the project to read messages from. Leave empty string to get Desktop level messages.
-        design_name : str
+        design_name : str, optional
             Name of the design to read messages from. Leave empty string to get Desktop level messages.
-        level : int
+        level : int, optional
             Level of messages to read. 0 – info and above, 1 – warning and above, 2 – error and fatal
-        aedt_messages : bool
-            Read content of message manager even if logger is disabled.
+        aedt_messages : bool, optional
+            Whether to read messages from the AEDT message manager.
+            If ``False``, messages are read from the PyAEDT logger. The default is ``False``.
 
         Returns
         -------
