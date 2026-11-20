@@ -41,20 +41,12 @@ Descriptions follow for the most used formats.
 
             File to control 3D Component array geometry.
 
-   .. grid-item-card:: Cables
-            :link: pyaedt_file_data/cable
-            :link-type: doc
-            :margin: 2 2 0 0
-
-            File to control cable design.
-
    .. grid-item-card:: Choke
             :link: pyaedt_file_data/choke
             :link-type: doc
             :margin: 2 2 0 0
 
             File to control choke synthesis.
-
 
 
 .. toctree::
@@ -66,5 +58,4 @@ Descriptions follow for the most used formats.
    pyaedt_file_data/materials
    pyaedt_file_data/primitives
    pyaedt_file_data/array
-   pyaedt_file_data/cable
    pyaedt_file_data/choke
