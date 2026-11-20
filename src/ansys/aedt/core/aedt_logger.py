@@ -596,10 +596,14 @@ class AedtLogger:
             project_name = project_name or self.project_name
             design_name = design_name or self.design_name
             global_message_data = list(self._desktop.GetMessages("", "", level))
-            try:
-                global_message_data.extend(list(self._desktop.GetMessages(project_name, design_name, level)))
-            except Exception:
-                self._desktop.AddMessage("", "", 2, f"Failed to retrieve messages from {project_name}: {design_name}.")
+            if project_name:
+                try:
+                    design_name = "" if design_name is None else design_name
+                    global_message_data.extend(list(self._desktop.GetMessages(project_name, design_name, level)))
+                except Exception:  # pragma: no cover
+                    self._desktop.AddMessage(
+                        "", "", 2, f"Failed to retrieve messages from {project_name}: {design_name}."
+                    )
             global_message_data = list(set(global_message_data))
             return MessageList(global_message_data)
         message_lists = []
