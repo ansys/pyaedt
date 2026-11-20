@@ -579,7 +579,6 @@ class AedtLogger:
         aedt_messages : bool
             Read content of message manager even if logger is disabled.
 
-
         Returns
         -------
         list of str
