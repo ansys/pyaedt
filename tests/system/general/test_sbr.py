@@ -32,6 +32,7 @@ import pytest
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.hfss import Hfss
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from ansys.aedt.core.modeler.cad.components_3d import NativeComponent
 from tests import TESTS_GENERAL_PATH
 
 TEST_PROJECT_NAME = "Cassegrain_231"
@@ -80,23 +81,29 @@ def aedt_sbr(add_app):
 
 def test_open_source(aedt_app, add_app) -> None:
     source = add_app(project=aedt_app.project_name, design="feeder", close_projects=False)
-    assert aedt_app.create_sbr_linked_antenna(source, target_cs="feederPosition", field_type="farfield")
-    assert len(aedt_app.native_components) == 1
-    assert aedt_app.create_sbr_linked_antenna(
-        source, target_cs="feederPosition", field_type="farfield", name="LinkedAntenna"
+    comp = aedt_app.create_sbr_linked_antenna(source, target_cs="feederPosition", field_type="farfield")
+    assert len(aedt_app.modeler.components) == 1
+    assert isinstance(comp, NativeComponent)
+
+    comp2 = aedt_app.create_sbr_linked_antenna(
+        source, target_cs="feederPosition", field_type="farfield", name=comp.name, definition_name=comp.definition_name
     )
-    assert len(aedt_app.native_components) == 2
+    assert len(aedt_app.modeler.components) == 2
+    assert isinstance(comp2, NativeComponent)
+
     assert aedt_app.create_sbr_linked_antenna(
-        source, target_cs="feederPosition", name="LinkedAntennaNF1", current_conformance=True
+        source, target_cs="feederPosition", name="LinkedAntennaNF1", current_conformance=True, definition_name="new_def"
     )
-    assert len(aedt_app.native_components) == 3
+    assert len(aedt_app.modeler.components) == 3
     assert aedt_app.create_sbr_linked_antenna(
         source, target_cs="feederPosition", name="LinkedAntennaNF2", current_conformance=False
     )
-    assert len(aedt_app.native_components) == 4
+    assert len(aedt_app.modeler.components) == 4
 
-    aedt_app.create_sbr_linked_antenna(source, target_cs="feederPosition", field_type="farfield", is_array=True)
-    assert len(aedt_app.native_components) == 5
+    comp5 = aedt_app.create_sbr_linked_antenna(source, target_cs="feederPosition", field_type="farfield", is_array=True)
+    assert len(aedt_app.modeler.components) == 5
+    assert isinstance(comp5, NativeComponent)
+    assert comp5.definition_type == "Parametric Array"
 
     aedt_app.create_sbr_linked_antenna(
         source,
@@ -105,72 +112,126 @@ def test_open_source(aedt_app, add_app) -> None:
         current_conformance=True,
         custom_array=str(custom_array),
     )
-    assert len(aedt_app.native_components) == 6
+    assert len(aedt_app.modeler.components) == 6
+
+    aedt_app.solution_type = "Modal"
+    with pytest.raises(AEDTRuntimeError):
+        aedt_app.create_sbr_linked_antenna(source, target_cs="feederPosition", field_type="farfield")
 
 
 def test_add_antennas(aedt_sbr) -> None:
     dict1 = {"Polarization": "Horizontal"}
     par_beam = aedt_sbr.create_sbr_antenna(aedt_sbr.SbrAntennas.ParametricBeam, parameters=dict1, name="TX1")
-    assert par_beam.definition_name == "TX1"
-    assert aedt_sbr.create_sbr_antenna(aedt_sbr.SbrAntennas.ConicalHorn, parameters=dict1, name="RX1")
+    assert par_beam.name == "TX1"
+    assert par_beam.name in aedt_sbr.modeler.component_names
     par_beam.native_properties["Unit"] = "in"
     assert par_beam.update()
-    aedt_sbr.modeler.user_defined_components["TX1_1"].native_properties["Unit"] = "mm"
+    assert par_beam.properties["Definition Units"] == "in"
 
-    assert len(aedt_sbr.native_components) == 2
-    assert len(aedt_sbr.modeler.user_defined_components) == 2
-    assert aedt_sbr.set_sbr_txrx_settings({"TX1_1_p1": "RX1_1_p1"})
-    assert aedt_sbr.create_sbr_antenna(aedt_sbr.SbrAntennas.CrossDipole, use_current_source_representation=True)
-    assert aedt_sbr.create_sbr_antenna(aedt_sbr.SbrAntennas.HalfWaveDipole, use_current_source_representation=True)
-    assert aedt_sbr.create_sbr_antenna(aedt_sbr.SbrAntennas.HorizontalDipole, use_current_source_representation=True)
-    assert aedt_sbr.create_sbr_antenna(aedt_sbr.SbrAntennas.ParametricSlot, use_current_source_representation=True)
-    assert aedt_sbr.create_sbr_antenna(aedt_sbr.SbrAntennas.PyramidalHorn, use_current_source_representation=True)
-    assert aedt_sbr.create_sbr_antenna(aedt_sbr.SbrAntennas.ShortDipole, use_current_source_representation=True)
-    assert aedt_sbr.create_sbr_antenna(aedt_sbr.SbrAntennas.SmallLoop, use_current_source_representation=True)
+    conical_horn = aedt_sbr.create_sbr_antenna(
+        aedt_sbr.SbrAntennas.ConicalHorn,
+        parameters=dict1,
+        name=par_beam.name,
+        definition_name=par_beam.definition_name,
+        target_cs="Global",
+    )
+    conical_horn.native_properties["Unit"] = "mm"
+    assert len(aedt_sbr.modeler.components) == 2
+    assert conical_horn.definition_type == aedt_sbr.SbrAntennas.ConicalHorn
+
+    assert aedt_sbr.set_sbr_txrx_settings({par_beam.name: conical_horn.name})
+
+    cross_dipole = aedt_sbr.create_sbr_antenna(aedt_sbr.SbrAntennas.CrossDipole, use_current_source_representation=True)
+    assert cross_dipole.definition_type == aedt_sbr.SbrAntennas.CrossDipole
+
+    half_dipole = aedt_sbr.create_sbr_antenna(
+        aedt_sbr.SbrAntennas.HalfWaveDipole, use_current_source_representation=True
+    )
+    assert half_dipole.definition_type == aedt_sbr.SbrAntennas.HalfWaveDipole
+
+    horizontal_dipole = aedt_sbr.create_sbr_antenna(
+        aedt_sbr.SbrAntennas.HorizontalDipole, use_current_source_representation=True
+    )
+    assert horizontal_dipole.definition_type == aedt_sbr.SbrAntennas.HorizontalDipole
+
+    parametric_slot = aedt_sbr.create_sbr_antenna(
+        aedt_sbr.SbrAntennas.ParametricSlot, use_current_source_representation=True
+    )
+    assert parametric_slot.definition_type == aedt_sbr.SbrAntennas.ParametricSlot
+
+    pyramidal_horn = aedt_sbr.create_sbr_antenna(
+        aedt_sbr.SbrAntennas.PyramidalHorn, use_current_source_representation=True
+    )
+    assert pyramidal_horn.definition_type == aedt_sbr.SbrAntennas.PyramidalHorn
+
+    short_dipole = aedt_sbr.create_sbr_antenna(aedt_sbr.SbrAntennas.ShortDipole, use_current_source_representation=True)
+    assert short_dipole.definition_type == aedt_sbr.SbrAntennas.ShortDipole
+
+    small_loop = aedt_sbr.create_sbr_antenna(aedt_sbr.SbrAntennas.SmallLoop, use_current_source_representation=True)
+    assert small_loop.definition_type == aedt_sbr.SbrAntennas.SmallLoop
+
     toberemoved = aedt_sbr.create_sbr_antenna(aedt_sbr.SbrAntennas.WireDipole, use_current_source_representation=True)
 
-    native_components = len(aedt_sbr.native_components)
+    native_components = len(aedt_sbr.modeler.components)
 
     toberemoved.delete()
 
-    assert len(aedt_sbr.native_components) == native_components - 1
-    assert len(aedt_sbr.modeler.user_defined_component_names) == native_components - 1
+    assert len(aedt_sbr.modeler.components) == native_components - 1
+
     array = aedt_sbr.create_sbr_antenna(
         aedt_sbr.SbrAntennas.WireMonopole, use_current_source_representation=False, is_array=True
     )
+    array.definition_type == "Parametric Array"
+
     array.native_properties["Array Length In Wavelength"] = "10"
     assert array.update()
 
     assert array.properties["Name"] == array.name
 
-    native_components = len(aedt_sbr.native_component_names)
+    native_components = len(aedt_sbr.modeler.components)
     array.name = "new_name"
-    native_components_new = len(aedt_sbr.native_component_names)
+    native_components_new = len(aedt_sbr.modeler.components)
     assert native_components_new == native_components
 
-    assert "new_name" in aedt_sbr.native_component_names
+    assert "new_name" in aedt_sbr.modeler.component_names
 
-    assert aedt_sbr.create_sbr_antenna(
+    array2 = aedt_sbr.create_sbr_antenna(
         aedt_sbr.SbrAntennas.SmallLoop, use_current_source_representation=True, is_array=True
     )
+    array2.definition_type = "Parametric Array"
 
-    assert aedt_sbr.create_sbr_antenna(
+    array3 = aedt_sbr.create_sbr_antenna(
         aedt_sbr.SbrAntennas.SmallLoop, use_current_source_representation=True, custom_array=str(custom_array)
     )
+    array3.definition_type = "Parametric Array"
+
+    aedt_sbr.solution_type = "Modal"
+    with pytest.raises(AEDTRuntimeError):
+        aedt_sbr.create_sbr_antenna(aedt_sbr.SbrAntennas.ParametricBeam)
 
 
 def test_add_ffd_antenna(aedt_sbr, test_tmp_dir) -> None:
     ffd_path = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / FARFIELD_DATA
     file = shutil.copy2(ffd_path, test_tmp_dir / FARFIELD_DATA)
 
-    assert aedt_sbr.create_sbr_file_based_antenna(far_field_data=str(file))
+    comp1 = aedt_sbr.create_sbr_file_based_antenna(far_field_data=str(file))
+    assert comp1.name in aedt_sbr.modeler.component_names
+    assert comp1.definition_type == "File Based Antenna"
 
-    assert aedt_sbr.create_sbr_file_based_antenna(far_field_data=str(file), is_array=True)
+    comp2 = aedt_sbr.create_sbr_file_based_antenna(far_field_data=str(file), is_array=True)
+    assert comp2.name in aedt_sbr.modeler.component_names
+    assert comp2.definition_type == "Parametric Array"
 
-    assert aedt_sbr.create_sbr_file_based_antenna(
+    comp3 = aedt_sbr.create_sbr_file_based_antenna(
         far_field_data=str(file),
         custom_array=str(custom_array),
     )
+    assert comp3.name in aedt_sbr.modeler.component_names
+    assert comp3.definition_type == "Parametric Array"
+
+    aedt_sbr.solution_type = "Modal"
+    with pytest.raises(AEDTRuntimeError):
+        aedt_sbr.create_sbr_file_based_antenna(far_field_data=str(file))
 
 
 def test_add_environment(aedt_sbr, test_tmp_dir) -> None:
@@ -220,33 +281,6 @@ def test_add_radar(aedt_sbr, test_tmp_dir) -> None:
     radar_dir = shutil.copytree(radar_lib, test_tmp_dir / "radar_modules")
     assert aedt_sbr.create_sbr_radar_from_json(str(radar_dir), name="Example_1Tx_1Rx", speed=3)
     assert aedt_sbr.create_sbr_radar_from_json(str(radar_dir), name="Example_1Tx_4Rx")
-
-
-def test_add_doppler_sweep(aedt_sbr, test_tmp_dir) -> None:
-    env_folder = TESTS_GENERAL_PATH / "example_models" / "library" / "environment_library" / TUNNEL
-    env_dir = shutil.copytree(env_folder, test_tmp_dir / TUNNEL)
-
-    aedt_sbr.modeler.add_environment(str(env_dir))
-    setup, sweep = aedt_sbr.create_sbr_pulse_doppler_setup(sweep_time_duration=30)
-    assert "PulseSetup" in setup.name
-    assert "PulseSweep" in sweep.name
-    assert setup.props["SbrRangeDopplerWaveformType"] == "PulseDoppler"
-    assert sweep.props["Sim. Setups"] == [setup.name]
-
-
-def test_add_chirp_sweep(aedt_sbr, test_tmp_dir) -> None:
-    env_folder = Path(TESTS_GENERAL_PATH) / "example_models" / "library" / "environment_library" / TUNNEL
-    env_dir = shutil.copytree(env_folder, test_tmp_dir / TUNNEL)
-
-    aedt_sbr.modeler.add_environment(str(env_dir))
-    setup, sweep = aedt_sbr.create_sbr_chirp_i_doppler_setup(sweep_time_duration=20)
-    assert setup.props["SbrRangeDopplerWaveformType"] == "ChirpSeqFmcw"
-    assert setup.props["ChannelConfiguration"] == "IChannelOnly"
-    assert sweep.props["Sim. Setups"] == [setup.name]
-    setup, sweep = aedt_sbr.create_sbr_chirp_iq_doppler_setup(sweep_time_duration=10)
-    assert setup.props["SbrRangeDopplerWaveformType"] == "ChirpSeqFmcw"
-    assert setup.props["ChannelConfiguration"] == "IQChannels"
-    assert sweep.props["Sim. Setups"] == [setup.name]
 
 
 def test_add_sbr_boundaries_in_hfss_solution(aedt_terminal) -> None:

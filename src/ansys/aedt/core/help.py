@@ -28,7 +28,7 @@ from typing import Iterable
 from urllib.parse import quote_plus
 import webbrowser
 
-from ansys.aedt.core.generic.general_methods import PyAedtBase
+from ansys.aedt.core.base import PyAedtBase
 
 
 class Help(PyAedtBase):  # pragma: no cover

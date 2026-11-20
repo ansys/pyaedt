@@ -35,11 +35,13 @@ from ansys.aedt.core import settings
 from ansys.aedt.core.application.variables import generate_validation_errors
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import Axis
+from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import install_message
 from ansys.aedt.core.internal.errors import GrpcApiError
+from ansys.aedt.core.internal.errors import MethodNotSupportedError
 from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
@@ -77,26 +79,26 @@ class Modeler3D(Primitives3D, PyAedtBase):
     def create_3dcomponent(
         self,
         input_file: str,
-        name: str = None,
-        variables_to_include: list = None,
-        assignment: list = None,
-        boundaries: list = None,
-        excitations: list = None,
-        coordinate_systems: list = None,
+        name: str | None = None,
+        variables_to_include: list | None = None,
+        assignment: list | None = None,
+        boundaries: list | None = None,
+        excitations: list | None = None,
+        coordinate_systems: list | None = None,
         reference_coordinate_system: str = "Global",
         is_encrypted: bool = False,
         allow_edit: bool = False,
         security_message: str = "",
-        password: str = None,  # nosec
-        edit_password: str = None,
+        password: str | None = None,  # nosec
+        edit_password: str | None = None,
         password_type: str = "UserSuppliedPassword",
         hide_contents: bool = False,
         replace_names: bool = False,
         component_outline: str = "BoundingBox",
         export_auxiliary: bool = False,
-        monitor_objects: list = None,
-        datasets: list = None,
-        native_components: list = None,
+        monitor_objects: list | None = None,
+        datasets: list | None = None,
+        native_components: list | None = None,
         create_folder: bool = True,
     ) -> bool:
         """Create a 3D component file.
@@ -176,9 +178,10 @@ class Modeler3D(Primitives3D, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.modeler_3d import Modeler3D
-        >>> obj = Modeler3D()
-        >>> obj.create_3dcomponent(input_file="example.txt")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> box = app.modeler.create_box([0, 0, 0], [10, 10, 5], name, "Copper")
+        >>> app.modeler.create_3dcomponent(input_file="comp.a3dcomp", assignment=[box.name])
 
         """
         # If design name has a white space (as it usually happens with Maxwell 2D/3D new designs),
@@ -246,7 +249,13 @@ class Modeler3D(Primitives3D, PyAedtBase):
         if assignment:
             objs = assignment
         else:
-            native_objs = [obj.name for _, v in self.user_defined_components.items() for _, obj in v.parts.items()]
+            native_objs = []
+            for _, v in self.components.items():
+                for _, obj in v.parts.items():
+                    if isinstance(obj, str):
+                        native_objs.append(obj)
+                    elif "name" in dir(obj) and obj.name in self.object_names:
+                        native_objs.append(obj.name)
             objs = [obj for obj in self.object_names if obj not in native_objs]
             if not native_components and native_objs and not export_auxiliary:
                 self.logger.warning(
@@ -303,7 +312,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         if boundaries:
             arg2 += ["Boundaries:=", boundaries]
         if self._app.design_type == "Icepak":
-            mesh_regions = [mr.name for mr in self._app.mesh.meshregions if mr.name != "Global"]
+            mesh_regions = [mr.name for mr in self._app.mesh.regions if mr.name != "Global"]
             if mesh_regions:
                 arg2 += ["MeshRegions:=", mesh_regions]
         else:
@@ -316,18 +325,18 @@ class Modeler3D(Primitives3D, PyAedtBase):
             excitations = list(set([i.split(":")[0] for i in excitations]))
             if excitations:
                 arg2 += ["Excitations:=", excitations]
-        meshops = [el.name for el in self._app.mesh.meshoperations]
+        meshops = [el.name for el in self._app.mesh.operations]
         if meshops:
             used_mesh_ops = []
             for mesh in range(0, len(meshops)):
                 mesh_comp = []
-                for item in self._app.mesh.meshoperations[mesh].props["Objects"]:
+                for item in self._app.mesh.operations[mesh].props["Objects"]:
                     if isinstance(item, str):
                         mesh_comp.append(item)
                     else:
                         mesh_comp.append(self.objects[item].name)
                 if all(included_obj in objs for included_obj in mesh_comp):
-                    used_mesh_ops.append(self._app.mesh.meshoperations[mesh].name)
+                    used_mesh_ops.append(self._app.mesh.operations[mesh].name)
             arg2 += ["MeshOperations:=", used_mesh_ops]
         else:
             arg2 += ["MeshOperations:=", meshops]
@@ -355,7 +364,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
                 datasets.update(self._app.project_datasets)
                 datasets.update(self._app.design_datasets)
             if native_components is None:
-                native_components = self._app.native_components
+                native_components = self._app.modeler.native_component_names
             with open_file(configfile) as f:
                 config_dict = json.load(f)
             out_dict = {}
@@ -381,7 +390,9 @@ class Modeler3D(Primitives3D, PyAedtBase):
                     out_dict["datasets"].remove(dat)
                 out_dict["datasets"] = config_dict["datasets"]
             if native_components:
-                out_dict["native components"] = config_dict["native components"]
+                out_dict["native components"] = {
+                    k: v for k, v in config_dict["native components"].items() if k in native_components
+                }
                 cs_set = set()
                 for _, native_dict in out_dict["native components"].items():
                     for _, instance_dict in native_dict["Instances"].items():
@@ -413,14 +424,14 @@ class Modeler3D(Primitives3D, PyAedtBase):
     @pyaedt_function_handler()
     def replace_3dcomponent(
         self,
-        name: str = None,
-        variables_to_include: list = None,
-        assignment: list = None,
-        boundaries: list = None,
-        excitations: list = None,
-        coordinate_systems: list = None,
+        name: str | None = None,
+        variables_to_include: list | None = None,
+        assignment: list | None = None,
+        boundaries: list | None = None,
+        excitations: list | None = None,
+        coordinate_systems: list | None = None,
         reference_coordinate_system: str = "Global",
-    ) -> "UserDefinedComponent":
+    ) -> UserDefinedComponent:
         """Replace with 3D component.
 
         Parameters
@@ -451,15 +462,20 @@ class Modeler3D(Primitives3D, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.modeler_3d import Modeler3D
-        >>> obj = Modeler3D()
-        >>> obj.replace_3dcomponent(assignment="Box1", name="MyObject")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> box = app.modeler.create_box([0, 0, 0], [10, 10, 5], name, "Copper")
+        >>> app.modeler.replace_3dcomponent(assignment=[box.name])
 
         """
         if not variables_to_include:
             variables_to_include = []
+
         if not name:
             name = generate_unique_name(self._app.design_name)
+        elif name in self.component_names:
+            name = generate_unique_name(name)
+
         dt_string = datetime.datetime.now().strftime("%H:%M:%S %p %b %d, %Y")
         arg = [
             "NAME:CreateData",
@@ -491,7 +507,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         if assignment:
             objs = assignment
         else:
-            native_objs = [obj.name for _, v in self.user_defined_components.items() for _, obj in v.parts.items()]
+            native_objs = [obj.name for _, v in self.components.items() for _, obj in v.parts.items()]
             objs = [obj for obj in self.object_names if obj not in native_objs]
             if native_objs:
                 self.logger.warning(
@@ -555,27 +571,26 @@ class Modeler3D(Primitives3D, PyAedtBase):
             excitations = list(set([i.split(":")[0] for i in excitations]))
             if excitations:
                 arg2 += ["Excitations:=", excitations]
-        meshops = [el.name for el in self._app.mesh.meshoperations]
+        meshops = [el.name for el in self._app.mesh.operations]
         if meshops:
             used_mesh_ops = []
             for mesh in range(0, len(meshops)):
                 mesh_comp = []
-                for item in self._app.mesh.meshoperations[mesh].props["Objects"]:
+                for item in self._app.mesh.operations[mesh].props["Objects"]:
                     if isinstance(item, str):
                         mesh_comp.append(item)
                     else:
                         mesh_comp.append(self.objects[item].name)
                 if all(included_obj in objs for included_obj in mesh_comp):
-                    used_mesh_ops.append(self._app.mesh.meshoperations[mesh].name)
+                    used_mesh_ops.append(self._app.mesh.operations[mesh].name)
             arg2 += ["MeshOperations:=", used_mesh_ops]
         else:
             arg2 += ["MeshOperations:=", meshops]
         arg3 = ["NAME:ImageFile", "ImageFile:=", ""]
-        old_components = self.user_defined_component_names
+        old_components = self.component_names
         self.oeditor.ReplaceWith3DComponent(arg, arg2, arg3)
-        self.refresh_all_ids()
-        new_name = list(set(self.user_defined_component_names) - set(old_components))
-        return self.user_defined_components[new_name[0]]
+        new_name = list(set(self.component_names) - set(old_components))
+        return self.components[new_name[0]]
 
     @pyaedt_function_handler()
     def create_coaxial(
@@ -1611,3 +1626,93 @@ class Modeler3D(Primitives3D, PyAedtBase):
             return create_region.SetPropValue("Coordinate System", assignment)
         except (GrpcApiError, SystemExit):
             return False
+
+    @pyaedt_function_handler()
+    def assign_priorities(self, assignment: list[list[Object3d | UserDefinedComponent | str]]) -> bool:
+        """Set objects priorities.
+
+        Parameters
+        ----------
+        assignment : List[List[Union[Object3d, UserDefinedComponent, str]
+            List of lists of objects. Each list corresponds to one priority level from low to high.
+            This means that the first list has the lowest priority while the last list
+            has the highest priority. Objects not explicitly passed in the lists are assigned
+            to a priority level lower than the objects in the first list.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, "False" when failed.
+
+        References
+        ----------
+        >>> oEditor.UpdatePriorityList
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Icepak
+        >>> icepak = Icepak()
+        >>> box = icepak.modeler.create_box([0, 0, 0], [20, 50, 80])
+        >>> fan = icepak.create_fan(name="TestFan", is_2d=True)
+        >>> rect = icepak.modeler.create_rectangle(0, [0, 0, 0], [1, 2], name="TestRectangle")
+        >>> icepak.mesh.assign_priorities([[box.name, rect.name], [fan.name]])
+
+        """
+        if self._app.design_type != "Icepak":
+            raise MethodNotSupportedError
+        if not assignment or not isinstance(assignment, list) or not isinstance(assignment[0], list):
+            raise AttributeError("``assignment`` input must be a list of lists.")
+        props = {"PriorityListParameters": []}
+        self._app.logger.info(
+            "Parsing input objects information for priority assignment. This operation can take time."
+        )
+        udc = self._modeler.components
+        udc._parse_objs()
+        for level, objects in enumerate(assignment):
+            level += 1
+            if isinstance(objects[0], str):
+                objects = [self._modeler.objects_by_name.get(o, udc.get(o, None)) for o in objects]
+            obj_3d = [
+                o
+                for o in objects
+                if (isinstance(o, Object3d) and o.is_3d)
+                or (isinstance(o, UserDefinedComponent) and any(p.is_3d for p in o.parts.values()))
+            ]
+            obj_2d = [
+                o
+                for o in objects
+                if (isinstance(o, Object3d) and not o.is_3d)
+                or (isinstance(o, UserDefinedComponent) and any(not p.is_3d for p in o.parts.values()))
+            ]
+            if obj_3d:
+                level_3d = {
+                    "EntityList": ", ".join([o.name for o in obj_3d]),
+                    "PriorityNumber": level,
+                    "PriorityListType": "3D",
+                }
+                if all(isinstance(o, Object3d) for o in obj_3d):
+                    level_3d["EntityType"] = "Object"
+                elif all(isinstance(o, UserDefinedComponent) for o in obj_3d):
+                    level_3d["EntityType"] = "Component"
+                else:
+                    raise AttributeError("Cannot assign components and parts on the same level.")
+                props["PriorityListParameters"].append(level_3d)
+            if obj_2d:
+                level_2d = {
+                    "EntityList": ", ".join([o.name for o in obj_2d]),
+                    "PriorityNumber": level,
+                    "PriorityListType": "2D",
+                }
+                if all(isinstance(o, Object3d) for o in obj_2d):
+                    level_2d["EntityType"] = "Object"
+                elif all(isinstance(o, UserDefinedComponent) for o in obj_2d):
+                    level_2d["EntityType"] = "Component"
+                else:
+                    raise AttributeError("Cannot assign components and parts on the same level.")
+                props["PriorityListParameters"].append(level_2d)
+        props = {"UpdatePriorityListData": props}
+        self._app.logger.info("Input objects information for priority assignment completed.")
+        args = []
+        _dict2arg(props, args)
+        self._modeler.oeditor.UpdatePriorityList(args[0])
+        return True

@@ -47,15 +47,14 @@ from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.generic.protocols import _AppWithOProject
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
-from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
+from ansys.aedt.core.modeler.cad.components_3d import NativeComponent
+from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
 from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.common import BoundaryProps
-from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
-from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
-from ansys.aedt.core.modules.design_xploration import SetupOpti
-from ansys.aedt.core.modules.design_xploration import SetupParam
+from ansys.aedt.core.modules.design_xploration import OptimizationSetup
+from ansys.aedt.core.modules.design_xploration import ParametricSetup
 from ansys.aedt.core.modules.material_lib import Material
 from ansys.aedt.core.modules.mesh import MeshOperation
 
@@ -1051,9 +1050,8 @@ class Configurations(PyAedtBase):
             if mesh_el.name == name:
                 if not self.options.skip_import_if_exists:
                     mesh_el.props = props
-                    mesh_el.update()
                 return True
-        bound = MeshOperation(self._app.mesh, name, props, props["Type"])
+        bound = MeshOperation(self._app.mesh, name, props)
         if bound.create():
             self._app.mesh.meshoperations.append(bound)
             self._app.logger.info(f"Mesh Operation {name} added.")
@@ -1064,8 +1062,8 @@ class Configurations(PyAedtBase):
 
     @pyaedt_function_handler()
     def _update_setup(self, name: str, props) -> bool:
-        for setup_el in self._app.setups:
-            if setup_el.name == name:
+        for setup_el_name, setup_el in self._app.setups.items():
+            if setup_el_name == name:
                 if not self.options.skip_import_if_exists:
                     setup_el.props = props
                     setup_el.update()
@@ -1089,9 +1087,10 @@ class Configurations(PyAedtBase):
                     setup_el.props = props
                     setup_el.update()
                 return True
-        setup = SetupOpti(self._app, name, dictinputs=props, optim_type=props.get("SetupType", None))
+
+        setup = OptimizationSetup(app=self._app.optimizations, name=name, props=props)
+
         if setup.create():
-            self._app.optimizations.setups.append(setup)
             self._app.logger.info(f"Optim {name} added.")
             return True
         else:
@@ -1106,9 +1105,8 @@ class Configurations(PyAedtBase):
                     setup_el.props = props
                     setup_el.update()
                 return True
-        setup = SetupParam(self._app, name, dictinputs=props, optim_type=props.get("SetupType", None))
+        setup = ParametricSetup(app=self._app.parametrics, name=name, props=props)
         if setup.create():
-            self._app.optimizations.setups.append(setup)
             self._app.logger.info(f"Optim {name} added.")
             return True
         else:
@@ -1391,37 +1389,26 @@ class Configurations(PyAedtBase):
     def _export_setups(self, dict_out):
         if self._app.setups:
             dict_out["setups"] = {}
-            for setup in self._app.setups:
-                legacy_update = setup.auto_update
-                setup.auto_update = False
-                dict_out["setups"][setup.name] = setup.props
-                dict_out["setups"][setup.name]["SetupType"] = setup.setuptype
+            for setup_name, setup in self._app.setups.items():
+                dict_out["setups"][setup_name] = setup.props
+
                 if setup.sweeps:
-                    for sweep in setup.sweeps:
-                        dict_out["setups"][setup.name][sweep.name] = sweep.props
-                setup.auto_update = legacy_update
+                    for sweep_name, sweep in setup.sweeps.items():
+                        dict_out["setups"][setup_name][sweep_name] = sweep.props
 
     @pyaedt_function_handler()
     def _export_optimizations(self, dict_out):
         if self._app.optimizations.setups:
             dict_out["optimizations"] = {}
             for setup in self._app.optimizations.setups:
-                legacy_update = setup.auto_update
-                setup.auto_update = False
                 dict_out["optimizations"][setup.name] = dict(setup.props)
-                dict_out["optimizations"][setup.name]["SetupType"] = setup.soltype
-                setup.auto_update = legacy_update
 
     @pyaedt_function_handler()
     def _export_parametrics(self, dict_out):
         if self._app.parametrics.setups:
             dict_out["parametrics"] = {}
             for setup in self._app.parametrics.setups:
-                legacy_update = setup.auto_update
-                setup.auto_update = False
                 dict_out["parametrics"][setup.name] = dict(setup.props)
-                dict_out["parametrics"][setup.name]["SetupType"] = setup.soltype
-                setup.auto_update = legacy_update
 
     @pyaedt_function_handler()
     def _export_boundaries(self, dict_out):
@@ -1510,12 +1497,12 @@ class Configurations(PyAedtBase):
         if self._app.design_type in ["Twin Builder", "RMxprt", "ModelCreation", "Circuit Design", "Circuit Netlist"]:
             return
         dict_monitors = []
-        native_parts = [
-            part.name
-            for udc_name, udc in self._app.modeler.user_defined_components.items()
-            for part_name, part in udc.parts.items()
-            if self._app.modeler.user_defined_components[udc_name].definition_name in self._app.native_components
-        ]
+        native_parts = []
+        for udc_name, udc in self._app.modeler.components.items():
+            if udc_name not in self._app.modeler.native_component_names:
+                for part_name, part in udc.parts.items():
+                    native_parts.append(part.name)
+
         if self._app.monitor.all_monitors != {}:
             for mon_name in self._app.monitor.all_monitors:
                 dict_monitor = {
@@ -1527,7 +1514,7 @@ class Configurations(PyAedtBase):
                 if dict_monitor["Geometry Assignment"] in native_parts:
                     dict_monitor["Native Assignment"] = [
                         name
-                        for name, dict_comp in self._app.modeler.user_defined_components.items()
+                        for name, dict_comp in self._app.modeler.components.items()
                         if dict_monitor["Geometry Assignment"]
                         in [part.name for part_id, part in dict_comp.parts.items()]
                     ][0]
@@ -1800,17 +1787,17 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                     return mesh_el.update()
         try:
             if self._app.settings.aedt_version < "2024.1":
-                objs = props.get("Objects", []) + props.get("Submodels", [])
+                props.get("Objects", []) + props.get("Submodels", [])
             else:
                 subregion = SubRegion(self._app, props["_subregion_information"]["parts"])
                 subregion.padding_values = props["_subregion_information"]["pad_vals"]
                 subregion.padding_types = props["_subregion_information"]["pad_types"]
-                objs = subregion.name
-            bound = MeshRegion(app=self._app, name=name, objects=objs)
+                # objs = subregion.name
+            bound = MeshRegion(mesh=self._app, name=name, props=props)
             bound.manual_settings = props["UserSpecifiedSettings"]
             for el in props:
-                if el in bound.settings:
-                    bound.settings[el] = props[el]
+                if el in bound.props:
+                    bound.props[el] = props[el]
             self._app.mesh.meshregions.append(bound)
             self._app.logger.info(f"Mesh Operation {name} added.")
         except GrpcApiError:
@@ -1821,9 +1808,9 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
     def _export_objects_properties(self, dict_out):
         dict_out["objects"] = {}
         udc_parts_id = []
-        if hasattr(self._app.modeler, "user_defined_components"):
+        if hasattr(self._app.modeler, "components"):
             self._app.modeler.refresh_all_ids()
-            udc_parts_id = [part for _, uc in self._app.modeler.user_defined_components.items() for part in uc.parts]
+            udc_parts_id = [part for _, uc in self._app.modeler.components.items() for part in uc.parts]
         for val in self._app.modeler.objects.values():
             if val.id in udc_parts_id or val.history().command == "CreateSubRegion":
                 continue
@@ -2075,7 +2062,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
         self._app.modeler.delete(
             list(
                 set([id for id, obj in self._app.modeler.objects.items() if obj.is_model])
-                - set([id for _, obj in self._app.modeler.user_defined_components.items() for id in obj.parts])
+                - set([id for _, obj in self._app.modeler.components.items() for id in obj.parts])
             )
         )
         self._app.oproject.CopyDesign(self._app.design_name)
@@ -2155,7 +2142,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                 for node_name, node in node["Children"].items():
                     add_duplicate_dic_to_history(node_name, node, obj_name)
 
-        for _, nc in self._app.native_components.items():
+        for _, nc in self._app.modeler.native_components.items():
             instance_name = nc.props["SubmodelDefinitionName"]
             dict_out["native components"][instance_name] = {}
             nc_props = dict(nc.props).copy()
@@ -2168,18 +2155,18 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                 nc_props["NativeComponentDefinitionProvider"]["DefnLink"]["Project"] = self._app.project_file
             dict_out["native components"][instance_name]["Properties"] = nc_props
             dict_out["native components"][instance_name]["Instances"] = {}
-            for i, v in self._app.modeler.user_defined_components.items():
+            for i, v in self._app.modeler.components.items():
                 cs_name = None
                 if v.definition_name == instance_name:
                     if "Target Coordinate System" in self._app.get_oo_properties(self._app.oeditor, i):
                         cs_name = v.target_coordinate_system
-                    obj_history = v.history()
-                    if obj_history:
-                        obj_history = obj_history.jsonalize_tree()
+
+                    obj_history = None
+                    if v.child_object and "jsonalize_tree" in dir(v):
+                        obj_history = v.jsonalize_tree()
                         for node_name, node in obj_history.items():
                             add_duplicate_dic_to_history(node_name, node, i)
-                    else:
-                        obj_history = None
+
                     dict_out["native components"][instance_name]["Instances"][v.name] = {
                         "CS": cs_name,
                         "Operations": obj_history,
@@ -2195,7 +2182,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
             self._app.modeler.set_working_coordinate_system(operation_dict["Props"]["Coordinate System"])
             new_objs = None
             self._app.modeler.refresh_all_ids()
-            old_objs = list(self._app.modeler.user_defined_components.keys())
+            old_objs = list(self._app.modeler.components.keys())
             if operation_dict["Props"]["Command"] == "Move":
                 if len(operation_dict["Props"]["Move Vector"]) == 6:
                     operation_list = [
@@ -2313,22 +2300,21 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                         for dup_obj in operation_dict["Props"]["Duplicate Object"]:
                             for _, operation_dict in native_dict[dup_obj]["Operations"].items():
                                 apply_operations_to_native_components(
-                                    self._app.modeler.user_defined_components[new_obj], operation_dict, native_dict
+                                    self._app.modeler.components[new_obj], operation_dict, native_dict
                                 )
             for _, operation_dict in operation_dict["Children"].items():
                 apply_operations_to_native_components(obj, operation_dict, native_dict)
             self._app.modeler.set_working_coordinate_system(cache_cs)
             return True
 
-        for _, instance_dict in native_dict["Instances"].items():
+        for instance_name, instance_dict in native_dict["Instances"].items():
             if instance_dict["CS"]:
                 nc_dict = copy.deepcopy(native_dict["Properties"])
                 nc_dict["TargetCS"] = instance_dict["CS"]
-                component3d_names = list(self._app.modeler.oeditor.Get3DComponentInstanceNames(native_name))
                 if native_dict["Type"] == "PCB":
-                    native = NativeComponentPCB(self._app, native_dict["Type"], native_name, nc_dict)
+                    native = NativeComponentPCB(app=self._app, name=instance_name, props=nc_dict)
                 else:
-                    native = NativeComponentObject(self._app, native_dict["Type"], native_name, nc_dict)
+                    native = NativeComponent(app=self._app, name=instance_name, props=nc_dict)
                 prj_list = set(self._app.desktop_class.project_list)
                 definition_names = set(self._app.oeditor.Get3DComponentDefinitionNames())
                 instance_names = {
@@ -2354,8 +2340,9 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                         - instance_names[definition_names]
                     )[0]
                 # TODO: See https://github.com/ansys/pyaedt/issues/7919
-                native.component_name = definition_names  # ty: ignore[missing-attribute]
+                native.definition_name = definition_names
                 native.name = instance_names
+
                 if nc_dict["NativeComponentDefinitionProvider"]["Type"] == "PCB" and nc_dict[
                     "NativeComponentDefinitionProvider"
                 ]["DefnLink"]["Project"] not in [self._app.project_file or "This Project*"]:
@@ -2367,26 +2354,12 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                     if app is None:
                         raise ValueError(f"Could not get the PyAEDT application for design {design} in project {prj}.")
                     app.oproject.Close()
-                user_defined_component = UserDefinedComponent(
-                    self._app.modeler, instance_names, nc_dict["NativeComponentDefinitionProvider"], native_dict["Type"]
-                )
-                self._app.modeler.user_defined_components[instance_names] = user_defined_component
-                new_name = [
-                    i
-                    for i in list(
-                        self._app.modeler.oeditor.Get3DComponentInstanceNames(user_defined_component.definition_name)
-                    )
-                    if i not in component3d_names
-                ][0]
-                self._app.modeler.refresh_all_ids()
-                self._app.materials._load_from_project()
+
                 # TODO: See https://github.com/ansys/pyaedt/issues/7919
-                if native.component_name not in self._app.native_components:  # ty: ignore[missing-attribute]
-                    self._app._native_components.append(native)
                 if instance_dict.get("Operations", None):
                     for _, operation_dict in instance_dict["Operations"].items():
                         apply_operations_to_native_components(
-                            self._app.modeler.user_defined_components[new_name],
+                            self._app.modeler.components[instance_name],
                             operation_dict,
                             native_dict["Instances"],
                         )
@@ -2787,7 +2760,7 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                     elif component_type == "nexxim state space":
                         new_comp = self._app.modeler.schematic.create_nexxim_state_space_component(
                             value["file_path"],
-                            value.get("num_terminals", 0),
+                            value["num_terminals"],
                             location=j["position"],
                             angle=j["angle"],
                             port_names=value.get("pin_names", []),

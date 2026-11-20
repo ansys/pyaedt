@@ -44,10 +44,18 @@ if TYPE_CHECKING:
 class SolutionData(PyAedtBase):
     """Contains information from the :func:`GetSolutionDataPerVariation` method.
 
+    A ``SolutionData`` object is not created directly. It is returned by the
+    ``get_solution_data()`` method of the application ``post`` object.
+
     Examples
     --------
-    >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
-    >>> obj = SolutionData()
+    Get the S-parameter traces of a solved HFSS design and retrieve their solution data from
+    the nominal sweep (``hfss.nominal_sweep``, for example ``"Setup1 : Sweep"``).
+
+    >>> from ansys.aedt.core import Hfss
+    >>> hfss = Hfss()
+    >>> traces = hfss.get_traces_for_plot(category="S")
+    >>> data = hfss.post.get_solution_data(expressions=traces, setup_sweep_name=hfss.nominal_sweep)
 
     """
 
@@ -81,9 +89,11 @@ class SolutionData(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
-        >>> obj = SolutionData()
-        >>> obj.active_variation
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> traces = hfss.get_traces_for_plot(category="S")
+        >>> data = hfss.post.get_solution_data(expressions=traces, setup_sweep_name=hfss.nominal_sweep)
+        >>> variation = data.active_variation
 
         """
         return self._active_variation
@@ -107,12 +117,16 @@ class SolutionData(PyAedtBase):
         Returns
         -------
         bool
+            ``True`` when pandas output is enabled and pandas is installed, ``False`` otherwise.
+            Setting the property to ``True`` has no effect if pandas is not installed.
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
-        >>> obj = SolutionData()
-        >>> obj.enable_pandas_output
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> traces = hfss.get_traces_for_plot(category="S")
+        >>> data = hfss.post.get_solution_data(expressions=traces, setup_sweep_name=hfss.nominal_sweep)
+        >>> data.enable_pandas_output = True
 
         """
         if self._enable_pandas_output:
@@ -155,9 +169,12 @@ class SolutionData(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
-        >>> obj = SolutionData()
-        >>> obj.set_active_variation(var_id=1)
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> traces = hfss.get_traces_for_plot(category="S")
+        >>> data = hfss.post.get_solution_data(expressions=traces, setup_sweep_name=hfss.nominal_sweep)
+        >>> data.set_active_variation(var_id=0)
+        True
 
         """
         if var_id < len(self.variations):
@@ -192,14 +209,18 @@ class SolutionData(PyAedtBase):
 
         Returns
         -------
-        list
-            List of variation values.
+        list or numpy.ndarray
+            Values of the variation. For a sweep (intrinsic) variable, such as ``Freq``, a NumPy array
+            of the swept values. For a design variable, a list of the unique values across all
+            solved variations.
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
-        >>> obj = SolutionData()
-        >>> obj.variation_values(variation=1)
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> traces = hfss.get_traces_for_plot(category="S")
+        >>> data = hfss.post.get_solution_data(expressions=traces, setup_sweep_name=hfss.nominal_sweep)
+        >>> frequencies = data.variation_values(variation="Freq")
 
         """
         if variation in self.intrinsics:
@@ -238,9 +259,11 @@ class SolutionData(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
-        >>> obj = SolutionData()
-        >>> obj.intrinsics
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> traces = hfss.get_traces_for_plot(category="S")
+        >>> data = hfss.post.get_solution_data(expressions=traces, setup_sweep_name=hfss.nominal_sweep)
+        >>> frequencies = data.intrinsics["Freq"]
 
         """
         if not self._intrinsics:
@@ -252,9 +275,11 @@ class SolutionData(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
-        >>> obj = SolutionData()
-        >>> obj.intrinsics_by_variation(variation={"Name": "Value"})
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> traces = hfss.get_traces_for_plot(category="S")
+        >>> data = hfss.post.get_solution_data(expressions=traces, setup_sweep_name=hfss.nominal_sweep)
+        >>> intrinsics = data.intrinsics_by_variation(variation=data.active_variation)
 
         """
         if not self._intrinsics:
@@ -270,9 +295,11 @@ class SolutionData(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
-        >>> obj = SolutionData()
-        >>> obj.nominal_variation
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> traces = hfss.get_traces_for_plot(category="S")
+        >>> data = hfss.post.get_solution_data(expressions=traces, setup_sweep_name=hfss.nominal_sweep)
+        >>> variation = data.nominal_variation
 
         """
         return self._nominal_variation
@@ -288,16 +315,14 @@ class SolutionData(PyAedtBase):
     def primary_sweep(self) -> str:
         """Primary sweep.
 
-        Parameters
-        ----------
-        ps : float
-            Perimeter of the source.
-
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
-        >>> obj = SolutionData()
-        >>> obj.primary_sweep
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> traces = hfss.get_traces_for_plot(category="S")
+        >>> data = hfss.post.get_solution_data(expressions=traces, setup_sweep_name=hfss.nominal_sweep)
+        >>> data.primary_sweep
+        'Freq'
 
         """
         return self._primary_sweep
@@ -313,9 +338,11 @@ class SolutionData(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
-        >>> obj = SolutionData()
-        >>> obj.expressions
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> traces = hfss.get_traces_for_plot(category="S")
+        >>> data = hfss.post.get_solution_data(expressions=traces, setup_sweep_name=hfss.nominal_sweep)
+        >>> expressions = data.expressions
 
         """
         if not self._expressions:
@@ -327,16 +354,16 @@ class SolutionData(PyAedtBase):
     def update_sweeps(self) -> None:
         """Update sweeps.
 
-        Returns
-        -------
-        dict
-            Updated sweeps.
-
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
-        >>> obj = SolutionData()
-        >>> obj.update_sweeps()
+        This method runs automatically when the object is created. Call it again only to refresh
+        the sweep names from the design.
+
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> traces = hfss.get_traces_for_plot(category="S")
+        >>> data = hfss.post.get_solution_data(expressions=traces, setup_sweep_name=hfss.nominal_sweep)
+        >>> data.update_sweeps()
 
         """
         names = list(self.nominal_variation.GetSweepNames())
@@ -374,9 +401,14 @@ class SolutionData(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
-        >>> obj = SolutionData()
-        >>> obj.init_solutions_data()
+        This method runs automatically when the object is created. Call it again only to rebuild
+        the cached real, imaginary, magnitude, and phase data.
+
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> traces = hfss.get_traces_for_plot(category="S")
+        >>> data = hfss.post.get_solution_data(expressions=traces, setup_sweep_name=hfss.nominal_sweep)
+        >>> data.init_solutions_data()
 
         """
         self._solutions_real = self._init_solution_data_real()
@@ -465,14 +497,28 @@ class SolutionData(PyAedtBase):
 
         Returns
         -------
-        tuple of dicts
-            (Real Dict, Imag Dict)
+        tuple of dict
+            ``(real, imag)``. Each dictionary maps an expression name to a 2D ``numpy.ndarray``
+            with one row per solved point: the sweep values in the first columns and the real or
+            imaginary part of the data in the last column.
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
-        >>> obj = SolutionData()
-        >>> obj.full_matrix_real_imag
+        Each returned dictionary is keyed by expression name. Each value is a 2D NumPy array with one
+        row per solved point. The first columns hold the sweep values (design variables first, then
+        sweeps such as ``Freq``) and the last column holds the data value.
+
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> traces = hfss.get_traces_for_plot(category="S")
+        >>> data = hfss.post.get_solution_data(expressions=traces, setup_sweep_name=hfss.nominal_sweep)
+        >>> real, imag = data.full_matrix_real_imag
+        >>> s_real = real[traces[0]]
+        >>> s_imag = imag[traces[0]]
+
+        Rebuild the complex S-parameter values from the last column of both arrays.
+
+        >>> s_complex = s_real[:, -1] + 1j * s_imag[:, -1]
 
         """
         return self._solutions_real, self._solutions_imag
@@ -483,14 +529,30 @@ class SolutionData(PyAedtBase):
 
         Returns
         -------
-        tuple of dicts
-            (Mag Dict, Phase Dict).
+        tuple of dict
+            ``(magnitude, phase)``. Each dictionary maps an expression name to a 2D
+            ``numpy.ndarray`` with one row per solved point: the sweep values in the first columns
+            and the magnitude or the phase in radians in the last column.
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
-        >>> obj = SolutionData()
-        >>> obj.full_matrix_mag_phase
+        Each returned dictionary is keyed by expression name. Each value is a 2D NumPy array with one
+        row per solved point. The first columns hold the sweep values (design variables first, then
+        sweeps such as ``Freq``) and the last column holds the data value. The phase is in radians.
+
+        >>> import numpy as np
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> traces = hfss.get_traces_for_plot(category="S")
+        >>> data = hfss.post.get_solution_data(expressions=traces, setup_sweep_name=hfss.nominal_sweep)
+        >>> magnitude, phase = data.full_matrix_mag_phase
+        >>> s_magnitude = magnitude[traces[0]][:, -1]
+        >>> s_phase = phase[traces[0]][:, -1]
+
+        Convert the magnitude to dB and the phase to degrees.
+
+        >>> s_db = 20 * np.log10(s_magnitude)
+        >>> s_phase_deg = np.degrees(s_phase)
 
         """
         return self._solutions_mag, self._solutions_phase
@@ -507,14 +569,16 @@ class SolutionData(PyAedtBase):
 
         Returns
         -------
-        list
-            List of inputs in degrees.
+        list or float
+            Values in degrees. A list when ``input_list`` is a list or tuple, otherwise a single
+            value.
 
         Examples
         --------
+        >>> import math
         >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
-        >>> obj = SolutionData()
-        >>> obj.to_degrees(input_list=[1, [2, 3]])
+        >>> SolutionData.to_degrees([0, math.pi / 2, math.pi])
+        [0.0, 90.0, 180.0]
 
         """
         if isinstance(input_list, (tuple, list)):
@@ -534,14 +598,15 @@ class SolutionData(PyAedtBase):
 
         Returns
         -------
-        type
-            List of inputs in radians.
+        list or float
+            Values in radians. A list when ``input_list`` is a list or tuple, otherwise a single
+            value.
 
         Examples
         --------
         >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
-        >>> obj = SolutionData()
-        >>> obj.to_radians(input_list=[1, [2, 3]])
+        >>> SolutionData.to_radians([0, 90, 180])
+        [0.0, 1.5707963267948966, 3.141592653589793]
 
         """
         if isinstance(input_list, (tuple, list)):
@@ -591,14 +656,17 @@ class SolutionData(PyAedtBase):
 
         Returns
         -------
-        np.array
-            List of the primary sweep valid points for the expression.
+        numpy.ndarray or list
+            Values of the primary sweep, for example the frequency points when ``primary_sweep`` is
+            ``Freq``.
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
-        >>> obj = SolutionData()
-        >>> obj.primary_sweep_values
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> traces = hfss.get_traces_for_plot(category="S")
+        >>> data = hfss.post.get_solution_data(expressions=traces, setup_sweep_name=hfss.nominal_sweep)
+        >>> frequencies = data.primary_sweep_values
 
         """
         return self.variation_values(self.primary_sweep)
@@ -607,8 +675,10 @@ class SolutionData(PyAedtBase):
     def lookup_column_value(
         array: np.ndarray, match_columns: list, match_values: list, output_column: int = -1
     ) -> np.ndarray | None:
-        """Filters rows in a NumPy array based on column-value matches,
-        and returns the last column value of all matching rows.
+        """Get the output column values of the rows that match the given column values.
+
+        Rows of the NumPy array are filtered on column-value matches, and the value of the output
+        column (the last column by default) is returned for all matching rows.
 
         Parameters
         ----------
@@ -623,14 +693,20 @@ class SolutionData(PyAedtBase):
 
         Returns
         -------
-        np.ndarray or default
-            Array of last column values for matching rows, or default if none found.
+        numpy.ndarray or None
+            Values of ``output_column`` for the matching rows: a 1D array for a single output
+            column, or a 2D array for a list of columns. ``None`` when no row matches.
 
         Examples
         --------
+        Each row of a solution array holds the sweep values followed by the data value. Return the
+        data of the rows whose first column (for example, the frequency) is ``1.0``.
+
+        >>> import numpy as np
         >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
-        >>> obj = SolutionData()
-        >>> obj.lookup_column_value(array=1, match_columns=["Box1"], match_values=["Box1"])
+        >>> table = np.array([[1.0, 0.0, 0.5], [1.0, 90.0, 0.7], [2.0, 0.0, 0.9]])
+        >>> SolutionData.lookup_column_value(table, match_columns=[0], match_values=[1.0])
+        array([0.5, 0.7])
 
         """
         mask = np.ones(len(array), dtype=bool)
@@ -678,14 +754,20 @@ class SolutionData(PyAedtBase):
 
         Returns
         -------
-        (np.array, np.array)
-            X and Y data for the expression.
+        tuple of numpy.ndarray
+            ``(x, y)``, where ``x`` holds the values of the primary sweep (or of ``sweeps``) and
+            ``y`` holds the expression data after ``formula`` is applied. Both arrays are empty if
+            the expression or the formula is not valid.
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
-        >>> obj = SolutionData()
-        >>> obj.get_expression_data(expression="dB(S(1,1))", formula="real")
+        Get the frequency points and the S-parameter magnitude in dB of the first trace.
+
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> traces = hfss.get_traces_for_plot(category="S")
+        >>> data = hfss.post.get_solution_data(expressions=traces, setup_sweep_name=hfss.nominal_sweep)
+        >>> frequencies, s_db = data.get_expression_data(expression=traces[0], formula="db20")
 
         """
         if not expression:
@@ -780,9 +862,11 @@ class SolutionData(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
-        >>> obj = SolutionData()
-        >>> obj.is_real_only(expression="dB(S(1,1))")
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> traces = hfss.get_traces_for_plot(category="S")
+        >>> data = hfss.post.get_solution_data(expressions=traces, setup_sweep_name=hfss.nominal_sweep)
+        >>> data.is_real_only(expression=traces[0])
 
         """
         if not expression:
@@ -807,9 +891,13 @@ class SolutionData(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
-        >>> obj = SolutionData()
-        >>> obj.export_data_to_csv(output=1)
+        >>> from pathlib import Path
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> traces = hfss.get_traces_for_plot(category="S")
+        >>> data = hfss.post.get_solution_data(expressions=traces, setup_sweep_name=hfss.nominal_sweep)
+        >>> data.export_data_to_csv(output=str(Path(hfss.working_directory) / "s_parameters.csv"))
+        True
 
         """
         header = []
@@ -873,13 +961,24 @@ class SolutionData(PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
-            Report plotter class.
+            Report plotter holding one trace per curve, ready to be customized and drawn with
+            methods such as ``plot_2d()``.
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
-        >>> obj = SolutionData()
-        >>> obj.get_report_plotter(curves=["Box1"], formula=1)
+        Unlike ``plot()``, this method does not draw anything. It returns a ``ReportPlotter`` that
+        holds one trace per curve, using the primary sweep (here ``Freq``) as the x axis and applying
+        ``formula`` to the data. The plotter can be customized before drawing.
+
+        >>> from pathlib import Path
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> traces = hfss.get_traces_for_plot(category="S")
+        >>> data = hfss.post.get_solution_data(expressions=traces, setup_sweep_name=hfss.nominal_sweep)
+        >>> plotter = data.get_report_plotter(curves=traces[:2], formula="db20")
+        >>> plotter.title = "S-parameters (dB)"
+        >>> figure = plotter.plot_2d(snapshot_path=str(Path(hfss.working_directory) / "s_db.png"), show=False)
+
 
         """
         from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
@@ -953,14 +1052,24 @@ class SolutionData(PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
-            Matplotlib class object.
+        :class:`matplotlib.figure.Figure` or bool
+            Matplotlib figure with the 2D or polar plot, or ``False`` if the plot fails.
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
-        >>> obj = SolutionData()
-        >>> obj.plot(curves=["Box1"], formula=1)
+        Plot the S-parameter magnitude in dB and save the figure without opening a window.
+
+        >>> from pathlib import Path
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> traces = hfss.get_traces_for_plot(category="S")
+        >>> data = hfss.post.get_solution_data(expressions=traces, setup_sweep_name=hfss.nominal_sweep)
+        >>> figure = data.plot(
+        ...     curves=[traces[0]],
+        ...     formula="db20",
+        ...     snapshot_path=str(Path(hfss.working_directory) / "s_parameters.png"),
+        ...     show=False,
+        ... )
 
         """
         props = {"x_label": x_label, "y_label": y_label}
@@ -1031,14 +1140,29 @@ class SolutionData(PyAedtBase):
 
         Returns
         -------
-        :class:`matplotlib.figure.Figure`
-            Matplotlib figure object.
+        :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
+            Report plotter holding the 3D trace that was plotted.
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
-        >>> obj = SolutionData()
-        >>> obj.plot_3d(curve=1, primary_sweep=1)
+        Plot a 3D far-field gain pattern. The design must have a solved setup and an infinite
+        sphere named ``"3D"``, and the data must be swept over all ``Theta`` and ``Phi`` angles.
+
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> variations = hfss.available_variations.nominal_variation(dependent_params=False)
+        >>> variations["Theta"] = ["All"]
+        >>> variations["Phi"] = ["All"]
+        >>> variations["Freq"] = ["30GHz"]
+        >>> data = hfss.post.get_solution_data(
+        ...     expressions="GainTotal",
+        ...     setup_sweep_name=hfss.nominal_adaptive,
+        ...     variations=variations,
+        ...     primary_sweep_variable="Theta",
+        ...     report_category="Far Fields",
+        ...     context="3D",
+        ... )
+        >>> plotter = data.plot_3d(curve="GainTotal", show=False)
 
         """
         from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
@@ -1123,14 +1247,21 @@ class SolutionData(PyAedtBase):
 
         Returns
         -------
-        List
-            IFFT Matrix.
+        numpy.ndarray
+            3D array of the time-domain field magnitude with shape ``(time steps, v points, u points)``.
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
-        >>> obj = SolutionData()
-        >>> obj.ifft(curve_header=1, u_axis=["Box1"])
+        Compute the time-domain response of SBR+ near-field data. The data must hold the
+        ``NearEX``, ``NearEY``, and ``NearEZ`` components of a near-field setup, here named
+        ``"Near_Field"``, so ``curve_header`` is ``"NearE"``.
+
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> data = hfss.post.get_solution_data(
+        ...     expressions=["NearEX", "NearEY", "NearEZ"], report_category="Near Fields", context="Near_Field"
+        ... )
+        >>> time_matrix = data.ifft(curve_header="NearE", window=True)
 
         """
         u = self.variation_values(u_axis)
@@ -1209,13 +1340,23 @@ class SolutionData(PyAedtBase):
         Returns
         -------
         str
-            Path to file containing the list of csv files.
+            Path to the ``fft_list.txt`` file, which lists the paths of the CSV files written, one per
+            time step.
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
-        >>> obj = SolutionData()
-        >>> obj.ifft_to_file(u_axis=["Box1"], v_axis=["Box1"])
+        Compute the IFFT of SBR+ near-field data first, then write one CSV file per time step.
+
+        >>> from pathlib import Path
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> data = hfss.post.get_solution_data(
+        ...     expressions=["NearEX", "NearEY", "NearEZ"], report_category="Near Fields", context="Near_Field"
+        ... )
+        >>> time_matrix = data.ifft(curve_header="NearE", window=True)
+        >>> list_file = data.ifft_to_file(
+        ...     coord_system_center=[-0.15, 0, 0], db_val=True, csv_path=str(Path(hfss.working_directory) / "ifft")
+        ... )
 
         """
         if csv_path is None:

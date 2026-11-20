@@ -828,13 +828,13 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
 
                 power_dict[bc_obj.name] = power_value
 
-        for native_comps in self._app.modeler.user_defined_components.keys():
-            if hasattr(self._app.modeler.user_defined_components[native_comps], "native_properties"):
+        for native_comps in self._app.modeler.components.keys():
+            if hasattr(self._app.modeler.components[native_comps], "native_properties"):
                 native_key = "NativeComponentDefinitionProvider"
-                if native_key in self._app.modeler.user_defined_components[native_comps].native_properties:
-                    power_key = self._app.modeler.user_defined_components[native_comps].native_properties[native_key]
+                if native_key in self._app.modeler.components[native_comps].native_properties:
+                    power_key = self._app.modeler.components[native_comps].native_properties[native_key]
                 else:
-                    power_key = self._app.modeler.user_defined_components[native_comps].native_properties
+                    power_key = self._app.modeler.components[native_comps].native_properties
                 power_value = None
                 if "Power" in power_key:
                     power_value = list(decompose_variable_value(power_key["Power"]))

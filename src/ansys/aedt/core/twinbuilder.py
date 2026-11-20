@@ -102,23 +102,32 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
     exist.
 
     >>> from ansys.aedt.core import TwinBuilder
-    >>> app = TwinBuilder()
+    >>> tb = TwinBuilder(version="2026.1")
 
     Create a instance of Twin Builder and link to a project named
     ``"projectname"``. If this project does not exist, create one with
     this name.
 
-    >>> app = TwinBuilder(projectname)
+    >>> tb = TwinBuilder(project="projectname")
 
     Create an instance of Twin Builder and link to a design named
     ``"designname"`` in a project named ``"projectname"``.
 
-    >>> app = TwinBuilder(projectname, designame)
+    >>> tb = TwinBuilder(project="projectname", design="designname")
 
     Create an instance of Twin Builder and open the specified
     project, which is named ``"myfile.aedt"``.
 
-    >>> app = TwinBuilder("myfile.aedt")
+    >>> tb = TwinBuilder(project="C:/Temp/myfile.aedt")
+
+    Build a simple schematic and set the transient simulation parameters.
+
+    >>> tb.modeler.schematic_units = "mil"
+    >>> resistor = tb.modeler.schematic.create_resistor("R1", 10, [0, 0])
+    >>> inductor = tb.modeler.schematic.create_inductor("L1", 1.5, [1000, 0])
+    >>> capacitor = tb.modeler.schematic.create_capacitor("C1", 7.5, [2000, 0])
+    >>> tb.set_end_time("5s")
+    >>> tb.set_hmax("5ms")
 
     """
 
@@ -185,9 +194,14 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.twinbuilder import TwinBuilder
-        >>> obj = TwinBuilder()
-        >>> obj.create_schematic_from_netlist(input_file="circuit.sp")
+        Each line of the net list defines one component.
+        Each component is placed on the schematic with page ports named after its nets.
+
+        >>> from ansys.aedt.core import TwinBuilder
+        >>> import shutil
+        >>> netlist_file = shutil.copy2(file_o, test_tmp_dir / "netlist_small.cir")
+        >>> assert aedt_app.create_schematic_from_netlist(str(netlist_file))
+        True
 
         """
         xpos = 0
@@ -250,8 +264,8 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
 
         Parameters
         ----------
-        expression :
-
+        expression : str, int, float, or :class:`ansys.aedt.core.application.variables.Variable`
+            End time of the transient simulation. A number is interpreted in seconds.
 
         Returns
         -------
@@ -264,9 +278,18 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.twinbuilder import TwinBuilder
-        >>> obj = TwinBuilder()
-        >>> obj.set_end_time(expression="dB(S(1,1))")
+        Set the end time with a value and units.
+
+        >>> from ansys.aedt.core import TwinBuilder
+        >>> tb = TwinBuilder()
+        >>> tb.set_end_time("5s")
+        True
+
+        Drive the end time with a design variable.
+
+        >>> tb["stop_time"] = "10s"
+        >>> tb.set_end_time(tb.variable_manager.variables["stop_time"])
+        True
 
         """
         self.set_sim_setup_parameter("Tend", expression)
@@ -278,8 +301,8 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
 
         Parameters
         ----------
-        expression :
-
+        expression : str, int, float, or :class:`ansys.aedt.core.application.variables.Variable`
+            Minimum time step of the transient simulation. A number is interpreted in seconds.
 
         Returns
         -------
@@ -292,9 +315,10 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.twinbuilder import TwinBuilder
-        >>> obj = TwinBuilder()
-        >>> obj.set_hmin(expression="dB(S(1,1))")
+        >>> from ansys.aedt.core import TwinBuilder
+        >>> tb = TwinBuilder()
+        >>> tb.set_hmin("0.2ms")
+        True
 
         """
         self.set_sim_setup_parameter("Hmin", expression)
@@ -306,8 +330,8 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
 
         Parameters
         ----------
-        expression :
-
+        expression : str, int, float, or :class:`ansys.aedt.core.application.variables.Variable`
+            Maximum time step of the transient simulation. A number is interpreted in seconds.
 
         Returns
         -------
@@ -320,9 +344,10 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.twinbuilder import TwinBuilder
-        >>> obj = TwinBuilder()
-        >>> obj.set_hmax(expression="dB(S(1,1))")
+        >>> from ansys.aedt.core import TwinBuilder
+        >>> tb = TwinBuilder()
+        >>> tb.set_hmax("5ms")
+        True
 
         """
         self.set_sim_setup_parameter("Hmax", expression)
@@ -336,10 +361,10 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
 
         Parameters
         ----------
-        variable : string
-            Name of the variable.
-        expression : Variable
-
+        variable : str
+            Name of the setup property, for example ``"Tend"``, ``"Hmin"``, or ``"Hmax"``.
+        expression : str, int, float, or :class:`ansys.aedt.core.application.variables.Variable`
+            Value to assign to the property.
         analysis_name : str, optional
             Name of the analysis. The default is ``"TwinbuilderTR"``.
 
@@ -354,9 +379,14 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.twinbuilder import TwinBuilder
-        >>> obj = TwinBuilder()
-        >>> obj.set_sim_setup_parameter(variable=1, expression="dB(S(1,1))")
+        Set the end time and the maximum time step of the transient analysis.
+
+        >>> from ansys.aedt.core import TwinBuilder
+        >>> tb = TwinBuilder()
+        >>> tb.set_sim_setup_parameter("Tend", "10ms")
+        True
+        >>> tb.set_sim_setup_parameter("Hmax", 1e-5, analysis_name="TwinbuilderTR")
+        True
 
         """
         analysis_map = {
@@ -408,7 +438,10 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         --------
         >>> from ansys.aedt.core import TwinBuilder
         >>> tb = TwinBuilder(version="2026.1")
-        >>> tb.create_subsheet("subsheet", "parentdesign")
+        >>> tb.create_subsheet("subsheet", "parentsheet")
+        True
+        >>> "parentsheet" in tb.design_list
+        True
 
         """
         try:
@@ -498,10 +531,30 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         >>> from ansys.aedt.core import TwinBuilder
         >>> tb = TwinBuilder()
 
-        Add a Q2D dynamic link component.
+        Add a Q2D dynamic link component from the ``"2D_Extractor_Cable"`` design of the
+        ``"Q2D_ArmouredCableExample"`` project, which is already loaded in AEDT. The link uses
+        the ``"sweep1"`` frequency sweep of the ``"MySetupAuto"`` setup and the original
+        (non-reduced) matrix. Because the design is 2D, the cable length is set with ``model_depth``.
 
-        >>> tb.add_q3d_dynamic_component(
-        ...     "Q2D_ArmouredCableExample", "2D_Extractor_Cable", "MySetupAuto", "sweep1", "Original", "100mm"
+        >>> q2d_comp = tb.add_q3d_dynamic_component(
+        ...     source_project="Q2D_ArmouredCableExample",
+        ...     source_design_name="2D_Extractor_Cable",
+        ...     setup="MySetupAuto",
+        ...     sweep="sweep1",
+        ...     coupling_matrix_name="Original",
+        ...     model_depth="100mm",
+        ... )
+
+        Add a Q3D dynamic link component from a project file. The project is loaded
+        automatically if it is not already open. The link uses the ``"sweep"`` frequency
+        sweep of the ``"Setup1GHz"`` setup of the ``"Q3D_MSbend"`` design.
+
+        >>> q3d_comp = tb.add_q3d_dynamic_component(
+        ...     source_project="C:/Temp/Q3D_DynamicLink.aedt",
+        ...     source_design_name="Q3D_MSbend",
+        ...     setup="Setup1GHz",
+        ...     sweep="sweep",
+        ...     coupling_matrix_name="Original",
         ... )
         >>> tb.desktop_class.close_desktop()
 
@@ -765,12 +818,26 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core import TwinBuilder
-        >>> tb = TwinBuilder(version="2026.1")
-        >>> maxwell_app = tb.desktop_class[[project_name, "my_maxwell_design"]]
+        >>> tb = TwinBuilder(project="TB_excitation_model.aedt", version="2026.1")
+
+        Use the default excitation settings of all the windings in the Maxwell design.
+
+        >>> comp = tb.add_excitation_model(project=tb.project_name, design="my_maxwell_design")
+
+        Assign a 20 A excitation to each winding, with a custom time range.
+
+        >>> maxwell = tb.desktop_class[[tb.project_name, "my_maxwell_design"]]
         >>> excitations = {}
-        >>> for e in maxwell_app.excitations_by_type["Winding Group"]:
+        >>> for e in maxwell.excitations_by_type["Winding Group"]:
         ...     excitations[e.name] = ["20", True, e.props["Type"], False]
-        >>> comp = tb.add_excitation_model(project=project_name, design="my_maxwell_design", excitations=excitations)
+        >>> comp2 = tb.add_excitation_model(
+        ...     project=tb.project_name,
+        ...     design="my_maxwell_design",
+        ...     excitations=excitations,
+        ...     use_default_values=False,
+        ...     start="1ms",
+        ...     stop="5ms",
+        ... )
         >>> tb.desktop_class.release_desktop(False, False)
 
         """

@@ -35,8 +35,16 @@ class Sources(PyAedtBase):
 
     Examples
     --------
-    >>> from ansys.aedt.core.modules.boundary.circuit_boundary import Sources
-    >>> source = Sources(app, name="V1")
+    Create a sinusoidal voltage source and inspect its name and type.
+
+    >>> from ansys.aedt.core import Circuit
+    >>> circuit = Circuit(version="2026.1")
+    >>> source = circuit.create_source("VoltageSin", name="V1")
+    >>> source.name
+    'V1'
+    >>> source.source_type
+    'VoltageSin'
+    >>> circuit.release_desktop()
 
     """
 
@@ -60,10 +68,17 @@ class Sources(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import Sources
-        >>> source = Sources(app, name="V1")
+        Rename a DC voltage source and check the source names in the design.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("VoltageDC", name="V1")
         >>> source.name
         'V1'
+        >>> source.name = "Vsupply"
+        >>> circuit.source_names
+        ['Vsupply']
+        >>> circuit.release_desktop()
 
         """
         return self._name
@@ -221,9 +236,14 @@ class Sources(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import Sources
-        >>> source = Sources(app, name="V1")
-        >>> source.update(original_name="V1", new_source="V2")
+        Push the current definition of a DC voltage source to AEDT.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("VoltageDC", name="V1")
+        >>> source.update()
+        True
+        >>> circuit.release_desktop()
 
         """
         arg0 = ["NAME:Data"]
@@ -325,9 +345,16 @@ class Sources(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import Sources
-        >>> source = Sources(app, name="V1")
+        Delete a DC voltage source from the design.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("VoltageDC", name="V1")
         >>> source.delete()
+        True
+        >>> circuit.source_names
+        []
+        >>> circuit.release_desktop()
 
         """
         self._app.modeler._odesign.DeleteSource(self.name)
@@ -349,9 +376,22 @@ class Sources(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import Sources
-        >>> source = Sources(app, name="V1")
+        This method is called by the ``create_source`` and ``assign_*_excitation_to_ports``
+        methods of the Circuit application. Call it directly only when building a source
+        object manually, for example a 3.3 V DC supply.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageDCSource
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = VoltageDCSource(circuit, "Vsupply", "VoltageDC")
         >>> source.create()
+        True
+        >>> circuit.source_names
+        ['Vsupply']
+        >>> source.dc_magnitude = "3.3V"
+        >>> source.dc_magnitude
+        '3.3V'
+        >>> circuit.release_desktop()
 
         """
         self.update(original_name=None, new_source=self.name)
@@ -363,10 +403,15 @@ class PowerSinSource(Sources):
 
     Examples
     --------
-    >>> import ansys.aedt.core as pyaedt
-    >>> from ansys.aedt.core.modules.boundary.circuit_boundary import PowerSinSource
-    >>> app = pyaedt.Circuit()
-    >>> source = PowerSinSource(app, name="P1")
+    Assign a power sinusoidal excitation to a circuit interface port.
+
+    >>> from ansys.aedt.core import Circuit
+    >>> circuit = Circuit(version="2026.1")
+    >>> port = circuit.modeler.schematic.create_interface_port("Port1")
+    >>> source = circuit.assign_power_sinusoidal_excitation_to_ports(["Port1"])
+    >>> source.source_type
+    'PowerSin'
+    >>> circuit.release_desktop()
 
     """
 
@@ -389,12 +434,15 @@ class PowerSinSource(Sources):
 
         Examples
         --------
-        >>> import ansys.aedt.core as pyaedt
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import PowerSinSource
-        >>> app = pyaedt.Circuit()
-        >>> source = PowerSinSource(app, name="P1")
+        Set the AC magnitude of a power sinusoidal source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("PowerSin", name="P1")
+        >>> source.ac_magnitude = "2V"
         >>> source.ac_magnitude
-        "1V"
+        '2V'
+        >>> circuit.release_desktop()
 
         """
         return self._props["ACMAG"]
@@ -415,12 +463,15 @@ class PowerSinSource(Sources):
 
         Examples
         --------
-        >>> import ansys.aedt.core as pyaedt
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import PowerSinSource
-        >>> app = pyaedt.Circuit()
-        >>> source = PowerSinSource(app, name="P1")
+        Set the AC phase of a power sinusoidal source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("PowerSin", name="P1")
+        >>> source.ac_phase = "30deg"
         >>> source.ac_phase
-        "0deg"
+        '30deg'
+        >>> circuit.release_desktop()
 
         """
         return self._props["ACPHASE"]
@@ -441,12 +492,15 @@ class PowerSinSource(Sources):
 
         Examples
         --------
-        >>> import ansys.aedt.core as pyaedt
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import PowerSinSource
-        >>> app = pyaedt.Circuit()
-        >>> source = PowerSinSource(app, name="P1")
+        Set the DC voltage of a power sinusoidal source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("PowerSin", name="P1")
+        >>> source.dc_magnitude = "1V"
         >>> source.dc_magnitude
-        "0V"
+        '1V'
+        >>> circuit.release_desktop()
 
         """
         return self._props["DC"]
@@ -467,12 +521,15 @@ class PowerSinSource(Sources):
 
         Examples
         --------
-        >>> import ansys.aedt.core as pyaedt
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import PowerSinSource
-        >>> app = pyaedt.Circuit()
-        >>> source = PowerSinSource(app, name="P1")
+        Set the power offset of a power sinusoidal source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("PowerSin", name="P1")
+        >>> source.power_offset = "1W"
         >>> source.power_offset
-        "0W"
+        '1W'
+        >>> circuit.release_desktop()
 
         """
         return self._props["VO"]
@@ -493,12 +550,15 @@ class PowerSinSource(Sources):
 
         Examples
         --------
-        >>> import ansys.aedt.core as pyaedt
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import PowerSinSource
-        >>> app = pyaedt.Circuit()
-        >>> source = PowerSinSource(app, name="P1")
+        Set the available power of a power sinusoidal source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("PowerSin", name="P1")
+        >>> source.power_magnitude = "10W"
         >>> source.power_magnitude
-        "1W"
+        '10W'
+        >>> circuit.release_desktop()
 
         """
         return self._props["POWER"]
@@ -519,12 +579,15 @@ class PowerSinSource(Sources):
 
         Examples
         --------
-        >>> import ansys.aedt.core as pyaedt
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import PowerSinSource
-        >>> app = pyaedt.Circuit()
-        >>> source = PowerSinSource(app, name="P1")
+        Set the frequency of a power sinusoidal source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("PowerSin", name="P1")
+        >>> source.frequency = "2GHz"
         >>> source.frequency
-        "1GHz"
+        '2GHz'
+        >>> circuit.release_desktop()
 
         """
         return self._props["FREQ"]
@@ -545,12 +608,15 @@ class PowerSinSource(Sources):
 
         Examples
         --------
-        >>> import ansys.aedt.core as pyaedt
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import PowerSinSource
-        >>> app = pyaedt.Circuit()
-        >>> source = PowerSinSource(app, name="P1")
+        Delay the start of a power sinusoidal source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("PowerSin", name="P1")
+        >>> source.delay = "5ns"
         >>> source.delay
-        "0s"
+        '5ns'
+        >>> circuit.release_desktop()
 
         """
         return self._props["TD"]
@@ -571,12 +637,15 @@ class PowerSinSource(Sources):
 
         Examples
         --------
-        >>> import ansys.aedt.core as pyaedt
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import PowerSinSource
-        >>> app = pyaedt.Circuit()
-        >>> source = PowerSinSource(app, name="P1")
+        Set the damping factor of a power sinusoidal source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("PowerSin", name="P1")
+        >>> source.damping_factor = "100"
         >>> source.damping_factor
-        "0"
+        '100'
+        >>> circuit.release_desktop()
 
         """
         return self._props["ALPHA"]
@@ -597,12 +666,15 @@ class PowerSinSource(Sources):
 
         Examples
         --------
-        >>> import ansys.aedt.core as pyaedt
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import PowerSinSource
-        >>> app = pyaedt.Circuit()
-        >>> source = PowerSinSource(app, name="P1")
+        Set the phase delay of a power sinusoidal source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("PowerSin", name="P1")
+        >>> source.phase_delay = "45deg"
         >>> source.phase_delay
-        "0deg"
+        '45deg'
+        >>> circuit.release_desktop()
 
         """
         return self._props["THETA"]
@@ -623,12 +695,15 @@ class PowerSinSource(Sources):
 
         Examples
         --------
-        >>> import ansys.aedt.core as pyaedt
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import PowerSinSource
-        >>> app = pyaedt.Circuit()
-        >>> source = PowerSinSource(app, name="P1")
+        Set the harmonic balance tone of a power sinusoidal source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("PowerSin", name="P1")
+        >>> source.tone = "2GHz"
         >>> source.tone
-        "1GHz"
+        '2GHz'
+        >>> circuit.release_desktop()
 
         """
         return self._props["TONE"]
@@ -644,10 +719,14 @@ class PowerIQSource(Sources):
 
     Examples
     --------
-    >>> import ansys.aedt.core as pyaedt
-    >>> from ansys.aedt.core.modules.boundary.circuit_boundary import PowerIQSource
-    >>> app = pyaedt.Circuit()
-    >>> source = PowerIQSource(app, name="IQ1")
+    Create a power IQ source in a Circuit design.
+
+    >>> from ansys.aedt.core import Circuit
+    >>> circuit = Circuit(version="2026.1")
+    >>> source = circuit.create_source("PowerIQ", name="IQ1")
+    >>> source.source_type
+    'PowerIQ'
+    >>> circuit.release_desktop()
 
     """
 
@@ -670,12 +749,15 @@ class PowerIQSource(Sources):
 
         Examples
         --------
-        >>> import ansys.aedt.core as pyaedt
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import PowerIQSource
-        >>> app = pyaedt.Circuit()
-        >>> source = PowerIQSource(app, name="IQ1")
+        Set the carrier frequency of a power IQ source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("PowerIQ", name="IQ1")
+        >>> source.carrier_frequency = "2GHz"
         >>> source.carrier_frequency
-        "1GHz"
+        '2GHz'
+        >>> circuit.release_desktop()
 
         """
         return self._props["FC"]
@@ -696,12 +778,15 @@ class PowerIQSource(Sources):
 
         Examples
         --------
-        >>> import ansys.aedt.core as pyaedt
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import PowerIQSource
-        >>> app = pyaedt.Circuit()
-        >>> source = PowerIQSource(app, name="IQ1")
+        Set the sampling time of a power IQ source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("PowerIQ", name="IQ1")
+        >>> source.sampling_time = "1ns"
         >>> source.sampling_time
-        "1ns"
+        '1ns'
+        >>> circuit.release_desktop()
 
         """
         return self._props["TS"]
@@ -722,12 +807,15 @@ class PowerIQSource(Sources):
 
         Examples
         --------
-        >>> import ansys.aedt.core as pyaedt
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import PowerIQSource
-        >>> app = pyaedt.Circuit()
-        >>> source = PowerIQSource(app, name="IQ1")
+        Set the DC voltage of a power IQ source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("PowerIQ", name="IQ1")
+        >>> source.dc_magnitude = "1V"
         >>> source.dc_magnitude
-        "0V"
+        '1V'
+        >>> circuit.release_desktop()
 
         """
         return self._props["DC"]
@@ -748,12 +836,15 @@ class PowerIQSource(Sources):
 
         Examples
         --------
-        >>> import ansys.aedt.core as pyaedt
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import PowerIQSource
-        >>> app = pyaedt.Circuit()
-        >>> source = PowerIQSource(app, name="IQ1")
+        Set the repeat-from time of a power IQ source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("PowerIQ", name="IQ1")
+        >>> source.repeat_from = "10ns"
         >>> source.repeat_from
-        "0s"
+        '10ns'
+        >>> circuit.release_desktop()
 
         """
         return self._props["R"]
@@ -774,12 +865,15 @@ class PowerIQSource(Sources):
 
         Examples
         --------
-        >>> import ansys.aedt.core as pyaedt
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import PowerIQSource
-        >>> app = pyaedt.Circuit()
-        >>> source = PowerIQSource(app, name="IQ1")
+        Delay the start of a power IQ source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("PowerIQ", name="IQ1")
+        >>> source.delay = "5ns"
         >>> source.delay
-        "0s"
+        '5ns'
+        >>> circuit.release_desktop()
 
         """
         return self._props["TD"]
@@ -799,11 +893,15 @@ class PowerIQSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import PowerIQSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = PowerIQSource(app, name="IQ1")
+        Set the voltage-based carrier amplitude of a power IQ source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("PowerIQ", name="IQ1")
+        >>> source.carrier_amplitude_voltage = "2V"
         >>> source.carrier_amplitude_voltage
+        '2V'
+        >>> circuit.release_desktop()
 
         """
         return self._props["V"]
@@ -823,11 +921,15 @@ class PowerIQSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import PowerIQSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = PowerIQSource(app, name="IQ1")
+        Set the power-based carrier amplitude of a power IQ source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("PowerIQ", name="IQ1")
+        >>> source.carrier_amplitude_power = "10W"
         >>> source.carrier_amplitude_power
+        '10W'
+        >>> circuit.release_desktop()
 
         """
         return self._props["VA"]
@@ -847,11 +949,15 @@ class PowerIQSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import PowerIQSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = PowerIQSource(app, name="IQ1")
+        Set the carrier offset of a power IQ source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("PowerIQ", name="IQ1")
+        >>> source.carrier_offset = "0.5V"
         >>> source.carrier_offset
+        '0.5V'
+        >>> circuit.release_desktop()
 
         """
         return self._props["VO"]
@@ -871,11 +977,15 @@ class PowerIQSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import PowerIQSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = PowerIQSource(app, name="IQ1")
+        Set the real part of the carrier impedance of a power IQ source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("PowerIQ", name="IQ1")
+        >>> source.real_impedance = "75ohm"
         >>> source.real_impedance
+        '75ohm'
+        >>> circuit.release_desktop()
 
         """
         return self._props["RZ"]
@@ -895,11 +1005,15 @@ class PowerIQSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import PowerIQSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = PowerIQSource(app, name="IQ1")
+        Set the imaginary part of the carrier impedance of a power IQ source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("PowerIQ", name="IQ1")
+        >>> source.imaginary_impedance = "10ohm"
         >>> source.imaginary_impedance
+        '10ohm'
+        >>> circuit.release_desktop()
 
         """
         return self._props["IZ"]
@@ -919,11 +1033,15 @@ class PowerIQSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import PowerIQSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = PowerIQSource(app, name="IQ1")
+        Set the damping factor of a power IQ source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("PowerIQ", name="IQ1")
+        >>> source.damping_factor = "100"
         >>> source.damping_factor
+        '100'
+        >>> circuit.release_desktop()
 
         """
         return self._props["ALPHA"]
@@ -943,11 +1061,15 @@ class PowerIQSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import PowerIQSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = PowerIQSource(app, name="IQ1")
+        Set the phase delay of a power IQ source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("PowerIQ", name="IQ1")
+        >>> source.phase_delay = "45deg"
         >>> source.phase_delay
+        '45deg'
+        >>> circuit.release_desktop()
 
         """
         return self._props["THETA"]
@@ -967,11 +1089,15 @@ class PowerIQSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import PowerIQSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = PowerIQSource(app, name="IQ1")
+        Set the harmonic balance tone of a power IQ source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("PowerIQ", name="IQ1")
+        >>> source.tone = "2GHz"
         >>> source.tone
+        '2GHz'
+        >>> circuit.release_desktop()
 
         """
         return self._props["TONE"]
@@ -991,11 +1117,15 @@ class PowerIQSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import PowerIQSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = PowerIQSource(app, name="IQ1")
-        >>> source.i_q_values
+        Define the first two I and Q time points of a power IQ source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("PowerIQ", name="IQ1")
+        >>> source.i_q_values = [["0s", "1V", "0V"], ["1ns", "0V", "1V"]]
+        >>> source.i_q_values[:2]
+        [['0s', '1V', '0V'], ['1ns', '0V', '1V']]
+        >>> circuit.release_desktop()
 
         """
         i_q = []
@@ -1029,11 +1159,19 @@ class PowerIQSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import PowerIQSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = PowerIQSource(app, name="IQ1")
-        >>> source.file
+        Read the I and Q values of a power IQ source from a text file.
+
+        >>> import tempfile
+        >>> from pathlib import Path
+        >>> iq_file = Path(tempfile.mkdtemp()) / "iq_data.txt"
+        >>> _ = iq_file.write_text("0 1 0\\n1e-9 0 1\\n")
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("PowerIQ", name="IQ1")
+        >>> source.file = iq_file
+        >>> source.file == str(iq_file)
+        True
+        >>> circuit.release_desktop()
 
         """
         return self._props["file"]
@@ -1049,10 +1187,22 @@ class VoltageFrequencyDependentSource(Sources):
 
     Examples
     --------
-    >>> from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageFrequencyDependentSource
-    >>> import ansys.aedt.core as pyaedt
-    >>> app = pyaedt.Circuit()
-    >>> source = VoltageFrequencyDependentSource(app, name="VFD1")
+    Assign a frequency-dependent voltage excitation defined in an FDS file to a port.
+
+    >>> import tempfile
+    >>> from pathlib import Path
+    >>> fds_file = Path(tempfile.mkdtemp()) / "source.fds"
+    >>> _ = fds_file.write_text(
+    ...     "[Complex format] RI\\n[Number of frequencies] 2\\n[Number of transfer functions] 1\\n"
+    ...     "[Data]\\n0, 1.0, 0\\n1000000000, 0.5, 0.1\\n"
+    ... )
+    >>> from ansys.aedt.core import Circuit
+    >>> circuit = Circuit(version="2026.1")
+    >>> port = circuit.modeler.schematic.create_interface_port("Port1")
+    >>> source = circuit.assign_voltage_frequency_dependent_excitation_to_ports(["Port1"], fds_file)
+    >>> source.source_type
+    'VoltageFrequencyDependent'
+    >>> circuit.release_desktop()
 
     """
 
@@ -1074,11 +1224,16 @@ class VoltageFrequencyDependentSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageFrequencyDependentSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = VoltageFrequencyDependentSource(app, name="VFD1")
+        Define the frequency points of a frequency-dependent voltage source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("VoltageFrequencyDependent", name="VFD1")
+        >>> source.magnitude_angle = True
+        >>> source.frequencies = [1e9, 2e9]
         >>> source.frequencies
+        [1000000000.0, 2000000000.0]
+        >>> circuit.release_desktop()
 
         """
         return self._props["frequencies"]
@@ -1098,11 +1253,18 @@ class VoltageFrequencyDependentSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageFrequencyDependentSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = VoltageFrequencyDependentSource(app, name="VFD1")
+        Define the voltage magnitudes of a frequency-dependent voltage source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("VoltageFrequencyDependent", name="VFD1")
+        >>> source.magnitude_angle = True
+        >>> source.frequencies = [1e9, 2e9]
+        >>> source.vmag = [1, 0.5]
+        >>> source.vang = [0, 0.1]
         >>> source.vmag
+        [1.0, 0.5]
+        >>> circuit.release_desktop()
 
         """
         return self._props["vmag"]
@@ -1122,11 +1284,18 @@ class VoltageFrequencyDependentSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageFrequencyDependentSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = VoltageFrequencyDependentSource(app, name="VFD1")
+        Define the voltage angles of a frequency-dependent voltage source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("VoltageFrequencyDependent", name="VFD1")
+        >>> source.magnitude_angle = True
+        >>> source.frequencies = [1e9, 2e9]
+        >>> source.vmag = [1, 0.5]
+        >>> source.vang = [0, 0.1]
         >>> source.vang
+        [0.0, 0.1]
+        >>> circuit.release_desktop()
 
         """
         return self._props["vang"]
@@ -1146,11 +1315,18 @@ class VoltageFrequencyDependentSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageFrequencyDependentSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = VoltageFrequencyDependentSource(app, name="VFD1")
+        Define the real part of the voltage of a frequency-dependent voltage source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("VoltageFrequencyDependent", name="VFD1")
+        >>> source.magnitude_angle = False
+        >>> source.frequencies = [1e9, 2e9]
+        >>> source.vreal = [1, 0.5]
+        >>> source.vimag = [0, 0.1]
         >>> source.vreal
+        [1.0, 0.5]
+        >>> circuit.release_desktop()
 
         """
         return self._props["vreal"]
@@ -1170,11 +1346,18 @@ class VoltageFrequencyDependentSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageFrequencyDependentSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = VoltageFrequencyDependentSource(app, name="VFD1")
+        Define the imaginary part of the voltage of a frequency-dependent voltage source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("VoltageFrequencyDependent", name="VFD1")
+        >>> source.magnitude_angle = False
+        >>> source.frequencies = [1e9, 2e9]
+        >>> source.vreal = [1, 0.5]
+        >>> source.vimag = [0, 0.1]
         >>> source.vimag
+        [0.0, 0.1]
+        >>> circuit.release_desktop()
 
         """
         return self._props["vimag"]
@@ -1194,11 +1377,17 @@ class VoltageFrequencyDependentSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageFrequencyDependentSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = VoltageFrequencyDependentSource(app, name="VFD1")
+        Switch a frequency-dependent voltage source to real and imaginary data.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("VoltageFrequencyDependent", name="VFD1")
         >>> source.magnitude_angle
+        True
+        >>> source.magnitude_angle = False
+        >>> source.magnitude_angle
+        False
+        >>> circuit.release_desktop()
 
         """
         return self._props["magnitude_angle"]
@@ -1218,11 +1407,22 @@ class VoltageFrequencyDependentSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageFrequencyDependentSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = VoltageFrequencyDependentSource(app, name="VFD1")
-        >>> source.fds_filename
+        Load the data of a frequency-dependent voltage source from an FDS file.
+
+        >>> import tempfile
+        >>> from pathlib import Path
+        >>> fds_file = Path(tempfile.mkdtemp()) / "source.fds"
+        >>> _ = fds_file.write_text(
+        ...     "[Complex format] RI\\n[Number of frequencies] 2\\n[Number of transfer functions] 1\\n"
+        ...     "[Data]\\n0, 1.0, 0\\n1000000000, 0.5, 0.1\\n"
+        ... )
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("VoltageFrequencyDependent", name="VFD1")
+        >>> source.fds_filename = fds_file
+        >>> source.fds_filename == str(fds_file)
+        True
+        >>> circuit.release_desktop()
 
         """
         return self._props["fds_filename"]
@@ -1284,10 +1484,14 @@ class VoltageDCSource(Sources):
 
     Examples
     --------
-    >>> from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageDCSource
-    >>> import ansys.aedt.core as pyaedt
-    >>> app = pyaedt.Circuit()
-    >>> source = VoltageDCSource(app, name="V1")
+    Create a DC voltage source in a Circuit design.
+
+    >>> from ansys.aedt.core import Circuit
+    >>> circuit = Circuit(version="2026.1")
+    >>> source = circuit.create_source("VoltageDC", name="V1")
+    >>> source.source_type
+    'VoltageDC'
+    >>> circuit.release_desktop()
 
     """
 
@@ -1309,11 +1513,15 @@ class VoltageDCSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageDCSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = VoltageDCSource(app, name="V1")
+        Set the AC magnitude of a DC voltage source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("VoltageDC", name="V1")
+        >>> source.ac_magnitude = "1V"
         >>> source.ac_magnitude
+        '1V'
+        >>> circuit.release_desktop()
 
         """
         return self._props["ACMAG"]
@@ -1333,11 +1541,15 @@ class VoltageDCSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageDCSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = VoltageDCSource(app, name="V1")
+        Set the AC phase of a DC voltage source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("VoltageDC", name="V1")
+        >>> source.ac_phase = "90deg"
         >>> source.ac_phase
+        '90deg'
+        >>> circuit.release_desktop()
 
         """
         return self._props["ACPHASE"]
@@ -1357,11 +1569,15 @@ class VoltageDCSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageDCSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = VoltageDCSource(app, name="V1")
+        Set the DC voltage of a DC voltage source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("VoltageDC", name="V1")
+        >>> source.dc_magnitude = "3.3V"
         >>> source.dc_magnitude
+        '3.3V'
+        >>> circuit.release_desktop()
 
         """
         return self._props["DC"]
@@ -1377,10 +1593,15 @@ class VoltageSinSource(Sources):
 
     Examples
     --------
-    >>> from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageSinSource
-    >>> import ansys.aedt.core as pyaedt
-    >>> app = pyaedt.Circuit()
-    >>> source = VoltageSinSource(app, name="V1")
+    Assign a sinusoidal voltage excitation to a circuit interface port.
+
+    >>> from ansys.aedt.core import Circuit
+    >>> circuit = Circuit(version="2026.1")
+    >>> port = circuit.modeler.schematic.create_interface_port("Port1")
+    >>> source = circuit.assign_voltage_sinusoidal_excitation_to_ports(["Port1"])
+    >>> source.source_type
+    'VoltageSin'
+    >>> circuit.release_desktop()
 
     """
 
@@ -1402,11 +1623,15 @@ class VoltageSinSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageSinSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = VoltageSinSource(app, name="V1")
+        Set the AC magnitude of a sinusoidal voltage source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("VoltageSin", name="V1")
+        >>> source.ac_magnitude = "1V"
         >>> source.ac_magnitude
+        '1V'
+        >>> circuit.release_desktop()
 
         """
         return self._props["ACMAG"]
@@ -1426,11 +1651,15 @@ class VoltageSinSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageSinSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = VoltageSinSource(app, name="V1")
+        Set the AC phase of a sinusoidal voltage source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("VoltageSin", name="V1")
+        >>> source.ac_phase = "90deg"
         >>> source.ac_phase
+        '90deg'
+        >>> circuit.release_desktop()
 
         """
         return self._props["ACPHASE"]
@@ -1450,11 +1679,15 @@ class VoltageSinSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageSinSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = VoltageSinSource(app, name="V1")
+        Set the DC voltage of a sinusoidal voltage source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("VoltageSin", name="V1")
+        >>> source.dc_magnitude = "0.5V"
         >>> source.dc_magnitude
+        '0.5V'
+        >>> circuit.release_desktop()
 
         """
         return self._props["DC"]
@@ -1474,11 +1707,15 @@ class VoltageSinSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageSinSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = VoltageSinSource(app, name="V1")
+        Set the amplitude of a sinusoidal voltage source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("VoltageSin", name="V1")
+        >>> source.voltage_amplitude = "2V"
         >>> source.voltage_amplitude
+        '2V'
+        >>> circuit.release_desktop()
 
         """
         return self._props["VA"]
@@ -1498,11 +1735,15 @@ class VoltageSinSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageSinSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = VoltageSinSource(app, name="V1")
+        Set the offset of a sinusoidal voltage source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("VoltageSin", name="V1")
+        >>> source.voltage_offset = "0.5V"
         >>> source.voltage_offset
+        '0.5V'
+        >>> circuit.release_desktop()
 
         """
         return self._props["VO"]
@@ -1522,11 +1763,15 @@ class VoltageSinSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageSinSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = VoltageSinSource(app, name="V1")
+        Set the frequency of a sinusoidal voltage source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("VoltageSin", name="V1")
+        >>> source.frequency = "100MHz"
         >>> source.frequency
+        '100MHz'
+        >>> circuit.release_desktop()
 
         """
         return self._props["FREQ"]
@@ -1546,11 +1791,15 @@ class VoltageSinSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageSinSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = VoltageSinSource(app, name="V1")
+        Delay the start of a sinusoidal voltage source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("VoltageSin", name="V1")
+        >>> source.delay = "1ns"
         >>> source.delay
+        '1ns'
+        >>> circuit.release_desktop()
 
         """
         return self._props["TD"]
@@ -1570,11 +1819,15 @@ class VoltageSinSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageSinSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = VoltageSinSource(app, name="V1")
+        Set the damping factor of a sinusoidal voltage source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("VoltageSin", name="V1")
+        >>> source.damping_factor = "100"
         >>> source.damping_factor
+        '100'
+        >>> circuit.release_desktop()
 
         """
         return self._props["ALPHA"]
@@ -1594,11 +1847,15 @@ class VoltageSinSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageSinSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = VoltageSinSource(app, name="V1")
+        Set the phase delay of a sinusoidal voltage source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("VoltageSin", name="V1")
+        >>> source.phase_delay = "45deg"
         >>> source.phase_delay
+        '45deg'
+        >>> circuit.release_desktop()
 
         """
         return self._props["THETA"]
@@ -1618,11 +1875,15 @@ class VoltageSinSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageSinSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = VoltageSinSource(app, name="V1")
+        Set the harmonic balance tone of a sinusoidal voltage source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("VoltageSin", name="V1")
+        >>> source.tone = "100MHz"
         >>> source.tone
+        '100MHz'
+        >>> circuit.release_desktop()
 
         """
         return self._props["TONE"]
@@ -1638,10 +1899,15 @@ class CurrentSinSource(Sources):
 
     Examples
     --------
-    >>> from ansys.aedt.core.modules.boundary.circuit_boundary import CurrentSinSource
-    >>> import ansys.aedt.core as pyaedt
-    >>> app = pyaedt.Circuit()
-    >>> source = CurrentSinSource(app, name="I1")
+    Assign a sinusoidal current excitation to a circuit interface port.
+
+    >>> from ansys.aedt.core import Circuit
+    >>> circuit = Circuit(version="2026.1")
+    >>> port = circuit.modeler.schematic.create_interface_port("Port1")
+    >>> source = circuit.assign_current_sinusoidal_excitation_to_ports(["Port1"])
+    >>> source.source_type
+    'CurrentSin'
+    >>> circuit.release_desktop()
 
     """
 
@@ -1663,11 +1929,15 @@ class CurrentSinSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import CurrentSinSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = CurrentSinSource(app, name="I1")
+        Set the AC magnitude of a sinusoidal current source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("CurrentSin", name="I1")
+        >>> source.ac_magnitude = "10mA"
         >>> source.ac_magnitude
+        '10mA'
+        >>> circuit.release_desktop()
 
         """
         return self._props["ACMAG"]
@@ -1687,11 +1957,15 @@ class CurrentSinSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import CurrentSinSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = CurrentSinSource(app, name="I1")
+        Set the AC phase of a sinusoidal current source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("CurrentSin", name="I1")
+        >>> source.ac_phase = "90deg"
         >>> source.ac_phase
+        '90deg'
+        >>> circuit.release_desktop()
 
         """
         return self._props["ACPHASE"]
@@ -1711,11 +1985,15 @@ class CurrentSinSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import CurrentSinSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = CurrentSinSource(app, name="I1")
+        Set the DC current of a sinusoidal current source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("CurrentSin", name="I1")
+        >>> source.dc_magnitude = "1mA"
         >>> source.dc_magnitude
+        '1mA'
+        >>> circuit.release_desktop()
 
         """
         return self._props["DC"]
@@ -1735,11 +2013,15 @@ class CurrentSinSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import CurrentSinSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = CurrentSinSource(app, name="I1")
+        Set the amplitude of a sinusoidal current source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("CurrentSin", name="I1")
+        >>> source.current_amplitude = "5mA"
         >>> source.current_amplitude
+        '5mA'
+        >>> circuit.release_desktop()
 
         """
         return self._props["VA"]
@@ -1759,11 +2041,15 @@ class CurrentSinSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import CurrentSinSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = CurrentSinSource(app, name="I1")
+        Set the offset of a sinusoidal current source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("CurrentSin", name="I1")
+        >>> source.current_offset = "1mA"
         >>> source.current_offset
+        '1mA'
+        >>> circuit.release_desktop()
 
         """
         return self._props["VO"]
@@ -1783,11 +2069,15 @@ class CurrentSinSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import CurrentSinSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = CurrentSinSource(app, name="I1")
+        Set the frequency of a sinusoidal current source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("CurrentSin", name="I1")
+        >>> source.frequency = "100MHz"
         >>> source.frequency
+        '100MHz'
+        >>> circuit.release_desktop()
 
         """
         return self._props["FREQ"]
@@ -1807,11 +2097,15 @@ class CurrentSinSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import CurrentSinSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = CurrentSinSource(app, name="I1")
+        Delay the start of a sinusoidal current source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("CurrentSin", name="I1")
+        >>> source.delay = "1ns"
         >>> source.delay
+        '1ns'
+        >>> circuit.release_desktop()
 
         """
         return self._props["TD"]
@@ -1831,11 +2125,15 @@ class CurrentSinSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import CurrentSinSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = CurrentSinSource(app, name="I1")
+        Set the damping factor of a sinusoidal current source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("CurrentSin", name="I1")
+        >>> source.damping_factor = "100"
         >>> source.damping_factor
+        '100'
+        >>> circuit.release_desktop()
 
         """
         return self._props["ALPHA"]
@@ -1855,11 +2153,15 @@ class CurrentSinSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import CurrentSinSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = CurrentSinSource(app, name="I1")
+        Set the phase delay of a sinusoidal current source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("CurrentSin", name="I1")
+        >>> source.phase_delay = "45deg"
         >>> source.phase_delay
+        '45deg'
+        >>> circuit.release_desktop()
 
         """
         return self._props["THETA"]
@@ -1879,11 +2181,15 @@ class CurrentSinSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import CurrentSinSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = CurrentSinSource(app, name="I1")
+        Simulate two identical sinusoidal current sources in parallel.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("CurrentSin", name="I1")
+        >>> source.multiplier = "2"
         >>> source.multiplier
+        '2'
+        >>> circuit.release_desktop()
 
         """
         return self._props["M"]
@@ -1903,11 +2209,15 @@ class CurrentSinSource(Sources):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.circuit_boundary import CurrentSinSource
-        >>> import ansys.aedt.core as pyaedt
-        >>> app = pyaedt.Circuit()
-        >>> source = CurrentSinSource(app, name="I1")
+        Set the harmonic balance tone of a sinusoidal current source.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit(version="2026.1")
+        >>> source = circuit.create_source("CurrentSin", name="I1")
+        >>> source.tone = "100MHz"
         >>> source.tone
+        '100MHz'
+        >>> circuit.release_desktop()
 
         """
         return self._props["TONE"]

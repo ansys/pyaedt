@@ -989,7 +989,7 @@ class ComponentArray(PyAedtBase):
         component_info = {}
         component_names = self.component_names
         for component in component_names.values():
-            component_object = self.__app.modeler.user_defined_components[component]
+            component_object = self.__app.modeler.components[component]
             if component_object.is_3d_component:
                 part_names = [part.name for part in component_object.parts.values()]
             else:
