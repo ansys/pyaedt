@@ -2368,8 +2368,8 @@ class Desktop(PyAedtBase):
         """
         return self.__release_and_close_desktop(close_projects=True, close_aedt_app=True)
 
-    def enable_autosave(self) -> None:
-        """Enable the autosave option.
+    def enable_autosave(self, interval: int | None = None) -> bool:
+        """Enable autosave; `interval`: save every N edits, unchanged when None.
 
         Examples
         --------
@@ -2377,10 +2377,15 @@ class Desktop(PyAedtBase):
         >>> desktop = ansys.aedt.core.Desktop("2026.1")
         PyAEDT INFO: pyaedt v...
         PyAEDT INFO: Python version ...
-        >>> desktop.enable_autosave()
+        >>> desktop.enable_autosave(interval=10)
 
         """
+        if interval is not None:
+            if interval < 1:
+                raise ValueError("interval must be 1 or more")
+            self.odesktop.SetRegistryInt("Desktop/Settings/ProjectOptions/AutoSaveInterval", interval)
         self.odesktop.EnableAutoSave(True)
+        return True
 
     def disable_autosave(self) -> None:
         """Disable the autosave option.
