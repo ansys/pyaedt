@@ -84,6 +84,7 @@ from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 from ansys.aedt.core.internal.desktop_sessions import _edb_sessions
+from ansys.aedt.core.internal.edb_registry import edb_registry
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
 
@@ -2291,6 +2292,7 @@ class Desktop(PyAedtBase):
                 edb_object.close()
             except Exception:  # pragma: no cover
                 self.logger.warning("Failed to close Edb object.")
+        edb_registry.close_all()
 
         if close_projects and "PYTEST_CURRENT_TEST" not in os.environ:
             projects = self.project_list
