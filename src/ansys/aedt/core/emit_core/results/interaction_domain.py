@@ -310,3 +310,30 @@ class InteractionDomain:
         if any(freq < 0 for freq in self.interferer_channel_frequencies):
             return False
         return True
+
+    @min_aedt_version("2027.2")
+    def _populate_result_trace_properties(self, keys: list[str], values: list[str]) -> None:
+        """
+        Adds key-value pairs needed to export result spectra for this domain.
+
+        Parameters
+        ----------
+        keys : list[str]
+            List of keys to populate with the result properties.
+        values : list[str]
+            List of values to populate with the result properties.
+        """
+        if not self.is_single_instance():
+            raise ValueError("Only single instance domains can be used for result export.")
+        keys.append("DomainRxRadio")
+        values.append(self.receiver_name)
+        keys.append("DomainRxBand")
+        values.append(self.receiver_band_name)
+        keys.append("DomainRxChannelFrequency")
+        values.append(str(self.receiver_channel_frequency))
+        keys.append("DomainTxRadios")
+        values.append(";".join(map(str, self.interferer_names)))
+        keys.append("DomainTxBands")
+        values.append(";".join(map(str, self.interferer_band_names)))
+        keys.append("DomainTxFreqs")
+        values.append(";".join(map(str, self.interferer_channel_frequencies)))
