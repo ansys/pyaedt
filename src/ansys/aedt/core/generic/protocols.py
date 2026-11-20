@@ -35,7 +35,6 @@ if TYPE_CHECKING:
     from ansys.aedt.core.aedt_logger import AedtLogger
     from ansys.aedt.core.circuit import Circuit
     from ansys.aedt.core.hfss import Hfss
-    from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
     from ansys.aedt.core.icepak import Icepak
     from ansys.aedt.core.maxwell import Maxwell2d
     from ansys.aedt.core.maxwell import Maxwell3d
@@ -45,7 +44,7 @@ if TYPE_CHECKING:
     from ansys.aedt.core.q3d import Q3d
     from ansys.aedt.core.twinbuilder import TwinBuilder
 
-    Design3DApp: TypeAlias = Hfss | Icepak | Maxwell3d | Q3d | Mechanical | Hfss3dLayout
+    Design3DApp: TypeAlias = Hfss | Icepak | Maxwell3d | Q3d | Mechanical
     """PyAEDT application instances for HFSS, Icepak, Maxwell 3D, Q3D, and Mechanical designs."""
 
     Design2DApp: TypeAlias = Maxwell2d | Q2d
