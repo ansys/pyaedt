@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 #
 # Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
@@ -288,6 +288,15 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
             }
             props.update(arg_slice_table)
             return self.change_design_settings(props)
+
+    @property
+    def _ac_magnetic_with_dc(self) -> bool:
+        """Whether the design is an AC Magnetic design that includes DC fields.
+
+        AEDT 2025.2 and later name this solution ``"AC Magnetic with DC"``; AEDT 2025.1 names
+        it ``"DCBiasedEddyCurrent"``.
+        """
+        return self.solution_type in ("AC Magnetic with DC", "DCBiasedEddyCurrent")
 
     @pyaedt_function_handler()
     def set_core_losses(self, assignment: list | str, core_loss_on_field: bool | None = False) -> bool:
@@ -1579,6 +1588,8 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         parallel_branches: int | None = 1,
         phase: float | None = 0,
         name: str | None = None,
+        dc_current: float | str | None = None,
+        dc_voltage: float | str | None = None,
     ) -> BoundaryObject | bool:
         """Assign a winding to a Maxwell design.
 
@@ -1608,6 +1619,14 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         name : str, optional
             Name of the winding. The default is ``None``,
             in which case a random name with prefix ``Winding`` will be generated.
+        dc_current : float or str, optional
+            DC current of a ``"Current"`` winding, in amperes when a number.
+            Only for AC Magnetic designs that include DC fields (``"AC Magnetic with DC"``).
+            The default is ``None``, in which case no DC current is set.
+        dc_voltage : float or str, optional
+            DC voltage of a ``"Voltage"`` winding, in volts when a number.
+            Only for AC Magnetic designs that include DC fields (``"AC Magnetic with DC"``).
+            The default is ``None``, in which case no DC voltage is set.
 
         Returns
         -------
@@ -1630,6 +1649,13 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         ...     m2d.assign_winding(rect.name, winding_type="PWM Voltage", is_solid=False, resistance=1, name=name)
         >>> m2d.desktop_class.close_desktop()
 
+        Assign a winding with a DC current to a Maxwell 3D AC Magnetic design that includes DC fields.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(solution_type="AC Magnetic with DC")
+        >>> winding = m3d.assign_winding(current=0.5, dc_current=3, name="biased")
+        >>> m3d.desktop_class.close_desktop()
+
         """
         if not name:
             name = generate_unique_name("Winding")
@@ -1646,6 +1672,19 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
                 "Phase": self.value_with_units(phase, "deg"),
             }
         )
+        if dc_current is not None or dc_voltage is not None:
+            if not self._ac_magnetic_with_dc:
+                raise AEDTRuntimeError(
+                    "DC values of a winding are only available with `AC Magnetic with DC` solutions."
+                )
+            if winding_type == "Current" and dc_voltage is None:
+                props["DC Current"] = self.value_with_units(dc_current, "A")
+            elif winding_type == "Voltage" and dc_current is None:
+                props["DC Voltage"] = self.value_with_units(dc_voltage, "V")
+            else:
+                raise AEDTRuntimeError(
+                    "A `Current` winding takes `dc_current` and a `Voltage` winding takes `dc_voltage`."
+                )
         bound = self._create_boundary(name, props, "Winding")
         if bound:
             if assignment is None:
@@ -3949,6 +3988,49 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
             props["CathodeParD"] = cathode_d
 
         return self._create_boundary(name, props, "ResistiveSheet")
+
+    @pyaedt_function_handler()
+    def set_permeability_computation(self, assignment: list | str) -> bool:
+        """Set the objects whose permeability is computed from the DC fields.
+
+        In an AC Magnetic design that includes DC fields (``"AC Magnetic with DC"``), the
+        permeability of these objects in the AC part is computed from the DC solution.
+        AEDT selects every object with a nonlinear B-H material by default; this method
+        replaces that selection.
+
+        Parameters
+        ----------
+        assignment : list or str
+            Objects whose permeability is computed from the DC fields.
+            An empty list clears the selection.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful.
+
+        References
+        ----------
+        >>> oModule.SetPermeabilityComputation
+
+        Examples
+        --------
+        Compute the permeability of a steel core from the DC fields.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(solution_type="AC Magnetic with DC")
+        >>> core = m3d.modeler.create_cylinder(
+        ...     orientation="Z", origin=[0, 0, 0], radius=1.4, height=0.6, material="steel_1008"
+        ... )
+        >>> m3d.set_permeability_computation(assignment=[core.name])
+        >>> m3d.desktop_class.close_desktop()
+
+        """
+        if not self._ac_magnetic_with_dc:
+            raise AEDTRuntimeError("Permeability computation is only available with `AC Magnetic with DC` solutions.")
+        objects = self.modeler.convert_to_selections(assignment, True) if assignment else []
+        self.oboundary.SetPermeabilityComputation(["NAME:MuLinkSrcObjs", "Objs:=", objects])
+        return True
 
     @pyaedt_function_handler()
     def order_coil_terminals(self, winding_name: str, list_of_terminals: list[str]) -> bool:
