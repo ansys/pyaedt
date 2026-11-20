@@ -289,7 +289,6 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
             props.update(arg_slice_table)
             return self.change_design_settings(props)
 
-
     @pyaedt_function_handler()
     def set_core_losses(self, assignment: list | str, core_loss_on_field: bool | None = False) -> bool:
         """Whether to enable core losses for a set of objects.
@@ -1666,7 +1665,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         )
         if dc_current is not None or dc_voltage is not None:
             maxwell_solutions = SolutionsMaxwell3D
-            if not self.solution_type in (maxwell_solutions.ACMagneticwithDC):
+            if self.solution_type not in (maxwell_solutions.ACMagneticwithDC):
                 raise AEDTRuntimeError(
                     "DC values of a winding are only available with `AC Magnetic with DC` solutions."
                 )
@@ -4020,7 +4019,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
 
         """
         maxwell_solutions = SolutionsMaxwell3D
-        if not self.solution_type in [maxwell_solutions.ACMagneticwithDC]:
+        if self.solution_type not in [maxwell_solutions.ACMagneticwithDC]:
             raise AEDTRuntimeError("Permeability computation is only available with `AC Magnetic with DC` solutions.")
         objects = self.modeler.convert_to_selections(assignment, True) if assignment else []
         self.oboundary.SetPermeabilityComputation(["NAME:MuLinkSrcObjs", "Objs:=", objects])
