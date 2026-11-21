@@ -1,0 +1,105 @@
+﻿Arrange
+=======
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.mcad_assembly
+
+.. autoclass:: Arrange
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      Arrange.construct
+      
+      
+      Arrange.copy
+      
+      
+      Arrange.dict
+      
+      
+      Arrange.from_orm
+      
+      
+      Arrange.json
+      
+      
+      Arrange.model_construct
+      
+      
+      Arrange.model_copy
+      
+      
+      Arrange.model_dump
+      
+      
+      Arrange.model_dump_json
+      
+      
+      Arrange.model_json_schema
+      
+      
+      Arrange.model_parametrized_name
+      
+      
+      Arrange.model_post_init
+      
+      
+      Arrange.model_rebuild
+      
+      
+      Arrange.model_validate
+      
+      
+      Arrange.model_validate_json
+      
+      
+      Arrange.model_validate_strings
+      
+      
+      Arrange.parse_file
+      
+      
+      Arrange.parse_obj
+      
+      
+      Arrange.parse_raw
+      
+      
+      Arrange.schema
+      
+      
+      Arrange.schema_json
+      
+      
+      Arrange.update_forward_refs
+      
+      
+      Arrange.validate
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      Arrange.model_computed_fields
+      Arrange.model_config
+      Arrange.model_extra
+      Arrange.model_fields
+      Arrange.model_fields_set
+      Arrange.operation
+      Arrange.axis
+      Arrange.angle
+      Arrange.vector
+   
+   

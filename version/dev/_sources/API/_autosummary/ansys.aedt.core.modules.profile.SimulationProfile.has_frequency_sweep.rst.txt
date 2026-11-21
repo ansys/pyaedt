@@ -1,0 +1,6 @@
+has\_frequency\_sweep
+=====================
+
+.. currentmodule:: ansys.aedt.core.modules.profile
+
+.. autoproperty:: SimulationProfile.has_frequency_sweep

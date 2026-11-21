@@ -1,0 +1,6 @@
+export\_table\_to\_file
+=======================
+
+.. currentmodule:: ansys.aedt.core.visualization.report.field
+
+.. automethod:: AntennaParameters.export_table_to_file

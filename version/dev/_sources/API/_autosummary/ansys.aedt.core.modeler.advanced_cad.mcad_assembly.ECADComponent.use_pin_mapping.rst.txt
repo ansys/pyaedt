@@ -1,0 +1,6 @@
+use\_pin\_mapping
+=================
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.mcad_assembly
+
+.. autoattribute:: ECADComponent.use_pin_mapping

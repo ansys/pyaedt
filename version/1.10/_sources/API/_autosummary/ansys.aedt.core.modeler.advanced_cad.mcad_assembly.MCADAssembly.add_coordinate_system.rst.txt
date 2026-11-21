@@ -1,0 +1,6 @@
+add\_coordinate\_system
+=======================
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.mcad_assembly
+
+.. automethod:: MCADAssembly.add_coordinate_system

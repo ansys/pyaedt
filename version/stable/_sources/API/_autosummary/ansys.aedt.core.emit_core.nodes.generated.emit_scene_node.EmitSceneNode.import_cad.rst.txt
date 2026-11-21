@@ -1,0 +1,6 @@
+import\_cad
+===========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.emit_scene_node
+
+.. automethod:: EmitSceneNode.import_cad

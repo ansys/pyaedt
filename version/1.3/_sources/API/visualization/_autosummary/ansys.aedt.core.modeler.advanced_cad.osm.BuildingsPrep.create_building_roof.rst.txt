@@ -1,0 +1,6 @@
+create\_building\_roof
+======================
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.osm
+
+.. automethod:: BuildingsPrep.create_building_roof

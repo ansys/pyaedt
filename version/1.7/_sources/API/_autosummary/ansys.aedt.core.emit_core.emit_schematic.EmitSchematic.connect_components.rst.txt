@@ -1,0 +1,6 @@
+connect\_components
+===================
+
+.. currentmodule:: ansys.aedt.core.emit_core.emit_schematic
+
+.. automethod:: EmitSchematic.connect_components

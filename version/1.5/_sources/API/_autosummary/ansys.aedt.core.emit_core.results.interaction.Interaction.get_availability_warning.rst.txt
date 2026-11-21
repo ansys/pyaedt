@@ -1,0 +1,6 @@
+get\_availability\_warning
+==========================
+
+.. currentmodule:: ansys.aedt.core.emit_core.results.interaction
+
+.. automethod:: Interaction.get_availability_warning

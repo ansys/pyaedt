@@ -1,0 +1,135 @@
+﻿ECADComponent
+=============
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.mcad_assembly
+
+.. autoclass:: ECADComponent
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      ECADComponent.add_arrange_move
+      
+      
+      ECADComponent.add_arrange_rotate
+      
+      
+      ECADComponent.add_sub_ecad_component
+      
+      
+      ECADComponent.add_sub_mcad_component
+      
+      
+      ECADComponent.add_sub_mcad_component_from_library
+      
+      
+      ECADComponent.construct
+      
+      
+      ECADComponent.copy
+      
+      
+      ECADComponent.dict
+      
+      
+      ECADComponent.from_orm
+      
+      
+      ECADComponent.json
+      
+      
+      ECADComponent.model_construct
+      
+      
+      ECADComponent.model_copy
+      
+      
+      ECADComponent.model_dump
+      
+      
+      ECADComponent.model_dump_json
+      
+      
+      ECADComponent.model_json_schema
+      
+      
+      ECADComponent.model_parametrized_name
+      
+      
+      ECADComponent.model_post_init
+      
+      
+      ECADComponent.model_rebuild
+      
+      
+      ECADComponent.model_validate
+      
+      
+      ECADComponent.model_validate_json
+      
+      
+      ECADComponent.model_validate_strings
+      
+      
+      ECADComponent.parse_file
+      
+      
+      ECADComponent.parse_obj
+      
+      
+      ECADComponent.parse_raw
+      
+      
+      ECADComponent.preprocess
+      
+      
+      ECADComponent.schema
+      
+      
+      ECADComponent.schema_json
+      
+      
+      ECADComponent.update_forward_refs
+      
+      
+      ECADComponent.validate
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      ECADComponent.model_computed_fields
+      ECADComponent.model_config
+      ECADComponent.model_extra
+      ECADComponent.model_fields
+      ECADComponent.model_fields_set
+      ECADComponent.sub_components
+      ECADComponent.component_type
+      ECADComponent.layout_coordinate_systems
+      ECADComponent.assembly_all_from_library
+      ECADComponent.model_libraries
+      ECADComponent.name
+      ECADComponent.model
+      ECADComponent.use_pin_mapping
+      ECADComponent.placement_pin_mapping
+      ECADComponent.target_coordinate_system
+      ECADComponent.arranges
+      ECADComponent.password
+      ECADComponent.mcad_sub_components
+      ECADComponent.ecad_sub_components
+      ECADComponent.geometry_parameters
+      ECADComponent.reference_coordinate_system
+   
+   

@@ -1,0 +1,6 @@
+get\_properties
+===============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.couplings_node
+
+.. automethod:: CouplingsNode.get_properties

@@ -1,0 +1,91 @@
+﻿TxSpectralProfNode
+==================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.tx_spectral_prof_node
+
+.. autoclass:: TxSpectralProfNode
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      TxSpectralProfNode.add_custom_tx_harmonics
+      
+      
+      TxSpectralProfNode.add_narrowband_emissions_mask
+      
+      
+      TxSpectralProfNode.add_spurious_emissions
+      
+      
+      TxSpectralProfNode.add_tx_broadband_noise_profile
+      
+      
+      TxSpectralProfNode.export_to_csv
+      
+      
+      TxSpectralProfNode.get_is_component
+      
+      
+      TxSpectralProfNode.get_properties
+      
+      
+      TxSpectralProfNode.plot
+      
+      
+      TxSpectralProfNode.props_to_dict
+      
+      
+      TxSpectralProfNode.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      TxSpectralProfNode.allowed_child_types
+      TxSpectralProfNode.amplifier_saturation_level
+      TxSpectralProfNode.average_power
+      TxSpectralProfNode.children
+      TxSpectralProfNode.enable_harmonic_bw_expansion
+      TxSpectralProfNode.enabled
+      TxSpectralProfNode.harmonic_amplitude
+      TxSpectralProfNode.harmonic_intercept
+      TxSpectralProfNode.harmonic_slope
+      TxSpectralProfNode.harmonic_taper
+      TxSpectralProfNode.include_phase_noise
+      TxSpectralProfNode.internal_amp_gain
+      TxSpectralProfNode.ip3_ref_input
+      TxSpectralProfNode.max_intermod_order
+      TxSpectralProfNode.name
+      TxSpectralProfNode.node_type
+      TxSpectralProfNode.noise_figure
+      TxSpectralProfNode.number_of_harmonics
+      TxSpectralProfNode.odesktop
+      TxSpectralProfNode.other_harmonic_levels
+      TxSpectralProfNode.p1_db_point_ref_input
+      TxSpectralProfNode.parent
+      TxSpectralProfNode.parent_name
+      TxSpectralProfNode.peak_power
+      TxSpectralProfNode.perform_tx_intermod_analysis
+      TxSpectralProfNode.properties
+      TxSpectralProfNode.reverse_isolation
+      TxSpectralProfNode.second_harmonic_level
+      TxSpectralProfNode.spectrum_type
+      TxSpectralProfNode.third_harmonic_level
+      TxSpectralProfNode.tx_broadband_noise
+      TxSpectralProfNode.tx_power
+      TxSpectralProfNode.valid
+      TxSpectralProfNode.warnings
+   
+   

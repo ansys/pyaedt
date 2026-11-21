@@ -1,0 +1,6 @@
+delete\_all\_points
+===================
+
+.. currentmodule:: ansys.aedt.core.modeler.modeler_3d
+
+.. automethod:: Modeler3D.delete_all_points

@@ -1,0 +1,6 @@
+binary\_start\_byte
+===================
+
+.. currentmodule:: ansys.aedt.core.visualization.advanced.frtm_visualization
+
+.. autoproperty:: FRTMData.binary_start_byte

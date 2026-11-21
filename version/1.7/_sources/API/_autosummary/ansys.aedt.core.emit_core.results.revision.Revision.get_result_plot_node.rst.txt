@@ -1,0 +1,6 @@
+get\_result\_plot\_node
+=======================
+
+.. currentmodule:: ansys.aedt.core.emit_core.results.revision
+
+.. automethod:: Revision.get_result_plot_node

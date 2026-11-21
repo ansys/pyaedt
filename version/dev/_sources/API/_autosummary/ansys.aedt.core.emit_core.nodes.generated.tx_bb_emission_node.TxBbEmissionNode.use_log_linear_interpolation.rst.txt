@@ -1,0 +1,6 @@
+use\_log\_linear\_interpolation
+===============================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.tx_bb_emission_node
+
+.. autoproperty:: TxBbEmissionNode.use_log_linear_interpolation

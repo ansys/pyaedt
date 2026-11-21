@@ -1,0 +1,6 @@
+finite\_reverse\_isolation
+==========================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.isolator
+
+.. autoproperty:: Isolator.finite_reverse_isolation

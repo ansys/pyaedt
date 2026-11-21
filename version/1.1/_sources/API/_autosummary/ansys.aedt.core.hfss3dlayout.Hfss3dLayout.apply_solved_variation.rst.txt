@@ -1,0 +1,6 @@
+apply\_solved\_variation
+========================
+
+.. currentmodule:: ansys.aedt.core.hfss3dlayout
+
+.. automethod:: Hfss3dLayout.apply_solved_variation

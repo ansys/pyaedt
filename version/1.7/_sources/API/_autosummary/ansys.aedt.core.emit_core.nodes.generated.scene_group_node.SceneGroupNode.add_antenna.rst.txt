@@ -1,0 +1,6 @@
+add\_antenna
+============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.scene_group_node
+
+.. automethod:: SceneGroupNode.add_antenna

@@ -1,0 +1,63 @@
+﻿EmitSceneNode
+=============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.emit_scene_node
+
+.. autoclass:: EmitSceneNode
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      EmitSceneNode.add_antenna
+      
+      
+      EmitSceneNode.add_emitter
+      
+      
+      EmitSceneNode.add_group
+      
+      
+      EmitSceneNode.get_is_component
+      
+      
+      EmitSceneNode.get_properties
+      
+      
+      EmitSceneNode.import_cad
+      
+      
+      EmitSceneNode.props_to_dict
+      
+      
+      EmitSceneNode.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      EmitSceneNode.allowed_child_types
+      EmitSceneNode.children
+      EmitSceneNode.gp_position_along_normal
+      EmitSceneNode.ground_plane_normal
+      EmitSceneNode.name
+      EmitSceneNode.node_type
+      EmitSceneNode.notes
+      EmitSceneNode.odesktop
+      EmitSceneNode.parent_name
+      EmitSceneNode.properties
+      EmitSceneNode.valid
+      EmitSceneNode.warnings
+   
+   

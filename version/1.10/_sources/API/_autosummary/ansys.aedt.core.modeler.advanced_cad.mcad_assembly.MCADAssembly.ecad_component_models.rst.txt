@@ -1,0 +1,6 @@
+ecad\_component\_models
+=======================
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.mcad_assembly
+
+.. autoattribute:: MCADAssembly.ecad_component_models

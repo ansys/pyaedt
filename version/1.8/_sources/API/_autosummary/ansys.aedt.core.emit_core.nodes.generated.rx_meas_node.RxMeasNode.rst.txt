@@ -1,0 +1,56 @@
+﻿RxMeasNode
+==========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.rx_meas_node
+
+.. autoclass:: RxMeasNode
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      RxMeasNode.delete
+      
+      
+      RxMeasNode.get_is_component
+      
+      
+      RxMeasNode.get_properties
+      
+      
+      RxMeasNode.props_to_dict
+      
+      
+      RxMeasNode.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      RxMeasNode.allowed_child_types
+      RxMeasNode.children
+      RxMeasNode.enabled
+      RxMeasNode.exclude_mixer_products_below_noise
+      RxMeasNode.file
+      RxMeasNode.name
+      RxMeasNode.node_type
+      RxMeasNode.odesktop
+      RxMeasNode.parent
+      RxMeasNode.parent_name
+      RxMeasNode.properties
+      RxMeasNode.receive_frequency
+      RxMeasNode.valid
+      RxMeasNode.warnings
+   
+   

@@ -1,0 +1,37 @@
+﻿Scale3DSettings
+===============
+
+.. currentmodule:: ansys.aedt.core.visualization.post.field_data
+
+.. autoclass:: Scale3DSettings
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      Scale3DSettings.from_dict
+      
+      
+      Scale3DSettings.to_dict
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      Scale3DSettings.public_dir
+      Scale3DSettings.scale_settings
+      Scale3DSettings.scale_type
+      Scale3DSettings.unit
+   
+   

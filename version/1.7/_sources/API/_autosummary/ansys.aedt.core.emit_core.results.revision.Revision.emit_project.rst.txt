@@ -1,0 +1,6 @@
+emit\_project
+=============
+
+.. currentmodule:: ansys.aedt.core.emit_core.results.revision
+
+.. autoattribute:: Revision.emit_project

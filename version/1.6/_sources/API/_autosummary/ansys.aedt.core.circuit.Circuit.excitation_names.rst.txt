@@ -1,0 +1,6 @@
+excitation\_names
+=================
+
+.. currentmodule:: ansys.aedt.core.circuit
+
+.. autoproperty:: Circuit.excitation_names

@@ -1,0 +1,6 @@
+create\_component
+=================
+
+.. currentmodule:: ansys.aedt.core.emit_core.emit_schematic
+
+.. automethod:: EmitSchematic.create_component

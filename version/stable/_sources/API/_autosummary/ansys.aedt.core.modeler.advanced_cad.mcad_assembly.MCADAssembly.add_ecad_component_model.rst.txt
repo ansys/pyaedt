@@ -1,0 +1,6 @@
+add\_ecad\_component\_model
+===========================
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.mcad_assembly
+
+.. automethod:: MCADAssembly.add_ecad_component_model

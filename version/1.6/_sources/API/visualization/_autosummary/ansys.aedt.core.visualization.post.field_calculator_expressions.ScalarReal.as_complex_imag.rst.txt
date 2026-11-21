@@ -1,0 +1,6 @@
+as\_complex\_imag
+=================
+
+.. currentmodule:: ansys.aedt.core.visualization.post.field_calculator_expressions
+
+.. automethod:: ScalarReal.as_complex_imag

@@ -1,0 +1,6 @@
+max\_pass\_band
+===============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.multiplexer_band
+
+.. autoproperty:: MultiplexerBand.max_pass_band

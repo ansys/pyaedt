@@ -1,0 +1,129 @@
+﻿MCADAssembly
+============
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.mcad_assembly
+
+.. autoclass:: MCADAssembly
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      MCADAssembly.add_coordinate_system
+      
+      
+      MCADAssembly.add_ecad_component_model
+      
+      
+      MCADAssembly.add_mcad_component_model
+      
+      
+      MCADAssembly.add_model_library
+      
+      
+      MCADAssembly.add_sub_ecad_component
+      
+      
+      MCADAssembly.add_sub_mcad_component
+      
+      
+      MCADAssembly.construct
+      
+      
+      MCADAssembly.copy
+      
+      
+      MCADAssembly.dict
+      
+      
+      MCADAssembly.from_orm
+      
+      
+      MCADAssembly.json
+      
+      
+      MCADAssembly.model_construct
+      
+      
+      MCADAssembly.model_copy
+      
+      
+      MCADAssembly.model_dump
+      
+      
+      MCADAssembly.model_dump_json
+      
+      
+      MCADAssembly.model_json_schema
+      
+      
+      MCADAssembly.model_parametrized_name
+      
+      
+      MCADAssembly.model_post_init
+      
+      
+      MCADAssembly.model_rebuild
+      
+      
+      MCADAssembly.model_validate
+      
+      
+      MCADAssembly.model_validate_json
+      
+      
+      MCADAssembly.model_validate_strings
+      
+      
+      MCADAssembly.parse_file
+      
+      
+      MCADAssembly.parse_obj
+      
+      
+      MCADAssembly.parse_raw
+      
+      
+      MCADAssembly.preprocess
+      
+      
+      MCADAssembly.schema
+      
+      
+      MCADAssembly.schema_json
+      
+      
+      MCADAssembly.update_forward_refs
+      
+      
+      MCADAssembly.validate
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      MCADAssembly.model_computed_fields
+      MCADAssembly.model_config
+      MCADAssembly.model_extra
+      MCADAssembly.model_fields
+      MCADAssembly.model_fields_set
+      MCADAssembly.sub_components
+      MCADAssembly.coordinate_system
+      MCADAssembly.ecad_component_models
+      MCADAssembly.mcad_component_models
+      MCADAssembly.model_libraries
+      MCADAssembly.mcad_sub_components
+      MCADAssembly.ecad_sub_components
+   
+   

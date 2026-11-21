@@ -1,0 +1,6 @@
+raw\_data\_format
+=================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.waveform
+
+.. autoproperty:: Waveform.raw_data_format

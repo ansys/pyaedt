@@ -1,0 +1,82 @@
+﻿FiveGChannelModel
+=================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.five_g_channel_model
+
+.. autoclass:: FiveGChannelModel
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      FiveGChannelModel.delete
+      
+      
+      FiveGChannelModel.duplicate
+      
+      
+      FiveGChannelModel.export_to_csv
+      
+      
+      FiveGChannelModel.get_is_component
+      
+      
+      FiveGChannelModel.get_properties
+      
+      
+      FiveGChannelModel.plot
+      
+      
+      FiveGChannelModel.props_to_dict
+      
+      
+      FiveGChannelModel.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      FiveGChannelModel.allowed_child_types
+      FiveGChannelModel.base_antenna
+      FiveGChannelModel.children
+      FiveGChannelModel.custom_fading_margin
+      FiveGChannelModel.enabled
+      FiveGChannelModel.environment
+      FiveGChannelModel.fading_availability
+      FiveGChannelModel.fading_type
+      FiveGChannelModel.include_atmospheric_absorption
+      FiveGChannelModel.include_bpl
+      FiveGChannelModel.include_rain_attenuation
+      FiveGChannelModel.los
+      FiveGChannelModel.mobile_antenna
+      FiveGChannelModel.name
+      FiveGChannelModel.node_type
+      FiveGChannelModel.nyu_bpl_model
+      FiveGChannelModel.odesktop
+      FiveGChannelModel.parent
+      FiveGChannelModel.parent_name
+      FiveGChannelModel.pointing_error_loss
+      FiveGChannelModel.polarization_mismatch
+      FiveGChannelModel.polarization_tilt_angle
+      FiveGChannelModel.properties
+      FiveGChannelModel.rain_availability
+      FiveGChannelModel.rain_rate
+      FiveGChannelModel.std_deviation
+      FiveGChannelModel.temperature
+      FiveGChannelModel.total_air_pressure
+      FiveGChannelModel.valid
+      FiveGChannelModel.warnings
+      FiveGChannelModel.water_vapor_concentration
+   
+   

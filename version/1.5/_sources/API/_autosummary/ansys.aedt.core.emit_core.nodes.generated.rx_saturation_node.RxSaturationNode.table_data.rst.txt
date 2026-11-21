@@ -1,0 +1,6 @@
+table\_data
+===========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.rx_saturation_node
+
+.. autoproperty:: RxSaturationNode.table_data

@@ -1,0 +1,6 @@
+insert\_hfss\_3dl\_design
+=========================
+
+.. currentmodule:: ansys.aedt.core.filtersolutions_core.export_to_aedt
+
+.. autoproperty:: ExportToAedt.insert_hfss_3dl_design

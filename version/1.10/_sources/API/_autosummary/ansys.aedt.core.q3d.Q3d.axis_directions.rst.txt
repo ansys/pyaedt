@@ -1,0 +1,6 @@
+axis\_directions
+================
+
+.. currentmodule:: ansys.aedt.core.q3d
+
+.. autoproperty:: Q3d.axis_directions

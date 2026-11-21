@@ -1,0 +1,6 @@
+add\_hata\_coupling
+===================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.couplings_node
+
+.. automethod:: CouplingsNode.add_hata_coupling

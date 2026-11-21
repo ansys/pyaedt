@@ -1,0 +1,6 @@
+import\_rx\_measurement
+=======================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.band
+
+.. automethod:: Band.import_rx_measurement

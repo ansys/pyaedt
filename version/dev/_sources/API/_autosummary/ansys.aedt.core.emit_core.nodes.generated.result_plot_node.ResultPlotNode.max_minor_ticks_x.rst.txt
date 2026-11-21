@@ -1,0 +1,6 @@
+max\_minor\_ticks\_x
+====================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.result_plot_node
+
+.. autoproperty:: ResultPlotNode.max_minor_ticks_x

@@ -1,0 +1,6 @@
+show\_axes
+==========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.cad_node
+
+.. autoproperty:: CADNode.show_axes

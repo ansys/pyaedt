@@ -1,0 +1,79 @@
+﻿ErcegCouplingNode
+=================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.erceg_coupling_node
+
+.. autoclass:: ErcegCouplingNode
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      ErcegCouplingNode.delete
+      
+      
+      ErcegCouplingNode.duplicate
+      
+      
+      ErcegCouplingNode.export_to_csv
+      
+      
+      ErcegCouplingNode.get_is_component
+      
+      
+      ErcegCouplingNode.get_properties
+      
+      
+      ErcegCouplingNode.plot
+      
+      
+      ErcegCouplingNode.props_to_dict
+      
+      
+      ErcegCouplingNode.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      ErcegCouplingNode.allowed_child_types
+      ErcegCouplingNode.base_antenna
+      ErcegCouplingNode.children
+      ErcegCouplingNode.custom_fading_margin
+      ErcegCouplingNode.enabled
+      ErcegCouplingNode.fading_availability
+      ErcegCouplingNode.fading_type
+      ErcegCouplingNode.include_atmospheric_absorption
+      ErcegCouplingNode.include_rain_attenuation
+      ErcegCouplingNode.mobile_antenna
+      ErcegCouplingNode.name
+      ErcegCouplingNode.node_type
+      ErcegCouplingNode.odesktop
+      ErcegCouplingNode.parent
+      ErcegCouplingNode.parent_name
+      ErcegCouplingNode.pointing_error_loss
+      ErcegCouplingNode.polarization_mismatch
+      ErcegCouplingNode.polarization_tilt_angle
+      ErcegCouplingNode.properties
+      ErcegCouplingNode.rain_availability
+      ErcegCouplingNode.rain_rate
+      ErcegCouplingNode.std_deviation
+      ErcegCouplingNode.temperature
+      ErcegCouplingNode.terrain_category
+      ErcegCouplingNode.total_air_pressure
+      ErcegCouplingNode.valid
+      ErcegCouplingNode.warnings
+      ErcegCouplingNode.water_vapor_concentration
+   
+   

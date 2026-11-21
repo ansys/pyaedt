@@ -1,0 +1,87 @@
+﻿CouplingsNode
+=============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.couplings_node
+
+.. autoclass:: CouplingsNode
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      CouplingsNode.add_5g_channel_model_coupling
+      
+      
+      CouplingsNode.add_custom_coupling
+      
+      
+      CouplingsNode.add_erceg_coupling
+      
+      
+      CouplingsNode.add_hata_coupling
+      
+      
+      CouplingsNode.add_indoor_propagation_coupling
+      
+      
+      CouplingsNode.add_log_distance_coupling
+      
+      
+      CouplingsNode.add_path_loss_coupling
+      
+      
+      CouplingsNode.add_two_ray_path_loss_coupling
+      
+      
+      CouplingsNode.add_walfisch_ikegami_coupling
+      
+      
+      CouplingsNode.export_to_csv
+      
+      
+      CouplingsNode.get_is_component
+      
+      
+      CouplingsNode.get_properties
+      
+      
+      CouplingsNode.import_touchstone
+      
+      
+      CouplingsNode.plot
+      
+      
+      CouplingsNode.props_to_dict
+      
+      
+      CouplingsNode.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      CouplingsNode.allowed_child_types
+      CouplingsNode.antenna_tags
+      CouplingsNode.children
+      CouplingsNode.global_default_coupling
+      CouplingsNode.minimum_allowed_coupling
+      CouplingsNode.name
+      CouplingsNode.node_type
+      CouplingsNode.odesktop
+      CouplingsNode.parent_name
+      CouplingsNode.properties
+      CouplingsNode.valid
+      CouplingsNode.warnings
+   
+   

@@ -1,0 +1,6 @@
+inverse
+=======
+
+.. currentmodule:: ansys.aedt.core.generic.quaternion
+
+.. automethod:: Quaternion.inverse

@@ -1,0 +1,6 @@
+kaiser\_parameter
+=================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.waveform
+
+.. autoproperty:: Waveform.kaiser_parameter

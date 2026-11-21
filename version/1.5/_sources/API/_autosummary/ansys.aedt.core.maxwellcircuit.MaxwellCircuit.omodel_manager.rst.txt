@@ -1,0 +1,6 @@
+omodel\_manager
+===============
+
+.. currentmodule:: ansys.aedt.core.maxwellcircuit
+
+.. autoproperty:: MaxwellCircuit.omodel_manager

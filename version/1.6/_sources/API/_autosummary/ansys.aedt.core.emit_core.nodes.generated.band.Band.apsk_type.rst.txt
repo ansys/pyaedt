@@ -1,0 +1,6 @@
+apsk\_type
+==========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.band
+
+.. autoproperty:: Band.apsk_type

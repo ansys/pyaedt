@@ -1,0 +1,6 @@
+aedt\_env\_variable
+===================
+
+.. currentmodule:: ansys.aedt.core.q3d
+
+.. autoproperty:: Q2d.aedt_env_variable

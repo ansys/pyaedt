@@ -1,0 +1,6 @@
+percent\_bandwidth
+==================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.filter
+
+.. autoproperty:: Filter.percent_bandwidth

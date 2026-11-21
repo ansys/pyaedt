@@ -1,0 +1,6 @@
+advanced\_extraction\_params
+============================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.waveform
+
+.. autoproperty:: Waveform.advanced_extraction_params
