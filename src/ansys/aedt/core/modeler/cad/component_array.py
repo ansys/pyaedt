@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
 import ast
 import os
 import re
@@ -36,6 +38,9 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 if TYPE_CHECKING:
     from ansys.aedt.core.hfss import Hfss
+from ansys.aedt.core.application import _get_obj_data
+from ansys.aedt.core.application import _has_get_obj_data
+from ansys.aedt.core.generic.props import Props as ComponentArrayProps
 from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
@@ -52,47 +57,654 @@ class ComponentArray(PyAedtBase):
 
     Examples
     --------
-    Basic usage demonstrated with an HFSS design with an existing array:
-
     >>> from ansys.aedt.core import Hfss
     >>> aedtapp = Hfss(project="Array.aedt")
     >>> array_names = aedtapp.component_array_names[0]
-    >>> array = aedtapp.component_array[array_names[0]]
+    >>> array_comp = aedtapp.component_array[array_names[0]]
 
     """
 
-    def __init__(self, app, name: str | None = None) -> None:
+    def __init__(self, app: Hfss, name: str | None = None) -> None:
         # Public attributes
-        self.logger = app.logger
         self.update_cells = True
 
         # Private attributes
-        self.__app = app
+        self._app = app
         if name is None:
             name = _uname("Array_")
-        self.__name = name
+        self._name = name
 
-        # Leverage csv file if possible (aedt version > 2023.2)
-        if self.__app.settings.aedt_version > "2023.2":  # pragma: no cover
+        self._legacy_props = {}
+
+        self.__child_object = None
+
+        # GetObjData is available for some objects in 2026R1
+        self._has_getobject = _has_get_obj_data(self.child_object)
+
+        if self._app.desktop_class.aedt_version > "2023.2" and not self._has_getobject:  # pragma: no cover
+            # Leverage csv file if possible
             self.export_array_info(output_file=None)
-            self.__array_info_path = os.path.join(self.__app.toolkit_directory, "array_info.csv")
-        else:
-            self.__app.save_project()
-            self.__array_info_path = None
+            self._array_info_path = os.path.join(self._app.toolkit_directory, "array_info.csv")
+        elif not self._has_getobject:  # pragma: no cover
+            self._app.save_project()
+            self._array_info_path = None
 
-        # Data that cannot be obtained from CSV
-        try:
-            self.__cs_id = app.design_properties["ArrayDefinition"]["ArrayObject"]["ReferenceCSID"]
-        except (AttributeError, TypeError, KeyError):  # pragma: no cover
-            self.__cs_id = 1
+        if "Coordinate_System" not in dir(self.child_object):  # pragma: no cover
+            # Data that cannot be obtained from CSV
+            array_definition = app.design_properties.get("ArrayDefinition", {})
+            array_object = array_definition.get("ArrayObject", {}) or array_definition.get("ArrayObjects", {})
+            if array_object and isinstance(array_object, dict):
+                array_object = array_object.get(name, {})
+            references_csid = array_object.get("ReferenceCSID") or array_object.get("ReferenceCS")
+            if references_csid:
+                self.__cs_id = references_csid
+            else:
+                self.__cs_id = 1
 
-        self.__omodel = self.__app.get_oo_object(self.__app.odesign, "Model")
-        self.__oarray = self.__app.get_oo_object(self.__omodel, name)
         self.__cells = None
         self.__post_processing_cells = {}
 
+    def __getitem__(self, key):
+        """Get cell object corresponding to a key (row, column).
+
+        Parameters
+        ----------
+        key : tuple(int,int)
+            Row and column associated to the cell.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modeler.cad.component_array.CellArray`
+        """
+        if key[0] > self.a_size or key[1] > self.b_size:
+            self._app.logger.error("Specified cell does not exist.")
+            return False
+
+        if key[0] <= 0 or key[1] <= 0:
+            self._app.logger.error("Row and column index start with ``1``.")
+            return False
+
+        return self.cells[key[0] - 1][key[1] - 1]
+
+    @property
+    def child_object(self):
+        """Object-oriented properties.
+
+        Returns
+        -------
+        AEDT object if any or `None`.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> aedtapp = Hfss()
+        >>> array_names = aedtapp.component_array_names[0]
+        >>> array_comp = aedtapp.component_array[array_names[0]]
+        >>> array_comp.child_object.GetChildNames()
+
+        """
+        if not self.__child_object:
+            design_childs = self._app.get_oo_name(self._app.odesign)
+
+            if "Model" in design_childs:
+                cc = self._app.get_oo_object(self._app.odesign, "Model")
+                cc_names = self._app.get_oo_name(cc)
+                if self._name in cc_names:
+                    self.__child_object = self._app.get_oo_object(cc, self._name)
+        return self.__child_object
+
+    @property
+    @min_aedt_version("2026.1")
+    def props(self) -> ComponentArrayProps:
+        """Properties of the setup.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> aedtapp = Hfss()
+        >>> array_names = aedtapp.component_array_names[0]
+        >>> array_comp = aedtapp.component_array[array_names[0]]
+        >>> array_comp.props
+
+        """
+        if self._has_getobject:
+            self._legacy_props = _get_obj_data(self.child_object)
+        return ComponentArrayProps(self, self._legacy_props)
+
+    @property
+    def name(self) -> str:
+        """Name of the array.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> aedtapp = Hfss()
+        >>> array_names = aedtapp.component_array_names[0]
+        >>> array_comp = aedtapp.component_array[array_names[0]]
+        >>> array_comp.name
+
+        """
+        child_object = self.child_object
+        if child_object is not None and "Name" in dir(child_object):
+            self._name = child_object.Name
+        return self._name
+
+    @name.setter
+    def name(self, array_name: str) -> None:
+        if array_name not in self._app.component_array_names:
+            old_name = self._name
+            self.child_object.SetPropValue("Name", array_name)
+            self._app._rename_component_array(old_name, array_name, self)
+            # Reset object
+            self.__child_object = None
+            object.__setattr__(self, "_name", array_name)
+        else:
+            self._app.logger.warning("Name %s already assigned in the design", array_name)
+
+    @property
+    def properties(self) -> dict:
+        """Ordered dictionary of the properties of the component array.
+
+        The ``component`` dictionary maps component indices to names. The
+        ``cells``, ``active``, and ``rotation`` entries are row-by-column
+        matrices. Empty cells have an index of ``-1``. When using object data,
+        component indices are assigned in the order returned by AEDT.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> aedtapp = Hfss()
+        >>> array_names = aedtapp.component_array_names[0]
+        >>> array_comp = aedtapp.component_array[array_names[0]]
+        >>> array_comp.properties
+
+        """
+        if self._has_getobject:
+            res = self._parse_array_info_from_props(self.props)
+        elif self._array_info_path and os.path.exists(self._array_info_path):  # pragma: no cover
+            # From 2024R1, array information can be loaded from a CSV
+            res = self.parse_array_info_from_csv(self._array_info_path)
+        else:  # pragma: no cover
+            res = self.__get_properties_from_aedt()
+        return res
+
+    @staticmethod
+    def _parse_array_info_from_props(props: dict) -> dict:
+        """Parse component array object data into component and cell matrices."""
+        rows = int(props["RowDimension"])
+        columns = int(props["ColumnDimension"])
+        res = {
+            "component": {},
+            "active": [[False for _ in range(columns)] for _ in range(rows)],
+            "rotation": [[0 for _ in range(columns)] for _ in range(rows)],
+            "cells": [[-1 for _ in range(columns)] for _ in range(rows)],
+        }
+
+        def cell_positions(values):
+            if isinstance(values, str):
+                values = [values]
+            position = r"\[\s*(\d+)\s*,\s*(\d+)\s*\]"
+            for value in values:
+                if not re.fullmatch(rf"\s*{position}(?:\s*,\s*{position})*\s*", value):
+                    raise ValueError(f"Invalid component array cell positions: {value!r}")
+                for row, column in re.findall(position, value):
+                    row, column = int(row) - 1, int(column) - 1
+                    if not (0 <= row < rows and 0 <= column < columns):
+                        raise ValueError(f"Component array cell position out of range: [{row + 1},{column + 1}]")
+                    yield row, column
+
+        for index, (name, positions) in enumerate(props["Cells"].items(), start=1):
+            res["component"][index] = name
+            for row, column in cell_positions(positions):
+                res["cells"][row][column] = index
+
+        active = props["Active"]
+        if active == "All":
+            res["active"] = [[cell != -1 for cell in row] for row in res["cells"]]
+        else:
+            for row, column in cell_positions(active):
+                res["active"][row][column] = True
+
+        for angle, positions in props["Rotation"].items():
+            if not angle.endswith(" deg"):
+                raise ValueError(f"Invalid component array rotation: {angle!r}")
+            rotation = int(float(angle[:-4]))
+            for row, column in cell_positions(positions):
+                res["rotation"][row][column] = rotation
+        return res
+
+    @property
+    def component_names(self) -> list:
+        """List of component names.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> aedtapp = Hfss()
+        >>> array_names = aedtapp.component_array_names[0]
+        >>> array_comp = aedtapp.component_array[array_names[0]]
+        >>> array_comp.component_names
+
+        """
+        return self.properties["component"]
+
+    @property
+    def cells(self) -> list:
+        """List of :class:`ansys.aedt.core.modeler.cad.component_array.CellArray` objects.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> aedtapp = Hfss()
+        >>> array_names = aedtapp.component_array_names[0]
+        >>> array_comp = aedtapp.component_array[array_names[0]]
+        >>> array_comp.cells
+
+        """
+        if not self.update_cells:
+            return self.__cells
+
+        if self._app.desktop_class.aedt_version > "2023.2" and not self._has_getobject:  # pragma: no cover
+            self.export_array_info(output_file=None)
+        elif not self._has_getobject:  # pragma: no cover
+            self._app.save_project()
+
+        array_props = self.properties
+
+        self.__cells = [[None for _ in range(self.b_size)] for _ in range(self.a_size)]
+
+        component_names = self.component_names
+        for row_cell in range(0, self.a_size):
+            for col_cell in range(0, self.b_size):
+                self.__cells[row_cell][col_cell] = CellArray(row_cell, col_cell, array_props, component_names, self)
+        return self.__cells
+
+    @property
+    def post_processing_cells(self) -> dict:
+        """Dictionary of each component's postprocessing cells.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> aedtapp = Hfss()
+        >>> array_names = aedtapp.component_array_names[0]
+        >>> array_comp = aedtapp.component_array[array_names[0]]
+        >>> array_comp.post_processing_cells
+
+        """
+        if not self.__post_processing_cells or self._has_getobject:
+            self.__post_processing_cells = {}
+            component_info = {}
+            for row, row_info in enumerate(self.cells, start=1):
+                for col, col_info in enumerate(row_info, start=1):
+                    name = col_info.component
+                    component_info.setdefault(name, []).append([row, col])
+
+            for component_name, component_cells in component_info.items():
+                if component_name not in self.__post_processing_cells.keys() and component_name is not None:
+                    self.__post_processing_cells[component_name] = component_cells[0]
+
+        return self.__post_processing_cells
+
+    @post_processing_cells.setter
+    def post_processing_cells(self, val: dict) -> None:
+        if isinstance(val, dict):
+            self.__post_processing_cells = val
+            self.edit_array()
+        else:  # pragma: no cover
+            self._app.logger.error("Dictionary with component names and cell is not correct.")
+
+    @property
+    def visible(self) -> bool | None:
+        """Flag indicating if the array is visible.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> aedtapp = Hfss()
+        >>> array_names = aedtapp.component_array_names[0]
+        >>> array_comp = aedtapp.component_array[array_names[0]]
+        >>> array_comp.visible
+
+        """
+        visible = None
+        if "Visible" in dir(self.child_object):
+            visible = self.child_object.Visible
+        return visible
+
+    @visible.setter
+    def visible(self, val: bool) -> None:
+        if "Visible" in dir(self.child_object):
+            self.child_object.Visible = val
+
+    @property
+    def show_cell_number(self) -> bool | None:
+        """Flag indicating if the array cell number is shown.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> aedtapp = Hfss()
+        >>> array_names = aedtapp.component_array_names[0]
+        >>> array_comp = aedtapp.component_array[array_names[0]]
+        >>> array_comp.show_cell_number
+
+        """
+        show_cell_number = None
+        if "Show_Cell_Number" in dir(self.child_object):
+            show_cell_number = self.child_object.Show_Cell_Number
+        return show_cell_number
+
+    @show_cell_number.setter
+    def show_cell_number(self, val: bool) -> None:
+        if "Show_Cell_Number" in dir(self.child_object):
+            self.child_object.Show_Cell_Number = val
+
+    @property
+    def render_choices(self) -> list | None:
+        """List of rendered name choices.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> aedtapp = Hfss()
+        >>> array_names = aedtapp.component_array_names[0]
+        >>> array_comp = aedtapp.component_array[array_names[0]]
+        >>> array_comp.render_choices
+
+        """
+        render_choices = None
+        if "Render_Choices" in dir(self.child_object):
+            render_choices = self.child_object.Render_Choices
+        return render_choices
+
+    @property
+    def render(self) -> str | None:
+        """Array rendering.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> aedtapp = Hfss()
+        >>> array_names = aedtapp.component_array_names[0]
+        >>> array_comp = aedtapp.component_array[array_names[0]]
+        >>> array_comp.render
+
+        """
+        render = None
+        if "Render" in dir(self.child_object):
+            render = self.child_object.Render
+        return render
+
+    @render.setter
+    def render(self, val: str) -> None:
+        if val not in self.render_choices:
+            self._app.logger.warning("Render value is not available.")
+        if "Render" in dir(self.child_object):
+            self.child_object.Render = val
+
+    @property
+    def render_id(self) -> int:
+        """Array rendering ID.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> aedtapp = Hfss()
+        >>> array_names = aedtapp.component_array_names[0]
+        >>> array_comp = aedtapp.component_array[array_names[0]]
+        >>> array_comp.render_id
+
+        """
+        res = self.render_choices.index(self.render)
+        return res
+
+    @property
+    def a_vector_choices(self) -> list | None:
+        """List of name choices for vector A.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> aedtapp = Hfss()
+        >>> array_names = aedtapp.component_array_names[0]
+        >>> array_comp = aedtapp.component_array[array_names[0]]
+        >>> array_comp.a_vector_choices
+
+        """
+        a_vector_choices = None
+        if "A_Vector_Choices" in dir(self.child_object):
+            a_vector_choices = self.child_object.A_Vector_Choices
+        return a_vector_choices
+
+    @property
+    def b_vector_choices(self) -> list | None:
+        """List of name choices for vector B.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> aedtapp = Hfss()
+        >>> array_names = aedtapp.component_array_names[0]
+        >>> array_comp = aedtapp.component_array[array_names[0]]
+        >>> array_comp.b_vector_choices
+
+        """
+        b_vector_choices = None
+        if "B_Vector_Choices" in dir(self.child_object):
+            b_vector_choices = self.child_object.B_Vector_Choices
+        return b_vector_choices
+
+    @property
+    def a_vector_name(self) -> str | None:
+        """Name of vector A.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> aedtapp = Hfss()
+        >>> array_names = aedtapp.component_array_names[0]
+        >>> array_comp = aedtapp.component_array[array_names[0]]
+        >>> array_comp.a_vector_name
+
+        """
+        a_vector_name = None
+        if "A_Vector" in dir(self.child_object):
+            a_vector_name = self.child_object.A_Vector
+        return a_vector_name
+
+    @a_vector_name.setter
+    def a_vector_name(self, val: str) -> None:
+        if val not in self.a_vector_choices:
+            self._app.logger.warning("A vector name not available.")
+            self.child_object.SetPropValue("A Vector", val)
+        elif "A_Vector" in dir(self.child_object):
+            self.child_object.A_Vector = val
+
+    @property
+    def b_vector_name(self) -> str | None:
+        """Name of vector B.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> aedtapp = Hfss()
+        >>> array_names = aedtapp.component_array_names[0]
+        >>> array_comp = aedtapp.component_array[array_names[0]]
+        >>> array_comp.b_vector_name
+
+        """
+        b_vector_name = None
+        if "B_Vector" in dir(self.child_object):
+            b_vector_name = self.child_object.B_Vector
+        return b_vector_name
+
+    @b_vector_name.setter
+    def b_vector_name(self, val: str) -> None:
+        if val not in self.b_vector_choices:
+            self._app.logger.warning("B vector name not available.")
+            self.child_object.SetPropValue("B Vector", val)
+        elif "B_Vector" in dir(self.child_object):
+            self.child_object.B_Vector = val
+
+    @property
+    def a_size(self) -> int | None:
+        """Number of cells in the vector A direction.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> aedtapp = Hfss()
+        >>> array_names = aedtapp.component_array_names[0]
+        >>> array_comp = aedtapp.component_array[array_names[0]]
+        >>> array_comp.a_size
+
+        """
+        cell_count = None
+        if "A_Cell_Count" in dir(self.child_object):
+            cell_count = int(self.child_object.A_Cell_Count)
+        return cell_count
+
+    @a_size.setter
+    @min_aedt_version("2026.1")
+    def a_size(self, val: int) -> None:
+        if "A_Cell_Count" in dir(self.child_object):
+            self.child_object.A_Cell_Count = str(val)
+
+    @property
+    def b_size(self) -> int | None:
+        """Number of cells in the vector B direction.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> aedtapp = Hfss()
+        >>> array_names = aedtapp.component_array_names[0]
+        >>> array_comp = aedtapp.component_array[array_names[0]]
+        >>> array_comp.b_size
+
+        """
+        cell_count = None
+        if "B_Cell_Count" in dir(self.child_object):
+            cell_count = int(self.child_object.B_Cell_Count)
+        return cell_count
+
+    @b_size.setter
+    @min_aedt_version("2026.1")
+    def b_size(self, val: int) -> None:
+        if "B_Cell_Count" in dir(self.child_object):
+            self.child_object.B_Cell_Count = str(val)
+
+    @property
+    def a_length(self) -> float | None:
+        """Length of the array in A direction.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> aedtapp = Hfss()
+        >>> array_names = aedtapp.component_array_names[0]
+        >>> array_comp = aedtapp.component_array[array_names[0]]
+        >>> array_comp.a_length
+
+        """
+        if self.a_size is None:  # pragma: no cover
+            return None
+        a_size = float(self.a_size)
+        lattice_vector = self.lattice_vector()
+        if lattice_vector[0] != 0:  # pragma: no cover
+            x_spacing = float(lattice_vector[0])
+        else:
+            x_spacing = float(lattice_vector[3])
+
+        return x_spacing * a_size
+
+    @property
+    def b_length(self) -> float | None:
+        """Length of the array in B direction.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> aedtapp = Hfss()
+        >>> array_names = aedtapp.component_array_names[0]
+        >>> array_comp = aedtapp.component_array[array_names[0]]
+        >>> array_comp.b_length
+
+        """
+        if self.b_size is None:  # pragma: no cover
+            return None
+        b_size = float(self.b_size)
+        lattice_vector = self.lattice_vector()
+        if lattice_vector[1] != 0:
+            y_spacing = lattice_vector[1]
+        else:  # pragma: no cover
+            y_spacing = lattice_vector[4]
+
+        return y_spacing * b_size
+
+    @property
+    def padding_cells(self) -> int | None:
+        """Number of padding cells.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> aedtapp = Hfss()
+        >>> array_names = aedtapp.component_array_names[0]
+        >>> array_comp = aedtapp.component_array[array_names[0]]
+        >>> array_comp.padding_cells
+
+        """
+        padding = None
+        if "Padding" in dir(self.child_object):
+            padding = int(self.child_object.Padding)
+        return padding
+
+    @padding_cells.setter
+    def padding_cells(self, val: int) -> None:
+        if "Padding" in dir(self.child_object):
+            self.child_object.Padding = val
+
+    @property
+    def coordinate_system(self) -> str:
+        """Coordinate system name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> aedtapp = Hfss()
+        >>> array_names = aedtapp.component_array_names[0]
+        >>> array_comp = aedtapp.component_array[array_names[0]]
+        >>> array_comp.coordinate_system
+
+        """
+        if "Coordinate_System" in dir(self.child_object):
+            return self.child_object.Coordinate_System
+        else:  # pragma: no cover
+            cs_dict = self.__map_coordinate_system_to_id()
+            res = "Global"
+            for name, cs_id in cs_dict.items():
+                if cs_id == self.__cs_id:
+                    res = name
+            if res == "Global":
+                self._app.logger.warning("Coordinate system is not loaded. Save the project.")
+            return res
+
+    @coordinate_system.setter
+    def coordinate_system(self, name: str) -> None:
+        if "Coordinate_System" in dir(self.child_object):
+            self.child_object.Coordinate_System = name
+        else:  # pragma: no cover
+            cs_dict = self.__map_coordinate_system_to_id()
+            if name not in cs_dict:
+                self._app.logger.warning("Coordinate system is not loaded. Save the project.")
+            else:
+                self.__cs_id = cs_dict[name]
+                self.edit_array()
+
     @classmethod
-    def create(cls, app: "Hfss", input_data: dict, name: str | None = None) -> "ComponentArray":
+    def create(cls, app: Hfss, input_data: dict, name: str | None = None) -> ComponentArray:
         """Create a component array.
 
         Parameters
@@ -111,9 +723,11 @@ class ComponentArray(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
-        >>> obj = ComponentArray()
-        >>> obj.create(app=1, input_data={"Name": "Value"})
+        >>> from ansys.aedt.core import Hfss
+        >>> aedtapp = Hfss()
+        >>> array_names = aedtapp.component_array_names[0]
+        >>> array_comp = aedtapp.component_array[array_names[0]]
+        >>> array_comp.create(app=aedtapp, input_data={"Name": "Value"})
 
         """
         app.hybrid = True
@@ -247,414 +861,6 @@ class ComponentArray(PyAedtBase):
         return app.component_array[name]
 
     @pyaedt_function_handler()
-    def __getitem__(self, key):
-        """Get cell object corresponding to a key (row, column).
-
-        Parameters
-        ----------
-        key : tuple(int,int)
-            Row and column associated to the cell.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modeler.cad.component_array.CellArray`
-        """
-        if key[0] > self.a_size or key[1] > self.b_size:
-            self.logger.error("Specified cell does not exist.")
-            return False
-
-        if key[0] <= 0 or key[1] <= 0:
-            self.logger.error("Row and column index start with ``1``.")
-            return False
-
-        return self.cells[key[0] - 1][key[1] - 1]
-
-    @property
-    def component_names(self) -> list:
-        """List of component names.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
-        >>> obj = ComponentArray()
-        >>> obj.component_names
-
-        """
-        return self.properties["component"]
-
-    @property
-    def cells(self) -> list:
-        """List of :class:`ansys.aedt.core.modeler.cad.component_array.CellArray` objects.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
-        >>> obj = ComponentArray()
-        >>> obj.cells
-
-        """
-        if not self.update_cells:
-            return self.__cells
-
-        if self.__app.settings.aedt_version > "2023.2":  # pragma: no cover
-            self.export_array_info(output_file=None)
-        else:
-            self.__app.save_project()
-
-        self.__cells = [[None for _ in range(self.b_size)] for _ in range(self.a_size)]
-        array_props = self.properties
-        component_names = self.component_names
-        for row_cell in range(0, self.a_size):
-            for col_cell in range(0, self.b_size):
-                self.__cells[row_cell][col_cell] = CellArray(row_cell, col_cell, array_props, component_names, self)
-        return self.__cells
-
-    @property
-    def name(self) -> str:
-        """Name of the array.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
-        >>> obj = ComponentArray()
-        >>> obj.name
-
-        """
-        return self.__name
-
-    @name.setter
-    def name(self, array_name: str) -> None:
-        if array_name not in self.__app.component_array_names:
-            if array_name != self.__name:
-                self.__oarray.SetPropValue("Name", array_name)
-                self.__app.component_array.update({array_name: self})
-                self.__app.component_array_names = list(self.__app.omodelsetup.GetArrayNames())
-                del self.__app.component_array[self.__name]
-                self.__name = array_name
-        else:  # pragma: no cover
-            self.logger.warning("Name %s already assigned in the design", array_name)
-
-    @property
-    def properties(self) -> dict:
-        """Ordered dictionary of the properties of the component array.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
-        >>> obj = ComponentArray()
-        >>> obj.properties
-
-        """
-        # From 2024R1, array information can be loaded from a CSV
-        if self.__array_info_path and os.path.exists(self.__array_info_path):  # pragma: no cover
-            res = self.parse_array_info_from_csv(self.__array_info_path)
-        else:
-            res = self.__get_properties_from_aedt()
-        return res
-
-    @property
-    def post_processing_cells(self) -> dict:
-        """Dictionary of each component's postprocessing cells.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
-        >>> obj = ComponentArray()
-        >>> obj.post_processing_cells
-
-        """
-        if not self.__post_processing_cells:
-            self.__post_processing_cells = {}
-            component_info = {}
-            for row, row_info in enumerate(self.cells, start=1):
-                for col, col_info in enumerate(row_info, start=1):
-                    name = col_info.component
-                    component_info.setdefault(name, []).append([row, col])
-
-            for component_name, component_cells in component_info.items():
-                if component_name not in self.__post_processing_cells.keys() and component_name is not None:
-                    self.__post_processing_cells[component_name] = component_cells[0]
-
-        return self.__post_processing_cells
-
-    @post_processing_cells.setter
-    def post_processing_cells(self, val: dict) -> None:
-        if isinstance(val, dict):
-            self.__post_processing_cells = val
-            self.edit_array()
-        else:  # pragma: no cover
-            self.logger.error("Dictionary with component names and cell is not correct.")
-
-    @property
-    def visible(self) -> bool:
-        """Flag indicating if the array is visible.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
-        >>> obj = ComponentArray()
-        >>> obj.visible
-
-        """
-        return self.__app.get_oo_property_value(self.__omodel, self.name, "Visible")
-
-    @visible.setter
-    def visible(self, val: bool) -> None:
-        self.__oarray.SetPropValue("Visible", val)
-
-    @property
-    def show_cell_number(self) -> bool:
-        """Flag indicating if the array cell number is shown.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
-        >>> obj = ComponentArray()
-        >>> obj.show_cell_number
-
-        """
-        return self.__app.get_oo_property_value(self.__omodel, self.name, "Show Cell Number")
-
-    @show_cell_number.setter
-    def show_cell_number(self, val: bool) -> None:
-        self.__oarray.SetPropValue("Show Cell Number", val)
-
-    @property
-    def render_choices(self) -> list:
-        """List of rendered name choices.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
-        >>> obj = ComponentArray()
-        >>> obj.render_choices
-
-        """
-        return list(self.__oarray.GetPropValue("Render/Choices"))
-
-    @property
-    def render(self) -> str:
-        """Array rendering.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
-        >>> obj = ComponentArray()
-        >>> obj.render
-
-        """
-        return self.__app.get_oo_property_value(self.__omodel, self.name, "Render")
-
-    @render.setter
-    def render(self, val: str) -> None:
-        if val not in self.render_choices:
-            self.logger.warning("Render value is not available.")
-        else:
-            self.__oarray.SetPropValue("Render", val)
-
-    @property
-    def render_id(self) -> int:
-        """Array rendering ID.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
-        >>> obj = ComponentArray()
-        >>> obj.render_id
-
-        """
-        res = self.render_choices.index(self.render)
-        return res
-
-    @property
-    def a_vector_choices(self) -> list:
-        """List of name choices for vector A.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
-        >>> obj = ComponentArray()
-        >>> obj.a_vector_choices
-
-        """
-        return list(self.__app.get_oo_property_value(self.__omodel, self.name, "A Vector/Choices"))
-
-    @property
-    def b_vector_choices(self) -> list:
-        """List of name choices for vector B.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
-        >>> obj = ComponentArray()
-        >>> obj.b_vector_choices
-
-        """
-        return list(self.__app.get_oo_property_value(self.__omodel, self.name, "B Vector/Choices"))
-
-    @property
-    def a_vector_name(self) -> str:
-        """Name of vector A.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
-        >>> obj = ComponentArray()
-        >>> obj.a_vector_name
-
-        """
-        return self.__app.get_oo_property_value(self.__omodel, self.name, "A Vector")
-
-    @a_vector_name.setter
-    def a_vector_name(self, val: str) -> None:
-        if val in self.a_vector_choices:
-            self.__oarray.SetPropValue("A Vector", val)
-        else:
-            self.logger.warning("A vector name not available")
-
-    @property
-    def b_vector_name(self) -> str:
-        """Name of vector B.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
-        >>> obj = ComponentArray()
-        >>> obj.b_vector_name
-
-        """
-        return self.__oarray.GetPropValue("B Vector")
-
-    @b_vector_name.setter
-    def b_vector_name(self, val: str) -> None:
-        if val in self.b_vector_choices:
-            self.__oarray.SetPropValue("B Vector", val)
-        else:
-            self.logger.warning("B vector name not available")
-
-    @property
-    def a_size(self) -> int:
-        """Number of cells in the vector A direction.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
-        >>> obj = ComponentArray()
-        >>> obj.a_size
-
-        """
-        return int(self.__app.get_oo_property_value(self.__omodel, self.name, "A Cell Count"))
-
-    @a_size.setter
-    def a_size(self, val: int) -> None:  # pragma: no cover
-        # Bug in 2024.1, not possible to change cell count.
-        # self._oarray.SetPropValue("A Cell Count", val)
-        self.logger.warning("A size cannot be modified.")
-
-    @property
-    def b_size(self) -> int:
-        """Number of cells in the vector B direction.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
-        >>> obj = ComponentArray()
-        >>> obj.b_size
-
-        """
-        return int(self.__app.get_oo_property_value(self.__omodel, self.name, "B Cell Count"))
-
-    @b_size.setter
-    def b_size(self, val: int) -> None:  # pragma: no cover
-        # Bug in 2024.1, not possible to change cell count.
-        # self._oarray.SetPropValue("B Cell Count", val)
-        self.logger.warning("B size cannot be modified.")
-
-    @property
-    def a_length(self) -> float:
-        """Length of the array in A direction.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
-        >>> obj = ComponentArray()
-        >>> obj.a_length
-
-        """
-        lattice_vector = self.lattice_vector()
-        if lattice_vector[0] != 0:  # pragma: no cover
-            x_spacing = lattice_vector[0]
-        else:
-            x_spacing = lattice_vector[3]
-
-        return x_spacing * self.a_size
-
-    @property
-    def b_length(self) -> float:
-        """Length of the array in B direction.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
-        >>> obj = ComponentArray()
-        >>> obj.b_length
-
-        """
-        lattice_vector = self.lattice_vector()
-        if lattice_vector[1] != 0:
-            y_spacing = lattice_vector[1]
-        else:  # pragma: no cover
-            y_spacing = lattice_vector[4]
-
-        return y_spacing * self.b_size
-
-    @property
-    def padding_cells(self) -> int:
-        """Number of padding cells.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
-        >>> obj = ComponentArray()
-        >>> obj.padding_cells
-
-        """
-        return int(self.__app.get_oo_property_value(self.__omodel, self.name, "Padding"))
-
-    @padding_cells.setter
-    def padding_cells(self, val: int) -> None:
-        self.__oarray.SetPropValue("Padding", val)
-
-    @property
-    def coordinate_system(self) -> str:
-        """Coordinate system name.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
-        >>> obj = ComponentArray()
-        >>> obj.coordinate_system
-
-        """
-        cs_dict = self.__map_coordinate_system_to_id()
-        res = "Global"
-        for name, cs_id in cs_dict.items():
-            if cs_id == self.__cs_id:
-                res = name
-        if res == "Global":
-            self.logger.warning("Coordinate system is not loaded. Save the project.")
-        return res
-
-    @coordinate_system.setter
-    def coordinate_system(self, name: str) -> None:
-        cs_dict = self.__map_coordinate_system_to_id()
-        if name not in cs_dict:
-            self.logger.warning("Coordinate system is not loaded. Save the project.")
-        else:
-            self.__cs_id = cs_dict[name]
-            self.edit_array()
-
-    @pyaedt_function_handler()
     def update_properties(self) -> dict:
         """Update component array properties.
 
@@ -665,16 +871,18 @@ class ComponentArray(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
-        >>> obj = ComponentArray()
-        >>> obj.update_properties()
+        >>> from ansys.aedt.core import Hfss
+        >>> aedtapp = Hfss()
+        >>> array_names = aedtapp.component_array_names[0]
+        >>> array_comp = aedtapp.component_array[array_names[0]]
+        >>> array_comp.update_properties()
 
         """
         # From 2024R1, array information can be loaded from a CSV, and this method is not needed.
-        if self.__app.settings.aedt_version > "2023.2":  # pragma: no cover
+        if self._app.settings.aedt_version > "2023.2":  # pragma: no cover
             self.export_array_info(output_file=None)
         else:
-            self.__app.save_project()
+            self._app.save_project()
         new_properties = self.properties
         # TODO : post_processing_cells property can not be retrieved, so if the length of the components and the
         #  property is different, the method will reset the property.
@@ -693,18 +901,20 @@ class ComponentArray(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
-        >>> obj = ComponentArray()
-        >>> obj.delete()
+        >>> from ansys.aedt.core import Hfss
+        >>> aedtapp = Hfss()
+        >>> array_names = aedtapp.component_array_names[0]
+        >>> array_comp = aedtapp.component_array[array_names[0]]
+        >>> array_comp.delete()
 
         """
-        self.__app.omodelsetup.DeleteArray()
-        del self.__app.component_array[self.name]
-        self.__app.component_array_names = list(self.__app.get_oo_name(self.__app.odesign, "Model"))
+        self._app.omodelsetup.DeleteArray()
+        del self._app.component_array[self.name]
+        self._app.component_array_names = list(self._app.get_oo_name(self._app.odesign, "Model"))
 
     @pyaedt_function_handler()
     @min_aedt_version("2024.1")
-    def export_array_info(self, output_file: str = None) -> str:  # pragma: no cover
+    def export_array_info(self, output_file: str | None = None) -> str:  # pragma: no cover
         """Export array information to a CSV file.
 
         Returns
@@ -718,14 +928,16 @@ class ComponentArray(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
-        >>> obj = ComponentArray()
-        >>> obj.export_array_info(output_file="example.txt")
+        >>> from ansys.aedt.core import Hfss
+        >>> aedtapp = Hfss()
+        >>> array_names = aedtapp.component_array_names[0]
+        >>> array_comp = aedtapp.component_array[array_names[0]]
+        >>> array_comp.export_array_info(output_file="example.txt")
 
         """
         if not output_file:  # pragma: no cover
-            output_file = os.path.join(self.__app.toolkit_directory, "array_info.csv")
-        self.__app.omodelsetup.ExportArray(self.name, output_file)
+            output_file = os.path.join(self._app.toolkit_directory, "array_info.csv")
+        self._app.omodelsetup.ExportArray(self.name, output_file)
         return output_file
 
     @pyaedt_function_handler()
@@ -754,7 +966,7 @@ class ComponentArray(PyAedtBase):
         """
         info = read_csv(input_file)
         if not info:
-            self.logger.error("Data from CSV file is not loaded.")
+            self._app.logger.error("Data from CSV file is not loaded.")
             return False
 
         components = {}
@@ -925,11 +1137,11 @@ class ComponentArray(PyAedtBase):
         args.append("Colors:=")
         col = []
         args.append(col)
-        self.__app.omodelsetup.EditArray(args)
+        self._app.omodelsetup.EditArray(args)
         return True
 
     @pyaedt_function_handler()
-    def get_cell(self, row: int, col: int) -> "CellArray":
+    def get_cell(self, row: int, col: int) -> CellArray:
         """Get cell object corresponding to a row and column.
 
         Returns
@@ -938,9 +1150,11 @@ class ComponentArray(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
-        >>> obj = ComponentArray()
-        >>> obj.get_cell(row=1, col=1)
+        >>> from ansys.aedt.core import Hfss
+        >>> aedtapp = Hfss()
+        >>> array_names = aedtapp.component_array_names[0]
+        >>> array_comp = aedtapp.component_array[array_names[0]]
+        >>> array_comp.get_cell(row=1, col=1)
 
         """
         return self[row, col]
@@ -960,14 +1174,16 @@ class ComponentArray(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
-        >>> obj = ComponentArray()
-        >>> obj.lattice_vector()
+        >>> from ansys.aedt.core import Hfss
+        >>> aedtapp = Hfss()
+        >>> array_names = aedtapp.component_array_names[0]
+        >>> array_comp = aedtapp.component_array[array_names[0]]
+        >>> array_comp.lattice_vector()
 
         """
-        lattice_vectors = self.__app.omodelsetup.GetLatticeVectors()
+        lattice_vectors = self._app.omodelsetup.GetLatticeVectors()
 
-        lattice_vectors = [float(vec) * AEDT_UNITS["Length"][self.__app.modeler.model_units] for vec in lattice_vectors]
+        lattice_vectors = [float(vec) * AEDT_UNITS["Length"][self._app.modeler.model_units] for vec in lattice_vectors]
         return lattice_vectors
 
     @pyaedt_function_handler()
@@ -981,26 +1197,26 @@ class ComponentArray(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
-        >>> obj = ComponentArray()
-        >>> obj.get_component_objects()
+        >>> from ansys.aedt.core import Hfss
+        >>> aedtapp = Hfss()
+        >>> array_names = aedtapp.component_array_names[0]
+        >>> array_comp = aedtapp.component_array[array_names[0]]
+        >>> array_comp.get_component_objects()
 
         """
         component_info = {}
         component_names = self.component_names
         for component in component_names.values():
-            component_object = self.__app.modeler.components[component]
+            component_object = self._app.modeler.components[component]
             if component_object.is_3d_component:
                 part_names = [part.name for part in component_object.parts.values()]
             else:
-                part_names = list(self.__app.get_oo_name(self.__app.modeler.oeditor, component_object.name))
+                part_names = list(self._app.get_oo_name(self._app.modeler.oeditor, component_object.name))
 
             for part_name in part_names:
                 if component not in component_info:
                     center = component_object.center
-                    scaled_center = [
-                        float(cen) * AEDT_UNITS["Length"][self.__app.modeler.model_units] for cen in center
-                    ]
+                    scaled_center = [float(cen) * AEDT_UNITS["Length"][self._app.modeler.model_units] for cen in center]
                     component_info[component] = (scaled_center, part_name)
                 else:
                     component_info[component] = component_info[component] + (part_name,)
@@ -1018,9 +1234,11 @@ class ComponentArray(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
-        >>> obj = ComponentArray()
-        >>> obj.get_cell_position()
+        >>> from ansys.aedt.core import Hfss
+        >>> aedtapp = Hfss()
+        >>> array_names = aedtapp.component_array_names[0]
+        >>> array_comp = aedtapp.component_array[array_names[0]]
+        >>> array_comp.get_cell_position()
 
         """
         cell_info = [[None for _ in range(self.b_size)] for _ in range(self.a_size)]
@@ -1067,7 +1285,7 @@ class ComponentArray(PyAedtBase):
             Ordered dictionary of the properties of the component array.
 
         """
-        props = self.__app.design_properties
+        props = self._app.design_properties
         component_id = {}
         user_defined_models = props["ModelSetup"]["GeometryCore"]["GeometryOperations"]["UserDefinedModels"][
             "UserDefinedModel"
@@ -1099,8 +1317,8 @@ class ComponentArray(PyAedtBase):
             Coordinate system ID.
         """
         res = {"Global": 1}
-        if self.__app.design_properties and "ModelSetup" in self.__app.design_properties:  # pragma: no cover
-            cs = self.__app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["CoordinateSystems"]
+        if self._app.design_properties and "ModelSetup" in self._app.design_properties:  # pragma: no cover
+            cs = self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["CoordinateSystems"]
             for _, val in cs.items():
                 try:
                     if isinstance(val, dict):
@@ -1132,8 +1350,11 @@ class CellArray(PyAedtBase):
 
     Examples
     --------
-    >>> from ansys.aedt.core.modeler.cad.component_array import CellArray
-    >>> obj = CellArray()
+    >>> from ansys.aedt.core import Hfss
+    >>> aedtapp = Hfss()
+    >>> array_names = aedtapp.component_array_names[0]
+    >>> array_comp = aedtapp.component_array[array_names[0]]
+    >>> cell = array_comp.get_cell(row=1, col=1)
 
     """
 
@@ -1162,9 +1383,12 @@ class CellArray(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.component_array import CellArray
-        >>> obj = CellArray()
-        >>> obj.rotation
+        >>> from ansys.aedt.core import Hfss
+        >>> aedtapp = Hfss()
+        >>> array_names = aedtapp.component_array_names[0]
+        >>> array_comp = aedtapp.component_array[array_names[0]]
+        >>> cell = array_comp.get_cell(row=1, col=1)
+        >>> cell.rotation
 
         """
         return self.__rotation
@@ -1185,9 +1409,12 @@ class CellArray(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.component_array import CellArray
-        >>> obj = CellArray()
-        >>> obj.component
+        >>> from ansys.aedt.core import Hfss
+        >>> aedtapp = Hfss()
+        >>> array_names = aedtapp.component_array_names[0]
+        >>> array_comp = aedtapp.component_array[array_names[0]]
+        >>> cell = array_comp.get_cell(row=1, col=1)
+        >>> cell.component
 
         """
         return self.__component
@@ -1219,9 +1446,12 @@ class CellArray(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.component_array import CellArray
-        >>> obj = CellArray()
-        >>> obj.is_active
+        >>> from ansys.aedt.core import Hfss
+        >>> aedtapp = Hfss()
+        >>> array_names = aedtapp.component_array_names[0]
+        >>> array_comp = aedtapp.component_array[array_names[0]]
+        >>> cell = array_comp.get_cell(row=1, col=1)
+        >>> cell.is_active
 
         """
         return self.__is_active

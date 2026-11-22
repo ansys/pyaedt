@@ -256,10 +256,6 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
     def props(self, value: dict) -> None:
         self.update(value)
 
-    def update(self, properties: dict | None = None) -> bool:
-        """Update setup properties in the concrete setup implementation."""
-        raise NotImplementedError
-
     @property
     def name(self) -> str:
         """Name.
@@ -489,6 +485,10 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
         if identify_setup(self.props):
             sol.domain = "Time"
         return True if sol.get_solution_data() else False
+
+    def update(self, properties: dict | None = None) -> bool:
+        """Update setup properties in the concrete setup implementation."""
+        raise NotImplementedError
 
     @pyaedt_function_handler()
     def get_profile(self) -> Profiles:

@@ -292,20 +292,47 @@ def test_min_aedt_version_success_with_common_attributes_names() -> None:
     dummy.old_method()
 
 
-def test_min_aedt_version_success_with_app_private_attribute() -> None:
+@pytest.mark.parametrize("attribute", ["_Dummy__app", "_app"])
+def test_min_aedt_version_success_with_app_attribute(attribute) -> None:
     class Dummy:
-        """Dummy class to test min version with __app attribute."""
-
-        odesktop = MagicMock()
-        odesktop.GetVersion.return_value = CURRENT_YEAR_VERSION
-        __app = odesktop
+        """Dummy class to test min version with an application attribute."""
 
         @min_aedt_version(PREVIOUS_YEAR_VERSION)
-        def old_method(self) -> None:
-            pass
+        def old_method(self) -> str:
+            return "success"
 
     dummy = Dummy()
-    dummy.old_method()
+    app = MagicMock()
+    app.odesktop.GetVersion.return_value = CURRENT_YEAR_VERSION
+    setattr(dummy, attribute, app)
+    assert dummy.old_method() == "success"
+    app.odesktop.GetVersion.assert_called_once_with()
+
+
+def test_min_aedt_version_raise_error_on_future_version_with_app_attribute() -> None:
+    class Dummy:
+        _app = MagicMock()
+        _app.odesktop.GetVersion.return_value = CURRENT_YEAR_VERSION
+
+        @min_aedt_version(NEXT_YEAR_VERSION)
+        def future_method(self) -> None:
+            pytest.fail("The method must not run on an unsupported AEDT version.")
+
+    with pytest.raises(AEDTRuntimeError, match="requires a minimum Ansys release version"):
+        Dummy().future_method()
+
+
+@pytest.mark.parametrize("app", [None, MagicMock(odesktop=None)])
+def test_min_aedt_version_raise_error_with_unavailable_app_desktop(app) -> None:
+    class Dummy:
+        @min_aedt_version(PREVIOUS_YEAR_VERSION)
+        def dummy_method(self) -> None:
+            pytest.fail("The method must not run without an AEDT desktop.")
+
+    dummy = Dummy()
+    dummy._app = app
+    with pytest.raises(AEDTRuntimeError, match="The AEDT desktop object is not available."):
+        dummy.dummy_method()
 
 
 def test_min_aedt_version_success_with_desktop_class() -> None:

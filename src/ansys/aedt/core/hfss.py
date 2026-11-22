@@ -257,10 +257,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         )
         ScatteringMethods.__init__(self, self)
         self._field_setups = []
-        self.component_array = {}
-        self.component_array_names = list(self.get_oo_name(self.odesign, "Model"))
-        for component_array in self.component_array_names:
-            self.component_array[component_array] = ComponentArray(self, component_array)
+        self.__component_array = {}
 
     def _init_from_design(self, *args, **kwargs) -> None:
         self.__init__(*args, **kwargs)
@@ -286,6 +283,50 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             self.logger.info(f"Field setup {boundary_type} {name} has been created.")
             return bound
         raise AEDTRuntimeError(f"Failed to create near field setup {boundary_type} {name}")
+
+    @property
+    def component_array_names(self) -> list:
+        """Component array names.
+
+        Returns
+        -------
+        List of str
+            List of component array names in the design.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.component_array_names
+
+        """
+        return list(self.get_oo_name(self.odesign, "Model"))
+
+    @property
+    def component_array(self) -> dict:
+        """Dictionary of component arrays."""
+        for component_array in self.component_array_names:
+            if component_array not in self.__component_array:
+                self._register_component_array(ComponentArray(self, component_array))
+
+        current_component_arrays = self.component_array_names
+        for component_array in list(self.__component_array.keys()):
+            if component_array not in current_component_arrays:
+                self._unregister_component_array(component_array)
+        return self.__component_array
+
+    def _register_component_array(self, component_array: ComponentArray) -> None:
+        """Store a newly created component array in the local cache."""
+        self.__component_array[component_array.name] = component_array
+
+    def _rename_component_array(self, old_name: str, new_name: str, component_array: ComponentArray) -> None:
+        """Update the cached name of a component array."""
+        self.__component_array[new_name] = component_array
+        self.__component_array.pop(old_name, None)
+
+    def _unregister_component_array(self, name: str) -> None:
+        """Remove a component array from the local cache."""
+        self.__component_array.pop(name, None)
 
     @property
     def field_setups(self):
