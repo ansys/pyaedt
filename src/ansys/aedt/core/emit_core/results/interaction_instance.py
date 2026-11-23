@@ -24,16 +24,19 @@
 
 from __future__ import annotations
 
+from contextlib import contextmanager
 from typing import TYPE_CHECKING
 
 from ansys.aedt.core.emit_core.emit_constants import EMI_CATEGORY_TO_INTERFERER_TYPE
 from ansys.aedt.core.emit_core.emit_constants import EMIInterfererType
 from ansys.aedt.core.emit_core.emit_constants import PowerType
 from ansys.aedt.core.emit_core.emit_constants import ResultType
+from ansys.aedt.core.emit_core.emit_constants import EmiType
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import min_aedt_version
+from ansys.aedt.core.internal.errors import GrpcApiError
 
 if TYPE_CHECKING:
     from matplotlib.figure import Figure
@@ -53,6 +56,35 @@ class InteractionInstance:
         self.revision = revision
         self.parent_interaction = parent_interaction
         """Reference to parent Interaction for invalidation tracking."""
+
+    @min_aedt_version("2027.1")
+    @contextmanager
+    def _catch_aedt_errors(self, default_error: str) -> None:
+        """Catches grpc exceptions and raises a RuntimeError with the last error message from AEDT if found.
+
+        Parameters
+        ----------
+        default_error : str
+            The default error message to raise if none is found in aedt message manager.
+        """
+        try:
+            yield
+        except GrpcApiError as e:
+            try:
+                errors = self.emit_project.logger.aedt_messages.error_level
+            except GrpcApiError:  # no messages found (logger bug triggers the exception)
+                raise e
+            if errors:
+                last_message = str(errors[-1])
+                if "[error]  " in last_message:
+                    # Trim the beginning of the error message
+                    index = last_message.find("[error]  ") + len("[error]  ")
+                    last_message = last_message[(index):]
+                    raise RuntimeError(last_message)
+                else:
+                    raise Exception(default_error) from e
+            else:
+                raise Exception(default_error) from e
 
     @min_aedt_version("2027.1")
     @pyaedt_function_handler()
@@ -443,3 +475,90 @@ class InteractionInstance:
         if not self.domain.is_single_instance():
             return "Instance domain is not single instance"
         return ""
+
+    @min_aedt_version("2027.2")
+    @pyaedt_function_handler()
+    def get_point_emi_max_list(self) -> list[tuple[float, float]]:
+        """Get the point EMI frequency/power list sorted by highest power first
+
+        Returns
+        -------
+        list
+            List of point EMI values.
+        """
+        emi_values_csv = self.emit_project._emit_com_module.GetSortedEmiPointList(
+            self.revision.results_index,
+            self.domain.receiver_name,
+            self.domain.receiver_band_name,
+            self.domain.receiver_channel_frequency,
+            self.domain.interferer_names,
+            self.domain.interferer_band_names,
+            self.domain.interferer_channel_frequencies
+        )
+        emi_str_values_list = emi_values_csv.split(",")
+        emi_float_values_list = [float(x) for x in emi_str_values_list]
+        pairs = list(zip(emi_float_values_list[::2], emi_float_values_list[1::2]))
+        pairs.reverse()
+        return pairs
+
+    @min_aedt_version("2027.2")
+    @pyaedt_function_handler()
+    def get_contributor_labels(self, emi_type: EmiType, frequency: float = 0) -> list[str]:
+        """Get the contributor labels for the given result type and optional frequency
+        sorted in order of greatest contribution
+
+        Returns
+        -------
+        list
+            List of contributor labels.
+        """
+        # Check if the requested result type is valid
+        if emi_type not in (EmiType.POINT, EmiType.NOISE):
+            raise ValueError(
+                f"Invalid result type: {emi_type}. Must be one of: POINT, NOISE."
+            )
+        with self._catch_aedt_errors(f"Failed to get contributor labels"):
+            contributor_list = self.emit_project._emit_com_module.GetContributorLabels(
+                self.revision.results_index,
+                self.domain.receiver_name,
+                self.domain.receiver_band_name,
+                self.domain.receiver_channel_frequency,
+                self.domain.interferer_names,
+                self.domain.interferer_band_names,
+                self.domain.interferer_channel_frequencies,
+                emi_type,
+                frequency
+            )
+        return contributor_list
+
+
+    @min_aedt_version("2027.2")
+    @pyaedt_function_handler()
+    def get_traceback(self, emi_type: EmiType, frequency: float = -1, contributor_index: int = 0) -> list[str]:
+        """Get the traceback for the given result type and optional frequency and contributor index
+    
+        Returns
+        -------
+        list
+            List of traceback entries as strings formated like:
+                {from_component_full_node_name}:{port}->{to_component_full_node_name}:{port}
+        """
+        # Check if the requested result type is valid
+        if emi_type not in (EmiType.POINT, EmiType.NOISE):
+            raise ValueError(
+                f"Invalid result type: {emi_type}. Must be one of: POINT, NOISE."
+            )
+        with self._catch_aedt_errors(f"Failed to get traceback"):
+            traceback = self.emit_project._emit_com_module.GetTraceback(
+                self.revision.results_index,
+                self.domain.receiver_name,
+                self.domain.receiver_band_name,
+                self.domain.receiver_channel_frequency,
+                self.domain.interferer_names,
+                self.domain.interferer_band_names,
+                self.domain.interferer_channel_frequencies,
+                emi_type,
+                frequency, 
+                contributor_index
+            )
+        return traceback

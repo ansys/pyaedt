@@ -28,6 +28,7 @@ import pytest
 
 from ansys.aedt.core import Emit
 from ansys.aedt.core.emit_core.emit_constants import ResultType
+from ansys.aedt.core.emit_core.emit_constants import EmiType
 from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 from ansys.aedt.core.emit_core.results.interaction_instance import InteractionInstance
 from tests import TESTS_EMIT_PATH
@@ -222,3 +223,93 @@ def test_instance_get_worst_instance(cell_phone):
     with pytest.raises(ValueError) as e:
         interaction.get_worst_instance(ResultType.POWER_AT_RX)
     assert "Worst case instances are not available for Power At Rx." in str(e.value)
+
+
+@pytest.mark.skipif(DESKTOP_VERSION < "2027.2", reason="Skipped on versions earlier than 2027.2")
+def test_get_point_emi_max_list(cell_phone):
+    rev = cell_phone.results.analyze()
+    sim = rev.get_simulation()
+    domain = InteractionDomain(cell_phone)
+    domain.set_receiver(radio="GPS Receiver", band="L2")
+    domain.set_interferers(radios=["WiFi - 802.11-2012"], bands=["Tx OFDM - 54 Mbps"])
+
+    interaction = sim.run(domain)
+
+    worst_instance = interaction.get_worst_instance(ResultType.EMI)
+    list = worst_instance.get_point_emi_max_list()
+
+    assert len(list) == 86
+    assert list[0] == (2421000000,pytest.approx(-28.489357587546912))
+
+
+@pytest.mark.skipif(DESKTOP_VERSION < "2027.2", reason="Skipped on versions earlier than 2027.2")
+def test_get_contributor_labels(cell_phone):
+    rev = cell_phone.results.analyze()
+    sim = rev.get_simulation()
+    domain = InteractionDomain(cell_phone)
+    domain.set_receiver(radio="GPS Receiver", band="L2")
+    domain.set_interferers(radios=["WiFi - 802.11-2012"], bands=["Tx OFDM - 54 Mbps"])
+
+    interaction = sim.run(domain)
+
+    worst_instance = interaction.get_worst_instance(EmiType.POINT)
+
+    # default EMI
+    contributor_list = worst_instance.get_contributor_labels(EmiType.POINT)
+    assert len(contributor_list) == 1
+    assert contributor_list[0] == "WiFi - 802.11-2012 [2.412 GHz] Fundamental<br>NB Power = -18.489358 dBm"
+
+    # specific frequency EMI
+    point_list = worst_instance.get_point_emi_max_list()
+    assert point_list[0][0] == 2421000000
+    assert point_list[0][1] == -28.489357587546912
+    assert point_list[1][0] == 2420000000
+    assert point_list[1][1] == -28.566075581764693
+    contributor_list = worst_instance.get_contributor_labels(EmiType.POINT, point_list[1][0])
+    assert len(contributor_list) == 1
+    assert contributor_list[0] == "WiFi - 802.11-2012 [2.412 GHz] Fundamental<br>NB Power = -18.566076 dBm"
+
+    # noise
+    contributor_list = worst_instance.get_contributor_labels(EmiType.NOISE)
+    assert len(contributor_list) == 2
+    assert contributor_list[0] == "Antenna (GPS) Noise<br>In-Channel Noise = -97.855832 dBm"
+    assert contributor_list[1] == "WiFi - 802.11-2012 [2.412 GHz] Noise<br>In-Channel Noise = -160.208882 dBm"
+
+
+
+@pytest.mark.skipif(DESKTOP_VERSION < "2027.2", reason="Skipped on versions earlier than 2027.2")
+def test_get_traceback(cell_phone):
+    rev = cell_phone.results.analyze()
+    sim = rev.get_simulation()
+    domain = InteractionDomain(cell_phone)
+    domain.set_receiver(radio="GPS Receiver", band="L2")
+    domain.set_interferers(radios=["WiFi - 802.11-2012"], bands=["Tx OFDM - 54 Mbps"])
+
+    interaction = sim.run(domain)
+
+    worst_instance = interaction.get_worst_instance(EmiType.POINT)
+
+    # default EMI
+    traceback = worst_instance.get_traceback(EmiType.POINT)
+    assert len(traceback) == 2
+    assert traceback[0] == ("NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012:Port 1->NODE-*-Scene-*-WiFi:in")
+    assert traceback[1] == ("NODE-*-Scene-*-GPS:in->NODE-*-RF Systems-*-GPS Receiver-*-Radios-*-GPS Receiver:Port 1")
+
+    # specific frequency EMI
+    point_list = worst_instance.get_point_emi_max_list()
+    traceback = worst_instance.get_traceback(EmiType.POINT, point_list[0][0])
+    assert len(traceback) == 2
+    assert traceback[0] == ("NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012:Port 1->NODE-*-Scene-*-WiFi:in")
+    assert traceback[1] == ("NODE-*-Scene-*-GPS:in->NODE-*-RF Systems-*-GPS Receiver-*-Radios-*-GPS Receiver:Port 1")
+
+    # noise
+    traceback = worst_instance.get_traceback(EmiType.NOISE, contributor_index=0)
+    assert len(traceback) == 1
+    assert traceback[0] == ("NODE-*-Scene-*-GPS:in->NODE-*-RF Systems-*-GPS Receiver-*-Radios-*-GPS Receiver:Port 1")
+
+    # noise, second contributor
+    traceback = worst_instance.get_traceback(EmiType.NOISE, contributor_index=1)
+    assert len(traceback) == 2
+    assert traceback[0] == ("NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012:Port 1->NODE-*-Scene-*-WiFi:in")
+    assert traceback[1] == ("NODE-*-Scene-*-GPS:in->NODE-*-RF Systems-*-GPS Receiver-*-Radios-*-GPS Receiver:Port 1")
+
