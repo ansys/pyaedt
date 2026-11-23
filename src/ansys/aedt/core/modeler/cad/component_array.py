@@ -122,6 +122,10 @@ class ComponentArray(PyAedtBase):
         key : tuple(int,int)
             Row and column associated to the cell.
 
+        Returns
+        -------
+        :class:`ansys.aedt.core.modeler.cad.component_array.CellArray`
+
         Examples
         --------
         >>> from ansys.aedt.core import Hfss
@@ -130,9 +134,6 @@ class ComponentArray(PyAedtBase):
         >>> array_comp = aedtapp.component_array[array_names[0]]
         >>> array_comp[(1, 1)]
 
-        Returns
-        -------
-        :class:`ansys.aedt.core.modeler.cad.component_array.CellArray`
         """
         if key[0] > self.a_size or key[1] > self.b_size:
             self._app.logger.error("Specified cell does not exist.")
