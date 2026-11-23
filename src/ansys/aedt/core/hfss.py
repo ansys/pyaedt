@@ -300,7 +300,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> hfss.component_array_names
 
         """
-        return list(self.get_oo_name(self.odesign, "Model"))
+        array_names = self.get_oo_name(self.odesign, "Model")
+        return list(array_names)
 
     @property
     def component_array(self) -> dict:

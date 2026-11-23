@@ -27,10 +27,18 @@ from __future__ import annotations
 import ast
 import os
 import re
+import sys
 from typing import TYPE_CHECKING
 
+from ansys.aedt.core.internal.checks import deprecated_doc
+
+if sys.version_info >= (3, 13):
+    from warnings import deprecated
+else:
+    from typing_extensions import deprecated
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
+from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import _uname
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import read_csv
@@ -89,20 +97,19 @@ class ComponentArray(PyAedtBase):
             self._app.save_project()
             self._array_info_path = None
 
-        if "Coordinate_System" not in dir(self.child_object):  # pragma: no cover
+        if self._app.desktop_class.aedt_version < "2026.1":  # pragma: no cover
             # Data that cannot be obtained from CSV
             array_definition = app.design_properties.get("ArrayDefinition", {})
             array_object = array_definition.get("ArrayObject", {}) or array_definition.get("ArrayObjects", {})
             if array_object and isinstance(array_object, dict):
                 array_object = array_object.get(name, {})
             references_csid = array_object.get("ReferenceCSID") or array_object.get("ReferenceCS")
+            self.__cs_id = 1
             if references_csid:
                 self.__cs_id = references_csid
-            else:
-                self.__cs_id = 1
 
         self.__cells = None
-        self.__post_processing_cells = {}
+        self.__post_processing_cells = self._saved_post_processing_cells() if not self._has_getobject else None
 
     def __getitem__(self, key):
         """Get cell object corresponding to a key (row, column).
@@ -156,7 +163,9 @@ class ComponentArray(PyAedtBase):
     @property
     @min_aedt_version("2026.1")
     def props(self) -> ComponentArrayProps:
-        """Properties of the setup.
+        """Properties of the component array.
+
+        Assigning a property updates the array in AEDT.
 
         Examples
         --------
@@ -170,6 +179,11 @@ class ComponentArray(PyAedtBase):
         if self._has_getobject:
             self._legacy_props = _get_obj_data(self.child_object)
         return ComponentArrayProps(self, self._legacy_props)
+
+    @props.setter
+    @min_aedt_version("2026.1")
+    def props(self, value: dict) -> None:
+        self.update(value)
 
     @property
     def name(self) -> str:
@@ -208,7 +222,7 @@ class ComponentArray(PyAedtBase):
         The ``component`` dictionary maps component indices to names. The
         ``cells``, ``active``, and ``rotation`` entries are row-by-column
         matrices. Empty cells have an index of ``-1``. When using object data,
-        component indices are assigned in the order returned by AEDT.
+        component indices are assigned in reverse of the ``Cells`` order.
 
         Examples
         --------
@@ -253,7 +267,7 @@ class ComponentArray(PyAedtBase):
                         raise ValueError(f"Component array cell position out of range: [{row + 1},{column + 1}]")
                     yield row, column
 
-        for index, (name, positions) in enumerate(props["Cells"].items(), start=1):
+        for index, (name, positions) in enumerate(reversed(list(props["Cells"].items())), start=1):
             res["component"][index] = name
             for row, column in cell_positions(positions):
                 res["cells"][row][column] = index
@@ -323,6 +337,11 @@ class ComponentArray(PyAedtBase):
     def post_processing_cells(self) -> dict:
         """Dictionary of each component's postprocessing cells.
 
+        The returned dictionary is a copy. Assign it back to this property
+        after making changes to apply them to AEDT. AEDT 2026 R1 and later
+        provide the selections through object data. Otherwise, initial
+        selections are read from the last saved project when available.
+
         Examples
         --------
         >>> from ansys.aedt.core import Hfss
@@ -332,27 +351,99 @@ class ComponentArray(PyAedtBase):
         >>> array_comp.post_processing_cells
 
         """
-        if not self.__post_processing_cells or self._has_getobject:
-            self.__post_processing_cells = {}
-            component_info = {}
-            for row, row_info in enumerate(self.cells, start=1):
-                for col, col_info in enumerate(row_info, start=1):
-                    name = col_info.component
-                    component_info.setdefault(name, []).append([row, col])
-
-            for component_name, component_cells in component_info.items():
-                if component_name not in self.__post_processing_cells.keys() and component_name is not None:
-                    self.__post_processing_cells[component_name] = component_cells[0]
-
-        return self.__post_processing_cells
+        selections = self._current_post_processing_cells()
+        return self._reconcile_post_processing_cells(self.cells, selections)
 
     @post_processing_cells.setter
     def post_processing_cells(self, val: dict) -> None:
-        if isinstance(val, dict):
-            self.__post_processing_cells = val
-            self.edit_array()
-        else:  # pragma: no cover
-            self._app.logger.error("Dictionary with component names and cell is not correct.")
+        try:
+            selections = self._reconcile_post_processing_cells(self.cells, val, strict=True)
+        except (ValueError, SyntaxError, TypeError) as error:
+            self._app.logger.error("Invalid postprocessing cells: %s", error)
+            return
+        if not self._edit_array(post_processing_cells=selections):
+            self._app.logger.error("Failed to update postprocessing cells.")
+
+    @staticmethod
+    def _component_cell_positions(cells):
+        component_info = {}
+        for row, row_info in enumerate(cells, start=1):
+            for col, cell in enumerate(row_info, start=1):
+                if cell.component is not None:
+                    component_info.setdefault(cell.component, []).append([row, col])
+        return component_info
+
+    @classmethod
+    def _reconcile_post_processing_cells(cls, cells, selections, strict=False):
+        component_info = cls._component_cell_positions(cells)
+        if not isinstance(selections, dict):
+            raise ValueError("Postprocessing cells must be a dictionary.")
+        normalized = {}
+        for name, position in selections.items():
+            if isinstance(position, str):
+                position = ast.literal_eval(position)
+            if not isinstance(position, (list, tuple)) or len(position) != 2:
+                raise ValueError(f"Invalid postprocessing cell for {name!r}.")
+            if any(not str(value).isdigit() for value in position):
+                raise ValueError(f"Invalid postprocessing cell for {name!r}.")
+            position = [int(value) for value in position]
+            if strict and position not in component_info.get(name, []):
+                raise ValueError(f"Postprocessing cell for {name!r} must belong to that component.")
+            normalized[name] = position
+        return {
+            name: list(normalized[name]) if normalized.get(name) in positions else positions[0]
+            for name, positions in component_info.items()
+        }
+
+    def _current_post_processing_cells(self, props=None):
+        if self._has_getobject:
+            if props is None:
+                props = self.props.to_dict()
+            if "PostProcessingCells" not in props:
+                raise ValueError(f"Postprocessing cells for array {self.name} are unavailable in object data.")
+            return props["PostProcessingCells"]
+        return self.__post_processing_cells
+
+    def _saved_post_processing_cells(self):
+        """Read selections from the last saved project, without saving it."""
+        design = self._app.design_properties or {}
+        definition = design.get("ArrayDefinition", {})
+        arrays = definition.get("ArrayObject") or definition.get("ArrayObjects") or {}
+        if isinstance(arrays, dict):
+            if "Name" in arrays:
+                arrays = [arrays]
+            elif self.name in arrays:
+                array = arrays[self.name]
+                arrays = [dict(array, Name=self.name)]
+            else:
+                arrays = list(arrays.values())
+        array = next((item for item in arrays if isinstance(item, dict) and item.get("Name") == self.name), None)
+        if not array or "PostProcessingCells" not in array:
+            self._app.logger.warning(
+                "Postprocessing cells for array %s are unavailable in the saved project; using the first cell.",
+                self.name,
+            )
+            return {}
+
+        models = (
+            design.get("ModelSetup", {})
+            .get("GeometryCore", {})
+            .get("GeometryOperations", {})
+            .get("UserDefinedModels", {})
+            .get("UserDefinedModel", [])
+        )
+        if isinstance(models, dict):
+            models = [models]
+        names = {model["ID"]: model["Attributes"]["Name"] for model in models}
+        if any(component_id not in names for component_id in array["PostProcessingCells"]):
+            self._app.logger.warning(
+                "Some postprocessing components for array %s could not be resolved from the saved project.", self.name
+            )
+        return {
+            names[component_id]: list(position)
+            for component_id, position in array["PostProcessingCells"].items()
+            if component_id in names
+        }
 
     @property
     def visible(self) -> bool | None:
@@ -373,7 +464,7 @@ class ComponentArray(PyAedtBase):
         return visible
 
     @visible.setter
-    def visible(self, val: bool) -> None:
+    def visible(self, val: bool) -> None:  # pragma: no cover
         if "Visible" in dir(self.child_object):
             self.child_object.Visible = val
 
@@ -517,7 +608,6 @@ class ComponentArray(PyAedtBase):
     def a_vector_name(self, val: str) -> None:
         if val not in self.a_vector_choices:
             self._app.logger.warning("A vector name not available.")
-            self.child_object.SetPropValue("A Vector", val)
         elif "A_Vector" in dir(self.child_object):
             self.child_object.A_Vector = val
 
@@ -543,7 +633,6 @@ class ComponentArray(PyAedtBase):
     def b_vector_name(self, val: str) -> None:
         if val not in self.b_vector_choices:
             self._app.logger.warning("B vector name not available.")
-            self.child_object.SetPropValue("B Vector", val)
         elif "B_Vector" in dir(self.child_object):
             self.child_object.B_Vector = val
 
@@ -750,13 +839,12 @@ class ComponentArray(PyAedtBase):
             if v["name"] in cells_names:
                 cells_names[v["name"]].append(k1)
             else:
-                def_names = app.modeler.user_defined_component_names + app.oeditor.Get3DComponentDefinitionNames()
+                def_names = app.modeler.component_names + app.modeler.component_definition_names
                 if v["name"] not in def_names:
                     if v["name"] not in json_dict:
                         raise AEDTRuntimeError(
                             "3D component array is not present in design and not defined correctly in the JSON file."
                         )
-
                     geometryparams = app.get_component_variables(json_dict[v["name"]])
                     ref = "Global"
                     if json_dict.get("referencecs", None):
@@ -843,10 +931,8 @@ class ComponentArray(PyAedtBase):
             col.append(k)
             col.append(str(v).replace(",", " "))
         args.append(col)
-        try:
-            names = app.omodelsetup.GetArrayNames()
-        except Exception:
-            names = []
+
+        names = app.component_array_names
 
         if name in names:
             # Save project, because coordinate system information can not be obtained from AEDT API
@@ -854,14 +940,22 @@ class ComponentArray(PyAedtBase):
             app.omodelsetup.EditArray(args)
         else:
             app.omodelsetup.AssignArray(args)
-            # Save project, because coordinate system information can not be obtained from AEDT API
-            app.save_project()
-            app.component_array[name] = ComponentArray(app, name)
-        app.component_array_names.append(name)
-        return app.component_array[name]
+            if app.desktop_class.aedt_version < "2026.1":
+                # Save project, because coordinate system information can not be obtained from AEDT API
+                app.save_project()
+            app._register_component_array(ComponentArray(app, name))
+
+        array = app.component_array[name]
+        if not array._has_getobject:
+            array.__post_processing_cells = {
+                component: ast.literal_eval(cell) for component, cell in cells_post.items()
+            }
+        return array
 
     @pyaedt_function_handler()
-    def update_properties(self) -> dict:
+    @deprecated_doc(version="2.0.0")
+    @deprecated("Properties are dynamically updated from 2026R1.")
+    def update_properties(self) -> dict:  # pragma: no cover
         """Update component array properties.
 
         Returns
@@ -878,17 +972,16 @@ class ComponentArray(PyAedtBase):
         >>> array_comp.update_properties()
 
         """
+        if self._has_getobject:
+            return self.properties
+
         # From 2024R1, array information can be loaded from a CSV, and this method is not needed.
-        if self._app.settings.aedt_version > "2023.2":  # pragma: no cover
+        if self._app.settings.aedt_version > "2023.2":
             self.export_array_info(output_file=None)
         else:
             self._app.save_project()
         new_properties = self.properties
-        # TODO : post_processing_cells property can not be retrieved, so if the length of the components and the
-        #  property is different, the method will reset the property.
-        if len(new_properties["component"]) != len(self.post_processing_cells):
-            self.__post_processing_cells = {}
-            new_properties = self.properties
+        self.post_processing_cells
         return new_properties
 
     @pyaedt_function_handler()
@@ -908,9 +1001,9 @@ class ComponentArray(PyAedtBase):
         >>> array_comp.delete()
 
         """
+        old_name = self.name
         self._app.omodelsetup.DeleteArray()
-        del self._app.component_array[self.name]
-        self._app.component_array_names = list(self._app.get_oo_name(self._app.odesign, "Model"))
+        self._app._unregister_component_array(old_name)
 
     @pyaedt_function_handler()
     @min_aedt_version("2024.1")
@@ -1043,6 +1136,55 @@ class ComponentArray(PyAedtBase):
         return res
 
     @pyaedt_function_handler()
+    def update(self, props: dict | None = None) -> bool:
+        """Update the array using its property dictionary.
+
+        Parameters
+        ----------
+        props : dict, optional
+            Complete property dictionary to apply. If omitted, current AEDT
+            properties are used.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if not self._has_getobject:
+            self._app.logger.error("Updating array properties requires GetObjData.")
+            return False
+        current = self.props.to_dict()
+        if props is None:
+            props = current
+        else:
+            props = dict(props)
+        supported = {
+            "Name",
+            "UseAirObjects",
+            "RowPrimaryBnd",
+            "ColumnPrimaryBnd",
+            "RowDimension",
+            "ColumnDimension",
+            "Visible",
+            "ShowCellNumber",
+            "RenderType",
+            "Padding",
+            "ReferenceCS",
+            "ReferenceCSID",
+            "Cells",
+            "Rotation",
+            "Active",
+            "PostProcessingCells",
+            "Colors",
+        }
+        for key in props.keys() | current.keys():
+            if key not in supported and props.get(key) != current.get(key):
+                raise ValueError(f"Array property {key!r} cannot be updated.")
+        if props.get("Name", self.name) != self.name:
+            raise ValueError("Rename the array using its name property.")
+        return self._edit_array(props, current_props=current)
+
+    @pyaedt_function_handler()
     def edit_array(self) -> bool:
         """Edit component array.
 
@@ -1062,12 +1204,19 @@ class ComponentArray(PyAedtBase):
         >>> obj.edit_array()
 
         """
+        return self._edit_array()
+
+    def _edit_array(
+        self, props: dict | None = None, post_processing_cells: dict | None = None, current_props: dict | None = None
+    ) -> bool:
+        if current_props is None:
+            current_props = self.props.to_dict() if self._has_getobject else {}
         args = [
             "NAME:" + self.name,
             "Name:=",
             self.name,
             "UseAirObjects:=",
-            True,
+            current_props.get("UseAirObjects", True),
             "RowPrimaryBnd:=",
             self.a_vector_name,
             "ColumnPrimaryBnd:=",
@@ -1084,17 +1233,40 @@ class ComponentArray(PyAedtBase):
             self.render_id,
             "Padding:=",
             self.padding_cells,
-            "ReferenceCSID:=",
-            self.__cs_id,
         ]
+        if self._app.desktop_class.aedt_version >= "2026.1":
+            args.append("ReferenceCS:=")
+            args.append(self.coordinate_system)
+        else:
+            args.append("ReferenceCSID:=")
+            args.append(self.__cs_id)
 
-        cells = ["NAME:Cells"]
-        component_info = {}
         cells_obj = self.cells[:]
-        for row, row_info in enumerate(cells_obj, start=1):
-            for col, col_info in enumerate(row_info, start=1):
-                name = col_info.component
-                component_info.setdefault(name, []).append([row, col])
+        if props is not None and "Cells" in props:
+            array_props = self._parse_array_info_from_props(props)
+            cells_obj = [
+                [
+                    CellArray(row, col, array_props, array_props["component"], self)
+                    for col in range(int(props["ColumnDimension"]))
+                ]
+                for row in range(int(props["RowDimension"]))
+            ]
+        selections = post_processing_cells
+        if selections is None:
+            selections = self._current_post_processing_cells(current_props)
+        selections = self._reconcile_post_processing_cells(
+            cells_obj, selections, strict=post_processing_cells is not None
+        )
+        if props is not None and "PostProcessingCells" in props:
+            overrides = props["PostProcessingCells"]
+            current = current_props.get("PostProcessingCells", {})
+            if not isinstance(overrides, dict):
+                raise ValueError("Postprocessing cells must be a dictionary.")
+            changed = {name: value for name, value in overrides.items() if current.get(name) != value}
+            validated = self._reconcile_post_processing_cells(cells_obj, changed, strict=True)
+            selections.update({name: validated[name] for name in changed})
+        cells = ["NAME:Cells"]
+        component_info = self._component_cell_positions(cells_obj)
 
         for component_name, component_cells in component_info.items():
             if component_name:
@@ -1130,14 +1302,44 @@ class ComponentArray(PyAedtBase):
             args.append("All")
 
         post = ["NAME:PostProcessingCells"]
-        for component_name, values in self.post_processing_cells.items():
+        for component_name, values in selections.items():
             post.append(component_name + ":=")
             post.append([str(values[0]), str(values[1])])
         args.append(post)
         args.append("Colors:=")
-        col = []
+        col = current_props.get("Colors", [])
         args.append(col)
+        if props is not None:
+            scalar_keys = {
+                "Name",
+                "UseAirObjects",
+                "RowPrimaryBnd",
+                "ColumnPrimaryBnd",
+                "RowDimension",
+                "ColumnDimension",
+                "Visible",
+                "ShowCellNumber",
+                "RenderType",
+                "Padding",
+                "ReferenceCS",
+                "ReferenceCSID",
+                "Active",
+                "Colors",
+            }
+            for key in scalar_keys:
+                if key in props and key + ":=" in args:
+                    args[args.index(key + ":=") + 1] = props[key]
+            for key in ("Cells", "Rotation"):
+                if key in props:
+                    section = []
+                    _dict2arg({key: props[key]}, section)
+                    index = next(
+                        i for i, item in enumerate(args) if isinstance(item, list) and item[0] == "NAME:" + key
+                    )
+                    args[index] = section[0]
         self._app.omodelsetup.EditArray(args)
+        if not self._has_getobject:
+            self.__post_processing_cells = selections
         return True
 
     @pyaedt_function_handler()
@@ -1208,7 +1410,7 @@ class ComponentArray(PyAedtBase):
         component_names = self.component_names
         for component in component_names.values():
             component_object = self._app.modeler.components[component]
-            if component_object.is_3d_component:
+            if component_object.definition_type == "3d_component":
                 part_names = [part.name for part in component_object.parts.values()]
             else:
                 part_names = list(self._app.get_oo_name(self._app.modeler.oeditor, component_object.name))
@@ -1401,7 +1603,9 @@ class CellArray(PyAedtBase):
             self.__array_obj.edit_array()
             self.__array_obj.update_cells = True
         else:
-            self.__array_obj.logger.error("Rotation must be an integer. 0, 90, 180, and 270 degrees are available.")
+            self.__array_obj._app.logger.error(
+                "Rotation must be an integer. 0, 90, 180, and 270 degrees are available."
+            )
 
     @property
     def component(self):
@@ -1424,21 +1628,14 @@ class CellArray(PyAedtBase):
         component_names = self.__array_obj.component_names
         if val in component_names.values() or val is None:
             self.__array_obj.update_cells = False
-            if val is None:
-                post_processing_cells = self.__array_obj.post_processing_cells
-                for values in post_processing_cells:
-                    if (values[0], values[1]) == (self.__row, self.__col):
-                        flat_cell_list = [item for sublist in self.__array_obj.cells for item in sublist]
-                        for cell in flat_cell_list:
-                            if cell.component == self.component and cell.col != self.__col or cell.row != self.__row:
-                                self.__array_obj.post_processing_cells[self.component] = [cell.row, cell.col]
-                                break
-                        break
-            self.__component = val
-            self.__array_obj.edit_array()
-            self.__array_obj.update_cells = True
+            try:
+                self.__array_obj.post_processing_cells
+                self.__component = val
+                self.__array_obj.edit_array()
+            finally:
+                self.__array_obj.update_cells = True
         else:  # pragma: no cover
-            self.__array_obj.logger.error("Component must be defined.")
+            self.__array_obj._app.logger.error("Component must be defined.")
 
     @property
     def is_active(self) -> bool:
@@ -1464,4 +1661,4 @@ class CellArray(PyAedtBase):
             self.__array_obj.edit_array()
             self.__array_obj.update_cells = True
         else:
-            self.__array_obj.logger.error("Only Boolean type is allowed.")
+            self.__array_obj._app.logger.error("Only Boolean type is allowed.")

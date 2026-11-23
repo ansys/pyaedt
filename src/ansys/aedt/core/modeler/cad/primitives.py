@@ -26,6 +26,13 @@
 
 from __future__ import annotations
 
+import sys
+
+if sys.version_info >= (3, 13):
+    from warnings import deprecated
+else:
+    from typing_extensions import deprecated
+
 from contextlib import contextmanager
 import copy
 import fnmatch
@@ -55,6 +62,7 @@ from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.generic.quaternion import Quaternion
+from ansys.aedt.core.internal.checks import deprecated_doc
 from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
@@ -1001,6 +1009,21 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         """
         return list(self.components_data.keys())
+
+    @property
+    @deprecated_doc(version="2.0.0")
+    @deprecated("Use `component_names` instead.")
+    def user_defined_component_names(self) -> list:
+        """List of the names of all components, 3D Components and user-defined components.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.modeler.user_defined_component_names
+
+        """
+        return self.component_names
 
     @property
     def component_definition_names(self) -> list:

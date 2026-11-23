@@ -36,6 +36,8 @@ from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.generic.file_utils import get_dxf_layers
 from ansys.aedt.core.hfss import Hfss
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from ansys.aedt.core.modeler.cad.component_array import CellArray
+from ansys.aedt.core.modeler.cad.component_array import ComponentArray
 from ansys.aedt.core.visualization.advanced.misc import convert_farfield_data
 from ansys.aedt.core.visualization.advanced.misc import convert_nearfield_data
 from tests import TESTS_GENERAL_PATH
@@ -1328,13 +1330,12 @@ def test_set_differential_pair(diff_pairs_app) -> None:
     assert not diff_pairs_app.set_differential_pair(assignment="P2_T1", reference="P2_T3")
 
 
-@pytest.mark.skipif(
-    DESKTOP_VERSION < "2022.2",
-    reason="Not working in non-graphical in version lower than 2022.2",
-)
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.2", reason="Component is compatible from AEDT 2025 R2.")
 def test_array(aedt_app, test_tmp_dir) -> None:
-    aedt_app.insert_design("Array_simple", "Terminal")
+    aedt_app.solution_type = "Terminal"
     from ansys.aedt.core.generic.file_utils import read_json
+
+    cs = aedt_app.modeler.create_coordinate_system(origin=[2000, 5000, 5000], name="Relative_CS1")
 
     json_file = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "array_simple_232.json"
     file = shutil.copy2(json_file, test_tmp_dir / "array_simple_232.json")
@@ -1347,20 +1348,131 @@ def test_array(aedt_app, test_tmp_dir) -> None:
     dict_in["cells"][(1, 1)] = {"name": "Patch"}
     dict_in["primarylattice"] = "Patch_LatticePair1"
     dict_in["secondarylattice"] = "Patch_LatticePair2"
+
+    assert not aedt_app.component_array_names
+
     array_1 = aedt_app.create_3d_component_array(dict_in)
-    aedt_app.modeler.create_coordinate_system(
-        origin=[2000, 5000, 5000],
-        name="Relative_CS1",
-    )
+    assert array_1.name in aedt_app.component_array_names
+    assert isinstance(array_1, ComponentArray)
+
     array_name = aedt_app.component_array_names[0]
     assert aedt_app.component_array[array_name].cells[2][2].rotation == 0
     assert aedt_app.component_array_names
-    array_1.cells[2][2].rotation = 180
+
+    # Properties of the component array
+    old_name = array_1.name
+    array_1.name = "new_array_name"
+    assert array_1.name == "new_array_name"
+    assert old_name not in aedt_app.component_array_names
+    assert "new_array_name" in aedt_app.component_array_names
+    assert "new_array_name" in aedt_app.component_array
+
+    assert array_1.coordinate_system == "Global"
+    array_1.coordinate_system = cs.name
+    assert array_1.coordinate_system == cs.name
+
+    assert isinstance(array_1.component_names, dict)
+    assert array_1.component_names[1] == "Patch"
+
+    assert array_1.a_size == 3
+    if DESKTOP_VERSION >= "2026.1":
+        array_1.a_size = 2
+        assert array_1.a_size == 2
+        array_1.a_size = 3
+
+    assert array_1.b_size == 3
+    if DESKTOP_VERSION >= "2026.1":
+        array_1.b_size = 2
+        assert array_1.b_size == 2
+        array_1.b_size = 3
+
+    assert isinstance(array_1.cells, list)
+    assert len(array_1.cells) == 3
+    assert len(array_1.cells[0]) == 3
+    assert isinstance(array_1.cells[0][0], CellArray)
+
+    cell_0 = array_1.cells[0][0]
+    assert cell_0.component == "Patch"
+
+    assert cell_0.rotation == 0
+    cell_0.rotation = 180
+    assert cell_0.rotation == 180
+    cell_0.rotation = 0
+    cell_0.rotation = 25
+    assert cell_0.rotation == 0
+
+    assert cell_0.is_active
+    cell_0.is_active = False
+    assert not cell_0.is_active
+    cell_0.is_active = True
+    cell_0.is_active = 0
+    assert cell_0.is_active
+
+    assert isinstance(array_1.properties, dict)
+    assert array_1.properties["component"][1] == "Patch"
+    assert array_1.properties["active"]
+    assert array_1.properties["cells"]
+    assert array_1.properties["rotation"]
+
+    assert array_1.post_processing_cells["Patch"] == [1, 1]
+    post_cells = dict(array_1.post_processing_cells)
+    post_cells["Patch"] = [2, 1]
+    array_1.post_processing_cells = post_cells
+    assert array_1.post_processing_cells["Patch"] == [2, 1]
+    array_1.post_processing_cells["Patch"] = 2
+    assert array_1.post_processing_cells["Patch"] == [2, 1]
+
+    assert not array_1.visible
+    if not NON_GRAPHICAL:
+        array_1.visible = True
+        assert array_1.visible
+        array_1.visible = False
+
+    assert not array_1.show_cell_number
+    if not NON_GRAPHICAL:
+        array_1.show_cell_number = True
+        assert array_1.show_cell_number
+        array_1.show_cell_number = False
+
+    assert "Wireframe" in array_1.render_choices
+
+    assert array_1.render == "Shaded"
+    array_1.render = "Wireframe"
+    assert array_1.render == "Wireframe"
+    array_1.render = "Shaded"
+    assert array_1.render == "Shaded"
+    assert array_1.render_id == 0
+
+    assert "Patch_LatticePair1" in array_1.a_vector_choices
+    assert "Patch_LatticePair1" in array_1.b_vector_choices
+
+    assert array_1.a_vector_name == "Patch_LatticePair1"
+    array_1.a_vector_name = "Patch_LatticePair1"
+    assert array_1.a_vector_name == "Patch_LatticePair1"
+    array_1.a_vector_name = "invented"
+    assert array_1.a_vector_name == "Patch_LatticePair1"
+
+    assert array_1.b_vector_name == "Patch_LatticePair2"
+    array_1.b_vector_name = "Patch_LatticePair2"
+    assert array_1.b_vector_name == "Patch_LatticePair2"
+    array_1.b_vector_name = "invented"
+    assert array_1.b_vector_name == "Patch_LatticePair2"
+
+    assert array_1.a_length
+    assert array_1.b_length
+
+    assert array_1.padding_cells == 0
+    array_1.padding_cells = 1
+    assert array_1.padding_cells == 1
+    array_1.padding_cells = 0
+
+    if DESKTOP_VERSION >= "2026.1":
+        assert array_1.props["Type"] == "3D Component"
 
     component = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / COMPONENT_3D
     file = shutil.copy2(component, test_tmp_dir / COMPONENT_3D)
     dict_in["Patch_2"] = str(file)
-    dict_in["referencecs"] = "Relative_CS1"
+    dict_in["referencecs"] = cs.name
     del dict_in["referencecsid"]
     for el in dict_in["cells"].values():
         el["name"] = "Patch_2"
@@ -1368,7 +1480,19 @@ def test_array(aedt_app, test_tmp_dir) -> None:
     dict_in["primarylattice"] = "Patch_2_LatticePair1"
     dict_in["secondarylattice"] = "Patch_2_LatticePair2"
     cmp = aedt_app.create_3d_component_array(dict_in)
-    assert cmp
+    assert isinstance(cmp, ComponentArray)
+    assert cmp.name in aedt_app.component_array_names
+
+    if DESKTOP_VERSION >= "2026.1":
+        cmp.props["ReferenceCS"] = "Global"
+        assert cmp.props["ReferenceCS"] == "Global"
+        cmp.props["ReferenceCS"] = cs.name
+        assert cmp.props["ReferenceCS"] == cs.name
+
+        cmp_dict = cmp.props.to_dict()
+        cmp_dict["ReferenceCS"] = "Global"
+        cmp.props = cmp_dict
+        assert cmp.props["ReferenceCS"] == "Global"
 
     dict_in["secondarylattice"] = None
     with pytest.raises(AEDTRuntimeError):
@@ -1382,7 +1506,12 @@ def test_array(aedt_app, test_tmp_dir) -> None:
     with pytest.raises(AEDTRuntimeError):
         aedt_app.create_3d_component_array(dict_in)
 
+    name_to_delete = array_1.name
+    array_1.delete()
+    assert name_to_delete not in aedt_app.component_array_names
 
+
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.2", reason="Component is compatible from AEDT 2025 R2.")
 def test_array_json(aedt_app, test_tmp_dir) -> None:
     aedt_app.insert_design("Array_simple_json", "Terminal")
     json_file = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "array_simple_232.json"
@@ -1396,6 +1525,185 @@ def test_array_json(aedt_app, test_tmp_dir) -> None:
     # Edit array
     array2 = aedt_app.create_3d_component_array(str(file), name=array1.name)
     assert array1.name == array2.name
+
+
+@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Array props are available from AEDT 2026 R1.")
+def test_component_array_props_update(component_array_app) -> None:
+    array = component_array_app.component_array["A1"]
+    cs = component_array_app.modeler.create_coordinate_system(origin=[1, 2, 3], name="Array_Props_CS")
+    post_cells = array.post_processing_cells
+    assert post_cells == {
+        name: [int(value) for value in position] for name, position in array.props["PostProcessingCells"].items()
+    }
+    component = next(iter(post_cells))
+    alternative = next(
+        [row, col]
+        for row, row_cells in enumerate(array.cells, 1)
+        for col, cell in enumerate(row_cells, 1)
+        if cell.component == component and [row, col] != post_cells[component]
+    )
+    updated = dict(post_cells)
+    updated[component] = alternative
+    array.post_processing_cells = updated
+    assert array.post_processing_cells == updated
+    assert array.props["PostProcessingCells"][component] == [str(value) for value in alternative]
+    array.props["PostProcessingCells"][component] = [str(value) for value in post_cells[component]]
+    assert array.post_processing_cells == post_cells
+    before = array.properties
+
+    array.props["ReferenceCS"] = cs.name
+    assert array.props["ReferenceCS"] == cs.name
+    assert array.properties == before
+    assert array.post_processing_cells == post_cells
+
+    array.props["ReferenceCS"] = "Global"
+    assert array.props["ReferenceCS"] == "Global"
+    array.cells[0][0].rotation = 90
+    assert array.props["ReferenceCS"] == "Global"
+    assert array.post_processing_cells == post_cells
+    array.name = "Renamed_Array"
+    assert array.name == "Renamed_Array"
+    assert array.post_processing_cells == post_cells
+
+
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.2", reason="Component is compatible from AEDT 2025 R2.")
+def test_component_array_object_data_matches_export(component_array_app, test_tmp_dir) -> None:
+    array = component_array_app.component_array["A1"]
+    output = str(test_tmp_dir / "array_export.csv")
+    array.export_array_info(output)
+    exported = array.parse_array_info_from_csv(output)
+    properties = array.properties
+    assert properties["component"] == exported["component"]
+    assert properties["cells"] == exported["cells"]
+    for row, row_cells in enumerate(array.cells):
+        for col, cell in enumerate(row_cells):
+            index = exported["cells"][row][col]
+            assert cell.component == (None if index == -1 else exported["component"][index])
+
+
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.2", reason="Component is compatible from AEDT 2025 R2.")
+def test_component_array(component_array_app, test_tmp_dir) -> None:
+    assert len(component_array_app.component_array) == 1
+
+    array = component_array_app.component_array["A1"]
+    assert array.name == component_array_app.component_array_names[0]
+
+    cell1 = array.get_cell(1, 1)
+    cell2 = array[1, 1]
+    assert cell2
+    assert cell1.rotation == 0
+
+    assert not array.get_cell(0, 0)
+    assert not array.get_cell(10, 0)
+
+    lc = array.lattice_vector()
+    assert len(lc) == 6
+
+    assert len(array.component_names) == 4
+
+    assert len(array.post_processing_cells) == 4
+    post_cells = array.post_processing_cells
+    post_cells["Radome_Corner1"] = [8, 1]
+    array.post_processing_cells = post_cells
+    assert array.post_processing_cells["Radome_Corner1"] == [8, 1]
+
+    array.cells[0][1].component = None
+    assert not array.cells[0][1].component
+
+    array.cells[1][1].rotation = 90
+    assert array.cells[1][1].rotation == 90
+
+    array.cells[1][1].rotation = 10
+    assert not array.cells[1][1].rotation == 10
+
+    array.cells[1][1].is_active = False
+    array.cells[1][1].is_active = 1
+    assert not array.cells[1][1].is_active
+
+    assert array.cells[1][2].component == array.component_names[2]
+    assert not array.cells[1][2].component == "test"
+
+    array.cells[0][1].component = array.component_names[3]
+    assert array.cells[0][1].component == array.component_names[3]
+
+    name = "Array_new"
+    component_array_app.component_array["A1"].name = name
+    assert component_array_app.component_array_names[0] == name
+
+    if DESKTOP_VERSION < "2025.1":
+        name = "A1"
+        component_array_app.component_array["Array_new"].name = name
+    omodel = component_array_app.get_oo_object(component_array_app.odesign, "Model")
+    oarray = component_array_app.get_oo_object(omodel, name)
+
+    assert array.visible
+    array.visible = False
+    assert not oarray.GetPropValue("Visible")
+    array.visible = True
+    assert oarray.GetPropValue("Visible")
+
+    assert array.show_cell_number
+    array.show_cell_number = False
+    assert not oarray.GetPropValue("Show Cell Number")
+    array.show_cell_number = True
+    assert oarray.GetPropValue("Show Cell Number")
+
+    assert array.render == "Shaded"
+    array.render = "Wireframe"
+    assert oarray.GetPropValue("Render") == "Wireframe"
+    array.render = "Shaded"
+    assert oarray.GetPropValue("Render") == "Shaded"
+    array.render = "Shaded1"
+    assert not array.render == "Shaded1"
+
+    a_choices = array.a_vector_choices
+    assert array.a_vector_name in a_choices
+    array.a_vector_name = a_choices[0]
+    assert oarray.GetPropValue("A Vector") == a_choices[0]
+    array.a_vector_name = "Test"
+    assert not array.a_vector_name == "Test"
+
+    b_choices = array.b_vector_choices
+    assert array.b_vector_name in b_choices
+    array.b_vector_name = b_choices[1]
+    assert oarray.GetPropValue("B Vector") == b_choices[1]
+    array.b_vector_name = "Test"
+    assert not array.b_vector_name == "Test"
+
+    assert array.a_size == 8
+
+    assert array.b_size == 8
+
+    assert array.a_length == 0.64
+
+    assert array.b_length == 0.64
+
+    assert len(array.lattice_vector()) == 6
+
+    assert array.padding_cells == 0
+    array.padding_cells = 2
+    assert oarray.GetPropValue("Padding") == "2"
+    array.padding_cells = 0
+
+    assert array.coordinate_system == "Global"
+    array.coordinate_system = "Corner"
+    array.coordinate_system = "Global"
+
+    array_csv = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "array_info.csv"
+    file = shutil.copy2(array_csv, test_tmp_dir / "array_info.csv")
+    array_info = array.parse_array_info_from_csv(str(file))
+    assert len(array_info) == 4
+    assert array_info["component"][1] == "02_Patch1"
+
+    assert len(array.get_component_objects()) == 4
+
+    assert len(array.get_cell_position()) == array.a_size
+
+    # Delete 3D Component
+    component_array_app.modeler.components["03_Radome_Side1"].delete()
+
+    array.delete()
+    assert not component_array_app.component_array
 
 
 def test_set_material_threshold(aedt_app) -> None:
@@ -1698,133 +2006,6 @@ def test_import_dxf(dxf_file: str, object_count: int, self_stitch_tolerance: flo
     assert isinstance(dxf_layers, list)
     assert aedt_app.import_dxf(dxf_file, dxf_layers, self_stitch_tolerance=self_stitch_tolerance)
     assert len(aedt_app.modeler.objects) == object_count
-
-
-def test_component_array(component_array_app, test_tmp_dir) -> None:
-    assert len(component_array_app.component_array) == 1
-
-    array = component_array_app.component_array["A1"]
-    assert array.name == component_array_app.component_array_names[0]
-
-    cell1 = array.get_cell(1, 1)
-    cell2 = array[1, 1]
-    assert cell2
-    assert cell1.rotation == 0
-
-    assert not array.get_cell(0, 0)
-    assert not array.get_cell(10, 0)
-
-    lc = array.lattice_vector()
-    assert len(lc) == 6
-
-    assert len(array.component_names) == 4
-
-    assert len(array.post_processing_cells) == 4
-    post_cells = array.post_processing_cells
-    post_cells["Radome_Corner1"] = [8, 1]
-    array.post_processing_cells = post_cells
-    assert array.post_processing_cells["Radome_Corner1"] == [8, 1]
-
-    array.cells[0][1].component = None
-    assert not array.cells[0][1].component
-
-    array.cells[1][1].rotation = 90
-    assert array.cells[1][1].rotation == 90
-
-    array.cells[1][1].rotation = 10
-    assert not array.cells[1][1].rotation == 10
-
-    array.cells[1][1].is_active = False
-    array.cells[1][1].is_active = 1
-    assert not array.cells[1][1].is_active
-
-    assert array.cells[1][2].component == array.component_names[2]
-    assert not array.cells[1][2].component == "test"
-
-    array.cells[0][1].component = array.component_names[3]
-    assert array.cells[0][1].component == array.component_names[3]
-
-    name = "Array_new"
-    component_array_app.component_array["A1"].name = name
-    assert component_array_app.component_array_names[0] == name
-
-    if DESKTOP_VERSION < "2025.1":
-        name = "A1"
-        component_array_app.component_array["Array_new"].name = name
-    omodel = component_array_app.get_oo_object(component_array_app.odesign, "Model")
-    oarray = component_array_app.get_oo_object(omodel, name)
-
-    assert array.visible
-    array.visible = False
-    assert not oarray.GetPropValue("Visible")
-    array.visible = True
-    assert oarray.GetPropValue("Visible")
-
-    assert array.show_cell_number
-    array.show_cell_number = False
-    assert not oarray.GetPropValue("Show Cell Number")
-    array.show_cell_number = True
-    assert oarray.GetPropValue("Show Cell Number")
-
-    assert array.render == "Shaded"
-    array.render = "Wireframe"
-    assert oarray.GetPropValue("Render") == "Wireframe"
-    array.render = "Shaded"
-    assert oarray.GetPropValue("Render") == "Shaded"
-    array.render = "Shaded1"
-    assert not array.render == "Shaded1"
-
-    a_choices = array.a_vector_choices
-    assert array.a_vector_name in a_choices
-    array.a_vector_name = a_choices[0]
-    assert oarray.GetPropValue("A Vector") == a_choices[0]
-    array.a_vector_name = "Test"
-    assert not array.a_vector_name == "Test"
-
-    b_choices = array.b_vector_choices
-    assert array.b_vector_name in b_choices
-    array.b_vector_name = b_choices[1]
-    assert oarray.GetPropValue("B Vector") == b_choices[1]
-    array.b_vector_name = "Test"
-    assert not array.b_vector_name == "Test"
-
-    assert array.a_size == 8
-
-    assert array.b_size == 8
-
-    assert array.a_length == 0.64
-
-    assert array.b_length == 0.64
-
-    assert len(array.lattice_vector()) == 6
-
-    assert array.padding_cells == 0
-    array.padding_cells = 2
-    assert oarray.GetPropValue("Padding") == "2"
-    array.padding_cells = 0
-
-    assert array.coordinate_system == "Global"
-    array.coordinate_system = "Corner"
-    array.coordinate_system = "Global"
-
-    array_csv = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "array_info.csv"
-    file = shutil.copy2(array_csv, test_tmp_dir / "array_info.csv")
-    array_info = array.parse_array_info_from_csv(str(file))
-    assert len(array_info) == 4
-    assert array_info["component"][1] == "02_Patch1"
-
-    assert len(array.get_component_objects()) == 4
-
-    assert len(array.get_cell_position()) == array.a_size
-
-    # Delete 3D Component
-    component_array_app.modeler.components["03_Radome_Side1"].delete()
-    array.update_properties()
-    assert len(array.component_names) == 3
-    assert len(array.post_processing_cells) == 3
-
-    array.delete()
-    assert not component_array_app.component_array
 
 
 def test_assign_febi(aedt_app) -> None:
