@@ -1644,12 +1644,9 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
 
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d(solution_type="AC Magnetic with DC")
-        >>> coil = m3d.modeler.create_torus(origin=[0.0, 0.0, 0.0],
-        ...                             major_radius=1.0,
-        ...                             minor_radius=0.1,
-        ...                             axis="Z",
-        ...                             name="coil",
-        ...                             material="copper")
+        >>> coil = m3d.modeler.create_torus(
+        ...     origin=[0.0, 0.0, 0.0], major_radius=1.0, minor_radius=0.1, axis="Z", name="coil", material="copper"
+        ... )
         >>> coil.section(plane="XZ")
         >>> terminal, other_side = m3d.modeler.separate_bodies(assignment=f"{coil.name}_Section1")
         >>> m3d.modeler.delete(assignment=other_side.name)
