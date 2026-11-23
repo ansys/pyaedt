@@ -155,6 +155,7 @@ def test_assign_winding(m3d_app) -> None:
     bounds = m3d_app.assign_winding(assignment=face_id, name=bounds_name)
     assert bounds_name == bounds.name
 
+
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Feature not available before 2025R1")
 def test_assign_winding_dc_fields(m3d_app) -> None:
     m3d_app.solution_type = SolutionsMaxwell3D.ACMagneticwithDC
