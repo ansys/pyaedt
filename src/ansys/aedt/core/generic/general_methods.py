@@ -353,7 +353,7 @@ def deprecate_argument_old(
 
             return func(*args, **kwargs)
 
-        return wrapper  # ty: ignore[invalid-return-type]
+        return wrapper  # ty: ignore[invalid-explicit-return]
 
     return decorator
 
@@ -428,7 +428,7 @@ def deprecate_argument(
                 kwargs[new_name] = kwargs.pop(old_name)
             return func(*args, **kwargs)
 
-        return wrapper  # ty: ignore[invalid-return-type]
+        return wrapper  # ty: ignore[invalid-explicit-return]
 
     return decorator
 
@@ -474,7 +474,7 @@ def deprecated_property(reason: str | None = None, version: str | None = None) -
         wrapper.__doc__ = func.__doc__ or ""
         if version or reason:
             wrapper.__doc__ += f"\n\n.. deprecated:: {version or ''}\n   {reason or ''}"
-        return wrapper  # ty: ignore[invalid-return-type]
+        return wrapper  # ty: ignore[invalid-explicit-return]
 
     return decorator
 
