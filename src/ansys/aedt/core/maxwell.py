@@ -1676,7 +1676,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         )
         if dc_current or dc_voltage:
             maxwell_solutions = SolutionsMaxwell3D
-            if self.solution_type not in (maxwell_solutions.ACMagneticwithDC):
+            if self.solution_type != maxwell_solutions.ACMagneticwithDC:
                 raise AEDTRuntimeError(
                     "DC values of a winding are only available with `AC Magnetic with DC` solutions."
                 )
@@ -4039,7 +4039,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
         >>> m3d.desktop_class.close_desktop()
         """
         maxwell_solutions = SolutionsMaxwell3D
-        if self.solution_type not in [maxwell_solutions.ACMagneticwithDC]:
+        if self.solution_type != maxwell_solutions.ACMagneticwithDC:
             raise AEDTRuntimeError("Permeability computation is only available with `AC Magnetic with DC` solutions.")
         objects = self.modeler.convert_to_selections(assignment, True) if assignment else []
         self.oboundary.SetPermeabilityComputation(["NAME:MuLinkSrcObjs", "Objs:=", objects])
