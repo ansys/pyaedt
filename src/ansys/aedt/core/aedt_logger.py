@@ -570,15 +570,15 @@ class AedtLogger:
 
         Parameters
         ----------
-        project_name : str
+        project_name : str, optional
             Name of the project to read messages from. Leave empty string to get Desktop level messages.
-        design_name : str
+        design_name : str, optional
             Name of the design to read messages from. Leave empty string to get Desktop level messages.
-        level : int
+        level : int, optional
             Level of messages to read. 0 – info and above, 1 – warning and above, 2 – error and fatal
-        aedt_messages : bool
-            Read content of message manager even if logger is disabled.
-
+        aedt_messages : bool, optional
+            Whether to read messages from the AEDT message manager.
+            If ``False``, messages are read from the PyAEDT logger. The default is ``False``.
 
         Returns
         -------
@@ -596,11 +596,14 @@ class AedtLogger:
             project_name = project_name or self.project_name
             design_name = design_name or self.design_name
             global_message_data = list(self._desktop.GetMessages("", "", level))
-            # if a 3d component is open, GetMessages without the project name argument returns messages with
-            # "(3D Component)" appended to project name
-            if not any(msg in global_message_data for msg in self._desktop.GetMessages(project_name, "", 0)):
-                project_name = project_name + " (3D Component)"
-            global_message_data.extend(list(self._desktop.GetMessages(project_name, design_name, level)))
+            if project_name:
+                try:
+                    design_name = "" if design_name is None else design_name
+                    global_message_data.extend(list(self._desktop.GetMessages(project_name, design_name, level)))
+                except Exception:  # pragma: no cover
+                    self._desktop.AddMessage(
+                        "", "", 2, f"Failed to retrieve messages from {project_name}: {design_name}."
+                    )
             global_message_data = list(set(global_message_data))
             return MessageList(global_message_data)
         message_lists = []
