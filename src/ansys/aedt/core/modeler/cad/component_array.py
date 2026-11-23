@@ -122,6 +122,14 @@ class ComponentArray(PyAedtBase):
         key : tuple(int,int)
             Row and column associated to the cell.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> aedtapp = Hfss()
+        >>> array_names = aedtapp.component_array_names[0]
+        >>> array_comp = aedtapp.component_array[array_names[0]]
+        >>> array_comp[(1, 1)]
+
         Returns
         -------
         :class:`ansys.aedt.core.modeler.cad.component_array.CellArray`
@@ -1231,9 +1239,11 @@ class ComponentArray(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
-        >>> obj = ComponentArray()
-        >>> obj.edit_array()
+        >>> from ansys.aedt.core import Hfss
+        >>> aedtapp = Hfss()
+        >>> array_names = aedtapp.component_array_names[0]
+        >>> array_comp = aedtapp.component_array[array_names[0]]
+        >>> array_comp.edit_array()
 
         """
         return self._edit_array()
