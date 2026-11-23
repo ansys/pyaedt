@@ -1674,15 +1674,15 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
                 "Phase": self.value_with_units(phase, "deg"),
             }
         )
-        if dc_current or dc_voltage:
+        if dc_current is not None or dc_voltage is not None:
             maxwell_solutions = SolutionsMaxwell3D
             if self.solution_type != maxwell_solutions.ACMagneticwithDC:
                 raise AEDTRuntimeError(
                     "DC values of a winding are only available with `AC Magnetic with DC` solutions."
                 )
-            if winding_type == "Current" and not dc_voltage:
+            if winding_type == "Current" and dc_voltage is None:
                 props["DC Current"] = self.value_with_units(dc_current, "A")
-            elif winding_type == "Voltage" and not dc_current:
+            elif winding_type == "Voltage" and dc_current is None:
                 props["DC Voltage"] = self.value_with_units(dc_voltage, "V")
             else:
                 raise AEDTRuntimeError(
@@ -4042,6 +4042,9 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
         if self.solution_type != maxwell_solutions.ACMagneticwithDC:
             raise AEDTRuntimeError("Permeability computation is only available with `AC Magnetic with DC` solutions.")
         objects = self.modeler.convert_to_selections(assignment, True) if assignment else []
+        missing = [obj for obj in objects if obj not in self.modeler.object_names]
+        if missing:
+            raise AEDTRuntimeError(f"Objects not found in the design: {missing}.")
         self.oboundary.SetPermeabilityComputation(["NAME:MuLinkSrcObjs", "Objs:=", objects])
         return True
 
