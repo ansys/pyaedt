@@ -35,6 +35,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.generic.protocols import _OEditor
 from ansys.aedt.core.generic.protocols import _OMeshModule
+from ansys.aedt.core.generic.protocols import _OModelSetup
 from ansys.aedt.core.generic.protocols import _OOptimetricsModule
 from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
@@ -77,7 +78,7 @@ class AedtObjects(PyAedtBase):
         self._oanalysis = None
         self._odefinition_manager = None
         self._omaterial_manager = None
-        self._omodel_setup = None
+        self._omodel_setup: _OModelSetup | None = None
         self._omaxwell_parameters = None
         self._omonitor = None
         self._osolution = None
@@ -352,7 +353,7 @@ class AedtObjects(PyAedtBase):
         return self._omaterial_manager
 
     @property
-    def omodelsetup(self) -> object:
+    def omodelsetup(self) -> _OModelSetup | None:
         """AEDT Model Setup Object.
 
         References
@@ -374,7 +375,7 @@ class AedtObjects(PyAedtBase):
                 and self._odesign.GetSolutionType() == "Transient"
                 or self.design_type == "HFSS"
             ):
-                self._omodel_setup = self.get_module("ModelSetup")
+                self._omodel_setup = cast(_OModelSetup, self.get_module("ModelSetup"))
         return self._omodel_setup
 
     @property

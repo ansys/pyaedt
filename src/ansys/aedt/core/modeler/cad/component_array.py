@@ -29,6 +29,7 @@ import os
 import re
 import sys
 from typing import TYPE_CHECKING
+from typing import cast
 
 from ansys.aedt.core.internal.checks import deprecated_doc
 
@@ -45,7 +46,9 @@ from ansys.aedt.core.generic.file_utils import read_csv
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 if TYPE_CHECKING:
+    from ansys.aedt.core.generic.protocols import _OModelSetup
     from ansys.aedt.core.hfss import Hfss
+
 from ansys.aedt.core.application import _get_obj_data
 from ansys.aedt.core.application import _has_get_obj_data
 from ansys.aedt.core.generic.props import Props as ComponentArrayProps
@@ -132,6 +135,14 @@ class ComponentArray(PyAedtBase):
             return False
 
         return self.cells[key[0] - 1][key[1] - 1]
+
+    @property
+    def _omodelsetup(self) -> _OModelSetup:
+        """Return the model setup required by component operations."""
+        model_setup = self._app.omodelsetup
+        if model_setup is None:
+            raise AEDTRuntimeError("Component operations require an active AEDT model setup.")
+        return model_setup
 
     @property
     def child_object(self):
@@ -238,6 +249,8 @@ class ComponentArray(PyAedtBase):
         elif self._array_info_path and os.path.exists(self._array_info_path):  # pragma: no cover
             # From 2024R1, array information can be loaded from a CSV
             res = self.parse_array_info_from_csv(self._array_info_path)
+            if not isinstance(res, dict):
+                raise AEDTRuntimeError("Component array information could not be read from the CSV file.")
         else:  # pragma: no cover
             res = self.__get_properties_from_aedt()
         return res
@@ -288,8 +301,8 @@ class ComponentArray(PyAedtBase):
         return res
 
     @property
-    def component_names(self) -> list:
-        """List of component names.
+    def component_names(self) -> dict:
+        """Dictionary mapping component indices to names.
 
         Examples
         --------
@@ -303,7 +316,7 @@ class ComponentArray(PyAedtBase):
         return self.properties["component"]
 
     @property
-    def cells(self) -> list:
+    def cells(self) -> list[list[CellArray]]:
         """List of :class:`ansys.aedt.core.modeler.cad.component_array.CellArray` objects.
 
         Examples
@@ -315,7 +328,7 @@ class ComponentArray(PyAedtBase):
         >>> array_comp.cells
 
         """
-        if not self.update_cells:
+        if not self.update_cells and self.__cells is not None:
             return self.__cells
 
         if self._app.desktop_class.aedt_version > "2023.2" and not self._has_getobject:  # pragma: no cover
@@ -325,12 +338,15 @@ class ComponentArray(PyAedtBase):
 
         array_props = self.properties
 
-        self.__cells = [[None for _ in range(self.b_size)] for _ in range(self.a_size)]
+        a_size = self.a_size
+        b_size = self.b_size
+        if a_size is None or b_size is None:
+            raise AEDTRuntimeError("Component array dimensions are unavailable.")
 
         component_names = self.component_names
-        for row_cell in range(0, self.a_size):
-            for col_cell in range(0, self.b_size):
-                self.__cells[row_cell][col_cell] = CellArray(row_cell, col_cell, array_props, component_names, self)
+        self.__cells = [
+            [CellArray(row, col, array_props, component_names, self) for col in range(b_size)] for row in range(a_size)
+        ]
         return self.__cells
 
     @property
@@ -439,9 +455,12 @@ class ComponentArray(PyAedtBase):
             self._app.logger.warning(
                 "Some postprocessing components for array %s could not be resolved from the saved project.", self.name
             )
+        post_processing_cells = array["PostProcessingCells"]
+        if not isinstance(post_processing_cells, dict):
+            raise ValueError(f"Invalid postprocessing cells for array {self.name}.")
         return {
             names[component_id]: list(position)
-            for component_id, position in array["PostProcessingCells"].items()
+            for component_id, position in post_processing_cells.items()
             if component_id in names
         }
 
@@ -529,7 +548,8 @@ class ComponentArray(PyAedtBase):
 
     @render.setter
     def render(self, val: str) -> None:
-        if val not in self.render_choices:
+        render_choices = self.render_choices
+        if render_choices is None or val not in render_choices:
             self._app.logger.warning("Render value is not available.")
         if "Render" in dir(self.child_object):
             self.child_object.Render = val
@@ -547,7 +567,11 @@ class ComponentArray(PyAedtBase):
         >>> array_comp.render_id
 
         """
-        res = self.render_choices.index(self.render)
+        render_choices = self.render_choices
+        render = self.render
+        if render_choices is None or render is None or render not in render_choices:
+            raise AEDTRuntimeError("Array rendering choices are unavailable.")
+        res = render_choices.index(render)
         return res
 
     @property
@@ -606,7 +630,8 @@ class ComponentArray(PyAedtBase):
 
     @a_vector_name.setter
     def a_vector_name(self, val: str) -> None:
-        if val not in self.a_vector_choices:
+        vector_choices = self.a_vector_choices
+        if vector_choices is None or val not in vector_choices:
             self._app.logger.warning("A vector name not available.")
         elif "A_Vector" in dir(self.child_object):
             self.child_object.A_Vector = val
@@ -631,7 +656,8 @@ class ComponentArray(PyAedtBase):
 
     @b_vector_name.setter
     def b_vector_name(self, val: str) -> None:
-        if val not in self.b_vector_choices:
+        vector_choices = self.b_vector_choices
+        if vector_choices is None or val not in vector_choices:
             self._app.logger.warning("B vector name not available.")
         elif "B_Vector" in dir(self.child_object):
             self.child_object.B_Vector = val
@@ -849,9 +875,10 @@ class ComponentArray(PyAedtBase):
                     ref = "Global"
                     if json_dict.get("referencecs", None):
                         ref = json_dict["referencecs"]
-                    app.modeler.insert_3d_component(
-                        json_dict[v["name"]], geometryparams, coordinate_system=ref, name=v["name"]
-                    )
+                    insert_3d_component = getattr(app.modeler, "insert_3d_component", None)
+                    if not callable(insert_3d_component):
+                        raise AEDTRuntimeError("3D components can only be inserted in a 3D design.")
+                    insert_3d_component(json_dict[v["name"]], geometryparams, coordinate_system=ref, name=v["name"])
                 cells_names[v["name"]] = [k1]
             if v.get("color", None):
                 cells_color[v["name"]] = v.get("color", None)
@@ -934,12 +961,16 @@ class ComponentArray(PyAedtBase):
 
         names = app.component_array_names
 
+        model_setup = app.omodelsetup
+        if model_setup is None:
+            raise AEDTRuntimeError("Component operations require an active AEDT model setup.")
+
         if name in names:
             # Save project, because coordinate system information can not be obtained from AEDT API
             app.save_project()
-            app.omodelsetup.EditArray(args)
+            model_setup.EditArray(args)
         else:
-            app.omodelsetup.AssignArray(args)
+            model_setup.AssignArray(args)
             if app.desktop_class.aedt_version < "2026.1":
                 # Save project, because coordinate system information can not be obtained from AEDT API
                 app.save_project()
@@ -960,8 +991,8 @@ class ComponentArray(PyAedtBase):
 
         Returns
         -------
-        dict
-           Ordered dictionary of the properties of the component array.
+        dict or bool
+            Ordered properties dictionary, or ``False`` when the CSV contains no data.
 
         Examples
         --------
@@ -976,7 +1007,8 @@ class ComponentArray(PyAedtBase):
             return self.properties
 
         # From 2024R1, array information can be loaded from a CSV, and this method is not needed.
-        if self._app.settings.aedt_version > "2023.2":
+        aedt_version = self._app.settings.aedt_version
+        if aedt_version is not None and aedt_version > "2023.2":
             self.export_array_info(output_file=None)
         else:
             self._app.save_project()
@@ -1002,7 +1034,7 @@ class ComponentArray(PyAedtBase):
 
         """
         old_name = self.name
-        self._app.omodelsetup.DeleteArray()
+        self._omodelsetup.DeleteArray()
         self._app._unregister_component_array(old_name)
 
     @pyaedt_function_handler()
@@ -1030,11 +1062,11 @@ class ComponentArray(PyAedtBase):
         """
         if not output_file:  # pragma: no cover
             output_file = os.path.join(self._app.toolkit_directory, "array_info.csv")
-        self._app.omodelsetup.ExportArray(self.name, output_file)
+        self._omodelsetup.ExportArray(self.name, output_file)
         return output_file
 
     @pyaedt_function_handler()
-    def parse_array_info_from_csv(self, input_file: str) -> dict:  # pragma: no cover
+    def parse_array_info_from_csv(self, input_file: str) -> dict | bool:  # pragma: no cover
         """Parse component array information from the CSV file.
 
         Parameters
@@ -1337,7 +1369,7 @@ class ComponentArray(PyAedtBase):
                         i for i, item in enumerate(args) if isinstance(item, list) and item[0] == "NAME:" + key
                     )
                     args[index] = section[0]
-        self._app.omodelsetup.EditArray(args)
+        self._omodelsetup.EditArray(args)
         if not self._has_getobject:
             self.__post_processing_cells = selections
         return True
@@ -1383,9 +1415,10 @@ class ComponentArray(PyAedtBase):
         >>> array_comp.lattice_vector()
 
         """
-        lattice_vectors = self._app.omodelsetup.GetLatticeVectors()
+        lattice_vectors = self._omodelsetup.GetLatticeVectors()
 
-        lattice_vectors = [float(vec) * AEDT_UNITS["Length"][self._app.modeler.model_units] for vec in lattice_vectors]
+        unit_factor = cast(float, AEDT_UNITS["Length"][self._app.modeler.model_units])
+        lattice_vectors = [float(vec) * unit_factor for vec in lattice_vectors]
         return lattice_vectors
 
     @pyaedt_function_handler()
@@ -1418,7 +1451,8 @@ class ComponentArray(PyAedtBase):
             for part_name in part_names:
                 if component not in component_info:
                     center = component_object.center
-                    scaled_center = [float(cen) * AEDT_UNITS["Length"][self._app.modeler.model_units] for cen in center]
+                    unit_factor = cast(float, AEDT_UNITS["Length"][self._app.modeler.model_units])
+                    scaled_center = [float(cen) * unit_factor for cen in center]
                     component_info[component] = (scaled_center, part_name)
                 else:
                     component_info[component] = component_info[component] + (part_name,)
@@ -1443,7 +1477,11 @@ class ComponentArray(PyAedtBase):
         >>> array_comp.get_cell_position()
 
         """
-        cell_info = [[None for _ in range(self.b_size)] for _ in range(self.a_size)]
+        a_size = self.a_size
+        b_size = self.b_size
+        if a_size is None or b_size is None:
+            raise AEDTRuntimeError("Component array dimensions are unavailable.")
+        cell_info = [[None for _ in range(b_size)] for _ in range(a_size)]
         lattice_vector = self.lattice_vector()
         # Perpendicular lattice vector
         a_x_dir = True
@@ -1459,8 +1497,8 @@ class ComponentArray(PyAedtBase):
             y_spacing = lattice_vector[4]
 
         cells = self.cells
-        for row_cell in range(0, self.a_size):
-            for col_cell in range(0, self.b_size):
+        for row_cell in range(a_size):
+            for col_cell in range(b_size):
                 if a_x_dir:  # pragma: no cover
                     y_position = col_cell * y_spacing
                     x_position = row_cell * x_spacing
@@ -1501,6 +1539,8 @@ class ComponentArray(PyAedtBase):
         components = {}
         for c in components_map:
             m = re.search(r"'(\d+)'=(\d+)", c)
+            if m is None:
+                raise ValueError(f"Invalid component map entry: {c!r}")
             components[int(m.group(1))] = component_id[int(m.group(2))]
         res = {}
         res["component"] = components
@@ -1608,7 +1648,7 @@ class CellArray(PyAedtBase):
             )
 
     @property
-    def component(self):
+    def component(self) -> str | None:
         """Component name of the cell object.
 
         Examples
@@ -1624,7 +1664,7 @@ class CellArray(PyAedtBase):
         return self.__component
 
     @component.setter
-    def component(self, val: str) -> None:
+    def component(self, val: str | None) -> None:
         component_names = self.__array_obj.component_names
         if val in component_names.values() or val is None:
             self.__array_obj.update_cells = False
