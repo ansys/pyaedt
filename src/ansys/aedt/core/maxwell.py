@@ -1644,7 +1644,18 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
 
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d(solution_type="AC Magnetic with DC")
-        >>> winding = m3d.assign_winding(current=0.5, dc_current=3, name="biased")
+        >>> coil = m3d.modeler.create_torus(origin=[0.0, 0.0, 0.0],
+        ...                             major_radius=1.0,
+        ...                             minor_radius=0.1,
+        ...                             axis="Z",
+        ...                             name="coil",
+        ...                             material="copper")
+        >>> coil.section(plane="XZ")
+        >>> terminal, other_side = m3d.modeler.separate_bodies(assignment=f"{coil.name}_Section1")
+        >>> m3d.modeler.delete(assignment=other_side.name)
+        >>> winding = m3d.assign_winding(winding_type="Current", current=0.5, dc_current=3, name="biased")
+        >>> coil_terminal = m3d.assign_coil(assignment=[terminal.name], conductors_number=1, name="Coil_terminal")
+        >>> m3d.add_winding_coils(assignment=winding.name, coils=[coil_terminal.name])
         >>> m3d.desktop_class.close_desktop()
 
         """
@@ -4017,6 +4028,15 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
         >>> m3d.set_permeability_computation(assignment=[core.name])
         >>> m3d.desktop_class.close_desktop()
 
+        Disable permeability computation in steel core.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(solution_type="AC Magnetic with DC")
+        >>> core = m3d.modeler.create_cylinder(
+        ...     orientation="Z", origin=[0, 0, 0], radius=1.4, height=0.6, material="steel_1008"
+        ... )
+        >>> m3d.set_permeability_computation(assignment=[])
+        >>> m3d.desktop_class.close_desktop()
         """
         maxwell_solutions = SolutionsMaxwell3D
         if self.solution_type not in [maxwell_solutions.ACMagneticwithDC]:
