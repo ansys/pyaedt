@@ -2929,9 +2929,9 @@ class GeometryModeler(Modeler, PyAedtBase):
                     axis_position=axis_position,
                     axis=face_cs.props["WhichAxis"],
                     name=name,
-                    offset=[face_cs["XOffset"], face_cs["YOffset"]],
-                    rotation=decompose_variable_value(face_cs["ZRotationAngle"])[0],
-                    always_move_to_end=face_cs["MoveToEnd"],
+                    offset=[face_cs.props["XOffset"], face_cs.props["YOffset"]],
+                    rotation=decompose_variable_value(face_cs.props["ZRotationAngle"])[0],
+                    always_move_to_end=face_cs.props["MoveToEnd"],
                 )
                 if result:
                     return face_cs

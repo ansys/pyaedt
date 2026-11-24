@@ -31,9 +31,12 @@ The modules provides functionalities for the 3D Modeler, 2D Modeler,
 
 from __future__ import annotations
 
+from typing import Any
 import warnings
 
 from ansys.aedt.core.base import PyAedtBase
+from ansys.aedt.core.generic.constants import AEDT_UNITS
+from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -395,6 +398,10 @@ class FaceCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
             if "KernelVersion" in self.props:
                 del self.props["KernelVersion"]
 
+    def __getitem__(self, key: str) -> Any:
+        """Return a sweep property by key."""
+        return self.props[key]
+
     @property
     def props(self) -> CsProps:
         """Properties of the coordinate system.
@@ -681,16 +688,11 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
     Examples
     --------
-    >>> from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
-    >>> obj = CoordinateSystem()
+    >>> from ansys.aedt.core import Hfss
+    >>> app = Hfss()
+    >>> cs = app.modeler.create_coordinate_system()
 
     """
-
-    def __repr__(self) -> str:
-        return self.name or ""
-
-    def __str__(self) -> str:
-        return self.name or ""
 
     def __init__(self, modeler, props=None, name: str | None = None) -> None:
         BaseCoordinateSystem.__init__(self, modeler, name)
@@ -704,15 +706,26 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         self._quaternion = None
         self._mode = None
 
+    def __repr__(self) -> str:
+        return self.name or ""
+
+    def __str__(self) -> str:
+        return self.name or ""
+
+    def __getitem__(self, key: str) -> Any:
+        """Return a sweep property by key."""
+        return self.props[key]
+
     @property
     def mode(self) -> str:
         """Coordinate System mode.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
-        >>> obj = CoordinateSystem()
-        >>> obj.mode
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> cs = app.modeler.create_coordinate_system()
+        >>> cs.mode
 
         """
         if self._mode:
@@ -740,9 +753,10 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
-        >>> obj = CoordinateSystem()
-        >>> obj.props
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> cs = app.modeler.create_coordinate_system()
+        >>> cs.props
 
         """
         if self._props or (settings.aedt_version is None or settings.aedt_version <= "2022.2") or self.name is None:
@@ -760,9 +774,10 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
-        >>> obj = CoordinateSystem()
-        >>> obj.ref_cs
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> cs = app.modeler.create_coordinate_system()
+        >>> cs.ref_cs
 
         """
         if self._ref_cs or (settings.aedt_version is None or settings.aedt_version <= "2022.2"):
@@ -784,8 +799,15 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
             self._modeler.logger.error("Failed to set Coordinate CS Reference.")
 
     @pyaedt_function_handler()
-    def update(self) -> bool:
+    def update(self, props: dict | None = None) -> bool:
         """Update the coordinate system.
+
+        Parameters
+        ----------
+        props : dict, optional
+            Complete coordinate system properties to apply. When omitted, the
+            current properties are used. The supplied properties replace the
+            cached properties after a successful update.
 
         Returns
         -------
@@ -794,65 +816,73 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
-        >>> obj = CoordinateSystem()
-        >>> obj.update()
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> cs = app.modeler.create_coordinate_system()
+        >>> cs.update()
 
         """
+        if props is None:
+            props = self.props
+        previous_mode = self.props.get("Mode")
         self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Reference CS", "Value:=", self.ref_cs]])
 
         try:
-            self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Mode", "Value:=", self.props["Mode"]]])
+            self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Mode", "Value:=", props["Mode"]]])
         except Exception:  # pragma: no cover
             raise ValueError(
-                f"'Mode must be 'Axis/Position', 'Euler Angle ZYZ' or 'Euler Angle ZXZ', not {self.props['Mode']}."
+                f"'Mode must be 'Axis/Position', 'Euler Angle ZYZ' or 'Euler Angle ZXZ', not {props['Mode']}."
             )
 
-        props: list = ["NAME:ChangedProps"]
+        changes: list = ["NAME:ChangedProps"]
 
-        props.append(
+        changes.append(
             [
                 "NAME:Origin",
                 "X:=",
-                self._modeler._app.value_with_units(self.props["OriginX"]),
+                self._modeler._app.value_with_units(props["OriginX"]),
                 "Y:=",
-                self._modeler._app.value_with_units(self.props["OriginY"]),
+                self._modeler._app.value_with_units(props["OriginY"]),
                 "Z:=",
-                self._modeler._app.value_with_units(self.props["OriginZ"]),
+                self._modeler._app.value_with_units(props["OriginZ"]),
             ]
         )
 
-        if self.props["Mode"] == "Axis/Position":
-            props.append(
+        if props["Mode"] == "Axis/Position":
+            changes.append(
                 [
                     "NAME:X Axis",
                     "X:=",
-                    self._modeler._app.value_with_units(self.props["XAxisXvec"]),
+                    self._modeler._app.value_with_units(props["XAxisXvec"]),
                     "Y:=",
-                    self._modeler._app.value_with_units(self.props["XAxisYvec"]),
+                    self._modeler._app.value_with_units(props["XAxisYvec"]),
                     "Z:=",
-                    self._modeler._app.value_with_units(self.props["XAxisZvec"]),
+                    self._modeler._app.value_with_units(props["XAxisZvec"]),
                 ]
             )
-            props.append(
+            changes.append(
                 [
                     "NAME:Y Point",
                     "X:=",
-                    self._modeler._app.value_with_units(self.props["YAxisXvec"]),
+                    self._modeler._app.value_with_units(props["YAxisXvec"]),
                     "Y:=",
-                    self._modeler._app.value_with_units(self.props["YAxisYvec"]),
+                    self._modeler._app.value_with_units(props["YAxisYvec"]),
                     "Z:=",
-                    self._modeler._app.value_with_units(self.props["YAxisZvec"]),
+                    self._modeler._app.value_with_units(props["YAxisZvec"]),
                 ]
             )
         else:
-            props.append(["NAME:Phi", "Value:=", self._modeler._app.value_with_units(self.props["Phi"], "deg")])
+            changes.append(["NAME:Phi", "Value:=", self._modeler._app.value_with_units(props["Phi"], "deg")])
 
-            props.append(["NAME:Theta", "Value:=", self._modeler._app.value_with_units(self.props["Theta"], "deg")])
+            changes.append(["NAME:Theta", "Value:=", self._modeler._app.value_with_units(props["Theta"], "deg")])
 
-            props.append(["NAME:Psi", "Value:=", self._modeler._app.value_with_units(self.props["Psi"], "deg")])
+            changes.append(["NAME:Psi", "Value:=", self._modeler._app.value_with_units(props["Psi"], "deg")])
 
-        self._change_property(self.name, props)
+        self._change_property(self.name, changes)
+        if props is not self._props:
+            self._props = CsProps(self, props)
+        if props["Mode"] != previous_mode:
+            self._mode = {"Axis/Position": "axis", "Euler Angle ZXZ": "zxz", "Euler Angle ZYZ": "zyz"}[props["Mode"]]
         self._quaternion = None
         return True
 
@@ -878,92 +908,42 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
-        >>> obj = CoordinateSystem()
-        >>> obj.change_cs_mode(mode_type=1)
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> cs = app.modeler.create_coordinate_system()
+        >>> cs.change_cs_mode(mode_type=1)
 
         """
-        previous_auto_update = self.auto_update
-        self.auto_update = False
-        if mode_type == 0:  # "Axis/Position"
-            if self.props and (self.props["Mode"] == "Euler Angle ZXZ" or self.props["Mode"] == "Euler Angle ZYZ"):
-                self.props["Mode"] = "Axis/Position"
-                m = self.quaternion.to_rotation_matrix()
-                x, y, _ = Quaternion.rotation_matrix_to_axis(m)
-                xaxis = x
-                ypoint = y
-                self.props["XAxisXvec"] = xaxis[0]
-                self.props["XAxisYvec"] = xaxis[1]
-                self.props["XAxisZvec"] = xaxis[2]
-                self.props["YAxisXvec"] = ypoint[0]
-                self.props["YAxisYvec"] = ypoint[1]
-                self.props["YAxisZvec"] = ypoint[2]
-                del self.props["Phi"]
-                del self.props["Theta"]
-                del self.props["Psi"]
-                self.mode = "axis"
-                self.update()
-        elif mode_type == 1:  # "Euler Angle ZXZ"
-            if self.props and self.props["Mode"] == "Euler Angle ZYZ":
-                self.props["Mode"] = "Euler Angle ZXZ"
-                a, b, g = self.quaternion.to_euler("zxz")
-                phi = GeometryOperators.rad2deg(a)
-                theta = GeometryOperators.rad2deg(b)
-                psi = GeometryOperators.rad2deg(g)
-                self.props["Phi"] = f"{phi}deg"
-                self.props["Theta"] = f"{theta}deg"
-                self.props["Psi"] = f"{psi}deg"
-                self.mode = "zxz"
-                self.update()
-            elif self.props and self.props["Mode"] == "Axis/Position":
-                self.props["Mode"] = "Euler Angle ZXZ"
-                a, b, g = self.quaternion.to_euler("zxz")
-                phi = GeometryOperators.rad2deg(a)
-                theta = GeometryOperators.rad2deg(b)
-                psi = GeometryOperators.rad2deg(g)
-                self.props["Phi"] = f"{phi}deg"
-                self.props["Theta"] = f"{theta}deg"
-                self.props["Psi"] = f"{psi}deg"
-                del self.props["XAxisXvec"]
-                del self.props["XAxisYvec"]
-                del self.props["XAxisZvec"]
-                del self.props["YAxisXvec"]
-                del self.props["YAxisYvec"]
-                del self.props["YAxisZvec"]
-                self.mode = "zxz"
-                self.update()
-        elif mode_type == 2:  # "Euler Angle ZYZ"
-            if self.props and self.props["Mode"] == "Euler Angle ZXZ":
-                self.props["Mode"] = "Euler Angle ZYZ"
-                a, b, g = self.quaternion.to_euler("zyz")
-                phi = GeometryOperators.rad2deg(a)
-                theta = GeometryOperators.rad2deg(b)
-                psi = GeometryOperators.rad2deg(g)
-                self.props["Phi"] = f"{phi}deg"
-                self.props["Theta"] = f"{theta}deg"
-                self.props["Psi"] = f"{psi}deg"
-                self.mode = "zyz"
-                self.update()
-            elif self.props and self.props["Mode"] == "Axis/Position":
-                self.props["Mode"] = "Euler Angle ZYZ"
-                a, b, g = self.quaternion.to_euler("zyz")
-                phi = GeometryOperators.rad2deg(a)
-                theta = GeometryOperators.rad2deg(b)
-                psi = GeometryOperators.rad2deg(g)
-                self.props["Phi"] = f"{phi}deg"
-                self.props["Theta"] = f"{theta}deg"
-                self.props["Psi"] = f"{psi}deg"
-                del self.props["XAxisXvec"]
-                del self.props["XAxisYvec"]
-                del self.props["XAxisZvec"]
-                del self.props["YAxisXvec"]
-                del self.props["YAxisYvec"]
-                del self.props["YAxisZvec"]
-                self.mode = "zyz"
-                self.update()
-        else:  # pragma: no cover
+        modes = {0: ("Axis/Position", "axis"), 1: ("Euler Angle ZXZ", "zxz"), 2: ("Euler Angle ZYZ", "zyz")}
+        if mode_type not in modes:
             raise ValueError('Set mode_type=0 for "Axis/Position", =1 for "Euler Angle ZXZ", =2 for "Euler Angle ZYZ"')
-        self.auto_update = previous_auto_update
+
+        props = self.props.to_dict()
+        if not props or props["Mode"] == modes[mode_type][0]:
+            return True
+
+        quaternion = self.quaternion
+        old_mode = props["Mode"]
+        props["Mode"], mode = modes[mode_type]
+        if mode == "axis":
+            xaxis, ypoint, _ = Quaternion.rotation_matrix_to_axis(quaternion.to_rotation_matrix())
+            for axis, vector in (("XAxis", xaxis), ("YAxis", ypoint)):
+                for component, value in zip(("Xvec", "Yvec", "Zvec"), vector):
+                    props[axis + component] = value
+            for key in ("Phi", "Theta", "Psi"):
+                del props[key]
+        else:
+            angles = quaternion.to_euler(mode)
+            for key, angle in zip(("Phi", "Theta", "Psi"), angles):
+                props[key] = f"{GeometryOperators.rad2deg(angle)}deg"
+            if old_mode == "Axis/Position":
+                for axis in ("XAxis", "YAxis"):
+                    for component in ("Xvec", "Yvec", "Zvec"):
+                        del props[axis + component]
+
+        if not self.update(props):
+            return False
+        self.mode = mode
         return True
 
     @pyaedt_function_handler()
@@ -1042,9 +1022,9 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
-        >>> obj = CoordinateSystem()
-        >>> obj.create(name="MyObject", origin=[0, 0, 0])
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> cs = app.modeler.create_coordinate_system()
 
         """
         if not origin:
@@ -1145,7 +1125,6 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         return self.update()
 
     @staticmethod
-    @pyaedt_function_handler()
     def pointing_to_axis(x_pointing: list | tuple, y_pointing: list | tuple) -> tuple:
         """Retrieve the axes from the HFSS X axis and Y pointing axis as per
         the definition of the AEDT interface coordinate system.
@@ -1165,9 +1144,10 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
-        >>> obj = CoordinateSystem()
-        >>> obj.pointing_to_axis(x_pointing=[1, 0, 0], y_pointing=[0, 1, 0])
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> cs = app.modeler.create_coordinate_system()
+        >>> cs.pointing_to_axis(x_pointing=[1, 0, 0], y_pointing=[0, 1, 0])
 
         """
         zpt = GeometryOperators.v_cross(x_pointing, y_pointing)
@@ -1179,7 +1159,7 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
         return xp, yp, zp
 
-    def _get_numeric_value(self, value=None, init: bool = False, destroy: bool = False):
+    def _get_numeric_value(self, value=None, init: bool = False, destroy: bool = False, angle: bool = False):
         """Get numeric value from a variable.
 
         Parameters
@@ -1194,6 +1174,8 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
             If ``True``, destroys the temp variable in the variable manager.
             If ``True``, all other parameters are ignored.
             The default is ``False``.
+        angle : bool, optional
+            Convert angular values to radians. Unitless values are treated as degrees.
 
         Returns
         -------
@@ -1209,7 +1191,13 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
             return True
         elif value is not None:
             self._modeler._app.variable_manager["temp_var"] = value
-            return self._modeler._app.variable_manager["temp_var"].numeric_value
+            variable = self._modeler._app.variable_manager["temp_var"]
+            if angle:
+                units = variable.units or "deg"
+                if units not in AEDT_UNITS["Angle"]:
+                    raise ValueError(f"Expected angular units, got {units!r}.")
+                return unit_converter(variable.numeric_value, "Angle", units, "rad")
+            return variable.numeric_value
         else:
             raise ValueError("Either set value or init or destroy must be True.")  # pragma: no cover
 
@@ -1223,9 +1211,10 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
-        >>> obj = CoordinateSystem()
-        >>> obj.quaternion
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> cs = app.modeler.create_coordinate_system()
+        >>> cs.quaternion
 
         """
         if self._quaternion:
@@ -1247,14 +1236,14 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
                 m = Quaternion.axis_to_rotation_matrix(x, y, z)
                 self._quaternion = Quaternion.from_rotation_matrix(m)
             elif self.mode == "zxz":
-                a = self._get_numeric_value(self.props["Phi"])
-                b = self._get_numeric_value(self.props["Theta"])
-                g = self._get_numeric_value(self.props["Psi"])
+                a = self._get_numeric_value(self.props["Phi"], angle=True)
+                b = self._get_numeric_value(self.props["Theta"], angle=True)
+                g = self._get_numeric_value(self.props["Psi"], angle=True)
                 self._quaternion = Quaternion.from_euler((a, b, g), "zxz")
             elif self.mode == "zyz" or self.mode == "axisrotation":
-                a = self._get_numeric_value(self.props["Phi"])
-                b = self._get_numeric_value(self.props["Theta"])
-                g = self._get_numeric_value(self.props["Psi"])
+                a = self._get_numeric_value(self.props["Phi"], angle=True)
+                b = self._get_numeric_value(self.props["Theta"], angle=True)
+                g = self._get_numeric_value(self.props["Psi"], angle=True)
                 self._quaternion = Quaternion.from_euler((a, b, g), "zyz")
             else:
                 raise ValueError(f"Unsupported coordinate system mode: {self.mode}")
@@ -1272,9 +1261,10 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
-        >>> obj = CoordinateSystem()
-        >>> obj.origin
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> cs = app.modeler.create_coordinate_system()
+        >>> cs.origin
 
         """
         self._get_numeric_value(init=True)
@@ -1289,16 +1279,13 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
     @origin.setter
     def origin(self, origin: list) -> None:
         """Set the coordinate system origin in model units."""
-        previous_auto_update = self.auto_update
-        self.auto_update = False
         origin_x = self._modeler._app.value_with_units(origin[0], self.model_units)
         origin_y = self._modeler._app.value_with_units(origin[1], self.model_units)
         origin_z = self._modeler._app.value_with_units(origin[2], self.model_units)
-        self.props["OriginX"] = origin_x
-        self.props["OriginY"] = origin_y
-        self.props["OriginZ"] = origin_z
-        self.update()
-        self.auto_update = previous_auto_update
+        props = self.props.to_dict()
+        props.update({"OriginX": origin_x, "OriginY": origin_y, "OriginZ": origin_z})
+        if not self.update(props):
+            self._modeler.logger.error("Failed to update coordinate system origin.")
 
     @property
     def _orientation(self):
@@ -1345,6 +1332,10 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
             if "KernelVersion" in self.props:
                 del self.props["KernelVersion"]
         self._ref_cs = None
+
+    def __getitem__(self, key: str) -> Any:
+        """Return a sweep property by key."""
+        return self.props[key]
 
     @property
     def ref_cs(self) -> str | None:
@@ -1840,11 +1831,29 @@ class Lists(PyAedtBase):
         self.auto_update = True
         self._modeler = modeler
         self.name = name
-        self.props = ListsProps(self, props)
+        self._legacy_props = ListsProps(self, props).to_dict()
+
+    @property
+    def props(self) -> ListsProps:
+        """List properties. Use ``update(props)`` to apply several changes together."""
+        return ListsProps(self, self._legacy_props)
+
+    @props.setter
+    def props(self, value: dict) -> None:
+        self.update(value)
+
+    def __getitem__(self, key: str) -> Any:
+        """Return a sweep property by key."""
+        return self.props[key]
 
     @pyaedt_function_handler()
-    def update(self) -> bool:
+    def update(self, props: dict | None = None) -> bool:
         """Update the List.
+
+        Parameters
+        ----------
+        props : dict, optional
+            Complete properties to apply. If omitted, use the stored properties.
 
         Returns
         -------
@@ -1857,23 +1866,25 @@ class Lists(PyAedtBase):
         >>> obj = Lists()
         >>> obj.update()
         """
-        # self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Reference CS", "Value:=", self.ref_cs]])
-        object_list_new = self._list_verification(self.props["List"], self.props["Type"])
-        if self.props["Type"] == "Object":
-            object_list_new = ",".join(object_list_new)
+        props = ListsProps(self, props).to_dict() if props is not None else self.props.to_dict()
+        verified_list = self._list_verification(props["List"], props["Type"])
+        if not verified_list:
+            raise ValueError("Input List not correct for the type " + props["Type"])
+        object_list_new = ",".join(verified_list) if props["Type"] == "Object" else verified_list
         argument1 = ["NAME:Selections", "Selections:=", self.name]
         argument2 = [
             "NAME:GeometryEntityListParameters",
             "EntityType:=",
-            self.props["Type"],
+            props["Type"],
             "EntityList:=",
             object_list_new,
         ]
         try:
             self._modeler.oeditor.EditEntityList(argument1, argument2)
         except Exception:  # pragma: no cover
-            raise ValueError("Input List not correct for the type " + self.props["Type"])
-
+            raise ValueError("Input List not correct for the type " + props["Type"])
+        props["List"] = verified_list
+        self._legacy_props = props
         return True
 
     @pyaedt_function_handler()
@@ -1910,6 +1921,7 @@ class Lists(PyAedtBase):
         if not name:
             name = generate_unique_name(entity_type + "List")
 
+        user_lists = self._modeler.user_lists
         object_list_new = self._list_verification(assignment, entity_type)
 
         if object_list_new:
@@ -1917,20 +1929,23 @@ class Lists(PyAedtBase):
             if entity_type == "Object":
                 olist = ",".join(object_list_new)
 
-            self.name = self._modeler.oeditor.CreateEntityList(
+            created_name = self._modeler.oeditor.CreateEntityList(
                 ["NAME:GeometryEntityListParameters", "EntityType:=", entity_type, "EntityList:=", olist],
                 ["NAME:Attributes", "Name:=", name],
             )
             props = {}
             props["List"] = object_list_new
 
-            props["ID"] = self._modeler.get_entitylist_id(self.name)
+            props["ID"] = self._modeler.get_entitylist_id(created_name)
             props["Type"] = entity_type
 
-            self.props = ListsProps(self, props)
-            self._modeler.user_lists.append(self)
+            self.name = created_name
+            self._legacy_props = props
+            if self not in user_lists:
+                user_lists.append(self)
             return True
         else:
+            self._modeler._app.logger.warning("No valid entities provided for list %s.", name)
             return False
 
     @pyaedt_function_handler()
@@ -1949,8 +1964,10 @@ class Lists(PyAedtBase):
         >>> obj.delete()
 
         """
+        user_lists = self._modeler.user_lists
         self._modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.name])
-        self._modeler.user_lists.remove(self)
+        user_lists.remove(self)
+        self._legacy_props = {}
         return True
 
     @pyaedt_function_handler()
@@ -2021,6 +2038,12 @@ class Lists(PyAedtBase):
         return object_list_new
 
 
+class _NamedSelectionProps(ListsProps):
+    def _apply_owner_update(self, key, value):
+        # Preserve the public assignment-first update signature.
+        return self._pyaedt_owner.update(props=self._root())
+
+
 class NamedSelections(PyAedtBase):
     """Manages Named Selections (replacement for `Lists`) from AEDT version >= 2026.1."""
 
@@ -2028,8 +2051,20 @@ class NamedSelections(PyAedtBase):
         self.auto_update = True
         self._modeler = modeler
         self.name = name
-        # Reuse ListsProps for the simple properties structure
-        self.props = ListsProps(self, props)
+        self._legacy_props = ListsProps(self, props).to_dict()
+
+    @property
+    def props(self) -> ListsProps:
+        """Selection properties. Use ``update(props=props)`` for a batch update."""
+        return _NamedSelectionProps(self, self._legacy_props)
+
+    @props.setter
+    def props(self, value: dict) -> None:
+        self.update(props=value)
+
+    def __getitem__(self, key: str) -> Any:
+        """Return a sweep property by key."""
+        return self.props[key]
 
     @pyaedt_function_handler()
     def create(self, assignment: list[str | int], name: str | None = None, entity_type: str = "Object") -> bool:
@@ -2072,9 +2107,13 @@ class NamedSelections(PyAedtBase):
         if not name:
             name = generate_unique_name(entity_type + "NamedSelection")
 
-        if any(sel.name == name for sel in self._modeler.user_lists):
+        user_lists = self._modeler.user_lists
+        if any(sel.name == name for sel in user_lists):
             raise AEDTRuntimeError(f"Named selection with name '{name}' already exists.")
 
+        assignment = self._modeler.convert_to_selections(assignment, True)
+        if not assignment:
+            raise AEDTRuntimeError("No selection provided to create.")
         if all(isinstance(x, int) for x in assignment):
             selection = assignment
             sel_type = "Face"
@@ -2089,9 +2128,9 @@ class NamedSelections(PyAedtBase):
         except Exception:
             raise AEDTRuntimeError("Failed to create the named selection.")
         props = {"List": assignment, "Type": sel_type, "ID": self._modeler.oeditor.GetNamedSelectionIDByName(name)}
-        self.props = ListsProps(self, props)
-        # Keep compatibility with existing storage
-        self._modeler.user_lists.append(self)
+        self._legacy_props = props
+        if self not in user_lists:
+            user_lists.append(self)
         self.name = name
         return True
 
@@ -2123,10 +2162,12 @@ class NamedSelections(PyAedtBase):
         ----------
         >>> oEditor.Delete
         """
+        user_lists = self._modeler.user_lists
         self._modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.name])
-        self._modeler.user_lists.remove(self)
-        if any(sel.name == self.name for sel in self._modeler.user_lists):
+        user_lists.remove(self)
+        if any(sel.name == self.name for sel in user_lists):
             raise AEDTRuntimeError("Failed to delete the named selection.")
+        self._legacy_props = {}
         return True
 
     @pyaedt_function_handler()
@@ -2183,24 +2224,33 @@ class NamedSelections(PyAedtBase):
             raise AEDTRuntimeError("Failed to rename the named selection.")
 
     @pyaedt_function_handler()
-    def update(self, assignment: list | None = None, entity_type: str = "Object", mode: str = "Reassign") -> bool:
+    def update(
+        self,
+        assignment: list | None = None,
+        entity_type: str | None = None,
+        mode: str = "Reassign",
+        props: dict | None = None,
+    ) -> bool:
         """Update an existing named selection.
 
-        This method mirrors the signature and semantics of :class:`Lists.update` for
-        backward compatibility. If ``selection`` is ``None``, the stored properties
-        in ``self.props`` are used.
+        If ``assignment`` is ``None``, the supplied ``props`` or stored properties
+        are used.
 
         Parameters
         ----------
         assignment : list, optional
             List of object names or list of FacePrimitive Ids.
-            If ``None``, uses the selection stored in ``self.props["Selection"]``.
+            If ``None``, uses the selection stored in ``props["List"]``.
         entity_type : str, optional
-            Type of selection, e.g. ``"Object"`` or ``"Face"``. Default ``"Object"``.
+            Type of selection, e.g. ``"Object"`` or ``"Face"``.
+            If omitted, uses the stored selection type.
         mode : str, optional
             Edit mode for the named selection.
             Options are: ``"Reassign"``, ``"Add"`,``"Remove"``.
             The default value is ``"Reassign"``.
+        props : dict, optional
+            Complete properties to apply without modifying the stored properties
+            until the update succeeds.
 
         Examples
         --------
@@ -2212,11 +2262,11 @@ class NamedSelections(PyAedtBase):
         >>> sel = aedt_app.modeler.create_named_selection(name="test", assignment=aedt_app.modeler.object_names)
         >>> box3 = aedt_app.modeler.create_box([20, 20, 20], [1, 2, 3], name="box3")
         Reassign named selection elements
-        >>> sel.update(selection=[box1.name, box3.name])
+        >>> sel.update(assignment=[box1.name, box3.name])
         Add new element to name selection
-        >>> sel.update(selection=[box2.name], mode="Add")
+        >>> sel.update(assignment=[box2.name], mode="Add")
         Remove element from named selection
-        >>> sel.update(selection=[box1.name], mode="Remove")
+        >>> sel.update(assignment=[box1.name], mode="Remove")
         >>> aedt_app.release_desktop()
 
         Update Named Selection that contains faces
@@ -2227,7 +2277,7 @@ class NamedSelections(PyAedtBase):
         >>> ns = aedt_app.modeler.create_named_selection(name="test", assignment=[box1.faces[0], box2.faces[0]])
         Add two new faces in Named Selection
         >>> ns.update(
-        ...     selection=[
+        ...     assignment=[
         ...         aedt_app.modeler["box2"].faces[1].id,
         ...         aedt_app.modeler["box2"].faces[3].id,
         ...     ],
@@ -2248,13 +2298,19 @@ class NamedSelections(PyAedtBase):
         if mode not in ["Add", "Remove", "Reassign"]:
             raise AEDTRuntimeError(f"Invalid mode `{mode}`. Allowed values are `Add`, `Remove`, `Reassign`.")
 
-        # If no selection provided raise an exception
+        updated_props = ListsProps(self, props).to_dict() if props is not None else self.props.to_dict()
+        if assignment is None:
+            assignment = updated_props.get("List")
+        if entity_type is None:
+            entity_type = updated_props.get("Type", "Object")
         if not assignment:
             raise AEDTRuntimeError("No selection provided to update.")
 
-        current_selection = self.props["List"]
+        current_selection = self._legacy_props.get("List", [])
 
         object_list_new = self._objects_verification(assignment, entity_type)
+        if not object_list_new:
+            raise AEDTRuntimeError("No valid selection provided to update.")
         if entity_type == "Object":
             selection = ", ".join(object_list_new)
         else:
@@ -2276,25 +2332,22 @@ class NamedSelections(PyAedtBase):
         self._modeler._app.save_project()
 
         # Verify the selection was updated correctly
-        named_selection_objects = self._modeler.get_named_selection_objects(self.name) or []
+        entity_ids = self._modeler.oeditor.GetEntityIDsContainedByNamedSelection(self.name)
         if entity_type == "Object":
-            expected_objects = [obj.name for obj in named_selection_objects]
+            expected_objects = [self._modeler.objects[int(entity_id)].name for entity_id in entity_ids]
         else:
-            expected_objects = named_selection_objects
+            expected_objects = [int(entity_id) for entity_id in entity_ids]
         if mode == "Add":
-            expected_after = current_selection + object_list_new
+            expected_after = list(dict.fromkeys(current_selection + object_list_new))
         elif mode == "Remove":
             expected_after = [item for item in current_selection if item not in object_list_new]
         else:  # Reassign
             expected_after = object_list_new
-        # if object_list_new is empty it means that user has provided invalid or non-existing objects.
-        if not object_list_new or set(expected_after) != set(expected_objects):
+        if set(expected_after) != set(expected_objects):
             raise AEDTRuntimeError("Failed to update the named selection.")
-        previous_auto_update = self.auto_update
-        self.auto_update = False
-        self.props["List"] = expected_after
-        self.props["Type"] = entity_type
-        self.auto_update = previous_auto_update
+        updated_props["List"] = expected_after
+        updated_props["Type"] = entity_type
+        self._legacy_props = updated_props
         return True
 
     def _objects_verification(self, object_list, list_type):

@@ -972,6 +972,26 @@ def test_autoassign_pairs(aedt_app) -> None:
     assert sec.update()
 
 
+@pytest.mark.parametrize("kind", ["far", "near"])
+def test_field_setup_tree_after_rename_and_delete(aedt_app, kind) -> None:
+    air = aedt_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="radiation_box", material="vacuum")
+    aedt_app.assign_radiation_boundary_to_objects(air)
+    if kind == "far":
+        field = aedt_app.insert_infinite_sphere(name="FieldTree")
+    else:
+        field = aedt_app.insert_near_field_sphere(name="FieldTree")
+
+    assert field.child_object
+    field.name = "RenamedFieldTree"
+    assert not field._tree_node_initialized
+    assert field.name == "RenamedFieldTree"
+    assert field.child_object
+    assert field.name in aedt_app.field_setup_names
+    assert field.delete()
+    assert field.child_object is None
+    assert "RenamedFieldTree" not in aedt_app.field_setup_names
+
+
 def test_create_infinite_sphere(aedt_app) -> None:
     air = aedt_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
     aedt_app.assign_radiation_boundary_to_objects(air)

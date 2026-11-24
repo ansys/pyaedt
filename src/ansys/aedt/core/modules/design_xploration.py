@@ -67,6 +67,8 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         Optimetrics setup name.
     props : dict, optional
         Setup properties.
+    setup_type : str, optional
+        Optimetrics setup type for a new setup.
 
     Examples
     --------
@@ -77,16 +79,19 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
 
     """
 
-    def __init__(self, app: Optimizations | Parametrics, name: str, props: dict) -> None:
+    def __init__(self, app: Optimizations | Parametrics, name: str, props: dict, setup_type: str | None = None) -> None:
         self._parent: Optimizations | Parametrics = app
         self._app: DesignApp = self._parent._app
         self._legacy_props = {}
         self._name = name
+        self.__setup_type = None
 
         # If no props is provided, it means the setup already exist.
         if props:
             self._legacy_props = props
-            if props == defaultparametricSetup:
+            if setup_type:
+                self.__setup_type = setup_type
+            elif props == defaultparametricSetup:
                 self.__setup_type = "OptiParametric"
             elif props == defaultoptiSetup:
                 self.__setup_type = "OptiOptimization"

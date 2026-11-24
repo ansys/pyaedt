@@ -499,7 +499,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
     def copy_solid_bodies_from(
         self,
         design: object,
-        assignment: list = None,
+        assignment: list | None = None,
         no_vacuum: bool = True,
         no_pec: bool = True,
         include_sheets: bool = False,
@@ -559,8 +559,11 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
                 ):
                     new_udc_list.append(udc)
                 parts = design.modeler.components[udc].parts
-                for part_id in parts:
-                    part_name = parts[part_id].name
+                for part_id, part in parts.items():
+                    if isinstance(part, str):
+                        part_name = part
+                    else:
+                        part_name = parts[part_id].name
                     if part_name in body_list:
                         body_list.remove(part_name)
 

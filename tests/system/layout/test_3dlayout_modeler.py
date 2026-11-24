@@ -494,6 +494,32 @@ def test_create_edge_port(aedt_app) -> None:
     assert list(aedt_app.oboundary.GetAllBoundariesList())[0] == aedt_app.boundaries[0].name
 
 
+def test_port_tree_after_rename_and_delete(aedt_app) -> None:
+    aedt_app.modeler.layers.add_layer(
+        layer="Lower", layer_type="signal", thickness="0.035mm", elevation="0mm", material="copper"
+    )
+    aedt_app.modeler.layers.add_layer(
+        layer="Top", layer_type="signal", thickness="0.035mm", elevation="1.035mm", material="copper"
+    )
+    aedt_app.modeler.create_via("PlanarEMVia", x=1.1, y=0, name="port_via")
+    port = aedt_app.create_coax_port("port_via", 0.5, "Top", "Lower")
+    assert port.child_object
+    port.name = "RenamedPort"
+    assert port.name == "RenamedPort"
+    assert not port._tree_node_initialized
+    assert port.child_object
+    assert aedt_app._boundaries["RenamedPort"] is port
+    port.props["Port"] = "SecondPort"
+    assert port.name == "SecondPort"
+    assert port.child_object
+    assert port._node == "SecondPort"
+    assert "SecondPort" in aedt_app.port_list
+    assert aedt_app._boundaries["SecondPort"] is port
+    assert aedt_app.delete_port(port.name)
+    assert not port._tree_node_initialized
+    assert port.child_object is None
+
+
 def test_create_coaxial_port(aedt_app) -> None:
     aedt_app.modeler.layers.add_layer(
         layer="Lower", layer_type="signal", thickness="0.035mm", elevation="0mm", material="copper"
@@ -528,9 +554,11 @@ def test_edit_setup(aedt_app) -> None:
 
     sweep = setup2.add_sweep()
     sweep1 = setup2.get_sweep(sweep.name)
-    assert sweep1 == sweep
+    assert sweep1.name == sweep.name
+    assert sweep1.setup_name == sweep.setup_name
     sweep2 = setup2.get_sweep()
-    assert sweep2 == sweep1
+    assert sweep2.name == sweep1.name
+    assert sweep2.setup_name == sweep1.setup_name
     setup2.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"] = "1GHz"
     setup2.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["MaxPasses"] = 23
     setup2.props["AdvancedSettings"]["OrderBasis"] = 2

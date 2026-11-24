@@ -60,10 +60,11 @@ class BoundaryCommon(PyAedtBase):
         str
             Assignment of the boundary.
         """
-        if not self._child_object or "Assignment" not in dir(self._child_object):
+        child_object = self.child_object
+        if not child_object or "Assignment" not in dir(child_object):
             return ""
         try:
-            return self._child_object.Assignment
+            return child_object.Assignment
         except Exception:
             return ""
 
@@ -123,13 +124,6 @@ class BoundaryCommon(PyAedtBase):
         arg = ["NAME:" + self.name]
         _dict2arg(props, arg)
         return arg
-
-    @pyaedt_function_handler()
-    def _initialize_tree_node(self) -> bool:
-        if self._child_object:
-            BinaryTreeNode.__init__(self, self._name, self._child_object, False, app=self._app)
-            return True
-        return False
 
     @pyaedt_function_handler()
     def delete(self) -> bool:
@@ -269,91 +263,78 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         self._legacy_props = {}
 
         self._type = boundarytype
-
-        self.__child_object = None
+        self.auto_update = boundarytype != "Network"
 
         if props:
             self._legacy_props = props
             self._has_getobject = False
         else:
             # GetObjData is available for some objects in 2026R1
-            self._has_getobject = _has_get_obj_data(self._child_object)
+            self._has_getobject = _has_get_obj_data(self.child_object)
 
-    @property
-    def _child_object(self):
-        """Object-oriented properties.
+    @pyaedt_function_handler()
+    def _initialize_tree_node(self) -> bool:
+        aedt_object = self._resolve_aedt_object()
+        if aedt_object:
+            BinaryTreeNode.__init__(self, self._name, aedt_object, False, app=self._app, auto_update=self.auto_update)
+            return True
+        return False
 
-        Returns
-        -------
-        AEDT object if any or `None`.
+    def _resolve_aedt_object(self):
+        """Find the AEDT object associated with the boundary."""
+        design_childs = self._app.get_oo_name(self._app.odesign)
 
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> app = Hfss()
-        >>> rect = app.modeler.create_rectangle(orientation="XY", origin=[0, 0, 0], sizes=[5, 5])
-        >>> boundary = app.assign_perfect_e(rect)
-        >>> boundary.child_object.GetChildNames()
-        """
-        if not self.__child_object:
-            design_childs = self._app.get_oo_name(self._app.odesign)
-
-            if "Nets" in design_childs:
-                cc = self._app.get_oo_object(self._app.odesign, "Nets")
+        if "Nets" in design_childs:
+            cc = self._app.get_oo_object(self._app.odesign, "Nets")
+            cc_names = self._app.get_oo_name(cc)
+            if self._name in cc_names:
+                return self._app.get_oo_object(cc, self._name)
+            for name in cc_names:
+                cc = self._app.get_oo_object(self._app.odesign, f"Nets\\{name}")
                 cc_names = self._app.get_oo_name(cc)
                 if self._name in cc_names:
-                    self.__child_object = self._app.get_oo_object(cc, self._name)
-                    return self.__child_object
-                for name in cc_names:
-                    cc = self._app.get_oo_object(self._app.odesign, f"Nets\\{name}")
-                    cc_names = self._app.get_oo_name(cc)
-                    if self._name in cc_names:
-                        self.__child_object = self._app.get_oo_object(cc, self._name)
-                        return self.__child_object
+                    return self._app.get_oo_object(cc, self._name)
 
-            if "Thermal" in design_childs:
-                cc = self._app.get_oo_object(self._app.odesign, "Thermal")
-                cc_names = self._app.get_oo_name(cc)
-                if self._name in cc_names:
-                    self.__child_object = self._app.get_oo_object(cc, self._name)
-                    return self.__child_object
+        if "Thermal" in design_childs:
+            cc = self._app.get_oo_object(self._app.odesign, "Thermal")
+            if self._name in self._app.get_oo_name(cc):
+                return self._app.get_oo_object(cc, self._name)
 
-            if "Boundaries" in design_childs:
-                cc = self._app.get_oo_object(self._app.odesign, "Boundaries")
-                if self._name in self._app.get_oo_name(cc):
-                    self.__child_object = self._app.get_oo_object(cc, self._name)
-                    return self.__child_object
+        if "Boundaries" in design_childs:
+            cc = self._app.get_oo_object(self._app.odesign, "Boundaries")
+            if self._name in self._app.get_oo_name(cc):
+                return self._app.get_oo_object(cc, self._name)
 
-            if "Excitations" in design_childs:
-                if self._name in self._app.get_oo_name(self._app.odesign, "Excitations"):
-                    self.__child_object = self._app.get_oo_object(
-                        self._app.get_oo_object(self._app.odesign, "Excitations"), self._name
-                    )
-                    return self.__child_object
-                elif self._app.get_oo_name(self._app.odesign, "Excitations"):
-                    for port in self._app.get_oo_name(self._app.odesign, "Excitations"):
-                        terminals = self._app.get_oo_name(self._app.odesign, f"Excitations\\{port}")
-                        if self._name in terminals:
-                            self.__child_object = self._app.get_oo_object(
-                                self._app.odesign, f"Excitations\\{port}\\{self._name}"
-                            )
-                            return self.__child_object
+        if "Excitations" in design_childs:
+            ports = self._app.get_oo_name(self._app.odesign, "Excitations")
+            if self._name in ports:
+                return self._app.get_oo_object(self._app.get_oo_object(self._app.odesign, "Excitations"), self._name)
+            for port in ports:
+                terminals = self._app.get_oo_name(self._app.odesign, f"Excitations\\{port}")
+                if self._name in terminals:
+                    return self._app.get_oo_object(self._app.odesign, f"Excitations\\{port}\\{self._name}")
 
-            if self._app.design_type in ["Maxwell 3D", "Maxwell 2D"] and "Model" in design_childs:
-                model = self._app.get_oo_object(self._app.odesign, "Model")
-                if self._name in self._app.get_oo_name(model):
-                    self.__child_object = self._app.get_oo_object(model, self._name)
-                    return self.__child_object
+        if self._app.design_type in ["Maxwell 3D", "Maxwell 2D"] and "Model" in design_childs:
+            model = self._app.get_oo_object(self._app.odesign, "Model")
+            if self._name in self._app.get_oo_name(model):
+                return self._app.get_oo_object(model, self._name)
 
-            if "Conductors" in design_childs and self._app.get_oo_name(self._app.odesign, "Conductors"):
-                for port in self._app.get_oo_name(self._app.odesign, "Conductors"):
-                    if self._name == port:
-                        self.__child_object = self._app.get_oo_object(self._app.odesign, f"Conductors\\{port}")
-                        return self.__child_object
+        if "Conductors" in design_childs:
+            for port in self._app.get_oo_name(self._app.odesign, "Conductors"):
+                if self._name == port:
+                    return self._app.get_oo_object(self._app.odesign, f"Conductors\\{port}")
 
-            return None
+        return None
 
-        return self.__child_object
+    def update_property(self, prop_name: str, prop_value: str) -> bool:
+        old_name = self._name
+        result = super().update_property(prop_name, prop_value)
+        if prop_name == "Name" and self._name != old_name:
+            self._invalidate_tree_node()
+            if self._app._boundaries.get(old_name) is self:
+                self._app._boundaries.pop(old_name)
+                self._app._boundaries[self._name] = self
+        return result
 
     @property
     def props(self) -> BoundaryProps:
@@ -447,24 +428,16 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> boundary.name
         >>> hfss.release_desktop(True, True)
         """
-        child_object = self._child_object
+        child_object = self.child_object
         if child_object is not None and "Name" in dir(child_object):
             self._name = str(child_object.Name)
         return self._name
 
     @name.setter
     def name(self, value: str) -> None:
-        if self._child_object:
+        if self.child_object:
             try:
-                old_name = self._name
                 self.properties["Name"] = value
-                object.__setattr__(self, "_name", value)
-                object.__setattr__(self, "_tree_node_initialized", False)
-                object.__setattr__(self, "_props", None)
-                object.__setattr__(self, "_children_loaded", False)
-                self._app._boundaries[value] = self
-                if old_name and old_name != value:
-                    self._app._boundaries.pop(old_name, None)
             except KeyError:
                 self._app.logger.error("Name %s already assigned in the design", value)
 
@@ -696,8 +669,17 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
             return False
 
         # GetObjData is available for some objects in 2026R1.
-        self._has_getobject = _has_get_obj_data(self._child_object)
+        self._has_getobject = _has_get_obj_data(self.child_object)
         return self
+
+    def delete(self) -> bool:
+        old_name = self.name
+        if not super().delete():
+            return False
+        self._invalidate_tree_node()
+        if self._app._boundaries.get(old_name) is self:
+            self._app._boundaries.pop(old_name)
+        return True
 
     @pyaedt_function_handler()
     def update(self, props: dict = None) -> bool:

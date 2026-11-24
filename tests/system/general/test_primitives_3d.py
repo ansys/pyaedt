@@ -1055,6 +1055,8 @@ def test_polyline_history_segments(aedt_app) -> None:
     assert history.segments
     assert len(history.segments) == 2
     assert all(segment.properties["Segment Type"] == "Line" for segment in history.segments.values())
+    assert len(history.segments) == 2
+    assert all(segment.properties["Segment Type"] == "Line" for segment in history.segments.values())
     polyline._update_segments_and_points()
     assert len(polyline.segment_types) == 2
     assert len(polyline.points) == 3
@@ -2211,6 +2213,14 @@ def test_update_named_selections_objects(aedt_app) -> None:
     assert aedt_app.modeler[box2.name] in aedt_app.modeler.get_named_selection_objects(ns.name)
     assert aedt_app.modeler[box3.name] in aedt_app.modeler.get_named_selection_objects(ns.name)
     assert len(aedt_app.modeler.get_named_selection_objects(ns.name)) == 2
+    props = ns.props.to_dict()
+    props["List"] = [box1.name]
+    assert ns.update(props=props)
+    assert ns.props["List"] == [box1.name]
+    ns.props["List"] = [box2.name]
+    assert ns.props["List"] == [box2.name]
+    assert aedt_app.modeler.get_named_selection_objects(ns.name) == [box2]
+    assert ns.update()
 
 
 def test_create_named_selections_faces(aedt_app) -> None:
@@ -2289,6 +2299,11 @@ def test_update_named_selections_faces(aedt_app) -> None:
     ns.update(assignment=[box2.faces[1].id], entity_type="Face", mode="Reassign")
     assert len(aedt_app.modeler.get_named_selection_objects(ns.name)) == 1
     assert box2.faces[1].id in aedt_app.modeler.get_named_selection_objects(ns.name)
+    assert ns.update()
+    props = ns.props.to_dict()
+    props["List"] = [box1.faces[0].id]
+    assert ns.update(props=props)
+    assert aedt_app.modeler.get_named_selection_objects(ns.name) == [box1.faces[0].id]
 
 
 def test_get_named_selection_objects(aedt_app) -> None:

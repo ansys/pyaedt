@@ -60,29 +60,32 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         self._name = component_name
         self.__props = BoundaryProps(self, props) if props else {}
         self.auto_update = True
-        # self._initialize_tree_node()
 
-    @property
-    def _child_object(self):
-        """Object-oriented properties.
+    @pyaedt_function_handler()
+    def _initialize_tree_node(self) -> bool:
+        aedt_object = self._resolve_aedt_object()
+        if aedt_object:
+            BinaryTreeNode.__init__(self, self._name, aedt_object, False, app=self._app, auto_update=self.auto_update)
+            return True
+        return False
 
-        Returns
-        -------
-        AEDT object if any or `None`.
-
-        """
-        child_object = None
+    def _resolve_aedt_object(self):
+        """Find the AEDT object associated with the field setup."""
         design_childs = self._app.get_oo_name(self._app.odesign)
-
         for category in ["Radiation", "EM Fields"]:
             if category in design_childs:
                 cc = self._app.get_oo_object(self._app.odesign, category)
                 cc_names = self._app.get_oo_name(cc)
                 if self._name in cc_names:
-                    child_object = self._app.get_oo_object(cc, self._name)
-                    break
+                    return self._app.get_oo_object(cc, self._name)
+        return None
 
-        return child_object
+    def update_property(self, prop_name: str, prop_value: str) -> bool:
+        old_name = self._name
+        result = super().update_property(prop_name, prop_value)
+        if prop_name == "Name" and self._name != old_name:
+            self._invalidate_tree_node()
+        return result
 
     @property
     def props(self) -> BoundaryProps:
@@ -107,11 +110,11 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         # TODO: Radiation has GetObjectData but it is raising an error message in AEDT.
         # Revert this once AEDT supports ObjectData for Radiation.
         has_obj_data = False
-        # has_obj_data = _has_get_obj_data(self._child_object)
+        # has_obj_data = _has_get_obj_data(self.child_object)
         if self.__props and not (has_obj_data and self.auto_update):
             return self.__props
         if has_obj_data:
-            props = _get_obj_data(self._child_object)
+            props = _get_obj_data(self.child_object)
             if props and len(props) > 1:
                 self.__props = BoundaryProps(self, props)
                 return self.__props
@@ -152,13 +155,13 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> hfss.release_desktop()
 
         """
-        if self._child_object:
+        if self.child_object:
             self._name = str(self._get_property_value("Name"))
         return self._name
 
     @name.setter
     def name(self, value: str) -> None:
-        if self._child_object:
+        if self.child_object:
             try:
                 self.properties["Name"] = value
             except KeyError:
@@ -231,7 +234,6 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
             self._app.oradfield.AddAntennaOverlay(self._get_args())
         elif self.type == "FieldSourceGroup":
             self._app.oradfield.AddRadFieldSourceGroup(self._get_args())
-        # return self._initialize_tree_node()
         return True
 
     @pyaedt_function_handler()
@@ -312,10 +314,10 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> hfss.release_desktop()
 
         """
-        self._app.oradfield.DeleteSetup([self.name])
-        for el in self._app.field_setups:
-            if el.name == self.name:
-                self._app.field_setups.remove(el)
+        name = self.name
+        self._app.oradfield.DeleteSetup([name])
+        self._invalidate_tree_node()
+        self._app._field_setups[:] = [field for field in self._app._field_setups if field._name != name]
         return True
 
 
@@ -855,7 +857,7 @@ class FarFieldSetup(FieldSetup):
 
     @boresight.setter
     def boresight(self, value: str) -> None:
-        if self._child_object:
+        if self.child_object:
             if value not in ["X Axis", "Y Axis", "Z Axis"]:
                 raise ValueError("Boresight axis must be one of: 'X Axis', 'Y Axis', or 'Z Axis'")
             try:

@@ -33,6 +33,7 @@ from ansys.aedt.core.application.aedt_objects import AedtObjects
 from ansys.aedt.core.generic.general_methods import SetupDict
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
+from ansys.aedt.core.modules.design_xploration import Optimetrics
 from ansys.aedt.core.modules.design_xploration import OptimetricsSetup
 from ansys.aedt.core.modules.design_xploration import Optimizations
 from ansys.aedt.core.modules.design_xploration import OptimizationSetup
@@ -318,12 +319,12 @@ def test_optimization_variation_requires_aedt_version(mock_app):
         setup.add_variation("w1", 0, 10)
 
 
-def test_missing_optimetrics_module_is_reported(mock_app):
+@pytest.mark.parametrize("manager_class", [Optimetrics, Parametrics, Optimizations])
+def test_missing_optimetrics_module_is_reported(mock_app, manager_class):
     mock_app.ooptimetrics = None
-    setup = OptimetricsSetup.__new__(OptimetricsSetup)
-    setup._app = mock_app
+    parent = mock_app if manager_class is Optimetrics else SimpleNamespace(_app=mock_app, logger=mock_app.logger)
     with pytest.raises(AEDTRuntimeError, match="Optimetrics module is not available"):
-        setup._optimetrics_module
+        manager_class(parent)
 
 
 @pytest.mark.parametrize("design_type, available", [("HFSS", True), ("Maxwell Circuit", False)])

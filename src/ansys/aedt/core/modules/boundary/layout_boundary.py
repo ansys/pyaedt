@@ -64,10 +64,16 @@ class BoundaryObject3dLayout(BoundaryCommon, BinaryTreeNode, PyAedtBase):
             self.__props = BoundaryProps(self, props)
         self.type = boundarytype
         self.auto_update = True
-        # self._initialize_tree_node()
 
-    @property
-    def _child_object(self):
+    @pyaedt_function_handler()
+    def _initialize_tree_node(self) -> bool:
+        aedt_object = self._resolve_aedt_object()
+        if aedt_object:
+            BinaryTreeNode.__init__(self, self._name, aedt_object, False, app=self._app, auto_update=self.auto_update)
+            return True
+        return False
+
+    def _resolve_aedt_object(self):
         excitations_oo = self._app.get_oo_object(self._app.odesign, "Excitations")
         child_object = None
         if self.name in self._app.get_oo_name(excitations_oo):
@@ -79,6 +85,20 @@ class BoundaryObject3dLayout(BoundaryCommon, BinaryTreeNode, PyAedtBase):
                 child_object = self._app.get_oo_object(boundaries_oo, self.name)
 
         return child_object
+
+    def _on_rename(self, old_name):
+        if self._name != old_name:
+            self._invalidate_tree_node()
+            if self._app._boundaries.get(old_name) is self:
+                self._app._boundaries.pop(old_name)
+                self._app._boundaries[self._name] = self
+
+    def update_property(self, prop_name: str, prop_value: str) -> bool:
+        old_name = self._name
+        result = super().update_property(prop_name, prop_value)
+        if prop_name == "Name":
+            self._on_rename(old_name)
+        return result
 
     @property
     def name(self) -> str:
@@ -95,12 +115,24 @@ class BoundaryObject3dLayout(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
     @name.setter
     def name(self, value: str) -> None:
-        if "Port" in self.props:
+        old_name = self._name
+        auto_update = self.auto_update
+        props = None
+        old_port = None
+        try:
             self.auto_update = False
-            self.props["Port"] = value
-            self.auto_update = True
-        self.update()
-        self._name = value
+            props = self.props
+            if "Port" in props:
+                old_port = props["Port"]
+                dict.__setitem__(props, "Port", value)
+            if not self.update():
+                return
+            self._name = value
+            self._on_rename(old_name)
+        finally:
+            if props is not None and old_port is not None and self._name == old_name and old_name != value:
+                dict.__setitem__(props, "Port", old_port)
+            self.auto_update = auto_update
 
     @property
     def props(self) -> BoundaryProps:
@@ -117,10 +149,10 @@ class BoundaryObject3dLayout(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> obj.props
 
         """
-        has_obj_data = _has_get_obj_data(self._child_object)
+        child_object = self.child_object
+        has_obj_data = _has_get_obj_data(child_object)
         if self.__props and not (has_obj_data and self.auto_update):
             return self.__props
-        child_object = self._child_object
         if has_obj_data:
             props = _get_obj_data(child_object)
         else:
@@ -184,17 +216,30 @@ class BoundaryObject3dLayout(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
         """
         updated = False
-        for el in list(self.props.keys()):
-            if el == "Port" and self._name != self.props[el]:
-                self._app.oeditor.SetPropertyValue("EM Design", "Excitations:" + self.name, el, self.props[el])
-                self._name = self.props[el]
-            elif el in self._app.oeditor.GetProperties("EM Design", f"Excitations:{self.name}") and self.props[
+        props = properties if properties is not None else self.props
+        for el in list(props.keys()):
+            if el == "Port" and self._name != props[el]:
+                old_name = self._name
+                new_name = props[el]
+                self._app.oeditor.SetPropertyValue("EM Design", "Excitations:" + self.name, el, new_name)
+                self._name = new_name
+                self._on_rename(old_name)
+            elif el in self._app.oeditor.GetProperties("EM Design", f"Excitations:{self.name}") and props[
                 el
             ] != self._app.oeditor.GetPropertyValue("EM Design", "Excitations:" + self.name, el):
-                self._app.oeditor.SetPropertyValue("EM Design", "Excitations:" + self.name, el, self.props[el])
+                self._app.oeditor.SetPropertyValue("EM Design", "Excitations:" + self.name, el, props[el])
                 updated = True
 
         if updated:
             self._refresh_properties()
 
+        return True
+
+    def delete(self) -> bool:
+        old_name = self.name
+        if not super().delete():
+            return False
+        self._invalidate_tree_node()
+        if self._app._boundaries.get(old_name) is self:
+            self._app._boundaries.pop(old_name)
         return True

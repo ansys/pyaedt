@@ -1885,15 +1885,10 @@ class Plane(PyAedtBase):
 class BinaryTreeNode:
     """Manage a node in an AEDT object tree.
 
-    Children, properties, and the AEDT child object are resolved lazily on
-    first access so constructing a node (or a subclass) does not query AEDT.
+    The AEDT child object is resolved lazily, and children are read from AEDT
+    on each access so that external changes are reflected in the tree.
     Subclasses that defer ``BinaryTreeNode.__init__`` should implement
-    ``_initialize_tree_node``; it is invoked at most once.
-
-    Examples
-    --------
-    >>> from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
-    >>> obj = BinaryTreeNode()
+    ``_initialize_tree_node``, it is invoked at most once.
 
     """
 
@@ -1903,7 +1898,14 @@ class BinaryTreeNode:
     _children_loaded = False
 
     def __init__(
-        self, node, child_object, first_level: bool = False, get_child_obj_arg=None, root_name=None, app=None
+        self,
+        node,
+        child_object,
+        first_level: bool = False,
+        get_child_obj_arg=None,
+        root_name=None,
+        app=None,
+        auto_update: bool = True,
     ) -> None:
         self._props = None
         self._app = app
@@ -1913,7 +1915,8 @@ class BinaryTreeNode:
         self._get_child_obj_arg = get_child_obj_arg
         self._node = node
         self.__child_object = child_object
-        self.auto_update = True
+        self.__first_level_root = child_object if first_level else None
+        self.auto_update = auto_update
         self._children = {}
         self.__first_level = first_level
         self._children_loaded = False
@@ -1990,6 +1993,12 @@ class BinaryTreeNode:
         self._props = None
         self._children = {}
 
+    def _reset_children(self) -> None:
+        if getattr(self, "_BinaryTreeNode__first_level", False):
+            self.child_object = self.__first_level_root
+        self._props = None
+        self._children = {}
+
     def _ensure_children(self) -> None:
         if self._children_loading:
             return
@@ -2053,7 +2062,14 @@ class BinaryTreeNode:
 
     @property
     def children(self) -> dict:
-        """Retrieve children."""
+        """Retrieve current children from AEDT.
+
+        Each access returns newly constructed child nodes. References obtained
+        from an earlier access are not updated when the tree changes.
+
+        """
+        if not self._children_loading:
+            self._reset_children()
         self._ensure_children()
         return getattr(self, "_children", {})
 
@@ -2122,7 +2138,7 @@ class BinaryTreeNode:
 
     @property
     def command(self) -> str:
-        """Command of the modeler hystory if available.
+        """Command of the modeler history if available.
 
         Returns
         -------
@@ -2130,9 +2146,11 @@ class BinaryTreeNode:
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
-        >>> obj = BinaryTreeNode()
-        >>> obj.command
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> box = app.modeler.create_box([0, 0, 0], [10, 10, 10])
+        >>> history = box.history
+        >>> history.command
 
         """
         return self.properties.get("Command", "")
@@ -2151,12 +2169,6 @@ class BinaryTreeNode:
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
-        >>> obj = BinaryTreeNode()
-        >>> obj.update_property(prop_name=1, prop_value=1)
 
         """
         if prop_name == "Command":
@@ -2200,9 +2212,10 @@ class BinaryTreeNode:
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
-        >>> obj = BinaryTreeNode()
-        >>> obj.jsonalize_tree()
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> box = app.modeler.create_box([0, 0, 0], [10, 10, 10])
+        >>> box.child_object.jsonalize_tree()
 
         """
         return self._jsonalize_tree(binary_tree_node=self)
@@ -2288,6 +2301,10 @@ class HistoryTreeNode(BinaryTreeNode):
         super()._invalidate_tree_node()
         self._segments = None
 
+    def _reset_children(self) -> None:
+        super()._reset_children()
+        self._segments = None
+
     def _update_children(self) -> None:
         self._segments = None
         super()._update_children()
@@ -2301,5 +2318,7 @@ class HistoryTreeNode(BinaryTreeNode):
     @property
     def segments(self):
         """Polyline segment nodes, or ``None`` for other geometry histories."""
+        if not self._children_loading:
+            self._reset_children()
         self._ensure_children()
         return getattr(self, "_segments", None)

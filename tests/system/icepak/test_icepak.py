@@ -480,6 +480,18 @@ def test_update_assignment(ipk_app) -> None:
     assert box2.name not in bound.assignment
 
 
+def test_boundary_tree_after_rename_and_delete(ipk_app) -> None:
+    box = ipk_app.modeler.create_box([0, 0, 0], [1, 1, 1], "boundary_tree_box")
+    boundary = ipk_app.assign_solid_block(box.name, "1W", boundary_name="BoundaryTree")
+    assert boundary.child_object
+    boundary.name = "RenamedBoundaryTree"
+    assert not boundary._tree_node_initialized
+    assert boundary.name == "RenamedBoundaryTree"
+    assert boundary.child_object
+    assert boundary.delete()
+    assert boundary.child_object is None
+
+
 def test_power_budget(power_budget_app) -> None:
     _, total_power = power_budget_app.post.power_budget(temperature=20, output_type="boundary")
     assert abs(total_power - 787.5221374239883) < 1
@@ -885,6 +897,8 @@ def test_assign_network(ipk_app, add_app_example) -> None:
     net.add_link("TestInternal", "TestBoundary3", 102)
     net.add_link("TestInternal3", "TestBoundary4", 103)
     assert net.create()
+    assert net.child_object
+    assert not net.auto_update
     bkupprops = net.nodes["TestFace"].props
     bkupprops_internal = net.nodes["TestInternal3"].props
     bkupprops_boundary = net.nodes["TestBoundary4"].props
@@ -908,6 +922,8 @@ def test_assign_network(ipk_app, add_app_example) -> None:
     net.add_link("TestInternal2", "TestBoundary2", "101cel_per_w")
     net.add_link("TestInternal", "TestBoundary3", "102cel_per_w")
     assert net.update()
+    assert not net._tree_node_initialized
+    assert net.child_object
     assert all(i not in net.nodes for i in ["TestFace", "TestInternal3", "TestBoundary4"])
     net.props["Nodes"].update({"TestFace": bkupprops})
     net.props["Nodes"].update({"TestInternal3": bkupprops_internal})
@@ -974,10 +990,14 @@ def test_assign_network(ipk_app, add_app_example) -> None:
     net.links["TestLink"].delete_link()
     net.add_links_from_dictionaries(link_dict)
     assert net.update()
+    assert net.child_object
     net.name = "NETWORK_TEST"
+    assert not net._tree_node_initialized
     assert net.name == "NETWORK_TEST"
+    assert net.child_object
     p = net.props
     net.delete()
+    assert net.child_object is None
     net = NetworkObject(ipk_app, "newNet", p, create=True)
     net.auto_update = True
     assert not net.auto_update

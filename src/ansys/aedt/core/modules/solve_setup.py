@@ -132,6 +132,10 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
         if self._app.oanalysis and "GetSetupData" in dir(self._app.oanalysis):
             self._has_getsetupdata = True
 
+        # Circuit and Twin Builder have GetSetupData, but it is returning always None
+        if self._app.design_type in ["Circuit Design", "Twin Builder"]:
+            self._has_getsetupdata = False
+
         # GetObjData is available for some objects in 2026R1
         self._has_getobject = _has_get_obj_data(self.child_object)
 

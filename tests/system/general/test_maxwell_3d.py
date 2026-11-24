@@ -330,6 +330,26 @@ def test_create_udm(m3d_app) -> None:
     )
 
 
+@pytest.mark.parametrize("kind", ["force", "torque"])
+def test_parameter_tree_after_rename_and_delete(m3d_app, kind) -> None:
+    coil = m3d_app.modeler.create_box([0, 0, 0], [10, 10, 10], name="ParameterTreeBox")
+    parameter = m3d_app.assign_force(coil) if kind == "force" else m3d_app.assign_torque(coil)
+    assert parameter.child_object
+    props = parameter.props.to_dict()
+    props["Is Virtual"] = False
+    assert parameter.update(props)
+    assert not parameter.props["Is Virtual"]
+    parameter.props["Is Virtual"] = True
+    assert parameter.props["Is Virtual"]
+    assert isinstance(parameter._legacy_props, dict)
+    parameter.name = "RenamedParameter"
+    assert not parameter._tree_node_initialized
+    assert parameter.name == "RenamedParameter"
+    assert parameter.child_object
+    assert parameter.delete()
+    assert parameter.child_object is None
+
+
 def test_assign_torque(m3d_app) -> None:
     coil = m3d_app.modeler.create_box([-100, -100, 0], [200, 200, 100], name="Coil")
     torque = m3d_app.assign_torque(coil)

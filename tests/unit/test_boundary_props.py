@@ -355,7 +355,7 @@ def test_name_getter_does_not_overwrite_name_with_none() -> None:
             self._child = object()
 
         @property
-        def _child_object(self):
+        def child_object(self):
             return self._child
 
         @property

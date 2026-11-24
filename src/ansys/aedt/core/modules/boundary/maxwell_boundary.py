@@ -487,18 +487,39 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         self.auto_update = True
         self._app = app
         self._name = name
-        self.__props = BoundaryProps(self, props) if props else {}
-        self.type = boundarytype
-        # self._initialize_tree_node()
+        self._legacy_props = {}
+        self._type = boundarytype
 
-    @property
-    def _child_object(self):
+        if props:
+            self._legacy_props = props
+            self._has_getobject = False
+        else:
+            self._has_getobject = _has_get_obj_data(self.child_object)
+
+    @pyaedt_function_handler()
+    def _initialize_tree_node(self) -> bool:
+        aedt_object = self._resolve_aedt_object()
+        if aedt_object:
+            BinaryTreeNode.__init__(self, self._name, aedt_object, False, app=self._app, auto_update=self.auto_update)
+            return True
+        return False
+
+    def _resolve_aedt_object(self):
+        """Find the AEDT object associated with the Maxwell parameter."""
         cc = self._app.get_oo_object(self._app.odesign, "Parameters")
-        child_object = None
         if self._name in self._app.get_oo_name(self._app.odesign, "Parameters"):
-            child_object = self._app.get_oo_object(cc, self._name)
+            return self._app.get_oo_object(cc, self._name)
+        return None
 
-        return child_object
+    def update_property(self, prop_name: str, prop_value: str) -> bool:
+        old_name = self._name
+        result = super().update_property(prop_name, prop_value)
+        if prop_name == "Name" and self._name != old_name:
+            self._invalidate_tree_node()
+            if self._app._boundaries.get(old_name) is self:
+                self._app._boundaries.pop(old_name)
+                self._app._boundaries[self._name] = self
+        return result
 
     @property
     def props(self) -> BoundaryProps:
@@ -524,25 +545,39 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> m3d.release_desktop()
 
         """
-        has_obj_data = _has_get_obj_data(self._child_object)
-        if self.__props and not (has_obj_data and self.auto_update):
-            return self.__props
-        child_object = self._child_object
-        if has_obj_data:
-            props = _get_obj_data(child_object)
+        if self._legacy_props and not self._has_getobject:
+            return BoundaryProps(self, self._legacy_props)
+
+        boundary_data = None
+        if self._has_getobject:
+            props = _get_obj_data(self.child_object)
         else:
             boundary_data = self._get_boundary_data(self.name)
             props = boundary_data[0] if boundary_data else {}
 
         if props:
-            self.__props = BoundaryProps(self, props)
-            if has_obj_data:
-                boundary_type = props.get("Type") or props.get("BoundType")
+            self._legacy_props = props
+            if self._has_getobject:
+                child_object = self.child_object
+                boundary_type = child_object.Type if "Type" in dir(child_object) else props.get("Type")
+                boundary_type = boundary_type or props.get("BoundType")
             else:
                 boundary_type = boundary_data[1]
             if boundary_type:
-                self.type = boundary_type
-        return self.__props
+                self._type = boundary_type
+        return BoundaryProps(self, self._legacy_props)
+
+    @property
+    def type(self) -> str | None:
+        """Maxwell parameter type."""
+        if not self._type:
+            props = self.props
+            self._type = self._type or props.get("Type") or props.get("BoundType") or props.get("MaxwellParameterType")
+        return self._type
+
+    @type.setter
+    def type(self, value: str) -> None:
+        self._type = value
 
     @property
     def name(self) -> str:
@@ -563,13 +598,15 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> m3d.release_desktop()
 
         """
-        if self._child_object:
-            self._name = str(self._get_property_value("Name"))
+        if self.child_object:
+            name = self._get_property_value("Name")
+            if name is not None:
+                self._name = str(name)
         return self._name
 
     @name.setter
     def name(self, value: str) -> None:
-        if self._child_object:
+        if self.child_object:
             try:
                 self.properties["Name"] = value
             except KeyError:
@@ -597,13 +634,13 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         return arg
 
     @pyaedt_function_handler()
-    def create(self) -> bool:
+    def create(self) -> MaxwellParameters | bool:
         """Create a boundary.
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        MaxwellParameters or bool
+            The created parameter when successful, ``False`` when failed.
 
         Examples
         --------
@@ -617,8 +654,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> plate = m3d.modeler.create_box([0, 0, 0], [10, 10, 1], name="Plate", material="iron")
         >>> props = {"Name": "Force_Plate", "Reference CS": "Global", "Is Virtual": True, "Objects": [plate.name]}
         >>> force = MaxwellForce(m3d, "Force_Plate", props=props)
-        >>> force.create()
-        True
+        >>> created_force = force.create()
         >>> m3d.release_desktop()
 
         """
@@ -632,12 +668,26 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
             self._app.omaxwell_parameters.AssignLayoutForce(self._get_args())
         else:
             return False
-        # return self._initialize_tree_node()
+        self._has_getobject = _has_get_obj_data(self.child_object)
+        return self
+
+    def delete(self) -> bool:
+        old_name = self.name
+        if not super().delete():
+            return False
+        self._invalidate_tree_node()
+        if self._app._boundaries.get(old_name) is self:
+            self._app._boundaries.pop(old_name)
         return True
 
     @pyaedt_function_handler()
-    def update(self) -> bool:
+    def update(self, props: dict | None = None) -> bool:
         """Update the boundary.
+
+        Parameters
+        ----------
+        props : dict, optional
+            Complete properties to apply. If omitted, the current properties are used.
 
         Returns
         -------
@@ -653,23 +703,27 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> m3d = Maxwell3d(version="2026.1", solution_type=SolutionsMaxwell3D.Magnetostatic)
         >>> rotor = m3d.modeler.create_cylinder(orientation="Z", origin=[0, 0, 0], radius=5, height=10, name="Rotor")
         >>> torque = m3d.assign_torque([rotor.name], axis="Z", torque_name="Torque_Rotor")
-        >>> torque.auto_update = False
-        >>> torque.props["Axis"] = "X"
-        >>> torque.props["Is Positive"] = False
-        >>> torque.update()
+        >>> props = torque.props.to_dict()
+        >>> props["Axis"] = "X"
+        >>> props["Is Positive"] = False
+        >>> torque.update(props)
         True
-        >>> torque.auto_update = True
         >>> m3d.release_desktop()
 
         """
+        if props is None:
+            props = self.props.to_dict()
+        args = self._get_args(props)
         if self.type == "Matrix":
-            self._app.omaxwell_parameters.EditMatrix(self.name, self._get_args())
+            self._app.omaxwell_parameters.EditMatrix(self.name, args)
         elif self.type == "Force":
-            self._app.omaxwell_parameters.EditForce(self.name, self._get_args())
+            self._app.omaxwell_parameters.EditForce(self.name, args)
         elif self.type == "Torque":
-            self._app.omaxwell_parameters.EditTorque(self.name, self._get_args())
+            self._app.omaxwell_parameters.EditTorque(self.name, args)
         else:
             return False
+        if not self._has_getobject:
+            self._legacy_props = props
         return True
 
 

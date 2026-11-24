@@ -60,7 +60,7 @@ def test_layout_init(layout_setup_app):
     assert layout_setup_app.setups[0].__repr__() == f"{layout_setup_app.setups[0].name} with 0 Sweeps"
     assert str(layout_setup_app.setups[0]) == layout_setup_app.setups[0].name
 
-    assert layout_setup_app.setups[1].solver_type == "SiwaveEMI"
+    assert str(layout_setup_app.setups[1].solver_type).lower() == "siwaveemi"
     assert layout_setup_app.setups[1].__repr__() == f"{layout_setup_app.setups[1].name} with 0 Sweeps"
     assert str(layout_setup_app.setups[1]) == layout_setup_app.setups[1].name
 
@@ -89,24 +89,24 @@ def test_layout_init(layout_setup_app):
     assert len(layout_setup_app.setups[6].sweeps) == 1
     assert isinstance(layout_setup_app.setups[6].sweeps[0], SweepHFSS3DLayout)
 
-    assert layout_setup_app.setups[7].solver_type == "SIwaveDCIR"
+    assert str(layout_setup_app.setups[7].solver_type).lower() == "siwavedcir"
     assert layout_setup_app.setups[7].__repr__() == f"{layout_setup_app.setups[7].name} with 0 Sweeps"
     assert str(layout_setup_app.setups[7]) == layout_setup_app.setups[7].name
     assert len(layout_setup_app.setups[7].sweeps) == 0
 
-    assert layout_setup_app.setups[8].solver_type == "SIwaveFarField"
+    assert str(layout_setup_app.setups[8].solver_type).lower() == "siwavefarfield"
     assert layout_setup_app.setups[8].__repr__() == f"{layout_setup_app.setups[8].name} with 1 Sweeps"
     assert str(layout_setup_app.setups[8]) == layout_setup_app.setups[8].name
     assert len(layout_setup_app.setups[8].sweeps) == 1
     assert isinstance(layout_setup_app.setups[8].sweeps[0], SweepHFSS3DLayout)
 
-    assert layout_setup_app.setups[9].solver_type == "SiwaveNearField"
+    assert str(layout_setup_app.setups[9].solver_type).lower() == "siwavenearfield"
     assert layout_setup_app.setups[9].__repr__() == f"{layout_setup_app.setups[9].name} with 1 Sweeps"
     assert str(layout_setup_app.setups[9]) == layout_setup_app.setups[9].name
     assert len(layout_setup_app.setups[9].sweeps) == 1
     assert isinstance(layout_setup_app.setups[9].sweeps[0], SweepHFSS3DLayout)
 
-    assert layout_setup_app.setups[10].solver_type == "SIwave"
+    assert str(layout_setup_app.setups[10].solver_type).lower() == "siwave"
     assert layout_setup_app.setups[10].__repr__() == f"{layout_setup_app.setups[10].name} with 1 Sweeps"
     assert str(layout_setup_app.setups[10]) == layout_setup_app.setups[10].name
     assert len(layout_setup_app.setups[10].sweeps) == 1

@@ -423,6 +423,10 @@ def test_frequency_sweep(request, app_fixture) -> None:
 def test_linear_step_sweep(request, app_fixture) -> None:
     app = request.getfixturevalue(app_fixture)
     setup = app.create_setup("LinearStepSetup")
+    if app_fixture == "q2d_app":
+        app.modeler.create_rectangle([0, 0], [1, 1], material="FR4_epoxy")
+    else:
+        app.modeler.create_box([0, 0, 0], [1, 1, 1], material="FR4_epoxy")
 
     with pytest.raises(AttributeError):
         setup.create_linear_step_sweep(sweep_type="invented")

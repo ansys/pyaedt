@@ -843,9 +843,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         else:
             self.oexcitation.DeleteExcitation(name)
 
-        for bound in self.boundaries:
-            if bound.name == name:
-                self.boundaries.remove(bound)
+        bound = self._boundaries.pop(name, None)
+        if isinstance(bound, BoundaryObject3dLayout):
+            bound._invalidate_tree_node()
         return True
 
     @pyaedt_function_handler()

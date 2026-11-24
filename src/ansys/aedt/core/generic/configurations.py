@@ -35,28 +35,35 @@ from typing import Any
 import ansys.aedt.core
 from ansys.aedt.core import __version__
 from ansys.aedt.core.base import PyAedtBase
-from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.file_utils import generate_unique_folder_name
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.file_utils import write_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.numbers_utils import Quantity
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.generic.protocols import _AppWithOProject
-from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 from ansys.aedt.core.modeler.cad.components_3d import NativeComponent
 from ansys.aedt.core.modeler.cad.components_3d import NativeComponentPCB
+from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
-from ansys.aedt.core.modules.boundary.common import BoundaryProps
+from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
 from ansys.aedt.core.modules.design_xploration import OptimizationSetup
 from ansys.aedt.core.modules.design_xploration import ParametricSetup
 from ansys.aedt.core.modules.material_lib import Material
 from ansys.aedt.core.modules.mesh import MeshOperation
+from ansys.aedt.core.modules.solve_setup import Setup3DLayout
+from ansys.aedt.core.modules.solve_setup import SetupHFSS
+from ansys.aedt.core.modules.solve_setup import SetupQ3D
+from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
+from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
+from ansys.aedt.core.modules.solve_sweeps import SweepMatrix
 
 
 def _find_datasets(d, out_list) -> None:
@@ -929,8 +936,9 @@ class Configurations(PyAedtBase):
         for cs in self._app.modeler.coordinate_systems:
             if cs.name == name:
                 if not self.options.skip_import_if_exists:
-                    cs.props = props
-                    cs.update()
+                    if "Reference CS" in props:
+                        cs.ref_cs = props["Reference CS"]
+                    return cs.update(props)
                 return True
         cs = CoordinateSystem(self._app.modeler, props, name)
         try:
@@ -980,18 +988,26 @@ class Configurations(PyAedtBase):
         for bound in self._app.boundaries:
             if bound and bound.name == name:
                 if not self.options.skip_import_if_exists:
-                    bound.props.update({k: props[k] for k in bound.props if k in props})
-                    bound.update()
+                    current_props = bound.props
+                    if isinstance(bound, NetworkObject):
+                        for key in current_props:
+                            if key in props:
+                                current_props[key] = props[key]
+                        return bound.update()
+                    updated_props = current_props.to_dict()
+                    updated_props.update({k: props[k] for k in updated_props if k in props})
+                    if isinstance(bound, (BoundaryObject, MaxwellParameters)):
+                        return bound.update(updated_props)
+                    self._app.logger.warning("Cannot import properties for boundary %s of type %s.", name, bound.type)
+                    return False
                 return True
-        bound = BoundaryObject(self._app, name, props, props["BoundType"])
-        if bound.props.get("Independent", None):
+        props = copy.deepcopy(props)
+        if props.get("Independent", None):
             for b in self._app.boundaries:
-                if b.type == "Independent" and b.props.get("ID", 999) == bound.props["Independent"]:
-                    bound.auto_update = False
-                    bound.props["Independent"] = b.name
-                    bound.auto_update = True
-        if bound.props.get("CurrentLine", None) and bound.props["CurrentLine"].get("GeometryPosition", None):
-            current = bound.props["CurrentLine"]["GeometryPosition"]
+                if b.type == "Independent" and b.props.get("ID", 999) == props["Independent"]:
+                    props["Independent"] = b.name
+        if props.get("CurrentLine", None) and props["CurrentLine"].get("GeometryPosition", None):
+            current = props["CurrentLine"]["GeometryPosition"]
             x1 = self._app.value_with_units(float(current[0]["XPosition"]), self._app.modeler.model_units)
             y1 = self._app.value_with_units(float(current[0]["YPosition"]), self._app.modeler.model_units)
             z1 = self._app.value_with_units(float(current[0]["ZPosition"]), self._app.modeler.model_units)
@@ -999,12 +1015,10 @@ class Configurations(PyAedtBase):
             y2 = self._app.value_with_units(float(current[1]["YPosition"]), self._app.modeler.model_units)
             z2 = self._app.value_with_units(float(current[1]["ZPosition"]), self._app.modeler.model_units)
             p1 = {"Coordinate System": "Global", "Start": [x1, y1, z1], "End": [x2, y2, z2]}
-            bound.auto_update = False
-            bound.props["CurrentLine"] = BoundaryProps(bound, p1)
-            bound.auto_update = True
-        if bound.props.get("Modes", None):
+            props["CurrentLine"] = p1
+        if props.get("Modes", None):
             modes = {}
-            for k, v in bound.props["Modes"].items():
+            for k, v in props["Modes"].items():
                 p1 = {"ModeNum": v["ModeNum"], "UseIntLine": v["UseIntLine"]}
                 if v["UseIntLine"] and v["IntLine"].get("GeometryPosition", None):
                     current = v["IntLine"]["GeometryPosition"]
@@ -1024,9 +1038,8 @@ class Configurations(PyAedtBase):
                 if v.get("RenormImp", None):
                     p1["RenormImp"] = v["RenormImp"]
                 modes[k] = p1
-            bound.auto_update = False
-            bound.props["Modes"] = BoundaryProps(bound, modes)
-            bound.auto_update = True
+            props["Modes"] = modes
+        bound = BoundaryObject(self._app, name, props, props["BoundType"])
         if bound.create():
             self._app._boundaries[bound.name] = bound
             if props["BoundType"] in ["Coil Terminal", "Coil", "CoilTerminal"]:
@@ -1046,14 +1059,17 @@ class Configurations(PyAedtBase):
 
     @pyaedt_function_handler()
     def _update_mesh_operations(self, name: str, props) -> bool:
-        for mesh_el in self._app.mesh.meshoperations:
+        for mesh_el in self._app.mesh.operations.values():
             if mesh_el.name == name:
                 if not self.options.skip_import_if_exists:
-                    mesh_el.props = props
+                    return mesh_el.update(props=props)
                 return True
+        props = copy.deepcopy(props)
+        mesh_types = {"Length Based": "LengthBased", "Surface Approximation Based": "SurfApproxBased"}
+        if props.get("Type") in mesh_types:
+            props["Type"] = mesh_types[props["Type"]]
         bound = MeshOperation(self._app.mesh, name, props)
         if bound.create():
-            self._app.mesh.meshoperations.append(bound)
             self._app.logger.info(f"Mesh Operation {name} added.")
             return True
         else:
@@ -1062,17 +1078,49 @@ class Configurations(PyAedtBase):
 
     @pyaedt_function_handler()
     def _update_setup(self, name: str, props) -> bool:
+        props = copy.deepcopy(props)
+        setup_type = props.pop("SetupType", None)
+        sweeps = props.pop("_sweeps", {})
+        # Older configurations stored frequency sweeps beside setup properties.
+        for key, value in list(props.items()):
+            if isinstance(value, dict) and (
+                value.get("Type") in ("Discrete", "Interpolating", "Fast") or "FreqSweepType" in value
+            ):
+                sweeps[key] = props.pop(key)
+        setup = None
         for setup_el_name, setup_el in self._app.setups.items():
             if setup_el_name == name:
-                if not self.options.skip_import_if_exists:
-                    setup_el.props = props
-                    setup_el.update()
-                return True
-        if self._app.design_type == "Q3D Extractor":
-            setup = self._app.create_setup(name, props=props)
-        else:
-            setup = self._app.create_setup(name, setup_type=props["SetupType"], props=props)
+                if self.options.skip_import_if_exists:
+                    return True
+                if not setup_el.update(props):
+                    return False
+                setup = setup_el
+                break
+        if setup is None:
+            if self._app.design_type in ["Q3D Extractor", "2D Extractor", "RMxprt"]:
+                setup = self._app.create_setup(name, props=props)
+            else:
+                setup = self._app.create_setup(name, setup_type=setup_type, props=props)
         if setup:
+            sweep_class = None
+            if isinstance(setup, Setup3DLayout):
+                sweep_class = SweepHFSS3DLayout
+            elif isinstance(setup, SetupHFSS):
+                sweep_class = SweepHFSS
+            elif isinstance(setup, SetupQ3D):
+                sweep_class = SweepMatrix
+            if sweeps and sweep_class is None:
+                self._app.logger.warning("Cannot import frequency sweeps for setup %s.", name)
+                return False
+            for sweep_name, sweep_props in sweeps.items():
+                if sweep_name in setup.sweeps:
+                    if not setup.sweeps[sweep_name].update(sweep_props):
+                        return False
+                elif sweep_class:
+                    sweep = sweep_class(setup, sweep_name, sweep_props)
+                    if not sweep.create():
+                        self._app.logger.warning("Failed to add sweep %s to setup %s.", sweep_name, name)
+                        return False
             self._app.logger.info(f"Setup {name} added.")
             return True
         else:
@@ -1081,14 +1129,15 @@ class Configurations(PyAedtBase):
 
     @pyaedt_function_handler()
     def _update_optimetrics(self, name: str, props) -> bool:
-        for setup_el in self._app.optimizations.setups:
+        props = copy.deepcopy(props)
+        setup_type = props.pop("SetupType", "OptiOptimization")
+        for setup_el in self._app.optimizations.setups.values():
             if setup_el.name == name:
                 if not self.options.skip_import_if_exists:
-                    setup_el.props = props
-                    setup_el.update()
+                    return setup_el.update(props)
                 return True
 
-        setup = OptimizationSetup(app=self._app.optimizations, name=name, props=props)
+        setup = OptimizationSetup(app=self._app.optimizations, name=name, props=props, setup_type=setup_type)
 
         if setup.create():
             self._app.logger.info(f"Optim {name} added.")
@@ -1099,13 +1148,14 @@ class Configurations(PyAedtBase):
 
     @pyaedt_function_handler()
     def _update_parametrics(self, name: str, props) -> bool:
-        for setup_el in self._app.parametrics.setups:
+        props = copy.deepcopy(props)
+        props.pop("SetupType", None)
+        for setup_el in self._app.parametrics.setups.values():
             if setup_el.name == name:
                 if not self.options.skip_import_if_exists:
-                    setup_el.props = props
-                    setup_el.update()
+                    return setup_el.update(props)
                 return True
-        setup = ParametricSetup(app=self._app.parametrics, name=name, props=props)
+        setup = ParametricSetup(app=self._app.parametrics, name=name, props=props, setup_type="OptiParametric")
         if setup.create():
             self._app.logger.info(f"Optim {name} added.")
             return True
@@ -1387,28 +1437,35 @@ class Configurations(PyAedtBase):
 
     @pyaedt_function_handler()
     def _export_setups(self, dict_out):
+        """Export detached setup data with separate frequency sweeps under ``_sweeps``.
+
+        Solver-internal sweep settings, such as HFSS automatic sweeps, remain
+        part of the setup properties.
+        """
         if self._app.setups:
             dict_out["setups"] = {}
             for setup_name, setup in self._app.setups.items():
-                dict_out["setups"][setup_name] = setup.props
+                dict_out["setups"][setup_name] = setup.props.to_dict()
 
-                if setup.sweeps:
-                    for sweep_name, sweep in setup.sweeps.items():
-                        dict_out["setups"][setup_name][sweep_name] = sweep.props
+                if hasattr(setup, "sweeps") and setup.sweeps:
+                    dict_out["setups"][setup_name]["_sweeps"] = {
+                        sweep_name: sweep.props.to_dict() for sweep_name, sweep in setup.sweeps.items()
+                    }
 
     @pyaedt_function_handler()
     def _export_optimizations(self, dict_out):
         if self._app.optimizations.setups:
             dict_out["optimizations"] = {}
-            for setup in self._app.optimizations.setups:
-                dict_out["optimizations"][setup.name] = dict(setup.props)
+            for name, setup in self._app.optimizations.setups.items():
+                dict_out["optimizations"][name] = setup.props.to_dict()
+                dict_out["optimizations"][name]["SetupType"] = setup.setup_type
 
     @pyaedt_function_handler()
     def _export_parametrics(self, dict_out):
         if self._app.parametrics.setups:
             dict_out["parametrics"] = {}
-            for setup in self._app.parametrics.setups:
-                dict_out["parametrics"][setup.name] = dict(setup.props)
+            for name, setup in self._app.parametrics.setups.items():
+                dict_out["parametrics"][name] = setup.props.to_dict()
 
     @pyaedt_function_handler()
     def _export_boundaries(self, dict_out):
@@ -1417,13 +1474,11 @@ class Configurations(PyAedtBase):
         if self._app.boundaries:
             dict_out["boundaries"] = {}
             for boundary in self._app.boundaries:
-                legacy_update = boundary.auto_update
-                boundary.auto_update = False
-                dict_out["boundaries"][boundary.name] = dict(boundary.props)
-                if not boundary.props.get("BoundType", None):
-                    dict_out["boundaries"][boundary.name]["BoundType"] = boundary.type
-                self._map_object(boundary.props, dict_out)
-                boundary.auto_update = legacy_update
+                props = boundary.props.to_dict()
+                if not props.get("BoundType", None):
+                    props["BoundType"] = boundary.type
+                dict_out["boundaries"][boundary.name] = props
+                self._map_object(props, dict_out)
 
     @pyaedt_function_handler()
     def _export_coordinate_systems(self, dict_out):
@@ -1433,12 +1488,9 @@ class Configurations(PyAedtBase):
             dict_out["coordinatesystems"] = {}
             for cs in self._app.modeler.coordinate_systems:
                 if isinstance(cs, CoordinateSystem):
-                    legacy_update = cs.auto_update
-                    cs.auto_update = False
                     if cs.props:
-                        dict_out["coordinatesystems"][cs.name] = copy.deepcopy(dict(cs.props))
+                        dict_out["coordinatesystems"][cs.name] = cs.props.to_dict()
                         dict_out["coordinatesystems"][cs.name]["Reference CS"] = cs.ref_cs
-                    cs.auto_update = legacy_update
 
     @pyaedt_function_handler()
     def _export_objects_properties(self, dict_out):
@@ -1464,11 +1516,12 @@ class Configurations(PyAedtBase):
     def _export_mesh_operations(self, dict_out):
         if self._app.design_type in ["Twin Builder", "RMxprt", "ModelCreation", "Circuit Design", "Circuit Netlist"]:
             return
-        if self._app.mesh.meshoperations:
+        if self._app.mesh.operations:
             dict_out["mesh"] = {}
-            for mesh in self._app.mesh.meshoperations:
-                dict_out["mesh"][mesh.name] = copy.deepcopy(dict(mesh.props))
-                self._map_object(mesh.props, dict_out)
+            for name, mesh in self._app.mesh.operations.items():
+                props = mesh.props.to_dict()
+                dict_out["mesh"][name] = props
+                self._map_object(props, dict_out)
 
     @pyaedt_function_handler()
     def _export_datasets(self, dict_out):
@@ -1709,6 +1762,12 @@ class Configurations3DLayout(Configurations, PyAedtBase):
 class ConfigurationsIcepak(Configurations, PyAedtBase):
     """Enables export and import configuration options to be applied on a new or existing design.
 
+    Notes
+    -----
+    Mesh regions are exported with their properties and, for subregions, the
+    enclosed objects, padding, and coordinate system needed to recreate the
+    geometry with ``modeler.create_subregion``.
+
     Examples
     --------
     >>> from ansys.aedt.core import Icepak
@@ -1770,38 +1829,41 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
     @pyaedt_function_handler()
     def _update_mesh_operations(self, name: str, props):
         from ansys.aedt.core.modules.mesh_icepak import MeshRegion
-        from ansys.aedt.core.modules.mesh_icepak import SubRegion
 
-        if name == "Settings":
-            if not self.options.skip_import_if_exists:
-                for el in props:
-                    if el in self._app.mesh.global_mesh_region.__dict__:
-                        self._app.mesh.global_mesh_region.__dict__[el] = props[el]
-                return self._app.mesh.global_mesh_region.update()
-        for mesh_el in self._app.mesh.meshregions:
-            if mesh_el.name == name:
-                if not self.options.skip_import_if_exists:
-                    for el in props:
-                        if el in mesh_el.__dict__:
-                            mesh_el.__dict__[el] = props[el]
-                    return mesh_el.update()
-        try:
-            if self._app.settings.aedt_version < "2024.1":
-                props.get("Objects", []) + props.get("Submodels", [])
-            else:
-                subregion = SubRegion(self._app, props["_subregion_information"]["parts"])
-                subregion.padding_values = props["_subregion_information"]["pad_vals"]
-                subregion.padding_types = props["_subregion_information"]["pad_types"]
-                # objs = subregion.name
-            bound = MeshRegion(mesh=self._app, name=name, props=props)
-            bound.manual_settings = props["UserSpecifiedSettings"]
-            for el in props:
-                if el in bound.props:
-                    bound.props[el] = props[el]
-            self._app.mesh.meshregions.append(bound)
-            self._app.logger.info(f"Mesh Operation {name} added.")
-        except GrpcApiError:
-            self._app.logger.warning(f"Failed to add mesh {name} ")
+        props = copy.deepcopy(props)
+        subregion_info = props.pop("_subregion_information", None)
+        is_operation = props.pop("_mesh_operation", False)
+        if name in ("Settings", "Global"):
+            return self.options.skip_import_if_exists or self._app.mesh.global_region.update(props)
+        if is_operation:
+            return super()._update_mesh_operations(name, props)
+        if name in self._app.mesh.regions:
+            if self.options.skip_import_if_exists:
+                return True
+            current = self._app.mesh.regions[name]
+            if subregion_info:
+                props["Objects"] = current.assignment
+            return current.update(props)
+        if subregion_info:
+            previous_cs = self._app.oeditor.GetActiveCoordinateSystem()
+            try:
+                self._app.modeler.set_working_coordinate_system(subregion_info.get("coordinate_system", "Global"))
+                subregion = self._app.modeler.create_subregion(
+                    padding_values=subregion_info["pad_vals"],
+                    padding_types=subregion_info["pad_types"],
+                    assignment=subregion_info["parts"],
+                )
+            finally:
+                self._app.modeler.set_working_coordinate_system(previous_cs)
+            if not subregion:
+                self._app.logger.warning("Failed to create subregion for mesh %s.", name)
+                return False
+            props["Objects"] = [subregion.name]
+        region = MeshRegion(mesh=self._app.mesh, name=name, props=props)
+        if not region.create():
+            self._app.logger.warning("Failed to add mesh region %s.", name)
+            return False
+        self._app.logger.info("Mesh region %s added.", name)
         return True
 
     @pyaedt_function_handler()
@@ -1827,39 +1889,33 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
     @pyaedt_function_handler()
     def _export_mesh_operations(self, dict_out):
         dict_out["mesh"] = {}
-        args: list[str | bool] = ["NAME:Settings"]
-        args += self._app.mesh.global_mesh_region.settings.parse_settings_as_args()
-        mop = {}
-        _arg2dict(args, mop)
-        dict_out["mesh"]["Settings"] = mop["Settings"]
-        if self._app.mesh.meshregions:
-            for mesh in self._app.mesh.meshregions:
-                if mesh.name in ["Settings", "Global"]:
-                    args = ["NAME:Settings"]
-                else:
-                    args = ["NAME:" + mesh.name, "Enable:=", mesh.enable]
-                args += mesh.settings.parse_settings_as_args()
-                if mesh.name not in ["Settings", "Global"]:
-                    args += getattr(mesh, "_parse_assignment_value")()
-                args += ["UserSpecifiedSettings:=", not mesh.manual_settings]
-                mop = {}
-                _arg2dict(args, mop)
-                if mesh.name not in ["Settings", "Global"]:
-                    assignment = args[-3]
-                    if (
-                        isinstance(assignment, list)
-                        and assignment
-                        and isinstance(assignment[0], str)
-                        and self._app.modeler[assignment[0]].history().command == "CreateSubRegion"
-                    ):
-                        mop[mesh.name]["_subregion_information"] = {
-                            "pad_vals": mesh.assignment.padding_values,
-                            "pad_types": mesh.assignment.padding_types,
-                            "parts": list(mesh.assignment.parts.keys()),
-                        }
-                if mesh.name in mop:
-                    dict_out["mesh"][mesh.name] = mop[mesh.name]
-                self._map_object(mop, dict_out)
+        global_props = self._app.mesh.global_region.props.to_dict()
+        if global_props:
+            dict_out["mesh"]["Settings"] = global_props
+        for name, region in self._app.mesh.regions.items():
+            if name == "Global":
+                continue
+            props = region.props.to_dict()
+            assignment = region.assignment
+            if len(assignment) == 1 and assignment[0] in self._app.modeler.object_names:
+                history = self._app.modeler[assignment[0]].history()
+                if history.command == "CreateSubRegion":
+                    history_props = history.properties
+                    directions = ("+X", "-X", "+Y", "-Y", "+Z", "-Z")
+                    parts = history_props["Part Names"]
+                    props["_subregion_information"] = {
+                        "pad_vals": [history_props[f"{direction} Padding Data"] for direction in directions],
+                        "pad_types": [history_props[f"{direction} Padding Type"] for direction in directions],
+                        "parts": [part.strip() for part in parts.split(",")] if isinstance(parts, str) else parts,
+                        "coordinate_system": history_props["Coordinate System"],
+                    }
+            dict_out["mesh"][name] = props
+            self._map_object(props, dict_out)
+        for name, operation in self._app.mesh.operations.items():
+            props = operation.props.to_dict()
+            props["_mesh_operation"] = True
+            dict_out["mesh"][name] = props
+            self._map_object(props, dict_out)
 
     @pyaedt_function_handler()
     def update_monitor(self, m_case: str, m_object, m_quantity: list | str, m_name: str) -> bool:
@@ -2058,15 +2114,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
         tempproj_name = Path(directory) / "temp_proj.aedt"
         tempproj = Icepak(str(tempproj_name), version=self._app._aedt_version)
         empty_design = tempproj.design_list[0]
-        self._app.modeler.refresh()
-        self._app.modeler.delete(
-            list(
-                set([id for id, obj in self._app.modeler.objects.items() if obj.is_model])
-                - set([id for _, obj in self._app.modeler.components.items() for id in obj.parts])
-            )
-        )
         self._app.oproject.CopyDesign(self._app.design_name)
-        self._app.odesign.Undo()
         tempproj.oproject.Paste()
         tempproj.modeler.refresh_all_ids()
         tempproj.delete_design(empty_design)
@@ -2132,6 +2180,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
 
     @pyaedt_function_handler()
     def _export_native_components(self, dict_out):
+        """Export native definitions once and replayable component operations."""
         dict_out["native components"] = {}
         duplicate_dict = self._get_duplicate_names()
 
@@ -2144,8 +2193,12 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
 
         for _, nc in self._app.modeler.native_components.items():
             instance_name = nc.props["SubmodelDefinitionName"]
+            if instance_name in dict_out["native components"]:
+                continue
+            if "Target Coordinate System" not in self._app.get_oo_properties(self._app.oeditor, nc.name):
+                continue
             dict_out["native components"][instance_name] = {}
-            nc_props = dict(nc.props).copy()
+            nc_props = nc.props.to_dict()
             nc_type = nc.props["NativeComponentDefinitionProvider"]["Type"]
             dict_out["native components"][instance_name]["Type"] = nc_type
             if (
@@ -2162,8 +2215,11 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                         cs_name = v.target_coordinate_system
 
                     obj_history = None
-                    if v.child_object and "jsonalize_tree" in dir(v):
-                        obj_history = v.jsonalize_tree()
+                    if v.child_object:
+                        history = BinaryTreeNode(
+                            v.name, v.child_object, get_child_obj_arg="ComponentOperation", app=self._app
+                        )
+                        obj_history = history.jsonalize_tree()[v.name]["Children"]
                         for node_name, node in obj_history.items():
                             add_duplicate_dic_to_history(node_name, node, i)
 
@@ -2177,134 +2233,79 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
     @pyaedt_function_handler()
     def _update_native_components(self, native_name, native_dict) -> bool:
 
+        def vector(props, key):
+            values = props[key]
+            if len(values) == 6:
+                return values[1::2]
+            if len(values) == 3:
+                return values
+            if not values:
+                return [props[f"{key}/{axis}"] for axis in ("X", "Y", "Z")]
+            raise ValueError(f"Invalid native component operation vector {key}: {values}")
+
         def apply_operations_to_native_components(obj, operation_dict, native_dict) -> bool:  # pragma: no cover
             cache_cs = self._app.oeditor.GetActiveCoordinateSystem()
-            self._app.modeler.set_working_coordinate_system(operation_dict["Props"]["Coordinate System"])
+            try:
+                self._app.modeler.set_working_coordinate_system(operation_dict["Props"]["Coordinate System"])
+                return apply_operation(obj, operation_dict, native_dict)
+            finally:
+                self._app.modeler.set_working_coordinate_system(cache_cs)
+
+        def apply_operation(obj, operation_dict, native_dict) -> bool:
             new_objs = None
             self._app.modeler.refresh_all_ids()
-            old_objs = list(self._app.modeler.components.keys())
             if operation_dict["Props"]["Command"] == "Move":
-                if len(operation_dict["Props"]["Move Vector"]) == 6:
-                    operation_list = [
-                        decompose_variable_value(operation_dict["Props"]["Move Vector"][2 * i + 1])[0] for i in range(3)
-                    ]
-                elif len(operation_dict["Props"]["Move Vector"]) == 3:
-                    operation_list = [
-                        decompose_variable_value(operation_dict["Props"]["Move Vector"][i])[0] for i in range(3)
-                    ]
-                else:
-                    # Handle empty list case - use separate X/Y/Z values
-                    operation_list = [
-                        decompose_variable_value(operation_dict["Props"]["Move Vector/X"])[0],
-                        decompose_variable_value(operation_dict["Props"]["Move Vector/Y"])[0],
-                        decompose_variable_value(operation_dict["Props"]["Move Vector/Z"])[0],
-                    ]
-                obj.move(operation_list)
+                operation_list = vector(operation_dict["Props"], "Move Vector")
+                if not obj.move(operation_list):
+                    self._app.logger.warning("Failed to move native component %s.", obj.name)
+                    return False
             elif operation_dict["Props"]["Command"] == "Rotate":
                 rotation = decompose_variable_value(operation_dict["Props"]["Angle"])
-                obj.rotate(operation_dict["Props"]["Axis"], angle=rotation[0], units=rotation[1])
+                if not obj.rotate(operation_dict["Props"]["Axis"], angle=rotation[0], units=rotation[1]):
+                    self._app.logger.warning("Failed to rotate native component %s.", obj.name)
+                    return False
             elif operation_dict["Props"]["Command"] == "Mirror":
-                if len(operation_dict["Props"]["Base Position"]) == 6:
-                    base_list = [
-                        decompose_variable_value(operation_dict["Props"]["Base Position"][2 * i + 1])[0]
-                        for i in range(3)
-                    ]
-                    normal_list = [
-                        decompose_variable_value(operation_dict["Props"]["Normal Position"][2 * i + 1])[0]
-                        for i in range(3)
-                    ]
-                elif len(operation_dict["Props"]["Base Position"]) == 3:
-                    base_list = [
-                        decompose_variable_value(operation_dict["Props"]["Base Position"][i])[0] for i in range(3)
-                    ]
-                    normal_list = [
-                        decompose_variable_value(operation_dict["Props"]["Normal Position"][i])[0] for i in range(3)
-                    ]
-                else:
-                    # Handle empty list case - use separate X/Y/Z values
-                    base_list = [
-                        decompose_variable_value(operation_dict["Props"]["Base Position/X"])[0],
-                        decompose_variable_value(operation_dict["Props"]["Base Position/Y"])[0],
-                        decompose_variable_value(operation_dict["Props"]["Base Position/Z"])[0],
-                    ]
-                    normal_list = [
-                        decompose_variable_value(operation_dict["Props"]["Normal Position/X"])[0],
-                        decompose_variable_value(operation_dict["Props"]["Normal Position/Y"])[0],
-                        decompose_variable_value(operation_dict["Props"]["Normal Position/Z"])[0],
-                    ]
+                base_list = vector(operation_dict["Props"], "Base Position")
+                normal_list = vector(operation_dict["Props"], "Normal Position")
 
-                obj.mirror(base_list, normal_list)
+                if not obj.mirror(base_list, normal_list):
+                    self._app.logger.warning("Failed to mirror native component %s.", obj.name)
+                    return False
             elif operation_dict["Props"]["Command"] == "DuplicateAlongLine":
-                if len(operation_dict["Props"]["Vector"]) == 6:
-                    vector_list = [
-                        decompose_variable_value(operation_dict["Props"]["Vector"][2 * i + 1])[0] for i in range(3)
-                    ]
-                elif len(operation_dict["Props"]["Vector"]) == 3:
-                    vector_list = [decompose_variable_value(operation_dict["Props"]["Vector"][i])[0] for i in range(3)]
-                else:
-                    # Handle empty list case - use separate X/Y/Z values
-                    vector_list = [
-                        decompose_variable_value(operation_dict["Props"]["Vector/X"])[0],
-                        decompose_variable_value(operation_dict["Props"]["Vector/Y"])[0],
-                        decompose_variable_value(operation_dict["Props"]["Vector/Z"])[0],
-                    ]
+                vector_list = vector(operation_dict["Props"], "Vector")
                 new_objs = obj.duplicate_along_line(
                     vector_list,
                     clones=operation_dict["Props"]["Total Number"],
-                    attach_object=operation_dict["Props"]["Attach To Original Object"],
                 )
             elif operation_dict["Props"]["Command"] == "DuplicateAroundAxis":
-                rotation = decompose_variable_value(operation_dict["Props"]["Angle"])
                 new_objs = obj.duplicate_around_axis(
-                    operation_dict["Props"]["Axis"], angle=rotation[0], clones=operation_dict["Props"]["Total Number"]
+                    operation_dict["Props"]["Axis"],
+                    angle=Quantity(operation_dict["Props"]["Angle"]).to("deg").value,
+                    clones=operation_dict["Props"]["Total Number"],
                 )
             elif operation_dict["Props"]["Command"] == "DuplicateMirror":
-                if len(operation_dict["Props"]["Base Position"]) == 6:
-                    base_list = [
-                        decompose_variable_value(operation_dict["Props"]["Base Position"][2 * i + 1])[0]
-                        for i in range(3)
-                    ]
-                    normal_list = [
-                        decompose_variable_value(operation_dict["Props"]["Normal Position"][2 * i + 1])[0]
-                        for i in range(3)
-                    ]
-                elif len(operation_dict["Props"]["Base Position"]) == 3:
-                    base_list = [
-                        decompose_variable_value(operation_dict["Props"]["Base Position"][i])[0] for i in range(3)
-                    ]
-                    normal_list = [
-                        decompose_variable_value(operation_dict["Props"]["Normal Position"][i])[0] for i in range(3)
-                    ]
-                else:
-                    # Handle empty list case - use separate X/Y/Z values
-                    base_list = [
-                        decompose_variable_value(operation_dict["Props"]["Base Position/X"])[0],
-                        decompose_variable_value(operation_dict["Props"]["Base Position/Y"])[0],
-                        decompose_variable_value(operation_dict["Props"]["Base Position/Z"])[0],
-                    ]
-                    normal_list = [
-                        decompose_variable_value(operation_dict["Props"]["Normal Position/X"])[0],
-                        decompose_variable_value(operation_dict["Props"]["Normal Position/Y"])[0],
-                        decompose_variable_value(operation_dict["Props"]["Normal Position/Z"])[0],
-                    ]
-                new_objs = obj.duplicate_and_mirror(
-                    base_list,
-                    normal_list,
-                )
+                base_list = vector(operation_dict["Props"], "Base Position")
+                normal_list = vector(operation_dict["Props"], "Normal Position")
+                mirrored = obj.duplicate_and_mirror(base_list, normal_list)
+                new_objs = [mirrored] if mirrored else False
             else:  # pragma: no cover
                 raise ValueError("Operation not supported")
+            if operation_dict["Props"]["Command"].startswith("Duplicate") and not new_objs:
+                self._app.logger.warning("Failed to duplicate native component %s.", obj.name)
+                return False
             if new_objs:
-                new_objs = list(set(new_objs) - set(old_objs))
-                for new_obj in new_objs:
-                    if native_dict[new_obj]["Operations"]:
-                        for dup_obj in operation_dict["Props"]["Duplicate Object"]:
-                            for _, operation_dict in native_dict[dup_obj]["Operations"].items():
-                                apply_operations_to_native_components(
-                                    self._app.modeler.components[new_obj], operation_dict, native_dict
-                                )
-            for _, operation_dict in operation_dict["Children"].items():
-                apply_operations_to_native_components(obj, operation_dict, native_dict)
-            self._app.modeler.set_working_coordinate_system(cache_cs)
+                duplicate_names = operation_dict["Props"]["Duplicate Object"]
+                if len(new_objs) != len(duplicate_names):
+                    raise ValueError(f"Unexpected number of duplicates for component {obj.name}.")
+                for new_obj, duplicate_name in zip(new_objs, duplicate_names):
+                    if new_obj.name != duplicate_name:
+                        new_obj.name = duplicate_name
+                    for duplicate_operation in (native_dict[duplicate_name]["Operations"] or {}).values():
+                        if not apply_operations_to_native_components(new_obj, duplicate_operation, native_dict):
+                            return False
+            for child_operation in operation_dict["Children"].values():
+                if not apply_operations_to_native_components(obj, child_operation, native_dict):
+                    return False
             return True
 
         for instance_name, instance_dict in native_dict["Instances"].items():
@@ -2316,32 +2317,11 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                 else:
                     native = NativeComponent(app=self._app, name=instance_name, props=nc_dict)
                 prj_list = set(self._app.desktop_class.project_list)
-                definition_names = set(self._app.oeditor.Get3DComponentDefinitionNames())
-                instance_names = {
-                    def_name: set(self._app.oeditor.Get3DComponentInstanceNames(def_name))
-                    for def_name in definition_names
-                }
                 if not native.create():  # pragma: no cover
                     return False
-                try:
-                    definition_names = list(set(self._app.oeditor.Get3DComponentDefinitionNames()) - definition_names)[
-                        0
-                    ]
-                    instance_names = list(self._app.oeditor.Get3DComponentInstanceNames(definition_names))[0]
-                except IndexError:
-                    definition_names = [
-                        def_name
-                        for def_name in definition_names
-                        if len(set(self._app.oeditor.Get3DComponentInstanceNames(def_name)) - instance_names[def_name])
-                        > 0
-                    ][0]
-                    instance_names = list(
-                        set(self._app.oeditor.Get3DComponentInstanceNames(definition_names))
-                        - instance_names[definition_names]
-                    )[0]
-                # TODO: See https://github.com/ansys/pyaedt/issues/7919
-                native.definition_name = definition_names
-                native.name = instance_names
+                component_data = self._app.modeler.components_data[native.name]
+                native.definition_name = component_data["definition"]
+                native.definition_type = component_data["type"]
 
                 if nc_dict["NativeComponentDefinitionProvider"]["Type"] == "PCB" and nc_dict[
                     "NativeComponentDefinitionProvider"
@@ -2358,11 +2338,12 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                 # TODO: See https://github.com/ansys/pyaedt/issues/7919
                 if instance_dict.get("Operations", None):
                     for _, operation_dict in instance_dict["Operations"].items():
-                        apply_operations_to_native_components(
+                        if not apply_operations_to_native_components(
                             self._app.modeler.components[instance_name],
                             operation_dict,
                             native_dict["Instances"],
-                        )
+                        ):
+                            return False
         return True
 
 

@@ -29,6 +29,7 @@ from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
+from ansys.aedt.core.generic.props import Props
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
 
 
@@ -399,6 +400,11 @@ class PieceWiseLinearDictionary(BoundaryDictionary):
         return self.dataset.name
 
 
+class _NetworkProps(Props):
+    def _apply_owner_update(self, key, value):
+        return True
+
+
 class NetworkObject(BoundaryObject):
     """Manages networks in Icepak projects.
 
@@ -430,7 +436,8 @@ class NetworkObject(BoundaryObject):
             self._name = generate_unique_name("Network")
         else:
             self._name = name
-        super(NetworkObject, self).__init__(app, self._name, props, "Network", False)
+        super().__init__(app, self._name, props, "Network")
+        self._network_props = _NetworkProps(self, super().props)
 
         self._nodes = []
         self._links = []
@@ -438,6 +445,11 @@ class NetworkObject(BoundaryObject):
         self._update_from_props()
         if create:
             self.create()
+
+    @property
+    def props(self):
+        """Network properties, applied to AEDT when the network is updated."""
+        return self._network_props
 
     def _clean_list(self, arg):
         new_list = []
@@ -917,11 +929,17 @@ class NetworkObject(BoundaryObject):
             if new_network_name not in bound_names:
                 if new_network_name != self._name:
                     self._app._oboundary.RenameBoundary(self._name, new_network_name)
+                    old_name = self._name
                     self._name = new_network_name
+                    self._invalidate_tree_node()
+                    if self._app._boundaries.get(old_name) is self:
+                        self._app._boundaries.pop(old_name)
+                        self._app._boundaries[new_network_name] = self
             else:
                 self._app.logger.warning("Name %s already assigned in the design", new_network_name)
         else:
             self._name = new_network_name
+            self._invalidate_tree_node()
 
     @pyaedt_function_handler()
     def add_internal_node(
@@ -1464,7 +1482,7 @@ class NetworkObject(BoundaryObject):
         >>> ipk.release_desktop()
 
         """
-        return self.update(properties)
+        return self.update()
 
     class _Link:
         def __init__(self, node_1, node_2, value, name: str, network) -> None:
