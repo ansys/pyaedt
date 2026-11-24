@@ -53,6 +53,7 @@ def _manager(cls, app, existing=None):
     obj = cls.__new__(cls)
     obj._app = app
     obj.logger = MagicMock()
+    obj._optimetrics_module = app.ooptimetrics
     obj.optimetrics = MagicMock()
     obj.optimetrics._get_setup_types.return_value = existing or {}
     prefix = f"_{cls.__name__}"
@@ -93,7 +94,7 @@ def test_create_without_get_obj_data_registers_setup_in_parent(mock_app, manager
     setup._OptimetricsSetup__setup_type = setup_type
 
     with (
-        patch.object(setup_class, "_child_object", new_callable=PropertyMock, return_value=None),
+        patch.object(setup_class, "_resolve_aedt_object", return_value=None),
         patch("ansys.aedt.core.modules.design_xploration._has_get_obj_data", return_value=False),
         patch.object(manager_type, "setup_names", new_callable=PropertyMock, return_value=["Parametric1"]),
     ):
@@ -136,10 +137,7 @@ def test_setup_rename_and_delete_update_parent_cache(mock_app, manager_type, set
     cache = vars(parent)[f"_{manager_type.__name__}__setups"]
     handle = MagicMock()
 
-    with (
-        patch.object(setup_class, "_child_object", new_callable=PropertyMock, return_value=None),
-        patch.object(setup_class, "child_object", new_callable=PropertyMock, return_value=handle),
-    ):
+    with patch.object(setup_class, "child_object", new_callable=PropertyMock, return_value=handle):
         parent._register_setup(setup)
         setup.name = "Renamed"
         handle.Rename.assert_called_once_with("Renamed")
@@ -346,24 +344,73 @@ def test_aedt_objects_optimetrics_module(design_type, available):
         get_module.assert_not_called()
 
 
-def test_optimetrics_child_lookup_does_not_reuse_deleted_handle(mock_app):
+def test_optimetrics_child_lookup_uses_tree_cache(mock_app):
     setup = OptimetricsSetup.__new__(OptimetricsSetup)
     setup._app = mock_app
     setup._name = "Opt1"
     folder = MagicMock()
     handle = MagicMock()
     mock_app.get_oo_object.side_effect = lambda parent, name: folder if name == "Optimetrics" else handle
-    mock_app.get_oo_name.side_effect = [["Optimetrics"], ["Opt1"], ["Optimetrics"], []]
+    mock_app.get_oo_name.side_effect = [["Optimetrics"], ["Opt1"]]
 
-    assert setup._child_object is handle
-    assert setup._child_object is None
+    assert setup.child_object is handle
+    assert setup.child_object is handle
+    assert mock_app.get_oo_name.call_count == 2
+    assert "_OptimetricsSetup__aedt_object" not in vars(setup)
     assert repr(setup) == "Opt1"
     assert str(setup) == "Opt1"
     handle.GetPropValue.assert_not_called()
 
 
+def test_optimetrics_missing_child_is_resolved_after_creation(mock_app):
+    parent = _manager(Parametrics, mock_app)
+    setup = ParametricSetup.__new__(ParametricSetup)
+    setup._parent = parent
+    setup._app = mock_app
+    setup._name = "Parametric1"
+    setup._legacy_props = {"Sim. Setups": ["Setup1"]}
+    setup._has_getobject = False
+    setup._OptimetricsSetup__setup_type = "OptiParametric"
+    handle = MagicMock()
+
+    with (
+        patch.object(ParametricSetup, "_resolve_aedt_object", side_effect=[None, handle]) as resolve,
+        patch("ansys.aedt.core.modules.design_xploration._has_get_obj_data", return_value=True) as has_data,
+    ):
+        assert setup.child_object is None
+        assert setup.create() is setup
+        assert setup.child_object is handle
+
+    assert resolve.call_count == 2
+    has_data.assert_called_once_with(handle)
+
+
+def test_optimetrics_rename_reloads_tree_handle(mock_app):
+    parent = _manager(Parametrics, mock_app)
+    mock_app.optimetrics.setup_names = []
+    setup = ParametricSetup.__new__(ParametricSetup)
+    setup._parent = parent
+    setup._app = mock_app
+    setup._name = "Original"
+    original = MagicMock(spec=["Rename"])
+    renamed = MagicMock(spec=["Rename"])
+
+    with patch.object(ParametricSetup, "_resolve_aedt_object", side_effect=[original, renamed]) as resolve:
+        assert setup.child_object is original
+        setup._children = {"old": MagicMock()}
+        setup.name = "Renamed"
+        assert setup.child_object is renamed
+        assert setup._children == {}
+        assert setup.name == "Renamed"
+
+    original.Rename.assert_called_once_with("Renamed")
+    assert resolve.call_count == 2
+    assert parent._Parametrics__setups["Renamed"] is setup
+
+
 def test_delete_clears_optimetrics_tree_and_parent_cache(mock_app):
     parent = MagicMock()
+    parent._optimetrics_module = mock_app.ooptimetrics
     setup = OptimetricsSetup.__new__(OptimetricsSetup)
     setup._parent = parent
     setup._name = "Opt1"
@@ -380,7 +427,7 @@ def test_delete_clears_optimetrics_tree_and_parent_cache(mock_app):
     assert setup._BinaryTreeNode__child_object is None
     assert setup._props is None
     assert setup._legacy_props == {}
-    assert parent.setups == {}
+    parent._unregister_setup.assert_called_once_with("Opt1")
     assert setup.child_object is None
     assert setup.children == {}
     assert setup.name == "Opt1"

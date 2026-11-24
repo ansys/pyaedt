@@ -107,50 +107,14 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         else:
             self.__setup_type = self._parent.setups_by_type.get(self._name)
 
-        self.__child_object = None
-
         # GetObjData is available for some objects in 2026R1
-        self._has_getobject = _has_get_obj_data(self._child_object)
+        self._has_getobject = _has_get_obj_data(self.child_object)
 
     def __repr__(self) -> str:
         return self._name
 
     def __str__(self) -> str:
         return self._name
-
-    @pyaedt_function_handler()
-    def _initialize_tree_node(self) -> bool:
-        # Initialize
-        if self._child_object:
-            BinaryTreeNode.__init__(self, self._name, self._child_object, False, app=self._app)
-            return True
-        return False
-
-    @property
-    def _child_object(self) -> _OChildObject | None:
-        """Object-oriented properties.
-
-        Returns
-        -------
-        AEDT object if any or None
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> app = Hfss()
-        >>> setup_names = app.optimetrics.setup_names
-        >>> setup = app.optimetrics.setups[setup_names[0]]
-        >>> setup.child_object.GetChildNames()
-
-        """
-        if not self.__child_object:
-            design_childs = self._app.get_oo_name(self._app.odesign)
-            if "Optimetrics" in design_childs:
-                cc = self._app.get_oo_object(self._app.odesign, "Optimetrics")
-                cc_names = self._app.get_oo_name(cc)
-                if self._name in cc_names:
-                    self.__child_object = self._app.get_oo_object(cc, self._name)
-        return self.__child_object
 
     @property
     def name(self) -> str:
@@ -170,8 +134,8 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         >>> setup.name
 
         """
-        child_object = self._child_object
-        if child_object is not None:
+        child_object = self.child_object
+        if child_object is not None and "Name" in dir(child_object):
             self._name = child_object.Name
         return self._name
 
@@ -185,11 +149,8 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         # RenameSetup method is not working well, using Object oriented method
         self.child_object.Rename(str(new_name))
 
-        self.__child_object = None
         object.__setattr__(self, "_name", new_name)
-        object.__setattr__(self, "_tree_node_initialized", False)
-        object.__setattr__(self, "_props", None)
-        object.__setattr__(self, "_children_loaded", False)
+        self._invalidate_tree_node()
 
         self._parent._rename_setup(old_name, self.name, self)
 
@@ -214,7 +175,7 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
             return SetupProps(self, self._legacy_props)
 
         if self._has_getobject:
-            self._legacy_props = _get_obj_data(self._child_object)
+            self._legacy_props = _get_obj_data(self.child_object)
         else:
             try:
                 setups_data = self._app.design_properties["Optimetrics"]["OptimetricsSetups"]
@@ -329,7 +290,7 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         self._parent._optimetrics_module.InsertSetup(setup_type, arg)
 
         # GetObjData is available for some objects in 2026R1
-        self._has_getobject = _has_get_obj_data(self._child_object)
+        self._has_getobject = _has_get_obj_data(self.child_object)
 
         if not self._has_getobject:  # pragma: no cover
             # Without GetObjData, props only live in memory, so keep this instance in the parent cache.
@@ -359,6 +320,9 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
         """
         old_name = self.name
         self._parent._optimetrics_module.DeleteSetups([old_name])
+        self._invalidate_tree_node()
+        self._legacy_props = {}
+        self._has_getobject = False
         self._parent._unregister_setup(old_name)
         return True
 
@@ -571,6 +535,35 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
             revert_to_initial_mesh=revert_to_initial_mesh,
             blocking=blocking,
         )
+
+    @pyaedt_function_handler()
+    def _initialize_tree_node(self) -> bool:
+        aedt_object = self._resolve_aedt_object()
+        if aedt_object:
+            BinaryTreeNode.__init__(self, self._name, aedt_object, False, app=self._app)
+            return True
+        return False
+
+    def _resolve_aedt_object(self) -> _OChildObject | None:
+        """Find the AEDT object associated with the setup.
+
+        Returns
+        -------
+        AEDT object if any or None
+
+        """
+        design_childs = self._app.get_oo_name(self._app.odesign)
+        if "Optimetrics" in design_childs:
+            cc = self._app.get_oo_object(self._app.odesign, "Optimetrics")
+            if self._name in self._app.get_oo_name(cc):
+                return self._app.get_oo_object(cc, self._name)
+        return None
+
+    def _invalidate_tree_node(self) -> None:
+        self.child_object = None
+        self._tree_node_initialized = False
+        self._props = None
+        self._children = {}
 
     @pyaedt_function_handler()
     def _get_domain(self, ranges: dict | None = None) -> str:
@@ -1310,7 +1303,6 @@ class Parametrics(PyAedtBase):
         app.logger.reset_timer()
         self.optimetrics: Optimetrics = app
         self._app: DesignApp = self.optimetrics._app
-        self._child_object = self.optimetrics._child_object
         self.logger = self.optimetrics.logger
 
         module = self._app.ooptimetrics
@@ -1714,7 +1706,6 @@ class Optimizations(PyAedtBase):
         app.logger.reset_timer()
         self.optimetrics: Optimetrics = app
         self._app: DesignApp = self.optimetrics._app
-        self._child_object = self.optimetrics._child_object
         self.logger = self.optimetrics.logger
 
         module = self._app.ooptimetrics
@@ -1728,20 +1719,6 @@ class Optimizations(PyAedtBase):
 
         app.logger.info_timer("Optimizations class has been initialized!")
 
-    def _register_setup(self, setup: OptimetricsSetup) -> None:
-        """Store a newly created optimization setup in the local cache."""
-        self.__setups[setup.name] = setup
-
-    def _rename_setup(self, old_name: str, new_name: str, setup: OptimetricsSetup) -> None:
-        """Update the cached name of an optimization setup."""
-        self.__setups[new_name] = setup
-        self.__setups.pop(old_name, None)
-
-    def _unregister_setup(self, name: str) -> None:
-        """Remove an optimization setup from the local cache."""
-        self.__setups.pop(name, None)
-
-    @pyaedt_function_handler()
     def __getitem__(self, name) -> OptimizationSetup | None:
         """Get an optimization-related setup by name.
 
@@ -1769,6 +1746,19 @@ class Optimizations(PyAedtBase):
         if name not in setup_names:
             return None
         return self.__setups[name]
+
+    def _register_setup(self, setup: OptimetricsSetup) -> None:
+        """Store a newly created optimization setup in the local cache."""
+        self.__setups[setup.name] = setup
+
+    def _rename_setup(self, old_name: str, new_name: str, setup: OptimetricsSetup) -> None:
+        """Update the cached name of an optimization setup."""
+        self.__setups[new_name] = setup
+        self.__setups.pop(old_name, None)
+
+    def _unregister_setup(self, name: str) -> None:
+        """Remove an optimization setup from the local cache."""
+        self.__setups.pop(name, None)
 
     @property
     def setup_names(self) -> list[str]:
@@ -2161,7 +2151,7 @@ class Optimetrics(PyAedtBase):
         return self.setups.get(name)
 
     @property
-    def _child_object(self) -> object | None:
+    def child_object(self) -> object | None:
         """Object-oriented properties.
 
         Returns
@@ -2172,7 +2162,7 @@ class Optimetrics(PyAedtBase):
         --------
         >>> from ansys.aedt.core import Hfss
         >>> app = Hfss()
-        >>> app.optimetrics._child_object.GetChildNames()
+        >>> app.optimetrics.child_object.GetChildNames()
 
         """
         if not self.__child_object:
@@ -2478,14 +2468,14 @@ class Optimetrics(PyAedtBase):
     def _get_setup_types(self) -> dict[str, str | None]:
         """Return AEDT setup types for the currently available Optimetrics setups."""
         setup_names = self.setup_names
-        optimetrics_child_object = self._child_object
-        if not setup_names or not optimetrics_child_object:
+        optimetrics_aedt_object = self.child_object
+        if not setup_names or not optimetrics_aedt_object:
             return {}
 
         setup_types = {}
         legacy_setup_types = None
         for name in setup_names:
-            child_object = self._app.get_oo_object(optimetrics_child_object, name)
+            child_object = self._app.get_oo_object(optimetrics_aedt_object, name)
             if "GetObjType" in dir(child_object):
                 setup_type = child_object.GetObjType()
             else:

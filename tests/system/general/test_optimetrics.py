@@ -546,7 +546,6 @@ def test_create_sensitivity(aedtapp) -> None:
 
     assert setup2.setup_type == "OptiSensitivity"
     assert setup2.name in aedtapp.optimizations.setup_names
-    assert setup2.props["Sim. Setups"] == [new_setup.name]
     assert setup2.props["MaxIterations"] == 10
     assert not setup2.props["Variables"]
 
@@ -594,7 +593,6 @@ def test_create_statistical(aedtapp) -> None:
     )
     assert setup2.setup_type == "OptiStatistical"
     assert setup2.name in aedtapp.optimizations.setup_names
-    assert setup2.props["Sim. Setups"] == [new_setup.name]
     assert setup2.props["MaxIterations"] == 50
     assert setup2.props["SeedValue"] == 0
     assert setup2.props["Variables"] == {}

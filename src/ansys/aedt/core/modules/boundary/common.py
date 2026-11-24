@@ -261,7 +261,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
     >>> hfss.release_desktop(True, True)
     """
 
-    def __init__(self, app, name: str, props=None, boundarytype=None, auto_update: bool = True) -> None:
+    def __init__(self, app, name: str, props=None, boundarytype=None) -> None:
         self._app: Any = app
 
         self._name = name
