@@ -54,6 +54,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
+from ansys.aedt.core.modeler.cad.elements_3d import HistoryTreeNode
 from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
@@ -1662,13 +1663,14 @@ class Object3d(BinaryTreeNode, PyAedtBase):
             self.properties["Material Appearance"] = material_appearance
 
     @pyaedt_function_handler()
-    def history(self) -> BinaryTreeNode | bool:
+    def history(self) -> HistoryTreeNode | bool:
         """Object history.
 
         Returns
         -------
-            :class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTree` when successful,
-            ``False`` when failed.
+        :class:`ansys.aedt.core.modeler.cad.elements_3d.HistoryTreeNode` or bool
+            History tree when successful, ``False`` when failed. The tree exposes
+            ``segments`` for polyline history.
 
         Examples
         --------
@@ -1679,7 +1681,7 @@ class Object3d(BinaryTreeNode, PyAedtBase):
         """
         try:
             child_object = self._primitives._app.get_oo_object(self._oeditor, self.name)
-            parent = BinaryTreeNode(self.name, child_object, True)
+            parent = HistoryTreeNode(self.name, child_object, True)
             return parent
         except Exception:
             return False

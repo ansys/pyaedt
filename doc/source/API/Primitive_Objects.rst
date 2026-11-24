@@ -72,6 +72,7 @@ They contain all getters and setters to simplify object manipulation.
    cad.elements_3d.Plane
    cad.elements_3d.HistoryProps
    cad.elements_3d.BinaryTreeNode
+   cad.elements_3d.HistoryTreeNode
 
 
 .. code:: python

@@ -1883,7 +1883,7 @@ class Plane(PyAedtBase):
 
 
 class BinaryTreeNode:
-    """Manages an object's history structure.
+    """Manage a node in an AEDT object tree.
 
     Children, properties, and the AEDT child object are resolved lazily on
     first access so constructing a node (or a subclass) does not query AEDT.
@@ -1928,7 +1928,7 @@ class BinaryTreeNode:
     def __dir__(self):
         """List available attributes, omitting unavailable history metadata."""
         attrs = super().__dir__()
-        unavailable_values = {"segments": None, "command": ""}
+        unavailable_values = {"command": ""}
         result = []
         for name in attrs:
             if name not in unavailable_values:
@@ -2043,25 +2043,19 @@ class BinaryTreeNode:
                         app=self._app,
                     )
         if name and self.__first_level:
-            self.child_object = self._children[name].child_object
-            self._children[name].properties["Command"] = self.properties.get("Command", "")
-            self._props = self._children[name].properties
-            if name == "CreatePolyline:1":
-                self._segments = self._children[name].children
-            del self._children[name]
+            self._process_first_level_child(name)
+
+    def _process_first_level_child(self, name: str) -> None:
+        self.child_object = self._children[name].child_object
+        self._children[name].properties["Command"] = self.properties.get("Command", "")
+        self._props = self._children[name].properties
+        del self._children[name]
 
     @property
     def children(self) -> dict:
         """Retrieve children."""
         self._ensure_children()
         return getattr(self, "_children", {})
-
-    @property
-    def segments(self):
-        """Polyline segment nodes when this is a polyline history tree."""
-        if getattr(self, "_BinaryTreeNode__first_level", False):
-            self._ensure_children()
-        return getattr(self, "_segments", None)
 
     @property
     def properties(self) -> "HistoryProps":
@@ -2276,3 +2270,36 @@ class BinaryTreeNode:
 
         """
         return self._suppress(self, app, False)
+
+
+class HistoryTreeNode(BinaryTreeNode):
+    """Root node of a geometry object's history tree."""
+
+    def __dir__(self):
+        attrs = super().__dir__()
+        try:
+            if self.segments is None:
+                attrs.remove("segments")
+        except (AttributeError, RuntimeError):
+            pass
+        return attrs
+
+    def _invalidate_tree_node(self) -> None:
+        super()._invalidate_tree_node()
+        self._segments = None
+
+    def _update_children(self) -> None:
+        self._segments = None
+        super()._update_children()
+
+    def _process_first_level_child(self, name: str) -> None:
+        child = self._children[name]
+        super()._process_first_level_child(name)
+        if name == "CreatePolyline:1":
+            self._segments = child.children
+
+    @property
+    def segments(self):
+        """Polyline segment nodes, or ``None`` for other geometry histories."""
+        self._ensure_children()
+        return getattr(self, "_segments", None)

@@ -1049,6 +1049,17 @@ def test_compound_polylines_segments(aedt_app) -> None:
     assert prim3D.create_polyline(points=test_points, cover_surface=True, name="SPL01_segmented_compound_line")
 
 
+def test_polyline_history_segments(aedt_app) -> None:
+    polyline = aedt_app.modeler.create_polyline([[0, 0, 0], [1, 0, 0], [1, 1, 0]])
+    history = polyline.history()
+    assert history.segments
+    assert len(history.segments) == 2
+    assert all(segment.properties["Segment Type"] == "Line" for segment in history.segments.values())
+    polyline._update_segments_and_points()
+    assert len(polyline.segment_types) == 2
+    assert len(polyline.points) == 3
+
+
 def test_insert_polylines_segments_test1(aedt_app) -> None:
     aedt_app["p1"] = "100mm"
     aedt_app["p2"] = "71mm"
