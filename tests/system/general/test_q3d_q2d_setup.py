@@ -350,6 +350,32 @@ def test_add_subrange(request, app_fixture) -> None:
 
 
 @pytest.mark.parametrize("app_fixture", ["q3d_app", "q2d_app"])
+def test_sweep_after_setup_rename_and_delete(request, app_fixture) -> None:
+    app = request.getfixturevalue(app_fixture)
+    setup = app.create_setup("SweepParent")
+    sweep = setup.add_sweep("Sweep1")
+    other_sweep = SweepMatrix(setup, sweep.name)
+    assert sweep.child_object
+    assert other_sweep.child_object
+
+    setup.name = "RenamedSweepParent"
+    assert not sweep._tree_node_initialized
+    assert not other_sweep._tree_node_initialized
+    assert sweep.setup_name == "RenamedSweepParent"
+    assert sweep.child_object
+    assert other_sweep.child_object
+    sweep.props["RangeStart"] = "2GHz"
+    assert sweep.props["RangeStart"] == "2GHz"
+    assert sweep.name in setup.sweep_names
+
+    assert setup.delete()
+    assert sweep.child_object is None
+    assert other_sweep.child_object is None
+    assert not sweep._legacy_props
+    assert not other_sweep._legacy_props
+
+
+@pytest.mark.parametrize("app_fixture", ["q3d_app", "q2d_app"])
 def test_frequency_sweep(request, app_fixture) -> None:
     app = request.getfixturevalue(app_fixture)
     setup = app.create_setup("FrequencySweepSetup")

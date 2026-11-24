@@ -155,8 +155,8 @@ class SweepCommon(BinaryTreeNode, PyAedtBase, Generic[_SetupT]):
 
         self._name = name
 
-        self.__child_object = None
-        self._has_getobject = _has_get_obj_data(self._child_object)
+        self._has_getobject = _has_get_obj_data(self.child_object)
+        self._setup._sweep_instances.add(self)
 
     def __getitem__(self, key: str) -> Any:
         """Return a sweep property by key."""
@@ -174,27 +174,18 @@ class SweepCommon(BinaryTreeNode, PyAedtBase, Generic[_SetupT]):
 
     @pyaedt_function_handler()
     def _initialize_tree_node(self) -> bool:
-        if self._child_object:
-            BinaryTreeNode.__init__(self, self._name, self._child_object, False, app=self._app)
+        aedt_object = self._resolve_aedt_object()
+        if aedt_object:
+            BinaryTreeNode.__init__(self, self._name, aedt_object, False, app=self._app)
             return True
         return False
 
-    @property
-    def _child_object(self) -> Any | None:
-        """Object-oriented properties.
-
-        Returns
-        -------
-        AEDT object if any or None
-
-        """
-        if not self.__child_object:
-            setup_object = self._setup.child_object
-            if setup_object:
-                cc_names = self._app.get_oo_name(setup_object)
-                if self._name in cc_names:
-                    self.__child_object = self._app.get_oo_object(setup_object, self._name)
-        return self.__child_object
+    def _resolve_aedt_object(self) -> Any | None:
+        """Find the AEDT object associated with the sweep."""
+        setup_object = self._setup.child_object
+        if setup_object and self._name in self._app.get_oo_name(setup_object):
+            return self._app.get_oo_object(setup_object, self._name)
+        return None
 
     @property
     def name(self) -> str:
@@ -214,7 +205,7 @@ class SweepCommon(BinaryTreeNode, PyAedtBase, Generic[_SetupT]):
         >>> sweep.name
 
         """
-        child_object = self._child_object
+        child_object = self.child_object
         if child_object is not None and "Sweep" in dir(child_object):
             self._name = child_object.Sweep
         return self._name
@@ -230,22 +221,9 @@ class SweepCommon(BinaryTreeNode, PyAedtBase, Generic[_SetupT]):
         self._app.oanalysis.RenameSweep(self.setup_name, old_name, str(name))
 
         # Reset object
-        self.__child_object = None
         object.__setattr__(self, "_name", name)
-        object.__setattr__(self, "_tree_node_initialized", False)
-        object.__setattr__(self, "_props", None)
-        object.__setattr__(self, "_children_loaded", False)
-
-        # Add the sweep to the setup's sweeps dictionary
-        for attr in ("_SetupHFSS__sweeps", "_Setup3DLayout__sweeps", "_SetupQ3D__sweeps"):
-            sweeps = getattr(self._setup, attr, None)
-            if sweeps is not None:
-                break
-
-        if sweeps is not None:
-            sweeps[name] = self
-            if old_name in sweeps:
-                sweeps.pop(old_name, None)
+        self._invalidate_tree_node()
+        self._setup._rename_sweep(old_name, name, self)
 
     @property
     def sweep_type(self) -> str | None:
@@ -335,7 +313,7 @@ class SweepHFSS(SweepCommon["SetupHFSS"]):
             return SweepProps(self, self._legacy_props)
 
         if self._has_getobject:
-            props = _get_obj_data(self._child_object) or {}
+            props = _get_obj_data(self.child_object) or {}
         else:
             if (
                 "AnalysisSetup" in self._app.design_properties
@@ -487,7 +465,7 @@ class SweepHFSS(SweepCommon["SetupHFSS"]):
         self._app.oanalysis.InsertFrequencySweep(self.setup_name, self._get_args())
 
         # GetObjData is available for some objects in 2026R1.
-        self._has_getobject = _has_get_obj_data(self._child_object)
+        self._has_getobject = _has_get_obj_data(self.child_object)
 
         if not self._has_getobject:  # pragma: no cover
             # If a new sweep is created, and GetObjData is not available,
@@ -553,11 +531,10 @@ class SweepHFSS(SweepCommon["SetupHFSS"]):
         old_name = self.name
         self._app.oanalysis.DeleteSweep(self._setup.name, old_name)
 
-        # Delete the sweep from the setup's sweeps dictionary
-        sweeps = getattr(self._setup, "_SetupHFSS__sweeps", None)
-        if sweeps is not None:
-            if old_name in sweeps:
-                sweeps.pop(old_name, None)
+        self._invalidate_tree_node()
+        self._legacy_props = {}
+        self._has_getobject = False
+        self._setup._unregister_sweep(old_name)
         return True
 
     @pyaedt_function_handler()
@@ -736,7 +713,7 @@ class SweepHFSS3DLayout(SweepCommon["Setup3DLayout"]):
             return SweepProps(self, self._legacy_props)
 
         if self._has_getobject:
-            props = _get_obj_data(self._child_object) or {}
+            props = _get_obj_data(self.child_object) or {}
         else:
             design_property_data = self._app.design_properties["Setup"]["Data"]
             setup_name = self._setup.name
@@ -811,7 +788,7 @@ class SweepHFSS3DLayout(SweepCommon["Setup3DLayout"]):
         self._app.oanalysis.AddSweep(self.setup_name, self._get_args())
 
         # GetObjData is available for some objects in 2026R1.
-        self._has_getobject = _has_get_obj_data(self._child_object)
+        self._has_getobject = _has_get_obj_data(self.child_object)
 
         if not self._has_getobject:  # pragma: no cover
             # If a new sweep is created, and GetObjData is not available,
@@ -873,11 +850,10 @@ class SweepHFSS3DLayout(SweepCommon["Setup3DLayout"]):
         """
         old_name = self.name
         self._app.oanalysis.DeleteSweep(self._setup.name, old_name)
-        # Delete the sweep from the setup's sweeps dictionary
-        sweeps = getattr(self._setup, "_Setup3DLayout__sweeps", None)
-        if sweeps is not None:
-            if old_name in sweeps:
-                sweeps.pop(old_name, None)
+        self._invalidate_tree_node()
+        self._legacy_props = {}
+        self._has_getobject = False
+        self._setup._unregister_sweep(old_name)
         return True
 
     @pyaedt_function_handler()
@@ -1140,7 +1116,7 @@ class SweepMatrix(SweepCommon["SetupQ3D"]):
             return SweepProps(self, self._legacy_props)
 
         if self._has_getobject:
-            props = _get_obj_data(self._child_object) or copy.deepcopy(SweepQ3D)
+            props = _get_obj_data(self.child_object) or copy.deepcopy(SweepQ3D)
         else:
             design_properties = self._app.design_properties or {}
             setup_data = design_properties.get("AnalysisSetup", {}).get("SolveSetups", {})
@@ -1318,7 +1294,7 @@ class SweepMatrix(SweepCommon["SetupQ3D"]):
 
         """
         self._app.oanalysis.InsertSweep(self.setup_name, self._get_args())
-        self._has_getobject = _has_get_obj_data(self._child_object)
+        self._has_getobject = _has_get_obj_data(self.child_object)
 
         if not self._has_getobject:  # pragma: no cover
             # If a new sweep is created, and GetObjData is not available,
@@ -1377,10 +1353,10 @@ class SweepMatrix(SweepCommon["SetupQ3D"]):
         """
         old_name = self.name
         self._app.oanalysis.DeleteSweep(self.setup_name, old_name)
-        sweeps = getattr(self._setup, "_SetupQ3D__sweeps", None)
-        if sweeps is not None:
-            if old_name in sweeps:
-                sweeps.pop(old_name, None)
+        self._invalidate_tree_node()
+        self._legacy_props = {}
+        self._has_getobject = False
+        self._setup._unregister_sweep(old_name)
         return True
 
     @pyaedt_function_handler()

@@ -368,6 +368,30 @@ def test_sweep(hfss_app) -> None:
     assert name2 not in setup1.sweep_names
 
 
+def test_sweep_after_setup_rename_and_delete(hfss_app) -> None:
+    setup = hfss_app.create_setup("SweepParent")
+    sweep = setup.add_sweep("Sweep1", sweep_type="Discrete")
+    other_sweep = SweepHFSS(setup, sweep.name)
+    assert sweep.child_object
+    assert other_sweep.child_object
+
+    setup.name = "RenamedSweepParent"
+    assert not sweep._tree_node_initialized
+    assert not other_sweep._tree_node_initialized
+    assert sweep.setup_name == "RenamedSweepParent"
+    assert sweep.child_object
+    assert other_sweep.child_object
+    sweep.props["RangeStart"] = "2GHz"
+    assert sweep.props["RangeStart"] == "2GHz"
+    assert sweep.name in setup.sweep_names
+
+    assert setup.delete()
+    assert sweep.child_object is None
+    assert other_sweep.child_object is None
+    assert not sweep._legacy_props
+    assert not other_sweep._legacy_props
+
+
 def test_add_subrange(hfss_app) -> None:
     inner, outer, _ = hfss_app.modeler.create_coaxial([0, 0, 0], Axis.X)
     hfss_app.lumped_port(inner, outer, create_port_sheet=True)

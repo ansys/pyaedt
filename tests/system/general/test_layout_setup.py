@@ -197,6 +197,30 @@ def test_layout_hfss(layout_app) -> None:
     assert len(layout_app.setups) == 1
 
 
+def test_sweep_after_setup_rename_and_delete(layout_app) -> None:
+    setup = layout_app.create_setup(name="SweepParent", setup_type=Setups.HFSS3DLayout)
+    sweep = setup.add_sweep("Sweep1")
+    other_sweep = SweepHFSS3DLayout(setup, sweep.name)
+    assert sweep.child_object
+    assert other_sweep.child_object
+
+    setup.name = "RenamedSweepParent"
+    assert not sweep._tree_node_initialized
+    assert not other_sweep._tree_node_initialized
+    assert sweep.setup_name == "RenamedSweepParent"
+    assert sweep.child_object
+    assert other_sweep.child_object
+    sweep.sweep_type = "Discrete"
+    assert sweep.sweep_type == "Discrete"
+    assert sweep.name in setup.sweep_names
+
+    assert setup.delete()
+    assert sweep.child_object is None
+    assert other_sweep.child_object is None
+    assert not sweep._legacy_props
+    assert not other_sweep._legacy_props
+
+
 def test_layout_hfss_sweep(layout_app) -> None:
     setup = layout_app.create_setup(setup_type=Setups.HFSS3DLayout)
 

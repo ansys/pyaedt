@@ -40,6 +40,7 @@ from typing import TYPE_CHECKING
 from typing import Any
 from typing import cast
 import warnings
+from weakref import WeakSet
 
 from ansys.aedt.core.application import _get_obj_data
 from ansys.aedt.core.application import _has_get_obj_data
@@ -122,6 +123,7 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
 
         self._name = name
         self._legacy_props = {}
+        self._sweep_instances: WeakSet[SweepHFSS | SweepHFSS3DLayout | SweepMatrix] = WeakSet()
 
         if props:
             self._legacy_props = props
@@ -130,10 +132,8 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
         if self._app.oanalysis and "GetSetupData" in dir(self._app.oanalysis):
             self._has_getsetupdata = True
 
-        self.__child_object = None
-
         # GetObjData is available for some objects in 2026R1
-        self._has_getobject = _has_get_obj_data(self._child_object)
+        self._has_getobject = _has_get_obj_data(self.child_object)
 
     def __getitem__(self, key: str) -> Any:
         """Return a setup property by key."""
@@ -154,37 +154,43 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def _initialize_tree_node(self) -> bool:
-        child_object = self._child_object
-        if child_object:
-            BinaryTreeNode.__init__(self, self._name, child_object, False, app=self._app)
+        aedt_object = self._resolve_aedt_object()
+        if aedt_object:
+            BinaryTreeNode.__init__(self, self._name, aedt_object, False, app=self._app)
             return True
         return False
 
-    @property
-    def _child_object(self):
-        """Object-oriented properties.
+    def _resolve_aedt_object(self):
+        """Find the AEDT object associated with the setup."""
+        design_childs = self._app.get_oo_name(self._app.odesign)
+        if "Analysis" in design_childs:
+            cc = self._app.get_oo_object(self._app.odesign, "Analysis")
+            if self._name in self._app.get_oo_name(cc):
+                return self._app.get_oo_object(cc, self._name)
+        return None
 
-        Returns
-        -------
-        AEDT object if any or `None`.
+    def _rename_sweep(self, old_name: str, new_name: str, sweep) -> None:
+        sweeps = self._sweep_registry()
+        sweeps.pop(old_name, None)
+        sweeps[new_name] = sweep
 
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> app = Hfss()
-        >>> setup = app.create_setup()
-        >>> setup.child_object.GetChildNames()
+    def _unregister_sweep(self, name: str) -> None:
+        self._sweep_registry().pop(name, None)
 
-        """
-        if not self.__child_object:
-            design_childs = self._app.get_oo_name(self._app.odesign)
+    def _invalidate_sweeps(self, deleted: bool = False) -> None:
+        for sweep in self._sweep_instances:
+            sweep._invalidate_tree_node()
+            if deleted:
+                sweep._legacy_props = {}
+                sweep._has_getobject = False
 
-            if "Analysis" in design_childs:
-                cc = self._app.get_oo_object(self._app.odesign, "Analysis")
-                cc_names = self._app.get_oo_name(cc)
-                if self._name in cc_names:
-                    self.__child_object = self._app.get_oo_object(cc, self._name)
-        return self.__child_object
+    def update_property(self, prop_name: str, prop_value: str) -> bool:
+        old_name = self._name
+        result = super().update_property(prop_name, prop_value)
+        if prop_name == "Name" and self._name != old_name:
+            self._invalidate_tree_node()
+            self._invalidate_sweeps()
+        return result
 
     def _setup_dict_to_arg(self, props: dict | SetupProps | None = None):
         """Retrieve arguments needed to pass to AEDT API.
@@ -268,7 +274,7 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
         >>> setup.name
 
         """
-        child_object = self._child_object
+        child_object = self.child_object
         if child_object is not None and "Setup" in dir(child_object):
             self._name = child_object.Setup
         return self._name
@@ -284,11 +290,9 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
             self._app.oanalysis.Rename(self.name, str(name))
 
         # Reset object
-        self.__child_object = None
         object.__setattr__(self, "_name", name)
-        object.__setattr__(self, "_tree_node_initialized", False)
-        object.__setattr__(self, "_props", None)
-        object.__setattr__(self, "_children_loaded", False)
+        self._invalidate_tree_node()
+        self._invalidate_sweeps()
 
     @property
     def default_intrinsics(self) -> dict:
@@ -367,6 +371,10 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
         else:  # pragma: no cover
             self._app.warning("No API method to delete the setup.")
             return False
+        self._invalidate_tree_node()
+        self._invalidate_sweeps(deleted=True)
+        self._legacy_props = {}
+        self._has_getobject = False
         return True
 
     @pyaedt_function_handler()
@@ -829,7 +837,7 @@ class Setup(CommonSetup):
             self._app.oanalysis.Add(arg)
 
         # GetObjData is available for some objects in 2026R1.
-        self._has_getobject = _has_get_obj_data(self._child_object)
+        self._has_getobject = _has_get_obj_data(self.child_object)
 
         if not self._has_getobject and not self._has_getsetupdata:
             # If a new setup is created, and GetObjData is not available,
@@ -1482,6 +1490,8 @@ class SetupCircuit(CommonSetup):
         arg = self._setup_dict_to_arg()
 
         self._setup(self.solver_type, arg, newsetup=True)
+
+        self._has_getobject = _has_get_obj_data(self.child_object)
 
         if not self._has_getobject and not self._has_getsetupdata:  # pragma: no cover
             # If a new setup is created, and GetObjData is not available,
@@ -2167,6 +2177,9 @@ class Setup3DLayout(CommonSetup):
         """Register a sweep when AEDT does not expose object-oriented sweep data."""
         self.__sweeps[name] = sweep
 
+    def _sweep_registry(self) -> SetupDict:
+        return self.__sweeps
+
     @property
     def sweep_names(self) -> list[str]:
         """Return the available sweep names.
@@ -2385,7 +2398,7 @@ class Setup3DLayout(CommonSetup):
         self._app.oanalysis.Add(arg)
 
         # GetObjData is available for some objects in 2026R1.
-        self._has_getobject = _has_get_obj_data(self._child_object)
+        self._has_getobject = _has_get_obj_data(self.child_object)
 
         if not self._has_getobject and not self._has_getsetupdata:  # pragma: no cover
             # If a new setup is created, and GetObjData is not available,
@@ -3114,6 +3127,9 @@ class SetupHFSS(Setup, PyAedtBase):
     def _register_sweep(self, name: str, sweep: SweepHFSS) -> None:
         """Register a sweep when AEDT does not expose object-oriented sweep data."""
         self.__sweeps[name] = sweep
+
+    def _sweep_registry(self) -> SetupDict:
+        return self.__sweeps
 
     @property
     def sweep_names(self) -> list[str]:
@@ -4792,6 +4808,9 @@ class SetupQ3D(Setup, PyAedtBase):
     def _register_sweep(self, name: str, sweep: SweepMatrix) -> None:
         """Register a sweep when AEDT does not expose object-oriented sweep data."""
         self.__sweeps[name] = sweep
+
+    def _sweep_registry(self) -> SetupDict:
+        return self.__sweeps
 
     @property
     def sweep_names(self) -> list[str]:
