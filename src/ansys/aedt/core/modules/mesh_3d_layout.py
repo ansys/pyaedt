@@ -61,6 +61,12 @@ class Mesh3dLayoutOperation(PyAedtBase):
     setup : str
         Name of the setup.
 
+    Notes
+    -----
+    HFSS 3D Layout mesh operations do not expose an object-oriented AEDT
+    interface. Properties are cached locally and sent through the mesh module.
+    Use :meth:`refresh` to reload properties from the saved project.
+
     Examples
     --------
     >>> from ansys.aedt.core import Hfss3dLayout
@@ -95,6 +101,67 @@ class Mesh3dLayoutOperation(PyAedtBase):
     def __setitem__(self, key: str, value: Any) -> None:
         """Set a setup property by key."""
         self.props[key] = value
+
+    @property
+    def name(self) -> str:
+        """Name of the mesh operation.
+
+        Returns
+        -------
+        str
+           Name of the mesh operation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> app = Hfss3dLayout()
+        >>> operation = app.mesh.get_mesh_operation("length1", "setup1")
+        >>> operation.name
+
+        """
+        return self._name
+
+    @name.setter
+    def name(self, meshop_name: str) -> None:  # pragma: no cover
+        operation_names = self._mesh.operation_names
+        if meshop_name in operation_names:
+            raise ValueError(f"Name {meshop_name} already assigned in the design.")
+        # self._app.change_property(aedt_object=self._app.odesign,
+        #                           tab_name="MeshSetupTab",
+        #                           property_object=f"SolveSetups:{self.name}",
+        #                           property_name="Name",
+        #                           property_value=meshop_name)
+        # object.__setattr__(self, "_name", meshop_name)
+        self._app.logger.warning("AEDT API does not allow renaming mesh operations.")
+
+    @property
+    def props(self) -> MeshProps:
+        """Properties of the mesh operation.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.generic.props.Props`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> app = Hfss3dLayout()
+        >>> operation = app.mesh.get_mesh_operation("length1", "setup1")
+        >>> operation.props
+
+        """
+        if self._legacy_props:
+            return MeshProps(self, self._legacy_props)
+
+        props = self._get_setup_mesh_operation_props(self._name)
+
+        self._legacy_props = props
+
+        return MeshProps(self, self._legacy_props)
+
+    @props.setter
+    def props(self, value: dict) -> None:
+        self.update(props=value)
 
     @property
     def operation_type(self) -> str | None:
@@ -136,95 +203,6 @@ class Mesh3dLayoutOperation(PyAedtBase):
         """
         return self.__setup
 
-    @property
-    def props(self) -> MeshProps:
-        """Properties of the mesh operation.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.generic.props.Props`
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss3dLayout
-        >>> app = Hfss3dLayout()
-        >>> operation = app.mesh.get_mesh_operation("length1", "setup1")
-        >>> operation.props
-
-        """
-        if self._legacy_props:
-            return MeshProps(self, self._legacy_props)
-
-        props = self._get_setup_mesh_operation_props(self._name)
-
-        self._legacy_props = props
-
-        return MeshProps(self, self._legacy_props)
-
-    @props.setter
-    def props(self, value: dict) -> None:
-        self.update(props=value)
-
-    @property
-    def name(self) -> str:
-        """Name of the mesh operation.
-
-        Returns
-        -------
-        str
-           Name of the mesh operation.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss3dLayout
-        >>> app = Hfss3dLayout()
-        >>> operation = app.mesh.get_mesh_operation("length1", "setup1")
-        >>> operation.name
-
-        """
-        return self._name
-
-    @name.setter
-    def name(self, meshop_name: str) -> None:  # pragma: no cover
-        operation_names = self._mesh.operation_names
-        if meshop_name in operation_names:
-            raise ValueError(f"Name {meshop_name} already assigned in the design.")
-        # self._app.change_property(aedt_object=self._app.odesign,
-        #                           tab_name="MeshSetupTab",
-        #                           property_object=f"SolveSetups:{self.name}",
-        #                           property_name="Name",
-        #                           property_value=meshop_name)
-        # object.__setattr__(self, "_name", meshop_name)
-        self._app.logger.warning("AEDT API does not allow renaming mesh operations.")
-
-    @pyaedt_function_handler()
-    def create(self) -> Mesh3dLayoutOperation | bool:
-        """Create a mesh.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.mesh_3d_layout.Mesh3dLayoutOperation`
-            The created mesh operation.
-
-        References
-        ----------
-        >>> oModule.AddMeshOperation
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss3dLayout
-        >>> app = Hfss3dLayout()
-        >>> setup = app.create_setup()
-        >>> app.modeler.layers.add_layer(layer="Top")
-        >>> c1 = app.modeler.create_circle("Top", 0, 5, 40, "mycircle")
-        >>> c1.net_name = "GND"
-        >>> op1 = app.mesh.assign_length_mesh(setup=setup.name, layer="Top", net="GND")
-
-        """
-        self._mesh_module.AddMeshOperation(self.setup, self._get_args())
-        self._mesh._register_operation(self)
-        return self
-
     @pyaedt_function_handler()
     def update(self, props: dict | None = None) -> bool:
         """Update the mesh.
@@ -262,6 +240,34 @@ class Mesh3dLayoutOperation(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
+    def create(self) -> Mesh3dLayoutOperation | bool:
+        """Create a mesh.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.mesh_3d_layout.Mesh3dLayoutOperation`
+            The created mesh operation.
+
+        References
+        ----------
+        >>> oModule.AddMeshOperation
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> app = Hfss3dLayout()
+        >>> setup = app.create_setup()
+        >>> app.modeler.layers.add_layer(layer="Top")
+        >>> c1 = app.modeler.create_circle("Top", 0, 5, 40, "mycircle")
+        >>> c1.net_name = "GND"
+        >>> op1 = app.mesh.assign_length_mesh(setup=setup.name, layer="Top", net="GND")
+
+        """
+        self._mesh_module.AddMeshOperation(self.setup, self._get_args())
+        self._mesh._register_operation(self)
+        return self
+
+    @pyaedt_function_handler()
     def delete(self) -> bool:
         """Delete the mesh operation.
 
@@ -292,13 +298,18 @@ class Mesh3dLayoutOperation(PyAedtBase):
 
     @pyaedt_function_handler()
     def refresh(self) -> bool:
-        """Refresh object.
-        Mesh in HFSS 3D Layout API does not have object-oriented capability.
+        """Refresh mesh operation properties.
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Notes
+        -----
+        HFSS 3D Layout mesh operations do not expose object-oriented properties.
+        This method saves the project and clears the local property cache. The
+        next access to :attr:`props` reloads the operation's saved properties.
 
         References
         ----------
