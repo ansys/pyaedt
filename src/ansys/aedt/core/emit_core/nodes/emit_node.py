@@ -38,6 +38,7 @@ if sys.version_info >= (3, 13):
 else:
     from typing_extensions import deprecated
 
+from ansys.aedt.core.emit_core.emit_utils import _catch_aedt_errors
 from ansys.aedt.core.emit_core.emit_constants import EMIT_FN_ALLOWED_FUNCS
 from ansys.aedt.core.emit_core.emit_constants import EMIT_FN_ALLOWED_OPS
 from ansys.aedt.core.emit_core.emit_constants import EMIT_FN_ALLOWED_VARS
@@ -50,7 +51,6 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import deprecated_doc
 from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.checks import requires_graphical_dependency
-from ansys.aedt.core.internal.errors import GrpcApiError
 
 # Type variable to be used in methods that might receive a subclass of EmitNode
 T = TypeVar("T", bound="EmitNode")
@@ -105,34 +105,6 @@ class EmitNode:
             result[key] = val
         return result
 
-    @min_aedt_version("2027.1")
-    @contextmanager
-    def _catch_aedt_errors(self, default_error: str) -> None:
-        """Catches grpc exceptions and raises a RuntimeError with the last error message from AEDT if found.
-
-        Parameters
-        ----------
-        default_error : str
-            The default error message to raise if none is found in aedt message manager.
-        """
-        try:
-            yield
-        except GrpcApiError as e:
-            try:
-                errors = self._emit_obj.logger.aedt_messages.error_level
-            except GrpcApiError:  # no messages found (logger bug triggers the exception)
-                raise e
-            if errors:
-                last_message = str(errors[-1])
-                if "[error]  " in last_message:
-                    # Trim the beginning of the error message
-                    index = last_message.find("[error]  ") + len("[error]  ")
-                    last_message = last_message[(index):]
-                    raise RuntimeError(last_message)
-                else:
-                    raise Exception(default_error) from e
-            else:
-                raise Exception(default_error) from e
 
     @property
     @min_aedt_version("2025.2")
@@ -177,7 +149,7 @@ class EmitNode:
             raise ValueError("This node is read-only for kept results.")
 
         if self.get_is_component():
-            with self._catch_aedt_errors(f"Failed to rename {self.name} to {requested_name}"):
+            with _catch_aedt_errors(self._emit_obj, f"Failed to rename {self.name} to {requested_name}"):
                 self._emit_obj.oeditor.RenameComponent(self.name, requested_name)
         else:
             _ = self._oRevisionData.RenameEmitNode(self._result_id, self._node_id, requested_name)
@@ -274,7 +246,7 @@ class EmitNode:
             Warning message(s).
         """
         node_warnings = ""
-        with self._catch_aedt_errors(f"Unable to get the warnings for node: {self.name}."):
+        with _catch_aedt_errors(self._emit_obj, f"Unable to get the warnings for node: {self.name}."):
             node_warnings = self._get_property("Warnings")
         return node_warnings
 
@@ -467,7 +439,7 @@ class EmitNode:
         ValueError
             If a requested property is not found or not available.
         """
-        with self._catch_aedt_errors("Failed to get node properties."):
+        with _catch_aedt_errors(self._emit_obj, "Failed to get node properties."):
             props = self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, skipChecks)
         props_dict = self.props_to_dict(props)
 
@@ -514,7 +486,7 @@ class EmitNode:
         if not prop_strings:
             return
 
-        with self._catch_aedt_errors("Failed to retrieve allowable node property list."):
+        with _catch_aedt_errors(self._emit_obj, "Failed to retrieve allowable node property list."):
             available_props = self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, skipChecks)
         available_dict = self.props_to_dict(available_props)
         missing = [name for name in prop_keys if name not in available_dict]
@@ -623,7 +595,7 @@ class EmitNode:
             If an error occurs.
         """
         try:
-            with self._catch_aedt_errors("Failed to retrieve node property list."):
+            with _catch_aedt_errors(self._emit_obj, "Failed to retrieve node property list."):
                 props = self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, skipChecks)
             kv_pairs = [prop.split("=") for prop in props]
             selected_kv_pairs = [kv for kv in kv_pairs if kv[0].rstrip() == prop]
@@ -904,7 +876,7 @@ class EmitNode:
         node: EmitNode
             The node.
         """
-        with self._catch_aedt_errors(f'Failed to import "{file_path}" as "{import_type}": {{e}}'):
+        with _catch_aedt_errors(self._emit_obj, f'Failed to import "{file_path}" as "{import_type}": {{e}}'):
             if import_type == "CAD":
                 if int(self._emit_obj.aedt_env_variable[-3:]) >= 271:
                     node_id = self._oRevisionData.EmitNodeImport(
@@ -945,7 +917,7 @@ class EmitNode:
         str
             The exported data as a string if no file path is provided.
         """
-        with self._catch_aedt_errors(f'Failed to export "{file_path}" as CSV: {{e}}'):
+        with _catch_aedt_errors(self._emit_obj, f'Failed to export "{file_path}" as CSV: {{e}}'):
             data = self._oRevisionData.ExportTraceData(
                 self._result_id, self._full_node_name(), file_path, ",", keys, values
             )
@@ -970,7 +942,7 @@ class EmitNode:
         """
         import matplotlib.pyplot as plt
 
-        with self._catch_aedt_errors("Failed to retrieve trace data for plotting: {e}"):
+        with _catch_aedt_errors(self._emit_obj, "Failed to retrieve trace data for plotting: {e}"):
             csv_data = self._oRevisionData.ExportTraceData(
                 self._result_id, self._full_node_name(), "", ",", keys, values
             )
@@ -1270,7 +1242,7 @@ class EmitNode:
             The node's table data as a list of tuples.
             [(x1, y1, z1), (x2, y2, z2)]
         """
-        with self._catch_aedt_errors(f"Failed to get table data for node {self.name}. Error: {{e}}"):
+        with _catch_aedt_errors(self._emit_obj, f"Failed to get table data for node {self.name}. Error: {{e}}"):
             if self._is_column_data_table():
                 # Column Data tables
                 # Data formatted using compact string serialization
@@ -1321,7 +1293,7 @@ class EmitNode:
             ]:
                 table = self._check_column_table_data(table)
             data = "|".join(";".join(map(str, row)) for row in table)
-            with self._catch_aedt_errors(f"Failed to set table data for node {self.name}. Error: {{e}}"):
+            with _catch_aedt_errors(self._emit_obj, f"Failed to set table data for node {self.name}. Error: {{e}}"):
                 self._oRevisionData.SetTableData(self._result_id, self._node_id, data)
         else:
             # Node Prop tables
@@ -1330,7 +1302,7 @@ class EmitNode:
             table = self._check_node_prop_table_data(table)
             table_key = self._get_property("TableKey", True)
             data = ";".join("|".join(map(str, row)) for row in table)
-            with self._catch_aedt_errors(f"Failed to table key for node {self.name}. Error: {{e}}"):
+            with _catch_aedt_errors(self._emit_obj, f"Failed to table key for node {self.name}. Error: {{e}}"):
                 self._set_property(table_key, data, True)
 
     @min_aedt_version("2025.2")
@@ -1362,7 +1334,7 @@ class EmitNode:
             raise ValueError(
                 f"Child type {child_type} is not allowed for this node. Allowed types are: {self.allowed_child_types}"
             )
-        with self._catch_aedt_errors(
+        with _catch_aedt_errors(self._emit_obj, 
             f"Failed to add child node of type {child_type} to node {self.name}. Error: {{e}}"
         ):
             new_id = self._oRevisionData.CreateEmitNode(self._result_id, self._node_id, child_name, child_type)

@@ -3313,7 +3313,7 @@ def test_exceptions_bad_values(emit_app) -> None:
 
     with pytest.raises(ValueError) as e:
         _ = radio._get_property("Bad Prop")
-    assert str(e.value) == "Property Bad Prop not found or not available for RadioNode configuration."
+    assert str(e.value) == "Property Bad Prop not found or not available for RadioNode."
 
     band: Band = radio.children[0]
     try:
