@@ -387,7 +387,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
 
         if setup_type is not None and isinstance(setup_type, str) and setup_type in setup_names_available:
             setup_type = getattr(Setups, setup_type)
-        else:
+        elif setup_type is None:
             setup_type = self.design_solutions.default_setup
 
         if not name:
@@ -426,9 +426,6 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
                     props[arg_name] = arg_value
 
         result = setup.create()
-
-        if not isinstance(result, Setup3DLayout):  # pragma: no cover
-            raise RuntimeError("Failed to create setup.")
 
         return result
 

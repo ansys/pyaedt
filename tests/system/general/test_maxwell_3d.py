@@ -1064,10 +1064,11 @@ def test_layout_force(layout_comp) -> None:
 @pytest.mark.skipif(is_linux, reason="EDB object is not loaded.")
 def test_layout_harmonic(layout_comp) -> None:
     comp = layout_comp.modeler.components["LC1_1"]
+    name = comp.name
     layers = list(comp.layers.keys())
     nets = list(comp.nets.keys())
     layout_comp.enable_harmonic_force_on_layout_component(
-        comp.name,
+        name,
         {nets[0]: layers[1::2], nets[1]: layers[1::2]},
         force_type=2,
         window_function="Rectangular",
@@ -1083,7 +1084,7 @@ def test_layout_harmonic(layout_comp) -> None:
     with pytest.raises(
         AEDTRuntimeError, match="This methods work only with Maxwell TransientAPhiFormulation Analysis."
     ):
-        layout_comp.enable_harmonic_force_on_layout_component(comp.name, {nets[0]: layers[1::2], nets[1]: layers[1::2]})
+        layout_comp.enable_harmonic_force_on_layout_component(name, {nets[0]: layers[1::2], nets[1]: layers[1::2]})
 
 
 def test_assign_sink(m3d_app, maxwell_versioned) -> None:

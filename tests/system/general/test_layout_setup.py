@@ -409,7 +409,7 @@ def test_layout_emi(layout_app) -> None:
     name = setup.name
 
     assert name == layout_app.setup_names[0]
-    assert setup.solver_type == "SiwaveEMI"
+    assert setup.solver_type == "SIwaveEMI"
     assert name == layout_app.setup_names[0]
     assert len(layout_app.setups) == 1
     assert isinstance(setup, Setup3DLayout)
@@ -546,7 +546,7 @@ def test_layout_siwave_nearfield(layout_app) -> None:
     name = setup.name
 
     assert name == layout_app.setup_names[0]
-    assert setup.solver_type == "SiwaveNearField"
+    assert setup.solver_type == "SIwaveNearField"
     assert name == layout_app.setup_names[0]
     assert len(layout_app.setups) == 1
     assert isinstance(setup, Setup3DLayout)
