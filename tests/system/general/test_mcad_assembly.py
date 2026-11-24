@@ -37,8 +37,9 @@ from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.modeler.advanced_cad.mcad_assembly import MCADAssemblyService
 from tests import TESTS_EXTENSIONS_PATH
 from tests.conftest import edb_ignore_logger_warn
+from tests.conftest import edb_ignore_udsfullpath_warn
 
-pytestmark = edb_ignore_logger_warn
+pytestmark = [edb_ignore_logger_warn, edb_ignore_udsfullpath_warn]
 
 MODEL_FOLDER = TESTS_EXTENSIONS_PATH / "example_models" / "mcad_assembly"
 
