@@ -37,8 +37,7 @@ from tests.conftest import DESKTOP_VERSION
 # Starting with 2025R1, the Emit API supports Python 3.10,3.11,3.12
 if (
     DESKTOP_VERSION >= "2027.1"
-    or ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1")
-    or ((3, 10) <= sys.version_info[0:2] <= (3, 12) and DESKTOP_VERSION > "2024.2")
+    or (sys.version_info[0:2] == (3, 12) and DESKTOP_VERSION > "2024.2")
 ):
     from ansys.aedt.core import Emit
 
