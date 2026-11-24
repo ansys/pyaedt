@@ -1627,8 +1627,10 @@ def test_component_array(component_array_app, test_tmp_dir) -> None:
     assert array.cells[0][1].component == array.component_names[3]
 
     name = "Array_new"
+    assert array.child_object
     component_array_app.component_array["A1"].name = name
     assert component_array_app.component_array_names[0] == name
+    assert array.child_object
 
     if DESKTOP_VERSION < "2025.1":
         name = "A1"
@@ -1704,6 +1706,7 @@ def test_component_array(component_array_app, test_tmp_dir) -> None:
 
     array.delete()
     assert not component_array_app.component_array
+    assert array.child_object is None
 
 
 def test_set_material_threshold(aedt_app) -> None:

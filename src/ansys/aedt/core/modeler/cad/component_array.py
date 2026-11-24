@@ -1044,6 +1044,7 @@ class ComponentArray(PyAedtBase):
         """
         old_name = self.name
         self._omodelsetup.DeleteArray()
+        self.__child_object = None
         self._app._unregister_component_array(old_name)
 
     @pyaedt_function_handler()

@@ -167,7 +167,6 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
         self.__parameters = None
 
-        self.__child_object = None
         # TODO: GetObjData is not available yet
         self._has_getobject = False
 
@@ -181,32 +180,25 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def _initialize_tree_node(self) -> bool:
-        if self._child_object:
-            BinaryTreeNode.__init__(self, self._name, self._child_object, False, app=self._app)
+        aedt_object = self._resolve_aedt_object()
+        if aedt_object:
+            BinaryTreeNode.__init__(self, self._name, aedt_object, False, app=self._app)
             return True
         return False
 
-    @property
-    def _child_object(self):
-        """Object-oriented properties.
+    def _resolve_aedt_object(self):
+        """Find the AEDT object associated with the component."""
+        if self._name in self._app.modeler.component_names:
+            return self._app.get_oo_object(self._app.oeditor, self._name)
+        return None
 
-        Returns
-        -------
-        AEDT object if any or `None`.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> aedtapp = Hfss()
-        >>> comp = aedtapp.modeler.components[0]
-        >>> comp.child_object
-
-        """
-        if not self.__child_object:
-            cc_names = self._app.modeler.component_names
-            if self._name in cc_names:
-                self.__child_object = self._app.get_oo_object(self._app.oeditor, self._name)
-        return self.__child_object
+    def update_property(self, prop_name: str, prop_value: str) -> bool:
+        old_name = self._name
+        result = super().update_property(prop_name, prop_value)
+        if prop_name == "Name" and self._name != old_name:
+            self._invalidate_tree_node()
+            self._app.modeler._rename_component(old_name, self._name, self)
+        return result
 
     @property
     def name(self) -> str:
@@ -225,7 +217,7 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         >>> comp.name
 
         """
-        child_object = self._child_object
+        child_object = self.child_object
         if child_object is not None:
             child_object_methods = dir(child_object)
             if "Name" in child_object_methods:
@@ -247,11 +239,8 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
                 property_value=component_name,
             )
 
-            self.__child_object = None
             object.__setattr__(self, "_name", component_name)
-            object.__setattr__(self, "_tree_node_initialized", False)
-            object.__setattr__(self, "_props", None)
-            object.__setattr__(self, "_children_loaded", False)
+            self._invalidate_tree_node()
 
             # Add the component to the modeler components dictionary
             self._app.modeler._rename_component(old_name, component_name, self)
@@ -597,6 +586,7 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         old_name = self.name
         arg = ["NAME:Selections", "Selections:=", old_name]
         self._oeditor.Delete(arg)
+        self._invalidate_tree_node()
         self._app.modeler.cleanup_objects()
         self._app.modeler._unregister_component(old_name)
         return True
@@ -1437,11 +1427,7 @@ class LayoutComponent(NativeComponent):
         """
         key = "EDB Definition"
         definition_name = self.definition_name
-        if (
-            self._child_object
-            and definition_name
-            and key in self._app.get_oo_properties(self._oeditor, definition_name)
-        ):
+        if self.child_object and definition_name and key in self._app.get_oo_properties(self._oeditor, definition_name):
             edb_definition = self._app.get_oo_property_value(self._oeditor, definition_name, key)
         else:  # pragma: no cover
             edb_definition = self._legacy_props.get("NativeComponentDefinitionProvider", {}).get("EDBDefinition")

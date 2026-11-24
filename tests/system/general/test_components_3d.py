@@ -111,7 +111,10 @@ def test_insert_3dcomponent(aedt_app) -> None:
     obj_3dcomp.mesh_assembly = True
     assert obj_3dcomp.mesh_assembly
 
+    assert obj_3dcomp.child_object
     obj_3dcomp.name = "Dipole_pyaedt"
+    assert not obj_3dcomp._tree_node_initialized
+    assert obj_3dcomp.child_object
     assert "Dipole_pyaedt" in aedt_app.modeler.component_names
     assert aedt_app.modeler["Dipole_pyaedt"]
     assert obj_3dcomp.name == "Dipole_pyaedt"
@@ -127,6 +130,7 @@ def test_insert_3dcomponent(aedt_app) -> None:
 
     obj_3dcomp.delete()
     assert "Dipole_pyaedt" not in aedt_app.modeler.component_names
+    assert obj_3dcomp.child_object is None
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Method available from AEDT 2025.1.")
@@ -372,7 +376,10 @@ def test_insert_udm(aedt_app) -> None:
     assert obj_udm.definition_type == "UserDefinedModel"
     assert not obj_udm.mesh_assembly
 
+    assert obj_udm.child_object
     obj_udm.name = "new_name"
+    assert not obj_udm._tree_node_initialized
+    assert obj_udm.child_object
     assert "new_name" in aedt_app.modeler.component_names
     assert aedt_app.modeler["new_name"]
     assert obj_udm.name == "new_name"
@@ -392,6 +399,7 @@ def test_insert_udm(aedt_app) -> None:
 
     obj_udm.delete()
     assert "new_name" not in aedt_app.modeler.component_names
+    assert obj_udm.child_object is None
 
 
 def test_udm_operations(aedt_app) -> None:
@@ -510,7 +518,10 @@ def test_insert_layout_component(aedt_app, test_tmp_dir) -> None:
 
     assert not comp.mesh_assembly
 
+    assert comp.child_object
     comp.name = "new_name"
+    assert not comp._tree_node_initialized
+    assert comp.child_object
     assert "new_name" in aedt_app.modeler.component_names
     assert aedt_app.modeler["new_name"]
     assert len(aedt_app.modeler.components) == 1
