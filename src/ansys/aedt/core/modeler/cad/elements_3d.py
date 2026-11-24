@@ -1983,6 +1983,13 @@ class BinaryTreeNode:
     def child_object(self, value) -> None:
         self.__child_object = value
 
+    def _invalidate_tree_node(self) -> None:
+        """Clear cached tree data so a subclass can resolve the node again."""
+        self.child_object = None
+        self._tree_node_initialized = False
+        self._props = None
+        self._children = {}
+
     def _ensure_children(self) -> None:
         if self._children_loading:
             return

@@ -687,12 +687,6 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
                 return self._app.get_oo_object(cc, self._name)
         return None
 
-    def _invalidate_tree_node(self) -> None:
-        self.child_object = None
-        self._tree_node_initialized = False
-        self._props = None
-        self._children = {}
-
     @pyaedt_function_handler()
     def _get_initial_mesh_settings(self) -> MeshProps:
         try:

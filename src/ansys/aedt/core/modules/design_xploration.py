@@ -559,12 +559,6 @@ class OptimetricsSetup(BinaryTreeNode, PyAedtBase):
                 return self._app.get_oo_object(cc, self._name)
         return None
 
-    def _invalidate_tree_node(self) -> None:
-        self.child_object = None
-        self._tree_node_initialized = False
-        self._props = None
-        self._children = {}
-
     @pyaedt_function_handler()
     def _get_domain(self, ranges: dict | None = None) -> str:
         """Get the calculation domain from the ranges and the design solution type.

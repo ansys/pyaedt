@@ -629,12 +629,6 @@ class MeshRegion(MeshRegionBase, BinaryTreeNode, PyAedtBase):
                 return self._app.get_oo_object(cc, self._name)
         return None
 
-    def _invalidate_tree_node(self) -> None:
-        self.child_object = None
-        self._tree_node_initialized = False
-        self._props = None
-        self._children = {}
-
     def _get_props_from_aedt(self) -> dict:
         """Retrieve properties from AEDT object data.
 
