@@ -5,12 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 import re
 import sys
-
-try:
-    import tomllib
-except ModuleNotFoundError:
-    import tomli as tomllib
-
+import tomllib
 
 ROOT = Path(__file__).resolve().parents[2]
 PRE_COMMIT_CONFIG = ROOT / ".pre-commit-config.yaml"
