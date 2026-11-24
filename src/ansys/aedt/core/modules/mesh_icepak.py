@@ -380,87 +380,10 @@ class MeshRegion(MeshRegionBase, BinaryTreeNode, PyAedtBase):
         self._manual_settings = None
         self.__settings = None
 
-        self.__child_object = None
         if props:
             self._legacy_props = props
 
-        self._has_getobject = _has_get_obj_data(self._child_object)
-
-    @pyaedt_function_handler()
-    def _initialize_tree_node(self) -> bool:
-        child_object = self._child_object
-        if child_object:
-            BinaryTreeNode.__init__(self, self._name, child_object, False, app=self._app)
-            return True
-        return False
-
-    @property
-    def _child_object(self) -> _OChildObject | None:
-        """Object-oriented properties.
-
-        Returns
-        -------
-        AEDT object if any or `None`.
-
-        """
-        if not self.__child_object:
-            design_childs = self._app.get_oo_name(self._app.odesign)
-
-            if "Mesh" in design_childs:
-                cc = self._app.get_oo_object(self._app.odesign, "Mesh")
-                cc_names = self._app.get_oo_name(cc)
-                if self._name in cc_names:
-                    self.__child_object = self._app.get_oo_object(cc, self._name)
-        return self.__child_object
-
-    def _get_props_from_aedt(self) -> dict:
-        """Retrieve properties from AEDT object data.
-
-        Returns
-        -------
-        dict
-            Properties dictionary from AEDT.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Icepak
-        >>> icepak = Icepak()
-        >>> region = icepak.mesh.regions[0]
-        >>> region._get_props_from_aedt()
-
-        """
-        return _get_obj_data(self._child_object) or {}
-
-    def _get_props_fallback(self) -> dict:
-        """Retrieve properties using fallback method from design_properties.
-
-        Returns
-        -------
-        dict
-            Properties dictionary from design_properties.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Icepak
-        >>> icepak = Icepak()
-        >>> region = icepak.mesh.regions[0]
-        >>> region._get_props_fallback()
-
-        """
-        dp = self._app.design_properties
-        if not isinstance(dp, dict):  # pragma: no cover
-            return {}
-
-        mesh_regions = dp.get("MeshRegion", {})
-        mesh_setup = mesh_regions.get("MeshSetup", {})
-
-        mesh_region = mesh_setup.get("MeshRegions", {})
-
-        if self._name in mesh_region:
-            return mesh_region.get(self._name, {})
-        elif self._name in mesh_setup:
-            return mesh_setup.get(self._name, {})
-        return {}
+        self._has_getobject = _has_get_obj_data(self.child_object)
 
     @property
     def name(self) -> str:
@@ -478,7 +401,7 @@ class MeshRegion(MeshRegionBase, BinaryTreeNode, PyAedtBase):
         >>> region.name
 
         """
-        child_object = self._child_object
+        child_object = self.child_object
         if child_object is not None:
             self._name = child_object.Name
         return self._name
@@ -492,11 +415,8 @@ class MeshRegion(MeshRegionBase, BinaryTreeNode, PyAedtBase):
 
         self.child_object.Name = str(value)
 
-        self.__child_object = None
         object.__setattr__(self, "_name", value)
-        object.__setattr__(self, "_tree_node_initialized", False)
-        object.__setattr__(self, "_props", None)
-        object.__setattr__(self, "_children_loaded", False)
+        self._invalidate_tree_node()
 
         self._mesh._rename_region(old_name, value, self)
 
@@ -522,7 +442,7 @@ class MeshRegion(MeshRegionBase, BinaryTreeNode, PyAedtBase):
             return props["Objects"]
         else:  # pragma: no cover
             assignments = []
-            child_object = self._child_object
+            child_object = self.child_object
             if child_object is not None:
                 if "Assignment" in child_object.GetPropNames():
                     assignment = getattr(child_object, "Assignment", [])
@@ -632,7 +552,10 @@ class MeshRegion(MeshRegionBase, BinaryTreeNode, PyAedtBase):
 
         """
         old_name = self.name
-        self._mesh_module.DeleteMeshRegions([self.name])
+        self._mesh_module.DeleteMeshRegions([old_name])
+        self._invalidate_tree_node()
+        self._legacy_props = {}
+        self._has_getobject = False
         self._mesh._unregister_region(old_name)
         return True
 
@@ -666,7 +589,7 @@ class MeshRegion(MeshRegionBase, BinaryTreeNode, PyAedtBase):
         self._mesh_module.AssignMeshRegion(aedt_props)
 
         # GetObjData is available for some objects in 2026R1
-        self._has_getobject = _has_get_obj_data(self._child_object)
+        self._has_getobject = _has_get_obj_data(self.child_object)
 
         # API renames the subregion, and if GetObjData not available, we need to refresh the prop
         new_name = f"{self.name}_SubRegion"
@@ -688,6 +611,78 @@ class MeshRegion(MeshRegionBase, BinaryTreeNode, PyAedtBase):
             self._mesh._register_region(self)
 
         return self
+
+    @pyaedt_function_handler()
+    def _initialize_tree_node(self) -> bool:
+        aedt_object = self._resolve_aedt_object()
+        if aedt_object:
+            BinaryTreeNode.__init__(self, self._name, aedt_object, False, app=self._app)
+            return True
+        return False
+
+    def _resolve_aedt_object(self) -> _OChildObject | None:
+        """Find the AEDT object associated with the mesh region."""
+        design_childs = self._app.get_oo_name(self._app.odesign)
+        if "Mesh" in design_childs:
+            cc = self._app.get_oo_object(self._app.odesign, "Mesh")
+            if self._name in self._app.get_oo_name(cc):
+                return self._app.get_oo_object(cc, self._name)
+        return None
+
+    def _invalidate_tree_node(self) -> None:
+        self.child_object = None
+        self._tree_node_initialized = False
+        self._props = None
+        self._children = {}
+
+    def _get_props_from_aedt(self) -> dict:
+        """Retrieve properties from AEDT object data.
+
+        Returns
+        -------
+        dict
+            Properties dictionary from AEDT.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Icepak
+        >>> icepak = Icepak()
+        >>> region = icepak.mesh.regions[0]
+        >>> region._get_props_from_aedt()
+
+        """
+        return _get_obj_data(self.child_object) or {}
+
+    def _get_props_fallback(self) -> dict:
+        """Retrieve properties using fallback method from design_properties.
+
+        Returns
+        -------
+        dict
+            Properties dictionary from design_properties.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Icepak
+        >>> icepak = Icepak()
+        >>> region = icepak.mesh.regions[0]
+        >>> region._get_props_fallback()
+
+        """
+        dp = self._app.design_properties
+        if not isinstance(dp, dict):  # pragma: no cover
+            return {}
+
+        mesh_regions = dp.get("MeshRegion", {})
+        mesh_setup = mesh_regions.get("MeshSetup", {})
+
+        mesh_region = mesh_setup.get("MeshRegions", {})
+
+        if self._name in mesh_region:
+            return mesh_region.get(self._name, {})
+        elif self._name in mesh_setup:
+            return mesh_setup.get(self._name, {})
+        return {}
 
 
 class GlobalMeshRegion(MeshRegionBase):
@@ -811,8 +806,6 @@ class IcepakMesh(PyAedtBase):
         self.__operations = SetupDict()
         self.__regions = SetupDict()
         self.__global_mesh_region = None
-
-        self.__child_object = None
 
     def _register_operation(self, operation: MeshOperation) -> None:
         """Store a newly created mesh operation in the local cache."""
