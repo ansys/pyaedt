@@ -105,6 +105,13 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
     props : dict
         Properties of the mesh operation.
 
+    Notes
+    -----
+    ``auto_update`` defaults to ``True`` and controls automatic assignment
+    updates when a list such as ``props["Objects"]`` is modified in place.
+    When disabled, pass the modified properties to :meth:`update_assignment`
+    to apply them. Other property changes continue to call :meth:`update`.
+
     Examples
     --------
     >>> from ansys.aedt.core import Hfss
@@ -121,8 +128,8 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         self._app: FieldAnalysis3D = self._mesh._app
         self._legacy_props = {}
         self._name = name
+        self.auto_update = True
         self.__operation_type = None
-        self.__child_object = None
         self._mesh_module = self._mesh._mesh_module
 
         if props:
@@ -135,7 +142,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
             # TODO: Currently AEDT API does not have a way to get InitialMeshSettings props
             self._has_getobject = False
         else:
-            self._has_getobject = _has_get_obj_data(self._child_object)
+            self._has_getobject = _has_get_obj_data(self.child_object)
 
     def __repr__(self) -> str:
         return self.name
@@ -151,32 +158,113 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         """Set a setup property by key."""
         self.props[key] = value
 
-    @pyaedt_function_handler()
-    def _initialize_tree_node(self) -> bool:
-        child_object = self._child_object
-        if child_object:
-            BinaryTreeNode.__init__(self, self._name, child_object, False, app=self._app)
-            return True
-        return False
-
     @property
-    def _child_object(self) -> _OChildObject | None:
-        """Object-oriented properties.
+    def name(self) -> str:
+        """Name of the mesh operation.
 
         Returns
         -------
-        AEDT object if any or None
+        str
+           Name of the mesh operation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> surface = hfss.mesh.assign_surface_mesh(o.name, 3, "Surface")
+        >>> surface.name
 
         """
-        if not self.__child_object:
-            design_childs = self._app.get_oo_name(self._app.odesign)
+        child_object = self.child_object
+        if child_object is not None and self.operation_type != "InitialMeshSettings":
+            self._name = child_object.Name
+        return self._name
 
-            if "Mesh" in design_childs:
-                cc = self._app.get_oo_object(self._app.odesign, "Mesh")
-                cc_names = self._app.get_oo_name(cc)
-                if self._name in cc_names:
-                    self.__child_object = self._app.get_oo_object(cc, self._name)
-        return self.__child_object
+    @name.setter
+    def name(self, meshop_name: str) -> None:
+        old_name = self.name
+        if isinstance(self._mesh, Mesh):
+            operation_names = self._mesh.operation_names
+        else:
+            operation_names = [operation.name for operation in self._mesh.operations]
+        if meshop_name in operation_names:
+            raise ValueError(f"Name {meshop_name} already assigned in the design.")
+        if self.operation_type != "InitialMeshSettings":
+            mesh_methods = dir(self._mesh_module)
+            if "Rename" in mesh_methods:
+                self._mesh_module.Rename(self.name, str(meshop_name))
+            elif "RenameOp" in mesh_methods:
+                self._mesh_module.RenameOp(self.name, str(meshop_name))
+            elif "Name" in dir(self.child_object):
+                self.child_object.Name = str(meshop_name)
+            else:  # pragma: no cover
+                raise AEDTRuntimeError("AEDT API does not support mesh operation rename.")
+
+            object.__setattr__(self, "_name", meshop_name)
+            self._invalidate_tree_node()
+
+            self._mesh._rename_operation(old_name, meshop_name, self)
+
+    @property
+    def props(self) -> MeshProps:
+        """Properties of the mesh operation.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.generic.props.Props`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> surface = hfss.mesh.assign_surface_mesh(o.name, 3, "Surface")
+        >>> surface.props
+
+        """
+        if self._legacy_props and not self._has_getobject:
+            return MeshProps(self, self._legacy_props)
+
+        if self._has_getobject:
+            props = _get_obj_data(self.child_object) or {}
+        else:
+            if self.__operation_type == "InitialMeshSettings":
+                return self._get_initial_mesh_settings()
+
+            props = {}
+            for key, value in self.properties.items():
+                if key in mesh_props.values():
+                    key = [k for k, v in mesh_props.items() if v == key][0]
+                props[key] = value
+
+            if props and "Assignment" in props:
+                assignment = props["Assignment"]
+                if "Face_" in assignment:
+                    props["Faces"] = [
+                        int(i.replace("Face_", "")) for i in assignment.split("(")[1].split(")")[0].split(",")
+                    ]
+                elif "Edge_" in assignment:
+                    props["Edges"] = [
+                        int(i.replace("Edge_", "")) for i in assignment.split("(")[1].split(")")[0].split(",")
+                    ]
+                else:
+                    props["Objects"] = assignment
+            else:
+                props = self._get_props_fallback()
+
+        self._legacy_props = props
+
+        return MeshProps(self, self._legacy_props)
+
+    @props.setter
+    def props(self, value: dict) -> None:
+        if self.name != "InitialMeshSettings":
+            self.update(props=value)
+        else:
+            self._app.logger.warning(
+                "Initial mesh settings props can not be set.Use assign_initial_mesh_from_slider or assign_initial_mesh."
+            )
 
     @property
     def operation_type(self) -> str | None:
@@ -241,7 +329,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
 
         """
         assignments = []
-        child_object = self._child_object
+        child_object = self.child_object
         if child_object is not None:
             if "Assignment" in child_object.GetPropNames():
                 assignment = getattr(child_object, "Assignment", [])
@@ -260,195 +348,6 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
                 assignments.extend(list(self.props["Faces"]))
 
         return assignments
-
-    @property
-    def props(self) -> MeshProps:
-        """Properties of the mesh operation.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.generic.props.Props`
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
-        >>> surface = hfss.mesh.assign_surface_mesh(o.name, 3, "Surface")
-        >>> surface.props
-
-        """
-        if self._legacy_props and not self._has_getobject:
-            return MeshProps(self, self._legacy_props)
-
-        if self._has_getobject:
-            props = _get_obj_data(self._child_object) or {}
-        else:
-            if self.__operation_type == "InitialMeshSettings":
-                return self._get_initial_mesh_settings()
-
-            props = {}
-            for key, value in self.properties.items():
-                if key in mesh_props.values():
-                    key = [k for k, v in mesh_props.items() if v == key][0]
-                props[key] = value
-
-            if props and "Assignment" in props:
-                assignment = props["Assignment"]
-                if "Face_" in assignment:
-                    props["Faces"] = [
-                        int(i.replace("Face_", "")) for i in assignment.split("(")[1].split(")")[0].split(",")
-                    ]
-                elif "Edge_" in assignment:
-                    props["Edges"] = [
-                        int(i.replace("Edge_", "")) for i in assignment.split("(")[1].split(")")[0].split(",")
-                    ]
-                else:
-                    props["Objects"] = assignment
-            else:
-                props = self._get_props_fallback()
-
-        self._legacy_props = props
-
-        return MeshProps(self, self._legacy_props)
-
-    @props.setter
-    def props(self, value: dict) -> None:
-        if self.name != "InitialMeshSettings":
-            self.update(props=value)
-        else:
-            self._app.logger.warning(
-                "Initial mesh settings props can not be set.Use assign_initial_mesh_from_slider or assign_initial_mesh."
-            )
-
-    @property
-    def name(self) -> str:
-        """Name of the mesh operation.
-
-        Returns
-        -------
-        str
-           Name of the mesh operation.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
-        >>> surface = hfss.mesh.assign_surface_mesh(o.name, 3, "Surface")
-        >>> surface.name
-
-        """
-        child_object = self._child_object
-        if child_object is not None and self.operation_type != "InitialMeshSettings":
-            self._name = child_object.Name
-        return self._name
-
-    @name.setter
-    def name(self, meshop_name: str) -> None:
-        old_name = self.name
-        if isinstance(self._mesh, Mesh):
-            operation_names = self._mesh.operation_names
-        else:
-            operation_names = [operation.name for operation in self._mesh.operations]
-        if meshop_name in operation_names:
-            raise ValueError(f"Name {meshop_name} already assigned in the design.")
-        if self.operation_type != "InitialMeshSettings":
-            mesh_methods = dir(self._mesh_module)
-            if "Rename" in mesh_methods:
-                self._mesh_module.Rename(self.name, str(meshop_name))
-            elif "RenameOp" in mesh_methods:
-                self._mesh_module.RenameOp(self.name, str(meshop_name))
-            elif "Name" in dir(self.child_object):
-                self.child_object.Name = str(meshop_name)
-            else:  # pragma: no cover
-                raise AEDTRuntimeError("AEDT API does not support mesh operation rename.")
-
-            self.__child_object = None
-            object.__setattr__(self, "_name", meshop_name)
-            object.__setattr__(self, "_tree_node_initialized", False)
-            object.__setattr__(self, "_props", None)
-            object.__setattr__(self, "_children_loaded", False)
-
-            self._mesh._rename_operation(old_name, meshop_name, self)
-
-    @pyaedt_function_handler()
-    def create(self) -> MeshOperation | bool:
-        """Create a mesh.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.mesh.MeshOperation`
-            The created mesh operation.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
-        >>> surface = hfss.mesh.assign_surface_mesh(o.name, 3, "Surface")
-
-        """
-        operation_type = self.operation_type
-        supported_types = {
-            "SurfApproxBased",
-            "DefeatureBased",
-            "SurfaceRepPriority",
-            "LengthBased",
-            "SkinDepthBased",
-            "Curvilinear",
-            "RotationalLayerMesh",
-            "EdgeCutLayerMesh",
-            "DensityControlBased",
-            "CurvatureExtraction",
-            "CylindricalGap",
-            "AssignCylindricalGapOp",
-        }
-        if operation_type not in supported_types and self._app.design_type != "Icepak":
-            return False
-
-        if operation_type == "SurfApproxBased":
-            self._mesh_module.AssignTrueSurfOp(self._get_args())
-        elif operation_type == "DefeatureBased":
-            self._mesh_module.AssignModelResolutionOp(self._get_args())
-        elif operation_type == "SurfaceRepPriority":
-            self._mesh_module.AssignSurfPriorityForTauOp(self._get_args())
-        elif operation_type == "LengthBased":
-            self._mesh_module.AssignLengthOp(self._get_args())
-        elif operation_type == "SkinDepthBased":
-            self._mesh_module.AssignSkinDepthOp(self._get_args())
-        elif operation_type == "Curvilinear":
-            self._mesh_module.AssignApplyCurvlinearElementsOp(self._get_args())
-        elif operation_type == "RotationalLayerMesh":
-            props = self.props.to_dict()
-            if "Total Layer Thickness" in props:
-                props["Total Layer Thickenss"] = props["Total Layer Thickness"]
-                del props["Total Layer Thickness"]
-            self._mesh_module.AssignRotationalLayerOp(self._get_args(props))
-        elif operation_type == "EdgeCutLayerMesh":
-            props = self.props.to_dict()
-            if "Layer Thickness" in props:
-                props["Layer Thickenss"] = props["Layer Thickness"]
-                del props["Layer Thickness"]
-            self._mesh_module.AssignEdgeCutLayerOp(self._get_args(props))
-        elif operation_type == "DensityControlBased":
-            self._mesh_module.AssignDensityControlOp(self._get_args())
-        elif operation_type == "CurvatureExtraction":
-            self._mesh_module.AssignCurvatureExtractionOp(self._get_args())
-        elif operation_type in {"CylindricalGap", "AssignCylindricalGapOp"}:
-            self._mesh_module.AssignCylindricalGapOp(self._get_args())
-        else:
-            self._mesh_module.AssignMeshOperation(self._get_args())
-
-        # GetObjData is available for some objects in 2026R1
-        self._has_getobject = _has_get_obj_data(self._child_object)
-
-        if not self._has_getobject:
-            # If a new mesh operation is created, and GetObjData is not available,
-            # it is needed to populated setups dictionary because if not props will be empty.
-            self._mesh._register_operation(self)
-
-        return self
 
     @pyaedt_function_handler()
     def update(self, key_name: str | None = None, value: int | None = None, props: dict | None = None) -> bool:
@@ -532,6 +431,84 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
             props["SurfaceRepPriority"] = value
 
         return self._update_properties(props)
+
+    @pyaedt_function_handler()
+    def create(self) -> MeshOperation | bool:
+        """Create a mesh.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.mesh.MeshOperation`
+            The created mesh operation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> surface = hfss.mesh.assign_surface_mesh(o.name, 3, "Surface")
+
+        """
+        operation_type = self.operation_type
+        supported_types = {
+            "SurfApproxBased",
+            "DefeatureBased",
+            "SurfaceRepPriority",
+            "LengthBased",
+            "SkinDepthBased",
+            "Curvilinear",
+            "RotationalLayerMesh",
+            "EdgeCutLayerMesh",
+            "DensityControlBased",
+            "CurvatureExtraction",
+            "CylindricalGap",
+            "AssignCylindricalGapOp",
+        }
+        if operation_type not in supported_types and self._app.design_type != "Icepak":
+            return False
+
+        if operation_type == "SurfApproxBased":
+            self._mesh_module.AssignTrueSurfOp(self._get_args())
+        elif operation_type == "DefeatureBased":
+            self._mesh_module.AssignModelResolutionOp(self._get_args())
+        elif operation_type == "SurfaceRepPriority":
+            self._mesh_module.AssignSurfPriorityForTauOp(self._get_args())
+        elif operation_type == "LengthBased":
+            self._mesh_module.AssignLengthOp(self._get_args())
+        elif operation_type == "SkinDepthBased":
+            self._mesh_module.AssignSkinDepthOp(self._get_args())
+        elif operation_type == "Curvilinear":
+            self._mesh_module.AssignApplyCurvlinearElementsOp(self._get_args())
+        elif operation_type == "RotationalLayerMesh":
+            props = self.props.to_dict()
+            if "Total Layer Thickness" in props:
+                props["Total Layer Thickenss"] = props["Total Layer Thickness"]
+                del props["Total Layer Thickness"]
+            self._mesh_module.AssignRotationalLayerOp(self._get_args(props))
+        elif operation_type == "EdgeCutLayerMesh":
+            props = self.props.to_dict()
+            if "Layer Thickness" in props:
+                props["Layer Thickenss"] = props["Layer Thickness"]
+                del props["Layer Thickness"]
+            self._mesh_module.AssignEdgeCutLayerOp(self._get_args(props))
+        elif operation_type == "DensityControlBased":
+            self._mesh_module.AssignDensityControlOp(self._get_args())
+        elif operation_type == "CurvatureExtraction":
+            self._mesh_module.AssignCurvatureExtractionOp(self._get_args())
+        elif operation_type in {"CylindricalGap", "AssignCylindricalGapOp"}:
+            self._mesh_module.AssignCylindricalGapOp(self._get_args())
+        else:
+            self._mesh_module.AssignMeshOperation(self._get_args())
+
+        # GetObjData is available for some objects in 2026R1
+        self._has_getobject = _has_get_obj_data(self.child_object)
+
+        if not self._has_getobject:
+            # If a new mesh operation is created, and GetObjData is not available,
+            # it is needed to populated setups dictionary because if not props will be empty.
+            self._mesh._register_operation(self)
+
+        return self
 
     @pyaedt_function_handler()
     def update_assignment(self, properties: dict | None = None) -> bool:
@@ -625,6 +602,9 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
             self._mesh_module.DeleteMeshOperations([old_name])
         else:  # pragma: no cover
             return False
+        self._invalidate_tree_node()
+        self._legacy_props = {}
+        self._has_getobject = False
         self._mesh._unregister_operation(old_name)
         return True
 
@@ -685,6 +665,33 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
             self._app.logger.warning("No enabled setup found.")
             return False
         return True
+
+    @pyaedt_function_handler()
+    def _initialize_tree_node(self) -> bool:
+        aedt_object = self._resolve_aedt_object()
+        if aedt_object:
+            auto_update = self.auto_update
+            try:
+                BinaryTreeNode.__init__(self, self._name, aedt_object, False, app=self._app)
+            finally:
+                self.auto_update = auto_update
+            return True
+        return False
+
+    def _resolve_aedt_object(self) -> _OChildObject | None:
+        """Find the AEDT object associated with the mesh operation."""
+        design_childs = self._app.get_oo_name(self._app.odesign)
+        if "Mesh" in design_childs:
+            cc = self._app.get_oo_object(self._app.odesign, "Mesh")
+            if self._name in self._app.get_oo_name(cc):
+                return self._app.get_oo_object(cc, self._name)
+        return None
+
+    def _invalidate_tree_node(self) -> None:
+        self.child_object = None
+        self._tree_node_initialized = False
+        self._props = None
+        self._children = {}
 
     @pyaedt_function_handler()
     def _get_initial_mesh_settings(self) -> MeshProps:
