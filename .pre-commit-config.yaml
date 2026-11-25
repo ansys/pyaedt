@@ -18,7 +18,7 @@ repos:
 
 # NOTE: Whenever this version is updated, please align the version in the lock file.
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: 25bcf95026b96e2dd3c0aec3090c3d6ef6ca2e6c  # frozen: v0.17.3
+  rev: ef6cf06c079dd6b299dfc720b0f14400c9d168e1  # frozen: v0.17.5
   hooks:
     - id: ruff-check
       name: Ruff linting check
@@ -31,8 +31,6 @@ repos:
     - id: codespell
       name: Codespell check
       args: ["--ignore-words", "doc/styles/config/vocabularies/ANSYS/accept.txt"]
-      additional_dependencies:
-        - tomli
 
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c  # frozen: v6.0.0
@@ -44,7 +42,7 @@ repos:
 
 # Validate GitHub workflow files
 - repo: https://github.com/python-jsonschema/check-jsonschema
-  rev: 0494aa7fa1314e98913a41227d8f0a515b2c1049  # frozen: 0.38.2
+  rev: a76b92851fc9eede9f9bc4073eb55202f34eb0df  # frozen: 0.39.0
   hooks:
     - id: check-github-workflows
 
@@ -56,7 +54,7 @@ repos:
       additional_dependencies: [black==26.5.1]
 
 - repo: https://github.com/ansys/pre-commit-hooks
-  rev: 55c5b6a5439abd847613579c6924da750e8b78b2  # frozen: v0.8.0
+  rev: dbcd0a4ad0060f78ac3c7d53d342f510edc48eab  # frozen: v0.8.1
   hooks:
     - id: add-license-headers
       exclude: |
@@ -82,7 +80,7 @@ repos:
     - id: gitleaks
 
 - repo: https://github.com/woodruffw/zizmor-pre-commit
-  rev: c92afdf2c6ca336aaa8f39e2bd8d48f62dbd8e1f  # frozen: v1.31.1
+  rev: 06a39750ec31860bb44f2acf67182c40016cd1e7  # frozen: v1.32.0
   hooks:
     - id: zizmor
       name: Static GitHub workflow check with Zizmor
@@ -107,7 +105,7 @@ repos:
 
 # NOTE: Whenever this version is updated, please align the version in the lock file.
 - repo: https://github.com/astral-sh/ty-pre-commit
-  rev: ae754a05e63248249a242ce594d8eaa88cbb989d  # frozen: v0.0.92
+  rev: d598b95ef3cba3cf3a31c40620c3481ae978e4eb  # frozen: v0.0.104
   hooks:
     - id: ty
       name: Type check with Ty

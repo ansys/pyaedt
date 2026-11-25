@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import sys
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -35,11 +34,6 @@ from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
 if TYPE_CHECKING:
     from matplotlib.figure import Figure
-
-current_python_version = sys.version_info[:2]
-"""Value for current python version."""
-if current_python_version < (3, 10):  # pragma: no cover
-    raise Exception("Python 3.10 or higher is required for direction of arrival (DoA) post-processing.")
 
 
 class DirectionOfArrival(PyAedtBase):

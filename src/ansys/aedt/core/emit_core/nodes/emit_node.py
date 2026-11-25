@@ -25,9 +25,13 @@
 from __future__ import annotations
 
 import ast
+from contextlib import contextmanager
 import sys
+from typing import TYPE_CHECKING
 from typing import TypeVar
-import warnings
+
+if TYPE_CHECKING:
+    from matplotlib.figure import Figure
 
 if sys.version_info >= (3, 13):
     from warnings import deprecated
@@ -46,6 +50,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import deprecated_doc
 from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.checks import requires_graphical_dependency
+from ansys.aedt.core.internal.errors import GrpcApiError
 
 # Type variable to be used in methods that might receive a subclass of EmitNode
 T = TypeVar("T", bound="EmitNode")
@@ -100,6 +105,35 @@ class EmitNode:
             result[key] = val
         return result
 
+    @min_aedt_version("2027.1")
+    @contextmanager
+    def _catch_aedt_errors(self, default_error: str) -> None:
+        """Catches grpc exceptions and raises a RuntimeError with the last error message from AEDT if found.
+
+        Parameters
+        ----------
+        default_error : str
+            The default error message to raise if none is found in aedt message manager.
+        """
+        try:
+            yield
+        except GrpcApiError as e:
+            try:
+                errors = self._emit_obj.logger.aedt_messages.error_level
+            except GrpcApiError:  # no messages found (logger bug triggers the exception)
+                raise e
+            if errors:
+                last_message = str(errors[-1])
+                if "[error]  " in last_message:
+                    # Trim the beginning of the error message
+                    index = last_message.find("[error]  ") + len("[error]  ")
+                    last_message = last_message[(index):]
+                    raise RuntimeError(last_message)
+                else:
+                    raise Exception(default_error) from e
+            else:
+                raise Exception(default_error) from e
+
     @property
     @min_aedt_version("2025.2")
     def valid(self) -> bool:
@@ -143,10 +177,8 @@ class EmitNode:
             raise ValueError("This node is read-only for kept results.")
 
         if self.get_is_component():
-            try:
+            with self._catch_aedt_errors(f"Failed to rename {self.name} to {requested_name}"):
                 self._emit_obj.oeditor.RenameComponent(self.name, requested_name)
-            except Exception:
-                raise ValueError(f"Failed to rename {self.name} to {requested_name}")
         else:
             _ = self._oRevisionData.RenameEmitNode(self._result_id, self._node_id, requested_name)
 
@@ -242,13 +274,8 @@ class EmitNode:
             Warning message(s).
         """
         node_warnings = ""
-        try:
+        with self._catch_aedt_errors(f"Unable to get the warnings for node: {self.name}."):
             node_warnings = self._get_property("Warnings")
-        except Exception:
-            warnings.warn(
-                f"Unable to get the warnings for node: {self.name}.",
-                UserWarning,
-            )
         return node_warnings
 
     @property
@@ -440,12 +467,8 @@ class EmitNode:
         ValueError
             If a requested property is not found or not available.
         """
-        try:
+        with self._catch_aedt_errors("Failed to get node properties."):
             props = self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, skipChecks)
-        except Exception:
-            errors = self._emit_obj.logger.aedt_messages.error_level
-            msg = errors[-1] if errors else "Failed to get node properties."
-            raise ValueError(str(msg))
         props_dict = self.props_to_dict(props)
 
         if property_names is not None:
@@ -491,12 +514,8 @@ class EmitNode:
         if not prop_strings:
             return
 
-        try:
+        with self._catch_aedt_errors("Failed to retrieve allowable node property list."):
             available_props = self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, skipChecks)
-        except Exception:
-            errors = self._emit_obj.logger.aedt_messages.error_level
-            msg = errors[-1] if errors else "Failed to get node properties."
-            raise ValueError(str(msg))
         available_dict = self.props_to_dict(available_props)
         missing = [name for name in prop_keys if name not in available_dict]
         if missing:
@@ -604,11 +623,12 @@ class EmitNode:
             If an error occurs.
         """
         try:
-            props = self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, skipChecks)
+            with self._catch_aedt_errors("Failed to retrieve node property list."):
+                props = self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, skipChecks)
             kv_pairs = [prop.split("=") for prop in props]
             selected_kv_pairs = [kv for kv in kv_pairs if kv[0].rstrip() == prop]
             if len(selected_kv_pairs) < 1:
-                raise ValueError(f"Property {prop} not found or not available for {self._node_type} configuration.")
+                raise ValueError(f"Property {prop} not found or not available for {self._node_type}.")
 
             selected_kv_pair = selected_kv_pairs[0]
             val = selected_kv_pair[1]
@@ -884,7 +904,7 @@ class EmitNode:
         node: EmitNode
             The node.
         """
-        try:
+        with self._catch_aedt_errors(f'Failed to import "{file_path}" as "{import_type}": {{e}}'):
             if import_type == "CAD":
                 if int(self._emit_obj.aedt_env_variable[-3:]) >= 271:
                     node_id = self._oRevisionData.EmitNodeImport(
@@ -894,8 +914,6 @@ class EmitNode:
                     node_id = self._oRevisionData.EmitNodeImport(self._result_id, self._node_id, file_path, import_type)
             else:
                 node_id = self._oRevisionData.EmitNodeImport(self._result_id, self._node_id, file_path, import_type)
-        except Exception as e:
-            raise Exception(f'Failed to import "{file_path}" as "{import_type}": {e}') from e
         return self._get_node(node_id)
 
     @min_aedt_version("2025.2")
@@ -910,12 +928,12 @@ class EmitNode:
         self._oRevisionData.EmitExportModel(self._result_id, self._node_id, file_path)
 
     @min_aedt_version("2027.1")
-    def _export_to_csv(self, file_path: str, keys: str, values: str) -> None:
+    def _export_to_csv(self, file_path: str, keys: str, values: str) -> None | str:
         """Exports an Emit node's trace data to a CSV file.
 
         Parameters
         ----------
-        file_path : str
+        file_path : str, optional
             Full path to export the data to.
         keys : str
             Keys to export the data for.
@@ -927,15 +945,15 @@ class EmitNode:
         str
             The exported data as a string if no file path is provided.
         """
-        try:
-            data = self._oRevisionData.ExportTraceData(self._result_id, self.name, file_path, ",", keys, values)
+        with self._catch_aedt_errors(f'Failed to export "{file_path}" as CSV: {{e}}'):
+            data = self._oRevisionData.ExportTraceData(
+                self._result_id, self._full_node_name(), file_path, ",", keys, values
+            )
             return data
-        except Exception as e:
-            raise Exception(f'Failed to export "{file_path}" as CSV: {e}') from e
 
     @min_aedt_version("2027.1")
     @requires_graphical_dependency("matplotlib")
-    def _plot(self, keys: str, values: str) -> None:
+    def _plot(self, keys: str, values: str) -> Figure:
         """Plots an Emit node's trace data using matplotlib.
 
         Parameters
@@ -952,10 +970,10 @@ class EmitNode:
         """
         import matplotlib.pyplot as plt
 
-        try:
-            csv_data = self._oRevisionData.ExportTraceData(self._result_id, self.name, "", ",", keys, values)
-        except Exception as e:
-            raise Exception(f"Failed to retrieve trace data for plotting: {e}") from e
+        with self._catch_aedt_errors("Failed to retrieve trace data for plotting: {e}"):
+            csv_data = self._oRevisionData.ExportTraceData(
+                self._result_id, self._full_node_name(), "", ",", keys, values
+            )
 
         lines = [line for line in csv_data.strip().split("\n") if line.strip()]
         if len(lines) < 2:
@@ -1252,7 +1270,7 @@ class EmitNode:
             The node's table data as a list of tuples.
             [(x1, y1, z1), (x2, y2, z2)]
         """
-        try:
+        with self._catch_aedt_errors(f"Failed to get table data for node {self.name}. Error: {{e}}"):
             if self._is_column_data_table():
                 # Column Data tables
                 # Data formatted using compact string serialization
@@ -1277,8 +1295,6 @@ class EmitNode:
                     return val  # keep as string for non-numeric (e.g. equations)
 
             table = [tuple(try_float(x) for x in t) for t in string_table]
-        except Exception as e:
-            print(f"Failed to get table data for node {self.name}. Error: {e}")
         return table
 
     @min_aedt_version("2025.2")
@@ -1291,32 +1307,31 @@ class EmitNode:
             Data to populate the table with.
             [(x1, y1, z1), (x2, y2, z2)]
         """
-        try:
-            if self._is_column_data_table():
-                # Column Data tables
-                # Data formatted using compact string serialization
-                # with '|' separating rows and ';' separating columns
-                if self._node_type in [
-                    "TxHarmonicNode",
-                    "TxNbEmissionNode",
-                    "TxBbEmissionNode",
-                    "RxMixerProductNode",
-                    "RxSaturationNode",
-                    "RxSelectivityNode",
-                ]:
-                    table = self._check_column_table_data(table)
-                data = "|".join(";".join(map(str, row)) for row in table)
+        if self._is_column_data_table():
+            # Column Data tables
+            # Data formatted using compact string serialization
+            # with '|' separating rows and ';' separating columns
+            if self._node_type in [
+                "TxHarmonicNode",
+                "TxNbEmissionNode",
+                "TxBbEmissionNode",
+                "RxMixerProductNode",
+                "RxSaturationNode",
+                "RxSelectivityNode",
+            ]:
+                table = self._check_column_table_data(table)
+            data = "|".join(";".join(map(str, row)) for row in table)
+            with self._catch_aedt_errors(f"Failed to set table data for node {self.name}. Error: {{e}}"):
                 self._oRevisionData.SetTableData(self._result_id, self._node_id, data)
-            else:
-                # Node Prop tables
-                # Data formatted using compact string serialization
-                # with ';' separating rows and '|' separating columns
-                table = self._check_node_prop_table_data(table)
-                table_key = self._get_property("TableKey", True)
-                data = ";".join("|".join(map(str, row)) for row in table)
+        else:
+            # Node Prop tables
+            # Data formatted using compact string serialization
+            # with ';' separating rows and '|' separating columns
+            table = self._check_node_prop_table_data(table)
+            table_key = self._get_property("TableKey", True)
+            data = ";".join("|".join(map(str, row)) for row in table)
+            with self._catch_aedt_errors(f"Failed to table key for node {self.name}. Error: {{e}}"):
                 self._set_property(table_key, data, True)
-        except Exception as e:
-            raise ValueError(f"Failed to set table data for node {self.name}. Error: {e}")
 
     @min_aedt_version("2025.2")
     def _add_child_node(self, child_type, child_name=None):
@@ -1347,13 +1362,13 @@ class EmitNode:
             raise ValueError(
                 f"Child type {child_type} is not allowed for this node. Allowed types are: {self.allowed_child_types}"
             )
-        try:
+        with self._catch_aedt_errors(
+            f"Failed to add child node of type {child_type} to node {self.name}. Error: {{e}}"
+        ):
             new_id = self._oRevisionData.CreateEmitNode(self._result_id, self._node_id, child_name, child_type)
             new_node = self._get_node(new_id)
             if child_type == "Emitter" and new_node is not None:
                 from ansys.aedt.core.emit_core.nodes.emitter_node import EmitterNode
 
                 return EmitterNode(self._emit_obj, self._result_id, new_node._node_id)
-        except Exception as e:
-            print(f"Failed to add child node of type {child_type} to node {self.name}. Error: {e}")
         return new_node

@@ -32,7 +32,7 @@ Examples
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 try:
     import typer
@@ -47,7 +47,7 @@ project_app = typer.Typer(help="Project and design management commands")
 """Value for project app."""
 
 
-class AEDTAppType(str, Enum):
+class AEDTAppType(StrEnum):
     """Provide AEDT app type."""
 
     Hfss = "Hfss"

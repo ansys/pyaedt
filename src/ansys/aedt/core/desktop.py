@@ -40,7 +40,7 @@ from __future__ import annotations
 import atexit
 import datetime
 from difflib import get_close_matches
-from enum import Enum
+from enum import StrEnum
 import gc
 from logging import Logger
 import os
@@ -111,7 +111,7 @@ modules = [tup[1] for tup in pkgutil.iter_modules()]
 """Value for modules."""
 
 
-class TransportMode(str, Enum):
+class TransportMode(StrEnum):
     """Enum containing the different modes of connection.
 
     Examples
