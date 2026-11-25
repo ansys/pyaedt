@@ -24,7 +24,6 @@
 
 from __future__ import annotations
 
-from contextlib import contextmanager
 from typing import TYPE_CHECKING
 
 from ansys.aedt.core.emit_core.emit_constants import EMI_CATEGORY_TO_INTERFERER_TYPE
@@ -56,7 +55,6 @@ class InteractionInstance:
         self.revision = revision
         self.parent_interaction = parent_interaction
         """Reference to parent Interaction for invalidation tracking."""
-
 
     @min_aedt_version("2027.1")
     @pyaedt_function_handler()
