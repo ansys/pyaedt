@@ -144,7 +144,7 @@ class InteractionInstance:
 
     @min_aedt_version("2027.1")
     @pyaedt_function_handler()
-    def get_value(self, result_type: ResultType) -> float:
+    def get_value(self, result_type: ResultType, emi_type : EmiType = EmiType.HIGHEST) -> float:
         """
         Get the value of this interaction.
 
@@ -152,6 +152,8 @@ class InteractionInstance:
         ----------
         result_type : ResultType
             The type of result to get (EMI, DESENSE, SENSITIVITY, or POWER_AT_RX).
+        emi_type : EmiType, optional
+            The EMI type to get (POINT, NOISE, PEAK, HIGHEST).
 
         Returns
         -------
@@ -172,6 +174,10 @@ class InteractionInstance:
             raise ValueError(
                 f"Invalid result type: {result_type}. Must be one of: EMI, DESENSE, SENSITIVITY, POWER_AT_RX."
             )
+        if emi_type not in (EmiType.POINT, EmiType.NOISE, EmiType.PEAK, EmiType.HIGHEST):
+            raise ValueError(
+                f"Invalid result type: {emi_type}. Must be one of: POINT, NOISE, PEAK, HIGHEST."
+            )
 
         # For worst-case instances, check if the requested result type is available locally
         # (a worst-case EMI instance has _encoded_desense=30201 meaning "not available")
@@ -190,6 +196,7 @@ class InteractionInstance:
                 self.domain.interferer_band_names,
                 self.domain.interferer_channel_frequencies,
                 result_type,
+                emi_type
             )
         if float(value) < -30000 or float(value) > 30000:
             warning = self.get_result_warning()
@@ -520,7 +527,7 @@ class InteractionInstance:
         # Check if the requested result type is valid
         if emi_type not in (EmiType.POINT, EmiType.NOISE):
             raise ValueError(
-                f"Invalid result type: {emi_type}. Must be one of: POINT, NOISE."
+                f"Invalid emi type: {emi_type}. Must be one of: POINT, NOISE."
             )
         with _catch_aedt_errors(self.emit_project, f"Failed to get contributor labels."):
             contributor_list = self.emit_project._emit_com_module.GetContributorLabels(
@@ -551,7 +558,7 @@ class InteractionInstance:
         # Check if the requested result type is valid
         if emi_type not in (EmiType.POINT, EmiType.NOISE):
             raise ValueError(
-                f"Invalid result type: {emi_type}. Must be one of: POINT, NOISE."
+                f"Invalid emi type: {emi_type}. Must be one of: POINT, NOISE."
             )
         with _catch_aedt_errors(self.emit_project, f"Failed to get traceback."):
             traceback = self.emit_project._emit_com_module.GetTraceback(

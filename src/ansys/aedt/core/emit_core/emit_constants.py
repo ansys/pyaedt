@@ -48,6 +48,8 @@ class ResultType(MutableEnum):
 class EmiType(MutableEnum):
     POINT = 0
     NOISE = 1
+    PEAK = 2
+    HIGHEST = 3
 
 class TxRxMode(MutableEnum):
     TX = 0

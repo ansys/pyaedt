@@ -82,11 +82,18 @@ def test_instance_get_value(cell_phone):
     sensitivity = instance.get_value(ResultType.SENSITIVITY)
     desense = instance.get_value(ResultType.DESENSE)
     emi = instance.get_value(ResultType.EMI)
+    point_emi = instance.get_value(ResultType.EMI,EmiType.POINT)
+    noise_emi = instance.get_value(ResultType.EMI,EmiType.NOISE)
+    peak_emi = instance.get_value(ResultType.EMI,EmiType.PEAK)
 
     assert round(power_at_rx, 4) == -18.4894
     assert sensitivity == -125
     assert desense == -4.86
     assert emi == -4.86
+    #TODO
+    assert point_emi == -4.86
+    assert noise_emi == -4.86
+    assert peak_emi == -4.86
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
