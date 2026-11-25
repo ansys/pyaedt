@@ -37,6 +37,7 @@ from ansys.aedt.core.generic.protocols import _ODesktop
 from ansys.aedt.core.generic.protocols import _OProject
 from ansys.aedt.core.generic.settings import settings
 
+# Mapping of AEDT design types to their corresponding application names
 _APP_NAMES = {
     "Maxwell 2D": "Maxwell2d",
     "Maxwell 3D": "Maxwell3d",
@@ -54,6 +55,12 @@ _APP_NAMES = {
     "HFSS 3D Layout Design": "Hfss3dLayout",
     "EMIT": "Emit",
 }
+
+# NOTE: Global variable to store the mapping of design types to application classes
+# This variable is kept for compatibility with older code and is updated dynamically
+# through `__getattr__` when it is accessed for the first time (either from a user
+# request or a call to `get_pyaedt_app`).
+app_map: dict[str, AppType | None]
 
 
 def _get_app_class(name: str) -> AppType | None:
@@ -262,7 +269,7 @@ def get_pyaedt_app(
     if not oDesign:
         raise AttributeError("No design is present.")
     design_type = oDesign.GetDesignType()
-    cached_app_map = cast(dict[str, AppType | None] | None, globals().get("app_map"))
+    cached_app_map = globals().get("app_map")
     application_map = _APP_NAMES if cached_app_map is None else cached_app_map
     if design_type in application_map:
         version = odesktop.GetVersion().split(".")
