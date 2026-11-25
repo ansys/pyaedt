@@ -604,7 +604,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         mat_inner: str = "copper",
         mat_outer: str = "copper",
         mat_diel: str = "teflon_based",
-    ) -> tuple["Object3d", "Object3d", "Object3d"]:
+    ) -> tuple[Object3d, Object3d, Object3d]:
         """Create a coaxial.
 
         Parameters
@@ -679,7 +679,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         parametrize_h: bool = False,
         create_sheets_on_openings: bool = False,
         name: str = None,
-    ) -> tuple["Object3d", "Object3d"]:
+    ) -> tuple[Object3d, Object3d]:
         """Create a standard waveguide and optionally parametrize `W` and `H`.
 
         Available models are WG0.0, WG0, WG1, WG2, WG3, WG4, WG5, WG6,
@@ -861,7 +861,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         ring_height: float,
         thickness: float = None,
         name: str = None,
-    ) -> list["Object3d"] | bool:
+    ) -> list[Object3d] | bool:
         """Create rings in a conical shape.
 
         Parameters
@@ -956,7 +956,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
     @pyaedt_function_handler()
     def objects_in_bounding_box(
         self, bounding_box: list, check_solids: bool = True, check_lines: bool = True, check_sheets: bool = True
-    ) -> list["Object3d"]:
+    ) -> list[Object3d]:
         """Given a bounding box checks if objects, sheets and lines are inside it.
 
         Parameters
@@ -1041,7 +1041,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         preview: bool = False,
         merge_angle: float = 1e-3,
         remove_multiple_connections: bool = False,
-    ) -> tuple[list["Object3d"], dict] | tuple[list[str], dict]:
+    ) -> tuple[list[Object3d], dict] | tuple[list[str], dict]:
         """Import Nastran file into 3D Modeler by converting the faces to stl and reading it.
 
         The solids are translated directly to AEDT format.
@@ -1667,45 +1667,57 @@ class Modeler3D(Primitives3D, PyAedtBase):
             "Parsing input objects information for priority assignment. This operation can take time."
         )
         udc = self._modeler.components
-        udc._parse_objs()
+
         for level, objects in enumerate(assignment):
             level += 1
             if isinstance(objects[0], str):
                 objects = [self._modeler.objects_by_name.get(o, udc.get(o, None)) for o in objects]
-            obj_3d = [
-                o
-                for o in objects
-                if (isinstance(o, Object3d) and o.is_3d)
-                or (isinstance(o, UserDefinedComponent) and any(p.is_3d for p in o.parts.values()))
-            ]
-            obj_2d = [
-                o
-                for o in objects
-                if (isinstance(o, Object3d) and not o.is_3d)
-                or (isinstance(o, UserDefinedComponent) and any(not p.is_3d for p in o.parts.values()))
-            ]
+
+            obj_3d = []
+            obj_2d = []
+            for o in objects:
+                object_type = type(o).__name__
+                if object_type == "Object3d" and o.is_3d:
+                    obj_3d.append(o)
+                elif object_type in ["NativeComponent", "NativeComponentPCB", "UserDefinedComponent"]:
+                    if any(p.is_3d for p in o.parts.values()):
+                        obj_3d.append(o)
+
+                if object_type == "Object3d" and not o.is_3d:
+                    obj_2d.append(o)
+                elif object_type in ["NativeComponent", "NativeComponentPCB", "UserDefinedComponent"]:
+                    if any(not p.is_3d for p in o.parts.values()):
+                        obj_2d.append(o)
+
             if obj_3d:
                 level_3d = {
                     "EntityList": ", ".join([o.name for o in obj_3d]),
                     "PriorityNumber": level,
                     "PriorityListType": "3D",
                 }
-                if all(isinstance(o, Object3d) for o in obj_3d):
+                if all(type(o).__name__ == "Object3d" for o in obj_3d):
                     level_3d["EntityType"] = "Object"
-                elif all(isinstance(o, UserDefinedComponent) for o in obj_3d):
+                elif all(
+                    type(o).__name__ in ["NativeComponent", "NativeComponentPCB", "UserDefinedComponent"]
+                    for o in obj_3d
+                ):
                     level_3d["EntityType"] = "Component"
                 else:
                     raise AttributeError("Cannot assign components and parts on the same level.")
                 props["PriorityListParameters"].append(level_3d)
+
             if obj_2d:
                 level_2d = {
                     "EntityList": ", ".join([o.name for o in obj_2d]),
                     "PriorityNumber": level,
                     "PriorityListType": "2D",
                 }
-                if all(isinstance(o, Object3d) for o in obj_2d):
+                if all(type(o).__name__ == "Object3d" for o in obj_2d):
                     level_2d["EntityType"] = "Object"
-                elif all(isinstance(o, UserDefinedComponent) for o in obj_2d):
+                elif all(
+                    type(o).__name__ in ["NativeComponent", "NativeComponentPCB", "UserDefinedComponent"]
+                    for o in obj_2d
+                ):
                     level_2d["EntityType"] = "Component"
                 else:
                     raise AttributeError("Cannot assign components and parts on the same level.")

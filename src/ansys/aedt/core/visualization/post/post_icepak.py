@@ -33,7 +33,6 @@ Examples
 
 """
 
-import ast
 import csv
 import os
 import re
@@ -541,7 +540,7 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         group_hierarchy = {}
 
         groups = list(self._app.oeditor.GetChildNames("Groups"))
-        self._app.modeler.add_new_user_defined_component()
+
         for g in groups:
             g1 = self._app.get_oo_object(self._app.oeditor, g)
             if g1:
@@ -582,8 +581,13 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
             else:
                 prop = "Surface Heat Variation Data"
                 units_input = "irrad_W_per_m2"
-            value_bound = ast.literal_eval(boundary_obj.props[prop]["Variation Value"])[0]
-            expression = ast.literal_eval(boundary_obj.props[prop]["Variation Value"])[1]
+
+            variation_data = boundary_obj.props[prop].to_dict()
+            variation_key = "Variation Value" if "Variation Value" in variation_data else "Variation Values"
+            variation = variation_data[variation_key]
+            value_bound = variation[0]
+            expression = variation[1]
+
             value = list(decompose_variable_value(value_bound))
             if isinstance(value[0], str):
                 new_value = self._app[value[0]]

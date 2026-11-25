@@ -272,6 +272,14 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
             # GetObjData is available for some objects in 2026R1
             self._has_getobject = _has_get_obj_data(self.child_object)
 
+    def __getitem__(self, key: str) -> Any:
+        """Return a setup property by key."""
+        return self.props[key]
+
+    def __setitem__(self, key: str, value: Any) -> None:
+        """Set a setup property by key."""
+        self.props[key] = value
+
     @pyaedt_function_handler()
     def _initialize_tree_node(self) -> bool:
         aedt_object = self._resolve_aedt_object()

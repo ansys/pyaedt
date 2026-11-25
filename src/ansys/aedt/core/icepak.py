@@ -2068,7 +2068,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
 
         if native.create():
             if extent_type == "Polygon" and not outline_polygon:
-                outline_polygon = native.identify_extent_poly()
+                outline_polygon = native.identify_extent_poly
                 if outline_polygon:
                     native.set_board_extents("Polygon", outline_polygon)
             return native
@@ -2830,11 +2830,13 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             return normalized_n
 
         net_handle = self.modeler.get_object_from_name(object_name)
-        if pcb in self.modeler.user_defined_component_names:
+        if pcb in self.modeler.component_names:
+            parts = self.modeler.components[pcb].part_names
+
             part_names = sorted(
                 [
                     pcb_layer
-                    for pcb_layer in self.modeler.get_3d_component_object_list(name=pcb)
+                    for pcb_layer in parts
                     if re.search(self.modeler.components[pcb].definition_name + r"_\d\d\d.*", pcb_layer)
                 ]
             )

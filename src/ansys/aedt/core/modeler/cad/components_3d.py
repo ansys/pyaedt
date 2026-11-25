@@ -24,6 +24,15 @@
 
 from __future__ import annotations
 
+import sys
+
+from ansys.aedt.core.internal.checks import deprecated_doc
+
+if sys.version_info >= (3, 13):
+    from warnings import deprecated
+else:
+    from typing_extensions import deprecated
+
 import copy
 import os
 from pathlib import Path
@@ -43,6 +52,7 @@ from ansys.aedt.core.generic.props import Props as ComponentProps
 from ansys.aedt.core.internal.desktop_sessions import _edb_sessions
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
+from ansys.aedt.core.modeler.cad.elements_3d import HistoryTreeNode
 
 if TYPE_CHECKING:
     from ansys.aedt.core.edb import EdbApp
@@ -365,6 +375,34 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         return self.__parameters
 
     @property
+    def part_names(self) -> list:
+        """Object names that belong to the user-defined component.
+
+        Returns
+        -------
+        list
+            List of object names.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> aedtapp = Hfss()
+        >>> comp = aedtapp.modeler.components[0]
+        >>> comp.part_names
+
+        """
+        component_parts = []
+        if self.definition_name:
+            component_parts = list(self._oeditor.Get3DComponentPartNames(self.name))
+        elif self.definition_type == "UserDefinedModel":
+            component_parts = list(self._oeditor.GetPartsForUserDefinedModel(self.name))
+        else:
+            compobj = self._app.get_oo_object(self._app.oeditor, self.name)
+            if compobj:
+                component_parts = list(self._app.get_oo_name(self._app.oeditor, self.name))
+        return component_parts
+
+    @property
     def parts(self) -> dict[int, Object3d] | dict[str, str]:
         """Dictionary of objects that belong to the user-defined component.
 
@@ -382,13 +420,7 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         >>> comp.parts
 
         """
-        if self.definition_name:
-            component_parts = list(self._oeditor.Get3DComponentPartNames(self.name))
-        elif self.definition_type == "UserDefinedModel":
-            component_parts = list(self._oeditor.GetPartsForUserDefinedModel(self.name))
-        else:
-            component_parts = list(self.properties)
-
+        component_parts = self.part_names
         modeler = self._app.modeler
         parts_id = []
         for part, obj in modeler.objects_by_name.items():
@@ -966,6 +998,34 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
         return None
 
     @pyaedt_function_handler()
+    def history(self) -> HistoryTreeNode | bool:
+        """Component operation history.
+
+        The first operation is exposed on the root node, with subsequent
+        operations available as children.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modeler.cad.elements_3d.HistoryTreeNode` or bool
+            History tree when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> component_names = app.modeler.component_names
+        >>> component = app.modeler.components[component_names[0]]
+        >>> component.history()
+
+        """
+        try:
+            child_object = self._app.get_oo_object(self._oeditor, self.name)
+            parent = HistoryTreeNode(self.name, child_object, True, get_child_obj_arg="ComponentOperation")
+            return parent
+        except Exception:  # pragma: no cover
+            return False
+
+    @pyaedt_function_handler()
     def _get_native_props(self) -> dict:
         """Get definition props from design properties.
 
@@ -998,6 +1058,20 @@ class UserDefinedComponent(BinaryTreeNode, PyAedtBase):
                 native_comp_properties = data.get("NativeComponentDefinitionProvider", None)
                 break
         return native_comp_properties
+
+    @pyaedt_function_handler()
+    @deprecated_doc()
+    @deprecated("Use `component_filepath` property instead.")
+    def get_component_filepath(self) -> str | None:
+        """Get 3d component file path.
+
+        Returns
+        -------
+        str
+            Path of the 3d component file.
+
+        """
+        return self.component_filepath
 
 
 def _create_native_component(
@@ -1923,6 +1997,10 @@ class NativeComponentPCB(NativeComponent):
         >>> comp.identify_extent_poly
 
         """
+        active_design = self._app.design_name
+        project_name = self._app.project_name
+        pj_names = self._app.desktop_class.project_list
+
         from ansys.aedt.core import Hfss3dLayout
 
         prj = None
@@ -1947,6 +2025,12 @@ class NativeComponentPCB(NativeComponent):
         layout = Hfss3dLayout(project=prj, design=design)
         layer = [o for o in layout.modeler.stackup.drawing_layers if o.type == "outline"][0]
         outlines = [p for p in layout.modeler.polygons.values() if p.placement_layer == layer.name]
+
+        self._app.oproject = project_name
+        self._app.desktop_class.active_design(project_object=self._app.oproject, name=active_design)
+        if prj not in pj_names:
+            layout.close_project(save=False, name=project_name)
+
         if len(outlines) > 1:
             self._app.logger.add_message(
                 message_type=0,

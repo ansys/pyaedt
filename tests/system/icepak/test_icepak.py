@@ -508,14 +508,14 @@ def test_create_two_resistor_network_block(board_ipk_app) -> None:
     board_ipk_app.modeler.create_box([20, 60, 2], [10, 10, 3], "network_box2", "copper")
     result1 = board_ipk_app.create_two_resistor_network_block("network_box1", "board", "5W", 2.5, 5)
     result2 = board_ipk_app.create_two_resistor_network_block("network_box2", "board", "10W", 2.5, 5)
-    assert result1.props["Nodes"]["Internal"][0] == "5W"
-    assert result2.props["Nodes"]["Internal"][0] == "10W"
-    board_ipk_app.create_ipk_3dcomponent_pcb(
-        LINK_DATA, "RadioBoard1", SOLUTION_FREQ, RESOLUTION, custom_x_RESOLUTION=400, custom_y_RESOLUTION=500
+    assert result1.props["Nodes"]["Internal"]["Power"] == "5W"
+    assert result2.props["Nodes"]["Internal"]["Power"] == "10W"
+    pcb_component = board_ipk_app.create_ipk_3dcomponent_pcb(
+        LINK_DATA, "RadioBoard1", SOLUTION_FREQ, RESOLUTION, custom_x_resolution=400, custom_y_resolution=500
     )
-    board_ipk_app.modeler.create_box([42, 8, 2.03962], [10, 22, 3], "network_box3", "copper")
-    result3 = board_ipk_app.create_two_resistor_network_block("network_box3", "RadioBoard1_1", "15W", 2.5, 5)
-    assert result3.props["Nodes"]["Internal"][0] == "15W"
+    box = board_ipk_app.modeler.create_box([42, 8, 2.03962], [10, 22, 3], "network_box3", "copper")
+    result3 = board_ipk_app.create_two_resistor_network_block(box.name, pcb_component.name, "15W", 2.5, 5)
+    assert result3.props["Nodes"]["Internal"]["Power"] == "15W"
 
 
 def test_set_variable(ipk_app) -> None:
@@ -724,6 +724,8 @@ def test_assign_stationary_wall(ipk_app) -> None:
 @pytest.mark.skipif(DESKTOP_VERSION < "2023.1" and USE_GRPC, reason="Not working in 2022.2 gRPC")
 def test_native_components_history(ipk_app) -> None:
     fan = ipk_app.create_fan("test_fan")
+    fan_1_history0 = ipk_app.modeler.components[fan.name].history()
+    assert "command" not in dir(fan_1_history0)
     ipk_app.modeler.components[fan.name].move([1, 2, 3])
     ipk_app.modeler.components[fan.name].duplicate_along_line([4, 5, 6])
     fan_1_history = ipk_app.modeler.components[fan.name].history()
@@ -1122,7 +1124,7 @@ def test_update_3d_component(ipk_app, test_tmp_dir) -> None:
     component_file = Path(file_path) / file_name
     ipk_app.modeler.create_3dcomponent(str(component_file))
     ipk_app.modeler.insert_3d_component(input_file=str(component_file), name="test")
-    component_filepath = ipk_app.modeler.components["test"].get_component_filepath()
+    component_filepath = ipk_app.modeler.components["test"].component_filepath
     assert component_filepath
     comp = ipk_app.modeler.components["test"].edit_definition()
     comp.modeler.refresh_all_ids()
@@ -1595,8 +1597,8 @@ def test_mesh_priority(board_ipk_app) -> None:
         SOLUTION_FREQ,
         RESOLUTION,
         extent_type="Polygon",
-        custom_x_RESOLUTION=400,
-        custom_y_RESOLUTION=500,
+        custom_x_resolution=400,
+        custom_y_resolution=500,
     )
     fan = board_ipk_app.create_fan(name="TestFan", is_2d=True)
     rect = board_ipk_app.modeler.create_rectangle(0, [0, 0, 0], [1, 2], name="TestRectangle")

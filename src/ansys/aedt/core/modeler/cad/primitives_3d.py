@@ -24,6 +24,12 @@
 
 from __future__ import annotations
 
+import sys
+
+if sys.version_info >= (3, 13):
+    from warnings import deprecated
+else:
+    from typing_extensions import deprecated
 import copy
 import json
 from math import asin
@@ -46,6 +52,7 @@ from ansys.aedt.core.generic.file_utils import generate_unique_project_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal import load_aedt_file
+from ansys.aedt.core.internal.checks import deprecated_doc
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.advanced_cad.actors import Bird
 from ansys.aedt.core.modeler.advanced_cad.actors import Person
@@ -2129,6 +2136,35 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         for part_name in self.oeditor.Get3DComponentPartNames(component.name):
             self._create_object(part_name)
         return component
+
+    @pyaedt_function_handler()
+    @deprecated_doc(version="2.0.0")
+    @deprecated("Use component property ``part_names`` instead.")
+    def get_3d_component_object_list(self, name: str) -> list:
+        """Retrieve all objects belonging to a 3D component.
+
+        Parameters
+        ----------
+        name : str
+            Name of the 3D component.
+
+        Returns
+        -------
+        List
+            List of object names belonging to the 3D component.
+
+        References
+        ----------
+        >>> oeditor.GetChildObject
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.modeler.get_3d_component_object_list(name="component")
+
+        """
+        return self.components[name].part_names if name in self.components else []
 
     @pyaedt_function_handler()
     def _check_actor_folder(self, actor_folder) -> bool:
