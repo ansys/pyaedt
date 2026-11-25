@@ -76,9 +76,9 @@ def __getattr__(name: str):
         value = {design_type: _get_app_class(app_name) for design_type, app_name in _APP_NAMES.items()}
         globals()[name] = value
         return value
-    if name == "Simplorer":
+    elif name == "Simplorer":
         return getattr(aedt, "TwinBuilder")
-    if name in _APP_NAMES.values():
+    elif name in _APP_NAMES.values():
         return _get_app_class(name)
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
