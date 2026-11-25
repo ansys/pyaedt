@@ -102,6 +102,26 @@ or attaches to AEDT. You can also release the desktop explicitly for finer contr
 
     d.release_desktop(close_projects=False, close_desktop=False)
 
+Application imports and Linux native libraries
+---------------------------------------------
+
+PyAEDT defers application imports and loads NumPy-dependent HFSS and Q3D
+functionality only when it is needed. This allows both explicit ``Desktop``
+initialization and direct application initialization to reach the selected
+installation's Desktop plugin before PyAEDT imports NumPy:
+
+.. code:: python
+
+    from ansys.aedt.core import Hfss
+
+    hfss = Hfss(version="2026.1", new_desktop=True)
+
+On Linux, this order matters when NumPy's dependencies and the Desktop plugin
+resolve different copies of ``libstdc++.so.6``. Import deferral does not replace
+an incompatible library that Python or another package has already loaded.
+If that occurs, configure a compatible C++ runtime in the launcher environment
+before starting a fresh Python process.
+
 Recommendations
 ---------------
 
