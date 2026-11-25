@@ -45,16 +45,19 @@ class ResultType(MutableEnum):
     SENSITIVITY = 2
     POWER_AT_RX = 3
 
+
 class EmiType(MutableEnum):
     POINT = 0
     NOISE = 1
     PEAK = 2
     HIGHEST = 3
 
+
 class TxRxMode(MutableEnum):
     TX = 0
     RX = 1
     BOTH = 2
+
 
 class InterfererType(MutableEnum):
     TRANSMITTERS = 0

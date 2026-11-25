@@ -27,12 +27,12 @@ from __future__ import annotations
 from contextlib import contextmanager
 from typing import TYPE_CHECKING
 
-from ansys.aedt.core.emit_core.emit_utils import _catch_aedt_errors
 from ansys.aedt.core.emit_core.emit_constants import EMI_CATEGORY_TO_INTERFERER_TYPE
 from ansys.aedt.core.emit_core.emit_constants import EMIInterfererType
+from ansys.aedt.core.emit_core.emit_constants import EmiType
 from ansys.aedt.core.emit_core.emit_constants import PowerType
 from ansys.aedt.core.emit_core.emit_constants import ResultType
-from ansys.aedt.core.emit_core.emit_constants import EmiType
+from ansys.aedt.core.emit_core.emit_utils import _catch_aedt_errors
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -100,7 +100,7 @@ class InteractionInstance:
         if error:
             raise ValueError(f"Interaction instance is not valid: {error}")
 
-        with _catch_aedt_errors(self.emit_project, f"Failed to get result warning."):
+        with _catch_aedt_errors(self.emit_project, "Failed to get result warning."):
             warning = self.emit_project._emit_com_module.GetResultWarning(
                 self.revision.results_index,
                 self.domain.receiver_name,
@@ -130,7 +130,7 @@ class InteractionInstance:
         if error:
             raise ValueError(f"Interaction instance is not valid: {error}")
 
-        with _catch_aedt_errors(self.emit_project, f"Failed to fetch result value validity."):
+        with _catch_aedt_errors(self.emit_project, "Failed to fetch result value validity."):
             valid_values = self.emit_project._emit_com_module.HasValidResultValues(
                 self.revision.results_index,
                 self.domain.receiver_name,
@@ -144,7 +144,7 @@ class InteractionInstance:
 
     @min_aedt_version("2027.1")
     @pyaedt_function_handler()
-    def get_value(self, result_type: ResultType, emi_type : EmiType = EmiType.HIGHEST) -> float:
+    def get_value(self, result_type: ResultType, emi_type: EmiType = EmiType.HIGHEST) -> float:
         """
         Get the value of this interaction.
 
@@ -175,9 +175,7 @@ class InteractionInstance:
                 f"Invalid result type: {result_type}. Must be one of: EMI, DESENSE, SENSITIVITY, POWER_AT_RX."
             )
         if emi_type not in (EmiType.POINT, EmiType.NOISE, EmiType.PEAK, EmiType.HIGHEST):
-            raise ValueError(
-                f"Invalid result type: {emi_type}. Must be one of: POINT, NOISE, PEAK, HIGHEST."
-            )
+            raise ValueError(f"Invalid result type: {emi_type}. Must be one of: POINT, NOISE, PEAK, HIGHEST.")
 
         # For worst-case instances, check if the requested result type is available locally
         # (a worst-case EMI instance has _encoded_desense=30201 meaning "not available")
@@ -186,7 +184,7 @@ class InteractionInstance:
         elif result_type in (ResultType.DESENSE, ResultType.SENSITIVITY) and self._encoded_desense == 30201:
             raise ValueError("Desense and sensitivity values not available.")
 
-        with _catch_aedt_errors(self.emit_project, f"Failed to get result value."):
+        with _catch_aedt_errors(self.emit_project, "Failed to get result value."):
             value = self.emit_project._emit_com_module.GetResultValue(
                 self.revision.results_index,
                 self.domain.receiver_name,
@@ -196,7 +194,7 @@ class InteractionInstance:
                 self.domain.interferer_band_names,
                 self.domain.interferer_channel_frequencies,
                 result_type,
-                emi_type
+                emi_type,
             )
         if float(value) < -30000 or float(value) > 30000:
             warning = self.get_result_warning()
@@ -230,7 +228,7 @@ class InteractionInstance:
         if not self.has_valid_values():
             raise ValueError("An EMI value is not available so the largest EMI problem type is undefined.")
 
-        with _catch_aedt_errors(self.emit_project, f"Failed to get largest EMI problem type."):
+        with _catch_aedt_errors(self.emit_project, "Failed to get largest EMI problem type."):
             category = self.emit_project._emit_com_module.GetLargestEmiProblemType(
                 self.revision.results_index,
                 self.domain.receiver_name,
@@ -497,7 +495,7 @@ class InteractionInstance:
         list
             List of point EMI values.
         """
-        with _catch_aedt_errors(self.emit_project, f"Failed to get EMI point list."):
+        with _catch_aedt_errors(self.emit_project, "Failed to get EMI point list."):
             emi_values_csv = self.emit_project._emit_com_module.GetSortedEmiPointList(
                 self.revision.results_index,
                 self.domain.receiver_name,
@@ -505,7 +503,7 @@ class InteractionInstance:
                 self.domain.receiver_channel_frequency,
                 self.domain.interferer_names,
                 self.domain.interferer_band_names,
-                self.domain.interferer_channel_frequencies
+                self.domain.interferer_channel_frequencies,
             )
         emi_str_values_list = emi_values_csv.split(",")
         emi_float_values_list = [float(x) for x in emi_str_values_list]
@@ -526,10 +524,8 @@ class InteractionInstance:
         """
         # Check if the requested result type is valid
         if emi_type not in (EmiType.POINT, EmiType.NOISE):
-            raise ValueError(
-                f"Invalid emi type: {emi_type}. Must be one of: POINT, NOISE."
-            )
-        with _catch_aedt_errors(self.emit_project, f"Failed to get contributor labels."):
+            raise ValueError(f"Invalid emi type: {emi_type}. Must be one of: POINT, NOISE.")
+        with _catch_aedt_errors(self.emit_project, "Failed to get contributor labels."):
             contributor_list = self.emit_project._emit_com_module.GetContributorLabels(
                 self.revision.results_index,
                 self.domain.receiver_name,
@@ -539,16 +535,15 @@ class InteractionInstance:
                 self.domain.interferer_band_names,
                 self.domain.interferer_channel_frequencies,
                 emi_type,
-                frequency
+                frequency,
             )
         return contributor_list
-
 
     @min_aedt_version("2027.2")
     @pyaedt_function_handler()
     def get_traceback(self, emi_type: EmiType, frequency: float = -1, contributor_index: int = 0) -> list[str]:
         """Get the traceback for the given result type and optional frequency and contributor index
-    
+
         Returns
         -------
         list
@@ -557,10 +552,8 @@ class InteractionInstance:
         """
         # Check if the requested result type is valid
         if emi_type not in (EmiType.POINT, EmiType.NOISE):
-            raise ValueError(
-                f"Invalid emi type: {emi_type}. Must be one of: POINT, NOISE."
-            )
-        with _catch_aedt_errors(self.emit_project, f"Failed to get traceback."):
+            raise ValueError(f"Invalid emi type: {emi_type}. Must be one of: POINT, NOISE.")
+        with _catch_aedt_errors(self.emit_project, "Failed to get traceback."):
             traceback = self.emit_project._emit_com_module.GetTraceback(
                 self.revision.results_index,
                 self.domain.receiver_name,
@@ -570,7 +563,7 @@ class InteractionInstance:
                 self.domain.interferer_band_names,
                 self.domain.interferer_channel_frequencies,
                 emi_type,
-                frequency, 
-                contributor_index
+                frequency,
+                contributor_index,
             )
         return traceback

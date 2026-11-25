@@ -28,7 +28,6 @@ from importlib.util import find_spec
 import os
 from pathlib import Path
 import sys
-import tempfile
 
 import pytest
 
@@ -47,10 +46,7 @@ if HAS_MATPLOTLIB:
 # Prior to 2025R1, the Emit API supported Python 3.8,3.9,3.10,3.11
 # Starting with 2025R1, the Emit API supports Python 3.10,3.11,3.12
 # Starting with 2027R1, the Emit API supports Python 3.10+
-if (
-    DESKTOP_VERSION >= "2027.1"
-    or (sys.version_info[0:2] == (3, 12) and DESKTOP_VERSION > "2024.2")
-):
+if DESKTOP_VERSION >= "2027.1" or (sys.version_info[0:2] == (3, 12) and DESKTOP_VERSION > "2024.2"):
     from ansys.aedt.core import Emit
     from ansys.aedt.core.emit_core.emit_constants import PowerType
     from ansys.aedt.core.emit_core.emit_constants import ResultType

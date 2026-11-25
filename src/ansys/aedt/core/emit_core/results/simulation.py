@@ -25,11 +25,11 @@
 from enum import Enum
 import warnings
 
-from ansys.aedt.core.emit_core.emit_utils import _catch_aedt_errors
 from ansys.aedt.core.emit_core.emit_constants import EmiCategoryFilter
 from ansys.aedt.core.emit_core.emit_constants import InterfererType
 from ansys.aedt.core.emit_core.emit_constants import ResultType
 from ansys.aedt.core.emit_core.emit_constants import TxRxMode
+from ansys.aedt.core.emit_core.emit_utils import _catch_aedt_errors
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 from ansys.aedt.core.emit_core.nodes.generated import Band
 from ansys.aedt.core.emit_core.nodes.generated import RadioNode
@@ -163,7 +163,7 @@ class Simulation:
             interaction = engine.run(domain)
         else:
             # Run the domain analysis via COM
-            with _catch_aedt_errors(self.emit_project, f"Failed to analyze domain."):
+            with _catch_aedt_errors(self.emit_project, "Failed to analyze domain."):
                 self.emit_project._emit_com_module.RunEmitDomain(
                     self._revision.results_index,
                     domain.receiver_name,
@@ -200,7 +200,7 @@ class Simulation:
         ""
         """
         self._revision._load_revision()
-        with _catch_aedt_errors(self.emit_project, f"Failed to check domain validity."):
+        with _catch_aedt_errors(self.emit_project, "Failed to check domain validity."):
             valid = self.emit_project._emit_com_module.CheckDomainValidity(
                 self._revision.results_index,
                 domain.receiver_name,
@@ -235,7 +235,7 @@ class Simulation:
         >>> sim.export_scenario_matrix("scenario_matrix.csv")
         """
         self._revision._load_revision()
-        with _catch_aedt_errors(self.emit_project, f"Failed to export emit results."):
+        with _catch_aedt_errors(self.emit_project, "Failed to export emit results."):
             self.emit_project._emit_com_module.ExportEmitResults(
                 self._revision.results_index,
                 "ScenarioMatrix",
@@ -293,7 +293,7 @@ class Simulation:
         int_radios = domain.interferer_names
         int_bands = domain.interferer_band_names
         int_freqs = [float(f) for f in domain.interferer_channel_frequencies]
-        with _catch_aedt_errors(self.emit_project, f"Failed to export emit results."):
+        with _catch_aedt_errors(self.emit_project, "Failed to export emit results."):
             partial = self.emit_project._emit_com_module.ExportEmitResults(
                 self._revision.results_index,
                 "Selection",
@@ -344,7 +344,7 @@ class Simulation:
             status = self.is_domain_valid(domain)
             if status != "":
                 raise RuntimeError(status)
-            with _catch_aedt_errors(self.emit_project, f"Failed to get instance count."):
+            with _catch_aedt_errors(self.emit_project, "Failed to get instance count."):
                 count = self._emit_com_module.GetInstanceCount(
                     self._revision.results_index,
                     domain.receiver_name,
@@ -378,7 +378,7 @@ class Simulation:
         """
         self._revision._load_revision()
         if self.aedt_version >= 271:
-            with _catch_aedt_errors(self.emit_project, f"Failed to get N to 1 limit."):
+            with _catch_aedt_errors(self.emit_project, "Failed to get N to 1 limit."):
                 return int(self._emit_com_module.GetNto1Limit(self._revision.results_index))
         else:
             engine = self._revision.emit_project._emit_api.get_engine()
@@ -389,7 +389,7 @@ class Simulation:
     def n_to_1_limit(self, max_instances: int):
         self._revision._load_revision()
         if self.aedt_version >= 271:
-            with _catch_aedt_errors(self.emit_project, f"Failed to set N to 1 limit."):
+            with _catch_aedt_errors(self.emit_project, "Failed to set N to 1 limit."):
                 self._emit_com_module.SetNto1Limit(self._revision.results_index, max_instances)
         else:
             engine = self._revision.emit_project._emit_api.get_engine()
@@ -490,8 +490,10 @@ class Simulation:
             engine = self._revision.emit_project._emit_api.get_engine()
             return engine.get_emi_category_filter_enabled(category)
         else:
-            with _catch_aedt_errors(self.emit_project, f"Failed to get EMI category filter enabled."):
-                return bool(self._emit_com_module.GetEmiCategoryFilterEnabled(self._revision.results_index, int(category)))
+            with _catch_aedt_errors(self.emit_project, "Failed to get EMI category filter enabled."):
+                return bool(
+                    self._emit_com_module.GetEmiCategoryFilterEnabled(self._revision.results_index, int(category))
+                )
 
     @min_aedt_version("2025.2")
     def set_emi_category_filter_enabled(self, category: EmiCategoryFilter, enabled: bool):
@@ -508,7 +510,7 @@ class Simulation:
             engine = self._revision.emit_project._emit_api.get_engine()
             engine.set_emi_category_filter_enabled(category, enabled)
         else:
-            with _catch_aedt_errors(self.emit_project, f"Failed to set EMI category filter enabled."):
+            with _catch_aedt_errors(self.emit_project, "Failed to set EMI category filter enabled."):
                 self._emit_com_module.SetEmiCategoryFilterEnabled(self._revision.results_index, int(category), enabled)
 
     @min_aedt_version("2027.1")
@@ -529,7 +531,7 @@ class Simulation:
         >>> sim.get_availability_emi()
         0.0
         """
-        with _catch_aedt_errors(self.emit_project, f"Failed to get availability EMI."):
+        with _catch_aedt_errors(self.emit_project, "Failed to get availability EMI."):
             return float(self._emit_com_module.GetAvailabilityEmi(self._revision.results_index))
 
     @min_aedt_version("2027.1")
@@ -553,7 +555,7 @@ class Simulation:
             raise ValueError("Availability EMI threshold must be a number.")
         if value < -300 or value > 300:
             raise ValueError("Availability EMI threshold must be between -300 and 300 dB.")
-        with _catch_aedt_errors(self.emit_project, f"Failed to set availability EMI."):
+        with _catch_aedt_errors(self.emit_project, "Failed to set availability EMI."):
             self._emit_com_module.SetAvailabilityEmi(self._revision.results_index, value)
 
     @min_aedt_version("2027.1")
@@ -592,7 +594,7 @@ class Simulation:
                 UserWarning,
             )
 
-        with _catch_aedt_errors(self.emit_project, f"Failed to purge domain."):
+        with _catch_aedt_errors(self.emit_project, "Failed to purge domain."):
             self._emit_com_module.PurgeEmitDomain(
                 self._revision.results_index,
                 domain.receiver_name,
@@ -623,9 +625,11 @@ class Simulation:
             engine = self._revision.emit_project._emit_api.get_engine()
             return engine.get_radio_pair_enabled(receiver_name, interferer_name)
         else:
-            with _catch_aedt_errors(self.emit_project, f"Failed to get radio pair enabled."):
+            with _catch_aedt_errors(self.emit_project, "Failed to get radio pair enabled."):
                 return bool(
-                    self._emit_com_module.GetRadioPairEnabled(self._revision.results_index, receiver_name, interferer_name)
+                    self._emit_com_module.GetRadioPairEnabled(
+                        self._revision.results_index, receiver_name, interferer_name
+                    )
                 )
 
     @min_aedt_version("2027.1")
@@ -645,7 +649,7 @@ class Simulation:
             engine = self._revision.emit_project._emit_api.get_engine()
             engine.set_radio_pair_enabled(receiver_name, interferer_name, enabled)
         else:
-            with _catch_aedt_errors(self.emit_project, f"Failed to set radio pair enabled."):
+            with _catch_aedt_errors(self.emit_project, "Failed to set radio pair enabled."):
                 self._emit_com_module.SetRadioPairEnabled(
                     self._revision.results_index, receiver_name, interferer_name, enabled
                 )
@@ -668,7 +672,7 @@ class Simulation:
             engine = self._revision.emit_project._emit_api.get_engine()
             return engine.get_receiver_n_to_1_enabled(receiver_name)
         else:
-            with _catch_aedt_errors(self.emit_project, f"Failed to get receiver N-to-1 enabled."):
+            with _catch_aedt_errors(self.emit_project, "Failed to get receiver N-to-1 enabled."):
                 return bool(self._emit_com_module.GetReceiverNto1Enabled(self._revision.results_index, receiver_name))
 
     @min_aedt_version("2027.1")
@@ -686,7 +690,7 @@ class Simulation:
             engine = self._revision.emit_project._emit_api.get_engine()
             engine.set_receiver_n_to_1_enabled(receiver_name, enabled)
         else:
-            with _catch_aedt_errors(self.emit_project, f"Failed to set receiver N-to-1 enabled."):
+            with _catch_aedt_errors(self.emit_project, "Failed to set receiver N-to-1 enabled."):
                 self._emit_com_module.SetReceiverNto1Enabled(self._revision.results_index, receiver_name, enabled)
 
     @pyaedt_function_handler()

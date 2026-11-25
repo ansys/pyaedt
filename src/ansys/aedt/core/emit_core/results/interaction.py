@@ -24,8 +24,8 @@
 
 import warnings
 
-from ansys.aedt.core.emit_core.emit_utils import _catch_aedt_errors
 from ansys.aedt.core.emit_core.emit_constants import ResultType
+from ansys.aedt.core.emit_core.emit_utils import _catch_aedt_errors
 from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 from ansys.aedt.core.emit_core.results.interaction_instance import InteractionInstance
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -75,7 +75,7 @@ class Interaction:
         if is_n_to_1 and self.domain.receiver_channel_frequency > 0:
             raise ValueError("Unable to retrieve N to 1 worst instance results for a specific receiver channel.")
 
-        with _catch_aedt_errors(self.emit_project, f"Failed to get worst instance."):
+        with _catch_aedt_errors(self.emit_project, "Failed to get worst instance."):
             result_data = self.emit_project._emit_com_module.GetWorstInstance(
                 self.revision.results_index,
                 result_type,
@@ -114,7 +114,7 @@ class Interaction:
         if sim.is_domain_valid(domain) != "":
             raise ValueError("Interaction is not valid: " + sim.is_domain_valid(domain))
         # Call HasValidAvailability via COM
-        with _catch_aedt_errors(self.emit_project, f"Failed to check valid availablity."):
+        with _catch_aedt_errors(self.emit_project, "Failed to check valid availablity."):
             has_valid = self.emit_project._emit_com_module.HasValidAvailability(
                 self.revision.results_index,
                 domain.receiver_name,
@@ -151,7 +151,7 @@ class Interaction:
             raise ValueError("Interaction is not valid: " + sim.is_domain_valid(domain))
 
         # Call GetAvailability via COM
-        with _catch_aedt_errors(self.emit_project, f"Failed to get availability."):
+        with _catch_aedt_errors(self.emit_project, "Failed to get availability."):
             availability = self.emit_project._emit_com_module.GetAvailability(
                 self.revision.results_index,
                 domain.receiver_name,
@@ -189,7 +189,7 @@ class Interaction:
         if sim.is_domain_valid(domain) != "":
             raise ValueError("Interaction is not valid: " + sim.is_domain_valid(domain))
         # Call GetAvailabilityWarning via COM
-        with _catch_aedt_errors(self.emit_project, f"Failed to get availability warning."):
+        with _catch_aedt_errors(self.emit_project, "Failed to get availability warning."):
             warning = self.emit_project._emit_com_module.GetAvailabilityWarning(
                 self.revision.results_index,
                 domain.receiver_name,
@@ -248,7 +248,7 @@ class Interaction:
         # Fetch instance data. The backend always computes both EMI and desense
         # in a single pass and returns [encodedEmi, encodedDesense, worstEmiIntCat].
 
-        with _catch_aedt_errors(self.emit_project, f"Failed to get instance."):
+        with _catch_aedt_errors(self.emit_project, "Failed to get instance."):
             instance_values = self.emit_project._emit_com_module.GetInstance(
                 self.revision.results_index,
                 domain.receiver_name,
@@ -337,7 +337,7 @@ class Interaction:
             If the export fails.
         """
         # Call ExportInteractionResults via COM
-        with _catch_aedt_errors(self.emit_project, f"Failed to export results."):
+        with _catch_aedt_errors(self.emit_project, "Failed to export results."):
             self.emit_project._emit_com_module.ExportEmitResults(
                 self.revision.results_index,
                 "Selection",
@@ -367,7 +367,7 @@ class Interaction:
             domain = self.domain
 
         # Domain validity and result completeness check
-        with _catch_aedt_errors(self.emit_project, f"Failed to check interaction validity."):
+        with _catch_aedt_errors(self.emit_project, "Failed to check interaction validity."):
             error = self.emit_project._emit_com_module.CheckInteractionValidity(
                 self.revision.results_index,
                 domain.receiver_name,

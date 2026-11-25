@@ -25,7 +25,6 @@
 from __future__ import annotations
 
 import ast
-from contextlib import contextmanager
 import sys
 from typing import TYPE_CHECKING
 from typing import TypeVar
@@ -38,7 +37,6 @@ if sys.version_info >= (3, 13):
 else:
     from typing_extensions import deprecated
 
-from ansys.aedt.core.emit_core.emit_utils import _catch_aedt_errors
 from ansys.aedt.core.emit_core.emit_constants import EMIT_FN_ALLOWED_FUNCS
 from ansys.aedt.core.emit_core.emit_constants import EMIT_FN_ALLOWED_OPS
 from ansys.aedt.core.emit_core.emit_constants import EMIT_FN_ALLOWED_VARS
@@ -46,6 +44,7 @@ from ansys.aedt.core.emit_core.emit_constants import EMIT_INTERNAL_UNITS
 from ansys.aedt.core.emit_core.emit_constants import EMIT_VALID_UNITS
 from ansys.aedt.core.emit_core.emit_constants import data_rate_conv
 from ansys.aedt.core.emit_core.emit_function_validator import FunctionValidator
+from ansys.aedt.core.emit_core.emit_utils import _catch_aedt_errors
 import ansys.aedt.core.generic.constants as consts
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import deprecated_doc
@@ -104,7 +103,6 @@ class EmitNode:
             key, _, val = prop.partition("=")
             result[key] = val
         return result
-
 
     @property
     @min_aedt_version("2025.2")
@@ -1334,8 +1332,8 @@ class EmitNode:
             raise ValueError(
                 f"Child type {child_type} is not allowed for this node. Allowed types are: {self.allowed_child_types}"
             )
-        with _catch_aedt_errors(self._emit_obj, 
-            f"Failed to add child node of type {child_type} to node {self.name}. Error: {{e}}"
+        with _catch_aedt_errors(
+            self._emit_obj, f"Failed to add child node of type {child_type} to node {self.name}. Error: {{e}}"
         ):
             new_id = self._oRevisionData.CreateEmitNode(self._result_id, self._node_id, child_name, child_type)
             new_node = self._get_node(new_id)

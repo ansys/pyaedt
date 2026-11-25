@@ -27,8 +27,8 @@ from pathlib import Path
 import pytest
 
 from ansys.aedt.core import Emit
-from ansys.aedt.core.emit_core.emit_constants import ResultType
 from ansys.aedt.core.emit_core.emit_constants import EmiType
+from ansys.aedt.core.emit_core.emit_constants import ResultType
 from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 from ansys.aedt.core.emit_core.results.interaction_instance import InteractionInstance
 from tests import TESTS_EMIT_PATH
@@ -82,15 +82,15 @@ def test_instance_get_value(cell_phone):
     sensitivity = instance.get_value(ResultType.SENSITIVITY)
     desense = instance.get_value(ResultType.DESENSE)
     emi = instance.get_value(ResultType.EMI)
-    point_emi = instance.get_value(ResultType.EMI,EmiType.POINT)
-    noise_emi = instance.get_value(ResultType.EMI,EmiType.NOISE)
-    peak_emi = instance.get_value(ResultType.EMI,EmiType.PEAK)
+    point_emi = instance.get_value(ResultType.EMI, EmiType.POINT)
+    noise_emi = instance.get_value(ResultType.EMI, EmiType.NOISE)
+    peak_emi = instance.get_value(ResultType.EMI, EmiType.PEAK)
 
     assert round(power_at_rx, 4) == -18.4894
     assert sensitivity == -125
     assert desense == -4.86
     assert emi == -4.86
-    #TODO
+    # TODO
     assert point_emi == -4.86
     assert noise_emi == -4.86
     assert peak_emi == -4.86
@@ -246,7 +246,7 @@ def test_get_point_emi_max_list(cell_phone):
     list = worst_instance.get_point_emi_max_list()
 
     assert len(list) == 86
-    assert list[0] == (2421000000,pytest.approx(-28.489357587546912))
+    assert list[0] == (2421000000, pytest.approx(-28.489357587546912))
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.2", reason="Skipped on versions earlier than 2027.2")
@@ -283,7 +283,6 @@ def test_get_contributor_labels(cell_phone):
     assert contributor_list[1] == "WiFi - 802.11-2012 [2.412 GHz] Noise<br>In-Channel Noise = -160.208882 dBm"
 
 
-
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.2", reason="Skipped on versions earlier than 2027.2")
 def test_get_traceback(cell_phone):
     rev = cell_phone.results.analyze()
@@ -299,14 +298,18 @@ def test_get_traceback(cell_phone):
     # default EMI
     traceback = worst_instance.get_traceback(EmiType.POINT)
     assert len(traceback) == 2
-    assert traceback[0] == ("NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012:Port 1->NODE-*-Scene-*-WiFi:in")
+    assert traceback[0] == (
+        "NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012:Port 1->NODE-*-Scene-*-WiFi:in"
+    )
     assert traceback[1] == ("NODE-*-Scene-*-GPS:in->NODE-*-RF Systems-*-GPS Receiver-*-Radios-*-GPS Receiver:Port 1")
 
     # specific frequency EMI
     point_list = worst_instance.get_point_emi_max_list()
     traceback = worst_instance.get_traceback(EmiType.POINT, point_list[0][0])
     assert len(traceback) == 2
-    assert traceback[0] == ("NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012:Port 1->NODE-*-Scene-*-WiFi:in")
+    assert traceback[0] == (
+        "NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012:Port 1->NODE-*-Scene-*-WiFi:in"
+    )
     assert traceback[1] == ("NODE-*-Scene-*-GPS:in->NODE-*-RF Systems-*-GPS Receiver-*-Radios-*-GPS Receiver:Port 1")
 
     # noise
@@ -317,6 +320,7 @@ def test_get_traceback(cell_phone):
     # noise, second contributor
     traceback = worst_instance.get_traceback(EmiType.NOISE, contributor_index=1)
     assert len(traceback) == 2
-    assert traceback[0] == ("NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012:Port 1->NODE-*-Scene-*-WiFi:in")
+    assert traceback[0] == (
+        "NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012:Port 1->NODE-*-Scene-*-WiFi:in"
+    )
     assert traceback[1] == ("NODE-*-Scene-*-GPS:in->NODE-*-RF Systems-*-GPS Receiver-*-Radios-*-GPS Receiver:Port 1")
-

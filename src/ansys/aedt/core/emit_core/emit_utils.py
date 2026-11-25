@@ -23,8 +23,10 @@
 # SOFTWARE.
 
 from contextlib import contextmanager
+
 from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.errors import GrpcApiError
+
 
 @min_aedt_version("2027.1")
 @contextmanager
