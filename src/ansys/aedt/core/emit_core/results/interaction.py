@@ -114,7 +114,7 @@ class Interaction:
         if sim.is_domain_valid(domain) != "":
             raise ValueError("Interaction is not valid: " + sim.is_domain_valid(domain))
         # Call HasValidAvailability via COM
-        with _catch_aedt_errors(self.emit_project, "Failed to check valid availablity."):
+        with _catch_aedt_errors(self.emit_project, "Failed to check valid availability."):
             has_valid = self.emit_project._emit_com_module.HasValidAvailability(
                 self.revision.results_index,
                 domain.receiver_name,

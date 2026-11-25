@@ -517,7 +517,7 @@ class InteractionInstance:
         Returns
         -------
         list
-            List of traceback entries as strings formated like:
+            List of traceback entries as strings formatted like:
                 {from_component_full_node_name}:{port}->{to_component_full_node_name}:{port}
         """
         # Check if the requested result type is valid
