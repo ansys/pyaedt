@@ -3478,7 +3478,6 @@ requires-dist = [
     { name = "tables", marker = "extra == 'all-dotnet'" },
     { name = "tables", marker = "extra == 'examples'" },
     { name = "tables", marker = "extra == 'graphics'" },
-    { name = "tomli", marker = "python_full_version < '3.11'" },
     { name = "tomli-w" },
     { name = "typer", marker = "extra == 'all'", specifier = ">=0.20.0" },
     { name = "typer", marker = "extra == 'all-dotnet'", specifier = ">=0.20.0" },
