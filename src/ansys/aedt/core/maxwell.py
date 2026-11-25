@@ -1671,7 +1671,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
                 "Phase": self.value_with_units(phase, "deg"),
             }
         )
-        # if dc_current is not None or dc_voltage is not None:
+
         maxwell_solutions = SolutionsMaxwell3D
         if self.solution_type != maxwell_solutions.ACMagneticwithDC:
             raise AEDTRuntimeError("DC values of a winding are only available with `AC Magnetic with DC` solutions.")
