@@ -159,8 +159,16 @@ def test_assign_winding(m3d_app) -> None:
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Feature not available before 2025R1")
 def test_assign_winding_dc_fields(m3d_app) -> None:
     m3d_app.solution_type = SolutionsMaxwell3D.ACMagneticwithDC
-
+    coil = m3d_app.modeler.create_torus(
+        origin=[0.0, 0.0, 0.0], major_radius=1.0, minor_radius=0.1, axis="Z", name="coil", material="copper"
+    )
+    coil.section(plane="XZ")
+    terminal, other_side = m3d_app.modeler.separate_bodies(assignment=f"{coil.name}_Section1")
+    m3d_app.modeler.delete(assignment=other_side.name)
     current_winding = m3d_app.assign_winding(winding_type="Current", current=0.5, dc_current=3, name="current_dc")
+    coil_terminal = m3d_app.assign_coil(assignment=[terminal.name], conductors_number=1, name="Coil_terminal")
+    m3d_app.add_winding_coils(assignment=current_winding.name, coils=[coil_terminal.name])
+
     assert current_winding.props["Current"] == "0.5A"
     assert current_winding.props["DC Current"] == "3A"
 
