@@ -600,10 +600,7 @@ def read_toml(input_file: StrPath) -> dict:
     >>> read_toml(r"C:\\Temp\\settings.toml")
 
     """
-    try:
-        import tomllib
-    except (ImportError, ModuleNotFoundError):
-        import tomli as tomllib
+    import tomllib
 
     with _open_file_required(input_file, "rb") as fb:
         return tomllib.load(fb)

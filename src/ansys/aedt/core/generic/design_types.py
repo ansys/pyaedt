@@ -27,8 +27,7 @@ import sys
 import time
 from typing import cast
 
-from ansys.aedt.core.circuit import Circuit
-from ansys.aedt.core.circuit_netlist import CircuitNetlist
+import ansys.aedt.core as aedt
 from ansys.aedt.core.desktop import Desktop
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.protocols import AppType
@@ -37,25 +36,57 @@ from ansys.aedt.core.generic.protocols import _ODesign
 from ansys.aedt.core.generic.protocols import _ODesktop
 from ansys.aedt.core.generic.protocols import _OProject
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.hfss import Hfss
-from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
-from ansys.aedt.core.icepak import Icepak
-from ansys.aedt.core.maxwell import Maxwell2d
-from ansys.aedt.core.maxwell import Maxwell3d
-from ansys.aedt.core.maxwellcircuit import MaxwellCircuit
-from ansys.aedt.core.mechanical import Mechanical
-from ansys.aedt.core.q3d import Q2d
-from ansys.aedt.core.q3d import Q3d
-from ansys.aedt.core.rmxprt import Rmxprt
-from ansys.aedt.core.twinbuilder import TwinBuilder
 
-Emit = None
-"""Value for EMIT."""
-if not ("IronPython" in sys.version or ".NETFramework" in sys.version):  # pragma: no cover
-    from ansys.aedt.core.emit import Emit
+# Mapping of AEDT design types to their corresponding application names
+_APP_NAMES = {
+    "Maxwell 2D": "Maxwell2d",
+    "Maxwell 3D": "Maxwell3d",
+    "Maxwell Circuit": "MaxwellCircuit",
+    "Twin Builder": "TwinBuilder",
+    "Circuit Design": "Circuit",
+    "Circuit Netlist": "CircuitNetlist",
+    "2D Extractor": "Q2d",
+    "Q3D Extractor": "Q3d",
+    "HFSS": "Hfss",
+    "Mechanical": "Mechanical",
+    "IcepakFEA": "Mechanical",
+    "Icepak": "Icepak",
+    "Rmxprt": "Rmxprt",
+    "HFSS 3D Layout Design": "Hfss3dLayout",
+    "EMIT": "Emit",
+}
 
-Simplorer = TwinBuilder
-"""Value for simplorer."""
+# NOTE: Global variable to store the mapping of design types to application classes
+# This variable is kept for compatibility with older code and is updated dynamically
+# through `__getattr__` when it is accessed for the first time (either from a user
+# request or a call to `get_pyaedt_app`).
+app_map: dict[str, AppType | None]
+
+
+def _get_app_class(name: str) -> AppType | None:
+    """Resolve an application class without importing unrelated applications."""
+    if name == "Emit" and ("IronPython" in sys.version or ".NETFramework" in sys.version):
+        return None
+    return cast(AppType, getattr(aedt, name))
+
+
+def __getattr__(name: str):
+    """Preserve legacy exports while deferring application imports."""
+    if name == "app_map":
+        value = {design_type: _get_app_class(app_name) for design_type, app_name in _APP_NAMES.items()}
+        globals()[name] = value
+        return value
+    elif name == "Simplorer":
+        return getattr(aedt, "TwinBuilder")
+    elif name in _APP_NAMES.values():
+        return _get_app_class(name)
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+
+def __dir__() -> list[str]:
+    """Include deferred legacy exports in module discovery."""
+    return sorted(set(globals()) | set(_APP_NAMES.values()) | {"Simplorer", "app_map"})
+
 
 # ############################# Helper Functions for type checking ################################
 
@@ -157,29 +188,6 @@ def launch_desktop(
     return d
 
 
-app_map: dict[str, AppType | None] = cast(
-    dict[str, AppType | None],
-    {
-        "Maxwell 2D": Maxwell2d,
-        "Maxwell 3D": Maxwell3d,
-        "Maxwell Circuit": MaxwellCircuit,
-        "Twin Builder": TwinBuilder,
-        "Circuit Design": Circuit,
-        "Circuit Netlist": CircuitNetlist,
-        "2D Extractor": Q2d,
-        "Q3D Extractor": Q3d,
-        "HFSS": Hfss,
-        "Mechanical": Mechanical,
-        "IcepakFEA": Mechanical,
-        "Icepak": Icepak,
-        "Rmxprt": Rmxprt,
-        "HFSS 3D Layout Design": Hfss3dLayout,
-        "EMIT": Emit,
-    },
-)
-"""Value for app map."""
-
-
 def get_pyaedt_app(
     project_name: str | None = None, design_name: str | None = None, desktop: Desktop | None = None
 ) -> _AppWithOProject | None:
@@ -261,10 +269,15 @@ def get_pyaedt_app(
     if not oDesign:
         raise AttributeError("No design is present.")
     design_type = oDesign.GetDesignType()
-    if design_type in app_map:
+    cached_app_map = globals().get("app_map")
+    application_map = _APP_NAMES if cached_app_map is None else cached_app_map
+    if design_type in application_map:
         version = odesktop.GetVersion().split(".")
         v = ".".join([version[0], version[1]])
-        app_factory = app_map[design_type]
+        if cached_app_map is not None:
+            app_factory = cached_app_map[design_type]
+        else:
+            app_factory = _get_app_class(_APP_NAMES[design_type])
         if app_factory is not None:
             return app_factory(project_name, design_name, version=v, aedt_process_id=process_id)
     return None

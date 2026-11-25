@@ -128,6 +128,13 @@ edb_xfail = pytest.mark.xfail(
 # Remove marker below once ansys-edb-core uses ``Logger.warning`` or 26R1 SP2 or later version of AEDT is used.
 edb_ignore_logger_warn = pytest.mark.filterwarnings("ignore:The 'warn' method is deprecated:DeprecationWarning")
 
+# NOTE: On Linux, the same gRPC fallback makes ansys-edb-core create a Unix domain socket channel through
+# ``ansys.tools.common.cyberchannel.create_channel`` with the deprecated ``uds_fullpath`` argument (renamed
+# ``uds_full_path``). With ``-W error::DeprecationWarning`` this also makes PyEDB retry forever.
+# Use together with ``edb_ignore_logger_warn``: this warning is only reached once the ``Logger.warn`` one is ignored.
+# Remove marker below once ansys-edb-core uses ``uds_full_path`` or 26R1 SP2 or later version of AEDT is used.
+edb_ignore_udsfullpath_warn = pytest.mark.filterwarnings("ignore:'uds_fullpath' is deprecated:DeprecationWarning")
+
 # Mark tests as xfail when PYAEDT_SOLVER_XFAIL=1
 solver_xfail = pytest.mark.xfail(
     condition=os.environ.get("PYAEDT_SOLVER_XFAIL") == "1",

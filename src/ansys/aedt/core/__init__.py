@@ -22,8 +22,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from importlib import import_module
 import os
 import sys
+from typing import TYPE_CHECKING
 import warnings
 
 if os.name == "nt":
@@ -95,17 +97,11 @@ from ansys.aedt.core.generic.settings import inner_project_settings
 
 # isort: on
 
-from ansys.aedt.core.circuit import Circuit
-from ansys.aedt.core.circuit_netlist import CircuitNetlist
 from ansys.aedt.core.desktop import Desktop
 from ansys.aedt.core.edb import Edb
 from ansys.aedt.core.edb import Siwave
-from ansys.aedt.core.emit import Emit
 from ansys.aedt.core.generic import constants
 import ansys.aedt.core.generic.data_handlers as data_handler
-from ansys.aedt.core.generic.design_types import Simplorer
-from ansys.aedt.core.generic.design_types import get_pyaedt_app
-from ansys.aedt.core.generic.design_types import launch_desktop
 from ansys.aedt.core.generic.file_utils import generate_unique_folder_name
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import generate_unique_project_name
@@ -117,17 +113,64 @@ from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import Quantity
 from ansys.aedt.core.help import online_help
-from ansys.aedt.core.hfss import Hfss
-from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
-from ansys.aedt.core.icepak import Icepak
-from ansys.aedt.core.maxwell import Maxwell2d
-from ansys.aedt.core.maxwell import Maxwell3d
-from ansys.aedt.core.maxwellcircuit import MaxwellCircuit
-from ansys.aedt.core.mechanical import Mechanical
-from ansys.aedt.core.q3d import Q2d
-from ansys.aedt.core.q3d import Q3d
-from ansys.aedt.core.rmxprt import Rmxprt
-from ansys.aedt.core.twinbuilder import TwinBuilder
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.circuit import Circuit
+    from ansys.aedt.core.circuit_netlist import CircuitNetlist
+    from ansys.aedt.core.emit import Emit
+    from ansys.aedt.core.generic.design_types import get_pyaedt_app
+    from ansys.aedt.core.generic.design_types import launch_desktop
+    from ansys.aedt.core.hfss import Hfss
+    from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
+    from ansys.aedt.core.icepak import Icepak
+    from ansys.aedt.core.maxwell import Maxwell2d
+    from ansys.aedt.core.maxwell import Maxwell3d
+    from ansys.aedt.core.maxwellcircuit import MaxwellCircuit
+    from ansys.aedt.core.mechanical import Mechanical
+    from ansys.aedt.core.q3d import Q2d
+    from ansys.aedt.core.q3d import Q3d
+    from ansys.aedt.core.rmxprt import Rmxprt
+    from ansys.aedt.core.twinbuilder import TwinBuilder
+    from ansys.aedt.core.twinbuilder import TwinBuilder as Simplorer
+
+# Keep application imports deferred until the corresponding public name is accessed.
+_LAZY_IMPORTS = {
+    "Circuit": ("circuit", "Circuit"),
+    "CircuitNetlist": ("circuit_netlist", "CircuitNetlist"),
+    "Emit": ("emit", "Emit"),
+    "Hfss": ("hfss", "Hfss"),
+    "Hfss3dLayout": ("hfss3dlayout", "Hfss3dLayout"),
+    "Icepak": ("icepak", "Icepak"),
+    "Maxwell2d": ("maxwell", "Maxwell2d"),
+    "Maxwell3d": ("maxwell", "Maxwell3d"),
+    "MaxwellCircuit": ("maxwellcircuit", "MaxwellCircuit"),
+    "Mechanical": ("mechanical", "Mechanical"),
+    "Q2d": ("q3d", "Q2d"),
+    "Q3d": ("q3d", "Q3d"),
+    "Rmxprt": ("rmxprt", "Rmxprt"),
+    "Simplorer": ("twinbuilder", "TwinBuilder"),
+    "TwinBuilder": ("twinbuilder", "TwinBuilder"),
+    "get_pyaedt_app": ("generic.design_types", "get_pyaedt_app"),
+    "launch_desktop": ("generic.design_types", "launch_desktop"),
+}
+
+
+def __getattr__(name: str):
+    """Load public application objects on demand and cache the original objects."""
+    if name not in _LAZY_IMPORTS:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+    module_name, attribute_name = _LAZY_IMPORTS[name]
+    module = import_module(f"{__name__}.{module_name}")
+    value = getattr(module, attribute_name)
+    globals()[name] = value
+    return value
+
+
+def __dir__() -> list[str]:
+    """Include deferred public names without importing their modules."""
+    return sorted(set(globals()) | set(_LAZY_IMPORTS))
+
 
 __all__ = [
     "settings",
