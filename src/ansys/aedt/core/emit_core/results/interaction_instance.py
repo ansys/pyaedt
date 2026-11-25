@@ -57,34 +57,6 @@ class InteractionInstance:
         self.parent_interaction = parent_interaction
         """Reference to parent Interaction for invalidation tracking."""
 
-    @min_aedt_version("2027.1")
-    @contextmanager
-    def _temp_aedt_errors(self, default_error: str) -> None:
-        """Catches grpc exceptions and raises a RuntimeError with the last error message from AEDT if found.
-
-        Parameters
-        ----------
-        default_error : str
-            The default error message to raise if none is found in aedt message manager.
-        """
-        try:
-            yield
-        except GrpcApiError as e:
-            try:
-                errors = self.emit_project.logger.aedt_messages.error_level
-            except GrpcApiError:  # no messages found (logger bug triggers the exception)
-                raise e
-            if errors:
-                last_message = str(errors[-1])
-                if "[error]  " in last_message:
-                    # Trim the beginning of the error message
-                    index = last_message.find("[error]  ") + len("[error]  ")
-                    last_message = last_message[(index):]
-                    raise RuntimeError(last_message)
-                else:
-                    raise Exception(default_error) from e
-            else:
-                raise Exception(default_error) from e
 
     @min_aedt_version("2027.1")
     @pyaedt_function_handler()
