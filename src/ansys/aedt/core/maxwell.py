@@ -1672,15 +1672,19 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
             }
         )
 
-        maxwell_solutions = SolutionsMaxwell3D
-        if self.solution_type != maxwell_solutions.ACMagneticwithDC:
-            raise AEDTRuntimeError("DC values of a winding are only available with `AC Magnetic with DC` solutions.")
-        if winding_type == "Current" and not dc_voltage:
-            props["DC Current"] = self.value_with_units(dc_current, "A")
-        elif winding_type == "Voltage" and not dc_current:
-            props["DC Voltage"] = self.value_with_units(dc_voltage, "V")
-        else:
-            raise AEDTRuntimeError("A `Current` winding takes `dc_current` and a `Voltage` winding takes `dc_voltage`.")
+        if dc_current is not None or dc_voltage is not None:
+            if self.solution_type != SolutionsMaxwell3D.ACMagneticwithDC:
+                raise AEDTRuntimeError(
+                    "DC values of a winding are only available with `AC Magnetic with DC` solutions."
+                )
+            if winding_type == "Current" and dc_voltage is None:
+                props["DC Current"] = self.value_with_units(dc_current, "A")
+            elif winding_type == "Voltage" and dc_current is None:
+                props["DC Voltage"] = self.value_with_units(dc_voltage, "V")
+            else:
+                raise AEDTRuntimeError(
+                    "A `Current` winding takes `dc_current` and a `Voltage` winding takes `dc_voltage`."
+                )
         bound = self._create_boundary(name, props, "Winding")
         if bound:
             if assignment is None:
