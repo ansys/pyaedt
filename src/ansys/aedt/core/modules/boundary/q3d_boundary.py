@@ -22,6 +22,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import MatrixOperationsQ3D
 from ansys.aedt.core.generic.constants import PlotCategoriesQ3D
@@ -30,6 +34,11 @@ from ansys.aedt.core.generic.general_methods import filter_tuple
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
+if TYPE_CHECKING:
+    from ansys.aedt.core import Q2d
+    from ansys.aedt.core import Q3d
+    from ansys.aedt.core.generic.protocols import _OMatrix
+
 
 class Matrix(PyAedtBase):
     """Manages Matrix in Q3d and Q2d Projects.
@@ -37,6 +46,15 @@ class Matrix(PyAedtBase):
     Matrices are available in Q3D Extractor and 2D Extractor designs through the
     ``matrices`` attribute of the application. New reduced matrices are created
     with the ``insert_reduced_matrix()`` method.
+
+    Parameters
+    ----------
+    app : Q3d | Q2d
+        Q3D, or Q2D application instance.
+    name : str
+        Name of the field setup component.
+    operations : dict | None
+        Properties of the field setup component.
 
     Examples
     --------
@@ -59,9 +77,8 @@ class Matrix(PyAedtBase):
 
     """
 
-    def __init__(self, app, name: str, operations=None) -> None:
-        self._app = app
-        self.omatrix = self._app.omatrix
+    def __init__(self, app: Q3d | Q2d, name: str, operations=None) -> None:
+        self._app: Q3d | Q2d = app
         self.name = name
         self._sources = []
         if operations:
@@ -69,6 +86,14 @@ class Matrix(PyAedtBase):
                 self._operations = operations
             else:
                 self._operations = [operations]
+
+    @property
+    def omatrix(self) -> _OMatrix:
+        """Return the editor required by component operations."""
+        omatrix = self._app.omatrix
+        if omatrix is None:
+            raise AEDTRuntimeError("Matrix module is not available.")
+        return omatrix
 
     @pyaedt_function_handler()
     def sources(self, is_gc_sources: bool = True) -> list:
@@ -105,11 +130,11 @@ class Matrix(PyAedtBase):
         >>> q3d.release_desktop()
 
         """
-        if self.name in list(self._app.omatrix.ListReduceMatrixes()):
+        if self.name in list(self.omatrix.ListReduceMatrixes()):
             if self._app.design_type == "Q3D Extractor":
-                self._sources = list(self._app.omatrix.ListReduceMatrixReducedSources(self.name, is_gc_sources))
+                self._sources = list(self.omatrix.ListReduceMatrixReducedSources(self.name, is_gc_sources))
             else:
-                self._sources = list(self._app.omatrix.ListReduceMatrixReducedSources(self.name))
+                self._sources = list(self.omatrix.ListReduceMatrixReducedSources(self.name))
         return self._sources
 
     @pyaedt_function_handler()
@@ -117,8 +142,8 @@ class Matrix(PyAedtBase):
         self,
         get_self_terms: bool = True,
         get_mutual_terms: bool = True,
-        first_element_filter: str = None,
-        second_element_filter: str = None,
+        first_element_filter: str | None = None,
+        second_element_filter: str | None = None,
         category: str | MatrixOperationsQ3D = "C",
     ) -> list:
         """Return a list of source of specified matrix ready to be used in plot reports.
@@ -206,17 +231,17 @@ class Matrix(PyAedtBase):
         >>> q3d.release_desktop()
 
         """
-        if self.name in list(self._app.omatrix.ListReduceMatrixes()):
-            self._operations = self._app.omatrix.ListReduceMatrixOperations(self.name)
+        if self.name in list(self.omatrix.ListReduceMatrixes()):
+            self._operations: list[str] = self.omatrix.ListReduceMatrixOperations(self.name)
         return self._operations
 
     @pyaedt_function_handler()
     def create(
         self,
-        source_names: str | list = None,
-        new_net_name: str = None,
-        new_source_name: str = None,
-        new_sink_name: str = None,
+        source_names: str | list | None = None,
+        new_net_name: str | None = None,
+        new_source_name: str | None = None,
+        new_sink_name: str | None = None,
     ) -> bool:
         """Create a new matrix.
 
@@ -308,10 +333,10 @@ class Matrix(PyAedtBase):
     def add_operation(
         self,
         operation_type: str | MatrixOperationsQ3D,
-        source_names: str | list = None,
-        new_net_name: str = None,
-        new_source_name: str = None,
-        new_sink_name: str = None,
+        source_names: str | list | None = None,
+        new_net_name: str | None = None,
+        new_source_name: str | None = None,
+        new_sink_name: str | None = None,
     ) -> bool:
         """Add a new operation to existing matrix.
 
@@ -358,7 +383,7 @@ class Matrix(PyAedtBase):
         >>> q3d.release_desktop()
 
         """
-        self._operations.append(operation_type)
+        self._operations.append(str(operation_type))
         if not isinstance(source_names, list) and source_names:
             source_names = [source_names]
 
@@ -380,9 +405,6 @@ class Matrix(PyAedtBase):
         if not self._operations:  # pragma: no cover
             raise AEDTRuntimeError("Operations list is empty.")
         operation_name = self._operations[-1]
-        operation_name = (
-            str(operation_name.value) if isinstance(operation_name, MatrixOperationsQ3D) else operation_name
-        )
 
         if operation_name == "JoinSeries":
             command = f"""{operation_name}('{new_name}', '{"', '".join(source_names)}')"""

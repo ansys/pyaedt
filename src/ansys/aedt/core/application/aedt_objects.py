@@ -34,6 +34,7 @@ from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.generic.protocols import _OEditor
+from ansys.aedt.core.generic.protocols import _OMatrix
 from ansys.aedt.core.generic.protocols import _OMeshModule
 from ansys.aedt.core.generic.protocols import _OModelSetup
 from ansys.aedt.core.generic.protocols import _OOptimetricsModule
@@ -471,7 +472,7 @@ class AedtObjects(PyAedtBase):
         return self._oexcitation
 
     @property
-    def omatrix(self) -> object:
+    def omatrix(self) -> _OMatrix | None:
         """Matrix Object.
 
         Examples
@@ -484,7 +485,7 @@ class AedtObjects(PyAedtBase):
         if self.design_type not in ["Q3D Extractor", "2D Extractor"]:
             return
         if not self._omatrix:
-            self._omatrix = self.get_module("ReduceMatrix")
+            self._omatrix = cast(_OMatrix, self.get_module("ReduceMatrix"))
         return self._omatrix
 
     @property
