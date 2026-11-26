@@ -41,7 +41,7 @@ the API.
 
 ## Install on CPython from PyPI
 
-You can install PyAEDT on CPython 3.12 through 3.14 from PyPI with this command:
+You can install PyAEDT on CPython 3.12 through 3.15 from PyPI with this command:
 
 
 ```sh

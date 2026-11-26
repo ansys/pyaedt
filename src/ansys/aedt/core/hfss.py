@@ -38,15 +38,18 @@ import copy
 import math
 from pathlib import Path
 import re
+import sys
 import tempfile
 from typing import TYPE_CHECKING
 
-import numpy as np
+if sys.version_info >= (3, 13):
+    pass
+else:
+    pass
 
 from ansys.aedt.core.generic.aedt_constants import Setups
 from ansys.aedt.core.generic.general_methods import _merge_props
 from ansys.aedt.core.modeler.advanced_cad.actors import Radar
-from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
 
 if TYPE_CHECKING:
     from ansys.aedt.core.generic.constants import Gravity
@@ -57,6 +60,7 @@ if TYPE_CHECKING:
     from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
     from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
     from ansys.aedt.core.visualization.advanced.hdm_plot import HDMPlotter
+    from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
     from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
     from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
     from ansys.aedt.core.visualization.report.standard import Standard
@@ -6297,6 +6301,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> ffdata.farfield_data.plot_cut(primary_sweep="theta", theta=0, is_polar=False)
 
         """
+        import numpy as np
+
         from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
         from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
 
@@ -6702,6 +6708,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> hfss.parse_hdm_file(file_name="output.hdm")
 
         """
+        from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
+
         if Path(file_name).exists():
             return Parser(str(file_name)).parse_message()
         return False
@@ -8283,6 +8291,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> hfss.get_fresnel_coefficients(setup_sweep="Setup1 : Sweep1", theta_name="theta", phi_name="phi")
 
         """
+        import numpy as np
+
         self.create_fresnel_variables(setup_sweep=setup_sweep, rttbl_version=rttbl_version)
 
         floquet_ports = self.get_fresnel_floquet_ports()
