@@ -451,16 +451,13 @@ def test_create_coaxial(aedt_app) -> None:
 def test_coordinate_system_mode_and_origin_updates(aedt_app) -> None:
     cs = aedt_app.modeler.create_coordinate_system(x_pointing=[0, 1, 0], y_pointing=[-1, 0, 0])
     original = cs.quaternion.to_rotation_matrix()
-    cs.auto_update = False
     for mode in (1, 2, 0):
         assert cs.change_cs_mode(mode)
-        assert not cs.auto_update
         rotation = cs.quaternion.to_rotation_matrix()
         for expected, actual in zip(original, rotation):
             assert list(actual) == pytest.approx(list(expected), abs=1e-8)
     cs.origin = [1, 2, 3]
     assert cs.origin == pytest.approx([1, 2, 3])
-    assert not cs.auto_update
 
 
 def test_create_coordinate_system(aedt_app) -> None:

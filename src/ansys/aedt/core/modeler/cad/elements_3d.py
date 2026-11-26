@@ -1905,7 +1905,6 @@ class BinaryTreeNode:
         get_child_obj_arg=None,
         root_name=None,
         app=None,
-        auto_update: bool = True,
     ) -> None:
         self._props = None
         self._app = app
@@ -1916,7 +1915,6 @@ class BinaryTreeNode:
         self._node = node
         self.__child_object = child_object
         self.__first_level_root = child_object if first_level else None
-        self.auto_update = auto_update
         self._children = {}
         self.__first_level = first_level
         self._children_loaded = False

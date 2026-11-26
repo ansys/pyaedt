@@ -484,7 +484,6 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
     """
 
     def __init__(self, app, name, props=None, boundarytype=None) -> None:
-        self.auto_update = True
         self._app = app
         self._name = name
         self._legacy_props = {}
@@ -500,7 +499,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
     def _initialize_tree_node(self) -> bool:
         aedt_object = self._resolve_aedt_object()
         if aedt_object:
-            BinaryTreeNode.__init__(self, self._name, aedt_object, False, app=self._app, auto_update=self.auto_update)
+            BinaryTreeNode.__init__(self, self._name, aedt_object, False, app=self._app)
             return True
         return False
 
@@ -524,6 +523,9 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
     @property
     def props(self) -> BoundaryProps:
         """Maxwell parameter data.
+
+        Assign a complete property dictionary to apply several changes together.
+        Use ``props.to_dict()`` to obtain an editable copy.
 
         Returns
         -------
@@ -566,6 +568,11 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
             if boundary_type:
                 self._type = boundary_type
         return BoundaryProps(self, self._legacy_props)
+
+    @props.setter
+    def props(self, value: dict) -> None:
+        if not self.update(value):
+            raise RuntimeError(f"Failed to update Maxwell parameter {self.name}.")
 
     @property
     def type(self) -> str | None:

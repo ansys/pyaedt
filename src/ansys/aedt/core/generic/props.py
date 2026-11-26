@@ -92,9 +92,9 @@ class AssignmentList(list):
     def _notify(self) -> None:
         props = self._boundary_props
         owner = getattr(props, "_pyaedt_owner", None)
-        if owner is None:
+        if owner is None or hasattr(owner, "_is_created") and not owner._is_created:
             return
-        if not getattr(owner, "auto_update", False):
+        if not props._root()._assignment_updates_enabled():
             return
         update_assignment = getattr(owner, "update_assignment", None)
         if not callable(update_assignment):
@@ -152,6 +152,12 @@ class Props(dict):
     Owner objects keep working through their existing update APIs:
     ``update(props)``, ``update(key, value)``, ``update()``,
     ``update_assignment``, ``update_native``, and ``update_property``.
+
+    For created objects, assigning a property or modifying an assignment list
+    normally applies the change immediately. To apply several properties
+    together, modify a plain copy from ``to_dict()`` and pass it to the
+    owner's update method. Some objects, such as Icepak networks, explicitly
+    require an update to apply their locally stored changes.
     """
 
     def __init__(self, owner, props, parent=None) -> None:
@@ -233,6 +239,9 @@ class Props(dict):
         update_native = getattr(owner, "update_native", None)
         if callable(update_native):
             return update_native()
+        return True
+
+    def _assignment_updates_enabled(self):
         return True
 
     def delete_all(self) -> None:

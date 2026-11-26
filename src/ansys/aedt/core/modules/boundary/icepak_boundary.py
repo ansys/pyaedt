@@ -404,6 +404,9 @@ class _NetworkProps(Props):
     def _apply_owner_update(self, key, value):
         return True
 
+    def _assignment_updates_enabled(self):
+        return False
+
 
 class NetworkObject(BoundaryObject):
     """Manages networks in Icepak projects.
@@ -566,44 +569,6 @@ class NetworkObject(BoundaryObject):
             for link_name, link_dict in links.items():
                 if link_name not in l_name_list:
                     self.add_link(link_dict[0], link_dict[1], link_dict[-1], link_name)
-
-    @property
-    def auto_update(self) -> bool:
-        """Get if auto-update is enabled.
-
-        Returns
-        -------
-        bool:
-            Whether auto-update is enabled.
-
-        Examples
-        --------
-        Check that changes to a network are pushed to AEDT only when ``update()`` is called.
-
-        >>> from ansys.aedt.core import Icepak
-        >>> ipk = Icepak(version="2026.1")
-        >>> network = ipk.create_network_object(name="ChipNetwork")
-        >>> network.auto_update
-        False
-        >>> ipk.release_desktop()
-
-        """
-        return False
-
-    @auto_update.setter
-    def auto_update(self, b: bool) -> None:
-        """Set auto-update on or off.
-
-        Parameters
-        ----------
-        b : bool
-            Whether to enable auto-update.
-
-        """
-        if b:
-            self._app.logger.warning(
-                "Network objects auto_update property is False by default and cannot be set to True."
-            )
 
     @property
     def links(self) -> dict:

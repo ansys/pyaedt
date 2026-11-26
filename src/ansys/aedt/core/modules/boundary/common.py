@@ -201,32 +201,6 @@ class BoundaryCommon(PyAedtBase):
             return []
 
 
-def disable_auto_update(func: callable) -> callable:
-    """Decorator used to disable automatic update.
-
-    Examples
-    --------
-    >>> from ansys.aedt.core.modules.boundary.common import disable_auto_update
-    >>> disable_auto_update(func=1)
-
-    """
-
-    def wrapper(self, *args, **kwargs):
-        """Inner wrapper function."""
-        obj = self
-        if not hasattr(self, "auto_update"):
-            obj = self.pcb
-        auto_update = obj.auto_update
-        obj.auto_update = False
-        out = func(self, *args, **kwargs)
-        if auto_update:
-            obj.update()
-        obj.auto_update = auto_update
-        return out
-
-    return wrapper
-
-
 class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
     """Manages boundary data and execution.
 
@@ -263,7 +237,6 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         self._legacy_props = {}
 
         self._type = boundarytype
-        self.auto_update = boundarytype != "Network"
 
         if props:
             self._legacy_props = props
@@ -284,7 +257,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
     def _initialize_tree_node(self) -> bool:
         aedt_object = self._resolve_aedt_object()
         if aedt_object:
-            BinaryTreeNode.__init__(self, self._name, aedt_object, False, app=self._app, auto_update=self.auto_update)
+            BinaryTreeNode.__init__(self, self._name, aedt_object, False, app=self._app)
             return True
         return False
 
@@ -348,6 +321,9 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
     def props(self) -> BoundaryProps:
         """Boundary data.
 
+        Assign a complete property dictionary to apply several changes together.
+        Use ``props.to_dict()`` to obtain an editable copy.
+
         Returns
         -------
         :class:BoundaryProps
@@ -384,6 +360,11 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
                 self._type = boundary_type
 
         return BoundaryProps(self, self._legacy_props)
+
+    @props.setter
+    def props(self, value: dict) -> None:
+        if not self.update(value):
+            raise RuntimeError(f"Failed to update boundary {self.name}.")
 
     @property
     def type(self) -> str:

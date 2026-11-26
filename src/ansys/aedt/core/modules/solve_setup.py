@@ -473,30 +473,59 @@ class CommonSetup(BinaryTreeNode, PyAedtBase):
         >>> setup.is_solved
 
         """
-        if self._app.design_type == "Circuit Design":
+        design_type = self._app.design_type
+        quantities_category = "Variables"
+        is_time_domain = False
+        if design_type == "Circuit Design":
             return True if self._app.oanalysis.ListVariations(self.name) else False
+        elif design_type == "RMxprtSolution":
+            self._app.logger.warning("RMxprtSolution is not supported for is_solved method.")
+            return False
+        if identify_setup(self.props):
+            is_time_domain = True
+
         if self._app.design_solutions.default_adaptive:
             expressions = [
                 i
                 for i in self._app.post.available_report_quantities(
-                    solution=f"{self.name} : {self._app.design_solutions.default_adaptive}"
+                    solution=f"{self.name} : {self._app.design_solutions.default_adaptive}",
+                    quantities_category=quantities_category,
                 )
             ]
             if not expressions:
                 return False
-
-            sol = self._app.post.reports_by_category.standard(
-                expressions=expressions[0],
-                setup=f"{self.name} : {self._app.design_solutions.default_adaptive}",
-            )
+            for expression in expressions:
+                sol = self._app.post.reports_by_category.standard(
+                    expressions=expression, setup=f"{self.name} : {self._app.design_solutions.default_adaptive}"
+                )
+                if is_time_domain:
+                    sol.domain = "Sweep"
+                    if "Freq" in sol.variations:
+                        del sol._variations["Freq"]
+                        sol._variations["Time"] = ["All"]
+                solution = sol.get_solution_data()
+                if solution:
+                    return True
         else:
-            expressions = [i for i in self._app.post.available_report_quantities(solution=self.name)]
+            expressions = [
+                i
+                for i in self._app.post.available_report_quantities(
+                    solution=self.name, quantities_category=quantities_category
+                )
+            ]
             if not expressions:
                 return False
-            sol = self._app.post.reports_by_category.standard(expressions=expressions[0], setup=self.name)
-        if identify_setup(self.props):
-            sol.domain = "Time"
-        return True if sol.get_solution_data() else False
+            for expression in expressions:
+                sol = self._app.post.reports_by_category.standard(expressions=expression, setup=self.name)
+                if is_time_domain:
+                    sol.domain = "Sweep"
+                    if "Freq" in sol.variations:
+                        del sol.variations["Freq"]
+                solution = sol.get_solution_data()
+                if solution:
+                    return True
+
+        return False
 
     def update(self, properties: dict | None = None) -> bool:
         """Update setup properties in the concrete setup implementation."""

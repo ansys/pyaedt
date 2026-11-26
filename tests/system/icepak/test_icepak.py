@@ -900,7 +900,6 @@ def test_assign_network(ipk_app, add_app_example) -> None:
     net.add_link("TestInternal3", "TestBoundary4", 103)
     assert net.create()
     assert net.child_object
-    assert not net.auto_update
     bkupprops = net.nodes["TestFace"].props
     bkupprops_internal = net.nodes["TestInternal3"].props
     bkupprops_boundary = net.nodes["TestBoundary4"].props
@@ -1001,8 +1000,6 @@ def test_assign_network(ipk_app, add_app_example) -> None:
     net.delete()
     assert net.child_object is None
     net = NetworkObject(ipk_app, "newNet", p, create=True)
-    net.auto_update = True
-    assert not net.auto_update
     assert isinstance(net.r_links, dict)
     assert isinstance(net.c_links, dict)
     assert isinstance(net.faces_ids_in_network, list)

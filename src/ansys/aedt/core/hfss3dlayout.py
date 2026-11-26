@@ -33,6 +33,7 @@ from pathlib import Path
 import re
 from typing import TYPE_CHECKING
 
+from ansys.aedt.core.application import _has_get_obj_data
 from ansys.aedt.core.application.analysis_3d_layout import FieldAnalysis3DLayout
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
 from ansys.aedt.core.base import PyAedtBase
@@ -378,19 +379,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         port_name = self.create_edge_port(
             assignment,
             edge_number,
+            is_wave_port=True,
             wave_horizontal_extension=wave_horizontal_extension,
             wave_vertical_extension=wave_vertical_extension,
             wave_launcher=wave_launcher,
         )
-        if port_name:
-            port_name["HFSS Type"] = "Wave"
-            port_name["Horizontal Extent Factor"] = str(wave_horizontal_extension)
-            if "Vertical Extent Factor" in list(port_name.props.keys()):
-                port_name["Vertical Extent Factor"] = str(wave_vertical_extension)
-            port_name["PEC Launch Width"] = str(wave_launcher)
-            return port_name
-        else:
-            return False
+        return port_name
 
     @pyaedt_function_handler()
     def create_wave_port_from_two_conductors(
@@ -2411,10 +2405,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
     @pyaedt_function_handler()
     def _update_port_info(self, port):
         propnames = self.oeditor.GetProperties("EM Design", f"Excitations:{port}")
-        props = {}
+        props = {"Properties": {}}
         for prop in propnames:
-            props[prop] = self.oeditor.GetPropertyValue("EM Design", f"Excitations:{port}", prop)
-        return BoundaryObject3dLayout(self, port, props, "Port")
+            props["Properties"][prop] = self.oeditor.GetPropertyValue("EM Design", f"Excitations:{port}", prop)
+        boundary = BoundaryObject3dLayout(self, port, props, "Port")
+        boundary._has_getobject = _has_get_obj_data(boundary.child_object)
+        return boundary
 
     @pyaedt_function_handler()
     def get_model_from_mesh_results(self, binary: str | None = True) -> str:

@@ -54,18 +54,16 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
     """
 
     def __init__(self, app, component_name, props, component_type) -> None:
-        self.auto_update = False
         self._app = app
         self.type = component_type
         self._name = component_name
         self.__props = BoundaryProps(self, props) if props else {}
-        self.auto_update = True
 
     @pyaedt_function_handler()
     def _initialize_tree_node(self) -> bool:
         aedt_object = self._resolve_aedt_object()
         if aedt_object:
-            BinaryTreeNode.__init__(self, self._name, aedt_object, False, app=self._app, auto_update=self.auto_update)
+            BinaryTreeNode.__init__(self, self._name, aedt_object, False, app=self._app)
             return True
         return False
 
@@ -91,6 +89,9 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
     def props(self) -> BoundaryProps:
         """Field Properties.
 
+        Assign a complete property dictionary to apply several changes together.
+        Use ``props.to_dict()`` to obtain an editable copy.
+
         Examples
         --------
         Read the theta sweep of an infinite sphere that covers the upper hemisphere of a radiating region.
@@ -111,7 +112,7 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         # Revert this once AEDT supports ObjectData for Radiation.
         has_obj_data = False
         # has_obj_data = _has_get_obj_data(self.child_object)
-        if self.__props and not (has_obj_data and self.auto_update):
+        if self.__props and not has_obj_data:
             return self.__props
         if has_obj_data:
             props = _get_obj_data(self.child_object)
@@ -133,6 +134,11 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
                         self.__props = self._app.design_properties["RadField"]["NearFieldSetups"][val]
             self.__props = BoundaryProps(self, self.__props)
         return self.__props
+
+    @props.setter
+    def props(self, value: dict) -> None:
+        if not self.update(value):
+            raise RuntimeError(f"Failed to update field setup {self.name}.")
 
     @property
     def name(self) -> str:
@@ -260,12 +266,11 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> air = hfss.modeler.create_box([0, 0, 0], [20, 20, 20], name="Air", material="vacuum")
         >>> radiation = hfss.assign_radiation_boundary_to_objects(air)
         >>> sphere = hfss.insert_infinite_sphere(name="FarField")
-        >>> sphere.auto_update = False
-        >>> sphere.props["ThetaStop"] = "90deg"
-        >>> sphere.props["PhiStop"] = "360deg"
-        >>> sphere.update()
+        >>> props = sphere.props.to_dict()
+        >>> props["ThetaStop"] = "90deg"
+        >>> props["PhiStop"] = "360deg"
+        >>> sphere.update(props)
         True
-        >>> sphere.auto_update = True
         >>> sphere.properties["Stop Theta"]
         '90deg'
         >>> hfss.release_desktop()
@@ -285,6 +290,8 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
             self._app.oradfield.EditAntennaOverlay(self.name, self._get_args(properties))
         elif self.type == "FieldSourceGroup":
             self._app.oradfield.EditRadFieldSourceGroup(self._get_args(properties))
+        if properties is not None:
+            self.__props = BoundaryProps(self, properties)
         return True
 
     @pyaedt_function_handler()
@@ -366,11 +373,9 @@ class FarFieldSetup(FieldSetup):
 
     @definition.setter
     def definition(self, value: str) -> None:
-        legacy_auto_update = self.auto_update
-        self.auto_update = False
-
-        actual_value = self.props["CSDefinition"]
-        self.props["CSDefinition"] = value
+        props = self.props.to_dict()
+        actual_value = props["CSDefinition"]
+        props["CSDefinition"] = value
         actual_defs = None
         defs = None
         if actual_value != value and value == "Theta-Phi":
@@ -410,21 +415,12 @@ class FarFieldSetup(FieldSetup):
                     "AzimuthStep",
                 ]
         if actual_defs != defs:
-            self.props[defs[0]] = self.props[actual_defs[0]]
-            self.props[defs[1]] = self.props[actual_defs[1]]
-            self.props[defs[2]] = self.props[actual_defs[2]]
-            self.props[defs[3]] = self.props[actual_defs[3]]
-            self.props[defs[4]] = self.props[actual_defs[4]]
-            self.props[defs[5]] = self.props[actual_defs[5]]
-            del self.props[actual_defs[0]]
-            del self.props[actual_defs[1]]
-            del self.props[actual_defs[2]]
-            del self.props[actual_defs[3]]
-            del self.props[actual_defs[4]]
-            del self.props[actual_defs[5]]
+            old_values = [props[key] for key in actual_defs]
+            for key in actual_defs:
+                del props[key]
+            props.update(zip(defs, old_values))
 
-        self.auto_update = legacy_auto_update
-        self.update()
+        self.update(props)
 
     @property
     def custom_radiation_surface(self) -> str:
@@ -446,16 +442,14 @@ class FarFieldSetup(FieldSetup):
 
     @custom_radiation_surface.setter
     def custom_radiation_surface(self, value: str) -> None:
-        legacy_auto_update = self.auto_update
-        self.auto_update = False
+        props = self.props.to_dict()
         if value:
-            self.props["UseCustomRadiationSurface"] = True
-            self.props["CustomRadiationSurface"] = value
+            props["UseCustomRadiationSurface"] = True
+            props["CustomRadiationSurface"] = value
         else:
-            self.props["UseCustomRadiationSurface"] = False
-            self.props["CustomRadiationSurface"] = ""
-        self.auto_update = legacy_auto_update
-        self.update()
+            props["UseCustomRadiationSurface"] = False
+            props["CustomRadiationSurface"] = ""
+        self.update(props)
 
     @property
     def local_coordinate_system(self) -> str | None:
@@ -479,16 +473,14 @@ class FarFieldSetup(FieldSetup):
 
     @local_coordinate_system.setter
     def local_coordinate_system(self, value: str) -> None:
-        legacy_auto_update = self.auto_update
-        self.auto_update = False
+        props = self.props.to_dict()
         if value:
-            self.props["UseLocalCS"] = True
-            self.props["CoordSystem"] = value
+            props["UseLocalCS"] = True
+            props["CoordSystem"] = value
         else:
-            self.props["UseLocalCS"] = False
-            self.props["CoordSystem"] = ""
-        self.auto_update = legacy_auto_update
-        self.update()
+            props["UseLocalCS"] = False
+            props["CoordSystem"] = ""
+        self.update(props)
 
     @property
     def polarization(self) -> str:
@@ -532,12 +524,10 @@ class FarFieldSetup(FieldSetup):
 
     @slant_angle.setter
     def slant_angle(self, value: float) -> None:
-        legacy_auto_update = self.auto_update
-        self.auto_update = False
-        self.props["Polarization"] = "Slant"
-        self.props["SlantAngle"] = value
-        self.auto_update = legacy_auto_update
-        self.update()
+        props = self.props.to_dict()
+        props["Polarization"] = "Slant"
+        props["SlantAngle"] = value
+        self.update(props)
 
     @property
     def theta_start(self) -> float | None:

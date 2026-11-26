@@ -147,6 +147,8 @@ def m3d_app(add_app_example):
 
 
 def test_3dl_generate_mesh(hfss3dl_solve) -> None:
+    setup = hfss3dl_solve.setups[0]
+    assert not setup.is_solved
     assert hfss3dl_solve.mesh.generate_mesh("Setup1")
 
 
@@ -159,11 +161,14 @@ def test_3dl_analyze_setup(hfss3dl_solve) -> None:
     else:
         with pytest.raises(AEDTRuntimeError):
             hfss3dl_solve.set_export_touchstone()
-    assert hfss3dl_solve.analyze_setup("Setup1", cores=4, blocking=False)
+    setup = hfss3dl_solve.setups[0]
+    assert not setup.is_solved
+    assert hfss3dl_solve.analyze_setup(setup.name, cores=4, blocking=False)
     assert hfss3dl_solve.are_there_simulations_running
     assert hfss3dl_solve.stop_simulations()
     while hfss3dl_solve.are_there_simulations_running:
         time.sleep(1)
+    assert setup.is_solved
     profile = hfss3dl_solve.setups[0].get_profile()
     key0 = list(profile.keys())[0]
     assert key0 == "Setup1"
@@ -174,6 +179,8 @@ def test_3dl_analyze_setup(hfss3dl_solve) -> None:
 
 
 def test_3dl_export_profile(hfss3dl_solved, test_tmp_dir) -> None:
+    setup = hfss3dl_solved.get_setup("Setup1")
+    assert setup.is_solved
     profile_file = test_tmp_dir / "temp.prof"
     profile_file = Path(hfss3dl_solved.export_profile("Setup1", output_file=profile_file))
     assert profile_file.exists()
@@ -181,7 +188,6 @@ def test_3dl_export_profile(hfss3dl_solved, test_tmp_dir) -> None:
     mesh_file = Path(hfss3dl_solved.export_mesh_stats("Setup1", output_file=mesh_file))
     assert mesh_file.exists()
 
-    setup = hfss3dl_solved.setups[0]
     profiles = setup.get_profile()
     key0 = list(profiles.keys())[0]
     profile = profiles[key0]
@@ -213,13 +219,15 @@ def test_sbr_link_array(sbr_platform, add_app_example) -> None:
 
 @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not supported.")
 def test_sbr_link_array_solved(sbr_platform_solved, test_tmp_dir) -> None:
-    profile = sbr_platform_solved.setups[0].get_profile()
+    setup = sbr_platform_solved.setups[0]
+    assert setup.is_solved
+    profile = setup.get_profile()
     assert isinstance(profile, Profiles)
     key0 = list(profile.keys())[0]
     assert profile[key0].elapsed_time > timedelta(0)
     assert isinstance(profile[key0], SimulationProfile)
     assert not sbr_platform_solved.get_profile("Invented_setup")
-    solution_data = sbr_platform_solved.setups[0].get_solution_data()
+    solution_data = setup.get_solution_data()
 
     ffdata = sbr_platform_solved.get_antenna_data(frequencies=solution_data.intrinsics["Freq"], sphere="3D")
     ffdata2 = sbr_platform_solved.get_antenna_data(
@@ -352,6 +360,7 @@ def test_hfss_export_results(hfss_app, test_tmp_dir) -> None:
 
 
 def test_icepak_analyze_and_export_summary(icepak_solved) -> None:
+    assert icepak_solved.setups[0].is_solved
     assert icepak_solved.create_output_variable("OutputVariable2", "abs(Variable1)")  # test creation
     assert icepak_solved.create_output_variable("OutputVariable2", "asin(Variable1)")  # test update
     icepak_solved.save_project()
@@ -412,6 +421,7 @@ def test_icepak_analyze_and_export_summary(icepak_solved) -> None:
 
 
 def test_icepak_get_output_variable(icepak_solved) -> None:
+    assert icepak_solved.setups[0].is_solved
     with pytest.raises(KeyError):
         icepak_solved.get_output_variable("invalid")
     value = icepak_solved.get_output_variable("OutputVariable1")
@@ -420,6 +430,7 @@ def test_icepak_get_output_variable(icepak_solved) -> None:
 
 
 def test_icepak_get_monitor_output(icepak_solved) -> None:
+    assert icepak_solved.setups[0].is_solved
     assert icepak_solved.monitor.all_monitors["test_monitor"].value()
     assert icepak_solved.monitor.all_monitors["test_monitor"].value(quantity="Temperature")
     assert icepak_solved.monitor.all_monitors["test_monitor"].value(setup=icepak_solved.existing_analysis_sweeps[0])
@@ -427,6 +438,7 @@ def test_icepak_get_monitor_output(icepak_solved) -> None:
 
 
 def test_icepak_eval_tempc(icepak_solved) -> None:
+    assert icepak_solved.setups[0].is_solved
     assert Path(
         icepak_solved.eval_volume_quantity_from_field_summary(
             ["box"], "Temperature", savedir=icepak_solved.working_directory
@@ -435,6 +447,7 @@ def test_icepak_eval_tempc(icepak_solved) -> None:
 
 
 def test_icepak_export_fld(icepak_solved, test_tmp_dir) -> None:
+    assert icepak_solved.setups[0].is_solved
     fld_file = test_tmp_dir / "test_fld.fld"
     icepak_solved.post.export_field_file(
         quantity="Temp",
@@ -486,6 +499,7 @@ def test_icepak_export_fld(icepak_solved, test_tmp_dir) -> None:
 def test_3dl_export_touchstone(hfss3dl_solved, test_tmp_dir) -> None:
     filename = Path(test_tmp_dir) / "touchstone.s2p"
     solution_name = "Setup1"
+    assert hfss3dl_solved.get_setup(solution_name).is_solved
     sweep_name = "Sweep1"
     assert hfss3dl_solved.export_touchstone(solution_name, sweep_name, filename)
     assert filename.exists()
@@ -495,6 +509,7 @@ def test_3dl_export_touchstone(hfss3dl_solved, test_tmp_dir) -> None:
 
 
 def test_3dl_export_results(hfss3dl_solved) -> None:
+    assert hfss3dl_solved.setups[0].is_solved
     files = hfss3dl_solved.export_results()
     assert len(files) > 0
 
@@ -599,6 +614,7 @@ def test_circuit_push_excitation_time(circuit_app) -> None:
 
 
 def test_m3d_harmonic_forces(m3dtransient) -> None:
+    assert m3dtransient.setups[0].is_solved
     assert m3dtransient.export_element_based_harmonic_force(
         start_frequency=1, stop_frequency=100, number_of_frequency=None
     )
@@ -607,6 +623,9 @@ def test_m3d_harmonic_forces(m3dtransient) -> None:
 
 def test_export_maxwell_fields(m3dtransient, test_tmp_dir) -> None:
     fld_file_3 = test_tmp_dir / "test_fld_3.fld"
+    setup = m3dtransient.setups[0]
+    assert setup.is_solved
+    setup_name = setup.name
     assert m3dtransient.post.export_field_file(
         quantity="Mag_B",
         solution=m3dtransient.nominal_sweep,
@@ -627,18 +646,17 @@ def test_export_maxwell_fields(m3dtransient, test_tmp_dir) -> None:
         assignment="Coil_A2",
         objects_type="invalid",
     )
-    setup = m3dtransient.setups[0]
+
     m3dtransient.setups[0].delete()
+    assert setup_name not in m3dtransient.setup_names
+
     assert not m3dtransient.post.export_field_file(
         quantity="Mag_B", variations={}, output_file=fld_file_4, assignment="Coil_A2"
     )
 
-    new_setup = m3dtransient.create_setup(name=setup.name, setup_type=setup.setuptype)
-    new_setup.props = setup.props
-    new_setup.update()
-
 
 def test_export_maxwell_transient_fields(m3dtransient, test_tmp_dir) -> None:
+    assert m3dtransient.setups[0].is_solved
     fld_file = m3dtransient.post.export_transient_field_file(
         quantity="Mag_B",
         time="10ms",
@@ -727,6 +745,7 @@ def test_export_maxwell_transient_fields(m3dtransient, test_tmp_dir) -> None:
 
 
 def test_create_fieldplot_surface_transient(m3dtransient) -> None:
+    assert m3dtransient.setups[0].is_solved
     fieldplot = m3dtransient.post.create_fieldplot_surface(
         quantity="Mag_B",
         setup=m3dtransient.nominal_sweep,
@@ -738,6 +757,7 @@ def test_create_fieldplot_surface_transient(m3dtransient) -> None:
 
 
 def test_compute_erl(circuit_erl) -> None:
+    assert circuit_erl.setups[0].is_solved
     sp = circuit_erl.export_touchstone()
     spisim = SpiSim(sp)
 
@@ -754,6 +774,7 @@ def test_compute_erl(circuit_erl) -> None:
     )
     assert erl_data2
     circuit_erl.set_active_design("4_ports")
+    assert circuit_erl.setups[0].is_solved
     touchstone_file2 = circuit_erl.export_touchstone()
     spisim.touchstone_file = touchstone_file2
     erl_data_3 = spisim.compute_erl(specify_through_ports=[1, 2, 3, 4], compute_retries=10)
@@ -761,6 +782,7 @@ def test_compute_erl(circuit_erl) -> None:
 
 
 def test_compute_com_exported_touchstone(circuit_com) -> None:
+    assert circuit_com.setups[0].is_solved
     sp = circuit_com.export_touchstone()
     spisim = SpiSim(sp)
 
@@ -891,6 +913,8 @@ def test_export_to_maxwell(add_app_example, add_app, test_tmp_dir) -> None:
         project="assm_test", design="assm-1", application=Rmxprt, subfolder="T00", solution_type="ASSM"
     )
     app.analyze(cores=4)
+    # PyAEDT can not get the solved status of the RMxprt design
+    assert not app.get_setup("Setup1").is_solved
     m2d = app.create_maxwell_design("Setup1")
     assert m2d.design_type == "Maxwell 2D"
     config = app.export_configuration(test_tmp_dir / "assm.json")
@@ -942,6 +966,7 @@ def test_custom_hpc_from_file(icepak_solved) -> None:
 
 
 def test_apply_solved_variations(m3d_app) -> None:
+    # assert m3d_app.setups[0].is_solved
     variations = m3d_app.available_variations.variations(m3d_app.nominal_adaptive, True)
 
     assert m3d_app.apply_solved_variation(variations[0])

@@ -280,22 +280,17 @@ def test_assign_model_resolution(aedt_app) -> None:
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.2", reason="Assignment was not available in child_object.")
-def test_mesh_assignment_auto_update(aedt_app) -> None:
+def test_mesh_assignment_update(aedt_app) -> None:
     box1 = aedt_app.modeler.create_box([0, 0, 0], [1, 1, 1], name="Box1")
     box2 = aedt_app.modeler.create_box([2, 0, 0], [1, 1, 1], name="Box2")
     box3 = aedt_app.modeler.create_box([4, 0, 0], [1, 1, 1], name="Box3")
     operation = aedt_app.mesh.assign_model_resolution(box1, 1e-4, "AutoUpdate")
 
     props = operation.props
-    assert operation.auto_update
     props["Objects"].append(box2.name)
     assert box1.name in operation.assignment and box2.name in operation.assignment
 
-    operation.auto_update = False
     props["Objects"].append(box3.name)
-    assert box3.name not in operation.assignment
-    assert not operation.auto_update
-    assert operation.update_assignment(props)
     assert box1.name in operation.assignment and box2.name in operation.assignment and box3.name in operation.assignment
 
 

@@ -24,6 +24,11 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ansys.aedt.core import Hfss3dLayout
+
 from ansys.aedt.core.application import _get_obj_data
 from ansys.aedt.core.application import _has_get_obj_data
 from ansys.aedt.core.base import PyAedtBase
@@ -55,21 +60,27 @@ class BoundaryObject3dLayout(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
     """
 
-    def __init__(self, app, name: str, props=None, boundarytype: str = "Port") -> None:
-        self.auto_update = False
+    def __init__(self, app: Hfss3dLayout, name: str, props=None, boundarytype: str = "Port") -> None:
         self._app = app
         self._name = name
-        self.__props = None
-        if props:
-            self.__props = BoundaryProps(self, props)
+        self._legacy_props = props or {}
         self.type = boundarytype
-        self.auto_update = True
+        if props:
+            self._has_getobject = False
+        else:
+            self._has_getobject = _has_get_obj_data(self.child_object)
+
+    def __getitem__(self, key):
+        return self.props[key]
+
+    def __setitem__(self, key, value):
+        self.props[key] = value
 
     @pyaedt_function_handler()
     def _initialize_tree_node(self) -> bool:
         aedt_object = self._resolve_aedt_object()
         if aedt_object:
-            BinaryTreeNode.__init__(self, self._name, aedt_object, False, app=self._app, auto_update=self.auto_update)
+            BinaryTreeNode.__init__(self, self._name, aedt_object, False, app=self._app)
             return True
         return False
 
@@ -88,10 +99,18 @@ class BoundaryObject3dLayout(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
     def _on_rename(self, old_name):
         if self._name != old_name:
+            self._sync_cached_name()
             self._invalidate_tree_node()
             if self._app._boundaries.get(old_name) is self:
                 self._app._boundaries.pop(old_name)
                 self._app._boundaries[self._name] = self
+
+    def _sync_cached_name(self):
+        if "Port" in self._legacy_props:
+            self._legacy_props["Port"] = self._name
+        nested = self._legacy_props.get("Properties")
+        if isinstance(nested, dict) and "Port" in nested:
+            nested["Port"] = self._name
 
     def update_property(self, prop_name: str, prop_value: str) -> bool:
         old_name = self._name
@@ -115,28 +134,18 @@ class BoundaryObject3dLayout(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
     @name.setter
     def name(self, value: str) -> None:
-        old_name = self._name
-        auto_update = self.auto_update
-        props = None
-        old_port = None
-        try:
-            self.auto_update = False
-            props = self.props
-            if "Port" in props:
-                old_port = props["Port"]
-                dict.__setitem__(props, "Port", value)
-            if not self.update():
-                return
-            self._name = value
-            self._on_rename(old_name)
-        finally:
-            if props is not None and old_port is not None and self._name == old_name and old_name != value:
-                dict.__setitem__(props, "Port", old_port)
-            self.auto_update = auto_update
+        if value != self._name:
+            self.update({"Port": value})
 
     @property
     def props(self) -> BoundaryProps:
-        """Excitation data.
+        """Excitation data from AEDT or, when unavailable, the editor property cache.
+
+        For AEDT objects supporting ``GetObjData``, properties are read from
+        the object on each access. Older objects use a cached editor snapshot.
+        Editing a property applies the change to AEDT immediately. Assign a
+        complete dictionary obtained with ``props.to_dict()`` to apply several
+        changes together.
 
         Returns
         -------
@@ -149,25 +158,19 @@ class BoundaryObject3dLayout(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> obj.props
 
         """
-        child_object = self.child_object
-        has_obj_data = _has_get_obj_data(child_object)
-        if self.__props and not (has_obj_data and self.auto_update):
-            return self.__props
-        if has_obj_data:
-            props = _get_obj_data(child_object)
-        else:
-            boundary_data = self._get_boundary_data(self.name)
-            props = boundary_data[0] if boundary_data else {}
+        if self._has_getobject:
+            self._legacy_props = _get_obj_data(self.child_object)
+        elif not self._legacy_props:
+            self._legacy_props = self._get_editor_properties()
+        boundary_type = self._legacy_props.get("Type") or self._legacy_props.get("BoundType")
+        if boundary_type:
+            self.type = boundary_type
+        return BoundaryProps(self, self._legacy_props)
 
-        if props:
-            self.__props = BoundaryProps(self, props)
-            if has_obj_data:
-                boundary_type = props.get("Type") or props.get("BoundType")
-            else:
-                boundary_type = boundary_data[1]
-            if boundary_type:
-                self._type = boundary_type
-        return self.__props
+    @props.setter
+    def props(self, value: dict) -> None:
+        if not self.update(value):
+            raise RuntimeError(f"Failed to update port {self.name}.")
 
     @pyaedt_function_handler()
     def _get_args(self, props=None):
@@ -190,14 +193,16 @@ class BoundaryObject3dLayout(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         _dict2arg(props, arg)
         return arg
 
-    @pyaedt_function_handler()
-    def _refresh_properties(self) -> None:
-        if len(self._app.oeditor.GetProperties("EM Design", f"Excitations:{self.name}")) != len(self.props):
-            propnames = self._app.oeditor.GetProperties("EM Design", f"Excitations:{self.name}")
-            props = {}
-            for prop in propnames:
-                props[prop] = self._app.oeditor.GetPropertyValue("EM Design", f"Excitations:{self.name}", prop)
-            self.__props = BoundaryProps(self, props)
+    def _get_editor_properties(self):
+        server = f"Excitations:{self.name}"
+        names = self._app.oeditor.GetProperties("EM Design", server)
+        props = {"Properties": {}}
+        for name in names:
+            if "Port" in name:
+                props[name] = self._app.oeditor.GetPropertyValue("EM Design", server, name)
+            else:
+                props["Properties"][name] = self._app.oeditor.GetPropertyValue("EM Design", server, name)
+        return props
 
     @pyaedt_function_handler()
     def update(self, properties: dict = None) -> bool:
@@ -215,24 +220,34 @@ class BoundaryObject3dLayout(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> obj.update()
 
         """
-        updated = False
         props = properties if properties is not None else self.props
-        for el in list(props.keys()):
-            if el == "Port" and self._name != props[el]:
-                old_name = self._name
-                new_name = props[el]
-                self._app.oeditor.SetPropertyValue("EM Design", "Excitations:" + self.name, el, new_name)
-                self._name = new_name
-                self._on_rename(old_name)
-            elif el in self._app.oeditor.GetProperties("EM Design", f"Excitations:{self.name}") and props[
-                el
-            ] != self._app.oeditor.GetPropertyValue("EM Design", "Excitations:" + self.name, el):
-                self._app.oeditor.SetPropertyValue("EM Design", "Excitations:" + self.name, el, props[el])
-                updated = True
+        changes_only = isinstance(props, BoundaryProps)
+        sections = [(props, self._legacy_props)]
+        if isinstance(props.get("Properties"), dict):
+            sections.append((props["Properties"], self._legacy_props.get("Properties", {})))
+        editor_names = self._app.oeditor.GetProperties("EM Design", f"Excitations:{self.name}")
+        for section, previous in sections:
+            for el, value in section.items():
+                if isinstance(value, dict) or (changes_only and el in previous and previous[el] == value):
+                    continue
+                if el == "Port" and self._name != value:
+                    old_name = self._name
+                    self._app.oeditor.SetPropertyValue("EM Design", "Excitations:" + old_name, el, value)
+                    self._name = value
+                    self._on_rename(old_name)
+                elif el in editor_names and value != self._app.oeditor.GetPropertyValue(
+                    "EM Design", "Excitations:" + self.name, el
+                ):
+                    self._app.oeditor.SetPropertyValue("EM Design", "Excitations:" + self.name, el, value)
+                elif changes_only and el not in editor_names and el != "Port":
+                    self._app.logger.warning("Property %s cannot be updated for port %s.", el, self.name)
+                    return False
 
-        if updated:
-            self._refresh_properties()
-
+        if not self._has_getobject:
+            self._legacy_props = self._get_editor_properties()
+        elif isinstance(props, BoundaryProps):
+            self._legacy_props = props.to_dict()
+        self._sync_cached_name()
         return True
 
     def delete(self) -> bool:

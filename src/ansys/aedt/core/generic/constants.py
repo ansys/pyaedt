@@ -1549,6 +1549,8 @@ class Setups(metaclass=DynamicMeta):
     """Value for HFSS driven auto."""
     HFSSDrivenDefault = 1
     """Value for HFSS driven default."""
+    HFSSDriven = 1
+    """Value for HFSS driven default."""
     HFSSEigen = 2
     """Value for HFSS eigen."""
     HFSSTransient = 3

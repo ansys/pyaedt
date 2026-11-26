@@ -627,10 +627,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             props["RenormalizeAllTerminals"] = renorm
             props["ShowReporterFilter"] = False
             props["UseAnalyticAlignment"] = False
-            boundary.auto_update = False
-            boundary.props.update(props)
-            boundary.auto_update = True
-            boundary.update()
+            boundary_props = boundary.props.to_dict()
+            boundary_props.update(props)
+            boundary.update(boundary_props)
 
         return boundary
 

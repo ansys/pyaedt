@@ -37,7 +37,6 @@ def desktop() -> None:
 
 class DummyBoundary:
     def __init__(self) -> None:
-        self.auto_update = False
         self._app = MagicMock()
         self.updated_with = None
         self.assignment_updated = False
@@ -59,7 +58,6 @@ def test_nested_setitem_updates_root_props() -> None:
         boundary,
         {"Parameters": {"subparameter": {"subsub": 1}}},
     )
-    boundary.auto_update = True
 
     props["Parameters"]["subparameter"]["subsub"] = 42
 
@@ -72,7 +70,6 @@ def test_nested_setitem_updates_root_props() -> None:
 def test_top_level_setitem_still_updates_root() -> None:
     boundary = DummyBoundary()
     props = BoundaryProps(boundary, {"Parameters": {"subparameter": 1}})
-    boundary.auto_update = True
 
     props["Parameters"] = {"subparameter": 2}
 
@@ -83,7 +80,6 @@ def test_top_level_setitem_still_updates_root() -> None:
 def test_nested_dict_assignment_keeps_parent_keys() -> None:
     boundary = DummyBoundary()
     props = BoundaryProps(boundary, {"Parameters": {"subparameter": {"a": 1, "b": 2}}})
-    boundary.auto_update = True
 
     props["Parameters"]["subparameter"]["a"] = 9
 
@@ -119,7 +115,6 @@ def test_to_dict_converts_nested_props_to_plain_containers() -> None:
 def test_list_of_dicts_nested_setitem_updates_root() -> None:
     boundary = DummyBoundary()
     props = BoundaryProps(boundary, {"Entries": [{"Name": "e1", "Value": 1}]})
-    boundary.auto_update = True
 
     props["Entries"][0]["Value"] = 5
 
@@ -130,7 +125,6 @@ def test_list_of_dicts_nested_setitem_updates_root() -> None:
 def test_faces_key_calls_update_assignment() -> None:
     boundary = DummyBoundary()
     props = BoundaryProps(boundary, {"Faces": [1]})
-    boundary.auto_update = True
 
     props["Faces"] = [1, 2]
 
@@ -142,7 +136,6 @@ def test_faces_key_calls_update_assignment() -> None:
 def test_objects_append_and_remove_trigger_update_assignment() -> None:
     boundary = DummyBoundary()
     props = BoundaryProps(boundary, {"Objects": ["box"]})
-    boundary.auto_update = True
 
     props["Objects"].append("box2")
 
@@ -158,9 +151,19 @@ def test_objects_append_and_remove_trigger_update_assignment() -> None:
     assert boundary.assignment_updated_with is props
 
 
+def test_assignment_list_does_not_update_uncreated_owner() -> None:
+    boundary = DummyBoundary()
+    boundary._is_created = False
+    props = BoundaryProps(boundary, {"Objects": ["box"]})
+
+    props["Objects"].append("box2")
+
+    assert props["Objects"] == ["box", "box2"]
+    assert boundary.assignment_updated is False
+
+
 class DummyMesh:
     def __init__(self) -> None:
-        self.auto_update = False
         self._app = MagicMock()
         self.updated_key = None
         self.updated_value = None
@@ -183,7 +186,6 @@ class DummyMesh:
 
 class DummyCoordinateSystem:
     def __init__(self) -> None:
-        self.auto_update = False
         self._app = MagicMock()
         self.updated = False
 
@@ -194,7 +196,6 @@ class DummyCoordinateSystem:
 
 class DummyHistory:
     def __init__(self) -> None:
-        self.auto_update = False
         self._app = MagicMock()
         self.updated_property = None
         self.tree_initialized = False
@@ -209,7 +210,6 @@ class DummyHistory:
 
 class DummyUserDefinedComponent:
     def __init__(self) -> None:
-        self.auto_update = False
         self._logger = MagicMock()
         self.native_updated = False
 
@@ -237,7 +237,6 @@ def test_mesh_setitem_calls_update_with_key_and_value() -> None:
 
     mesh = DummyMesh()
     props = MeshProps(mesh, {"MaxLength": "1mm"})
-    mesh.auto_update = True
 
     props["MaxLength"] = "2mm"
 
@@ -252,7 +251,6 @@ def test_mesh_nested_setitem_updates_root() -> None:
 
     mesh = DummyMesh()
     props = MeshProps(mesh, {"Settings": {"MaxLength": "1mm"}})
-    mesh.auto_update = True
 
     props["Settings"]["MaxLength"] = "3mm"
 
@@ -267,7 +265,6 @@ def test_mesh_objects_append_triggers_update_assignment() -> None:
 
     mesh = DummyMesh()
     props = MeshProps(mesh, {"Objects": ["box"]})
-    mesh.auto_update = True
 
     assert isinstance(props["Objects"], AssignmentList)
     props["Objects"].append("box2")
@@ -281,7 +278,6 @@ def test_cs_setitem_calls_update_without_args() -> None:
 
     cs = DummyCoordinateSystem()
     props = CsProps(cs, {"Origin": {"X": "0mm"}})
-    cs.auto_update = True
 
     props["Origin"]["X"] = "1mm"
 
@@ -294,7 +290,6 @@ def test_history_setitem_calls_update_property() -> None:
 
     history = DummyHistory()
     props = HistoryProps(history, {"Command": "CreateBox"})
-    history.auto_update = True
 
     props["Command"] = "CreateCylinder"
 
@@ -306,7 +301,6 @@ def test_udc_setitem_calls_update_native() -> None:
 
     udc = DummyUserDefinedComponent()
     props = UserDefinedComponentProps(udc, {"NativeComponentDefinitionName": "chip"})
-    udc.auto_update = True
 
     props["NativeComponentDefinitionName"] = "chip2"
 
@@ -384,7 +378,6 @@ def test_history_props_use_update_property_even_when_owner_has_update() -> None:
     owner._name = "old"
     props = Props(owner, {"Name": "old"})
     owner._props = props
-    owner.auto_update = True
 
     props["Name"] = "renamed"
 
@@ -408,7 +401,6 @@ def test_name_setter_keeps_name_when_properties_name_is_none() -> None:
             return None
 
     bound = BoundaryObject.__new__(BoundaryObject)
-    bound.auto_update = False
     bound._app = DummyApp()
     object.__setattr__(bound, "_name", "old")
     object.__setattr__(bound, "_tree_node_initialized", True)

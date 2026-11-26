@@ -187,7 +187,7 @@ def test_enable_adaptive_single(hfss_app):
     inner, outer, _ = hfss_app.modeler.create_coaxial([0, 0, 0], Axis.X)
     hfss_app.lumped_port(inner, outer, create_port_sheet=True)
 
-    setup1 = hfss_app.create_setup(setup_type=Setups.HFSSDrivenDefault)
+    setup1 = hfss_app.create_setup(setup_type=Setups.HFSSDriven)
     assert setup1.enable_adaptive_setup_single(3.5)
     assert setup1.props["Frequency"] == "3.5GHz"
 

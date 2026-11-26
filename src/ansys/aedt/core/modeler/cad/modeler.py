@@ -72,7 +72,6 @@ class BaseCoordinateSystem(PyAedtBase):
     """
 
     def __init__(self, modeler, name: str | None = None) -> None:
-        self.auto_update = True
         self._modeler = modeler
         self.model_units = self._modeler.model_units
         self.name = name
@@ -747,6 +746,9 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
     def props(self) -> CsProps:
         """Coordinate System Properties.
 
+        Assign a complete property dictionary to apply several changes together.
+        Use ``props.to_dict()`` to obtain an editable copy.
+
         Returns
         -------
         :class:`ansys.aedt.core.modeler.Modeler.CSProps`
@@ -763,6 +765,11 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
             return self._props
         self._get_coordinates_data()
         return self._props
+
+    @props.setter
+    def props(self, value: dict) -> None:
+        if not self.update(value):
+            raise RuntimeError(f"Failed to update coordinate system {self.name}.")
 
     @property
     def ref_cs(self) -> str | None:
@@ -1828,7 +1835,6 @@ class Lists(PyAedtBase):
             DeprecationWarning,
             stacklevel=2,
         )
-        self.auto_update = True
         self._modeler = modeler
         self.name = name
         self._legacy_props = ListsProps(self, props).to_dict()
@@ -2048,7 +2054,6 @@ class NamedSelections(PyAedtBase):
     """Manages Named Selections (replacement for `Lists`) from AEDT version >= 2026.1."""
 
     def __init__(self, modeler, props=None, name: str | None = None) -> None:
-        self.auto_update = True
         self._modeler = modeler
         self.name = name
         self._legacy_props = ListsProps(self, props).to_dict()

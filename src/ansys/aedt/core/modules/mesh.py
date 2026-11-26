@@ -105,13 +105,6 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
     props : dict
         Properties of the mesh operation.
 
-    Notes
-    -----
-    ``auto_update`` defaults to ``True`` and controls automatic assignment
-    updates when a list such as ``props["Objects"]`` is modified in place.
-    When disabled, pass the modified properties to :meth:`update_assignment`
-    to apply them. Other property changes continue to call :meth:`update`.
-
     Examples
     --------
     >>> from ansys.aedt.core import Hfss
@@ -128,7 +121,6 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         self._app: FieldAnalysis3D = self._mesh._app
         self._legacy_props = {}
         self._name = name
-        self.auto_update = True
         self.__operation_type = None
         self._mesh_module = self._mesh._mesh_module
 
@@ -670,11 +662,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
     def _initialize_tree_node(self) -> bool:
         aedt_object = self._resolve_aedt_object()
         if aedt_object:
-            auto_update = self.auto_update
-            try:
-                BinaryTreeNode.__init__(self, self._name, aedt_object, False, app=self._app)
-            finally:
-                self.auto_update = auto_update
+            BinaryTreeNode.__init__(self, self._name, aedt_object, False, app=self._app)
             return True
         return False
 

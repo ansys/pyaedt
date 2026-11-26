@@ -3219,6 +3219,7 @@ class SetupKeys:
     SetupTemplates = {
         Setups.HFSSDrivenAuto: HFSSDrivenAuto,
         Setups.HFSSDrivenDefault: HFSSDrivenDefault,
+        Setups.HFSSDriven: HFSSDrivenDefault,
         Setups.HFSSEigen: HFSSEigen,
         Setups.HFSSTransient: HFSSTransient,
         Setups.HFSSSBR: HFSSSBR,

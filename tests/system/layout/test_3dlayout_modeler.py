@@ -472,7 +472,10 @@ def test_create_edge_port(aedt_app) -> None:
 
     port_wave = aedt_app.create_edge_port("line1", 3, False, True, 6, 4, "2mm")
     assert port_wave
-    assert aedt_app.delete_port(port_wave.name)
+    name = port_wave.name
+    assert name in aedt_app.excitation_names
+    assert aedt_app.delete_port(name)
+    assert name not in aedt_app.excitation_names
     port_wave = aedt_app.create_wave_port("line1", 3, 6, 4, "2mm")
     assert port_wave
     assert aedt_app.delete_port(port_wave.name)
@@ -490,7 +493,8 @@ def test_create_edge_port(aedt_app) -> None:
     )
     assert aedt_app.boundaries[0].properties["Magnitude"] != "1V"
     aedt_app.boundaries[0].properties["Boundary Type"] = "PEC"
-    assert aedt_app.boundaries[0].properties["Boundary Type"] == "PEC"
+    if DESKTOP_VERSION > "2025.2":
+        assert aedt_app.boundaries[0].properties["Boundary Type"] == "PEC"
     assert list(aedt_app.oboundary.GetAllBoundariesList())[0] == aedt_app.boundaries[0].name
 
 
@@ -510,6 +514,7 @@ def test_port_tree_after_rename_and_delete(aedt_app) -> None:
     assert port.child_object
     assert aedt_app._boundaries["RenamedPort"] is port
     port.props["Port"] = "SecondPort"
+
     assert port.name == "SecondPort"
     assert port.child_object
     assert port._node == "SecondPort"
@@ -715,11 +720,11 @@ def test_create_single_point_sweep(aedt_app) -> None:
 
 
 def test_delete_setup(aedt_app) -> None:
-    setup_name = "SetupToDelete"
-    setuptd = aedt_app.create_setup(name=setup_name)
+    setuptd = aedt_app.create_setup(name="SetupToDelete")
+    setup_name = setuptd.name
     assert setuptd.name in aedt_app.setup_names
     aedt_app.delete_setup(setup_name)
-    assert setuptd.name not in aedt_app.setup_names
+    assert setup_name not in aedt_app.setup_names
 
 
 def test_validate(aedt_app) -> None:
@@ -934,11 +939,24 @@ def test_create_pin_port(aedt_app) -> None:
 
     port = aedt_app.create_pin_port("PinPort1")
     assert port.name == "PinPort1"
-    port.props["Properties"]["Magnitude"] = "2V"
-    assert port.props["Properties"]["Magnitude"] == "2V"
-    assert port.properties["Properties"]["Magnitude"] == "2V"
-    port.properties["Properties"]["Magnitude"] = "5V"
-    assert port.properties["Properties"]["Magnitude"] == "5V"
+    # Props
+    port["Properties"]["Magnitude"] = "2V"
+    assert port["Properties"]["Magnitude"] == "2V"
+
+    # Properties
+    assert port.properties["Magnitude"] == "2V"
+    port.properties["Magnitude"] = "5V"
+    assert port.properties["Magnitude"] == "5V"
+
+    # Edit multiple props
+    props = port.props.to_dict()
+    props["Properties"]["Magnitude"] = "10V"
+    props["Properties"]["Impedance"] = "10ohm"
+    assert port.update(props)
+    assert port.properties["Magnitude"] == "10V"
+    assert port.props["Properties"]["Magnitude"] == "10V"
+    assert port.properties["Impedance"] == "10ohm"
+    assert port.props["Properties"]["Impedance"] == "10ohm"
 
 
 def test_duplicate_material(aedt_app) -> None:
