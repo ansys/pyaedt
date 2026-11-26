@@ -165,6 +165,20 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         for el in list(self.omatrix.ListReduceMatrixes()):
             self.matrices.append(Matrix(self, el))
 
+    @property
+    def design_file(self):
+        """Design file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Q3d
+        >>> app = Q3d()
+        >>> app.design_file
+
+        """
+        design_file = Path(self.working_directory) / "design_data.json"
+        return design_file
+
     @pyaedt_function_handler()
     def create_setup(self, name: str | None = None, **kwargs) -> SetupQ3D:
         """Create an analysis setup for Q3D or Q2D.

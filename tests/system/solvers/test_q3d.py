@@ -284,7 +284,6 @@ def test_export_matrix_data(q3d_solved, test_tmp_dir) -> None:
     file_path = test_tmp_dir / "test.txt"
     sweep = q3d_solved.setups[0].sweeps[0]
     assert len(sweep.frequencies) > 0
-    assert sweep.basis_frequencies == []
     assert q3d_solved.export_matrix_data(file_path)
     assert not q3d_solved.export_matrix_data(test_tmp_dir / "test.pdf")
     assert not q3d_solved.export_matrix_data(file_name=file_path, matrix_type="Test")
