@@ -93,6 +93,9 @@ is_macos = system == "Darwin"
 inside_desktop_ironpython_console = True if "4.0.30319.42000" in sys.version else False
 """Value for inside desktop ironpython console."""
 
+_MIN_FAST_PSUTIL_VERSION = (6, 1, 0)
+"""Minimum psutil version with fast process listing for non-admin Windows users (psutil issue 2366)."""
+
 inclusion_list = [
     "CreateVia",
     "PasteDesign",
@@ -1086,6 +1089,31 @@ def _run_ss() -> dict[int, int]:
 def _get_pids_by_name_windows(image_name: str) -> list[int]:
     """Get a list of process IDs (PIDs) for a given executable name on Windows.
 
+    This function uses ``psutil``, or the Windows 'tasklist' command with ``psutil`` older than 6.1.0.
+
+    Parameters
+    ----------
+    image_name : str
+        Process name to search for, for example 'ansysedt.exe' or 'ansysedtsv.exe'.
+
+    Returns
+    -------
+    list[int]
+        List of process IDs matching the given process name.
+
+    """
+    if image_name not in ["ansysedt.exe", "ansysedtsv.exe"]:
+        raise ValueError(f"Invalid process name: {image_name}")
+
+    if psutil.version_info < _MIN_FAST_PSUTIL_VERSION:
+        return _get_pids_by_name_windows_tasklist(image_name)
+
+    return [p.pid for p in psutil.process_iter(["name"]) if (p.info.get("name") or "").lower() == image_name]
+
+
+def _get_pids_by_name_windows_tasklist(image_name: str) -> list[int]:
+    """Get a list of process IDs (PIDs) for a given executable name on Windows.
+
     This function uses the Windows 'tasklist' command to query running processes.
 
     Parameters
@@ -1101,8 +1129,8 @@ def _get_pids_by_name_windows(image_name: str) -> list[int]:
 
     Examples
     --------
-    >>> from ansys.aedt.core.generic.general_methods import _get_pids_by_name_windows
-    >>> _get_pids_by_name_windows("ansysedt.exe")
+    >>> from ansys.aedt.core.generic.general_methods import _get_pids_by_name_windows_tasklist
+    >>> _get_pids_by_name_windows_tasklist("ansysedt.exe")
     [12345, 67890]
 
     """
@@ -1179,7 +1207,7 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str] |
     Notes
     -----
     - On Linux: Uses `pgrep` and reads `/proc/{pid}/cmdline`
-    - On Windows: Uses tasklist to query process information.
+    - On Windows: Uses psutil (or tasklist with psutil < 6.1.0) to query process information.
 
     Examples
     --------
