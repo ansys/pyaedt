@@ -53,11 +53,8 @@ from tests.conftest import DESKTOP_VERSION
 # specifically compiled for each supported Python version.
 # Prior to 2025R1, the Emit API supported Python 3.8,3.9,3.10,3.11
 # Starting with 2025R1, the Emit API supports Python 3.10,3.11,3.12
-if (
-    DESKTOP_VERSION >= "2027.1"
-    or ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1")
-    or ((3, 10) <= sys.version_info[0:2] <= (3, 12) and DESKTOP_VERSION > "2024.2")
-):
+# pyaedt itself is now requires at least Python 3.12
+if DESKTOP_VERSION >= "2027.1" or (sys.version_info[0:2] == (3, 12) and DESKTOP_VERSION > "2024.2"):
     from ansys.aedt.core import Emit
     from ansys.aedt.core.emit_core.emit_constants import EmiCategoryFilter
     from ansys.aedt.core.emit_core.emit_constants import InterfererType
@@ -176,12 +173,8 @@ def emit_app(add_app):
 
 @pytest.mark.skipif(is_linux, reason="Emit API is not supported on linux.")
 @pytest.mark.skipif(
-    (sys.version_info < (3, 8) or sys.version_info[:2] > (3, 11)) and DESKTOP_VERSION < "2025.1",
-    reason="Emit API is only available for Python 3.8-3.11 in AEDT versions 2024.2 and prior.",
-)
-@pytest.mark.skipif(
-    (sys.version_info < (3, 10) or sys.version_info[:2] > (3, 12)) and DESKTOP_VERSION > "2024.2",
-    reason="Emit API is only available for Python 3.10-3.12 in AEDT versions 2025.1 and later.",
+    (sys.version_info[:2] > (3, 12)) and DESKTOP_VERSION > "2024.2",
+    reason="Emit API is only available for Python 3.12 in AEDT versions 2025.1 and later.",
 )
 @pytest.mark.skipif(DESKTOP_VERSION > "2026.1", reason="Skipped on versions later than 2026.1")
 def test_objects(emit_app) -> None:
@@ -3313,7 +3306,7 @@ def test_exceptions_bad_values(emit_app) -> None:
 
     with pytest.raises(ValueError) as e:
         _ = radio._get_property("Bad Prop")
-    assert str(e.value) == "Property Bad Prop not found or not available for RadioNode configuration."
+    assert str(e.value) == "Property Bad Prop not found or not available for RadioNode."
 
     band: Band = radio.children[0]
     try:

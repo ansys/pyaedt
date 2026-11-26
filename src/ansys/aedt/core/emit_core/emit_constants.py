@@ -46,6 +46,13 @@ class ResultType(MutableEnum):
     POWER_AT_RX = 3
 
 
+class EmiType(MutableEnum):
+    POINT = 0
+    NOISE = 1
+    PEAK = 2
+    HIGHEST = 3
+
+
 class TxRxMode(MutableEnum):
     TX = 0
     RX = 1

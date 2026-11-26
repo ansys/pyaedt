@@ -25,6 +25,7 @@
 import warnings
 
 from ansys.aedt.core.emit_core.emit_constants import ResultType
+from ansys.aedt.core.emit_core.emit_utils import _catch_aedt_errors
 from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 from ansys.aedt.core.emit_core.results.interaction_instance import InteractionInstance
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -74,16 +75,17 @@ class Interaction:
         if is_n_to_1 and self.domain.receiver_channel_frequency > 0:
             raise ValueError("Unable to retrieve N to 1 worst instance results for a specific receiver channel.")
 
-        result_data = self.emit_project._emit_com_module.GetWorstInstance(
-            self.revision.results_index,
-            result_type,
-            self.domain.receiver_name,
-            self.domain.receiver_band_name,
-            self.domain.receiver_channel_frequency,
-            self.domain.interferer_names,
-            self.domain.interferer_band_names,
-            self.domain.interferer_channel_frequencies,
-        )
+        with _catch_aedt_errors(self.emit_project, "Failed to get worst instance."):
+            result_data = self.emit_project._emit_com_module.GetWorstInstance(
+                self.revision.results_index,
+                result_type,
+                self.domain.receiver_name,
+                self.domain.receiver_band_name,
+                self.domain.receiver_channel_frequency,
+                self.domain.interferer_names,
+                self.domain.interferer_band_names,
+                self.domain.interferer_channel_frequencies,
+            )
 
         worst_instance = self._data_to_instance(result_data, result_type)
         return worst_instance
@@ -112,15 +114,16 @@ class Interaction:
         if sim.is_domain_valid(domain) != "":
             raise ValueError("Interaction is not valid: " + sim.is_domain_valid(domain))
         # Call HasValidAvailability via COM
-        has_valid = self.emit_project._emit_com_module.HasValidAvailability(
-            self.revision.results_index,
-            domain.receiver_name,
-            domain.receiver_band_name,
-            domain.receiver_channel_frequency,
-            domain.interferer_names,
-            domain.interferer_band_names,
-            domain.interferer_channel_frequencies,
-        )
+        with _catch_aedt_errors(self.emit_project, "Failed to check valid availability."):
+            has_valid = self.emit_project._emit_com_module.HasValidAvailability(
+                self.revision.results_index,
+                domain.receiver_name,
+                domain.receiver_band_name,
+                domain.receiver_channel_frequency,
+                domain.interferer_names,
+                domain.interferer_band_names,
+                domain.interferer_channel_frequencies,
+            )
         return bool(has_valid)
 
     @min_aedt_version("2027.1")
@@ -148,15 +151,16 @@ class Interaction:
             raise ValueError("Interaction is not valid: " + sim.is_domain_valid(domain))
 
         # Call GetAvailability via COM
-        availability = self.emit_project._emit_com_module.GetAvailability(
-            self.revision.results_index,
-            domain.receiver_name,
-            domain.receiver_band_name,
-            domain.receiver_channel_frequency,
-            domain.interferer_names,
-            domain.interferer_band_names,
-            domain.interferer_channel_frequencies,
-        )
+        with _catch_aedt_errors(self.emit_project, "Failed to get availability."):
+            availability = self.emit_project._emit_com_module.GetAvailability(
+                self.revision.results_index,
+                domain.receiver_name,
+                domain.receiver_band_name,
+                domain.receiver_channel_frequency,
+                domain.interferer_names,
+                domain.interferer_band_names,
+                domain.interferer_channel_frequencies,
+            )
         if float(availability) == -1:
             raise ValueError(self.get_availability_warning(domain))
         return float(availability)
@@ -185,15 +189,16 @@ class Interaction:
         if sim.is_domain_valid(domain) != "":
             raise ValueError("Interaction is not valid: " + sim.is_domain_valid(domain))
         # Call GetAvailabilityWarning via COM
-        warning = self.emit_project._emit_com_module.GetAvailabilityWarning(
-            self.revision.results_index,
-            domain.receiver_name,
-            domain.receiver_band_name,
-            domain.receiver_channel_frequency,
-            domain.interferer_names,
-            domain.interferer_band_names,
-            domain.interferer_channel_frequencies,
-        )
+        with _catch_aedt_errors(self.emit_project, "Failed to get availability warning."):
+            warning = self.emit_project._emit_com_module.GetAvailabilityWarning(
+                self.revision.results_index,
+                domain.receiver_name,
+                domain.receiver_band_name,
+                domain.receiver_channel_frequency,
+                domain.interferer_names,
+                domain.interferer_band_names,
+                domain.interferer_channel_frequencies,
+            )
         return str(warning)
 
     @min_aedt_version("2027.1")
@@ -243,15 +248,16 @@ class Interaction:
         # Fetch instance data. The backend always computes both EMI and desense
         # in a single pass and returns [encodedEmi, encodedDesense, worstEmiIntCat].
 
-        instance_values = self.emit_project._emit_com_module.GetInstance(
-            self.revision.results_index,
-            domain.receiver_name,
-            domain.receiver_band_name,
-            domain.receiver_channel_frequency,
-            domain.interferer_names,
-            domain.interferer_band_names,
-            domain.interferer_channel_frequencies,
-        )
+        with _catch_aedt_errors(self.emit_project, "Failed to get instance."):
+            instance_values = self.emit_project._emit_com_module.GetInstance(
+                self.revision.results_index,
+                domain.receiver_name,
+                domain.receiver_band_name,
+                domain.receiver_channel_frequency,
+                domain.interferer_names,
+                domain.interferer_band_names,
+                domain.interferer_channel_frequencies,
+            )
 
         # Populate both EMI and desense from the single response array.
         instance = InteractionInstance(self.emit_project, domain, self.revision, self)
@@ -331,7 +337,7 @@ class Interaction:
             If the export fails.
         """
         # Call ExportInteractionResults via COM
-        try:
+        with _catch_aedt_errors(self.emit_project, "Failed to export results."):
             self.emit_project._emit_com_module.ExportEmitResults(
                 self.revision.results_index,
                 "Selection",
@@ -344,8 +350,6 @@ class Interaction:
                 self.domain.interferer_channel_frequencies,
                 continue_if_partial,
             )
-        except Exception as e:
-            raise Exception(f"Failed to export results: {str(e)}") from e
 
     @min_aedt_version("2027.1")
     @pyaedt_function_handler()
@@ -363,15 +367,16 @@ class Interaction:
             domain = self.domain
 
         # Domain validity and result completeness check
-        error = self.emit_project._emit_com_module.CheckInteractionValidity(
-            self.revision.results_index,
-            domain.receiver_name,
-            domain.receiver_band_name,
-            domain.receiver_channel_frequency,
-            domain.interferer_names,
-            domain.interferer_band_names,
-            domain.interferer_channel_frequencies,
-        )
+        with _catch_aedt_errors(self.emit_project, "Failed to check interaction validity."):
+            error = self.emit_project._emit_com_module.CheckInteractionValidity(
+                self.revision.results_index,
+                domain.receiver_name,
+                domain.receiver_band_name,
+                domain.receiver_channel_frequency,
+                domain.interferer_names,
+                domain.interferer_band_names,
+                domain.interferer_channel_frequencies,
+            )
         if error:
             return str(error)
         return ""
