@@ -248,7 +248,7 @@ Finally, in the Python console, run the following commands:
 Linux support
 ~~~~~~~~~~~~~
 
-PyAEDT works with CPython 3.12 through 3.14 on Linux in AEDT 2024 R2 and later.
+PyAEDT works with CPython 3.12 through 3.15 on Linux in AEDT 2024 R2 and later.
 However, you must set up the following environment variables before launching Python.
 Replace the version number and path with your actual AEDT installation:
 
@@ -285,7 +285,7 @@ Install offline from a wheelhouse
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Using a wheelhouse can be helpful if you work for a company that restricts access to external networks.
 
-Wheelhouses for CPython 3.12, 3.13 and 3.14 are available in the releases for both Windows and Linux.
+Wheelhouses for CPython 3.12, 3.13, 3.14 and 3.15 are available in the releases for both Windows and Linux.
 From the `Releases <https://github.com/ansys/pyaedt/releases>`_
 page in the PyAEDT repository, you can find the wheelhouses for a particular release in its
 assets and download the wheelhouse specific to your setup.
