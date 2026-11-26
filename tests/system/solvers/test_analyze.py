@@ -966,9 +966,7 @@ def test_custom_hpc_from_file(icepak_solved) -> None:
 
 
 def test_apply_solved_variations(m3d_app) -> None:
-    # assert m3d_app.setups[0].is_solved
     variations = m3d_app.available_variations.variations(m3d_app.nominal_adaptive, True)
-
     assert m3d_app.apply_solved_variation(variations[0])
     assert m3d_app["a"] == "5mm"
     assert m3d_app["b"] == "10mm"

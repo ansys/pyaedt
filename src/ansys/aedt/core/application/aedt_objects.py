@@ -37,6 +37,7 @@ from ansys.aedt.core.generic.protocols import _OEditor
 from ansys.aedt.core.generic.protocols import _OMeshModule
 from ansys.aedt.core.generic.protocols import _OModelSetup
 from ansys.aedt.core.generic.protocols import _OOptimetricsModule
+from ansys.aedt.core.generic.protocols import _ORadFieldModule
 from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
 
@@ -93,7 +94,7 @@ class AedtObjects(PyAedtBase):
         self._omodel_manager = None
         self._osymbol_manager = None
         self._opadstack_manager = None
-        self._oradfield = None
+        self._oradfield: _ORadFieldModule | None = None
         self._onetwork_data_explorer = None
         self._odata_block = None
         self.__aedtunits = AedtUnits(self)
@@ -116,7 +117,7 @@ class AedtObjects(PyAedtBase):
         return self.__aedtunits
 
     @property
-    def oradfield(self) -> object:
+    def oradfield(self) -> _ORadFieldModule | None:
         """AEDT radiation field object.
 
         References
@@ -134,9 +135,9 @@ class AedtObjects(PyAedtBase):
             SolutionsHfss.EigenMode,
             SolutionsHfss.CharacteristicMode,
         ]:
-            return self._odesign.GetModule("RadField")
+            return cast(_ORadFieldModule | None, self._odesign.GetModule("RadField"))
         if self.desktop_class.aedt_version_id >= "2025.1" and self.design_type == "Q3D Extractor":
-            return self._odesign.GetModule("RadField")
+            return cast(_ORadFieldModule | None, self._odesign.GetModule("RadField"))
         return None
 
     @pyaedt_function_handler()

@@ -21,18 +21,37 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from ansys.aedt.core.application import _get_obj_data
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modules.boundary.common import BoundaryCommon
 from ansys.aedt.core.modules.boundary.common import BoundaryProps
 
+if TYPE_CHECKING:
+    from ansys.aedt.core.generic.protocols import DesignRadField
+    from ansys.aedt.core.generic.protocols import _ORadFieldModule
+
 
 class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
     """Manages far field and near field component data and execution.
+
+    Parameters
+    ----------
+    app : DesignRadField
+        HFSS, or Q3D application instance.
+    component_name : str
+        Name of the field setup component.
+    props : dict
+        Properties of the field setup component.
+    component_type : str
+        Type of the field setup component.
 
     Examples
     --------
@@ -53,11 +72,17 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
     """
 
-    def __init__(self, app, component_name, props, component_type) -> None:
-        self._app = app
+    def __init__(self, app: DesignRadField, component_name: str, props: dict, component_type: str) -> None:
+        self._app: DesignRadField = app
         self.type = component_type
         self._name = component_name
-        self.__props = BoundaryProps(self, props) if props else {}
+
+        self._legacy_props = props if props else {}
+
+        # TODO: Radiation has GetObjectData but it is raising an error message in AEDT.
+        # Revert this once AEDT supports ObjectData for Radiation.
+        self._has_getobject = False
+        # self._has_getobject = _has_get_obj_data(self.child_object)
 
     @pyaedt_function_handler()
     def _initialize_tree_node(self) -> bool:
@@ -86,6 +111,14 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         return result
 
     @property
+    def _oradfield(self) -> _ORadFieldModule:
+        """Return the editor required by component operations."""
+        oradfield = self._app.oradfield
+        if oradfield is None:
+            raise AEDTRuntimeError("Radiation field is not available.")
+        return oradfield
+
+    @property
     def props(self) -> BoundaryProps:
         """Field Properties.
 
@@ -108,17 +141,13 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> hfss.release_desktop()
 
         """
-        # TODO: Radiation has GetObjectData but it is raising an error message in AEDT.
-        # Revert this once AEDT supports ObjectData for Radiation.
-        has_obj_data = False
-        # has_obj_data = _has_get_obj_data(self.child_object)
-        if self.__props and not has_obj_data:
-            return self.__props
-        if has_obj_data:
+        if self._legacy_props and not self._has_getobject:
+            return BoundaryProps(self, self._legacy_props)
+        if self._has_getobject:
             props = _get_obj_data(self.child_object)
             if props and len(props) > 1:
-                self.__props = BoundaryProps(self, props)
-                return self.__props
+                self._legacy_props = BoundaryProps(self, props)
+                return BoundaryProps(self, self._legacy_props)
         if self._app.design_properties:
             if (
                 self.type == "FarFieldSphere"
@@ -127,13 +156,13 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
             ):
                 for val in self._app.design_properties["RadField"]["FarFieldSetups"]:
                     if val == self.name:
-                        self.__props = self._app.design_properties["RadField"]["FarFieldSetups"][val]
+                        self._legacy_props = self._app.design_properties["RadField"]["FarFieldSetups"][val]
             elif self.type != "FarFieldSphere" and self._app.design_properties["RadField"].get("NearFieldSetups"):
                 for val in self._app.design_properties["RadField"]["NearFieldSetups"]:
                     if val == self.name:
-                        self.__props = self._app.design_properties["RadField"]["NearFieldSetups"][val]
-            self.__props = BoundaryProps(self, self.__props)
-        return self.__props
+                        self._legacy_props = self._app.design_properties["RadField"]["NearFieldSetups"][val]
+            self._legacy_props = BoundaryProps(self, self._legacy_props)
+        return BoundaryProps(self, self._legacy_props)
 
     @props.setter
     def props(self, value: dict) -> None:
@@ -225,25 +254,27 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
         """
         if self.type == "FarFieldSphere":
-            self._app.oradfield.InsertInfiniteSphereSetup(self._get_args())
+            self._oradfield.InsertInfiniteSphereSetup(self._get_args())
         elif self.type == "NearFieldBox":
-            self._app.oradfield.InsertBoxSetup(self._get_args())
+            self._oradfield.InsertBoxSetup(self._get_args())
         elif self.type == "NearFieldSphere":
-            self._app.oradfield.InsertSphereSetup(self._get_args())
+            self._oradfield.InsertSphereSetup(self._get_args())
         elif self.type == "NearFieldRectangle":
-            self._app.oradfield.InsertRectangleSetup(self._get_args())
+            self._oradfield.InsertRectangleSetup(self._get_args())
         elif self.type == "NearFieldLine":
-            self._app.oradfield.InsertLineSetup(self._get_args())
+            self._oradfield.InsertLineSetup(self._get_args())
         elif self.type == "NearFieldPoints":
-            self._app.oradfield.InsertPointListSetup(self._get_args())
+            self._oradfield.InsertPointListSetup(self._get_args())
         elif self.type == "AntennaOverlay":
-            self._app.oradfield.AddAntennaOverlay(self._get_args())
+            self._oradfield.AddAntennaOverlay(self._get_args())
         elif self.type == "FieldSourceGroup":
-            self._app.oradfield.AddRadFieldSourceGroup(self._get_args())
+            self._oradfield.AddRadFieldSourceGroup(self._get_args())
+
+        # self._has_getobject = _has_get_obj_data(self.child_object)
         return True
 
     @pyaedt_function_handler()
-    def update(self, properties: dict = None) -> bool:
+    def update(self, properties: dict | None = None) -> bool:
         """Update the Field Setup in AEDT.
 
         Parameters
@@ -277,21 +308,22 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
         """
         if self.type == "FarFieldSphere":
-            self._app.oradfield.EditInfiniteSphereSetup(self.name, self._get_args(properties))
+            self._oradfield.EditInfiniteSphereSetup(self.name, self._get_args(properties))
         elif self.type == "NearFieldBox":
-            self._app.oradfield.EditBoxSetup(self.name, self._get_args(properties))
+            self._oradfield.EditBoxSetup(self.name, self._get_args(properties))
         elif self.type == "NearFieldSphere":
-            self._app.oradfield.EditSphereSetup(self.name, self._get_args(properties))
+            self._oradfield.EditSphereSetup(self.name, self._get_args(properties))
         elif self.type == "NearFieldRectangle":
-            self._app.oradfield.EditRectangleSetup(self.name, self._get_args(properties))
+            self._oradfield.EditRectangleSetup(self.name, self._get_args(properties))
         elif self.type == "NearFieldLine":
-            self._app.oradfield.EditLineSetup(self.name, self._get_args(properties))
+            self._oradfield.EditLineSetup(self.name, self._get_args(properties))
         elif self.type == "AntennaOverlay":
-            self._app.oradfield.EditAntennaOverlay(self.name, self._get_args(properties))
+            self._oradfield.EditAntennaOverlay(self.name, self._get_args(properties))
         elif self.type == "FieldSourceGroup":
-            self._app.oradfield.EditRadFieldSourceGroup(self._get_args(properties))
-        if properties is not None:
-            self.__props = BoundaryProps(self, properties)
+            self._oradfield.EditRadFieldSourceGroup(self._get_args(properties))
+
+        if properties is not None and not self._has_getobject:
+            self._legacy_props = properties
         return True
 
     @pyaedt_function_handler()
@@ -322,20 +354,29 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
         """
         name = self.name
-        self._app.oradfield.DeleteSetup([name])
+        self._oradfield.DeleteSetup([name])
         self._invalidate_tree_node()
-        self._app._field_setups[:] = [field for field in self._app._field_setups if field._name != name]
         return True
 
 
 class FarFieldSetup(FieldSetup):
     """Manages Far Field Component data and execution.
 
+    Parameters
+    ----------
+    app : DesignRadField
+        HFSS, or Q3D application instance.
+    component_name : str
+        Name of the field setup component.
+    props : dict
+        Properties of the field setup component.
+    component_type : str
+        Type of the field setup component.
+    units : str, optional
+        Units for angles. The default is ``deg``.
+
     Examples
     --------
-    Create an infinite sphere around a radiating air region and edit its theta sweep.
-    The ``sphere1`` object is a ``ansys.aedt.core.modules.boundary.hfss_boundary.FarFieldSetup``.
-
     >>> from ansys.aedt.core import Hfss
     >>> hfss = Hfss(version="2026.1")
     >>> air = hfss.modeler.create_box([0, 0, 0], [20, 20, 20], name="Air", material="vacuum")
@@ -345,17 +386,18 @@ class FarFieldSetup(FieldSetup):
     >>> sphere1.props["ThetaStop"] = "90deg"
     >>> sphere1.props["ThetaStep"] = "2deg"
     >>> sphere1.delete()
-    True
     >>> hfss.release_desktop()
 
     """
 
-    def __init__(self, app, component_name, props, component_type, units: str = "deg") -> None:
+    def __init__(
+        self, app: DesignRadField, component_name: str, props: dict, component_type: str, units: str = "deg"
+    ) -> None:
         FieldSetup.__init__(self, app, component_name, props, component_type)
         self.units = units
 
     @property
-    def definition(self) -> str:
+    def definition(self) -> str | None:
         """Far Field Angle Definition.
 
         Examples
@@ -369,7 +411,7 @@ class FarFieldSetup(FieldSetup):
         >>> inf.definition
 
         """
-        return self.props["CSDefinition"]
+        return self.props.get("CSDefinition", None)
 
     @definition.setter
     def definition(self, value: str) -> None:
@@ -414,7 +456,7 @@ class FarFieldSetup(FieldSetup):
                     "AzimuthStop",
                     "AzimuthStep",
                 ]
-        if actual_defs != defs:
+        if defs is not None and actual_defs is not None and actual_defs != defs:
             old_values = [props[key] for key in actual_defs]
             for key in actual_defs:
                 del props[key]
@@ -423,7 +465,7 @@ class FarFieldSetup(FieldSetup):
         self.update(props)
 
     @property
-    def custom_radiation_surface(self) -> str:
+    def custom_radiation_surface(self) -> str | None:
         """Radiation surface.
 
         Examples
@@ -435,10 +477,9 @@ class FarFieldSetup(FieldSetup):
         >>> face_list = aedt_app.modeler.create_named_selection("radiation_surface", air.faces[0])
         >>> inf = aedt_app.insert_infinite_sphere(custom_radiation_faces=face_list.name)
         >>> inf.custom_radiation_surface
-        'radiation_surface'
 
         """
-        return self.props["CustomRadiationSurface"]
+        return self.props.get("CustomRadiationSurface", None)
 
     @custom_radiation_surface.setter
     def custom_radiation_surface(self, value: str) -> None:
@@ -483,7 +524,7 @@ class FarFieldSetup(FieldSetup):
         self.update(props)
 
     @property
-    def polarization(self) -> str:
+    def polarization(self) -> str | None:
         """Polarization. Two options are available: `Linear` and `Slant`.
         If `Slant` is selected, the slant angle can be set.
 
@@ -497,7 +538,7 @@ class FarFieldSetup(FieldSetup):
         >>> inf.polarization
 
         """
-        return self.props["Polarization"]
+        return self.props.get("Polarization", None)
 
     @polarization.setter
     def polarization(self, value: str) -> None:
@@ -518,7 +559,7 @@ class FarFieldSetup(FieldSetup):
 
         """
         if self.props["Polarization"] == "Slant":
-            return self.props["SlantAngle"]
+            return self.props.get("SlantAngle", None)
         else:
             return None
 
@@ -544,10 +585,7 @@ class FarFieldSetup(FieldSetup):
         >>> inf.theta_start
 
         """
-        if "ThetaStart" in self.props:
-            return self.props["ThetaStart"]
-        else:
-            return None
+        return self.props.get("ThetaStart", None)
 
     @theta_start.setter
     def theta_start(self, value: float) -> None:
@@ -569,10 +607,7 @@ class FarFieldSetup(FieldSetup):
         >>> inf.theta_stop
 
         """
-        if "ThetaStop" in self.props:
-            return self.props["ThetaStop"]
-        else:
-            return None
+        return self.props.get("ThetaStop", None)
 
     @theta_stop.setter
     def theta_stop(self, value: float) -> None:
@@ -594,10 +629,7 @@ class FarFieldSetup(FieldSetup):
         >>> inf.theta_step
 
         """
-        if "ThetaStep" in self.props:
-            return self.props["ThetaStep"]
-        else:
-            return None
+        return self.props.get("ThetaStep", None)
 
     @theta_step.setter
     def theta_step(self, value: float) -> None:
@@ -619,10 +651,7 @@ class FarFieldSetup(FieldSetup):
         >>> inf.phi_start
 
         """
-        if "PhiStart" in self.props:
-            return self.props["PhiStart"]
-        else:
-            return None
+        return self.props.get("PhiStart", None)
 
     @phi_start.setter
     def phi_start(self, value: float) -> None:
@@ -644,10 +673,7 @@ class FarFieldSetup(FieldSetup):
         >>> inf.phi_stop
 
         """
-        if "PhiStop" in self.props:
-            return self.props["PhiStop"]
-        else:
-            return None
+        return self.props.get("PhiStop", None)
 
     @phi_stop.setter
     def phi_stop(self, value: float) -> None:
@@ -669,10 +695,7 @@ class FarFieldSetup(FieldSetup):
         >>> inf.phi_step
 
         """
-        if "PhiStep" in self.props:
-            return self.props["PhiStep"]
-        else:
-            return None
+        return self.props.get("PhiStep", None)
 
     @phi_step.setter
     def phi_step(self, value: float) -> None:
@@ -694,10 +717,7 @@ class FarFieldSetup(FieldSetup):
         >>> inf.azimuth_start
 
         """
-        if "AzimuthStart" in self.props:
-            return self.props["AzimuthStart"]
-        else:
-            return None
+        return self.props.get("AzimuthStart", None)
 
     @azimuth_start.setter
     def azimuth_start(self, value: float) -> None:
@@ -719,10 +739,7 @@ class FarFieldSetup(FieldSetup):
         >>> inf.azimuth_stop
 
         """
-        if "AzimuthStop" in self.props:
-            return self.props["AzimuthStop"]
-        else:
-            return None
+        return self.props.get("AzimuthStop", None)
 
     @azimuth_stop.setter
     def azimuth_stop(self, value: float) -> None:
@@ -744,10 +761,7 @@ class FarFieldSetup(FieldSetup):
         >>> inf.azimuth_step
 
         """
-        if "AzimuthStep" in self.props:
-            return self.props["AzimuthStep"]
-        else:
-            return None
+        return self.props.get("AzimuthStep", None)
 
     @azimuth_step.setter
     def azimuth_step(self, value: float) -> None:
@@ -769,10 +783,7 @@ class FarFieldSetup(FieldSetup):
         >>> inf.elevation_start
 
         """
-        if "ElevationStart" in self.props:
-            return self.props["ElevationStart"]
-        else:
-            return None
+        return self.props.get("ElevationStart", None)
 
     @elevation_start.setter
     def elevation_start(self, value: float) -> None:
@@ -794,10 +805,7 @@ class FarFieldSetup(FieldSetup):
         >>> inf.elevation_stop
 
         """
-        if "ElevationStop" in self.props:
-            return self.props["ElevationStop"]
-        else:
-            return None
+        return self.props.get("ElevationStop", None)
 
     @elevation_stop.setter
     def elevation_stop(self, value: float) -> None:
@@ -819,10 +827,7 @@ class FarFieldSetup(FieldSetup):
         >>> inf.elevation_step
 
         """
-        if "ElevationStep" in self.props:
-            return self.props["ElevationStep"]
-        else:
-            return
+        return self.props.get("ElevationStep", None)
 
     @elevation_step.setter
     def elevation_step(self, value: float) -> None:
@@ -861,11 +866,19 @@ class FarFieldSetup(FieldSetup):
 class NearFieldSetup(FieldSetup):
     """Manages Near Field Component data and execution.
 
+    Parameters
+    ----------
+    app : DesignRadField
+        HFSS, or Q3D application instance.
+    component_name : str
+        Name of the field setup component.
+    props : dict
+        Properties of the field setup component.
+    component_type : str
+        Type of the field setup component.
+
     Examples
     --------
-    In this example the rectangle1 returned object is a
-    ``ansys.aedt.core.modules.boundary.hfss_boundary.NearFieldSetup``
-
     >>> from ansys.aedt.core import Hfss
     >>> hfss = Hfss(version="2026.1")
     >>> air = hfss.modeler.create_box([0, 0, 0], [20, 20, 20], name="Air", material="vacuum")
@@ -875,5 +888,5 @@ class NearFieldSetup(FieldSetup):
 
     """
 
-    def __init__(self, app, component_name, props, component_type) -> None:
+    def __init__(self, app: DesignRadField, component_name: str, props: dict, component_type: str) -> None:
         FieldSetup.__init__(self, app, component_name, props, component_type)

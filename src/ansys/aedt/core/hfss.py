@@ -260,7 +260,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             remove_lock=remove_lock,
         )
         ScatteringMethods.__init__(self, self)
-        self._field_setups = []
         self.__component_array = {}
 
     def _init_from_design(self, *args, **kwargs) -> None:
@@ -283,7 +282,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         bound = NearFieldSetup(self, name, props, boundary_type)
         result = bound.create()
         if result:
-            self.field_setups.append(bound)
             self.logger.info(f"Field setup {boundary_type} {name} has been created.")
             return bound
         raise AEDTRuntimeError(f"Failed to create near field setup {boundary_type} {name}")
@@ -352,17 +350,17 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> hfss.field_setups[0].phi_start = 0
 
         """
-        self._field_setups = []
+        field_setups = []
         radiation_oo = self.get_oo_object(self.odesign, "Radiation")
         for field in self.field_setup_names:
             type_field = self.get_oo_property_value(radiation_oo, field, "Type")
             if type_field == "Infinite Sphere":
-                self._field_setups.append(FarFieldSetup(self, field, {}, "FarFieldSphere"))
+                field_setups.append(FarFieldSetup(self, field, {}, "FarFieldSphere"))
             else:
-                self._field_setups.append(NearFieldSetup(self, field, {}, f"NearField{type_field}"))
+                field_setups.append(NearFieldSetup(self, field, {}, f"NearField{type_field}"))
         # if not self._field_setups:
         #     self._field_setups = self._get_rad_fields()
-        return self._field_setups
+        return field_setups
 
     @property
     def field_setup_names(self):
