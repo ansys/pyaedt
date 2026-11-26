@@ -905,7 +905,7 @@ class Analysis(Design, PyAedtBase):
     @pyaedt_function_handler()
     def export_results(
         self,
-        export_folder: str = None,
+        export_folder: str | None = None,
         matrix_name: str = "Original",
         matrix_type: str = "S",
         touchstone_format: str = "MagPhase",
@@ -914,7 +914,7 @@ class Analysis(Design, PyAedtBase):
         impedance: float = 50,
         include_gamma_comment: bool = True,
         support_non_standard_touchstone_extension: bool = False,
-        variations: list = None,
+        variations: list | None = None,
     ) -> list[str]:
         """Export all available reports to a file, including profile, and convergence and sNp when applicable.
 
@@ -1017,7 +1017,9 @@ class Analysis(Design, PyAedtBase):
             else:
                 if s.is_solved:
                     setup_name = s.name
-                    sweeps = s.sweeps
+                    sweeps = []
+                    if "sweeps" in dir(s):
+                        sweeps = s.sweeps
                     if len(sweeps) == 0:
                         sweeps = ["LastAdaptive"]
                     # variations

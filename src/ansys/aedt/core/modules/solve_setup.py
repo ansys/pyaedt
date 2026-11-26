@@ -4029,7 +4029,7 @@ class SetupHFSSAuto(Setup, PyAedtBase):
         expressions = [i for i in self._app.post.available_report_quantities(solution=str(self))]
         if not expressions:
             return False
-        sol = self._app.post.reports_by_category.standard(expressions=expressions[0], setup=self.name)
+        sol = self._app.post.reports_by_category.standard(expressions=expressions[0], setup=str(self))
         if identify_setup(self.props):
             sol.domain = "Time"
         return True if sol.get_solution_data() else False

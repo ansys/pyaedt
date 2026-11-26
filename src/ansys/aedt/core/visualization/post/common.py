@@ -667,10 +667,11 @@ class PostProcessorCommon(PyAedtBase):
         if ":" not in sweep_name:
             sweep_names = []  # Look for sweep name in setups if the setup is not
             for s in self._app.setups:  # passed explicitly in setup_sweep_name.
-                for sweep in s.sweeps:
-                    this_name = s.name + " : " + sweep.name if sweep.name == sweep_name else None
-                    if this_name:
-                        sweep_names.append(this_name)
+                if "sweeps" in dir(s):
+                    for sweep in s.sweeps:
+                        this_name = s.name + " : " + sweep.name if sweep.name == sweep_name else None
+                        if this_name:
+                            sweep_names.append(this_name)
             if len(sweep_names) > 1:
                 warning_str = f"More than one sweep with name '{sweep_name}' found. "
                 warning_str += f"Returning '{sweep_names[0]}'."

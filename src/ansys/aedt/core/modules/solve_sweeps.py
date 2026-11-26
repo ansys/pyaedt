@@ -440,7 +440,7 @@ class SweepHFSS(SweepCommon["SetupHFSS"]):
                 for sweep in setup.sweeps:
                     if sweep == self.name:
                         return fr[count] if len(fr) >= count + 1 else []
-            else:
+            elif "sweeps" in dir(setup):
                 for sweep in setup.sweeps:
                     if sweep == self.name:
                         count += 1
