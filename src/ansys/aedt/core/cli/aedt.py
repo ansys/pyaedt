@@ -514,7 +514,7 @@ def _launch_console(pid: int, version: str, design: str | None = None) -> None:
 
     """
     from pathlib import Path
-    import subprocess  # nosec B404 - subprocess needed for launching interactive console
+    import subprocess  # nosec
 
     env = os.environ.copy()
     env["PYAEDT_PROCESS_ID"] = str(pid)
@@ -556,7 +556,7 @@ def _launch_console(pid: int, version: str, design: str | None = None) -> None:
     )
 
     try:  # pragma: no cover
-        subprocess.run(  # nosec B603 - trusted paths from sys.executable and package location
+        subprocess.run(  # nosec B603
             cmd, env=env, check=False
         )
     except KeyboardInterrupt:  # pragma: no cover

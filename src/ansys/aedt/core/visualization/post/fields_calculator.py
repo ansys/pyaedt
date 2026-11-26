@@ -658,12 +658,12 @@ class FieldsCalculator(PyAedtBase):
                 continue
             args.append(f"{k}:=")
             args.append(v)
-        if self.__app.desktop_class.aedt_version_id < "2026.1":
-            self.ofieldsreporter.CalculatorWrite(output_file, ["Solution:=", setup], args)
-        else:
+        if self.__app.desktop_class.aedt_version_id == "2026.1":
             solution_args = ["NAME:Setup", "Solution:=", setup]
             expression_args = ["NAME:Expression", "NameOfExpression:=", [expression]]
             self.ofieldsreporter.CalculatorWrite(output_file, ["NAME:Write", solution_args, expression_args], args)
+        else:
+            self.ofieldsreporter.CalculatorWrite(output_file, ["Solution:=", setup], args)
         self.ofieldsreporter.CalcStack("clear")
         return True
 

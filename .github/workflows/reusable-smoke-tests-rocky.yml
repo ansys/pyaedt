@@ -6,7 +6,7 @@ on:
       python-versions:
         description: JSON array of Python versions for the matrix
         required: false
-        default: '["3.10", "3.11", "3.12", "3.13", "3.14"]'
+        default: '["3.12", "3.13", "3.14"]'
         type: string
       checkout-ref:
         description: Optional git ref to checkout before building
@@ -66,7 +66,7 @@ jobs:
           update-ca-trust
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
         with:
           enable-cache: false
           prune-cache: true
@@ -79,7 +79,7 @@ jobs:
 
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-rocky
-        uses: ansys/actions/build-wheelhouse@7410037bfb276c79ae91eb3617b9f5d2876f0c94 # v11.0.8
+        uses: ansys/actions/build-wheelhouse@f5e1481b9c128197a30d1dc1dfc52b8cd6865555 # v11.1.5
         with:
           attest-provenance: ${{ inputs.attest-provenance }}
           checkout: false

@@ -37,7 +37,7 @@ def load_native_module(module_name: str, base_dir: Path | str) -> object:
     The module name must end with '_lib' or '_dynload'.
 
     Example:
-        module_name='nastran_import_lib' on Python 3.11 → loads 'nastran_import_lib_311.so' on Linux
+        module_name='nastran_import_lib' on Python 3.12 -> loads 'nastran_import_lib_312.so' on Linux
 
     Parameters
     ----------
@@ -72,10 +72,10 @@ def load_native_module(module_name: str, base_dir: Path | str) -> object:
     # Get Python version as suffix (e.g., '311' for Python 3.11)
     version_suffix = f"{sys.version_info.major}{sys.version_info.minor}"
 
-    if version_suffix not in ["310", "311", "312", "313"]:
+    if version_suffix not in ["312", "313", "314"]:
         raise ValueError(
             f"Unsupported Python version for {module_name}: {sys.version_info.major}.{sys.version_info.minor} \n"
-            f"Supported versions are 3.10, 3.11, 3.12, and 3.13."
+            f"Supported versions are 3.12, 3.13, and 3.14."
         )
 
     # Determine the platform-specific extension

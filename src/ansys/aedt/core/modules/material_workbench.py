@@ -31,15 +31,13 @@ from collections import defaultdict
 import copy
 import re
 
-import defusedxml
 from defusedxml.ElementTree import ParseError
+from defusedxml.ElementTree import parse as defused_parse
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import normalize_string_format
 from ansys.aedt.core.modules.material import MatProperties
-
-defusedxml.defuse_stdlib()
 
 
 class MaterialWorkbench(PyAedtBase):
@@ -97,7 +95,7 @@ class MaterialWorkbench(PyAedtBase):
         """Parse an XML file and convert it into a dictionary."""
         # Load the XML file
         try:
-            tree = defusedxml.ElementTree.parse(file_path)
+            tree = defused_parse(file_path)
         except ParseError:  # pragma: no cover
             logger.error(f"Unable to parse {file_path}.")
             return

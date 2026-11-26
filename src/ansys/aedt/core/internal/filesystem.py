@@ -82,7 +82,7 @@ class Scratch(PyAedtBase):
     """
 
     @property
-    def path(self) -> str | Path:
+    def path(self) -> Path:
         """Retrieve path.
 
         Examples
@@ -141,7 +141,7 @@ class Scratch(PyAedtBase):
         except Exception:
             logger.error(f"An error occurred while removing {self._scratch_path}")
 
-    def copyfile(self, src_file: str | Path, dst_filename: str | Path = None) -> str:
+    def copyfile(self, src_file: str | Path, dst_filename: str | Path | None = None) -> str:
         """Copy a file to the scratch directory.
 
         The target filename is optional. If omitted, the target file name is identical to the source file name.

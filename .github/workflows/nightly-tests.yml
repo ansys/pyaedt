@@ -7,14 +7,15 @@ on:
 
 env:
   ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
-  TESTS_VERSION: '3.10'
+  TESTS_VERSION: '3.13'
   ON_CI: True
   PYAEDT_EDB_XFAIL: "1"
   PYAEDT_LOCAL_SETTINGS_PATH: 'tests/pyaedt_settings.yaml'
   PYAEDT_OSM_XFAIL: "1"
   PYAEDT_SOLVER_XFAIL: "1"
   PYAEDT_TCL_INIT_XFAIL: "1"
-  PYTEST_ARGUMENTS: '-vvv --color=yes -rsa --durations=25 --maxfail=10 --cov=ansys.aedt.core --cov-report=html --cov-report=xml --junitxml=junit/test-results.xml'
+  # NOTE: This arguments differ from the workflow triggered on PRs as we don't use testmon for nightly tests and want to break when using code logging deprecation warning.
+  PYTEST_ARGUMENTS: '-vvv --color=yes -rsa -W error::DeprecationWarning -W error::pyvista.core.errors.PyVistaDeprecationWarning --durations=25 --maxfail=10 --cov=ansys.aedt.core --cov-report=html --cov-report=xml --junitxml=junit/test-results.xml'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

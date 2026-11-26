@@ -41,15 +41,14 @@ import sys
 import tempfile
 from typing import TYPE_CHECKING
 
+from ansys.aedt.core.internal.checks import deprecated_doc
+
 if sys.version_info >= (3, 13):
     from warnings import deprecated
 else:
     from typing_extensions import deprecated
 
-import numpy as np
-
 from ansys.aedt.core.modeler.advanced_cad.actors import Radar
-from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
 
 if TYPE_CHECKING:
     from ansys.aedt.core.generic.constants import Gravity
@@ -62,6 +61,7 @@ if TYPE_CHECKING:
     from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
     from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
     from ansys.aedt.core.visualization.advanced.hdm_plot import HDMPlotter
+    from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
     from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
     from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
     from ansys.aedt.core.visualization.report.standard import Standard
@@ -827,8 +827,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         userlst = self.modeler.convert_to_selections(assignment, True)
         lstobj = []
         lstface = []
+        model_objects = set(self.modeler.model_objects)
         for selection in userlst:
-            if selection in self.modeler.model_objects:
+            if selection in model_objects:
                 lstobj.append(selection)
             elif isinstance(selection, int) and self.modeler._find_object_from_face_id(selection):
                 lstface.append(selection)
@@ -933,8 +934,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         userlst = self.modeler.convert_to_selections(assignment, True)
         lstobj = []
         lstface = []
+        model_objects = set(self.modeler.model_objects)
         for selection in userlst:
-            if selection in self.modeler.model_objects:
+            if selection in model_objects:
                 lstobj.append(selection)
             elif isinstance(selection, int) and self.modeler._find_object_from_face_id(selection):
                 lstface.append(selection)
@@ -1005,8 +1007,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         userlst = self.modeler.convert_to_selections(assignment, True)
         lstobj = []
         lstface = []
+        model_objects = set(self.modeler.model_objects)
         for selection in userlst:
-            if selection in self.modeler.model_objects:
+            if selection in model_objects:
                 lstobj.append(selection)
             elif isinstance(selection, int) and self.modeler._find_object_from_face_id(selection):
                 lstface.append(selection)
@@ -1098,8 +1101,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         userlst = self.modeler.convert_to_selections(assignment, True)
         lstobj = []
         lstface = []
+        model_objects = set(self.modeler.model_objects)
         for selection in userlst:
-            if selection in self.modeler.model_objects:
+            if selection in model_objects:
                 lstobj.append(selection)
             elif isinstance(selection, int) and self.modeler._find_object_from_face_id(selection):
                 lstface.append(selection)
@@ -5022,7 +5026,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             primary_sweep_variable=primary_sweep,
         )
 
-    @deprecated("`create_qfactor_report` is deprecated. Use `create_q_factor_report` method instead.")
+    @deprecated_doc(version="1.2.0")
+    @deprecated("Use `create_q_factor_report` instead.")
     @pyaedt_function_handler()
     def create_qfactor_report(
         self,
@@ -5033,9 +5038,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         x_axis: str | None = "X",
     ) -> bool:  # pragma: no cover
         """Export a CSV file of the EigenQ plot.
-
-        .. deprecated:: 1.2.0
-           Use :func:`create_q_factor_report` instead.
 
         Parameters
         ----------
@@ -5066,12 +5068,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> obj.create_qfactor_report(name="MyObject", setup="Setup1")
 
         """
-        import warnings
-
-        warnings.warn(
-            "`create_qfactor_report` is deprecated. Use `create_q_factor_report` method instead.", DeprecationWarning
-        )
-
         # Setup arguments list for createReport function
         args = [x_axis + ":=", ["All"]]
         args2 = ["X Component:=", x_axis, "Y Component:=", output]
@@ -6280,6 +6276,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> ffdata.farfield_data.plot_cut(primary_sweep="theta", theta=0, is_polar=False)
 
         """
+        import numpy as np
+
         from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
         from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
 
@@ -6685,6 +6683,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> hfss.parse_hdm_file(file_name="output.hdm")
 
         """
+        from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
+
         if Path(file_name).exists():
             return Parser(str(file_name)).parse_message()
         return False
@@ -7247,8 +7247,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         selections = self.modeler.convert_to_selections(assignment, True)
         list_obj = []
         list_face = []
+        model_objects = set(self.modeler.model_objects)
         for selection in selections:
-            if selection in self.modeler.model_objects:
+            if selection in model_objects:
                 list_obj.append(selection)
             elif isinstance(selection, int) and self.modeler._find_object_from_face_id(selection):
                 list_face.append(selection)
@@ -7508,8 +7509,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         userlst = self.modeler.convert_to_selections(assignment, True)
         lstobj = []
         lstface = []
+        model_objects = set(self.modeler.model_objects)
         for selection in userlst:
-            if selection in self.modeler.model_objects:
+            if selection in model_objects:
                 lstobj.append(selection)
             elif isinstance(selection, int) and self.modeler._find_object_from_face_id(selection):
                 lstface.append(selection)
@@ -8264,6 +8266,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> hfss.get_fresnel_coefficients(setup_sweep="Setup1 : Sweep1", theta_name="theta", phi_name="phi")
 
         """
+        import numpy as np
+
         self.create_fresnel_variables(setup_sweep=setup_sweep, rttbl_version=rttbl_version)
 
         floquet_ports = self.get_fresnel_floquet_ports()
@@ -8805,8 +8809,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         userlst = self.modeler.convert_to_selections(assignment, True)
         lstobj = []
         lstface = []
+        model_objects = set(self.modeler.model_objects)
         for selection in userlst:
-            if selection in self.modeler.model_objects:
+            if selection in model_objects:
                 lstobj.append(selection)
             elif isinstance(selection, int) and self.modeler._find_object_from_face_id(selection):
                 lstface.append(selection)

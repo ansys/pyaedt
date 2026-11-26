@@ -40,6 +40,7 @@ from ansys.aedt.core.modules.layer_stackup import Layers
 
 if TYPE_CHECKING:
     from ansys.aedt.core import Edb
+    from ansys.aedt.core.generic.protocols import _AppWithOProject
     from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
 
 
@@ -62,7 +63,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
 
     """
 
-    def __init__(self, app) -> None:
+    def __init__(self, app: "_AppWithOProject") -> None:
         self._app = app
         self._edb = None
         self.logger.info("Loading Modeler.")

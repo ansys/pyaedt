@@ -93,9 +93,7 @@ class TestClass:
         assert freqs[300] == 8669097136.772985
         assert freqs[-1] == 31214328219.225075
         lumped_design.attributes.filter_class = FilterClass.DIPLEXER_1
-        misspelled_error = (
-            "The frequency repsonse data is not available for diplexer filters"  # codespell:ignore  # noqa: E501
-        )
+        misspelled_error = "The frequency repsonse data is not available for diplexer filters"  # codespell:ignore  # noqa: E501
         with pytest.raises(RuntimeError) as info:
             lumped_design.ideal_response._frequency_response_getter(FrequencyResponseColumn.MAGNITUDE_DB)
             if DESKTOP_VERSION > "2025.1":
@@ -140,9 +138,7 @@ class TestClass:
         assert time[200] == pytest.approx(6.666666666666667e-09)
         assert time[-1] == pytest.approx(9.966666666666667e-09)
         lumped_design.attributes.filter_class = FilterClass.DIPLEXER_1
-        misspelled_error = (
-            "The time repsonse data is not available for diplexer filters"  # codespell:ignore  # noqa: E501
-        )
+        misspelled_error = "The time repsonse data is not available for diplexer filters"  # codespell:ignore  # noqa: E501
         with pytest.raises(RuntimeError) as info:
             lumped_design.ideal_response._time_response_getter(TimeResponseColumn.STEP_RESPONSE)
         if DESKTOP_VERSION > "2025.1":
@@ -177,9 +173,7 @@ class TestClass:
         assert freqs[300] == pytest.approx(8669097136.772985)
         assert freqs[-1] == pytest.approx(31214328219.225075)
         lumped_design.attributes.filter_class = FilterClass.DIPLEXER_1
-        misspelled_error = (
-            "The S paramaters data is not available for diplexer filters"  # codespell:ignore  # noqa: E501
-        )
+        misspelled_error = "The S paramaters data is not available for diplexer filters"  # codespell:ignore  # noqa: E501
         with pytest.raises(RuntimeError) as info:
             lumped_design.ideal_response._sparamaters_response_getter(SParametersResponseColumn.S11_DB)
         if DESKTOP_VERSION > "2025.1":

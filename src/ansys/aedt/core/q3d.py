@@ -24,6 +24,8 @@
 
 """The module contains these classes: ``Q2d``, ``Q3d``, and ``QExtractor``."""
 
+from __future__ import annotations
+
 from pathlib import Path
 import re
 import sys
@@ -40,6 +42,7 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.checks import deprecated_doc
 from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.mixins import CreateBoundaryMixin
@@ -49,10 +52,10 @@ from ansys.aedt.core.modules.boundary.hfss_boundary import NearFieldSetup
 from ansys.aedt.core.modules.boundary.q3d_boundary import Matrix
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.modules.solve_setup import SetupQ3D
-from ansys.aedt.core.visualization.post.solution_data import SolutionData
 
 if TYPE_CHECKING:
     from ansys.aedt.core.modeler.cad.object_3d import Object3d
+    from ansys.aedt.core.visualization.post.solution_data import SolutionData
 
 
 class QExtractor(FieldAnalysis3D, PyAedtBase):
@@ -894,7 +897,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
     @pyaedt_function_handler()
     def export_equivalent_circuit(
         self,
-        output_file: str = None,
+        output_file: str | list | None = None,
         setup: str | None = None,
         sweep: str | None = None,
         variations: list | str | None = None,
@@ -922,14 +925,14 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         cond_limit: str | None = None,
         model: str | None = None,
         frequency: int | str | None = 0,
-        file_type: str | None = "HSPICE",
+        file_type: str = "HSPICE",
         include_cpp: bool | None = False,
     ) -> bool:
         """Export matrix data.
 
         Parameters
         ----------
-        output_file : str
+        output_file : str, list
             Full path for saving the matrix data to.
             Options for file extensions are CIR, SML, SP, PKG, SPC, LIB, CKT, BSP,
             DML, and ICM.
@@ -941,22 +944,21 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
             the default adaptive is used.
         variations : list or str, optional
             Design variation. The default is ``None``, in which case the
-            current nominal variation is used. If you provide a
-            design variation, use the format ``{Name}:{Value}``.
+            current nominal variation is used.
         matrix : str, optional
             Name of the matrix to show. The default is ``"Original"``.
         cells : int, optional
             Number of cells in export.
             Default value is 2.
         user_changed_settings : bool, optional
-            Whether user has changed settings or not, defaulted to True.
-            Default value is False.
+            Whether user has changed settings or not.
+            Default value is ``True``.
         include_cap : bool, optional
             Include Capacitance.
-            Default value is True.
+            Default value is ``True``.
         include_cond : bool, optional
             Include Conductance.
-            Default value is True.
+            Default value is ``True``.
         coupling_limit_type : int, optional
             Coupling limit types.
             Values can be: ``"By Value" -> 0`` or ``"By Fraction Of Self Term" -> 1``.
@@ -1020,14 +1022,14 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         frequency : str, optional
             Sweep frequency in Hz.
             Default value is 0.
-        file_type : str, optional
+        file_type : str
             The type of file format.
             Type of HSPICE file format. (All HSPICE file formats have the same extension,
             which is ``*.sp``.) Options are:
             "Hspice": simple HSPICE file format.
             "Welement": Nexxim/HSPICE W Element file format
             "RLGC": Nexxim/HSPICE RLGC W Element file format
-            Default value is Hspice.
+            Default value is "HSPICE".
         include_cpp : bool, optional
             Whether to include chip package control.
             Default value is False.
@@ -1055,8 +1057,11 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         >>> aedtapp.modeler.duplicate_along_line(objid="Box1", vector=[0, "d", 0])
         >>> mysetup = aedtapp.create_setup()
         >>> aedtapp.analyze_setup(mysetup.name)
+        >>> variations = aedtapp.available_variations.variations(
+        ...     setup_sweep=f"{mysetup.name} : LastAdaptive", output_as_dict=True
+        ... )
         >>> aedtapp.export_equivalent_circuit(
-        ...     output_file="test_export_circuit.cir", setup=mysetup.name, sweep="LastAdaptive", variations=["d: 20mm"]
+        ...     output_file="test_export_circuit.cir", setup=mysetup.name, sweep="LastAdaptive", variations=variations
         ... )
 
         """
@@ -1076,8 +1081,37 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         if self.modeler._is3d:
             available_formats.append(".cir")
 
-        if Path(output_file).suffix not in available_formats:
-            raise AEDTRuntimeError(f"Extension is invalid. Possible extensions are: {available_formats}.")
+        if variations is None:
+            nominal_values = self.available_variations.nominal_variation(dependent_params=False)
+            if not nominal_values:
+                variations = [""]
+            else:
+                variations = [self.available_variations.variation_string(nominal_values)]
+        elif isinstance(variations, list):
+            # If user passes a dictionary, it is converted to list, which is the format AEDT needs
+            variation_list = []
+            for var in variations:
+                if isinstance(var, dict):
+                    variation_list.append(self.available_variations.variation_string(var))
+                else:
+                    variation_list.append(var)
+            variations = variation_list
+        elif isinstance(variations, str):
+            variations = [variations]
+
+        if not isinstance(output_file, list):
+            output_file = [output_file]
+
+        if isinstance(variations, list) and not isinstance(output_file, list):
+            raise AttributeError(
+                "If `variations` is a list, `output_file` must be a list of files with the same length."
+            )
+        elif isinstance(variations, list) and isinstance(output_file, list) and len(variations) != len(output_file):
+            raise AttributeError("The length of `variations` and `output_file` must be the same.")
+
+        for file in output_file:
+            if Path(file).suffix not in available_formats:
+                raise AEDTRuntimeError(f"Extension of {file} is invalid. Possible extensions are: {available_formats}.")
 
         if setup is None:
             setup = self.active_setup
@@ -1091,32 +1125,6 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
             if sweep.replace(" ", "") not in sweep_array:
                 raise AEDTRuntimeError("Sweep is invalid. Provide a valid sweep.")
         analysis_setup = setup + " : " + sweep.replace(" ", "")
-
-        if variations is None:
-            nominal_values = self.available_variations.nominal_variation(dependent_params=False)
-
-            if not nominal_values:
-                variations = ""
-            else:
-                variations_list = []
-                for x in range(0, len(nominal_values)):
-                    variation = f"{list(nominal_values.keys())[x]}='{list(nominal_values.values())[x]}'"
-                    variations_list.append(variation)
-                variations = ",".join(variations_list)
-        else:
-            variations_list = []
-            if not isinstance(variations, list):
-                raise AEDTRuntimeError("Variations must be provided as a list.")
-            for x in range(0, len(variations)):
-                name = variations[x].replace(" ", "").split(":")[0]
-                value = variations[x].replace(" ", "").split(":")[1]
-                solved_variations = self.post.get_solution_data(variations={name: [value]})
-
-                if not solved_variations or not solved_variations.variations[0]:
-                    raise AEDTRuntimeError("Provided variation doesn't exist.")
-                variation = f"{name}='{value}'"
-                variations_list.append(variation)
-            variations = ",".join(variations_list)
 
         if matrix is None:
             matrix = "Original"
@@ -1283,51 +1291,55 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
                     export_circuit_context.append(include_cpp)
                     export_circuit_context.append(cpp_settings)
 
-                self.oanalysis.ExportCircuit(
-                    analysis_setup,
-                    variations,
-                    str(output_file),
-                    export_circuit_context,
-                    model,
-                    frequency,
-                )
+                for count, var in enumerate(variations):
+                    file = output_file[count]
+                    self.oanalysis.ExportCircuit(
+                        analysis_setup,
+                        var,
+                        str(file),
+                        export_circuit_context,
+                        model,
+                        frequency,
+                    )
                 return True
             except Exception:
                 raise AEDTRuntimeError("Export of equivalent circuit was unsuccessful.")
         else:
             try:
-                self.oanalysis.ExportCircuit(
-                    analysis_setup,
-                    variations,
-                    str(output_file),
-                    [
-                        "NAME:CircuitData",
-                        "MatrixName:=",
-                        matrix,
-                        "NumberOfCells:=",
-                        str(cells),
-                        "UserHasChangedSettings:=",
-                        user_changed_settings,
-                        "IncludeCap:=",
-                        include_cap,
-                        "IncludeCond:=",
-                        include_cond,
-                        [coupling_limits],
-                        "IncludeR:=",
-                        include_r,
-                        "IncludeL:=",
-                        include_l,
-                        "ExportDistributed:=",
-                        export_distributed,
-                        "LumpedLength:=",
-                        lumped_length,
-                        "RiseTime:=",
-                        rise_time,
-                    ],
-                    model,
-                    file_type,
-                    frequency,
-                )
+                for count, var in enumerate(variations):
+                    file = output_file[count]
+                    self.oanalysis.ExportCircuit(
+                        analysis_setup,
+                        var,
+                        str(file),
+                        [
+                            "NAME:CircuitData",
+                            "MatrixName:=",
+                            matrix,
+                            "NumberOfCells:=",
+                            str(cells),
+                            "UserHasChangedSettings:=",
+                            user_changed_settings,
+                            "IncludeCap:=",
+                            include_cap,
+                            "IncludeCond:=",
+                            include_cond,
+                            [coupling_limits],
+                            "IncludeR:=",
+                            include_r,
+                            "IncludeL:=",
+                            include_l,
+                            "ExportDistributed:=",
+                            export_distributed,
+                            "LumpedLength:=",
+                            lumped_length,
+                            "RiseTime:=",
+                            rise_time,
+                        ],
+                        model,
+                        file_type,
+                        frequency,
+                    )
                 return True
             except Exception:
                 raise AEDTRuntimeError("Export of equivalent circuit was unsuccessful.")
@@ -2010,8 +2022,9 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         assignment = self.modeler.convert_to_selections(assignment, True)
         sheets = []
         is_face = True
+        solid_names = set(self.modeler.solid_names)
         for object_name in assignment:
-            if isinstance(object_name, str) and object_name in self.modeler.solid_names:
+            if isinstance(object_name, str) and object_name in solid_names:
                 sheets.append(self.modeler._get_faceid_on_axis(object_name, direction))
                 if not net_name:
                     for net in self.net_names:
@@ -2179,13 +2192,19 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         """
         assignment = self.modeler.convert_to_selections(assignment, True)
         new_ass = []
+        sheet_names = None
         for ass in assignment:
             if isinstance(ass, int):
                 try:
                     new_ass.append(self.modeler.create_object_from_face(ass)._m_name)
                 except Exception:  # pragma: no cover
                     self.logger.error("Thin conductor can be applied only to sheet objects or faces.")
-            elif ass in self.modeler.sheet_names:
+                # Creating objects from faces adds sheets, so refresh the cached names.
+                sheet_names = None
+                continue
+            if sheet_names is None:
+                sheet_names = set(self.modeler.sheet_names)
+            if ass in sheet_names:
                 new_ass.append(ass)
             else:
                 self.logger.error("Thin conductor can be applied only to sheet objects.")
@@ -2988,13 +3007,11 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
             self.logger.info("No new nets identified")
         return True
 
-    @deprecated("`export_w_elements` is deprecated. Use `export_equivalent_circuit` instead with file_type=WElement.")
+    @deprecated_doc(version="1.5.0")
+    @deprecated("Use `export_equivalent_circuit` with `file_type=WElement` instead.")
     @pyaedt_function_handler()
     def export_w_elements(self, export_folder: str | Path | None = None) -> list:
         """Export all W-elements to files.
-
-        .. deprecated:: 1.5.0
-           Use :meth:`export_equivalent_circuit` with file_type=WElement instead.
 
         Parameters
         ----------
@@ -3014,14 +3031,6 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         >>> obj.export_w_elements("C:/Users/UserName/ExportedWElements")
 
         """
-        import warnings
-
-        warnings.warn(
-            "`export_w_elements` is deprecated and will be removed in 1.5.0. "
-            "Use `export_equivalent_circuit` instead with file_type=WElement.",
-            DeprecationWarning,
-        )
-
         exported_files = []
         if not export_folder:
             export_folder = self.working_directory

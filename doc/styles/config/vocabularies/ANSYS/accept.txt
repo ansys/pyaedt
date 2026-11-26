@@ -29,6 +29,8 @@ docstring
 [Dd]ocstrings
 doppler
 [Dd]otnet
+Dk
+Df
 EDB
 EDT
 efields
