@@ -28,6 +28,7 @@ from unittest.mock import patch
 import pytest
 
 from ansys.aedt.core.generic.general_methods import _get_pids_by_name_windows
+from ansys.aedt.core.generic.general_methods import _get_pids_by_name_windows_tasklist
 from ansys.aedt.core.generic.general_methods import _is_version_format_valid
 from ansys.aedt.core.generic.general_methods import _normalize_version_to_string
 from ansys.aedt.core.generic.general_methods import _run_ss
@@ -196,6 +197,6 @@ class TestGeneralMethods:
         assert mock_run.call_args.args[0][0] == "tasklist"
         mock_process_iter.assert_not_called()
 
-    def test_get_pids_by_name_windows_rejects_unknown_name(self):
+    def test_get_pids_by_name_windows_tasklist_rejects_unknown_name(self):
         with pytest.raises(ValueError):
-            _get_pids_by_name_windows("python.exe")
+            _get_pids_by_name_windows_tasklist("python.exe")

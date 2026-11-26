@@ -1102,9 +1102,6 @@ def _get_pids_by_name_windows(image_name: str) -> list[int]:
         List of process IDs matching the given process name.
 
     """
-    if image_name not in ["ansysedt.exe", "ansysedtsv.exe"]:
-        raise ValueError(f"Invalid process name: {image_name}")
-
     if psutil.version_info < _MIN_FAST_PSUTIL_VERSION:
         return _get_pids_by_name_windows_tasklist(image_name)
 
