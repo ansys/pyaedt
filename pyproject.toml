@@ -342,8 +342,6 @@ exclude = [
     "src/ansys/aedt/core/emit_core",
     "src/ansys/aedt/core/extensions",
     "src/ansys/aedt/core/filtersolutions_core",
-    # TODO: Shouldn't we remove the python_optimizers module ?
-    "src/ansys/aedt/core/generic/python_optimizers.py",
     "src/ansys/aedt/core/modeler/*.py",
     "src/ansys/aedt/core/modeler/advanced_cad",
     "src/ansys/aedt/core/modeler/cad",
