@@ -34,7 +34,7 @@ dependencies = [
     "grpcio>=1.50.0",
     "jsonschema",
     "numpy>=1.20.0",
-    "psutil>=6.0.0",
+    "psutil>=6.1.0",
     "pyedb>=0.75.0",
     "tomli-w",
     "pyyaml",
