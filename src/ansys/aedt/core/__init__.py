@@ -31,14 +31,7 @@ import warnings
 if os.name == "nt":
     os.environ["PYTHONMALLOC"] = "malloc"
 
-LATEST_EOL_PYTHON_VERSION = (3, 10)
-_eol = ".".join(map(str, LATEST_EOL_PYTHON_VERSION))
-PYTHON_EOL_WARNING = (
-    f"Python {_eol} has reached its end of life. Support for Python {_eol} will be removed "
-    "in an upcoming PyAEDT release. Please upgrade to a supported Python version."
-)
-"""Python end-of-life warning."""
-LATEST_DEPRECATED_PYTHON_VERSION = (3, 11)
+LATEST_DEPRECATED_PYTHON_VERSION = (3, 12)
 """Latest deprecated python version."""
 PYTHON_VERSION_WARNING = (
     "As part of our ongoing efforts to align with the Python Scientific Community's "
@@ -71,9 +64,7 @@ def deprecation_warning() -> None:
     warnings.showwarning = custom_show_warning
 
     current_python_version = sys.version_info[:2]
-    if current_python_version <= LATEST_EOL_PYTHON_VERSION:
-        warnings.warn(PYTHON_EOL_WARNING, FutureWarning)
-    elif current_python_version <= LATEST_DEPRECATED_PYTHON_VERSION:
+    if current_python_version <= LATEST_DEPRECATED_PYTHON_VERSION:
         warnings.warn(PYTHON_VERSION_WARNING, FutureWarning)
 
     # Restore warnings showwarning
