@@ -29,7 +29,7 @@
 
 ## 关于 PyAEDT 的安装
 
-1. 您可以使用 `PyPI` 工具将 `PyAEDT` 安装在 `CPython 3.12-3.14` 版本上:
+1. 您可以使用 `PyPI` 工具将 `PyAEDT` 安装在 `CPython 3.12-3.15` 版本上:
 
 ``` bash
   pip install pyaedt
