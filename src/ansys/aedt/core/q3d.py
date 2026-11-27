@@ -166,7 +166,9 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
             self.matrices.append(Matrix(self, el))
 
     @property
-    def design_file(self):
+    @deprecated_doc(version="2.0.0")
+    @deprecated("Use `working_directory` property instead.")
+    def design_file(self):  # pragma: no cover
         """Design file.
 
         Examples

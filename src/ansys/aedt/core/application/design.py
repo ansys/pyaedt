@@ -4556,8 +4556,13 @@ class Design(AedtObjects, PyAedtBase):
         return write_csv(str(output_file), list_full)
 
     @pyaedt_function_handler()
-    def read_design_data(self) -> dict:
+    def read_design_data(self, input_file: str | Path | None = None) -> dict | list | None:
         """Read back the design data as a dictionary.
+
+        Parameters
+        ----------
+        input_file : str or :class:`pathlib.Path`
+            Full path and name for the .json file containing the design data.
 
         Returns
         -------
@@ -4578,8 +4583,11 @@ class Design(AedtObjects, PyAedtBase):
         >>> m2d.release_desktop(True, True)
 
         """
-        design_file = Path(self.working_directory) / "design_data.json"
-        return read_configuration_file(design_file)
+        if not input_file:
+            input_file = Path(self.working_directory) / "design_data.json"
+            if not input_file.is_file():
+                return None
+        return read_configuration_file(input_file)
 
     @pyaedt_function_handler()
     def save_project(self, file_name: str | Path = None, overwrite: bool = True, refresh_ids: bool = False) -> bool:

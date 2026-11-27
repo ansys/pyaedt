@@ -26,6 +26,12 @@
 
 from __future__ import annotations
 
+import sys
+
+if sys.version_info >= (3, 13):
+    from warnings import deprecated
+else:
+    from typing_extensions import deprecated
 import copy
 from pathlib import Path
 import re
@@ -46,6 +52,7 @@ from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.checks import deprecated_doc
 from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
@@ -121,7 +128,9 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         return list(windings)
 
     @property
-    def design_file(self):
+    @deprecated_doc(version="2.0.0")
+    @deprecated("Use `working_directory` property instead.")
+    def design_file(self):  # pragma: no cover
         """Design file.
 
         Examples
@@ -130,11 +139,9 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
 
         >>> from ansys.aedt.core import Maxwell2d
         >>> m2d = Maxwell2d(solution_type="TransientXY")
-        >>> m2d.generate_design_data()
-        True
+        >>> design_file = m2d.generate_design_data()
         >>> json_file = m2d.design_file
         >>> json_file.name
-        'design_data.json'
 
         """
         design_file = Path(self.working_directory) / "design_data.json"
@@ -4395,7 +4402,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, PyAedtBase):
         self.change_design_settings({"ModelDepth": value})
 
     @pyaedt_function_handler()
-    def generate_design_data(self, line_filter: Optional = None, object_filter: Optional = None) -> bool:
+    def generate_design_data(self, line_filter: Optional = None, object_filter: Optional = None) -> Path:
         """Generate a generic set of design data and store it in the extension directory in a ``design_data.json`` file.
 
         Parameters
@@ -4407,8 +4414,8 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, PyAedtBase):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        pathlib.Path
+            Path to the generated ``design_data.json`` file.
 
         Examples
         --------
@@ -4420,7 +4427,6 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, PyAedtBase):
         >>> m2d["height"] = "15mm"
         >>> m2d.modeler.create_rectangle(origin=[0, 0, 0], sizes=["width", "height"])
         >>> m2d.generate_design_data()
-        >>> m2d.release_desktop()
 
         """
 
@@ -4456,7 +4462,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, PyAedtBase):
 
         design_file = Path(self.working_directory) / "design_data.json"
         write_configuration_file(self.design_data, design_file)
-        return True
+        return design_file
 
     @pyaedt_function_handler()
     def assign_balloon(

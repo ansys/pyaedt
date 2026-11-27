@@ -151,6 +151,7 @@ def test_assign_balloon(aedt_app) -> None:
 
 
 def test_generate_design_data(aedt_app) -> None:
+    assert not aedt_app.read_design_data()
     assert aedt_app.generate_design_data()
     assert aedt_app.read_design_data()
 

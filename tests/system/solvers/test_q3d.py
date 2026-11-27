@@ -76,10 +76,6 @@ def q3d_solved2(add_app_example):
     app.close_project(save=False)
 
 
-def test_design_file(aedt_app) -> None:
-    assert aedt_app.design_file
-
-
 def test_auto_identify_nets(aedt_app) -> None:
     aedt_app.modeler.create_box([0, 0, 0], [1, 1, 20], material="brass")
     aedt_app.modeler.create_box([20, 5, 0], [1, 1, 20], material="brass")
