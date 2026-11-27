@@ -174,25 +174,26 @@ class Analysis(Design, PyAedtBase):
             ic_mode,
             remove_lock,
         )
-        self._excitation_objects = {}
-        self._setup = None
-        self.__active_setup = None
-        if setup:
-            self.__active_setup = setup
-        self._materials = None
-        self._available_variations = None
-        self._optimetrics = None
-        self._parametrics = None
-        self._optimizations = None
-        self.__setups = SetupDict()
+        if self.design_type != "Circuit Netlist":
+            self._excitation_objects = {}
+            self._setup = None
+            self.__active_setup = None
+            if setup:
+                self.__active_setup = setup
+            self._materials = None
+            self._available_variations = None
+            self._optimetrics = None
+            self._parametrics = None
+            self._optimizations = None
+            self.__setups = SetupDict()
 
-        if not settings.lazy_load:
-            self._materials = self.materials
-            self.__setups = self.setups
-            self._parametrics = self.parametrics
-            self._optimizations = self.optimizations
-            self._optimetrics = self.optimetrics
-            self._available_variations = self.available_variations
+            if not settings.lazy_load:
+                self._materials = self.materials
+                self.__setups = self.setups
+                self._parametrics = self.parametrics
+                self._optimizations = self.optimizations
+                self._optimetrics = self.optimetrics
+                self._available_variations = self.available_variations
 
     @property
     @deprecated_doc(version="2.0.0")

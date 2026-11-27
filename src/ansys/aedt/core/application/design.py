@@ -4015,7 +4015,7 @@ class Design(AedtObjects, PyAedtBase):
 
         proj_path = oproj.GetPath()
         if not name:
-            proj_path = oproj.GetName()
+            name = oproj.GetName()
 
         proj_file = Path(proj_path) / (name + ".aedt")
         if save:
