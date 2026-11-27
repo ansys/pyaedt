@@ -28,7 +28,9 @@ from ansys.aedt.core import Circuit
 from ansys.aedt.core import CircuitNetlist
 from ansys.aedt.core import MaxwellCircuit
 from ansys.aedt.core.generic.aedt_constants import Setups
+from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modules.setup_templates import SetupKeys
+from ansys.aedt.core.modules.solve_setup import SetupCircuit
 from tests.conftest import DESKTOP_VERSION
 
 TEST_SUBFOLDER = "TSetup"
@@ -61,6 +63,26 @@ def maxwell_circuit_setup_app(add_app_example):
     app = add_app_example(application=MaxwellCircuit, project=TEST_CIRCUIT, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(app.project_name, save=False)
+
+
+@pytest.mark.parametrize("lazy_load", [True, False])
+def test_circuit_setup_cache(add_app, monkeypatch, lazy_load):
+    monkeypatch.setattr(settings, "lazy_load", lazy_load)
+    app = add_app(application=Circuit)
+    try:
+        assert not app.setups
+        setup = app.create_setup(name="CacheTest")
+        cached_setup = app.setups[setup.name]
+        assert isinstance(cached_setup, SetupCircuit)
+        assert app.get_setup(setup.name) is cached_setup
+        app.active_setup = setup.name
+        assert app.active_setup == setup.name
+
+        reopened = add_app(application=Circuit, project=app.project_file, design=app.design_name, close_projects=False)
+        assert isinstance(reopened.setups[setup.name], SetupCircuit)
+        assert reopened.get_setup(setup.name) is reopened.setups[setup.name]
+    finally:
+        app.close_project(save=False)
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2023.1", reason="Skipped on versions earlier than 2023.1")

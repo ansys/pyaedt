@@ -31,7 +31,6 @@ from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.configurations import ConfigurationsNexxim
 from ansys.aedt.core.generic.constants import Setups
-from ansys.aedt.core.generic.general_methods import SetupDict
 from ansys.aedt.core.generic.general_methods import _merge_props
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
@@ -162,46 +161,9 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         self._internal_sources = None
         self._configurations = ConfigurationsNexxim(self)
 
-        self.__active_setup = None
-        if setup:
-            self.__active_setup = setup
-        self.__setups = SetupDict()
-
         if not settings.lazy_load:
             self._modeler = self.modeler
             self._post = self.post
-            self.__setups = self.setups
-
-    @property
-    def setups(self) -> SetupDict:
-        """Setups in the project.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.generic.general_methods.SetupDict`
-            Setups in the project.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Circuit
-        >>> circuit = Circuit()
-        >>> circuit.setups
-
-        """
-        setup_names = self.setup_names
-
-        for setup_name in setup_names:
-            if setup_name not in self.__setups:
-                self.__setups[setup_name] = self._get_setup(setup_name)
-
-        if self.__setups and not self.__active_setup:
-            self.__active_setup = self.__setups[0].name
-
-        for setup in list(self.__setups.keys()):
-            if setup not in setup_names:
-                del self.__setups[setup]
-
-        return self.__setups
 
     @property
     def setup_names(self) -> list:
