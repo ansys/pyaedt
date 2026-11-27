@@ -31,7 +31,6 @@ import os
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from ansys.aedt.core import settings
 from ansys.aedt.core.application.variables import generate_validation_errors
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import Axis
@@ -39,7 +38,6 @@ from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.internal.checks import install_message
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.internal.errors import MethodNotSupportedError
 from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
@@ -1219,187 +1217,6 @@ class Modeler3D(Primitives3D, PyAedtBase):
         self._app.odesktop.EnableAutoSave(autosave)
         self.logger.info_timer("Nastran model correctly imported.")
         return new_objects, nas_to_dict
-
-    @pyaedt_function_handler()
-    def import_from_openstreet_map(
-        self,
-        latitude_longitude: list[float],
-        env_name: str = "default",
-        terrain_radius: float | int = 500,
-        include_osm_buildings: bool = True,
-        including_osm_roads: bool = True,
-        import_in_aedt: bool = True,
-        plot_before_importing: bool = False,
-        z_offset: float | int = 2,
-        road_step: float | int = 3,
-        road_width: float | int = 8,
-        create_lightweight_part: bool = True,
-    ) -> dict:
-        """Import OpenStreet Maps into AEDT.
-
-        Parameters
-        ----------
-        latitude_longitude : list
-            Latitude and longitude.
-        env_name : str, optional
-            Name of the environment used to create the scene. The default value is ``"default"``.
-        terrain_radius : float, int
-            Radius to take around center. The default value is ``500``.
-        include_osm_buildings : bool
-            Either if include or not 3D Buildings. Default is ``True``.
-        including_osm_roads : bool
-            Either if include or not road. Default is ``True``.
-        import_in_aedt : bool
-            Either if import stl after generation or not. Default is ``True``.
-        plot_before_importing : bool
-            Either if plot before importing or not. Default is ``True``.
-        z_offset : float
-            Road elevation offset. Default is ``0``.
-        road_step : float
-            Road simplification steps in meter. Default is ``3``.
-        road_width : float
-            Road width  in meter. Default is ``8``.
-        create_lightweight_part : bool
-            Either if import as lightweight object or not. Default is ``True``.
-
-        Returns
-        -------
-        dict
-            Dictionary of generated infos.
-
-        Notes
-        -----
-        Please note that elevation is not computed anymore in this method.
-        Please check the example
-        ``https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/antenna/large_scenarios/city.html``
-        to compute also elevation.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.modeler_3d import Modeler3D
-        >>> obj = Modeler3D()
-        >>> obj.import_from_openstreet_map(latitude_longitude=[1, 2, 3])
-
-        """
-        from ansys.aedt.core.modeler.advanced_cad.osm import BuildingsPrep
-        from ansys.aedt.core.modeler.advanced_cad.osm import RoadPrep
-        from ansys.aedt.core.modeler.advanced_cad.osm import TerrainPrep
-
-        output_path = self._app.working_directory
-
-        parts_dict = {}
-        # instantiate terrain module
-        terrain_prep = TerrainPrep(cad_path=output_path)
-        terrain_geo = terrain_prep.get_terrain(latitude_longitude, max_radius=terrain_radius, grid_size=30)
-        terrain_stl = terrain_geo["file_name"]
-        terrain_mesh = terrain_geo["mesh"]
-        terrain_dict = {"file_name": terrain_stl, "color": "brown", "material": "earth"}
-        parts_dict["terrain"] = terrain_dict
-        building_mesh = None
-        road_mesh = None
-        if include_osm_buildings:
-            self.logger.info("Generating Building Geometry")
-            building_prep = BuildingsPrep(cad_path=output_path)
-            building_geo = building_prep.generate_buildings(
-                latitude_longitude, terrain_mesh, max_radius=terrain_radius * 0.8
-            )
-            building_stl = building_geo["file_name"]
-            building_mesh = building_geo["mesh"]
-            building_dict = {"file_name": building_stl, "color": "grey", "material": "concrete"}
-            parts_dict["buildings"] = building_dict
-        if including_osm_roads:
-            self.logger.info("Generating Road Geometry")
-            road_prep = RoadPrep(cad_path=output_path)
-            road_geo = road_prep.create_roads(
-                latitude_longitude,
-                terrain_mesh,
-                max_radius=terrain_radius,
-                z_offset=z_offset,
-                road_step=road_step,
-                road_width=road_width,
-            )
-
-            road_stl = road_geo["file_name"]
-            road_mesh = road_geo["mesh"]
-            road_dict = {"file_name": road_stl, "color": "black", "material": "asphalt"}
-            parts_dict["roads"] = road_dict
-
-        json_path = Path(output_path) / (env_name + ".json")
-
-        scene = {
-            "name": env_name,
-            "version": 1,
-            "type": "environment",
-            "center_lat_lon": latitude_longitude,
-            "radius": terrain_radius,
-            "include_buildings": include_osm_buildings,
-            "include_roads": including_osm_roads,
-            "parts": parts_dict,
-        }
-
-        with open_file(json_path, "w", encoding="utf-8") as f:
-            json.dump(scene, f, indent=4)
-
-        self.logger.info("Done...")
-        if plot_before_importing:  # pragma: no cover
-            try:
-                import pyvista as pv
-            except ImportError as e:  # pragma: no cover
-                msg = install_message("pyvista", "graphics")
-                raise ImportError(msg) from e
-
-            self.logger.info("Viewing Geometry...")
-            # view results
-            plt = pv.Plotter()
-            if building_mesh:
-                plt.add_mesh(building_mesh, cmap="gray", label=r"Buildings")
-            if road_mesh:
-                plt.add_mesh(road_mesh, cmap="bone", label=r"Roads")
-            if terrain_mesh:
-                plt.add_mesh(terrain_mesh, cmap="terrain", label=r"Terrain")  # clim=[00, 100]
-            plt.add_legend()
-            plt.add_axes(line_width=2, xlabel="X", ylabel="Y", zlabel="Z")
-            plt.add_axes_at_origin(x_color=None, y_color=None, z_color=None, line_width=2, labels_off=True)
-            plt.show(interactive=True)
-
-        if import_in_aedt:
-            self.model_units = "meter"
-            for part in parts_dict:
-                if not Path(parts_dict[part]["file_name"]).exists():  # pragma: no cover
-                    continue
-                obj_names = [i for i in self.object_names]
-                file_name = parts_dict[part]["file_name"]
-                try:
-                    self.import_3d_cad(file_name, create_lightweight_part=create_lightweight_part, healing=False)
-                except Exception as e:  # pragma: no cover
-                    if settings.release_on_exception:
-                        raise GrpcApiError(
-                            f"Failed to import `{file_name}` without healing. "
-                            f"Consider disabling `settings.release_on_exception` for fallback import. "
-                        ) from e
-                    else:
-                        try:
-                            self.import_3d_cad(file_name, create_lightweight_part=create_lightweight_part, healing=True)
-                        except Exception as e:
-                            self.logger.error(
-                                f"Failed to import `{part}` part with healing enabled. "
-                                f"Error details: {str(e)}. Please check the file."
-                            )
-
-                added_objs = [i for i in self.object_names if i not in obj_names]
-                if part == "terrain":
-                    transparency = 0.2
-                    color = [0, 125, 0]
-                elif part == "buildings":
-                    transparency = 0.6
-                    color = [0, 0, 255]
-                else:
-                    transparency = 0.0
-                    color = [40, 40, 40]
-                for obj in added_objs:
-                    self[obj].transparency = transparency
-                    self[obj].color = color
-        return scene
 
     @pyaedt_function_handler()
     def objects_segmentation(
