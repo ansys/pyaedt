@@ -9,6 +9,127 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`1.11.0 <https://github.com/ansys/pyaedt/releases/tag/v1.11.0>`_ - November 27, 2026
+====================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - S1471987 script plot traces
+          - `#8257 <https://github.com/ansys/pyaedt/pull/8257>`_
+
+        * - Add setup_pwm_excitation method for SVPWM voltage excitation in Maxwell
+          - `#8264 <https://github.com/ansys/pyaedt/pull/8264>`_
+
+        * - Add AC Magnetic with dc fields entry points in Winding and Set Permeability Computation
+          - `#8280 <https://github.com/ansys/pyaedt/pull/8280>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Linux native library import order
+          - `#8274 <https://github.com/ansys/pyaedt/pull/8274>`_
+
+        * - Skip logger for non existing project
+          - `#8279 <https://github.com/ansys/pyaedt/pull/8279>`_
+
+        * - Speed up AEDT session discovery on Windows using psutil
+          - `#8296 <https://github.com/ansys/pyaedt/pull/8296>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Bump https://github.com/python-jsonschema/check-jsonschema from 0.38.2 to 0.39.0
+          - `#8255 <https://github.com/ansys/pyaedt/pull/8255>`_
+
+        * - Bump https://github.com/ansys/pre-commit-hooks from v0.8.0 to 0.8.1
+          - `#8265 <https://github.com/ansys/pyaedt/pull/8265>`_
+
+        * - Bump https://github.com/astral-sh/ty-pre-commit from v0.0.92 to 0.0.101
+          - `#8266 <https://github.com/ansys/pyaedt/pull/8266>`_
+
+        * - Bump https://github.com/astral-sh/ruff-pre-commit from v0.17.3 to 0.17.4
+          - `#8267 <https://github.com/ansys/pyaedt/pull/8267>`_
+
+        * - Bump https://github.com/woodruffw/zizmor-pre-commit from v1.31.1 to 1.32.0
+          - `#8268 <https://github.com/ansys/pyaedt/pull/8268>`_
+
+        * - Bump typer from 0.27.3 to 0.29.0
+          - `#8269 <https://github.com/ansys/pyaedt/pull/8269>`_
+
+        * - Bump the ansys-actions group with 13 updates
+          - `#8270 <https://github.com/ansys/pyaedt/pull/8270>`_
+
+        * - Bump https://github.com/astral-sh/ruff-pre-commit from v0.17.4 to 0.17.5
+          - `#8284 <https://github.com/ansys/pyaedt/pull/8284>`_
+
+        * - Bump https://github.com/astral-sh/ty-pre-commit from v0.0.101 to 0.0.104
+          - `#8285 <https://github.com/ansys/pyaedt/pull/8285>`_
+
+        * - Bump pytest-testmon from 2.2.0 to 2.3.0
+          - `#8286 <https://github.com/ansys/pyaedt/pull/8286>`_
+
+        * - Bump sphinx-design from 0.7.0 to 0.8.0
+          - `#8287 <https://github.com/ansys/pyaedt/pull/8287>`_
+
+        * - Bump ipython from 9.17.1 to 9.18.1
+          - `#8288 <https://github.com/ansys/pyaedt/pull/8288>`_
+
+        * - Bump pandas from 3.0.6 to 3.1.1
+          - `#8289 <https://github.com/ansys/pyaedt/pull/8289>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Remove python version support
+          - `#8261 <https://github.com/ansys/pyaedt/pull/8261>`_
+
+        * - Update CHANGELOG for v1.10.0
+          - `#8271 <https://github.com/ansys/pyaedt/pull/8271>`_
+
+        * - Bump dev version
+          - `#8272 <https://github.com/ansys/pyaedt/pull/8272>`_
+
+        * - Ignore specific logger.warn deprecation warning on extensions tests using edb_xfail
+          - `#8276 <https://github.com/ansys/pyaedt/pull/8276>`_
+
+        * - Ignore specific logger.warn deprecation warning on more test modules
+          - `#8277 <https://github.com/ansys/pyaedt/pull/8277>`_
+
+        * - Ignore specific logger.warn deprecation warning on system tests for mcad assembly
+          - `#8281 <https://github.com/ansys/pyaedt/pull/8281>`_
+
+        * - Ignore specific uds_fullpath deprecation warning in system tests of mcad assembly
+          - `#8291 <https://github.com/ansys/pyaedt/pull/8291>`_
+
+        * - Extend python support updates
+          - `#8293 <https://github.com/ansys/pyaedt/pull/8293>`_
+
+        * - Add python 3.15 support
+          - `#8295 <https://github.com/ansys/pyaedt/pull/8295>`_
+
+        * - Deprecate python 3.12 following Spec0000
+          - `#8297 <https://github.com/ansys/pyaedt/pull/8297>`_
+
+
 `1.10.0 <https://github.com/ansys/pyaedt/releases/tag/v1.10.0>`_ - November 14, 2026
 ====================================================================================
 
