@@ -24,6 +24,7 @@
 
 from __future__ import annotations
 
+from contextlib import contextmanager
 from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
@@ -31,6 +32,8 @@ import os
 from pathlib import Path
 import signal
 import socket
+import subprocess
+import time
 from unittest.mock import patch
 
 from cryptography import x509
@@ -44,9 +47,11 @@ import pytest
 from ansys.aedt.core import Desktop
 from ansys.aedt.core import settings
 from ansys.aedt.core.desktop import _find_free_port
+from ansys.aedt.core.desktop import _get_grpcsrv_args
 from ansys.aedt.core.generic.settings import DEFAULT_GRPC_LISTEN_ALL
 from ansys.aedt.core.generic.settings import DEFAULT_GRPC_LOCAL
 from ansys.aedt.core.generic.settings import DEFAULT_GRPC_SECURE_MODE
+from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from tests.conftest import DESKTOP_VERSION
 from tests.conftest import NON_GRAPHICAL
 
@@ -471,6 +476,42 @@ def generate_certs(server_specs: list[str], output_dir: Path) -> None:
     generated_files.extend(["client.key", "client.crt"])
 
 
+@contextmanager
+def running_grpc_server(machine, port):
+    """Start an independent AEDT server on a local network interface."""
+    executable = "ansysedt.exe" if IS_WINDOWS else "ansysedt"
+    executable = Path(aedt_versions.installed_versions[AEDT_VERSION]) / executable
+    server_args = str(_get_grpcsrv_args(machine, port))
+    if os.environ.get("PYAEDT_USE_PRE_GRPC_ARGS", "False") == "True":
+        server_args = str(port)
+    command = [str(executable), "-grpcsrv", server_args]
+    if NON_GRAPHICAL:
+        command.append("-ng")
+
+    process = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    try:
+        deadline = time.monotonic() + settings.desktop_launch_timeout
+        while time.monotonic() < deadline:
+            if process.poll() is not None:
+                raise RuntimeError(f"AEDT server exited with code {process.returncode}.")
+            try:
+                with socket.create_connection((machine, port), timeout=1):
+                    break
+            except OSError:
+                time.sleep(1)
+        else:
+            raise TimeoutError(f"AEDT server did not start on {machine}:{port}.")
+        yield
+    finally:
+        if process.poll() is None:
+            process.terminate()
+            try:
+                process.wait(timeout=10)
+            except subprocess.TimeoutExpired:
+                process.kill()
+                process.wait()
+
+
 # ##############################################################################
 
 
@@ -599,7 +640,8 @@ def test_desktop_local_mtls_success(machine, monkeypatch, tmp_path) -> None:
     reason="Not working in versions without grpc patch",
 )
 @pytest.mark.parametrize("machine", REMOTE_HOSTS)
-def test_desktop_remote_insecure_success(machine, monkeypatch) -> None:
+@pytest.mark.parametrize("new_desktop", (False, True))
+def test_desktop_remote_insecure_success(machine, new_desktop, monkeypatch) -> None:
     """Test that Desktop can connect in remote insecure mode."""
     monkeypatch.setattr(settings, "grpc_local", False)
     monkeypatch.setattr(settings, "grpc_secure_mode", False)
@@ -608,10 +650,18 @@ def test_desktop_remote_insecure_success(machine, monkeypatch) -> None:
 
     port = _find_free_port()
     monkeypatch.setenv("AnsysEM_GRPC_Connection_Timeout", f"{GRPC_CONNECTION_TIMEOUT}")
-    desktop = Desktop(version=AEDT_VERSION, non_graphical=NON_GRAPHICAL, new_desktop=True, machine=machine, port=port)
-
-    assert desktop.grpc_mode == "insecure"
-    desktop.release_desktop()
+    with running_grpc_server(machine, port), patch("ansys.aedt.core.desktop.launch_aedt") as launch:
+        desktop = Desktop(
+            version=AEDT_VERSION, non_graphical=NON_GRAPHICAL, new_desktop=new_desktop, machine=machine, port=port
+        )
+        try:
+            assert desktop.grpc_mode == "insecure"
+            assert desktop.machine == machine
+            assert desktop.port == port
+            assert not desktop.new_desktop
+            launch.assert_not_called()
+        finally:
+            desktop.release_desktop(close_projects=False, close_on_exit=False)
 
 
 # NOTE: This test is disabled to avoid exposing unnecessary network interfaces during CI runs.
@@ -645,10 +695,18 @@ def test_desktop_remote_mtls_success(machine, monkeypatch, tmp_path) -> None:
     generate_certs([machine], tmp_path)
     monkeypatch.setenv("ANSYS_GRPC_CERTIFICATES", str(tmp_path))
     monkeypatch.setenv("AnsysEM_GRPC_Connection_Timeout", f"{GRPC_CONNECTION_TIMEOUT}")
-    desktop = Desktop(version=AEDT_VERSION, non_graphical=NON_GRAPHICAL, new_desktop=True, machine=machine, port=port)
-
-    assert desktop.grpc_mode == "mtls"
-    desktop.release_desktop()
+    with running_grpc_server(machine, port), patch("ansys.aedt.core.desktop.launch_aedt") as launch:
+        desktop = Desktop(
+            version=AEDT_VERSION, non_graphical=NON_GRAPHICAL, new_desktop=True, machine=machine, port=port
+        )
+        try:
+            assert desktop.grpc_mode == "mtls"
+            assert desktop.machine == machine
+            assert desktop.port == port
+            assert not desktop.new_desktop
+            launch.assert_not_called()
+        finally:
+            desktop.release_desktop(close_projects=False, close_on_exit=False)
 
 
 # NOTE: This test is disabled to avoid exposing unnecessary network interfaces during CI runs.
