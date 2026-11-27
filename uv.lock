@@ -3456,7 +3456,7 @@ requires-dist = [
     { name = "pdf-oxide", marker = "extra == 'graphics'" },
     { name = "pillow", marker = "extra == 'graphics'" },
     { name = "plotly", marker = "extra == 'examples'", specifier = ">=6.0" },
-    { name = "psutil", specifier = ">=6.0.0" },
+    { name = "psutil", specifier = ">=6.1.0" },
     { name = "pyaedt", extras = ["jupyter"], marker = "extra == 'all'" },
     { name = "pyaedt", extras = ["jupyter"], marker = "extra == 'all-dotnet'" },
     { name = "pydantic", specifier = ">=2.6.4" },
