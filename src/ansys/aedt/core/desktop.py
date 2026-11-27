@@ -3411,8 +3411,14 @@ class Desktop(PyAedtBase):
                 # which can cause conflicts and timeouts.
                 lock_file = self._on_ci_generate_lock_file()
 
-            # Validate port availability/compatibility
-            self._validate_port()
+            if settings.grpc_local:
+                # Validate port availability/compatibility
+                self._validate_port()
+            else:
+                # In remote mode, PyAEDT can not open a new AEDT instance, so it will always connect to an existing one.
+                self.new_desktop = False
+                if not self.port:
+                    raise ValueError("In remote mode, a port must be specified.")
 
             is_launched = True
             # Launch new AEDT instance if needed
