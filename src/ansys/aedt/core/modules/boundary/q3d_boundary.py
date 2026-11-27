@@ -91,7 +91,7 @@ class Matrix(PyAedtBase):
     def omatrix(self) -> _OMatrix:
         """Return the editor required by component operations."""
         omatrix = self._app.omatrix
-        if omatrix is None:
+        if omatrix is None:  # pragma: no cover
             raise AEDTRuntimeError("Matrix module is not available.")
         return omatrix
 

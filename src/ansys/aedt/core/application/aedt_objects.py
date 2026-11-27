@@ -35,6 +35,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.generic.protocols import _OEditor
 from ansys.aedt.core.generic.protocols import _OMatrix
+from ansys.aedt.core.generic.protocols import _OMaxwellParameters
 from ansys.aedt.core.generic.protocols import _OMeshModule
 from ansys.aedt.core.generic.protocols import _OModelSetup
 from ansys.aedt.core.generic.protocols import _OOptimetricsModule
@@ -381,7 +382,7 @@ class AedtObjects(PyAedtBase):
         return self._omodel_setup
 
     @property
-    def omaxwell_parameters(self) -> object:
+    def omaxwell_parameters(self) -> _OMaxwellParameters | None:
         """AEDT Maxwell Parameter Setup Object.
 
         References
@@ -396,9 +397,9 @@ class AedtObjects(PyAedtBase):
 
         """
         if self._odesign and self.design_type not in ["Maxwell 3D", "Maxwell 2D"]:
-            return
+            return None
         if not self._omaxwell_parameters:
-            self._omaxwell_parameters = self.get_module("MaxwellParameterSetup")
+            self._omaxwell_parameters = cast(_OMaxwellParameters, self.get_module("MaxwellParameterSetup"))
         return self._omaxwell_parameters
 
     @property
@@ -413,7 +414,7 @@ class AedtObjects(PyAedtBase):
 
         """
         if not self._odesign or not self.design_type == "Icepak":
-            return
+            return None
         if not self._omonitor:
             self._omonitor = self.get_module("Monitor")
         return self._omonitor

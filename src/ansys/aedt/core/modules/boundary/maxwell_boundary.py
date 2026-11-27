@@ -26,6 +26,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from dataclasses import field
+from typing import TYPE_CHECKING
 
 from ansys.aedt.core.application import _get_obj_data
 from ansys.aedt.core.application import _has_get_obj_data
@@ -38,6 +39,11 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modules.boundary.common import BoundaryCommon
 from ansys.aedt.core.modules.boundary.common import BoundaryProps
+
+if TYPE_CHECKING:
+    from ansys.aedt.core import Maxwell2d
+    from ansys.aedt.core import Maxwell3d
+    from ansys.aedt.core.generic.protocols import _OMaxwellParameters
 
 
 @dataclass
@@ -77,7 +83,7 @@ class MatrixElectric:
 
     """
 
-    signal_sources: list
+    signal_sources: list[str]
     """Value for signal sources."""
     ground_sources: list = field(default_factory=list)
     """Value for ground sources."""
@@ -456,7 +462,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.maxwell.Maxwell3d`, :class:`ansys.aedt.core.maxwell.Maxwell2d`
+    app : :class:`ansys.aedt.core.maxwell.Maxwell3d` | :class:`ansys.aedt.core.maxwell.Maxwell2d`
         Either ``Maxwell3d`` or ``Maxwell2d`` application.
     name : str
         Name of the boundary.
@@ -483,8 +489,10 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
     """
 
-    def __init__(self, app, name, props=None, boundarytype=None) -> None:
-        self._app = app
+    def __init__(
+        self, app: Maxwell3d | Maxwell2d, name: str, props: dict | None = None, boundarytype: str | None = None
+    ) -> None:
+        self._app: Maxwell3d | Maxwell2d = app
         self._name = name
         self._legacy_props = {}
         self._type = boundarytype
@@ -519,6 +527,14 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
                 self._app._boundaries.pop(old_name)
                 self._app._boundaries[self._name] = self
         return result
+
+    @property
+    def omaxwell_parameters(self) -> _OMaxwellParameters:
+        """Return the editor required by component operations."""
+        omaxwell_parameters = self._app.omaxwell_parameters
+        if omaxwell_parameters is None:  # pragma: no cover
+            raise AEDTRuntimeError("Maxwell Parameters module is not available.")
+        return omaxwell_parameters
 
     @property
     def props(self) -> BoundaryProps:
@@ -564,7 +580,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
                 boundary_type = child_object.Type if "Type" in dir(child_object) else props.get("Type")
                 boundary_type = boundary_type or props.get("BoundType")
             else:
-                boundary_type = boundary_data[1]
+                boundary_type = boundary_data[1] if boundary_data is not None else None
             if boundary_type:
                 self._type = boundary_type
         return BoundaryProps(self, self._legacy_props)
@@ -666,13 +682,13 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
         """
         if self.type == "Matrix":
-            self._app.omaxwell_parameters.AssignMatrix(self._get_args())
+            self.omaxwell_parameters.AssignMatrix(self._get_args())
         elif self.type == "Torque":
-            self._app.omaxwell_parameters.AssignTorque(self._get_args())
+            self.omaxwell_parameters.AssignTorque(self._get_args())
         elif self.type == "Force":
-            self._app.omaxwell_parameters.AssignForce(self._get_args())
+            self.omaxwell_parameters.AssignForce(self._get_args())
         elif self.type == "LayoutForce":
-            self._app.omaxwell_parameters.AssignLayoutForce(self._get_args())
+            self.omaxwell_parameters.AssignLayoutForce(self._get_args())
         else:
             return False
         self._has_getobject = _has_get_obj_data(self.child_object)
@@ -722,11 +738,11 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
             props = self.props.to_dict()
         args = self._get_args(props)
         if self.type == "Matrix":
-            self._app.omaxwell_parameters.EditMatrix(self.name, args)
+            self.omaxwell_parameters.EditMatrix(self.name, args)
         elif self.type == "Force":
-            self._app.omaxwell_parameters.EditForce(self.name, args)
+            self.omaxwell_parameters.EditForce(self.name, args)
         elif self.type == "Torque":
-            self._app.omaxwell_parameters.EditTorque(self.name, args)
+            self.omaxwell_parameters.EditTorque(self.name, args)
         else:
             return False
         if not self._has_getobject:
@@ -741,13 +757,14 @@ class MaxwellMatrix(MaxwellParameters):
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.Maxwell3d`, :class:`ansys.aedt.core.Maxwell2d`
+    app : :class:`ansys.aedt.core.Maxwell3d` | :class:`ansys.aedt.core.Maxwell2d`
         Parent Maxwell application instance.
+    name : str
+        Name of the matrix.
+    props : dict, optional
+        Properties dictionary. The default is ``None``.
     schema : MaxwellMatrixSchema, optional
-        Schema defining the matrix assignment. Can be one of:
-        ``MatrixElectric``, ``MatrixMagnetostatic``, ``MatrixACMagnetic``, or
-        ``MatrixACMagneticAPhi``.
-        The default is ``None``.
+        Schema defining the matrix assignment. The default is ``None``.
 
     Examples
     --------
@@ -779,27 +796,22 @@ class MaxwellMatrix(MaxwellParameters):
 
     """
 
-    def __init__(self, app, name, props=None, schema: MaxwellMatrixSchema | None = None) -> None:
-        """Initialize Maxwell matrix.
-
-        Parameters
-        ----------
-        app : :class:`ansys.aedt.core.Maxwell3d`, :class:`ansys.aedt.core.Maxwell2d`
-            Parent Maxwell application instance.
-        name : str
-            Name of the matrix.
-        props : dict, optional
-            Properties dictionary. The default is ``None``.
-        schema : MaxwellMatrixSchema, optional
-            Schema defining the matrix assignment. The default is ``None``.
-        """
+    def __init__(
+        self,
+        app: Maxwell3d | Maxwell2d,
+        name: str,
+        props: dict | None = None,
+        schema: MaxwellMatrixSchema | None = None,
+    ) -> None:
         super().__init__(app, name, props=props, boundarytype="Matrix")
-        self._app = app
+        self._app: Maxwell3d | Maxwell2d = app
         self.__reduced_matrices = None
         self._schema = schema
 
     @property
-    def signal_sources(self) -> list[SourceACMagnetic] | None:
+    def signal_sources(
+        self,
+    ) -> list[str] | list[SourceMagnetostatic] | list[SourceACMagnetic] | None:
         """Retrieve signal sources.
 
         Examples
@@ -868,7 +880,7 @@ class MaxwellMatrix(MaxwellParameters):
         return None
 
     @property
-    def reduced_matrices(self) -> list[MaxwellReducedMatrix]:
+    def reduced_matrices(self) -> list[MaxwellReducedMatrix] | None:
         """List of reduced matrix groups for the parent matrix.
 
         Returns
@@ -909,15 +921,18 @@ class MaxwellMatrix(MaxwellParameters):
                 reduced_operations = self._app.get_oo_name(reduced_matrix_object)
                 operation_object = []
                 for operation_name in reduced_operations:
-                    sources = self._app.get_oo_property_value(reduced_matrix_object, operation_name, "Source").split(
-                        ", "
-                    )
+                    source_value = self._app.get_oo_property_value(reduced_matrix_object, operation_name, "Source")
+                    if not isinstance(source_value, str):  # pragma: no cover
+                        raise AEDTRuntimeError("Expected reduced matrix sources to be a string.")
+                    sources = source_value.split(", ")
                     operation_object.append(MaxwellReducedMatrixOperation(self.name, r, operation_name, sources))
                 self.__reduced_matrices.append(MaxwellReducedMatrix(self._app, self, r, operation_object))
         return self.__reduced_matrices
 
     @pyaedt_function_handler()
-    def join_series(self, sources: list, matrix_name: str = None, join_name: str = None) -> MaxwellReducedMatrix:
+    def join_series(
+        self, sources: list, matrix_name: str | None = None, join_name: str | None = None
+    ) -> MaxwellReducedMatrix:
         """Create matrix reduction by joining sources in series.
 
         Parameters
@@ -965,7 +980,9 @@ class MaxwellMatrix(MaxwellParameters):
         )
 
     @pyaedt_function_handler()
-    def join_parallel(self, sources: list, matrix_name: str = None, join_name: str = None) -> MaxwellReducedMatrix:
+    def join_parallel(
+        self, sources: list, matrix_name: str | None = None, join_name: str | None = None
+    ) -> MaxwellReducedMatrix:
         """Create matrix reduction by joining sources in parallel.
 
         Parameters
@@ -1014,7 +1031,7 @@ class MaxwellMatrix(MaxwellParameters):
 
     @pyaedt_function_handler()
     def _create_matrix_reduction(
-        self, red_type: str, sources: list, matrix_name: str = None, join_name: str = None
+        self, red_type: str, sources: list, matrix_name: str | None = None, join_name: str | None = None
     ) -> MaxwellReducedMatrix:
         if self._app.solution_type not in [SolutionsMaxwell3D.EddyCurrent, SolutionsMaxwell3D.ACMagnetic]:
             raise AEDTRuntimeError(r"Matrix reduction is available only in Eddy Current\AC Magnetic solver.")
@@ -1022,21 +1039,24 @@ class MaxwellMatrix(MaxwellParameters):
             matrix_name = generate_unique_name("ReducedMatrix", n=3)
         if not join_name:
             join_name = generate_unique_name("Join" + red_type, n=3)
-        self._app.omaxwell_parameters.AddReduceOp(
+        self.omaxwell_parameters.AddReduceOp(
             self.name,
             matrix_name,
             ["NAME:" + join_name, "Type:=", "Join in " + red_type, "Sources:=", ",".join(sources)],
         )
-        reduced_matrix = next(m for m in self.reduced_matrices if m.name == matrix_name)
+        reduced_matrices = self.reduced_matrices
+        if reduced_matrices is None:  # pragma: no cover
+            raise AEDTRuntimeError("Reduced matrices are not available for this solver.")
+        reduced_matrix = next(m for m in reduced_matrices if m.name == matrix_name)
         return reduced_matrix
 
 
-class MaxwellReducedMatrix:
+class MaxwellReducedMatrix(PyAedtBase):
     """Provides methods to interact with reduced matrices in Maxwell.
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.Maxwell3d`, :class:`ansys.aedt.core.Maxwell2d`
+    app : :class:`ansys.aedt.core.Maxwell3d` | :class:`ansys.aedt.core.Maxwell2d`
         Parent Maxwell application instance.
     parent_matrix : MaxwellMatrix
         Parent matrix object.
@@ -1091,7 +1111,7 @@ class MaxwellReducedMatrix:
 
     def __init__(
         self,
-        app,
+        app: Maxwell3d | Maxwell2d,
         parent_matrix: MaxwellMatrix,
         name: str,
         operations_reduction: list[MaxwellReducedMatrixOperation] | MaxwellReducedMatrixOperation | None = None,
@@ -1105,6 +1125,14 @@ class MaxwellReducedMatrix:
             self.operations_reduction = [operations_reduction]
         else:
             self.operations_reduction = operations_reduction
+
+    @property
+    def omaxwell_parameters(self) -> _OMaxwellParameters:
+        """Return the editor required by component operations."""
+        omaxwell_parameters = self._app.omaxwell_parameters
+        if omaxwell_parameters is None:
+            raise AEDTRuntimeError("Maxwell Parameters module is not available.")
+        return omaxwell_parameters
 
     @pyaedt_function_handler()
     def update(
@@ -1199,7 +1227,7 @@ class MaxwellReducedMatrix:
             ",".join(operation.sources) if not new_sources else ",".join(new_sources),
         ]
 
-        self._app.omaxwell_parameters.EditReduceOp(self.parent_matrix.name, self.name, name, args)
+        self.omaxwell_parameters.EditReduceOp(self.parent_matrix.name, self.name, name, args)
         return MaxwellReducedMatrixOperation(self.parent_matrix.name, self.name, operation.name, operation.sources)
 
     @pyaedt_function_handler()
@@ -1262,14 +1290,25 @@ class MaxwellReducedMatrix:
         """
         if name not in [op.name for op in self.operations_reduction]:
             raise AEDTRuntimeError("Reduction operation name not valid.")
-        self._app.omaxwell_parameters.DeleteReduceOp(self.parent_matrix.name, self.name, name)
+        self.omaxwell_parameters.DeleteReduceOp(self.parent_matrix.name, self.name, name)
         operation = next(op for op in self.operations_reduction if op.name == name)
         self.operations_reduction.remove(operation)
         return True
 
 
-class MaxwellReducedMatrixOperation:
+class MaxwellReducedMatrixOperation(PyAedtBase):
     """Represent a reduced matrix operation in Maxwell (join in series or parallel).
+
+    Parameters
+    ----------
+    parent_matrix : str
+        Name of the parent matrix.
+    reduced_matrix : str
+        Name of the reduced matrix.
+    name : str
+        Name of the reduction operation.
+    sources : list of str
+        List of source names involved in the reduction operation.
 
     Examples
     --------
@@ -1309,6 +1348,15 @@ class MaxwellReducedMatrixOperation:
 class MaxwellForce(MaxwellParameters):
     """Initialize Maxwell force.
 
+    Parameters
+    ----------
+    app : :class:`ansys.aedt.core.Maxwell3d` | :class:`ansys.aedt.core.Maxwell2d`
+        Parent Maxwell application instance.
+    name : str
+        Name of the force boundary.
+    props : dict, optional
+        Properties dictionary. The default is ``None``.
+
     Examples
     --------
     Compute the attraction force exerted by a permanent magnet on an iron plate.
@@ -1325,13 +1373,22 @@ class MaxwellForce(MaxwellParameters):
 
     """
 
-    def __init__(self, app, name, props=None) -> None:
+    def __init__(self, app: Maxwell3d | Maxwell2d, name: str, props: dict | None = None) -> None:
         super().__init__(app, name, props=props, boundarytype="Force")
-        self._app = app
+        self._app: Maxwell3d | Maxwell2d = app
 
 
 class MaxwellTorque(MaxwellParameters):
     """Initialize Maxwell torque.
+
+    Parameters
+    ----------
+    app : :class:`ansys.aedt.core.Maxwell3d` | :class:`ansys.aedt.core.Maxwell2d`
+        Parent Maxwell application instance.
+    name : str
+        Name of the torque boundary.
+    props : dict, optional
+        Properties dictionary. The default is ``None``.
 
     Examples
     --------
@@ -1350,13 +1407,22 @@ class MaxwellTorque(MaxwellParameters):
 
     """
 
-    def __init__(self, app, name, props=None) -> None:
+    def __init__(self, app: Maxwell3d | Maxwell2d, name: str, props: dict | None = None) -> None:
         super().__init__(app, name, props=props, boundarytype="Torque")
-        self._app = app
+        self._app: Maxwell3d | Maxwell2d = app
 
 
 class MaxwellLayoutForce(MaxwellParameters):
     """Initialize Maxwell layout force.
+
+    Parameters
+    ----------
+    app : :class:`ansys.aedt.core.Maxwell3d` | :class:`ansys.aedt.core.Maxwell2d`
+        Parent Maxwell application instance.
+    name : str
+        Name of the layout force boundary.
+    props : dict, optional
+        Properties dictionary. The default is ``None``.
 
     Examples
     --------
@@ -1374,6 +1440,6 @@ class MaxwellLayoutForce(MaxwellParameters):
 
     """
 
-    def __init__(self, app, name, props=None) -> None:
+    def __init__(self, app: Maxwell3d | Maxwell2d, name: str, props: dict | None = None) -> None:
         super().__init__(app, name, props=props, boundarytype="LayoutForce")
-        self._app = app
+        self._app: Maxwell3d | Maxwell2d = app
