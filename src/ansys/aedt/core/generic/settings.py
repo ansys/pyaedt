@@ -101,6 +101,7 @@ ALLOWED_GENERAL_SETTINGS = [
     "lazy_load",
     "objects_lazy_load",
     "aedt_version",
+    "custom_desktop_launch_args",
     "desktop_launch_timeout",
     "disable_bounding_box_sat",
     "edb_dll_path",
@@ -215,6 +216,7 @@ class Settings(PyAedtBase):
         self.__enable_local_log_file: bool = False
         self.__global_log_file_size: int = 10
         self.__aedt_log_file: str | None = None
+        self.__custom_desktop_launch_args: str | None = None
         # Settings related to Linux systems running LSF scheduler
         self.__num_cores = DEFAULT_NUM_CORES
         self.__lsf_ram: int = 1000
@@ -724,6 +726,40 @@ class Settings(PyAedtBase):
     @aedt_log_file.setter
     def aedt_log_file(self, value: str) -> None:
         self.__aedt_log_file = value
+
+    @property
+    def custom_desktop_launch_args(self) -> str | None:
+        """Extra command line arguments appended when launching AEDT in gRPC mode. The default is ``None``.
+
+        Use this to pass flags that AEDT only honors at launch, such as ``-distributed`` and ``-machinelist``.
+        Required to control variation distribution under an interactive scheduler job (for example
+        Slurm), where settings applied afterward through custom acf have no effect.
+
+        This must be set before AEDT is launched, since it is read once by ``launch_aedt()`` when the
+        process starts, for example before creating a ``Desktop`` or application instance with
+        ``new_desktop=True``. Setting it afterward on an already-running session has no effect.
+
+        Examples
+        --------
+        >>> # Distribute upto 4 variations in ParametricSetup1 in parallel
+        >>> # With 4 cpus allocated per variation
+        >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.custom_desktop_launch_args = (
+        ...     "-distributed includetypes=default maxlevels=1 -machinelist num=4 "
+        ...     "-batchoptions \"'HFSS/NumCoresPerDistributedTask'='4'\""
+        ... )
+        >>> hfss = Hfss(new_desktop=True, non_graphical=True)
+        >>> hfss.analyze_setup(
+        ...     name="ParametricSetup1",
+        ... )
+
+        """
+        return self.__custom_desktop_launch_args
+
+    @custom_desktop_launch_args.setter
+    def custom_desktop_launch_args(self, value: str) -> None:
+        self.__custom_desktop_launch_args = value
 
     # ############################# LSF properties ############################
 
