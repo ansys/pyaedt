@@ -1041,7 +1041,7 @@ def read_configuration_file(input_file: StrPath) -> dict | list:
 
     Returns
     -------
-    Union[Dict, List]
+    dict | list
         Dictionary if configuration file is ``"toml"`` or ``"json"``, List is ``"csv"``, ``"tab"`` or ``"xlsx"``.
 
     Examples

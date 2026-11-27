@@ -536,13 +536,17 @@ class Radar(MultiPartComponent, PyAedtBase):
         tx_names = []
         rx_names = []
         for p in self.parts:
+            old_excitations = list(app.design_excitations.keys())
             antenna_object = self.parts[p].insert(app, units=self._local_units)
             self.aedt_components.append(antenna_object.name)
-            self.aedt_antenna_names.append(antenna_object.excitation_name)
+
+            new_excitation = list(set(app.design_excitations.keys()) - set(old_excitations))
+            if new_excitation:
+                self.aedt_antenna_names.append(new_excitation[0])
             if p.startswith("tx"):
-                tx_names.append(antenna_object.excitation_name)
+                tx_names.append(new_excitation[0])
             elif p.startswith("rx"):
-                rx_names.append(antenna_object.excitation_name)
+                rx_names.append(new_excitation[0])
 
         # Define tx/rx pairs:
         self.pair = {}

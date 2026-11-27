@@ -24,6 +24,7 @@
 
 import sys
 import time
+from typing import cast
 
 from ansys.aedt.core.application.aedt_units import AedtUnits
 from ansys.aedt.core.base import PyAedtBase
@@ -32,6 +33,13 @@ from ansys.aedt.core.generic.constants import SolutionsHfss
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
+from ansys.aedt.core.generic.protocols import _OEditor
+from ansys.aedt.core.generic.protocols import _OMatrix
+from ansys.aedt.core.generic.protocols import _OMaxwellParameters
+from ansys.aedt.core.generic.protocols import _OMeshModule
+from ansys.aedt.core.generic.protocols import _OModelSetup
+from ansys.aedt.core.generic.protocols import _OOptimetricsModule
+from ansys.aedt.core.generic.protocols import _ORadFieldModule
 from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
 
@@ -68,12 +76,12 @@ class AedtObjects(PyAedtBase):
                     self._odesign = self._oproject.GetActiveDesign()
         self._oboundary = None
         self._oimport_export = None
-        self._ooptimetrics = None
+        self._ooptimetrics: _OOptimetricsModule | None = None
         self._ooutput_variable = None
         self._oanalysis = None
         self._odefinition_manager = None
         self._omaterial_manager = None
-        self._omodel_setup = None
+        self._omodel_setup: _OModelSetup | None = None
         self._omaxwell_parameters = None
         self._omonitor = None
         self._osolution = None
@@ -81,14 +89,14 @@ class AedtObjects(PyAedtBase):
         self._omatrix = None
         self._ofieldsreporter = None
         self._oreportsetup = None
-        self._omeshmodule = None
+        self._omeshmodule: _OMeshModule | None = None
         self._oeditor = None
         self._layouteditor = None
         self._ocomponent_manager = None
         self._omodel_manager = None
         self._osymbol_manager = None
         self._opadstack_manager = None
-        self._oradfield = None
+        self._oradfield: _ORadFieldModule | None = None
         self._onetwork_data_explorer = None
         self._odata_block = None
         self.__aedtunits = AedtUnits(self)
@@ -111,7 +119,7 @@ class AedtObjects(PyAedtBase):
         return self.__aedtunits
 
     @property
-    def oradfield(self) -> object:
+    def oradfield(self) -> _ORadFieldModule | None:
         """AEDT radiation field object.
 
         References
@@ -129,9 +137,9 @@ class AedtObjects(PyAedtBase):
             SolutionsHfss.EigenMode,
             SolutionsHfss.CharacteristicMode,
         ]:
-            return self._odesign.GetModule("RadField")
+            return cast(_ORadFieldModule | None, self._odesign.GetModule("RadField"))
         if self.desktop_class.aedt_version_id >= "2025.1" and self.design_type == "Q3D Extractor":
-            return self._odesign.GetModule("RadField")
+            return cast(_ORadFieldModule | None, self._odesign.GetModule("RadField"))
         return None
 
     @pyaedt_function_handler()
@@ -243,7 +251,7 @@ class AedtObjects(PyAedtBase):
         return self._oimport_export
 
     @property
-    def ooptimetrics(self) -> object:
+    def ooptimetrics(self) -> _OOptimetricsModule | None:
         """AEDT Optimetrics Module.
 
         References
@@ -258,7 +266,7 @@ class AedtObjects(PyAedtBase):
 
         """
         if not self._ooptimetrics and self.design_type not in ["Circuit Netlist", "Maxwell Circuit", "EMIT"]:
-            self._ooptimetrics = self.get_module("Optimetrics")
+            self._ooptimetrics = cast(_OOptimetricsModule | None, self.get_module("Optimetrics"))
         return self._ooptimetrics
 
     @property
@@ -348,7 +356,7 @@ class AedtObjects(PyAedtBase):
         return self._omaterial_manager
 
     @property
-    def omodelsetup(self) -> object:
+    def omodelsetup(self) -> _OModelSetup | None:
         """AEDT Model Setup Object.
 
         References
@@ -370,11 +378,11 @@ class AedtObjects(PyAedtBase):
                 and self._odesign.GetSolutionType() == "Transient"
                 or self.design_type == "HFSS"
             ):
-                self._omodel_setup = self.get_module("ModelSetup")
+                self._omodel_setup = cast(_OModelSetup, self.get_module("ModelSetup"))
         return self._omodel_setup
 
     @property
-    def omaxwell_parameters(self) -> object:
+    def omaxwell_parameters(self) -> _OMaxwellParameters | None:
         """AEDT Maxwell Parameter Setup Object.
 
         References
@@ -389,9 +397,9 @@ class AedtObjects(PyAedtBase):
 
         """
         if self._odesign and self.design_type not in ["Maxwell 3D", "Maxwell 2D"]:
-            return
+            return None
         if not self._omaxwell_parameters:
-            self._omaxwell_parameters = self.get_module("MaxwellParameterSetup")
+            self._omaxwell_parameters = cast(_OMaxwellParameters, self.get_module("MaxwellParameterSetup"))
         return self._omaxwell_parameters
 
     @property
@@ -406,7 +414,7 @@ class AedtObjects(PyAedtBase):
 
         """
         if not self._odesign or not self.design_type == "Icepak":
-            return
+            return None
         if not self._omonitor:
             self._omonitor = self.get_module("Monitor")
         return self._omonitor
@@ -465,7 +473,7 @@ class AedtObjects(PyAedtBase):
         return self._oexcitation
 
     @property
-    def omatrix(self) -> object:
+    def omatrix(self) -> _OMatrix | None:
         """Matrix Object.
 
         Examples
@@ -478,7 +486,7 @@ class AedtObjects(PyAedtBase):
         if self.design_type not in ["Q3D Extractor", "2D Extractor"]:
             return
         if not self._omatrix:
-            self._omatrix = self.get_module("ReduceMatrix")
+            self._omatrix = cast(_OMatrix, self.get_module("ReduceMatrix"))
         return self._omatrix
 
     @property
@@ -538,7 +546,7 @@ class AedtObjects(PyAedtBase):
         return self._oreportsetup
 
     @property
-    def omeshmodule(self) -> object:
+    def omeshmodule(self) -> _OMeshModule | None:
         """Icepak Mesh Module.
 
         References
@@ -557,7 +565,7 @@ class AedtObjects(PyAedtBase):
         return self._omeshmodule
 
     @property
-    def oeditor(self) -> object:
+    def oeditor(self) -> _OEditor | None:
         """Oeditor Module.
 
         References

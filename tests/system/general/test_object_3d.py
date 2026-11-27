@@ -70,7 +70,9 @@ def create_example_coil(app, name: str | None = None):
 def create_copper_box(app, name: str | None = None):
     if not name:
         name = "MyBox"
-    box = app.modeler[name]
+    box = None
+    if name in app.modeler.object_names:
+        box = app.modeler.delete(name)
     if not box:
         box = app.modeler.create_box([0, 0, 0], [10, 10, 5], name, "Copper")
     return box
@@ -79,19 +81,25 @@ def create_copper_box(app, name: str | None = None):
 def create_copper_sphere(app, name: str | None = None):
     if not name:
         name = "Mysphere"
-    if app.modeler[name]:
-        app.modeler.delete(name)
-    return app.modeler.create_sphere([0, 0, 0], radius=4, name=name, material="Copper")
+    sphere = None
+    if name in app.modeler.object_names:
+        sphere = app.modeler.delete(name)
+    if not sphere:
+        sphere = app.modeler.create_sphere([0, 0, 0], radius=4, name=name, material="Copper")
+    return sphere
 
 
 def create_copper_cylinder(app, name: str | None = None):
     if not name:
         name = "MyCyl"
-    if app.modeler[name]:
-        app.modeler.delete(name)
-    return app.modeler.create_cylinder(
-        orientation="Y", origin=[0, 0, 0], radius=1, height=20, num_sides=8, name=name, material="Copper"
-    )
+    cylinder = None
+    if name in app.modeler.object_names:
+        cylinder = app.modeler.delete(name)
+    if not cylinder:
+        cylinder = app.modeler.create_cylinder(
+            orientation="Y", origin=[0, 0, 0], radius=1, height=20, num_sides=8, name=name, material="Copper"
+        )
+    return cylinder
 
 
 def test_uname() -> None:
@@ -616,6 +624,9 @@ def test_get_object_history_properties(aedt_app) -> None:
     assert box_history.command == "CreateBox"
     assert box_history.properties["Command"] == "CreateBox"
     assert box_history.children == {}
+    box.rotate(axis="Z", angle=15)
+    assert "Rotate:1" in box_history.children
+    assert box_history.command == "CreateBox"
     assert box_clone_history._node == "box_history1"
     assert box_clone_history.command == box_history.command
     assert box_clone_history.properties["Command"] == box_history.properties["Command"]

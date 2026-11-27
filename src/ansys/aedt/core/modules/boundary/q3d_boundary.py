@@ -22,6 +22,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import MatrixOperationsQ3D
 from ansys.aedt.core.generic.constants import PlotCategoriesQ3D
@@ -30,19 +34,51 @@ from ansys.aedt.core.generic.general_methods import filter_tuple
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
+if TYPE_CHECKING:
+    from ansys.aedt.core import Q2d
+    from ansys.aedt.core import Q3d
+    from ansys.aedt.core.generic.protocols import _OMatrix
+
 
 class Matrix(PyAedtBase):
     """Manages Matrix in Q3d and Q2d Projects.
 
+    Matrices are available in Q3D Extractor and 2D Extractor designs through the
+    ``matrices`` attribute of the application. New reduced matrices are created
+    with the ``insert_reduced_matrix()`` method.
+
+    Parameters
+    ----------
+    app : Q3d | Q2d
+        Q3D, or Q2D application instance.
+    name : str
+        Name of the field setup component.
+    operations : dict | None
+        Properties of the field setup component.
+
     Examples
     --------
+    Join two traces in series and list the matrices of the design.
 
+    >>> from ansys.aedt.core import Q3d
+    >>> q3d = Q3d(version="2026.1")
+    >>> trace1 = q3d.modeler.create_box([0, 0, 0], [10, 1, 1], name="Trace1", material="copper")
+    >>> trace2 = q3d.modeler.create_box([0, 3, 0], [10, 1, 1], name="Trace2", material="copper")
+    >>> q3d.auto_identify_nets()
+    True
+    >>> source1 = q3d.source(trace1, direction=0, name="Source1")
+    >>> sink1 = q3d.sink(trace1, direction=3, name="Sink1")
+    >>> source2 = q3d.source(trace2, direction=0, name="Source2")
+    >>> sink2 = q3d.sink(trace2, direction=3, name="Sink2")
+    >>> matrix = q3d.insert_reduced_matrix("JoinSeries", ["Sink1", "Source2"], "Series", "Loop")
+    >>> [m.name for m in q3d.matrices]
+    ['Original', 'Series']
+    >>> q3d.release_desktop()
 
     """
 
-    def __init__(self, app, name: str, operations=None) -> None:
-        self._app = app
-        self.omatrix = self._app.omatrix
+    def __init__(self, app: Q3d | Q2d, name: str, operations=None) -> None:
+        self._app: Q3d | Q2d = app
         self.name = name
         self._sources = []
         if operations:
@@ -50,6 +86,14 @@ class Matrix(PyAedtBase):
                 self._operations = operations
             else:
                 self._operations = [operations]
+
+    @property
+    def omatrix(self) -> _OMatrix:
+        """Return the editor required by component operations."""
+        omatrix = self._app.omatrix
+        if omatrix is None:  # pragma: no cover
+            raise AEDTRuntimeError("Matrix module is not available.")
+        return omatrix
 
     @pyaedt_function_handler()
     def sources(self, is_gc_sources: bool = True) -> list:
@@ -66,16 +110,31 @@ class Matrix(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.q3d_boundary import Matrix
-        >>> obj = Matrix()
-        >>> obj.sources(is_gc_sources=True)
+        Join the sink of a trace to the source of a second trace and list the sources of the reduced matrix.
+
+        >>> from ansys.aedt.core import Q3d
+        >>> q3d = Q3d(version="2026.1")
+        >>> trace1 = q3d.modeler.create_box([0, 0, 0], [10, 1, 1], name="Trace1", material="copper")
+        >>> trace2 = q3d.modeler.create_box([0, 3, 0], [10, 1, 1], name="Trace2", material="copper")
+        >>> q3d.auto_identify_nets()
+        True
+        >>> source1 = q3d.source(trace1, direction=0, name="Source1")
+        >>> sink1 = q3d.sink(trace1, direction=3, name="Sink1")
+        >>> source2 = q3d.source(trace2, direction=0, name="Source2")
+        >>> sink2 = q3d.sink(trace2, direction=3, name="Sink2")
+        >>> matrix = q3d.insert_reduced_matrix("JoinSeries", ["Sink1", "Source2"], "Series", "Loop")
+        >>> matrix.sources(is_gc_sources=True)
+        ['Loop']
+        >>> matrix.sources(is_gc_sources=False)
+        ['Loop:Source1']
+        >>> q3d.release_desktop()
 
         """
-        if self.name in list(self._app.omatrix.ListReduceMatrixes()):
+        if self.name in list(self.omatrix.ListReduceMatrixes()):
             if self._app.design_type == "Q3D Extractor":
-                self._sources = list(self._app.omatrix.ListReduceMatrixReducedSources(self.name, is_gc_sources))
+                self._sources = list(self.omatrix.ListReduceMatrixReducedSources(self.name, is_gc_sources))
             else:
-                self._sources = list(self._app.omatrix.ListReduceMatrixReducedSources(self.name))
+                self._sources = list(self.omatrix.ListReduceMatrixReducedSources(self.name))
         return self._sources
 
     @pyaedt_function_handler()
@@ -83,8 +142,8 @@ class Matrix(PyAedtBase):
         self,
         get_self_terms: bool = True,
         get_mutual_terms: bool = True,
-        first_element_filter: str = None,
-        second_element_filter: str = None,
+        first_element_filter: str | None = None,
+        second_element_filter: str | None = None,
         category: str | MatrixOperationsQ3D = "C",
     ) -> list:
         """Return a list of source of specified matrix ready to be used in plot reports.
@@ -109,11 +168,17 @@ class Matrix(PyAedtBase):
 
         Examples
         --------
+        Get the mutual capacitance terms between two traces, ready to be used in a report.
+
         >>> from ansys.aedt.core import Q3d
-        >>> q3d = Q3d(project_path)
-        >>> q3d.matrices[0].get_sources_for_plot(
-        ...     first_element_filter="Bo?1", second_element_filter="GND*", category="DCL"
-        ... )
+        >>> q3d = Q3d(version="2026.1")
+        >>> trace1 = q3d.modeler.create_box([0, 0, 0], [10, 1, 1], name="Trace1", material="copper")
+        >>> trace2 = q3d.modeler.create_box([0, 3, 0], [10, 1, 1], name="Trace2", material="copper")
+        >>> q3d.auto_identify_nets()
+        True
+        >>> q3d.matrices[0].get_sources_for_plot(get_self_terms=False, first_element_filter="Trace1", category="C")
+        ['C(Trace1,Trace2)']
+        >>> q3d.release_desktop()
 
         """
         if not first_element_filter:
@@ -148,22 +213,35 @@ class Matrix(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.q3d_boundary import Matrix
-        >>> obj = Matrix()
-        >>> obj.operations
+        List the operations of a reduced matrix that joins two traces in series.
+
+        >>> from ansys.aedt.core import Q3d
+        >>> q3d = Q3d(version="2026.1")
+        >>> trace1 = q3d.modeler.create_box([0, 0, 0], [10, 1, 1], name="Trace1", material="copper")
+        >>> trace2 = q3d.modeler.create_box([0, 3, 0], [10, 1, 1], name="Trace2", material="copper")
+        >>> q3d.auto_identify_nets()
+        True
+        >>> source1 = q3d.source(trace1, direction=0, name="Source1")
+        >>> sink1 = q3d.sink(trace1, direction=3, name="Sink1")
+        >>> source2 = q3d.source(trace2, direction=0, name="Source2")
+        >>> sink2 = q3d.sink(trace2, direction=3, name="Sink2")
+        >>> matrix = q3d.insert_reduced_matrix("JoinSeries", ["Sink1", "Source2"], "Series", "Loop")
+        >>> matrix.operations
+        ['JoinSeries1']
+        >>> q3d.release_desktop()
 
         """
-        if self.name in list(self._app.omatrix.ListReduceMatrixes()):
-            self._operations = self._app.omatrix.ListReduceMatrixOperations(self.name)
+        if self.name in list(self.omatrix.ListReduceMatrixes()):
+            self._operations: list[str] = self.omatrix.ListReduceMatrixOperations(self.name)
         return self._operations
 
     @pyaedt_function_handler()
     def create(
         self,
-        source_names: str | list = None,
-        new_net_name: str = None,
-        new_source_name: str = None,
-        new_sink_name: str = None,
+        source_names: str | list | None = None,
+        new_net_name: str | None = None,
+        new_source_name: str | None = None,
+        new_sink_name: str | None = None,
     ) -> bool:
         """Create a new matrix.
 
@@ -185,9 +263,26 @@ class Matrix(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.q3d_boundary import Matrix
-        >>> obj = Matrix()
-        >>> obj.create(source_names=["Box1"], new_net_name=1)
+        Recreate a series reduced matrix in AEDT after deleting it.
+
+        >>> from ansys.aedt.core import Q3d
+        >>> q3d = Q3d(version="2026.1")
+        >>> trace1 = q3d.modeler.create_box([0, 0, 0], [10, 1, 1], name="Trace1", material="copper")
+        >>> trace2 = q3d.modeler.create_box([0, 3, 0], [10, 1, 1], name="Trace2", material="copper")
+        >>> q3d.auto_identify_nets()
+        True
+        >>> source1 = q3d.source(trace1, direction=0, name="Source1")
+        >>> sink1 = q3d.sink(trace1, direction=3, name="Sink1")
+        >>> source2 = q3d.source(trace2, direction=0, name="Source2")
+        >>> sink2 = q3d.sink(trace2, direction=3, name="Sink2")
+        >>> matrix = q3d.insert_reduced_matrix("JoinSeries", ["Sink1", "Source2"], "Series", "Loop")
+        >>> matrix.delete()
+        True
+        >>> matrix.create(source_names=["Sink1", "Source2"], new_net_name="Loop")
+        True
+        >>> matrix.sources()
+        ['Loop']
+        >>> q3d.release_desktop()
 
         """
         if not isinstance(source_names, list) and source_names:
@@ -208,9 +303,24 @@ class Matrix(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.q3d_boundary import Matrix
-        >>> obj = Matrix()
-        >>> obj.delete()
+        Delete a reduced matrix that is no longer needed.
+
+        >>> from ansys.aedt.core import Q3d
+        >>> q3d = Q3d(version="2026.1")
+        >>> trace1 = q3d.modeler.create_box([0, 0, 0], [10, 1, 1], name="Trace1", material="copper")
+        >>> trace2 = q3d.modeler.create_box([0, 3, 0], [10, 1, 1], name="Trace2", material="copper")
+        >>> q3d.auto_identify_nets()
+        True
+        >>> source1 = q3d.source(trace1, direction=0, name="Source1")
+        >>> sink1 = q3d.sink(trace1, direction=3, name="Sink1")
+        >>> source2 = q3d.source(trace2, direction=0, name="Source2")
+        >>> sink2 = q3d.sink(trace2, direction=3, name="Sink2")
+        >>> matrix = q3d.insert_reduced_matrix("JoinSeries", ["Sink1", "Source2"], "Series", "Loop")
+        >>> matrix.delete()
+        True
+        >>> [m.name for m in q3d.matrices]
+        ['Original']
+        >>> q3d.release_desktop()
 
         """
         self.omatrix.DeleteRM(self.name)
@@ -223,10 +333,10 @@ class Matrix(PyAedtBase):
     def add_operation(
         self,
         operation_type: str | MatrixOperationsQ3D,
-        source_names: str | list = None,
-        new_net_name: str = None,
-        new_source_name: str = None,
-        new_sink_name: str = None,
+        source_names: str | list | None = None,
+        new_net_name: str | None = None,
+        new_source_name: str | None = None,
+        new_sink_name: str | None = None,
     ) -> bool:
         """Add a new operation to existing matrix.
 
@@ -250,12 +360,30 @@ class Matrix(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.q3d_boundary import Matrix
-        >>> obj = Matrix()
-        >>> obj.add_operation(operation_type=1)
+        Connect three parallel traces into a single bus with two ``JoinParallel`` operations.
+
+        >>> from ansys.aedt.core import Q3d
+        >>> q3d = Q3d(version="2026.1")
+        >>> traces = [
+        ...     q3d.modeler.create_box([0, 3 * i, 0], [10, 1, 1], name=f"Trace{i + 1}", material="copper")
+        ...     for i in range(3)
+        ... ]
+        >>> q3d.auto_identify_nets()
+        True
+        >>> for i, trace in enumerate(traces, start=1):
+        ...     source = q3d.source(trace, direction=0, name=f"Source{i}")
+        ...     sink = q3d.sink(trace, direction=3, name=f"Sink{i}")
+        >>> matrix = q3d.insert_reduced_matrix("JoinParallel", ["Trace1", "Trace2"], "Bus", "Bus12", "Src12", "Snk12")
+        >>> matrix.add_operation("JoinParallel", ["Trace3", "Bus12"], "Bus123", "Src123", "Snk123")
+        True
+        >>> matrix.operations
+        ['JoinParallel1', 'JoinParallel2']
+        >>> matrix.sources()
+        ['Bus123']
+        >>> q3d.release_desktop()
 
         """
-        self._operations.append(operation_type)
+        self._operations.append(str(operation_type))
         if not isinstance(source_names, list) and source_names:
             source_names = [source_names]
 
@@ -277,9 +405,6 @@ class Matrix(PyAedtBase):
         if not self._operations:  # pragma: no cover
             raise AEDTRuntimeError("Operations list is empty.")
         operation_name = self._operations[-1]
-        operation_name = (
-            str(operation_name.value) if isinstance(operation_name, MatrixOperationsQ3D) else operation_name
-        )
 
         if operation_name == "JoinSeries":
             command = f"""{operation_name}('{new_name}', '{"', '".join(source_names)}')"""

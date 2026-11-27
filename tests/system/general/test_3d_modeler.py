@@ -356,12 +356,11 @@ def test_create_object_list(coaxial) -> None:
     assert coaxial.modeler.create_object_list([o2.name], "my_object_list") == fl1
     assert coaxial.modeler.create_object_list(["Core", "outer"])
     coaxial.modeler.user_lists[-1].props["List"] = ["outer", "Core", "inner"]
-    coaxial.modeler.user_lists[-1].auto_update = False
-
     fl = coaxial.modeler.get_object_faces("Core")
-    coaxial.modeler.user_lists[-1].props["Type"] = "Face"
-    coaxial.modeler.user_lists[-1].props["List"] = fl
-    coaxial.modeler.user_lists[-1].update()
+    props = coaxial.modeler.user_lists[-1].props.to_dict()
+    props["Type"] = "Face"
+    props["List"] = fl
+    assert coaxial.modeler.user_lists[-1].update(props)
 
     assert coaxial.modeler.user_lists[-1].rename("new_list")
     assert coaxial.modeler.user_lists[-1].delete()
@@ -449,14 +448,30 @@ def test_create_coaxial(aedt_app) -> None:
     assert isinstance(coax[2].id, int)
 
 
+def test_coordinate_system_mode_and_origin_updates(aedt_app) -> None:
+    cs = aedt_app.modeler.create_coordinate_system(x_pointing=[0, 1, 0], y_pointing=[-1, 0, 0])
+    original = cs.quaternion.to_rotation_matrix()
+    for mode in (1, 2, 0):
+        assert cs.change_cs_mode(mode)
+        rotation = cs.quaternion.to_rotation_matrix()
+        for expected, actual in zip(original, rotation):
+            assert list(actual) == pytest.approx(list(expected), abs=1e-8)
+    cs.origin = [1, 2, 3]
+    assert cs.origin == pytest.approx([1, 2, 3])
+
+
 def test_create_coordinate_system(aedt_app) -> None:
     cs = aedt_app.modeler.create_coordinate_system()
     _ = aedt_app.modeler.coordinate_systems
     cs1 = aedt_app.modeler.create_coordinate_system()
     assert cs
     assert cs.update()
+    assert cs.change_cs_mode(0)
+    assert cs.mode == "axis"
     assert cs.change_cs_mode(1)
+    assert cs.mode == "zxz"
     assert cs.change_cs_mode(2)
+    assert cs.mode == "zyz"
 
     with pytest.raises(ValueError):
         cs.change_cs_mode(3)

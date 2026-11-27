@@ -30,7 +30,6 @@ from ansys.aedt.core import TwinBuilder
 from ansys.aedt.core.generic.general_methods import is_linux
 from tests import TESTS_GENERAL_PATH
 from tests.conftest import DESKTOP_VERSION
-from tests.conftest import NON_GRAPHICAL
 
 TEST_SUBFOLDER = "T34"
 
@@ -313,41 +312,6 @@ def test_add_excitation_model(tb_excitation_model, test_tmp_dir) -> None:
     assert tb_excitation_model.add_excitation_model(
         project=str(example_project_copy), design="1 maxwell busbar", excitations=excitations
     )
-
-
-@pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-def test_transient_setup(aedt_app) -> None:
-    setup = aedt_app.create_setup()
-    assert setup.setuptype == aedt_app.design_solutions.default_setup
-    assert aedt_app.design_solutions.solution_type == "TwinbuilderTR"
-    setup = aedt_app.create_setup(props={"TransientData": ["50ms", "1us", "2ms"]})
-    assert setup.props["TransientData"][0] == "50ms"
-    assert setup.props["TransientData"][1] == "1us"
-    assert setup.props["TransientData"][2] == "2ms"
-    aedt_app.create_setup(setup_type="TwinbuilderTR")
-    assert aedt_app.design_solutions.solution_type == "TwinbuilderTR"
-
-
-@pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-@pytest.mark.skipif(NON_GRAPHICAL, reason="GetAllSolutionSetups not working in non-graphical mode")
-def test_ac_setup(aedt_app) -> None:
-    setup = aedt_app.create_setup(setup_type="TwinbuilderAC")
-    assert setup.name in aedt_app.setup_names
-    assert aedt_app.design_solutions.solution_type == "TwinbuilderAC"
-    setup = aedt_app.create_setup(setup_type="TwinbuilderAC", props={"LinearFrequencyData": [1, "50Hz", "1kHz", "5Hz"]})
-    assert setup.props["LinearFrequencyData"][0] == 1
-    assert setup.props["LinearFrequencyData"][1] == "50Hz"
-    assert setup.props["LinearFrequencyData"][2] == "1kHz"
-    assert setup.props["LinearFrequencyData"][3] == "5Hz"
-    assert aedt_app.design_solutions.solution_type == "TwinbuilderAC"
-
-
-@pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-@pytest.mark.skipif(NON_GRAPHICAL, reason="GetAllSolutionSetups not working in non-graphical mode")
-def test_dc_setup(aedt_app) -> None:
-    setup = aedt_app.create_setup(setup_type="TwinbuilderDC")
-    assert setup.name in aedt_app.setup_names
-    assert aedt_app.design_solutions.solution_type == "TwinbuilderDC"
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")

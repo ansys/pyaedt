@@ -121,9 +121,10 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
-        >>> obj = PostProcessor3D()
-        >>> obj.model_units
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.post.model_units
+        'mm'
 
         """
         return self._app.units.length
@@ -139,9 +140,9 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
-        >>> obj = PostProcessor3D()
-        >>> obj.post_osolution
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> solution_module = hfss.post.post_osolution
 
         """
         return self._post_osolution
@@ -160,9 +161,9 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
-        >>> obj = PostProcessor3D()
-        >>> obj.ofieldsreporter
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> fields_reporter = hfss.post.ofieldsreporter
 
         """
         return self._app.ofieldsreporter
@@ -178,9 +179,10 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
-        >>> obj = PostProcessor3D()
-        >>> obj.field_plot_names
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> plot = hfss.post.create_fieldplot_volume(assignment="Box1", quantity="Mag_E")
+        >>> plot.name in hfss.post.field_plot_names
 
         """
         return self._app.ofieldsreporter.GetChildNames()
@@ -410,12 +412,6 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         References
         ----------
         >>> oDesign.ChangeProperty
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
-        >>> obj = PostProcessor3D()
-        >>> obj.change_field_property(plot_name=1, property_name=1, property_value=1)
 
         """
         self._odesign.ChangeProperty(
@@ -1339,9 +1335,12 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
-        >>> obj = PostProcessor3D()
-        >>> obj.export_field_plot(plot_name=1, output_dir="directory")
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> plot = hfss.post.create_fieldplot_volume(assignment="Box1", quantity="Vector_E")
+        >>> exported_file = hfss.post.export_field_plot(
+        ...     plot_name=plot.name, output_dir=hfss.working_directory, file_format="case"
+        ... )
 
         """
         if not file_name:
@@ -1540,9 +1539,31 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
-        >>> obj = PostProcessor3D()
-        >>> obj.create_fieldplot_surface(assignment="Box1", quantity=1)
+        Create a box and plot a field quantity on one of its faces. When ``setup`` is not given,
+        the nominal adaptive solution is used.
+
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> box = hfss.modeler["my_box"]
+        >>> face = box.faces[0]
+        >>> plot = hfss.post.create_fieldplot_surface(assignment=face.id, quantity="Mag_E")
+
+        The ``assignment`` argument accepts several forms: an object name, an object,
+        a list of objects, a single face, or a list of faces.
+
+        >>> # The object itself, with an explicit setup and plot name
+        >>> plot = hfss.post.create_fieldplot_surface(
+        ...     assignment=box, quantity="Mag_E", setup=hfss.nominal_adaptive, plot_name="E_on_box"
+        ... )
+        >>> # Every face of the object
+        >>> plot = hfss.post.create_fieldplot_surface(assignment=box.faces, quantity="Mag_E")
+
+        For transient or frequency solutions, pass ``intrinsics`` to select the time, frequency,
+        or phase at which the field is evaluated.
+
+        >>> plot = hfss.post.create_fieldplot_surface(
+        ...     assignment=box.faces[0].id, quantity="Mag_E", intrinsics={"Freq": "5GHz", "Phase": "180deg"}
+        ... )
 
         """
         if plot_name and plot_name in list(self.field_plots.keys()):
@@ -1697,9 +1718,27 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
-        >>> obj = PostProcessor3D()
-        >>> obj.create_fieldplot_volume(assignment="Box1", quantity=1)
+        Create a box and plot a field quantity inside it. When ``setup`` is not given, the
+        nominal adaptive solution is used.
+
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> box = hfss.modeler["my_box"]
+        >>> plot = hfss.post.create_fieldplot_volume(assignment=box.name, quantity="Mag_E")
+
+        A list of objects and an explicit setup and plot name can be provided.
+
+        >>> box2 = hfss.modeler["my_box2"]
+        >>> plot = hfss.post.create_fieldplot_volume(
+        ...     assignment=[box.name, box2.name], quantity="Vector_E", setup=hfss.nominal_adaptive, plot_name="E_volume"
+        ... )
+
+        For transient or frequency solutions, pass ``intrinsics`` to select the time, frequency,
+        or phase at which the field is evaluated.
+
+        >>> plot = hfss.post.create_fieldplot_volume(
+        ...     assignment=box.name, quantity="Vector_E", intrinsics={"Freq": "5GHz", "Phase": "180deg"}
+        ... )
 
         """
         assignment = self._app.modeler.convert_to_selections(assignment, True)
@@ -1790,9 +1829,12 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
-        >>> obj = PostProcessor3D()
-        >>> obj.export_field_jpg(file_name=r"example.jpg", plot_name=1, folder_name="directory")
+        >>> from pathlib import Path
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> plot = hfss.post.create_fieldplot_volume(assignment="Box1", quantity="Mag_E")
+        >>> jpg_file = str(Path(hfss.working_directory) / "field.jpg")
+        >>> hfss.post.export_field_jpg(file_name=jpg_file, plot_name=plot.name, folder_name=plot.plot_folder)
 
         """
         if self.post_solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
@@ -1856,9 +1898,10 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
-        >>> obj = PostProcessor3D()
-        >>> obj.delete_field_plot(name="MyObject")
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> plot = hfss.post.create_fieldplot_volume(assignment="Box1", quantity="Vector_E")
+        >>> hfss.post.delete_field_plot(name=plot.name)
 
         """
         self.ofieldsreporter.DeleteFieldPlot([name])
@@ -2016,9 +2059,9 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
-        >>> obj = PostProcessor3D()
-        >>> obj.export_model_obj(assignment="Box1", export_path="directory")
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> files = hfss.post.export_model_obj(assignment=["Box1"], export_path=hfss.working_directory)
 
         """
         if assignment and not isinstance(assignment, (list, tuple)):
@@ -2178,9 +2221,9 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
-        >>> obj = PostProcessor3D()
-        >>> obj.nb_display(show_axis=True, show_grid=True)
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> image = hfss.post.nb_display(show_axis=True, show_grid=True)
 
         """
         try:
@@ -2219,9 +2262,9 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
-        >>> obj = PostProcessor3D()
-        >>> obj.get_efields_data(setup_sweep_name=1, ff_setup=1)
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> efields = hfss.post.get_efields_data(ff_setup="Infinite Sphere1")
 
         """
         if not setup_sweep_name:
@@ -2313,9 +2356,9 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
-        >>> obj = PostProcessor3D()
-        >>> obj.get_model_plotter_geometries(objects=["Box1"], plot_as_separate_objects=True)
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> model = hfss.post.get_model_plotter_geometries(objects=["Box1"], plot_as_separate_objects=True)
 
         """
         from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
@@ -2401,9 +2444,9 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
-        >>> obj = PostProcessor3D()
-        >>> obj.plot_model_obj(objects=["Box1"], show=True)
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> model = hfss.post.plot_model_obj(objects=["Box1"], show=True)
 
         """
         model = self.get_model_plotter_geometries(
@@ -2514,9 +2557,24 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
-        >>> obj = PostProcessor3D()
-        >>> obj.plot_field_from_fieldplot(plot_name=1)
+        Create a field plot on the cut plane "Global:XY", then render it to an image file. Set ``show=False``
+        to export the image without opening an interactive window.
+
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> plot = hfss.post.create_fieldplot_cutplane(
+        ...     assignment=["Global:XY"], quantity="ComplexMag_E", intrinsics={"Freq": "5GHz", "Phase": "180deg"}
+        ... )
+        >>> plot.IsoVal = "Tone"
+        >>> image = hfss.post.plot_field_from_fieldplot(
+        ...     plot_name=plot.name,
+        ...     project_path=hfss.working_directory,
+        ...     mesh_plot=False,
+        ...     image_format="jpg",
+        ...     view="xy",
+        ...     plot_label=plot.name + " label",
+        ...     show=False,
+        ... )
 
         """
         is_pcb = False
@@ -2672,9 +2730,24 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
-        >>> obj = PostProcessor3D()
-        >>> obj.plot_field(quantity=1, assignment="Box1")
+        Plot a field quantity on the cut plane "Global:XY" with PyVista and export the result to an image file.
+        Use ``show=False`` and ``export_path`` to export without opening an interactive window.
+
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> cutlist = ["Global:XY"]
+        >>> plot = hfss.post.plot_field(
+        ...     quantity="Vector_E",
+        ...     assignment=cutlist,
+        ...     plot_type="CutPlane",
+        ...     setup=hfss.nominal_adaptive,
+        ...     intrinsics={"Freq": "5GHz", "Phase": "180deg"},
+        ...     mesh_on_fields=False,
+        ...     view="isometric",
+        ...     show=False,
+        ...     export_path=hfss.working_directory,
+        ...     image_format="jpg",
+        ... )
 
         """
         intrinsics = self._check_intrinsics(intrinsics, setup=setup)
@@ -2821,9 +2894,17 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
-        >>> obj = PostProcessor3D()
-        >>> obj.plot_animated_field(quantity=1, assignment="Box1")
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> animation = hfss.post.plot_animated_field(
+        ...     quantity="Mag_E",
+        ...     assignment=["Global:XY"],
+        ...     plot_type="CutPlane",
+        ...     setup=hfss.nominal_adaptive,
+        ...     variation_variable="Phase",
+        ...     variations=["0deg", "30deg", "60deg"],
+        ...     show=False,
+        ... )
 
         """
         if isinstance(export_path, Path):
@@ -2941,9 +3022,10 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
-        >>> obj = PostProcessor3D()
-        >>> obj.animate_fields_from_aedtplt(plot_name=1)
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> plot = hfss.post.create_fieldplot_cutplane(assignment=["Global:XY"], quantity="Mag_E")
+        >>> animation = hfss.post.animate_fields_from_aedtplt(plot_name=plot.name)
 
         """
         if isinstance(project_path, Path):
@@ -3031,9 +3113,24 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
-        >>> obj = PostProcessor3D()
-        >>> obj.create_3d_plot(solution_data=1)
+        Create a 3D plot from far-field solution data swept over ``Theta`` and ``Phi``. Use
+        ``show=False`` and ``snapshot_path`` to export the image without opening a window.
+
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> variations = hfss.available_variations.nominal_variation(dependent_params=False)
+        >>> variations["Theta"] = ["All"]
+        >>> variations["Phi"] = ["All"]
+        >>> variations["Freq"] = ["30GHz"]
+        >>> data = hfss.post.get_solution_data(
+        ...     "GainTotal",
+        ...     hfss.nominal_adaptive,
+        ...     variations=variations,
+        ...     primary_sweep_variable="Theta",
+        ...     report_category="Far Fields",
+        ...     context="3D",
+        ... )
+        >>> hfss.post.create_3d_plot(solution_data=data, show=False)
 
         """
         if nominal_value:
@@ -3092,9 +3189,12 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
-        >>> obj = PostProcessor3D()
-        >>> obj.plot_scene(frames=["Box1"], gif_path="directory")
+        >>> from pathlib import Path
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> frames = ["frame_0.csv", "frame_1.csv", "frame_2.csv"]
+        >>> gif_file = str(Path(hfss.working_directory) / "scene.gif")
+        >>> hfss.post.plot_scene(frames=frames, gif_path=gif_file)
 
         """
         if isinstance(frames, str) and Path(frames).exists():
@@ -3171,9 +3271,11 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
-        >>> obj = PostProcessor3D()
-        >>> obj.get_field_extremum(assignment="Box1", max_min=1, location=1, field=1)
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> position, value = hfss.post.get_field_extremum(
+        ...     assignment="Box1", max_min="Max", location="Volume", field="Mag_E"
+        ... )
 
         """
         if assignment not in self._app.modeler.object_names:

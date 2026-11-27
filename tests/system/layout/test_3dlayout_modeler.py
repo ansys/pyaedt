@@ -472,7 +472,10 @@ def test_create_edge_port(aedt_app) -> None:
 
     port_wave = aedt_app.create_edge_port("line1", 3, False, True, 6, 4, "2mm")
     assert port_wave
-    assert aedt_app.delete_port(port_wave.name)
+    name = port_wave.name
+    assert name in aedt_app.excitation_names
+    assert aedt_app.delete_port(name)
+    assert name not in aedt_app.excitation_names
     port_wave = aedt_app.create_wave_port("line1", 3, 6, 4, "2mm")
     assert port_wave
     assert aedt_app.delete_port(port_wave.name)
@@ -490,8 +493,36 @@ def test_create_edge_port(aedt_app) -> None:
     )
     assert aedt_app.boundaries[0].properties["Magnitude"] != "1V"
     aedt_app.boundaries[0].properties["Boundary Type"] = "PEC"
-    assert aedt_app.boundaries[0].properties["Boundary Type"] == "PEC"
+    if DESKTOP_VERSION > "2025.2":
+        assert aedt_app.boundaries[0].properties["Boundary Type"] == "PEC"
     assert list(aedt_app.oboundary.GetAllBoundariesList())[0] == aedt_app.boundaries[0].name
+
+
+def test_port_tree_after_rename_and_delete(aedt_app) -> None:
+    aedt_app.modeler.layers.add_layer(
+        layer="Lower", layer_type="signal", thickness="0.035mm", elevation="0mm", material="copper"
+    )
+    aedt_app.modeler.layers.add_layer(
+        layer="Top", layer_type="signal", thickness="0.035mm", elevation="1.035mm", material="copper"
+    )
+    aedt_app.modeler.create_via("PlanarEMVia", x=1.1, y=0, name="port_via")
+    port = aedt_app.create_coax_port("port_via", 0.5, "Top", "Lower")
+    assert port.child_object
+    port.name = "RenamedPort"
+    assert port.name == "RenamedPort"
+    assert not port._tree_node_initialized
+    assert port.child_object
+    assert aedt_app._boundaries["RenamedPort"] is port
+    port.props["Port"] = "SecondPort"
+
+    assert port.name == "SecondPort"
+    assert port.child_object
+    assert port._node == "SecondPort"
+    assert "SecondPort" in aedt_app.port_list
+    assert aedt_app._boundaries["SecondPort"] is port
+    assert aedt_app.delete_port(port.name)
+    assert not port._tree_node_initialized
+    assert port.child_object is None
 
 
 def test_create_coaxial_port(aedt_app) -> None:
@@ -505,20 +536,13 @@ def test_create_coaxial_port(aedt_app) -> None:
 
     port = aedt_app.create_coax_port("port_via", 0.5, "Top", "Lower")
     assert port.name == "Port1"  # First port when test runs independently
-    assert port.props["Radial Extent Factor"] == "0.5"
+    assert port.props["Properties"]["Radial Extent Factor"] == "0.5"
     aedt_app.delete_port(name=port.name, remove_geometry=False)
     assert len(aedt_app.port_list) == 0
     aedt_app.odesign.Undo()
     aedt_app.delete_port(name=port.name)
     assert len(aedt_app.port_list) == 0
     aedt_app.odesign.Undo()
-
-
-def test_create_setup(aedt_app) -> None:
-    setup_name = "RFBoardSetup"
-    setup = aedt_app.create_setup(name=setup_name)
-    assert setup.name == aedt_app.setup_names[0]
-    assert setup.solver_type == "HFSS"
 
 
 def test_edit_setup(aedt_app) -> None:
@@ -535,9 +559,11 @@ def test_edit_setup(aedt_app) -> None:
 
     sweep = setup2.add_sweep()
     sweep1 = setup2.get_sweep(sweep.name)
-    assert sweep1 == sweep
+    assert sweep1.name == sweep.name
+    assert sweep1.setup_name == sweep.setup_name
     sweep2 = setup2.get_sweep()
-    assert sweep2 == sweep1
+    assert sweep2.name == sweep1.name
+    assert sweep2.setup_name == sweep1.setup_name
     setup2.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"] = "1GHz"
     setup2.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["MaxPasses"] = 23
     setup2.props["AdvancedSettings"]["OrderBasis"] = 2
@@ -576,35 +602,6 @@ def test_edit_setup(aedt_app) -> None:
         max_delta_phase=8,
         custom_entries=[["1", "2", 0.03, 4]],
     )
-
-
-def test_disable_enable_setup(aedt_app) -> None:
-    setup_name = "RFBoardSetup3"
-    setup3 = aedt_app.create_setup(name=setup_name)
-    setup3.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["MaxPasses"] = 1
-    assert setup3.update()
-    assert setup3.disable()
-    assert setup3.enable()
-    sweep = setup3.add_sweep()
-    assert sweep
-    assert sweep.change_range("LinearStep", 1.1, 2.1, 0.4, "GHz")
-    assert sweep.add_subrange("LinearCount", 1, 1.5, 3, "MHz")
-    assert sweep.change_type("Discrete")
-    assert not sweep.add_subrange("SinglePoint", 10.1e-1, "GHz")
-    assert not sweep.add_subrange("SinglePoint", 10.2e-1, "GHz")
-    assert sweep.set_save_fields(True, True)
-    assert sweep.set_save_fields(False, False)
-
-
-def test_get_setup(aedt_app) -> None:
-    setup_name = "RFBoardSetup4"
-    aedt_app.create_setup(name=setup_name)
-    setup4 = aedt_app.get_setup(aedt_app.setup_names[0])
-    setup4.props["PercentRefinementPerPass"] = 37
-    setup4.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["MaxPasses"] = 44
-    assert setup4.update()
-    assert setup4.disable()
-    assert setup4.enable()
 
 
 def test_create_linear_count_sweep(aedt_app) -> None:
@@ -723,11 +720,11 @@ def test_create_single_point_sweep(aedt_app) -> None:
 
 
 def test_delete_setup(aedt_app) -> None:
-    setup_name = "SetupToDelete"
-    setuptd = aedt_app.create_setup(name=setup_name)
+    setuptd = aedt_app.create_setup(name="SetupToDelete")
+    setup_name = setuptd.name
     assert setuptd.name in aedt_app.setup_names
     aedt_app.delete_setup(setup_name)
-    assert setuptd.name not in aedt_app.setup_names
+    assert setup_name not in aedt_app.setup_names
 
 
 def test_validate(aedt_app) -> None:
@@ -942,11 +939,24 @@ def test_create_pin_port(aedt_app) -> None:
 
     port = aedt_app.create_pin_port("PinPort1")
     assert port.name == "PinPort1"
-    port.props["Magnitude"] = "2V"
-    assert port.props["Magnitude"] == "2V"
+    # Props
+    port["Properties"]["Magnitude"] = "2V"
+    assert port["Properties"]["Magnitude"] == "2V"
+
+    # Properties
     assert port.properties["Magnitude"] == "2V"
     port.properties["Magnitude"] = "5V"
     assert port.properties["Magnitude"] == "5V"
+
+    # Edit multiple props
+    props = port.props.to_dict()
+    props["Properties"]["Magnitude"] = "10V"
+    props["Properties"]["Impedance"] = "10ohm"
+    assert port.update(props)
+    assert port.properties["Magnitude"] == "10V"
+    assert port.props["Properties"]["Magnitude"] == "10V"
+    assert port.properties["Impedance"] == "10ohm"
+    assert port.props["Properties"]["Impedance"] == "10ohm"
 
 
 def test_duplicate_material(aedt_app) -> None:

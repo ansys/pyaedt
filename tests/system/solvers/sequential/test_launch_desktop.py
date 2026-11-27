@@ -45,8 +45,13 @@ from ansys.aedt.core.generic.constants import SolutionsMechanical
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.settings import settings
 
-settings.lazy_load = False
-settings.wait_for_license = True
+
+@pytest.fixture(scope="module", autouse=True)
+def desktop_test_settings():
+    with pytest.MonkeyPatch.context() as monkeypatch:
+        monkeypatch.setattr(settings, "lazy_load", False)
+        monkeypatch.setattr(settings, "wait_for_license", True)
+        yield
 
 
 def test_run_desktop_mechanical(desktop) -> None:

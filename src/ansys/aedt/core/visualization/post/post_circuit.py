@@ -45,6 +45,9 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
     .. note::
        Some functionalities are available only when AEDT is running in the graphical mode.
 
+    This class is not instantiated directly. It is accessed through the ``post`` attribute of a
+    :class:`ansys.aedt.core.circuit.Circuit` instance.
+
     Parameters
     ----------
     app : :class:`ansys.aedt.core.application.analysis_nexxim.FieldAnalysisCircuit`
@@ -53,8 +56,9 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
 
     Examples
     --------
-    >>> from ansys.aedt.core.visualization.post.post_circuit import PostProcessorCircuit
-    >>> obj = PostProcessorCircuit()
+    >>> from ansys.aedt.core import Circuit
+    >>> circuit = Circuit()
+    >>> post_processor = circuit.post
 
     """
 
@@ -93,9 +97,14 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
 
         Examples
         --------
+        Export a snapshot of the schematic to a JPG file.
+
+        >>> from pathlib import Path
         >>> from ansys.aedt.core import Circuit
-        >>> app = Circuit(non_graphical=False)
-        >>> output_file = app.post.export_model_picture(full_name=os.path.join(app.working_directory, "images1.jpg"))
+        >>> circuit = Circuit()
+        >>> image_file = circuit.post.export_model_picture(
+        ...     output_file=str(Path(circuit.working_directory) / "schematic.jpg")
+        ... )
 
         """
         if not output_file:
@@ -151,9 +160,16 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.post_circuit import PostProcessorCircuit
-        >>> obj = PostProcessorCircuit()
-        >>> obj.create_ami_initial_response_plot(setup="Setup1", ami_name=1, variation_list_w_value={"Name": "Value"})
+        Plot the initial impulse response seen by an AMI receiver probe. Here ``"AMIAnalysis"`` is
+        the name of the transient AMI setup in the design and ``"b_input_15"`` is the name of the
+        receiver AMI probe placed in the schematic. The variations are taken from the nominal
+        design variation.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit("serdes_link.aedt")
+        >>> plot_name = circuit.post.create_ami_initial_response_plot(
+        ...     setup="AMIAnalysis", ami_name="b_input_15", variation_list_w_value=circuit.available_variations.nominal
+        ... )
 
         """
         if not plot_name:
@@ -267,9 +283,18 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.post_circuit import PostProcessorCircuit
-        >>> obj = PostProcessorCircuit()
-        >>> obj.create_ami_statistical_eye_plot(setup="Setup1", ami_name=1, variation_list_w_value={"Name": "Value"})
+        Plot a statistical eye diagram for an AMI probe. Here ``"AMIAnalysis"`` is the transient
+        AMI setup, ``"b_output4_14"`` is the name of the AMI probe in the schematic, and
+        ``plot_name`` sets the title of the generated report.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit("serdes_link.aedt")
+        >>> plot_name = circuit.post.create_ami_statistical_eye_plot(
+        ...     setup="AMIAnalysis",
+        ...     ami_name="b_output4_14",
+        ...     variation_list_w_value=circuit.available_variations.nominal,
+        ...     plot_name="MyReport1",
+        ... )
 
         """
         if not plot_name:
@@ -382,10 +407,16 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.post.post_circuit import PostProcessorCircuit
-        >>> obj = PostProcessorCircuit()
-        >>> obj.create_statistical_eye_plot(
-        ...     setup="Setup1", probe_names=["Box1"], variation_list_w_value={"Name": "Value"}
+        Plot a statistical QuickEye/VerifEye eye diagram. Here ``"Dom_Quick"`` is the name of the
+        QuickEye analysis setup and ``"b_input_15.int_ami_rx.eye_probe"`` is the full name of the
+        eye probe in the schematic (``<component>.<model>.<probe>``).
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit("serdes_link.aedt")
+        >>> plot_name = circuit.post.create_statistical_eye_plot(
+        ...     setup="Dom_Quick",
+        ...     probe_names="b_input_15.int_ami_rx.eye_probe",
+        ...     variation_list_w_value=circuit.available_variations.nominal,
         ... )
 
         """
@@ -500,9 +531,23 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
 
         Examples
         --------
+        Sample a transient waveform at each clock edge plus half a unit interval (the typical eye
+        sampling point). The waveform and its time sweep come from transient solution data,
+        ``unit_interval`` is the bit period, and ``clock_tics`` is the list of clock-edge times in
+        seconds.
+
         >>> from ansys.aedt.core import Circuit
-        >>> circuit = Circuit()
-        >>> circuit.post.sample_ami_waveform(name, probe_name, source_name, circuit.available_variations.nominal)
+        >>> circuit = Circuit("serdes_link.aedt")
+        >>> solution = circuit.post.get_solution_data(
+        ...     expressions="V(out)", setup_sweep_name="NexximTransient", domain="Time"
+        ... )
+        >>> time, voltage = solution.get_expression_data()
+        >>> samples = circuit.post.sample_waveform(
+        ...     waveform_data=voltage,
+        ...     waveform_sweep=time,
+        ...     unit_interval=0.1e-9,
+        ...     clock_tics=[1e-9, 2e-9, 3e-9],
+        ... )
 
         """
         new_tic = []
@@ -603,8 +648,21 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
 
         Examples
         --------
-        >>> circuit = Circuit()
-        >>> circuit.post.sample_ami_waveform(setupname, probe_name, source_name, circuit.available_variations.nominal)
+        Sample the waveform seen by an AMI receiver at each clock edge. Here ``"AMIAnalysis"`` is
+        the transient AMI setup, ``"b_input_43"`` is the receiver AMI probe, and ``"b_output4_42"``
+        is the transmitter AMI source in the schematic. ``plot_type="WaveAfterProbe"`` samples the
+        waveform at the receiver after equalization.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit("serdes_link.aedt")
+        >>> samples = circuit.post.sample_ami_waveform(
+        ...     setup="AMIAnalysis",
+        ...     probe="b_input_43",
+        ...     source="b_output4_42",
+        ...     variation_list_w_value=circuit.available_variations.nominal,
+        ...     unit_interval=0.1e-9,
+        ...     plot_type="WaveAfterProbe",
+        ... )
 
         """
         initial_solution_type = self.post_solution_type

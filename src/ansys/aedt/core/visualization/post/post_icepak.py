@@ -33,7 +33,6 @@ Examples
 
 """
 
-import ast
 import csv
 import os
 import re
@@ -541,7 +540,7 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         group_hierarchy = {}
 
         groups = list(self._app.oeditor.GetChildNames("Groups"))
-        self._app.modeler.add_new_user_defined_component()
+
         for g in groups:
             g1 = self._app.get_oo_object(self._app.oeditor, g)
             if g1:
@@ -582,8 +581,13 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
             else:
                 prop = "Surface Heat Variation Data"
                 units_input = "irrad_W_per_m2"
-            value_bound = ast.literal_eval(boundary_obj.props[prop]["Variation Value"])[0]
-            expression = ast.literal_eval(boundary_obj.props[prop]["Variation Value"])[1]
+
+            variation_data = boundary_obj.props[prop].to_dict()
+            variation_key = "Variation Value" if "Variation Value" in variation_data else "Variation Values"
+            variation = variation_data[variation_key]
+            value_bound = variation[0]
+            expression = variation[1]
+
             value = list(decompose_variable_value(value_bound))
             if isinstance(value[0], str):
                 new_value = self._app[value[0]]
@@ -828,13 +832,13 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
 
                 power_dict[bc_obj.name] = power_value
 
-        for native_comps in self._app.modeler.user_defined_components.keys():
-            if hasattr(self._app.modeler.user_defined_components[native_comps], "native_properties"):
+        for native_comps in self._app.modeler.components.keys():
+            if hasattr(self._app.modeler.components[native_comps], "native_properties"):
                 native_key = "NativeComponentDefinitionProvider"
-                if native_key in self._app.modeler.user_defined_components[native_comps].native_properties:
-                    power_key = self._app.modeler.user_defined_components[native_comps].native_properties[native_key]
+                if native_key in self._app.modeler.components[native_comps].native_properties:
+                    power_key = self._app.modeler.components[native_comps].native_properties[native_key]
                 else:
-                    power_key = self._app.modeler.user_defined_components[native_comps].native_properties
+                    power_key = self._app.modeler.components[native_comps].native_properties
                 power_value = None
                 if "Power" in power_key:
                     power_value = list(decompose_variable_value(power_key["Power"]))

@@ -73,6 +73,7 @@ def min_aedt_version(min_version: str) -> Callable[[_F], _F]:
 
     This decorator should only be used on methods where the associated object can reach the desktop instance.
     Otherwise, there is no way to check version compatibility and an error is raised.
+    Application references stored in ``_app`` or a private ``__app`` attribute are supported.
 
     Parameters
     ----------
@@ -101,10 +102,12 @@ def min_aedt_version(min_version: str) -> Callable[[_F], _F]:
             if odesktop is not None:
                 return odesktop
 
-    def fetch_odesktop_from_private_app_attribute(item: object) -> _ODesktop | None:
-        app = getattr(item, f"_{item.__class__.__name__}__app", None)
-        if app is not None:
-            return app.odesktop
+    def fetch_odesktop_from_app_attribute(item: object) -> _ODesktop | None:
+        attributes_to_check = [f"_{item.__class__.__name__}__app", "_app"]
+        for attribute in attributes_to_check:
+            app = getattr(item, attribute, None)
+            if app is not None:
+                return app.odesktop
 
     def fetch_odesktop_from_desktop_class(item: object) -> _ODesktop | None:
         attributes_to_check = ["desktop_class", "_desktop_class"]
@@ -120,7 +123,7 @@ def min_aedt_version(min_version: str) -> Callable[[_F], _F]:
         def wrapper(self, *args, **kwargs):
             odesktop = (
                 fetch_odesktop_from_common_attributes_names(self)
-                or fetch_odesktop_from_private_app_attribute(self)
+                or fetch_odesktop_from_app_attribute(self)
                 or fetch_odesktop_from_desktop_class(self)
             )
             if odesktop is None:

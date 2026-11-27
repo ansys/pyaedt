@@ -24,15 +24,19 @@
 
 """The module contains the ``Mechanical`` class."""
 
+import copy
+
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import SolutionsMechanical
 from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.general_methods import _merge_props
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.setup_templates import SetupKeys
+from ansys.aedt.core.modules.solve_setup import SetupIcepakFEA
 
 
 class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
@@ -95,32 +99,32 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
     Examples
     --------
     Create an instance of Mechanical and connect to an existing
-    HFSS design or create a new HFSS design if one does not exist.
+    Mechanical design or create a new Mechanical design if one does not exist.
 
     >>> from ansys.aedt.core import Mechanical
-    >>> aedtapp = Mechanical()
+    >>> mech = Mechanical()
 
     Create an instance of Mechanical and link to a project named
     ``"projectname"``. If this project does not exist, create one with
     this name.
 
-    >>> aedtapp = Mechanical(projectname)
+    >>> mech = Mechanical(project="projectname")
 
     Create an instance of Mechanical and link to a design named
     ``"designname"`` in a project named ``"projectname"``.
 
-    >>> aedtapp = Mechanical(projectname, designame)
+    >>> mech = Mechanical(project="projectname", design="designname")
 
     Create an instance of Mechanical and open the specified
     project, which is named ``"myfile.aedt"``.
 
-    >>> aedtapp = Mechanical("myfile.aedt")
+    >>> mech = Mechanical(project="C:/Temp/myfile.aedt")
 
-    Create a ``Desktop on 2025 R1`` object and then create an
-    ``Mechanical`` object and open the specified project, which is
-    named ``"myfile.aedt"``.
+    Launch AEDT 2026 R1, open the ``"myfile.aedt"`` project, and create a
+    structural design.
 
-    >>> aedtapp = Mechanical(version=26.1, project="myfile.aedt")
+    >>> from ansys.aedt.core.generic.constants import SolutionsMechanical
+    >>> mech = Mechanical(version="2026.1", project="C:/Temp/myfile.aedt", solution_type=SolutionsMechanical.Structural)
 
     """
 
@@ -206,9 +210,27 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.mechanical import Mechanical
-        >>> obj = Mechanical()
-        >>> obj.assign_em_losses(design="HFSSDesign1", setup="Setup1", sweep="LastAdaptive", assignment=["HeatSink"])
+        Map the losses of an HFSS coaxial conductor computed at 1 GHz onto the same cylinder
+        in a Mechanical thermal design of the same project.
+
+        >>> from ansys.aedt.core import Hfss, Mechanical
+        >>> from ansys.aedt.core.generic.constants import Plane
+        >>> hfss = Hfss(project="coax_project", design="HFSSDesign1")
+        >>> hfss_cyl = hfss.modeler.create_cylinder(Plane.XY, [0, 0, 0], 3, 30, 0, "MyCylinder", "brass")
+        >>> hfss_setup = hfss.create_setup("Setup1")
+        >>> hfss_setup.props["Frequency"] = "1GHz"
+
+        Start Mechanical and copy bodies from the HFSS project.
+
+        >>> mech = Mechanical(project="coax_project", design="MechanicalDesign1", solution_type="Thermal")
+        >>> mech.copy_solid_bodies_from(design=hfss)
+        >>> em_loss = mech.assign_em_losses(
+        ...     design=hfss.design_name,
+        ...     setup=hfss.setups[0].name,
+        ...     sweep="LastAdaptive",
+        ...     map_frequency=hfss.setups[0].props["Frequency"],
+        ...     assignment=hfss.get_all_conductors_names(),
+        ... )
 
         """
         if self.solution_type not in (
@@ -315,9 +337,18 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.mechanical import Mechanical
-        >>> obj = Mechanical()
-        >>> obj.assign_thermal_map(["Bracket"], design="IcepakDesign1", setup="Setup1", sweep="SteadyState")
+        Map the temperatures of an Icepak steady-state solution onto the same cylinder
+        in a Mechanical structural design of the same project.
+
+        >>> from ansys.aedt.core import Icepak, Mechanical
+        >>> from ansys.aedt.core.generic.constants import Plane
+        >>> ipk = Icepak(project="thermal_project", design="IcepakDesign1", solution_type="SteadyState")
+        >>> ipk_cyl = ipk.modeler.create_cylinder(Plane.XY, [0, 0, 0], 3, 30, 0, "MyCylinder", "brass")
+        >>> ipk_setup = ipk.create_setup("Setup1")
+        >>> mech = Mechanical(project="thermal_project", design="MechanicalDesign1", solution_type="Structural")
+        >>> mech_setup = mech.create_setup()
+        >>> mech_cyl = mech.modeler.create_cylinder(Plane.XY, [0, 0, 0], 3, 30, 0, "MyCylinder", "brass")
+        >>> thermal_map = mech.assign_thermal_map(["MyCylinder"], design="IcepakDesign1", setup="Setup1")
 
         """
         if self.solution_type != SolutionsMechanical.Structural:
@@ -401,9 +432,14 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.mechanical import Mechanical
-        >>> obj = Mechanical()
-        >>> obj.assign_uniform_convection(["HeatSink"], convection_value=8, temperature="AmbientTemp")
+        Assign a convection of 3 W/(m^2 K) to the lateral face of a cylinder in a thermal design.
+
+        >>> from ansys.aedt.core import Mechanical
+        >>> mech = Mechanical(solution_type="Thermal")
+        >>> cylinder = mech.modeler.create_cylinder(orientation="Z", origin=[0, 0, 0], radius=0.8, height=20)
+        >>> convection = mech.assign_uniform_convection(
+        ...     cylinder.faces[0].id, convection_value=3, temperature="AmbientTemp", name="Convection1"
+        ... )
 
         """
         if self.solution_type not in (
@@ -459,9 +495,14 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.mechanical import Mechanical
-        >>> obj = Mechanical()
-        >>> obj.assign_uniform_temperature(["HeatSink"], temperature="40cel")
+        Fix the temperature of the top face of a cylinder in a thermal design.
+
+        >>> from ansys.aedt.core import Mechanical
+        >>> mech = Mechanical(solution_type="Thermal")
+        >>> cylinder = mech.modeler.create_cylinder(orientation="Z", origin=[0, 0, 0], radius=0.8, height=20)
+        >>> temperature = mech.assign_uniform_temperature(cylinder.top_face_z.id, temperature="35cel")
+        >>> temperature.props["Temperature"]
+        '35cel'
 
         """
         if self.solution_type not in (
@@ -512,9 +553,13 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.mechanical import Mechanical
-        >>> obj = Mechanical()
-        >>> obj.assign_frictionless_support([12, 18])
+        Allow the bottom face of a cylinder to slide in its plane in a structural design.
+
+        >>> from ansys.aedt.core import Mechanical
+        >>> from ansys.aedt.core.generic.constants import Plane
+        >>> mech = Mechanical(solution_type="Structural")
+        >>> cylinder = mech.modeler.create_cylinder(Plane.XY, [0, 0, 0], 3, 30, 0, "MyCylinder", "brass")
+        >>> support = mech.assign_frictionless_support(cylinder.bottom_face_z.id, name="Frictionless1")
 
         """
         if self.solution_type not in (SolutionsMechanical.Structural, SolutionsMechanical.Modal):
@@ -558,9 +603,13 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.mechanical import Mechanical
-        >>> obj = Mechanical()
-        >>> obj.assign_fixed_support([12, 18])
+        Clamp the bottom face of a cylinder in a structural design.
+
+        >>> from ansys.aedt.core import Mechanical
+        >>> from ansys.aedt.core.generic.constants import Plane
+        >>> mech = Mechanical(solution_type="Structural")
+        >>> cylinder = mech.modeler.create_cylinder(Plane.XY, [0, 0, 0], 3, 30, 0, "MyCylinder", "brass")
+        >>> support = mech.assign_fixed_support(cylinder.bottom_face_z.id, name="Fixed1")
 
         """
         if self.solution_type not in (SolutionsMechanical.Structural, SolutionsMechanical.Modal):
@@ -608,8 +657,11 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
         --------
         >>> from ansys.aedt.core import Mechanical
         >>> from ansys.aedt.core.generic.constants import SolutionsMechanical
-        >>> obj = Mechanical(solution_type=SolutionsMechanical.Structural)
-        >>> obj.assign_thermal_condition_uniform(assignment=["Bracket"], temperature="100C")
+        >>> mech = Mechanical(solution_type=SolutionsMechanical.Structural)
+        >>> box = mech.modeler.create_box([0, 0, 0], [10, 10, 3], "Box_warm", "copper")
+        >>> condition = mech.assign_thermal_condition_uniform(
+        ...     assignment=[box.name], temperature="100cel", name="ThermalCond_Box"
+        ... )
 
         """
         if self.solution_type not in (SolutionsMechanical.Structural, SolutionsMechanical.Modal):
@@ -643,9 +695,11 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.mechanical import Mechanical
-        >>> obj = Mechanical()
-        >>> obj.existing_analysis_sweeps
+        >>> from ansys.aedt.core import Mechanical
+        >>> mech = Mechanical(solution_type="Thermal")
+        >>> setup = mech.create_setup("MySetup")
+        >>> mech.existing_analysis_sweeps
+        ['MySetup : Solution']
 
         """
         setup_list = self.setup_names
@@ -683,9 +737,14 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.mechanical import Mechanical
-        >>> obj = Mechanical()
-        >>> obj.assign_heat_flux(["HeatSink"], "Total Power", "10W")
+        Assign a total power of 5 W to a box and a surface heat flux to a face of another box.
+
+        >>> from ansys.aedt.core import Mechanical
+        >>> mech = Mechanical(solution_type="Thermal")
+        >>> box1 = mech.modeler.create_box([0, 0, 0], [10, 10, 3], "box1", "copper")
+        >>> box2 = mech.modeler.create_box([20, 20, 2], [10, 10, 3], "box2", "copper")
+        >>> flux1 = mech.assign_heat_flux([box1.name], heat_flux_type="Total Power", value="5W")
+        >>> flux2 = mech.assign_heat_flux([box2.top_face_x.id], heat_flux_type="Surface Flux", value="25mW_per_m2")
 
         """
         if self.solution_type not in (
@@ -737,9 +796,14 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.mechanical import Mechanical
-        >>> obj = Mechanical()
-        >>> obj.assign_heat_generation(["HeatSink"], "2W")
+        Make a copper box dissipate 1 W in a thermal design.
+
+        >>> from ansys.aedt.core import Mechanical
+        >>> mech = Mechanical(solution_type="Thermal")
+        >>> box = mech.modeler.create_box([40, 40, 2], [10, 10, 3], "box3", "copper")
+        >>> heat_gen = mech.assign_heat_generation([box.name], value="1W", name="heatgenBC")
+        >>> heat_gen.props["TotalPower"]
+        '1W'
 
         """
         if self.solution_type not in (
@@ -782,11 +846,14 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
 
         Examples
         --------
+        Run two coupling iterations between a thermal Mechanical design and its EM source.
+
         >>> from ansys.aedt.core import Mechanical
-        >>> mech = Mechanical()
+        >>> mech = Mechanical(solution_type="Thermal")
         >>> setup = mech.create_setup()
-        >>> mech.assign_2way_coupling(setup.name, 1)
-        >>> mech.desktop_class.close_desktop()
+        >>> mech.assign_2way_coupling(setup=setup.name, number_of_iterations=2)
+        True
+        >>> mech.release_desktop()
 
         """
         if not setup:
@@ -807,28 +874,22 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def create_setup(self, name: str = "MySetupAuto", setup_type: int | str | None = None, **kwargs):
-        """Create an analysis setup for Mechanical.
-
-        Optional arguments are passed along with ``setup_type`` and ``name``. Keyword
-        names correspond to the ``setup_type`` corresponding to the native AEDT API.  The list of
-        keywords here is not exhaustive.
+    def create_setup(self, name: str | None = None, **kwargs) -> SetupIcepakFEA:
+        """Create an analysis setup for Icepak FEA.
 
         Parameters
         ----------
         name : str, optional
-            Name of the setup. The default is ``"Setup1"``.
-        setup_type : int, str, optional
-            Type of the setup. Options are  ``"IcepakSteadyState"`` and
-            ``"IcepakTransient"``. The default is ``"IcepakSteadyState"``.
+            Name of the setup.
         **kwargs : dict, optional
-            Available keys depend on the setup chosen.
-            For more information, see :doc:`../SetupTemplatesMechanical`.
+            Available keys depend on setup chosen.
+            For more information, see
+            :doc:`../SetupTemplatesMechanical`.
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.solve_setup.SetupHFSS`
-            Solver Setup object.
+        :class:`ansys.aedt.core.modules.solve_setup.SetupIcepakFEA`
+            Setup object.
 
         References
         ----------
@@ -837,22 +898,32 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core import Mechanical
-        >>> app = Mechanical()
-        >>> app.create_setup(name="Setup1", MaxModes=6)
+        >>> mech = Mechanical(solution_type="Thermal")
+        >>> setup = mech.create_setup("MySetup")
+        >>> setup.props["Solver"] = "Direct"
+        >>> setup.update()
+        True
 
         """
-        if setup_type is None:
-            setup_type = self.design_solutions.default_setup
-        elif setup_type in SetupKeys.SetupNames:
-            setup_type = SetupKeys.SetupNames.index(setup_type)
+        setup_keys = SetupKeys.get_setup_templates()
+        setup_type = self.design_solutions.default_setup
+
+        if not name:
+            name = self.generate_unique_setup_name("MySetupAuto")
+        elif name in self.setup_names:
+            name = self.generate_unique_setup_name(name)
+            self.logger.warning(f"Name already exists. New name assigned is {name}.")
+
+        props = copy.deepcopy(setup_keys[setup_type])
+
+        setup = SetupIcepakFEA(app=self, name=name, props=props)
+
         if "props" in kwargs:
-            return self._create_setup(name=name, setup_type=setup_type, props=kwargs["props"])
-        else:
-            setup = self._create_setup(name=name, setup_type=setup_type)
-        setup.auto_update = False
+            _merge_props(props, kwargs.pop("props"))
         for arg_name, arg_value in kwargs.items():
-            if setup[arg_name] is not None:
-                setup[arg_name] = arg_value
-        setup.auto_update = True
-        setup.update()
+            if props[arg_name] is not None:
+                props[arg_name] = arg_value
+
+        setup.create()
+
         return setup

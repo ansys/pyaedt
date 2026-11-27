@@ -112,7 +112,6 @@ For the per-application API reference, see the Application page: :doc:`Applicati
    Constants
    Configuration
    SetupTemplates
-   CableModeling
    Profiles
    Substrate
    generic

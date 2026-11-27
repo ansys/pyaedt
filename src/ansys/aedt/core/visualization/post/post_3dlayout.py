@@ -308,16 +308,17 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
     def _get_3d_layers_nets(self, layers, nets):
         dielectrics = []
         new_layers = []
-        for k, v in self._app.modeler.user_defined_components.items():
-            if v.layout_component:
+        for k in self._app.modeler.layout_component_names:
+            v = self._app.modeler.components[k]
+            if v.edb_object:
                 if not layers:
-                    layers = [i for i in v.layout_component.edb_object.stackup.layers.keys()]
+                    layers = [i for i in v.edb_object.stackup.layers.keys()]
                 if not nets:
-                    nets = [""] + [i for i in v.layout_component.edb_object.nets.nets.keys()]
+                    nets = [""] + [i for i in v.edb_object.nets.nets.keys()]
                 for layer in layers:
-                    if layer in v.layout_component.edb_object.stackup.signal_layers:
+                    if layer in v.edb_object.stackup.signal_layers:
                         new_layers.append([layer] + nets)
-                    elif layer in v.layout_component.edb_object.stackup.dielectric_layers:
+                    elif layer in v.edb_object.stackup.dielectric_layers:
                         dielectrics.append(f"{k}:{layer}")
         return dielectrics, new_layers
 
@@ -629,18 +630,18 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
             new_list = []
             for layer in layers_nets:
                 if "no-layer" in layer[0]:
-                    for v in self._app.modeler.user_defined_components.values():
-                        new_list.extend(
-                            [[i] + layer[1:] for i in v.layout_component.edb_object.stackup.signal_layers.keys()]
-                        )
+                    for component_name in self._app.modeler.layout_component_names:
+                        v = self._app.modeler.components[component_name]
+                        new_list.extend([[i] + layer[1:] for i in v.edb_object.stackup.signal_layers.keys()])
                 else:
                     new_list.append(layer)
             layers_nets = new_list
             for layer in layers_nets:
                 if len(layer) == 1 or "no-net" in layer[1]:
-                    for v in self._app.modeler.user_defined_components.values():
-                        if layer[0] in v.layout_component.edb_object.stackup.layers:
-                            layer.extend(list(v.layout_component.edb_object.nets.nets.keys()))
+                    for component_name in self._app.modeler.layout_component_names:
+                        v = self._app.modeler.components[component_name]
+                        if layer[0] in v.edb_object.stackup.layers:
+                            layer.extend(list(v.edb_object.nets.nets.keys()))
             if plot_on_surface:
                 plot_type = "LayerNetsExtFace"
             else:

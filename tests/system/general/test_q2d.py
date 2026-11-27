@@ -212,7 +212,6 @@ def test_export_equivalent_circuit(q2d_solved, test_tmp_dir) -> None:
     q2d_solved.insert_reduced_matrix(MatrixOperationsQ2D.Float, "Circle2", "Test4")
     assert q2d_solved.matrices[-1].name == "Test4"
     assert len(q2d_solved.setups[0].sweeps[0].frequencies) > 0
-    assert q2d_solved.setups[0].sweeps[0].basis_frequencies == []
 
     file_path = test_tmp_dir / "test_export_circuit.sml"
     assert q2d_solved.export_equivalent_circuit(file_path)

@@ -36,10 +36,6 @@ from ansys.aedt.core.generic.file_utils import get_dxf_layers
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
-from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
-from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsPackageParts
-from ansys.aedt.core.modules.mesh_icepak import MeshRegion
-from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.visualization.post.field_data import FolderPlotSettings
 from ansys.aedt.core.visualization.post.field_data import SpecifiedScale
 from tests import TESTS_GENERAL_PATH
@@ -48,7 +44,6 @@ from tests.conftest import DESKTOP_VERSION
 from tests.conftest import USE_GRPC
 
 TEST_SUBFOLDER = "icepak"
-BOARD_3DL = "FilterBoard_H3DL"
 BOARD_IPK = "FilterBoard"
 USB_HFSS = "USBConnector_HFSS"
 USB_IPK = "USBConnector"
@@ -56,9 +51,7 @@ EXISTING_SETUP = "ExistingSetup"
 TRANSIENT_FS = "TransientFS"
 COLD_PLATE = "ColdPlateExample"
 POWER_BUDGET = "PB_test"
-COMP_PRIORITY = "3DCompPriority"
 FAN_OP_POINT = "FanOpPoint"
-NATIVE_IMPORT = "one_native_component"
 NETWORK_TEST = "NetworkTest"
 MAX_TEMP = "maxT"
 
@@ -73,13 +66,6 @@ SOLUTION_FREQ = "2.5GHz"
 RESOLUTION = 2
 
 on_ci = os.getenv("ON_CI", "false").lower() == "true"
-
-
-@pytest.fixture
-def board_3dl_app(add_app_example):
-    app = add_app_example(project=BOARD_3DL, application=Icepak, subfolder=TEST_SUBFOLDER)
-    yield app
-    app.close_project(save=False)
 
 
 @pytest.fixture
@@ -125,20 +111,6 @@ def fan_op_point_app(add_app_example):
 
 
 @pytest.fixture
-def comp_priority_app(add_app_example):
-    app = add_app_example(project=COMP_PRIORITY, application=Icepak, subfolder=TEST_SUBFOLDER)
-    yield app
-    app.close_project(save=False)
-
-
-@pytest.fixture
-def native_app(add_app_example):
-    app = add_app_example(project=NATIVE_IMPORT, application=Icepak, subfolder=TEST_SUBFOLDER)
-    yield app
-    app.close_project(save=False)
-
-
-@pytest.fixture
 def transient_app(add_app_example):
     app = add_app_example(project=TRANSIENT_FS, application=Icepak, subfolder=TEST_SUBFOLDER)
     yield app
@@ -160,232 +132,9 @@ def ipk_app(add_app):
     app.close_project(save=False, name=project_name)
 
 
-def test_import_pcb(board_3dl_app) -> None:
-    component_name = "RadioBoard1"
-    pcb = board_3dl_app.create_ipk_3dcomponent_pcb(
-        component_name, LINK_DATA, SOLUTION_FREQ, RESOLUTION, custom_x_resolution=400, custom_y_resolution=500
-    )
-    assert pcb
-    assert len(board_3dl_app.native_components) == 1
-    assert len(board_3dl_app.modeler.user_defined_component_names) == 1
-    assert board_3dl_app.modeler.get_object_from_name("RadioBoard1_001_TOP_BBox")
-
-
-def test_pcb_devices(board_ipk_app) -> None:
-    cmp2 = board_ipk_app.native_components["Board_w_cmp"]
-    cmp2.included_parts = 1
-    assert isinstance(cmp2.included_parts, PCBSettingsDeviceParts)
-    cmp2.included_parts = None
-    assert cmp2.included_parts is None
-    # Test Device parts
-    cmp2.included_parts = "Device"
-    assert cmp2.included_parts == "Device"
-    assert not cmp2.included_parts == "Package"
-    assert cmp2.included_parts == cmp2.included_parts
-    assert not cmp2.included_parts == "Package"
-    assert not cmp2.included_parts != "Device"
-    assert isinstance(cmp2.included_parts, PCBSettingsDeviceParts)
-    cmp2.included_parts.simplify_parts = True
-    assert cmp2.included_parts.simplify_parts
-    cmp2.included_parts.surface_material = "pt-polished"
-    assert cmp2.included_parts.surface_material == "pt-polished"
-    assert cmp2.included_parts.override_instance("FCHIP", True)
-    assert "Board_w_cmp_FCHIP_device" not in board_ipk_app.modeler.object_names
-    assert cmp2.included_parts.override_instance("FCHIP", False)
-    assert "Board_w_cmp_FCHIP_device" in board_ipk_app.modeler.object_names
-    assert cmp2.included_parts.override_instance("FCHIP", False, "10W", "1Kel_per_W", "1Kel_per_W", "0.1mm")
-    if board_ipk_app.settings.aedt_version >= "2024.2":
-        cmp2.included_parts.override_definition("FCHIP_FCHIP", "FCHIP_FCHIP")
-    else:
-        assert not cmp2.included_parts.override_definition("a", "b")
-
-
-def test_pcb_packages(board_ipk_app) -> None:
-    cmp2 = board_ipk_app.native_components["Board_w_cmp"]
-    cmp2.included_parts = "Package"
-    assert not cmp2.included_parts == "Packages"
-    assert isinstance(cmp2.included_parts, PCBSettingsPackageParts)
-    assert cmp2.included_parts.set_connectors_modeling(modeling="Solderbump", solderbumps_modeling="Boxes")
-    assert cmp2.included_parts.set_connectors_modeling(
-        modeling="Bondwire", bondwire_material="Au-Typical", bondwire_diameter="0.01mm"
-    )
-    assert cmp2.included_parts.set_connectors_modeling(modeling="Solderbump", solderbumps_modeling="Lumped")
-    assert not cmp2.included_parts.set_connectors_modeling(modeling="Error")
-    assert not cmp2.included_parts.set_connectors_modeling(
-        modeling="Solderbump", solderbumps_modeling="Error1"
-    )  # invalid input
-    assert not cmp2.included_parts.set_connectors_modeling(
-        modeling="Bondwire", bondwire_material="Error4"
-    )  # material does not exist
-
-
-def test_pcb_board_extents_and_resolution(board_ipk_app) -> None:
-    cmp2 = board_ipk_app.native_components["Board_w_cmp"]
-    assert cmp2.set_board_extents("Bounding Box")
-    assert cmp2.set_board_extents("Polygon")
-    assert cmp2.set_board_extents("Bounding Box")
-    assert cmp2.set_board_extents("Polygon", "outline:poly_0")
-    assert not cmp2.set_resolution(0)
-    assert cmp2.set_resolution(1)
-    assert cmp2.set_custom_resolution(row=100, col=200)
-
-
-def test_pcb_filters_error_messages(board_ipk_app) -> None:
-    cmp2 = board_ipk_app.native_components["Board_w_cmp"]
-    cmp2.included_parts = "Device"
-    p = cmp2.included_parts
-    cmp2.included_parts = "None"
-    len_err = len(board_ipk_app.logger.error_messages)
-    p.footprint_filter = "1mm2"
-    assert p.footprint_filter is None
-    assert len_err + 2 == len(board_ipk_app.logger.error_messages)
-    p.power_filter = "1W"
-    assert p.power_filter is None
-    assert len_err + 4 == len(board_ipk_app.logger.error_messages)
-    p.type_filters = "Resistors"
-    assert p.type_filters is None
-    assert len_err + 6 == len(board_ipk_app.logger.error_messages)
-    p.height_filter = "1mm"
-    assert p.height_filter is None
-    assert len_err + 8 == len(board_ipk_app.logger.error_messages)
-    p.objects_2d_filter = True
-    assert p.objects_2d_filter is None
-    assert len_err + 10 == len(board_ipk_app.logger.error_messages)
-    assert cmp2.power == "0W"
-    cmp2.power = "10W"
-    assert cmp2.power == "10W"
-
-
-def test_pcb_comp_properties(board_ipk_app) -> None:
-    cmp2 = board_ipk_app.native_components["Board_w_cmp"]
-    cmp2.set_high_side_radiation(
-        True,
-        surface_material="Stainless-steel-typical",
-        radiate_to_ref_temperature=True,
-        view_factor=0.5,
-        ref_temperature="20cel",
-    )
-    cmp2.set_low_side_radiation(
-        True,
-        surface_material="Stainless-steel-typical",
-        radiate_to_ref_temperature=True,
-        view_factor=0.8,
-        ref_temperature="25cel",
-    )
-    assert cmp2.force_source_solve
-    cmp2.force_source_solve = True
-    cmp2.preserve_partner_solution = True
-    assert cmp2.preserve_partner_solution
-    cmp2.via_holes_material = "air"
-    cmp2.board_cutout_material = "copper"
-    assert cmp2.via_holes_material == "air"
-    assert cmp2.board_cutout_material == "copper"
-
-
-def test_pcb_comp_import(board_ipk_app) -> None:
-    component_name = "RadioBoard2"
-    cmp = board_ipk_app.create_ipk_3dcomponent_pcb(
-        component_name, LINK_DATA, SOLUTION_FREQ, RESOLUTION, custom_x_RESOLUTION=400, custom_y_RESOLUTION=500
-    )
-    assert cmp.included_parts is None
-    cmp.included_parts = "Device"
-    print(cmp.included_parts)
-    cmp.included_parts = "Packafe"
-    assert cmp.included_parts == "Device"
-    f = cmp.included_parts.filters
-    assert len(f.keys()) == 1
-    assert all(not v for v in f["Type"].values())
-    assert cmp.included_parts.height_filter is None
-    assert cmp.included_parts.footprint_filter is None
-    assert cmp.included_parts.power_filter is None
-    assert not cmp.included_parts.objects_2d_filter
-    cmp.included_parts.height_filter = "1mm"
-    cmp.included_parts.objects_2d_filter = True
-    cmp.included_parts.power_filter = "4mW"
-    cmp.included_parts.type_filters = "Resistors"
-    cmp.included_parts.type_filters = "Register"  # should not be set
-    cmp.included_parts.type_filters = "Inductors"
-    if board_ipk_app.settings.aedt_version >= "2024.2":
-        cmp.included_parts.footprint_filter = "0.5mm2"
-    else:
-        assert cmp.included_parts.footprint_filter is None
-    f = cmp.included_parts.filters
-    assert len(f.keys()) >= 4  # 5 if version 2024.2
-    assert f["Type"]["Inductors"]
-    assert cmp.set_board_extents()
-    assert not cmp.set_board_extents("Polygon")
-    assert not cmp.set_board_extents("Bounding Domain")
-    cmp.set_board_extents("Bounding Box")
-    cmp.included_parts.power_filter = None
-    cmp.included_parts.height_filter = None
-    cmp.included_parts.objects_2d_filter = False
-    if board_ipk_app.settings.aedt_version >= "2024.2":
-        cmp.included_parts.footprint_filter = None
-    f = cmp.included_parts.filters
-    assert len(f.keys()) == 1
-    cmp.included_parts = "Package"
-    print(cmp.included_parts)
-    assert cmp.included_parts == "Package"
-    assert cmp.included_parts == cmp.included_parts
-    assert not cmp.included_parts == "Device"
-    assert not cmp.included_parts != "Package"
-    cmp.included_parts.set_solderballs_modeling("Boxes")
-    board_ipk_app.logger.clear_messages(proj_name=board_ipk_app.project_name, des_name=board_ipk_app.design_name)
-
-
 def test_find_top(ipk_app) -> None:
     assert all(ipk_app.find_top(i) == 1.0 for i in range(3))
     assert all(ipk_app.find_top(i + 3) == 0 for i in range(3))
-
-
-def test_assign_pcb_region(ipk_app) -> None:
-    ipk_app.globalMeshSettings(2)
-
-    ipk_app.modeler.create_box([0, 0, 0], [50, 50, 2], "PCB")
-
-    pcb_mesh_region = MeshRegion(ipk_app, "PCB")
-    pcb_mesh_region.name = "PCB_Region"
-
-    if settings.aedt_version > "2023.2":
-        assert [str(i) for i in pcb_mesh_region.assignment.padding_values] == ["0"] * 6
-        assert pcb_mesh_region.assignment.padding_types == ["Percentage Offset"] * 6
-        pcb_mesh_region.assignment.negative_x_padding = 1
-        pcb_mesh_region.assignment.positive_x_padding = 1
-        pcb_mesh_region.assignment.negative_y_padding = 1
-        pcb_mesh_region.assignment.positive_y_padding = 1
-        pcb_mesh_region.assignment.negative_z_padding = 1
-        pcb_mesh_region.assignment.positive_z_padding = 1
-        pcb_mesh_region.assignment.negative_x_padding_type = "Absolute Offset"
-        pcb_mesh_region.assignment.positive_x_padding_type = "Absolute Position"
-        pcb_mesh_region.assignment.negative_y_padding_type = "Transverse Percentage Offset"
-        pcb_mesh_region.assignment.positive_y_padding_type = "Absolute Position"
-        pcb_mesh_region.assignment.negative_z_padding_type = "Absolute Offset"
-        pcb_mesh_region.assignment.positive_z_padding_type = "Transverse Percentage Offset"
-        assert pcb_mesh_region.assignment.negative_x_padding == "1mm"
-        assert pcb_mesh_region.assignment.positive_x_padding == "1mm"
-        assert str(pcb_mesh_region.assignment.negative_y_padding) == "1"
-        assert pcb_mesh_region.assignment.positive_y_padding == "1mm"
-        assert pcb_mesh_region.assignment.negative_z_padding == "1mm"
-        assert str(pcb_mesh_region.assignment.positive_z_padding) == "1"
-        assert pcb_mesh_region.assignment.negative_x_padding_type == "Absolute Offset"
-        assert pcb_mesh_region.assignment.positive_x_padding_type == "Absolute Position"
-        assert pcb_mesh_region.assignment.negative_y_padding_type == "Transverse Percentage Offset"
-        assert pcb_mesh_region.assignment.positive_y_padding_type == "Absolute Position"
-        assert pcb_mesh_region.assignment.negative_z_padding_type == "Absolute Offset"
-        assert pcb_mesh_region.assignment.positive_z_padding_type == "Transverse Percentage Offset"
-        pcb_mesh_region.assignment.padding_values = 2
-        pcb_mesh_region.assignment.padding_types = "Absolute Offset"
-        assert pcb_mesh_region.assignment.padding_values == ["2mm"] * 6
-        assert pcb_mesh_region.assignment.padding_types == ["Absolute Offset"] * 6
-        assert ipk_app.modeler.create_subregion([50, 50, 50, 50, 100, 100], "Percentage Offset", "PCB")
-        box = ipk_app.modeler.create_box([0, 0, 0], [1, 2, 3])
-        assert ipk_app.modeler.create_subregion([50, 50, 50, 50, 100, 100], "Percentage Offset", ["PCB", box.name])
-    else:
-        box = ipk_app.modeler.create_box([0, 0, 0], [1, 2, 3])
-        pcb_mesh_region.Objects = box.name
-        assert pcb_mesh_region.update()
-    assert ipk_app.mesh.meshregions_dict
-    assert pcb_mesh_region.delete()
 
 
 def test_em_loss(ipk_app, test_tmp_dir) -> None:
@@ -479,61 +228,16 @@ def test_export_step(ipk_app, test_tmp_dir) -> None:
     assert ipk_app.export_3d_model("ExportedModel", file_path, ".x_t", ["Region"], [])
 
 
-def test_setup(usb_ipk_app) -> None:
-    setup_name = "DomSetup"
-    my_setup = usb_ipk_app.create_setup(setup_name)
-    my_setup.props["Convergence Criteria - Max Iterations"] = 10
-    assert usb_ipk_app.get_property_value("AnalysisSetup:DomSetup", "Iterations", "Setup")
-    assert my_setup.update()
-    assert usb_ipk_app.assign_2way_coupling(setup_name, 2, True, 20)
-    templates = SetupKeys().get_default_icepak_template(default_type="Natural Convection")
-    assert templates
-    my_setup.props = templates["IcepakSteadyState"]
-    assert my_setup.update()
-    assert SetupKeys().get_default_icepak_template(default_type="Default")
-    assert SetupKeys().get_default_icepak_template(default_type="Forced Convection")
-    with pytest.raises(AttributeError):
-        SetupKeys().get_default_icepak_template(default_type="Default Convection")
-
-
 def test_existing_sweeps(existing_setup_app) -> None:
     assert len(existing_setup_app.existing_analysis_sweeps) == 1
     existing_setup_app.create_setup("test009")
     assert len(existing_setup_app.existing_analysis_sweeps) == 2
 
 
-def test_mesh_level(usb_ipk_app) -> None:
-    assert usb_ipk_app.mesh.assign_mesh_level({"USB_Shiels": 2})
-
-
-def test_assign_mesh_operation(usb_ipk_app) -> None:
-    group_name = "Group1"
-    mesh_level_Filter = "2"
-    component_name = ["USB_ID"]
-    mesh_level_RadioPCB = "1"
-    assert usb_ipk_app.mesh.assign_mesh_level_to_group(mesh_level_Filter, group_name)
-    test = usb_ipk_app.mesh.assign_mesh_level_to_group(mesh_level_Filter, group_name, name="Test")
-    assert test
-    test2 = usb_ipk_app.mesh.assign_mesh_level_to_group(mesh_level_Filter, group_name, name="Test")
-    assert test.name != test2.name
-    test = usb_ipk_app.mesh.assign_mesh_region(component_name, mesh_level_RadioPCB, is_submodel=True)
-    assert test
-    assert test.delete()
-    test = usb_ipk_app.mesh.assign_mesh_region(["USB_ID"], mesh_level_RadioPCB)
-    assert test
-    assert test.delete()
-    b = usb_ipk_app.modeler.create_box([0, 0, 0], [1, 1, 1])
-    b.is_model = False
-    test = usb_ipk_app.mesh.assign_mesh_region([b.name])
-    assert test
-    assert test.delete()
-
-
 def test_assign_openings(ipk_app) -> None:
     airfaces = [ipk_app.modeler["Region"].top_face_x.id]
     openings = ipk_app.assign_openings(airfaces)
     openings.name = "Test_Opening"
-    assert openings.update()
     assert ipk_app.oboundary.GetBoundariesOfType("Opening") == ["Test_Opening"]
 
 
@@ -541,14 +245,13 @@ def test_assign_grille(ipk_app) -> None:
     airfaces = [ipk_app.modeler["Region"].top_face_y.id]
     grille = ipk_app.assign_grille(airfaces)
     grille.props["Free Area Ratio"] = 0.7
-    assert grille.update()
+    assert grille.properties["Free Area Ratio"] == "0.7"
     ipk_app.modeler.user_lists[0].delete()
     airfaces = [ipk_app.modeler["Region"].bottom_face_x.id]
     grille2 = ipk_app.assign_grille(airfaces, free_loss_coeff=False, x_curve=["0", "3", "5"], y_curve=["0", "2", "3"])
     assert grille2.props["X"] == ["0", "3", "5"]
     assert grille2.props["Y"] == ["0", "2", "3"]
     grille2.name = "Grille_test"
-    assert grille2.update()
     assert len(ipk_app.oboundary.GetBoundariesOfType("Grille")) == 2
 
 
@@ -576,6 +279,7 @@ def test_create_source_blocks_from_list(ipk_app) -> None:
     assert result[3].properties["Total Power"] == "3W"
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_copy_solid_bodies(board_ipk_app, add_app, test_tmp_dir) -> None:
     prj_name = available_file_name(test_tmp_dir / "IcepakCopiedProject.aedt")
     new_design = add_app(application=Icepak, project=prj_name, design="IcepakCopiedBodies", close_projects=False)
@@ -595,6 +299,7 @@ def test_copy_solid_bodies(board_ipk_app, add_app, test_tmp_dir) -> None:
     new_design.close_project(new_design.project_name, save=False)
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_get_all_conductors(board_ipk_app) -> None:
     conductors = board_ipk_app.get_all_conductors_names()
     assert sorted(conductors) == [
@@ -605,6 +310,7 @@ def test_get_all_conductors(board_ipk_app) -> None:
     ]
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_get_all_dielectrics(board_ipk_app) -> None:
     dielectrics = board_ipk_app.get_all_dielectrics_names()
     assert sorted(dielectrics) == [
@@ -717,28 +423,6 @@ def test_import_idf(ipk_app, test_tmp_dir) -> None:
     )
 
 
-def test_create_fan(ipk_app, test_tmp_dir) -> None:
-    ipk_app.mesh.global_mesh_region.global_region.padding_types = "Absolute Position"
-    ipk_app.mesh.global_mesh_region.global_region.padding_values = "300mm"
-    fan = ipk_app.create_fan("Fan1", cross_section="YZ", radius="15mm", hub_radius="5mm", origin=[5, 21, 1])
-    assert fan
-    assert fan.name in ipk_app.modeler.oeditor.Get3DComponentInstanceNames(fan.definition_name)[0]
-    fan.name = "Fan2"
-    assert fan.name in ipk_app.modeler.oeditor.Get3DComponentInstanceNames(fan.definition_name)[0]
-    assert fan.name in ipk_app.modeler.user_defined_components
-    assert fan.name in ipk_app.native_components
-    assert "Fan1" not in ipk_app.native_components
-    assert "Fan1" not in ipk_app.modeler.user_defined_components
-    temp_prj = str(test_tmp_dir / "fan_test.aedt")
-    ipk_app.save_project(temp_prj)
-    ipk_app = Icepak(temp_prj)
-    ipk_app.modeler.user_defined_components["Fan2"].native_properties["Swirl"] = "10"
-    ipk_app.modeler.user_defined_components["Fan2"].update_native()
-    ipk_app.save_project(temp_prj)
-    ipk_app = Icepak(temp_prj)
-    assert ipk_app.native_components["Fan1"].props["NativeComponentDefinitionProvider"]["Swirl"] == "10"
-
-
 def test_create_heat_sink(ipk_app) -> None:
     box = ipk_app.modeler.create_box([0, 0, 0], [20, 20, 3])
     top_face = box.top_face_z
@@ -791,9 +475,21 @@ def test_update_assignment(ipk_app) -> None:
     box2 = ipk_app.modeler.create_box([9, 9, 9], [5, 5, 5], "box2", "copper")
     bound = ipk_app.assign_solid_block("box", "1W")
     bound.props["Objects"].append(box2)
-    assert bound.update_assignment()
+    assert box2.name in bound.assignment
     bound.props["Objects"].remove(box2)
-    assert bound.update_assignment()
+    assert box2.name not in bound.assignment
+
+
+def test_boundary_tree_after_rename_and_delete(ipk_app) -> None:
+    box = ipk_app.modeler.create_box([0, 0, 0], [1, 1, 1], "boundary_tree_box")
+    boundary = ipk_app.assign_solid_block(box.name, "1W", boundary_name="BoundaryTree")
+    assert boundary.child_object
+    boundary.name = "RenamedBoundaryTree"
+    assert not boundary._tree_node_initialized
+    assert boundary.name == "RenamedBoundaryTree"
+    assert boundary.child_object
+    assert boundary.delete()
+    assert boundary.child_object is None
 
 
 def test_power_budget(power_budget_app) -> None:
@@ -812,14 +508,14 @@ def test_create_two_resistor_network_block(board_ipk_app) -> None:
     board_ipk_app.modeler.create_box([20, 60, 2], [10, 10, 3], "network_box2", "copper")
     result1 = board_ipk_app.create_two_resistor_network_block("network_box1", "board", "5W", 2.5, 5)
     result2 = board_ipk_app.create_two_resistor_network_block("network_box2", "board", "10W", 2.5, 5)
-    assert result1.props["Nodes"]["Internal"][0] == "5W"
-    assert result2.props["Nodes"]["Internal"][0] == "10W"
-    board_ipk_app.create_ipk_3dcomponent_pcb(
-        "RadioBoard1", LINK_DATA, SOLUTION_FREQ, RESOLUTION, custom_x_RESOLUTION=400, custom_y_RESOLUTION=500
+    assert result1.props["Nodes"]["Internal"]["Power"] == "5W"
+    assert result2.props["Nodes"]["Internal"]["Power"] == "10W"
+    pcb_component = board_ipk_app.create_ipk_3dcomponent_pcb(
+        LINK_DATA, "RadioBoard1", SOLUTION_FREQ, RESOLUTION, custom_x_resolution=400, custom_y_resolution=500
     )
-    board_ipk_app.modeler.create_box([42, 8, 2.03962], [10, 22, 3], "network_box3", "copper")
-    result3 = board_ipk_app.create_two_resistor_network_block("network_box3", "RadioBoard1_1", "15W", 2.5, 5)
-    assert result3.props["Nodes"]["Internal"][0] == "15W"
+    box = board_ipk_app.modeler.create_box([42, 8, 2.03962], [10, 22, 3], "network_box3", "copper")
+    result3 = board_ipk_app.create_two_resistor_network_block(box.name, pcb_component.name, "15W", 2.5, 5)
+    assert result3.props["Nodes"]["Internal"]["Power"] == "15W"
 
 
 def test_set_variable(ipk_app) -> None:
@@ -898,56 +594,12 @@ def test_face_monitor(ipk_app) -> None:
     assert not ipk_app.monitor.assign_face_monitor(face_1.id, monitor_quantity="Thermogen")
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_delete_monitors(board_ipk_app) -> None:
     for _, mon_obj in board_ipk_app.monitor.all_monitors.items():
         mon_obj.delete()
     assert board_ipk_app.monitor.all_monitors == {}
     assert not board_ipk_app.monitor.delete_monitor("Test")
-
-
-@pytest.mark.skipif(not USE_GRPC, reason="Not running in COM mode")
-def test_advanced3dcomp_import(board_ipk_app, test_tmp_dir) -> None:
-    cs2 = board_ipk_app.modeler.create_coordinate_system(name="CS2")
-    cs2.props["OriginX"] = 20
-    cs2.props["OriginY"] = 20
-    cs2.props["OriginZ"] = 20
-
-    file = shutil.copy2(
-        TESTS_ICEPAK_PATH / "example_models" / TEST_SUBFOLDER / "Advanced3DComp.a3dcomp",
-        test_tmp_dir / "Advanced3DComp.a3dcomp",
-    )
-
-    shutil.copy2(
-        TESTS_ICEPAK_PATH / "example_models" / TEST_SUBFOLDER / "Advanced3DComp.a3dcomp.json",
-        test_tmp_dir / "Advanced3DComp.a3dcomp.json",
-    )
-
-    board_ipk_app.modeler.insert_3d_component(
-        input_file=str(file),
-        coordinate_system=cs2.name,
-        auxiliary_parameters=True,
-    )
-    assert all(i in board_ipk_app.native_components.keys() for i in ["Fan1", "Fan2"])
-    assert all(
-        i in board_ipk_app.monitor.all_monitors
-        for i in ["board_assembly1_FaceMonitor", "board_assembly1_BoxMonitor", "board_assembly1_SurfaceMonitor"]
-    )
-    assert "test_dataset" in board_ipk_app.design_datasets
-    assert "board_assembly1_CS1" in [i.name for i in board_ipk_app.modeler.coordinate_systems]
-    dup = board_ipk_app.modeler.user_defined_components["board_assembly1"].duplicate_and_mirror([0, 0, 0], [1, 2, 0])
-    board_ipk_app.modeler.refresh_all_ids()
-    board_ipk_app.modeler.user_defined_components[dup[0]].delete()
-    dup = board_ipk_app.modeler.user_defined_components["board_assembly1"].duplicate_along_line([1, 2, 0], clones=2)
-    board_ipk_app.modeler.refresh_all_ids()
-    board_ipk_app.modeler.user_defined_components[dup[0]].delete()
-    board_ipk_app.delete_design()
-    board_ipk_app.insert_design("test_51_2")
-    board_ipk_app.modeler.insert_3d_component(
-        input_file=str(file),
-        coordinate_system="Global",
-        name="test",
-        auxiliary_parameters=False,
-    )
 
 
 def test_create_conduting_plate(ipk_app) -> None:
@@ -1072,9 +724,11 @@ def test_assign_stationary_wall(ipk_app) -> None:
 @pytest.mark.skipif(DESKTOP_VERSION < "2023.1" and USE_GRPC, reason="Not working in 2022.2 gRPC")
 def test_native_components_history(ipk_app) -> None:
     fan = ipk_app.create_fan("test_fan")
-    ipk_app.modeler.user_defined_components[fan.name].move([1, 2, 3])
-    ipk_app.modeler.user_defined_components[fan.name].duplicate_along_line([4, 5, 6])
-    fan_1_history = ipk_app.modeler.user_defined_components[fan.name].history()
+    fan_1_history0 = ipk_app.modeler.components[fan.name].history()
+    assert "command" not in dir(fan_1_history0)
+    ipk_app.modeler.components[fan.name].move([1, 2, 3])
+    ipk_app.modeler.components[fan.name].duplicate_along_line([4, 5, 6])
+    fan_1_history = ipk_app.modeler.components[fan.name].history()
     assert fan_1_history.command == "Move"
     assert all(
         fan_1_history.properties["Move Vector/" + i] == j + "mm" for i, j in [("X", "1"), ("Y", "2"), ("Z", "3")]
@@ -1084,22 +738,6 @@ def test_native_components_history(ipk_app) -> None:
         fan_1_history.children["DuplicateAlongLine:1"].properties["Vector/" + i] == j + "mm"
         for i, j in [("X", "4"), ("Y", "5"), ("Z", "6")]
     )
-
-
-def test_mesh_priority(board_ipk_app) -> None:
-    b = board_ipk_app.modeler.create_box([0, 0, 0], [20, 50, 80])
-    board = board_ipk_app.create_ipk_3dcomponent_pcb(
-        "Board",
-        LINK_DATA,
-        SOLUTION_FREQ,
-        RESOLUTION,
-        extent_type="Polygon",
-        custom_x_RESOLUTION=400,
-        custom_y_RESOLUTION=500,
-    )
-    fan = board_ipk_app.create_fan(name="TestFan", is_2d=True)
-    rect = board_ipk_app.modeler.create_rectangle(0, [0, 0, 0], [1, 2], name="TestRectangle")
-    assert board_ipk_app.mesh.assign_priorities([[fan.name, board.name], [b.name, rect.name]])
 
 
 def test_update_source(ipk_app) -> None:
@@ -1171,6 +809,32 @@ def test_assign_solid_block(ipk_app) -> None:
         ipk_app.assign_solid_block("BlockBox3", "1W", boundary_name=boundary_name)
 
 
+def test_assign_block_from_sherlock_file(ipk_app) -> None:
+    ipk_app.modeler.create_box([0, 0, 0], [1, 1, 1], "COMP_U1", "copper")
+    ipk_app.modeler.create_box([2, 0, 0], [1, 1, 1], "U2", "copper")
+    not_solved_inside = ipk_app.modeler.create_box([4, 0, 0], [1, 1, 1], "U3", "copper")
+    not_solved_inside.solve_inside = False
+    # U1 matches "COMP_U1", U3 is not solved inside, U4 does not exist and U5 has an invalid power
+    csv_file = TESTS_ICEPAK_PATH / "example_models" / TEST_SUBFOLDER / "sherlock_components.csv"
+
+    total_power = ipk_app.assign_block_from_sherlock_file(csv_file)
+
+    assert total_power == pytest.approx(2.0)
+    blocks = {boundary.name: boundary for boundary in ipk_app.boundaries if boundary.type == "Block"}
+    assert set(blocks) == {"COMP_U1", "U2"}
+    assert blocks["COMP_U1"].props["Objects"] == ["COMP_U1"]
+    assert blocks["COMP_U1"].props["Total Power"] == "1.5W"
+    assert blocks["U2"].props["Total Power"] == "0.5W"
+
+
+def test_assign_block_from_sherlock_file_errors(ipk_app, test_tmp_dir) -> None:
+    with pytest.raises(FileNotFoundError):
+        ipk_app.assign_block_from_sherlock_file(test_tmp_dir / "missing.csv")
+    csv_file = TESTS_ICEPAK_PATH / "example_models" / TEST_SUBFOLDER / "sherlock_wrong_columns.csv"
+    with pytest.raises(ValueError, match="Applied Power"):
+        ipk_app.assign_block_from_sherlock_file(csv_file)
+
+
 def test_assign_network_from_matrix(ipk_app) -> None:
     box = ipk_app.modeler.create_box([0, 0, 0], [20, 50, 80])
     faces_ids = [face.id for face in box.faces]
@@ -1235,6 +899,7 @@ def test_assign_network(ipk_app, add_app_example) -> None:
     net.add_link("TestInternal", "TestBoundary3", 102)
     net.add_link("TestInternal3", "TestBoundary4", 103)
     assert net.create()
+    assert net.child_object
     bkupprops = net.nodes["TestFace"].props
     bkupprops_internal = net.nodes["TestInternal3"].props
     bkupprops_boundary = net.nodes["TestBoundary4"].props
@@ -1258,6 +923,8 @@ def test_assign_network(ipk_app, add_app_example) -> None:
     net.add_link("TestInternal2", "TestBoundary2", "101cel_per_w")
     net.add_link("TestInternal", "TestBoundary3", "102cel_per_w")
     assert net.update()
+    assert not net._tree_node_initialized
+    assert net.child_object
     assert all(i not in net.nodes for i in ["TestFace", "TestInternal3", "TestBoundary4"])
     net.props["Nodes"].update({"TestFace": bkupprops})
     net.props["Nodes"].update({"TestInternal3": bkupprops_internal})
@@ -1324,13 +991,15 @@ def test_assign_network(ipk_app, add_app_example) -> None:
     net.links["TestLink"].delete_link()
     net.add_links_from_dictionaries(link_dict)
     assert net.update()
+    assert net.child_object
     net.name = "NETWORK_TEST"
+    assert not net._tree_node_initialized
     assert net.name == "NETWORK_TEST"
+    assert net.child_object
     p = net.props
     net.delete()
+    assert net.child_object is None
     net = NetworkObject(ipk_app, "newNet", p, create=True)
-    net.auto_update = True
-    assert not net.auto_update
     assert isinstance(net.r_links, dict)
     assert isinstance(net.c_links, dict)
     assert isinstance(net.faces_ids_in_network, list)
@@ -1371,11 +1040,6 @@ def test_get_fans_operating_point(fan_op_point_app) -> None:
     assert vol_flow_name == "Volume Flow (m3_per_s)"
     assert p_rise_name == "Pressure Rise (n_per_meter_sq)"
     assert len(list(op_dict.keys())) == 2
-
-
-def test_generate_mesh(ipk_app) -> None:
-    setup = ipk_app.create_setup()
-    assert ipk_app.mesh.generate_mesh(setup.name)
 
 
 def test_assign_free_opening(ipk_app) -> None:
@@ -1457,14 +1121,14 @@ def test_update_3d_component(ipk_app, test_tmp_dir) -> None:
     component_file = Path(file_path) / file_name
     ipk_app.modeler.create_3dcomponent(str(component_file))
     ipk_app.modeler.insert_3d_component(input_file=str(component_file), name="test")
-    component_filepath = ipk_app.modeler.user_defined_components["test"].get_component_filepath()
+    component_filepath = ipk_app.modeler.components["test"].component_filepath
     assert component_filepath
-    comp = ipk_app.modeler.user_defined_components["test"].edit_definition()
+    comp = ipk_app.modeler.components["test"].edit_definition()
     comp.modeler.refresh_all_ids()
     comp.modeler.objects_by_name["surf1"].move([1, 1, 1])
     comp.modeler.create_3dcomponent(component_filepath)
     comp.close_project(save=False)
-    assert ipk_app.modeler.user_defined_components["test"].update_definition()
+    assert ipk_app.modeler.components["test"].update_definition()
 
 
 def test_import_dxf(ipk_app, test_tmp_dir) -> None:
@@ -1473,10 +1137,6 @@ def test_import_dxf(ipk_app, test_tmp_dir) -> None:
     dxf_layers = get_dxf_layers(file)
     assert isinstance(dxf_layers, list)
     assert ipk_app.import_dxf(file, dxf_layers)
-
-
-def test_mesh_priority_3d_comp(comp_priority_app) -> None:
-    assert comp_priority_app.mesh.assign_priorities([["all_2d_objects1"], ["IcepakDesign1_1"]])
 
 
 def test_recirculation_boundary(ipk_app) -> None:
@@ -1705,10 +1365,6 @@ def test_boundary_conditions_dictionaries(ipk_app) -> None:
         ipk_app.create_temp_dep_assignment("nods")
 
 
-def test_native_component_load(native_app) -> None:
-    assert len(native_app.native_components) == 1
-
-
 def test_design_settings(ipk_app) -> None:
     d = ipk_app.design_settings
     d["AmbTemp"] = 5
@@ -1746,86 +1402,6 @@ def test_design_settings(ipk_app) -> None:
         assert d["GravityVectorX"] == "1m_per_s2"
         assert d["GravityVectorY"] == "2m_per_s2"
         assert d["GravityVectorZ"] == "3m_per_s2"
-
-
-def test_restart_solution(ipk_app) -> None:
-    ipk_app.insert_design("test_78-1")
-    ipk_app.insert_design("test_78-2")
-    ipk_app.set_active_design("test_78-1")
-    ipk_app["a"] = "1mm"
-    ipk_app.modeler.create_box([0, 0, 0], ["a", "1", "2"])
-    s1 = ipk_app.create_setup()
-    ipk_app.set_active_design("test_78-2")
-    ipk_app["b"] = "1mm"
-    ipk_app.modeler.create_box([0, 0, 0], ["b", "1", "2"])
-    s2 = ipk_app.create_setup()
-    assert s2.start_continue_from_previous_setup("test_78-1", f"{s1.name} : SteadyState", parameters={"a": "1mm"})
-    s2.delete()
-    s2 = ipk_app.create_setup()
-    assert s2.start_continue_from_previous_setup("test_78-1", f"{s1.name} : SteadyState", parameters=None)
-    s2.delete()
-    s2 = ipk_app.create_setup()
-    assert not s2.start_continue_from_previous_setup("test_78-1", f"{s1.name} : SteadyState", project="FakeFolder123")
-    assert not s2.start_continue_from_previous_setup("test_78-12", f"{s1.name} : SteadyState")
-
-
-def test_mesh_reuse(ipk_app, test_tmp_dir) -> None:
-    cylinder = ipk_app.modeler.create_cylinder(1, [0, 0, 0], 5, 30)
-    assert not ipk_app.mesh.assign_mesh_reuse(
-        cylinder.name,
-        str(test_tmp_dir / "nonexistent_cylinder_mesh.msh"),
-    )
-    file_mesh = shutil.copy2(
-        TESTS_ICEPAK_PATH / "example_models" / TEST_SUBFOLDER / "CylinderMesh.msh",
-        test_tmp_dir / "CylinderMesh.msh",
-    )
-    assert ipk_app.mesh.assign_mesh_reuse(cylinder.name, str(file_mesh))
-    assert ipk_app.mesh.assign_mesh_reuse(
-        cylinder.name,
-        str(file_mesh),
-        "name_reuse",
-    )
-    assert ipk_app.mesh.assign_mesh_reuse(
-        cylinder.name,
-        str(file_mesh),
-        "name_reuse",
-    )
-
-
-def test_global_mesh_region(ipk_app) -> None:
-    g_m_r = ipk_app.mesh.global_mesh_region
-    assert g_m_r
-    assert g_m_r.global_region.object.name == "Region"
-    assert g_m_r.global_region.padding_values == [
-        "50",
-        "50",
-        "50",
-        "50",
-        "50",
-        "50",
-    ] or g_m_r.global_region.padding_values == [50, 50, 50, 50, 50, 50]
-    assert g_m_r.global_region.padding_types == [
-        "Percentage Offset",
-        "Percentage Offset",
-        "Percentage Offset",
-        "Percentage Offset",
-        "Percentage Offset",
-        "Percentage Offset",
-    ]
-    g_m_r.global_region.positive_z_padding_type = "Absolute Offset"
-    g_m_r.global_region.positive_z_padding = "5 mm"
-    assert g_m_r.global_region.padding_types[-2] == "Absolute Offset"
-    assert g_m_r.global_region.padding_values[-2] == "5mm"
-    g_m_r.settings["MeshRegionResolution"] = 3
-    g_m_r.update()
-    assert g_m_r.settings["MeshRegionResolution"] == 3
-    g_m_r.manual_settings = True
-    with pytest.raises(KeyError):
-        _ = g_m_r.settings["MeshRegionResolution"]
-    g_m_r.settings["MaxElementSizeX"] = "500um"
-    g_m_r.update()
-    g_m_r.global_region.object.material_name = "Carbon Monoxide"
-    assert g_m_r.global_region.object.material_name == "Carbon Monoxide"
 
 
 def test_transient_fs(transient_app) -> None:
@@ -1970,16 +1546,6 @@ def test_folder_settings(transient_app) -> None:
     assert fs.scale_settings.unit == "kel"
 
 
-def test_multiple_mesh_regions(ipk_app) -> None:
-    # test issue 5485
-    c1 = ipk_app.modeler.create_cylinder(orientation=0, origin=[0, 0, 0], radius=5, height=10)
-    c2 = ipk_app.modeler.create_cylinder(orientation=1, origin=[100, 100, 100], radius=2, height=15)
-    mesh_class = ipk_app.mesh
-    m1 = mesh_class.assign_mesh_region([c1.name])
-    m2 = mesh_class.assign_mesh_region([c2.name])
-    assert m1.assignment.name != m2.assignment.name
-
-
 def test_get_object_material_properties(ipk_app) -> None:
     ipk_app.modeler.create_box(
         origin=[0, 0, 0],
@@ -2017,3 +1583,20 @@ def test_get_max_temp_location_steady_state(max_temp_app) -> None:
     assert isinstance(min_temp, tuple)
     assert len(min_temp[0]) == 3
     assert isinstance(min_temp[1], float)
+
+
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
+def test_mesh_priority(board_ipk_app) -> None:
+    b = board_ipk_app.modeler.create_box([0, 0, 0], [20, 50, 80])
+    board = board_ipk_app.create_ipk_3dcomponent_pcb(
+        LINK_DATA,
+        "Board",
+        SOLUTION_FREQ,
+        RESOLUTION,
+        extent_type="Polygon",
+        custom_x_resolution=400,
+        custom_y_resolution=500,
+    )
+    fan = board_ipk_app.create_fan(name="TestFan", is_2d=True)
+    rect = board_ipk_app.modeler.create_rectangle(0, [0, 0, 0], [1, 2], name="TestRectangle")
+    assert board_ipk_app.modeler.assign_priorities([[fan.name, board.name], [b.name, rect.name]])

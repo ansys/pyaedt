@@ -75,9 +75,9 @@ class ModelerCircuit(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.schematic import ModelerCircuit
-        >>> obj = ModelerCircuit()
-        >>> obj.o_def_manager
+        >>> from ansys.aedt.core import Circuit
+        >>> app = Circuit()
+        >>> definition_manager = app.modeler.o_def_manager
 
         """
         return self._app.odefinition_manager
@@ -91,9 +91,9 @@ class ModelerCircuit(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.schematic import ModelerCircuit
-        >>> obj = ModelerCircuit()
-        >>> obj.schematic_units
+        >>> from ansys.aedt.core import Circuit
+        >>> app = Circuit()
+        >>> app.modeler.schematic_units = "mil"
 
         """
         return self._schematic_units
@@ -111,9 +111,9 @@ class ModelerCircuit(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.schematic import ModelerCircuit
-        >>> obj = ModelerCircuit()
-        >>> obj.ocomponent_manager
+        >>> from ansys.aedt.core import Circuit
+        >>> app = Circuit()
+        >>> component_manager = app.modeler.ocomponent_manager
 
         """
         return self._app.ocomponent_manager
@@ -124,9 +124,9 @@ class ModelerCircuit(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.schematic import ModelerCircuit
-        >>> obj = ModelerCircuit()
-        >>> obj.omodel_manager
+        >>> from ansys.aedt.core import Circuit
+        >>> app = Circuit()
+        >>> model_manager = app.modeler.omodel_manager
 
         """
         return self._app.omodel_manager
@@ -141,9 +141,9 @@ class ModelerCircuit(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.schematic import ModelerCircuit
-        >>> obj = ModelerCircuit()
-        >>> obj.oeditor
+        >>> from ansys.aedt.core import Circuit
+        >>> app = Circuit()
+        >>> editor = app.modeler.oeditor
 
         """
         return self._app.oeditor
@@ -158,9 +158,9 @@ class ModelerCircuit(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.schematic import ModelerCircuit
-        >>> obj = ModelerCircuit()
-        >>> obj.zoom_to_fit()
+        >>> from ansys.aedt.core import Circuit
+        >>> app = Circuit()
+        >>> app.modeler.zoom_to_fit()
 
         """
         self.oeditor.ZoomToFit()
@@ -204,9 +204,15 @@ class ModelerCircuit(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.schematic import ModelerCircuit
-        >>> obj = ModelerCircuit()
-        >>> obj.connect_schematic_components(starting_component=1, ending_component=1)
+        >>> from ansys.aedt.core import Circuit
+        >>> app = Circuit()
+        >>> resistor = app.modeler.schematic.create_resistor(name="R1", value=50)
+        >>> capacitor = app.modeler.schematic.create_capacitor(name="C1", value=1e-12)
+        >>> app.modeler.connect_schematic_components(
+        ...     starting_component=resistor.schematic_id,
+        ...     ending_component=capacitor.schematic_id,
+        ...     pin_starting=1,
+        ... )
 
         """
         if self._app.design_type == "Maxwell Circuit":
@@ -311,9 +317,9 @@ class ModelerCircuit(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.schematic import ModelerCircuit
-        >>> obj = ModelerCircuit()
-        >>> obj.create_text(text=1)
+        >>> from ansys.aedt.core import Circuit
+        >>> app = Circuit()
+        >>> text_id = app.modeler.create_text(text="My annotation", x_origin=100, y_origin=300)
 
         """
         fill = {
@@ -432,9 +438,10 @@ class ModelerCircuit(Modeler, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.schematic import ModelerCircuit
-        >>> obj = ModelerCircuit()
-        >>> obj.change_text_property(assignment="Box1", name="MyObject", value=1)
+        >>> from ansys.aedt.core import Circuit
+        >>> app = Circuit()
+        >>> text_id = app.modeler.create_text(text="My annotation", x_origin=100, y_origin=300)
+        >>> app.modeler.change_text_property(assignment=text_id, name="Color", value=[255, 120, 0])
 
         """
         graphics_id = [id.split("@")[1] for id in self.oeditor.GetAllGraphics()]
@@ -529,14 +536,19 @@ class ModelerCircuit(Modeler, PyAedtBase):
 class ModelerNexxim(ModelerCircuit, PyAedtBase):
     """ModelerNexxim class.
 
+    This is the modeler for a Nexxim (Circuit) design. It is not instantiated directly but
+    accessed through the ``modeler`` attribute of a :class:`ansys.aedt.core.circuit.Circuit`
+    instance.
+
     Parameters
     ----------
     app : :class:`ansys.aedt.core.application.analysis_nexxim.FieldAnalysisCircuit`
 
     Examples
     --------
-    >>> from ansys.aedt.core.modeler.schematic import ModelerNexxim
-    >>> obj = ModelerNexxim()
+    >>> from ansys.aedt.core import Circuit
+    >>> app = Circuit()
+    >>> modeler = app.modeler
 
     """
 
@@ -561,9 +573,9 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.schematic import ModelerNexxim
-        >>> obj = ModelerNexxim()
-        >>> obj.layouteditor
+        >>> from ansys.aedt.core import Circuit
+        >>> app = Circuit()
+        >>> layout_editor = app.modeler.layouteditor
 
         """
         return self._app.layouteditor
@@ -578,9 +590,9 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.schematic import ModelerNexxim
-        >>> obj = ModelerNexxim()
-        >>> obj.schematic
+        >>> from ansys.aedt.core import Circuit
+        >>> app = Circuit()
+        >>> inductor = app.modeler.schematic.create_inductor(name="L1", value=1e-9)
 
         """
         return self._schematic
@@ -595,9 +607,9 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.schematic import ModelerNexxim
-        >>> obj = ModelerNexxim()
-        >>> obj.pages
+        >>> from ansys.aedt.core import Circuit
+        >>> app = Circuit()
+        >>> number_of_pages = app.modeler.pages
 
         """
         if self._pages > 0:
@@ -611,9 +623,9 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.schematic import ModelerNexxim
-        >>> obj = ModelerNexxim()
-        >>> obj.page_names
+        >>> from ansys.aedt.core import Circuit
+        >>> app = Circuit()
+        >>> names = app.modeler.page_names
 
         """
         if self._page_names:
@@ -637,13 +649,13 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
         Returns
         -------
         int
-            Page number
+            Page number.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.schematic import ModelerNexxim
-        >>> obj = ModelerNexxim()
-        >>> obj.add_page(name="MyObject")
+        >>> from ansys.aedt.core import Circuit
+        >>> app = Circuit()
+        >>> app.modeler.add_page(name="Page2")
 
         """
         pnames = self.page_names
@@ -661,9 +673,10 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.schematic import ModelerNexxim
-        >>> obj = ModelerNexxim()
-        >>> obj.rename_page(page=1, name="MyObject")
+        >>> from ansys.aedt.core import Circuit
+        >>> app = Circuit()
+        >>> app.modeler.add_page(name="Page2")
+        >>> app.modeler.rename_page(page=2, name="InputStage")
 
         """
         pnames = self.page_names
@@ -691,9 +704,9 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.schematic import ModelerNexxim
-        >>> obj = ModelerNexxim()
-        >>> obj.edb
+        >>> from ansys.aedt.core import Circuit
+        >>> app = Circuit()
+        >>> edb = app.modeler.edb
 
         """
         # TODO: Check why it crashes when multiple circuits are created
@@ -710,9 +723,9 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.schematic import ModelerNexxim
-        >>> obj = ModelerNexxim()
-        >>> obj.model_units
+        >>> from ansys.aedt.core import Circuit
+        >>> app = Circuit()
+        >>> units = app.modeler.model_units
 
         """
         return self._app.units.length
@@ -727,9 +740,9 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.schematic import ModelerNexxim
-        >>> obj = ModelerNexxim()
-        >>> obj.layout
+        >>> from ansys.aedt.core import Circuit
+        >>> app = Circuit()
+        >>> layout = app.modeler.layout
 
         """
         if self._app.design_type == "Twin Builder":
@@ -765,9 +778,11 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.schematic import ModelerNexxim
-        >>> obj = ModelerNexxim()
-        >>> obj.move(assignment="Box1", offset="1mm")
+        >>> from ansys.aedt.core import Circuit
+        >>> app = Circuit()
+        >>> app.modeler.schematic_units = "mil"
+        >>> app.modeler.schematic.create_inductor(name="L1", value=1e-9, location=[400, 400])
+        >>> app.modeler.move(assignment="L1", offset=[0, 200])
 
         """
         # TODO: Remove this once https://github.com/ansys/pyaedt/issues/6333 is fixed
@@ -822,9 +837,10 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.schematic import ModelerNexxim
-        >>> obj = ModelerNexxim()
-        >>> obj.rotate(assignment="Box1")
+        >>> from ansys.aedt.core import Circuit
+        >>> app = Circuit()
+        >>> app.modeler.schematic.create_inductor(name="L1", value=1e-9, location=[400, 400])
+        >>> app.modeler.rotate(assignment="L1", degrees=90)
 
         """
         sels = self._get_components_selections(assignment)
@@ -850,14 +866,19 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
 class ModelerTwinBuilder(ModelerCircuit, PyAedtBase):
     """ModelerTwinBuilder class.
 
+    This is the modeler for a Twin Builder design. It is not instantiated directly but accessed
+    through the ``modeler`` attribute of a :class:`ansys.aedt.core.twinbuilder.TwinBuilder`
+    instance.
+
     Parameters
     ----------
     app : :class:`ansys.aedt.core.application.analysis_twin_builder.AnalysisTwinBuilder`
 
     Examples
     --------
-    >>> from ansys.aedt.core.modeler.schematic import ModelerTwinBuilder
-    >>> obj = ModelerTwinBuilder()
+    >>> from ansys.aedt.core import TwinBuilder
+    >>> app = TwinBuilder()
+    >>> modeler = app.modeler
 
     """
 
@@ -877,9 +898,9 @@ class ModelerTwinBuilder(ModelerCircuit, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.schematic import ModelerTwinBuilder
-        >>> obj = ModelerTwinBuilder()
-        >>> obj.schematic
+        >>> from ansys.aedt.core import TwinBuilder
+        >>> app = TwinBuilder()
+        >>> schematic = app.modeler.schematic
 
         """
         return self._components
@@ -888,14 +909,18 @@ class ModelerTwinBuilder(ModelerCircuit, PyAedtBase):
 class ModelerEmit(ModelerCircuit, PyAedtBase):
     """ModelerEmit class.
 
+    This is the modeler for an EMIT design. It is not instantiated directly but accessed through
+    the ``modeler`` attribute of an :class:`ansys.aedt.core.emit.Emit` instance.
+
     Parameters
     ----------
     app : :class:`ansys.aedt.core.application.analysis_emit`
 
     Examples
     --------
-    >>> from ansys.aedt.core.modeler.schematic import ModelerEmit
-    >>> obj = ModelerEmit()
+    >>> from ansys.aedt.core import Emit
+    >>> app = Emit()
+    >>> modeler = app.modeler
 
     """
 
@@ -927,14 +952,19 @@ class ModelerEmit(ModelerCircuit, PyAedtBase):
 class ModelerMaxwellCircuit(ModelerCircuit, PyAedtBase):
     """ModelerMaxwellCircuit class.
 
+    This is the modeler for a Maxwell Circuit design. It is not instantiated directly but
+    accessed through the ``modeler`` attribute of a
+    :class:`ansys.aedt.core.maxwellcircuit.MaxwellCircuit` instance.
+
     Parameters
     ----------
     app : :class:`ansys.aedt.core.application.analysis_maxwell_circuit`
 
     Examples
     --------
-    >>> from ansys.aedt.core.modeler.schematic import ModelerMaxwellCircuit
-    >>> obj = ModelerMaxwellCircuit()
+    >>> from ansys.aedt.core import MaxwellCircuit
+    >>> app = MaxwellCircuit()
+    >>> modeler = app.modeler
 
     """
 
@@ -954,9 +984,9 @@ class ModelerMaxwellCircuit(ModelerCircuit, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.schematic import ModelerMaxwellCircuit
-        >>> obj = ModelerMaxwellCircuit()
-        >>> obj.schematic
+        >>> from ansys.aedt.core import MaxwellCircuit
+        >>> app = MaxwellCircuit()
+        >>> schematic = app.modeler.schematic
 
         """
         return self._components

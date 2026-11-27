@@ -205,20 +205,6 @@ def test_voids(aedt_app) -> None:
     assert len(poly.polygon_voids) > 0
 
 
-def test_add_mesh_operations(aedt_app) -> None:
-    aedt_app.create_setup("HFSS")
-    setup1 = aedt_app.mesh.assign_length_mesh("HFSS", "PWR", "GND")
-    setup2 = aedt_app.mesh.assign_skin_depth("HFSS", "PWR", "GND")
-    assert setup1
-    assert setup2
-    setup1.props["RestrictElem"] = False
-    assert setup1.update()
-    assert aedt_app.mesh.delete_mesh_operations(
-        "HFSS",
-        setup1.name,
-    )
-
-
 def test_change_property(aedt_app) -> None:
     ports = aedt_app.create_ports_on_component_by_nets("U1", "DDR4_DQS0_P")
     assert aedt_app.modeler.change_property(f"Excitations:{ports[0].name}", "Impedance", "49ohm", "EM Design")
@@ -405,9 +391,6 @@ def test_ports_on_components_nets(aedt_app) -> None:
     assert ports_after - ports_before == len(nets)
     ports[0].name = "port_test"
     assert ports[0].name == "port_test"
-    assert ports[0].props["Port"] == "port_test"
-    ports[0].props["Port"] = "port_test2"
-    assert ports[0].name == "port_test2"
 
 
 def test_set_variable(aedt_app) -> None:
@@ -508,6 +491,3 @@ def test_ports_on_nets(aedt_app) -> None:
     assert ports_after - ports_before == len(nets) * 2
     ports[0].name = "port_test"
     assert ports[0].name == "port_test"
-    assert ports[0].props["Port"] == "port_test"
-    ports[0].props["Port"] = "port_test2"
-    assert ports[0].name == "port_test2"

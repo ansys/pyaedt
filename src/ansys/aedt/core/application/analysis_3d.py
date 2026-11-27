@@ -205,7 +205,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return self._modeler
 
     @property
-    def mesh(self) -> Mesh:
+    def mesh(self) -> Mesh | None:
         """Mesh.
 
         Returns
@@ -499,7 +499,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
     def copy_solid_bodies_from(
         self,
         design: object,
-        assignment: list = None,
+        assignment: list | None = None,
         no_vacuum: bool = True,
         no_pec: bool = True,
         include_sheets: bool = False,
@@ -544,7 +544,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
 
         """
         body_list = design.modeler.solid_names
-        udc_list = design.modeler.user_defined_component_names
+        udc_list = design.modeler.component_names
         original_design_type = design.design_type
         dest_design_type = self.design_type
         new_udc_list = []
@@ -554,13 +554,16 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
             for udc in udc_list:
                 if (
                     original_design_type != dest_design_type
-                    and not design.modeler.user_defined_components[udc].is_3d_component
+                    and not design.modeler.components[udc].definition_name
                     or original_design_type == dest_design_type
                 ):
                     new_udc_list.append(udc)
-                parts = design.modeler.user_defined_components[udc].parts
-                for part_id in parts:
-                    part_name = parts[part_id].name
+                parts = design.modeler.components[udc].parts
+                for part_id, part in parts.items():
+                    if isinstance(part, str):
+                        part_name = part
+                    else:
+                        part_name = parts[part_id].name
                     if part_name in body_list:
                         body_list.remove(part_name)
 
@@ -1209,7 +1212,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         Parameters
         ----------
         components : str, list, optional
-            List of user defined components. The Default is ``None`` for all 3d Components.
+            List of user defined components. The default is ``None`` for all 3d Components.
         purge_history : bool, optional
             Define if the 3D Component will be purged before copied.
             This is needed when more than 1 component with the same definition is present.
@@ -1231,25 +1234,28 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         """
         if password is None:
             password = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
-        native_comp_names = [nc.definition_name for nc in self.native_components.values()]
         if not components:
-            components = [
-                key
-                for key, val in self.modeler.user_defined_components.items()
-                if val.definition_name not in native_comp_names
-            ]
+            components = []
+            for comp in self.modeler.components.values():
+                if comp.definition_type == "3d_component":
+                    components.append(comp.name)
         else:
             if isinstance(components, str):
                 components = [components]
             for cmp in components:
-                if cmp not in self.modeler.user_defined_component_names:
+                if cmp not in self.modeler.component_names:
                     raise ValueError(f"Component definition was not found for '{cmp}'.")
 
         for cmp in components:
-            comp = self.modeler.user_defined_components[cmp]
+            comp = self.modeler.components[cmp]
             # TODO: Call edit_definition only once
             target_cs = self.modeler._create_reference_cs_from_3dcomp(comp, password=password)
+            original_project = self.project_name
+            original_design = self.design_name
+
             app = comp.edit_definition(password=password)
+            new_project_name = app.project_name
+
             for var, val in comp.parameters.items():
                 self[var] = val
             if purge_history:
@@ -1295,10 +1301,11 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
                             m_type, m_obj, dict_in["monitor"][monitor_obj]["Quantity"], monitor_obj
                         ):  # pragma: no cover
                             return False
-            app.close_project(save=False)
 
-        if not self.design_type == "Icepak":
-            self.mesh._refresh_mesh_operations()
+            self.oproject = original_project
+            self.desktop_class.active_design(project_object=self.oproject, name=original_design)
+            app.close_project(save=False, name=new_project_name)
+
         return True
 
     @pyaedt_function_handler()

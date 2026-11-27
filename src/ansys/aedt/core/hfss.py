@@ -34,6 +34,7 @@ Examples
 from __future__ import annotations
 
 from collections import defaultdict
+import copy
 import math
 from pathlib import Path
 import re
@@ -41,13 +42,13 @@ import sys
 import tempfile
 from typing import TYPE_CHECKING
 
-from ansys.aedt.core.internal.checks import deprecated_doc
-
 if sys.version_info >= (3, 13):
-    from warnings import deprecated
+    pass
 else:
-    from typing_extensions import deprecated
+    pass
 
+from ansys.aedt.core.generic.aedt_constants import Setups
+from ansys.aedt.core.generic.general_methods import _merge_props
 from ansys.aedt.core.modeler.advanced_cad.actors import Radar
 
 if TYPE_CHECKING:
@@ -55,9 +56,7 @@ if TYPE_CHECKING:
     from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
     from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
     from ansys.aedt.core.modeler.cad.object_3d import Object3d
-    from ansys.aedt.core.modules.design_xploration import SetupParam
-    from ansys.aedt.core.modules.solve_setup import SetupHFSS
-    from ansys.aedt.core.modules.solve_setup import SetupHFSSAuto
+    from ansys.aedt.core.modules.design_xploration import ParametricSetup
     from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
     from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
     from ansys.aedt.core.visualization.advanced.hdm_plot import HDMPlotter
@@ -88,13 +87,16 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modeler import cad
 from ansys.aedt.core.modeler.cad.component_array import ComponentArray
-from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
+from ansys.aedt.core.modeler.cad.components_3d import NativeComponent
+from ansys.aedt.core.modeler.cad.components_3d import _create_native_component
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
 from ansys.aedt.core.modules.boundary.hfss_boundary import NearFieldSetup
-from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from ansys.aedt.core.modules.setup_templates import SetupKeys
+from ansys.aedt.core.modules.solve_setup import SetupHFSS
+from ansys.aedt.core.modules.solve_setup import SetupHFSSAuto
+from ansys.aedt.core.modules.solve_setup import SetupSBR
 
 
 class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
@@ -258,18 +260,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             remove_lock=remove_lock,
         )
         ScatteringMethods.__init__(self, self)
-        self._field_setups = []
-        self.component_array = {}
-        self.component_array_names = list(self.get_oo_name(self.odesign, "Model"))
-        for component_array in self.component_array_names:
-            self.component_array[component_array] = ComponentArray(self, component_array)
+        self.__component_array = {}
 
     def _init_from_design(self, *args, **kwargs) -> None:
         self.__init__(*args, **kwargs)
 
     @pyaedt_function_handler()
     # NOTE: Extend Mixin behaviour to handle near field setups
-    def _create_boundary(self, name: str, props, boundary_type) -> "NearFieldSetup | BoundaryObject":
+    def _create_boundary(self, name: str, props, boundary_type) -> NearFieldSetup | BoundaryObject:
         # No-near field cases
         if boundary_type not in (
             "NearFieldSphere",
@@ -284,10 +282,54 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         bound = NearFieldSetup(self, name, props, boundary_type)
         result = bound.create()
         if result:
-            self.field_setups.append(bound)
             self.logger.info(f"Field setup {boundary_type} {name} has been created.")
             return bound
         raise AEDTRuntimeError(f"Failed to create near field setup {boundary_type} {name}")
+
+    @property
+    def component_array_names(self) -> list:
+        """Component array names.
+
+        Returns
+        -------
+        List of str
+            List of component array names in the design.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.component_array_names
+
+        """
+        array_names = self.get_oo_name(self.odesign, "Model")
+        return list(array_names)
+
+    @property
+    def component_array(self) -> dict:
+        """Dictionary of component arrays."""
+        for component_array in self.component_array_names:
+            if component_array not in self.__component_array:
+                self._register_component_array(ComponentArray(self, component_array))
+
+        current_component_arrays = self.component_array_names
+        for component_array in list(self.__component_array.keys()):
+            if component_array not in current_component_arrays:
+                self._unregister_component_array(component_array)
+        return self.__component_array
+
+    def _register_component_array(self, component_array: ComponentArray) -> None:
+        """Store a newly created component array in the local cache."""
+        self.__component_array[component_array.name] = component_array
+
+    def _rename_component_array(self, old_name: str, new_name: str, component_array: ComponentArray) -> None:
+        """Update the cached name of a component array."""
+        self.__component_array[new_name] = component_array
+        self.__component_array.pop(old_name, None)
+
+    def _unregister_component_array(self, name: str) -> None:
+        """Remove a component array from the local cache."""
+        self.__component_array.pop(name, None)
 
     @property
     def field_setups(self):
@@ -308,17 +350,17 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> hfss.field_setups[0].phi_start = 0
 
         """
-        self._field_setups = []
+        field_setups = []
         radiation_oo = self.get_oo_object(self.odesign, "Radiation")
         for field in self.field_setup_names:
             type_field = self.get_oo_property_value(radiation_oo, field, "Type")
             if type_field == "Infinite Sphere":
-                self._field_setups.append(FarFieldSetup(self, field, {}, "FarFieldSphere"))
+                field_setups.append(FarFieldSetup(self, field, {}, "FarFieldSphere"))
             else:
-                self._field_setups.append(NearFieldSetup(self, field, {}, f"NearField{type_field}"))
+                field_setups.append(NearFieldSetup(self, field, {}, f"NearField{type_field}"))
         # if not self._field_setups:
         #     self._field_setups = self._get_rad_fields()
-        return self._field_setups
+        return field_setups
 
     @property
     def field_setup_names(self):
@@ -537,64 +579,36 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         ports = list(self.oboundary.GetExcitationsOfType("Terminal"))
         boundary = self._create_boundary(port_name, props, "AutoIdentify")
         if boundary:
+            properties = [
+                "NAME:AllTabs",
+                [
+                    "NAME:HfssTab",
+                    ["NAME:PropServers", "BoundarySetup:" + boundary.name],
+                    [
+                        "NAME:ChangedProps",
+                        ["NAME:Renorm All Terminals", "Value:=", renorm],
+                    ],
+                ],
+            ]
+            try:
+                self.odesign.ChangeProperty(properties)
+            except Exception:  # pragma: no cover
+                self.logger.warning("Failed to change normalization.")
+
             new_ports = list(self.oboundary.GetExcitationsOfType("Terminal"))
             terminals = [i for i in new_ports if i not in ports]
             for count, terminal in enumerate(terminals, start=1):
-                props_terminal = {}
-                props_terminal["TerminalResistance"] = "50ohm"
-                props_terminal["ParentBndID"] = boundary.name
-                terminal_name = terminal
+                bound = BoundaryObject(self, terminal, props={"ParentBndID": boundary.name}, boundarytype="Terminal")
+                bound.props["ImpedanceType"] = "Impedance"
+                bound.props["ImpedanceType"] = "RLC"
 
                 if impedance:
-                    props_terminal["TerminalResistance"] = str(impedance) + "ohm"
-                    properties = [
-                        "NAME:AllTabs",
-                        [
-                            "NAME:HfssTab",
-                            ["NAME:PropServers", "BoundarySetup:" + terminal],
-                            [
-                                "NAME:ChangedProps",
-                                ["NAME:Terminal Renormalizing Impedance", "Value:=", str(impedance) + "ohm"],
-                            ],
-                        ],
-                    ]
-                    try:
-                        self.odesign.ChangeProperty(properties)
-                    except Exception:  # pragma: no cover
-                        self.logger.warning("Failed to change terminal impedance.")
-                if not renorm:
-                    properties = [
-                        "NAME:AllTabs",
-                        [
-                            "NAME:HfssTab",
-                            ["NAME:PropServers", "BoundarySetup:" + boundary.name],
-                            [
-                                "NAME:ChangedProps",
-                                ["NAME:Renorm All Terminals", "Value:=", False],
-                            ],
-                        ],
-                    ]
-                    try:
-                        self.odesign.ChangeProperty(properties)
-                    except Exception:  # pragma: no cover
-                        self.logger.warning("Failed to change normalization.")
+                    bound.props["Resistance"] = str(impedance) + "ohm"
+
                 if terminals_rename:
-                    new_name = port_name + "_T" + str(count)
-                    terminal_name = new_name
-                    properties = [
-                        "NAME:AllTabs",
-                        [
-                            "NAME:HfssTab",
-                            ["NAME:PropServers", "BoundarySetup:" + terminal],
-                            ["NAME:ChangedProps", ["NAME:Name", "Value:=", new_name]],
-                        ],
-                    ]
-                    try:
-                        self.odesign.ChangeProperty(properties)
-                    except Exception:  # pragma: no cover
-                        self.logger.warning(f"Failed to rename terminal {terminal}.")
-                bound = BoundaryObject(self, terminal_name, props_terminal, "Terminal")
-                self._boundaries[terminal_name] = bound
+                    bound.name = port_name + "_T" + str(count)
+
+                self._boundaries[bound.name] = bound
 
             if iswaveport:
                 boundary.type = "Wave Port"
@@ -615,10 +629,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             props["RenormalizeAllTerminals"] = renorm
             props["ShowReporterFilter"] = False
             props["UseAnalyticAlignment"] = False
-            boundary.auto_update = False
-            boundary.props.update(props)
-            boundary.auto_update = True
-            boundary.update()
+            boundary_props = boundary.props.to_dict()
+            boundary_props.update(props)
+            boundary.update(boundary_props)
 
         return boundary
 
@@ -738,7 +751,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         return self._create_boundary(port_name, props, "Wave Port")
 
     # Boundaries
-
     @pyaedt_function_handler()
     def assign_finite_conductivity(
         self,
@@ -1730,10 +1742,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             rad_name = generate_unique_name("Rad_")
         return self.create_boundary(self.BoundaryType.Radiation, faces_list, rad_name)
 
+    # Setup and sweep
     @pyaedt_function_handler()
     def create_setup(
-        self, name: str = "MySetupAuto", setup_type: str | None = None, **kwargs
-    ) -> "SetupHFSS | SetupHFSSAuto":
+        self,
+        name: str | None = None,
+        setup_type: str | int | None = None,
+        **kwargs,
+    ) -> SetupHFSS | SetupHFSSAuto:
         """Create an analysis setup for HFSS.
 
         Optional arguments are passed along with ``setup_type`` and ``name``. Keyword
@@ -1746,10 +1762,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         Parameters
         ----------
         name : str, optional
-            Name of the setup. The default is ``"Setup1"``.
+            Name of the setup. The default is ``"MySetupAuto"``.
         setup_type : str, optional
             Type of the setup, which is based on the solution type. Options are
-            ``"HFSSDrivenAuto"``, ``"HFSSDriven"``, ``"HFSSEigen"``, ``"HFSSTransient"``,
+            ``"HFSSDrivenAuto"``, ``"HFSSDrivenDefault"``, ``"HFSSEigen"``, ``"HFSSTransient"``,
             and ``"HFSSSBR"``. The default is ``"HFSSDriven"``.
         **kwargs : dict, optional
             Keyword arguments from the native AEDT API.
@@ -1760,7 +1776,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         -------
         :class:`ansys.aedt.core.modules.solve_setup.SetupHFSS`,
         :class:`ansys.aedt.core.modules.solve_setup.SetupHFSSAuto`
-            3D Solver Setup object.
+            Setup object.
 
         References
         ----------
@@ -1769,36 +1785,134 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.generic.constants import Setups
         >>> hfss = Hfss()
-        >>> hfss.create_setup(name="Setup1", setup_type="HFSSDriven", Frequency="10GHz")
+        >>> hfss.create_setup(name="Setup1", setup_type=Setups.HFSSDrivenDefault, Frequency="10GHz")
 
         """
-        if setup_type is None:
+        setup_keys = SetupKeys.get_setup_templates()
+        setup_names_available = [name for name in dir(Setups) if not name.startswith("_")]
+
+        if setup_type is not None and isinstance(setup_type, str) and setup_type in setup_names_available:
+            setup_type = getattr(Setups, setup_type)
+        elif setup_type is None:
             setup_type = self.design_solutions.default_setup
-        elif setup_type in SetupKeys.SetupNames:
-            setup_type = SetupKeys.SetupNames.index(setup_type)
-        name = self.generate_unique_setup_name(name)
-        setup = self._create_setup(name=name, setup_type=setup_type)
-        setup.auto_update = False
-        if "Frequency" in kwargs.keys():
-            if type(kwargs["Frequency"]) is list:
-                if "MultipleAdaptiveFreqsSetup" not in kwargs.keys():
-                    kwargs["MultipleAdaptiveFreqsSetup"] = kwargs["Frequency"]
-        for arg_name, arg_value in kwargs.items():
-            if setup[arg_name] is not None:
-                if arg_name == "MultipleAdaptiveFreqsSetup":  # A list of frequency values is passed if
-                    setup[arg_name].delete_all()  # the default convergence criteria are to be
-                    if isinstance(arg_value, list):  # used.
-                        for i in arg_value:
-                            setup[arg_name][i] = [0.02]
+
+        if not name:
+            name = self.generate_unique_setup_name("MySetupAuto")
+        elif name in self.setup_names:
+            name = self.generate_unique_setup_name(name)
+            self.logger.warning(f"Name already exists. New name assigned is {name}.")
+
+        props = copy.deepcopy(setup_keys[setup_type])
+
+        setup = self._create_setup(name=name, setup_type=setup_type, props=props)
+
+        if kwargs:
+            if "MultipleAdaptiveFreqsSetup" in kwargs:
+                try:
+                    setup.enable_adaptive_setup_multifrequency(kwargs["MultipleAdaptiveFreqsSetup"])
+                except AEDTRuntimeError:
+                    setup.delete()
+                    raise AEDTRuntimeError("Method applies only to HFSS-driven solutions.")
+
+                del kwargs["MultipleAdaptiveFreqsSetup"]
+                props = setup.props.to_dict()
+            elif "Frequency" in kwargs and isinstance(kwargs["Frequency"], list):
+                try:
+                    setup.enable_adaptive_setup_multifrequency(kwargs["Frequency"])
+                except AEDTRuntimeError:
+                    setup.delete()
+                    raise AEDTRuntimeError("Method applies only to HFSS-driven solutions.")
+                del kwargs["Frequency"]
+                props = setup.props.to_dict()
+
+            if "props" in kwargs:
+                _merge_props(props, kwargs.pop("props"))
+            for arg_name, arg_value in kwargs.items():
+                if props[arg_name] is not None:
+                    props[arg_name] = arg_value
+
+            setup.update(props)
+
+        return setup
+
+    @pyaedt_function_handler()
+    def _create_setup(self, name, setup_type, props):
+        if setup_type == 0:
+            setup = SetupHFSSAuto(app=self, name=name, props=props)
+        elif setup_type == 4:
+            setup = SetupSBR(app=self, name=name, props=props)
+        else:
+            setup = SetupHFSS(app=self, name=name, props=props)
+
+        # Handle the situation when ports have not been defined.
+        props = setup.props.to_dict()
+
+        if not self.excitation_names and "MaxDeltaS" in props:
+            props["MaxDeltaE"] = 0.01
+
+        if self.solution_type == "SBR+":
+            default_sbr_setup = {
+                "RayDensityPerWavelength": 4,
+                "MaxNumberOfBounces": 5,
+                "EnableCWRays": False,
+                "EnableSBRSelfCoupling": False,
+                "UseSBRAdvOptionsGOBlockage": False,
+                "UseSBRAdvOptionsWedges": False,
+                "PTDUTDSimulationSettings": "None",
+                "SkipSBRSolveDuringAdaptivePasses": True,
+                "UseSBREnhancedRadiatedPowerCalculation": False,
+                "AdaptFEBIWithRadiation": False,
+            }
+            if settings.aedt_version >= "2024.2":
+                default_sbr_setup["IsMonostaticRCS"] = True
+                default_sbr_setup["FastFrequencyLooping"] = False
+
+            user_domain = None
+            if props and "RadiationSetup" in props:
+                user_domain = props["RadiationSetup"]
+
+            if self.field_setups:
+                for field_setup in self.field_setups:
+                    if user_domain and user_domain in field_setup.name:
+                        domain = user_domain
+                        default_sbr_setup["RadiationSetup"] = domain
+                        break
+                if not user_domain and self.field_setups:
+                    domain = self.field_setups[0].name
+                    default_sbr_setup["RadiationSetup"] = domain
+            elif user_domain:
+                domain = user_domain
+                default_sbr_setup["RadiationSetup"] = domain
+            else:
+                self.logger.warning("Field observation domain not defined.")
+                default_sbr_setup["RadiationSetup"] = ""
+                default_sbr_setup["ComputeFarFields"] = False
+
+            for k, v in default_sbr_setup.items():
+                props[k] = v
+        elif self.hybrid:
+            boundaries = self.boundaries_by_type
+            if "Hybrid" in boundaries:
+                has_sbr = False
+                for b in boundaries["Hybrid"]:
+                    if b.props["Type"] == "SBR+":
+                        has_sbr = True
+                        break
+                if has_sbr:
+                    if self.field_setups:
+                        props["SkipSBRSolveDuringAdaptivePasses"] = False
+                        props["RadiationSetup"] = self.field_setups[0].name
                     else:
-                        for i, k in arg_value.items():
-                            setup[arg_name][i] = [k]
-                    setup.props["SolveType"] = "MultiFrequency"
-                else:
-                    setup[arg_name] = arg_value
-        setup.auto_update = True
-        setup.update()
+                        raise AEDTRuntimeError("Field observation domain not defined.")
+
+        setup._legacy_props = props
+
+        setup.create()
+
+        self.active_setup = name
+
         return setup
 
     @pyaedt_function_handler()
@@ -2096,45 +2210,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                 )
         return False
 
-    @pyaedt_function_handler()
-    def _create_native_component(
-        self, antenna_type, target_cs=None, model_units=None, parameters_dict=None, antenna_name=None
-    ):
-        from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
-
-        if antenna_name is None:
-            antenna_name = generate_unique_name(antenna_type.replace(" ", "").replace("-", ""))
-        if not model_units:
-            model_units = self.modeler.model_units
-
-        native_props = dict({"NativeComponentDefinitionProvider": dict({"Type": antenna_type, "Unit": model_units})})
-        if isinstance(target_cs, CoordinateSystem):
-            target_cs = target_cs.name
-        native_props["TargetCS"] = target_cs
-        if isinstance(parameters_dict, dict):
-            for el in parameters_dict:
-                if (
-                    el not in ["antenna_type", "offset", "rotation", "rotation_axis", "mode"]
-                    and parameters_dict[el] is not None
-                ):
-                    native_props["NativeComponentDefinitionProvider"][el.replace("_", " ").title()] = parameters_dict[
-                        el
-                    ]
-        native = NativeComponentObject(self, antenna_type, antenna_name, native_props)
-
-        _ = self.native_components
-
-        if native.create():
-            user_defined_component = UserDefinedComponent(
-                self.modeler, native.name, native_props["NativeComponentDefinitionProvider"], antenna_type
-            )
-            self.modeler.user_defined_components[native.name] = user_defined_component
-            self._native_components.append(native)
-            self.logger.info("Native component %s %s has been correctly created.", antenna_type, antenna_name)
-            return native
-
-        raise AEDTRuntimeError(f"Failed to create native component {antenna_type} {antenna_name}")
-
     class SbrAntennas:
         (
             ConicalHorn,
@@ -2355,6 +2430,24 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             "Custom Array State": "1",
         }
 
+    def _sbr_array_provider(self, antenna_type: str, provider: dict, custom_array: str) -> dict:
+        """Build the provider for a parametric or custom SBR antenna array."""
+        provider["Is Parametric Array"] = True
+        provider["Sheet"] = -1
+        element_parameters = provider.copy()
+        array_parameters = self.SBRAntennaDefaults.array_parameters
+        array_parameters["Array Element Type"] = self.SBRAntennaDefaults.default_type_id[antenna_type]
+        array_parameters["Array Layout Type"] = 0 if custom_array else 1
+        array_parameters["Custom Array Filename"] = custom_array
+        return {
+            "Type": "Parametric Array",
+            "Unit": element_parameters["Unit"],
+            "Version": element_parameters["Version"],
+            "Is Parametric Array": element_parameters["Is Parametric Array"],
+            "Antenna Array Parameters": array_parameters,
+            "Array Element Parameters": element_parameters,
+        }
+
     @pyaedt_function_handler()
     def create_sbr_antenna(
         self,
@@ -2366,7 +2459,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         is_array: bool = False,
         custom_array: str | None = None,
         name: str | None = None,
-    ) -> NativeComponentObject:
+        definition_name: str | None = None,
+    ) -> NativeComponent | bool:
         """Create a parametric beam antennas in SBR+.
 
         Parameters
@@ -2376,7 +2470,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             The default is ``"SbrAntennas.Conical Horn"``.
         target_cs : str, optional
             Target coordinate system. The default is ``None``, in which case
-            the active coodiante system is used.
+            the active coordinate system is used.
         units : str, optional
             Model units to apply to the object. The default is
             ``None``, in which case the active modeler units are applied.
@@ -2392,11 +2486,13 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         name : str, optional
             Name of the 3D component. The default is ``None``, in which case the
             name is auto-generated based on the antenna type.
+        definition_name : str, optional
+            The default is ``None``.
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.layout_boundary.NativeComponentObject`
-            NativeComponentObject object.
+        :class:`ansys.aedt.core.modules.boundary.layout_boundary.NativeComponent`
+            NativeComponent object.
 
         References
         ----------
@@ -2415,6 +2511,17 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         """
         if self.solution_type != "SBR+":
             raise AEDTRuntimeError("This native component only applies to a SBR+ solution.")
+
+        if not name:
+            name = generate_unique_name("Antenna")
+        elif name in self.modeler.components:
+            name = generate_unique_name(name)
+
+        if not definition_name:
+            definition_name = generate_unique_name("Antenna")
+        elif definition_name in self.modeler.component_definition_names:
+            definition_name = generate_unique_name(definition_name)
+
         if target_cs is None:
             target_cs = self.modeler.get_working_coordinate_system()
 
@@ -2431,6 +2538,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         if "Unit" in parameters_defaults:
             parameters_defaults["Unit"] = units
 
+        parameters_defaults["Type"] = antenna_type
+
         if use_current_source_representation and antenna_type in [
             "Conical Horn",
             "Horizontal Dipole",
@@ -2445,36 +2554,16 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             parameters_defaults["Current Source Conformance"] = "Disable"
             parameters_defaults["Thin Sources"] = False
             parameters_defaults["Power Fraction"] = "0.95"
+
         if is_array:
-            parameters_defaults["Is Parametric Array"] = True
-            parameters_defaults["Sheet"] = -1
-
-            element_parameters = parameters_defaults.copy()
-
-            array_parameters = self.SBRAntennaDefaults.array_parameters
-            array_parameters["Array Element Type"] = self.SBRAntennaDefaults.default_type_id[antenna_type]
-            if custom_array:
-                array_parameters["Array Layout Type"] = 0
-            else:
-                array_parameters["Array Layout Type"] = 1
-            array_parameters["Custom Array Filename"] = custom_array
-
-            parameters_defaults = {
-                "Type": "Parametric Array",
-                "Unit": element_parameters["Unit"],
-                "Version": element_parameters["Version"],
-                "Is Parametric Array": element_parameters["Is Parametric Array"],
-                "Antenna Array Parameters": array_parameters,
-                "Array Element Parameters": element_parameters,
-            }
-
+            parameters_defaults = self._sbr_array_provider(antenna_type, parameters_defaults, custom_array)
             antenna_type = "Parametric Array"
 
         if parameters:
             for el, value in parameters.items():
                 parameters_defaults[el] = value
 
-        return self._create_native_component(antenna_type, target_cs, units, parameters_defaults, name)
+        return _create_native_component(self, name, definition_name, target_cs, antenna_type, parameters_defaults)
 
     @pyaedt_function_handler()
     def create_sbr_file_based_antenna(
@@ -2488,7 +2577,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         is_array: bool = False,
         custom_array: str | None = None,
         name: str | None = None,
-    ) -> NativeComponentObject:
+        definition_name: str | None = None,
+    ) -> NativeComponent | bool:
         """Create a linked antenna.
 
         Parameters
@@ -2516,10 +2606,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         name : str, optional
             Name of the 3D component. The default is ``None``, in which case
             the name is auto-generated based on the antenna type.
+        definition_name : str, optional
+            The default is ``None``.
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.layout_boundary.NativeComponentObject`
+        :class:`ansys.aedt.core.modules.boundary.layout_boundary.NativeComponent`
 
         References
         ----------
@@ -2536,6 +2628,16 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         if self.solution_type != "SBR+":
             raise AEDTRuntimeError("This native component only applies to a SBR+ solution.")
 
+        if not name:
+            name = generate_unique_name("Antenna")
+        elif name in self.modeler.components:
+            name = generate_unique_name(name)
+
+        if not definition_name:
+            definition_name = generate_unique_name("Antenna")
+        elif definition_name in self.modeler.component_definition_names:
+            definition_name = generate_unique_name(definition_name)
+
         if target_cs is None:
             target_cs = self.modeler.oeditor.GetActiveCoordinateSystem()
 
@@ -2547,8 +2649,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         if not units:
             units = self.modeler.model_units
 
+        antenna_type = "File Based Antenna"
+
         parameters_defaults = dict(
             {
+                "Type": antenna_type,
                 "Size": antenna_size,
                 "MatchedPortImpedance": antenna_impedance,
                 "Representation": representation_type,
@@ -2558,39 +2663,16 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             }
         )
 
-        antenna_type = "File Based Antenna"
-
         if is_array:
-            parameters_defaults["Is Parametric Array"] = True
-            parameters_defaults["Sheet"] = -1
-
-            element_parameters = parameters_defaults.copy()
-
-            array_parameters = self.SBRAntennaDefaults.array_parameters
-            array_parameters["Array Element Type"] = self.SBRAntennaDefaults.default_type_id[antenna_type]
-            if custom_array:
-                array_parameters["Array Layout Type"] = 0
-            else:
-                array_parameters["Array Layout Type"] = 1
-            array_parameters["Custom Array Filename"] = custom_array
-
-            parameters_defaults = {
-                "Type": "Parametric Array",
-                "Unit": element_parameters["Unit"],
-                "Version": element_parameters["Version"],
-                "Is Parametric Array": element_parameters["Is Parametric Array"],
-                "Antenna Array Parameters": array_parameters,
-                "Array Element Parameters": element_parameters,
-            }
-
+            parameters_defaults = self._sbr_array_provider(antenna_type, parameters_defaults, custom_array)
             antenna_type = "Parametric Array"
 
-        return self._create_native_component(antenna_type, target_cs, units, parameters_defaults, name)
+        return _create_native_component(self, name, definition_name, target_cs, antenna_type, parameters_defaults)
 
     @pyaedt_function_handler()
     def create_sbr_linked_antenna(
         self,
-        assignment: "Hfss",
+        assignment: Hfss,
         target_cs: str | None = "Global",
         setup: str | None = None,
         field_type: str | None = "nearfield",
@@ -2603,7 +2685,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         is_array: bool | None = False,
         custom_array: str | None = None,
         name: str | None = None,
-    ) -> NativeComponentObject:
+        definition_name: str | None = None,
+    ) -> NativeComponent | bool:
         """Create a linked antennas.
 
         Parameters
@@ -2638,6 +2721,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         name : str, optional
             Name of the source.
             The default is ``None`` in which case a name is automatically assigned.
+        definition_name : str, optional
+            The default is ``None``.
 
         References
         ----------
@@ -2650,22 +2735,25 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> source_project = "my/path/to/sourceProject.aedt"
         >>> target = Hfss(project=target_project, solution_type="SBR+", version="2026.1", new_desktop=False)
         >>> source = Hfss(project=source_project, design="feeder", version="2026.1", new_desktop=False)
-        >>> target.create_sbr_linked_antenna(
-        ...     source, target_cs="feederPosition", field_type="farfield"
-        ... )  # doctest: +SKIP
+        >>> target.create_sbr_linked_antenna(source, target_cs="feederPosition", field_type="farfield")
 
         """
         if self.solution_type != "SBR+":
             raise AEDTRuntimeError("Native components only apply to the SBR+ solution.")
 
         if name is None:
-            uniquename = generate_unique_name(assignment.design_name)
-        else:
-            uniquename = generate_unique_name(name)
+            name = generate_unique_name(assignment.design_name)
+        elif name in self.modeler.component_names:
+            name = generate_unique_name(name)
+
+        if not definition_name:
+            definition_name = generate_unique_name("linked_antenna")
+        elif definition_name in self.modeler.component_definition_names:
+            definition_name = generate_unique_name(definition_name)
 
         if assignment.project_name == self.project_name:
             project_name = "This Project*"
-        else:
+        else:  # pragma: no cover
             project_name = Path(assignment.project_path) / (assignment.project_name + ".aedt")
         design_name = assignment.design_name
         if not setup:
@@ -2675,7 +2763,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         for el in pars:
             params[el] = pars[el]
-        native_props = dict(
+
+        native_component = dict(
             {
                 "Type": "Linked Antenna",
                 "Unit": self.modeler.model_units,
@@ -2694,16 +2783,17 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                 "SourceBlockageStructure": dict({"NonModelObject": []}),
             }
         )
+
         if field_type == "nearfield":
-            native_props["UseGlobalCurrentSrcOption"] = use_global_current
+            native_component["UseGlobalCurrentSrcOption"] = use_global_current
             if current_conformance:
-                native_props["Current Source Conformance"] = "Enable"
+                native_component["Current Source Conformance"] = "Enable"
             else:
-                native_props["Current Source Conformance"] = "Disable"
-            native_props["Thin Sources"] = thin_sources
-            native_props["Power Fraction"] = power_fraction
+                native_component["Current Source Conformance"] = "Disable"
+            native_component["Thin Sources"] = thin_sources
+            native_component["Power Fraction"] = power_fraction
         if visible:
-            native_props["VisualizationObjects"] = assignment.modeler.solid_names
+            native_component["VisualizationObjects"] = assignment.modeler.solid_names
 
         if custom_array:
             is_array = True
@@ -2713,33 +2803,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         antenna_type = "Linked Antenna"
 
         if is_array:
-            native_props["Is Parametric Array"] = True
-            native_props["Sheet"] = -1
-
-            element_parameters = native_props.copy()
-
-            array_parameters = self.SBRAntennaDefaults.array_parameters
-            array_parameters["Array Element Type"] = self.SBRAntennaDefaults.default_type_id[antenna_type]
-            if custom_array:
-                array_parameters["Array Layout Type"] = 0
-            else:
-                array_parameters["Array Layout Type"] = 1
-            array_parameters["Custom Array Filename"] = custom_array
-
-            native_props = {
-                "Type": "Parametric Array",
-                "Unit": element_parameters["Unit"],
-                "Version": element_parameters["Version"],
-                "Is Parametric Array": element_parameters["Is Parametric Array"],
-                "Antenna Array Parameters": array_parameters,
-                "Array Element Parameters": element_parameters,
-            }
-
+            native_component = self._sbr_array_provider(antenna_type, native_component, custom_array)
             antenna_type = "Parametric Array"
 
-        return self._create_native_component(
-            antenna_type, target_cs, self.modeler.model_units, native_props, uniquename
-        )
+        return _create_native_component(self, name, definition_name, target_cs, antenna_type, native_component)
 
     @pyaedt_function_handler()
     def create_sbr_custom_array_file(
@@ -5026,57 +5093,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             primary_sweep_variable=primary_sweep,
         )
 
-    @deprecated_doc(version="1.2.0")
-    @deprecated("Use `create_q_factor_report` instead.")
-    @pyaedt_function_handler()
-    def create_qfactor_report(
-        self,
-        project_dir: str = None,
-        output: list = None,
-        setup: str = None,
-        name: str = "",
-        x_axis: str | None = "X",
-    ) -> bool:  # pragma: no cover
-        """Export a CSV file of the EigenQ plot.
-
-        Parameters
-        ----------
-        project_dir : str
-            Directory to export the CSV file to.
-        output : list
-            Output quantity, which in this case is the Q-factor.
-        setup : str
-            Name of the setup to generate the report from.
-        name : str
-            Name of the plot.
-        x_axis : str, optional
-            Value for the X axis. The default is ``"X"``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oModule.CreateReport
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.hfss import Hfss
-        >>> obj = Hfss()
-        >>> obj.create_qfactor_report(name="MyObject", setup="Setup1")
-
-        """
-        # Setup arguments list for createReport function
-        args = [x_axis + ":=", ["All"]]
-        args2 = ["X Component:=", x_axis, "Y Component:=", output]
-
-        self.post.post_oreport_setup.CreateReport(
-            name, "Eigenmode Parameters", "Rectangular Plot", setup + " : LastAdaptive", [], args, args2, []
-        )
-        return True
-
     @pyaedt_function_handler()
     def _create_sbr_doppler_setup(
         self,
@@ -5094,34 +5110,34 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         include_coupling_effects: bool = False,
         doppler_ad_sampling_rate: int = 20,
     ):
-        setup1 = self.create_setup(setup_name, 4)
-        setup1.auto_update = False
-        setup1.props["IsSbrRangeDoppler"] = True
-        del setup1.props["PTDUTDSimulationSettings"]
-        del setup1.props["ComputeFarFields"]
-        del setup1.props["Sweeps"]
+        setup1 = self.create_setup(name=setup_name, setup_type=Setups.HFSSSBR)
+        props = setup1.props.to_dict()
+        props["IsSbrRangeDoppler"] = True
+        if "PTDUTDSimulationSettings" in props:
+            del props["PTDUTDSimulationSettings"]
+        if "ComputeFarFields" in props:
+            del props["ComputeFarFields"]
         if setup_type == "ChirpIQ":
-            setup1.props["SbrRangeDopplerWaveformType"] = "ChirpSeqFmcw"
-            setup1.props["ChannelConfiguration"] = "IQChannels"
+            props["SbrRangeDopplerWaveformType"] = "ChirpSeqFmcw"
+            props["ChannelConfiguration"] = "IQChannels"
         elif setup_type == "ChirpI":
-            setup1.props["SbrRangeDopplerWaveformType"] = "ChirpSeqFmcw"
-            setup1.props["ChannelConfiguration"] = "IChannelOnly"
+            props["SbrRangeDopplerWaveformType"] = "ChirpSeqFmcw"
+            props["ChannelConfiguration"] = "IChannelOnly"
         else:
-            setup1.props["SbrRangeDopplerWaveformType"] = setup_type
-        setup1.props["SbrRangeDopplerTimeVariable"] = time_var
-        setup1.props["SbrRangeDopplerCenterFreq"] = self.value_with_units(center_freq, "GHz")
-        setup1.props["SbrRangeDopplerRangeResolution"] = self.value_with_units(resolution, "meter")
-        setup1.props["SbrRangeDopplerRangePeriod"] = self.value_with_units(period, "meter")
-        setup1.props["SbrRangeDopplerVelocityResolution"] = self.value_with_units(velocity_resolution, "m_per_sec")
-        setup1.props["SbrRangeDopplerVelocityMin"] = self.value_with_units(min_velocity, "m_per_sec")
-        setup1.props["SbrRangeDopplerVelocityMax"] = self.value_with_units(max_velocity, "m_per_sec")
-        setup1.props["DopplerRayDensityPerWavelength"] = ray_density_per_wavelength
-        setup1.props["MaxNumberOfBounces"] = max_bounces
+            props["SbrRangeDopplerWaveformType"] = setup_type
+        props["SbrRangeDopplerTimeVariable"] = time_var
+        props["SbrRangeDopplerCenterFreq"] = self.value_with_units(center_freq, "GHz")
+        props["SbrRangeDopplerRangeResolution"] = self.value_with_units(resolution, "meter")
+        props["SbrRangeDopplerRangePeriod"] = self.value_with_units(period, "meter")
+        props["SbrRangeDopplerVelocityResolution"] = self.value_with_units(velocity_resolution, "m_per_sec")
+        props["SbrRangeDopplerVelocityMin"] = self.value_with_units(min_velocity, "m_per_sec")
+        props["SbrRangeDopplerVelocityMax"] = self.value_with_units(max_velocity, "m_per_sec")
+        props["DopplerRayDensityPerWavelength"] = ray_density_per_wavelength
+        props["MaxNumberOfBounces"] = max_bounces
         if setup_type != "PulseDoppler":
-            setup1.props["IncludeRangeVelocityCouplingEffect"] = include_coupling_effects
-            setup1.props["SbrRangeDopplerA/DSamplingRate"] = self.value_with_units(doppler_ad_sampling_rate, "MHz")
-        setup1.update()
-        setup1.auto_update = True
+            props["IncludeRangeVelocityCouplingEffect"] = include_coupling_effects
+            props["SbrRangeDopplerA/DSamplingRate"] = self.value_with_units(doppler_ad_sampling_rate, "MHz")
+        setup1.update(props)
         return setup1
 
     @pyaedt_function_handler()
@@ -5133,19 +5149,19 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     def create_sbr_chirp_i_doppler_setup(
         self,
         time_variable: str | None = None,
-        sweep_time_duration: float | None = 0.0,
-        center_freq: float | None = 76.5,
-        resolution: float | None = 1,
-        period: float | None = 200,
-        velocity_resolution: float | None = 0.4,
-        min_velocity: float | None = -20,
-        max_velocity: float | None = 20,
-        ray_density_per_wavelength: float | None = 0.2,
-        max_bounces: int | None = 5,
-        include_coupling_effects: bool | None = False,
-        doppler_ad_sampling_rate: int | None = 20,
+        sweep_time_duration: float | int = 0.0,
+        center_freq: float | int = 76.5,
+        resolution: float | int = 1,
+        period: float | int = 200,
+        velocity_resolution: float | int = 0.4,
+        min_velocity: float | int = -20,
+        max_velocity: float | int = 20,
+        ray_density_per_wavelength: float | int = 0.2,
+        max_bounces: int = 5,
+        include_coupling_effects: bool = False,
+        doppler_ad_sampling_rate: int = 20,
         setup: str | None = None,
-    ) -> "tuple[SetupHFSS | SetupHFSSAuto, SetupParam | bool]":
+    ) -> tuple[SetupHFSS | SetupHFSSAuto, ParametricSetup | bool]:
         """Create an SBR+ Chirp I setup.
 
         Parameters
@@ -5185,7 +5201,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         tuple
             The tuple contains: (:class:`ansys.aedt.core.modules.solve_setup.SetupHFSS`
             or :class:`ansys.aedt.core.modules.solve_setup.SetupHFSSAuto`,
-            :class:`ansys.aedt.core.modules.design_xploration.SetupParam`) or bool.
+            :class:`ansys.aedt.core.modules.design_xploration.ParametricSetup`) or bool.
 
         References
         ----------
@@ -5195,6 +5211,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         --------
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(solution_type="SBR+")
+        >>> hfss["time_var"] = "1s"
         >>> setup, sweep = hfss.create_sbr_chirp_i_doppler_setup(sweep_time_duration=20)
 
         """
@@ -5243,19 +5260,19 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     def create_sbr_chirp_iq_doppler_setup(
         self,
         time_variable: str | None = None,
-        sweep_time_duration: float | None = 0.0,
-        center_freq: float | None = 76.5,
-        resolution: float | None = 1,
-        period: float | None = 200,
-        velocity_resolution: float | None = 0.4,
-        min_velocity: float | None = -20,
-        max_velocity: float | None = 20,
-        ray_density_per_wavelength: float | None = 0.2,
-        max_bounces: int | None = 5,
-        include_coupling_effects: bool | None = False,
-        doppler_ad_sampling_rate: int | None = 20,
+        sweep_time_duration: float | int = 0.0,
+        center_freq: float | int = 76.5,
+        resolution: float | int = 1,
+        period: float | int = 200,
+        velocity_resolution: float | int = 0.4,
+        min_velocity: float | int = -20,
+        max_velocity: float | int = 20,
+        ray_density_per_wavelength: float | int = 0.2,
+        max_bounces: int = 5,
+        include_coupling_effects: bool = False,
+        doppler_ad_sampling_rate: int = 20,
         setup: str | None = None,
-    ) -> "tuple[SetupHFSS | SetupHFSSAuto, SetupParam | bool]":
+    ) -> tuple[SetupHFSS | SetupHFSSAuto, ParametricSetup | bool]:
         """Create an SBR+ Chirp IQ setup.
 
         Parameters
@@ -5296,7 +5313,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         tuple
             The tuple contains: (:class:`ansys.aedt.core.modules.solve_setup.SetupHFSS`
             or :class:`ansys.aedt.core.modules.solve_setup.SetupHFSSAuto`,
-            :class:`ansys.aedt.core.modules.design_xploration.SetupParam`) or bool.
+            :class:`ansys.aedt.core.modules.design_xploration.ParametricSetup`) or bool.
 
         References
         ----------
@@ -5306,6 +5323,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         --------
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(solution_type="SBR+")
+        >>> hfss["time_var"] = "1s"
         >>> setup, sweep = hfss.create_sbr_chirp_iq_doppler_setup(sweep_time_duration=20)
 
         """
@@ -5351,17 +5369,17 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     def create_sbr_pulse_doppler_setup(
         self,
         time_variable: str | None = None,
-        sweep_time_duration: float | None = 0.0,
-        frequency: float | None = 76.5,
-        resolution: float | None = 1.0,
-        period: float | None = 200.0,
-        velocity_resolution: float | None = 0.4,
-        min_velocity: float | None = -20.0,
-        max_velocity: float | None = 20.0,
-        ray_density_per_wavelength: float | None = 0.2,
+        sweep_time_duration: float | int | None = 0.0,
+        frequency: float | int | None = 76.5,
+        resolution: float | int | None = 1.0,
+        period: float | int | None = 200.0,
+        velocity_resolution: float | int | None = 0.4,
+        min_velocity: float | int | None = -20.0,
+        max_velocity: float | int | None = 20.0,
+        ray_density_per_wavelength: float | int | None = 0.2,
         max_bounces: int | None = 5,
         setup: str | None = None,
-    ) -> "tuple[SetupHFSS | SetupHFSSAuto, SetupParam | bool]":
+    ) -> tuple[SetupHFSS | SetupHFSSAuto, ParametricSetup | bool]:
         """Create an SBR+ pulse Doppler setup.
 
         Parameters
@@ -5370,7 +5388,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             Name of the time variable. The default is ``None``, in which case
             a search for the first time variable is performed.
         sweep_time_duration : float, optional
-            Duration of the sweep time. The default is ``0``. If a value greater
+            Duration of the sweep time in seconds. The default is ``0``. If a value greater
             than ``0`` is specified, a parametric sweep is created.
         frequency : float, optional
             Center frequency in gigahertz (GHz). The default is ``76.5``.
@@ -5410,6 +5428,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         --------
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(solution_type="SBR+")
+        >>> hfss["time_var"] = "1s"
         >>> setup, sweep = hfss.create_sbr_pulse_doppler_setup(sweep_time_duration=30)
 
         """
@@ -5419,6 +5438,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         if not setup:
             setup = generate_unique_name("PulseSetup")
             parametric_name = generate_unique_name("PulseSweep")
+        elif setup in self.setup_names:
+            setup = generate_unique_name(setup)
+            parametric_name = generate_unique_name(setup)
         else:
             parametric_name = generate_unique_name(setup)
 
@@ -5429,6 +5451,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                     break
             if not time_variable:
                 raise ValueError("No Time Variable Found")
+
         setup = self._create_sbr_doppler_setup(
             "PulseDoppler",
             time_var=time_variable,
@@ -7618,7 +7641,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         if not volume_padding and assignment:
             for comp in assignment:
-                if comp in self.modeler.user_defined_component_names:
+                if comp in self.modeler.component_names:
                     mesh_assembly_arg = ["NAME:" + comp]
                     mesh_assembly_arg.append("MeshAssemblyBoundingVolumePadding:=")
                     mesh_assembly_arg.append(["0", "0", "0", "0", "0", "0"])
@@ -7630,7 +7653,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             count = 0
             for comp in assignment:
                 padding = [str(pad) for pad in volume_padding[count]]
-                if comp in self.modeler.user_defined_component_names:
+                if comp in self.modeler.component_names:
                     mesh_assembly_arg = ["NAME:" + comp]
                     mesh_assembly_arg.append("MeshAssemblyBoundingVolumePadding:=")
                     mesh_assembly_arg.append(padding)
@@ -7646,7 +7669,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         if assignment and priority:
             for p in priority:
-                if p in self.modeler.user_defined_component_names:
+                if p in self.modeler.component_names:
                     arg3.append(p)
                 else:
                     self.logger.warning(f"{str(p)} does not exist")

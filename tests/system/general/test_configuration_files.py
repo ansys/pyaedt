@@ -81,6 +81,9 @@ def hfss3dl_a(add_app):
 
 def test_hfss_export(aedt_app, add_app, test_tmp_dir) -> None:
     aedt_app.mesh.assign_length_mesh("sub")
+    setup = aedt_app.setups[0]
+    sweep = setup.add_sweep(name="ConfigurationSweep", sweep_type="Discrete", RangeStart="2GHz", RangeEnd="4GHz")
+    assert sweep
     for bound in aedt_app.boundaries:
         assert bound.assignment
     conf_file = aedt_app.configurations.export_config()
@@ -99,12 +102,30 @@ def test_hfss_export(aedt_app, add_app, test_tmp_dir) -> None:
     assert isinstance(out, dict)
     assert app.configurations.validate(out)
     assert app.configurations.results.global_import_success
+    imported_sweep = app.setups[setup.name].sweeps[sweep.name]
+    assert imported_sweep.props["Type"] == "Discrete"
+    assert imported_sweep.props["RangeStart"] == "2GHz"
+    assert imported_sweep.props["RangeEnd"] == "4GHz"
+    assert set(app.setups[setup.name].sweeps.keys()) == set(setup.sweeps.keys())
+    sweep_props = imported_sweep.props.to_dict()
+    sweep_props["RangeEnd"] = "6GHz"
+    assert imported_sweep.update(sweep_props)
+    app.configurations.options.unset_all_import()
+    app.configurations.options.import_setups = True
+    app.configurations.options.skip_import_if_exists = False
+    app.configurations.import_config(conf_file)
+    assert app.configurations.results.import_setup
+    assert app.setups[setup.name].sweeps[sweep.name].props["RangeEnd"] == "4GHz"
+    assert set(app.setups[setup.name].sweeps.keys()) == set(setup.sweeps.keys())
     app.close_project(save=False, name=name)
 
 
 def test_q3d_export(q3d_app, add_app, test_tmp_dir) -> None:
     q3d_app.modeler.create_coordinate_system()
     q3d_app.setups[0].props["AdaptiveFreq"] = "100MHz"
+    setup = q3d_app.setups[0]
+    sweep = setup.add_sweep(name="ConfigurationSweep", sweep_type="Discrete", RangeStart="100MHz", RangeEnd="200MHz")
+    assert sweep
     conf_file = q3d_app.configurations.export_config()
     assert q3d_app.configurations.validate(conf_file)
     filename = q3d_app.design_name
@@ -121,6 +142,8 @@ def test_q3d_export(q3d_app, add_app, test_tmp_dir) -> None:
     assert isinstance(out, dict)
     assert app.configurations.validate(out)
     assert app.configurations.results.global_import_success
+    assert set(app.setups[setup.name].sweeps.keys()) == set(setup.sweeps.keys())
+    assert app.setups[setup.name].sweeps[sweep.name].props["RangeEnd"] == "200MHz"
     app.close_project(save=False, name=name)
 
 
@@ -186,6 +209,10 @@ def test_q2d_export(q2d_app, add_app, test_tmp_dir) -> None:
 
 def test_hfss3dlayout_setup(hfss3dl_a, test_tmp_dir) -> None:
     setup2 = hfss3dl_a.create_setup("My_HFSS_Setup_2")  # Insert a setup.
+    sweep = setup2.add_sweep(name="ConfigurationSweep", sweep_type="Discrete")
+    assert sweep
+    sweep_name = sweep.name
+    sweep_props = sweep.props.to_dict()
     assert setup2.props["ViaNumSides"] == 6  # Check the default value.
     export_path = test_tmp_dir / "export_setup_properties.json"  # Legacy.
     assert setup2.export_to_json(str(export_path))  # Export from setup directly.
@@ -194,8 +221,11 @@ def test_hfss3dlayout_setup(hfss3dl_a, test_tmp_dir) -> None:
     assert setup2.import_from_json(str(json_file))
     assert setup2.props["ViaNumSides"] == 12
     assert hfss3dl_a.configurations.validate(conf_file)
+    assert sweep.delete()
     hfss3dl_a.configurations.import_config(conf_file)
     assert hfss3dl_a.setups[0].props["ViaNumSides"] == 6
+    assert sweep_name in hfss3dl_a.setups[setup2.name].sweeps
+    assert hfss3dl_a.setups[setup2.name].sweeps[sweep_name].props.to_dict() == sweep_props
 
 
 def test_hfss3dlayout_existing_setup(hfss3dl_a, add_app, test_tmp_dir) -> None:

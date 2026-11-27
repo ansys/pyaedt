@@ -47,6 +47,24 @@ def icepak_b(add_app):
     app.close_project(save=False, name=project_name)
 
 
+def set_global_mesh_settings(app):
+    region = app.mesh.global_region
+    region.manual_settings = True
+    props = region.props.to_dict()
+    props.update(
+        {
+            "MaxElementSizeX": "2mm",
+            "MaxElementSizeY": "3mm",
+            "MaxElementSizeZ": "4mm",
+            "MaxSizeRatio": 2,
+            "UniformMeshParametersType": "XYZ Max Sizes",
+            "MaxLevels": 2,
+            "BufferLayers": 1,
+        }
+    )
+    assert region.update(props)
+
+
 def test_configuration_file_1(icepak_a, add_app) -> None:
     box1 = icepak_a.modeler.create_box([0, 0, 0], [10, 10, 10])
     icepak_a.monitor.assign_point_monitor_to_vertex(box1.vertices[0].id)
@@ -58,16 +76,14 @@ def test_configuration_file_1(icepak_a, add_app) -> None:
     icepak_a.assign_openings(air_faces=region.bottom_face_x.id)
     icepak_a.create_setup()
     icepak_a.modeler.create_coordinate_system([10, 1, 10])
-    icepak_a.mesh.assign_mesh_region([box1.name])
-    icepak_a.mesh.global_mesh_region.MaxElementSizeX = "2mm"
-    icepak_a.mesh.global_mesh_region.MaxElementSizeY = "3mm"
-    icepak_a.mesh.global_mesh_region.MaxElementSizeZ = "4mm"
-    icepak_a.mesh.global_mesh_region.MaxSizeRatio = 2
-    icepak_a.mesh.global_mesh_region.UserSpecifiedSettings = True
-    icepak_a.mesh.global_mesh_region.UniformMeshParametersType = "XYZ Max Sizes"
-    icepak_a.mesh.global_mesh_region.MaxLevels = 2
-    icepak_a.mesh.global_mesh_region.BufferLayers = 1
-    icepak_a.mesh.global_mesh_region.update()
+    padding_values = ["1mm", "2mm", "3mm", "4mm", "5mm", "6mm"]
+    subregion = icepak_a.modeler.create_subregion(padding_values, "Absolute Offset", [box1.name])
+    mesh_region = icepak_a.mesh.assign_mesh_region(subregion.name)
+    assert mesh_region
+    mesh_operations = icepak_a.mesh.assign_mesh_level({box1.name: 2})
+    assert mesh_operations
+    mesh_operation_name = mesh_operations[0].name
+    set_global_mesh_settings(icepak_a)
     cs = icepak_a.modeler.create_coordinate_system(name="useless")
     cs.props["OriginX"] = 20
     cs.props["OriginY"] = 20
@@ -93,7 +109,7 @@ def test_configuration_file_1(icepak_a, add_app) -> None:
     f = icepak_a.create_fan("test_fan")
     idx = 0
     icepak_a.monitor.assign_point_monitor_to_vertex(
-        list(icepak_a.modeler.user_defined_components[f.name].parts.values())[idx].vertices[0].id
+        list(icepak_a.modeler.components[f.name].parts.values())[idx].vertices[0].id
     )
     assert icepak_a.configurations.export_config()
     f.delete()
@@ -106,6 +122,29 @@ def test_configuration_file_1(icepak_a, add_app) -> None:
     assert isinstance(out, dict)
     assert app.configurations.validate(out)
     assert app.configurations.results.global_import_success
+    assert mesh_region.name in app.mesh.regions
+    imported_region = app.mesh.regions[mesh_region.name]
+    assert imported_region.props["MeshRegionResolution"] == mesh_region.props["MeshRegionResolution"]
+    imported_history = app.modeler[imported_region.assignment[0]].history()
+    assert imported_history.command == "CreateSubRegion"
+    for direction, value in zip(("+X", "-X", "+Y", "-Y", "+Z", "-Z"), padding_values):
+        assert imported_history.properties[f"{direction} Padding Data"] == value
+    assert app.mesh.global_region.props["MaxElementSizeX"] == "2mm"
+    assert app.mesh.global_region.props["MaxElementSizeY"] == "3mm"
+    assert app.mesh.global_region.props["MaxElementSizeZ"] == "4mm"
+    assert app.mesh.operations[mesh_operation_name].props["MaxLevel"] == "2"
+    assert app.mesh.operations[mesh_operation_name].props["Objects"] == [box1.name]
+    original_assignment = imported_region.assignment
+    region_props = imported_region.props.to_dict()
+    region_props["MeshRegionResolution"] = 1
+    assert imported_region.update(region_props)
+    app.configurations.options.unset_all_import()
+    app.configurations.options.import_mesh_operations = True
+    app.configurations.options.skip_import_if_exists = False
+    app.configurations.import_config(conf_file)
+    assert app.configurations.results.import_mesh_operations
+    assert app.mesh.regions[mesh_region.name].assignment == original_assignment
+    assert app.mesh.regions[mesh_region.name].props["MeshRegionResolution"] == mesh_region.props["MeshRegionResolution"]
     # backward compatibility
     old_dict_format = read_json(conf_file)
     old_dict_format["monitor"] = old_dict_format.pop("monitors")
@@ -143,15 +182,7 @@ def test_configuration_file_2(icepak_b, add_app) -> None:
     icepak_b.create_setup()
     icepak_b.modeler.create_coordinate_system([10, 1, 10])
     icepak_b.mesh.assign_mesh_region([box1.name])
-    icepak_b.mesh.global_mesh_region.MaxElementSizeX = "2mm"
-    icepak_b.mesh.global_mesh_region.MaxElementSizeY = "3mm"
-    icepak_b.mesh.global_mesh_region.MaxElementSizeZ = "4mm"
-    icepak_b.mesh.global_mesh_region.MaxSizeRatio = 2
-    icepak_b.mesh.global_mesh_region.UserSpecifiedSettings = True
-    icepak_b.mesh.global_mesh_region.UniformMeshParametersType = "XYZ Max Sizes"
-    icepak_b.mesh.global_mesh_region.MaxLevels = 2
-    icepak_b.mesh.global_mesh_region.BufferLayers = 1
-    icepak_b.mesh.global_mesh_region.update()
+    set_global_mesh_settings(icepak_b)
     cs = icepak_b.modeler.create_coordinate_system(name="useless")
     cs.props["OriginX"] = 20
     cs.props["OriginY"] = 20
@@ -170,15 +201,32 @@ def test_configuration_file_2(icepak_b, add_app) -> None:
     filename = icepak_b.design_name
     icepak_b.export_3d_model(filename, icepak_b.working_directory, ".x_b", [], [])
     fan = icepak_b.create_fan("test_fan")
-    icepak_b.modeler.user_defined_components[fan.name].move([1, 2, 3])
-    fan2 = icepak_b.modeler.user_defined_components[fan.name].duplicate_along_line([4, 5, 6])
-    icepak_b.modeler.user_defined_components[fan.name].rotate("Y")
-    _ = icepak_b.modeler.user_defined_components[fan.name].duplicate_around_axis("Z")
-    icepak_b.modeler.user_defined_components[fan.name].move([1, 2, 3])
-    _ = icepak_b.modeler.user_defined_components[fan.name].duplicate_around_axis("Z")
-    icepak_b.modeler.user_defined_components[fan2[0]].duplicate_and_mirror([4, 5, 6], [1, 2, 3])
+    icepak_b.modeler.components[fan.name].move([1, 2, 3])
+    fan2 = icepak_b.modeler.components[fan.name].duplicate_along_line([4, 5, 6], clones=3)
+    icepak_b.modeler.components[fan.name].rotate("Y")
+    _ = icepak_b.modeler.components[fan.name].duplicate_around_axis("Z")
+    icepak_b.modeler.components[fan.name].move([1, 2, 3])
+    _ = icepak_b.modeler.components[fan.name].duplicate_around_axis("Z")
+    fan2[0].duplicate_and_mirror([4, 5, 6], [1, 2, 3])
+    expected_components = {name: component.bounding_box for name, component in icepak_b.modeler.components.items()}
     conf_file = icepak_b.configurations.export_config()
     assert icepak_b.configurations.validate(conf_file)
+    native_config = read_json(conf_file)["native components"][fan.definition_name]
+    operations = native_config["Instances"][fan.name]["Operations"]
+    assert list(operations) == [
+        "Move:1",
+        "DuplicateAlongLine:1",
+        "Rotate:1",
+        "DuplicateAroundAxis:1",
+        "Move:2",
+        "DuplicateAroundAxis:2",
+    ]
+    assert (
+        native_config["Properties"]["NativeComponentDefinitionProvider"]["Radius"]
+        == fan.props["NativeComponentDefinitionProvider"]["Radius"]
+    )
+    for component_name, bounding_box in expected_components.items():
+        assert icepak_b.modeler.components[component_name].bounding_box == pytest.approx(bounding_box)
     file_parasolid = filename + ".x_b"
 
     file_path = Path(icepak_b.working_directory) / file_parasolid
@@ -189,4 +237,7 @@ def test_configuration_file_2(icepak_b, add_app) -> None:
     assert isinstance(out, dict)
     assert app.configurations.validate(out)
     assert app.configurations.results.global_import_success
+    assert set(app.modeler.components.keys()) == set(expected_components)
+    for component_name, bounding_box in expected_components.items():
+        assert app.modeler.components[component_name].bounding_box == pytest.approx(bounding_box)
     app.close_project(save=False, name=project_name)
