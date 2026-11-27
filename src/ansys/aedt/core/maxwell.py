@@ -1579,6 +1579,8 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         parallel_branches: int | None = 1,
         phase: float | None = 0,
         name: str | None = None,
+        dc_current: float | str | None = None,
+        dc_voltage: float | str | None = None,
     ) -> BoundaryObject | bool:
         """Assign a winding to a Maxwell design.
 
@@ -1608,6 +1610,14 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         name : str, optional
             Name of the winding. The default is ``None``,
             in which case a random name with prefix ``Winding`` will be generated.
+        dc_current : float or str, optional
+            DC current of a ``"Current"`` winding, in amperes when a number.
+            Only for AC Magnetic designs that include DC fields (``"AC Magnetic with DC"``).
+            The default is ``None``, in which case no DC current is set.
+        dc_voltage : float or str, optional
+            DC voltage of a ``"Voltage"`` winding, in volts when a number.
+            Only for AC Magnetic designs that include DC fields (``"AC Magnetic with DC"``).
+            The default is ``None``, in which case no DC voltage is set.
 
         Returns
         -------
@@ -1630,6 +1640,21 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         ...     m2d.assign_winding(rect.name, winding_type="PWM Voltage", is_solid=False, resistance=1, name=name)
         >>> m2d.desktop_class.close_desktop()
 
+        Assign a winding with a DC current to a Maxwell 3D AC Magnetic design that includes DC fields.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(solution_type="AC Magnetic with DC")
+        >>> coil = m3d.modeler.create_torus(
+        ...     origin=[0.0, 0.0, 0.0], major_radius=1.0, minor_radius=0.1, axis="Z", name="coil", material="copper"
+        ... )
+        >>> coil.section(plane="XZ")
+        >>> terminal, other_side = m3d.modeler.separate_bodies(assignment=f"{coil.name}_Section1")
+        >>> m3d.modeler.delete(assignment=other_side.name)
+        >>> winding = m3d.assign_winding(winding_type="Current", current=0.5, dc_current=3, name="biased")
+        >>> coil_terminal = m3d.assign_coil(assignment=[terminal.name], conductors_number=1, name="Coil_terminal")
+        >>> m3d.add_winding_coils(assignment=winding.name, coils=[coil_terminal.name])
+        >>> m3d.desktop_class.close_desktop()
+
         """
         if not name:
             name = generate_unique_name("Winding")
@@ -1646,6 +1671,20 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
                 "Phase": self.value_with_units(phase, "deg"),
             }
         )
+
+        if dc_current is not None or dc_voltage is not None:
+            if self.solution_type != SolutionsMaxwell3D.ACMagneticwithDC:
+                raise AEDTRuntimeError(
+                    "DC values of a winding are only available with `AC Magnetic with DC` solutions."
+                )
+            if winding_type == "Current" and dc_voltage is None:
+                props["DC Current"] = self.value_with_units(dc_current, "A")
+            elif winding_type == "Voltage" and dc_current is None:
+                props["DC Voltage"] = self.value_with_units(dc_voltage, "V")
+            else:
+                raise AEDTRuntimeError(
+                    "A `Current` winding takes `dc_current` and a `Voltage` winding takes `dc_voltage`."
+                )
         bound = self._create_boundary(name, props, "Winding")
         if bound:
             if assignment is None:
@@ -3949,6 +3988,63 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
             props["CathodeParD"] = cathode_d
 
         return self._create_boundary(name, props, "ResistiveSheet")
+
+    @pyaedt_function_handler()
+    @min_aedt_version("2025.1")
+    def set_permeability_computation(self, assignment: list | str) -> bool:
+        """Set the objects whose permeability is computed from the DC fields.
+
+        In an AC Magnetic design that includes DC fields (``"AC Magnetic with DC"``), the
+        permeability of these objects in the AC part is computed from the DC solution.
+        AEDT selects every object with a nonlinear B-H material by default; this method
+        replaces that selection.
+
+        Parameters
+        ----------
+        assignment : list or str
+            Objects whose permeability is computed from the DC fields.
+            An empty list clears the selection.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful.
+
+        References
+        ----------
+        >>> oModule.SetPermeabilityComputation
+
+        Examples
+        --------
+        Compute the permeability of a steel core from the DC fields.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(solution_type="AC Magnetic with DC")
+        >>> core = m3d.modeler.create_cylinder(
+        ...     orientation="Z", origin=[0, 0, 0], radius=1.4, height=0.6, material="steel_1008"
+        ... )
+        >>> m3d.set_permeability_computation(assignment=[core.name])
+        >>> m3d.desktop_class.close_desktop()
+
+        Disable permeability computation in steel core.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(solution_type="AC Magnetic with DC")
+        >>> core = m3d.modeler.create_cylinder(
+        ...     orientation="Z", origin=[0, 0, 0], radius=1.4, height=0.6, material="steel_1008"
+        ... )
+        >>> m3d.set_permeability_computation(assignment=[])
+        >>> m3d.desktop_class.close_desktop()
+        """
+        maxwell_solutions = SolutionsMaxwell3D
+        if self.solution_type != maxwell_solutions.ACMagneticwithDC:
+            raise AEDTRuntimeError("Permeability computation is only available with `AC Magnetic with DC` solutions.")
+        objects = self.modeler.convert_to_selections(assignment, True) if assignment else []
+        missing = [obj for obj in objects if obj not in self.modeler.object_names]
+        if missing:
+            raise AEDTRuntimeError(f"Objects not found in the design: {missing}.")
+        self.oboundary.SetPermeabilityComputation(["NAME:MuLinkSrcObjs", "Objs:=", objects])
+        return True
 
     @pyaedt_function_handler()
     def order_coil_terminals(self, winding_name: str, list_of_terminals: list[str]) -> bool:

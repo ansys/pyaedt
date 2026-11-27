@@ -27,6 +27,8 @@ from unittest.mock import patch
 
 import pytest
 
+from ansys.aedt.core.generic.general_methods import _get_pids_by_name_windows
+from ansys.aedt.core.generic.general_methods import _get_pids_by_name_windows_tasklist
 from ansys.aedt.core.generic.general_methods import _is_version_format_valid
 from ansys.aedt.core.generic.general_methods import _normalize_version_to_string
 from ansys.aedt.core.generic.general_methods import _run_ss
@@ -161,3 +163,40 @@ class TestGeneralMethods:
         if is_linux:
             pytest.skip("Behaviour only applies to non-Linux platforms.")
         assert _run_ss() == {}
+
+    @patch("ansys.aedt.core.generic.general_methods.psutil.version_info", (6, 1, 0))
+    @patch("ansys.aedt.core.generic.general_methods.subprocess.run")
+    @patch("ansys.aedt.core.generic.general_methods.psutil.process_iter")
+    def test_get_pids_by_name_windows_matches_name_only(self, mock_process_iter, mock_run):
+        """With psutil >= 6.1.0, only matching process names are returned and tasklist is not used."""
+        mock_process_iter.return_value = [
+            SimpleNamespace(pid=10, info={"name": "ansysedt.exe"}),
+            SimpleNamespace(pid=11, info={"name": "AnsysEDT.EXE"}),
+            SimpleNamespace(pid=12, info={"name": "ansysedtsv.exe"}),
+            SimpleNamespace(pid=13, info={"name": None}),
+            SimpleNamespace(pid=14, info={}),
+        ]
+        assert _get_pids_by_name_windows("ansysedt.exe") == [10, 11]
+        mock_process_iter.assert_called_with(["name"])
+        mock_run.assert_not_called()
+
+    @patch("ansys.aedt.core.generic.general_methods.psutil.version_info", (6, 0, 0))
+    @patch("ansys.aedt.core.generic.general_methods.subprocess.run")
+    @patch("ansys.aedt.core.generic.general_methods.psutil.process_iter")
+    def test_get_pids_by_name_windows_uses_tasklist_on_old_psutil(self, mock_process_iter, mock_run):
+        """With psutil < 6.1.0, the tasklist fallback is used and its CSV output is parsed."""
+        mock_run.return_value = SimpleNamespace(
+            stdout=(
+                '"ansysedt.exe","1234","Console","1","245,678 K"\n'
+                "\n"
+                "INFO: No tasks are running which match the specified criteria.\n"
+                '"ansysedt.exe","5678","Console","1","1,024 K"\n'
+            )
+        )
+        assert _get_pids_by_name_windows("ansysedt.exe") == [1234, 5678]
+        assert mock_run.call_args.args[0][0] == "tasklist"
+        mock_process_iter.assert_not_called()
+
+    def test_get_pids_by_name_windows_tasklist_rejects_unknown_name(self):
+        with pytest.raises(ValueError):
+            _get_pids_by_name_windows_tasklist("python.exe")
