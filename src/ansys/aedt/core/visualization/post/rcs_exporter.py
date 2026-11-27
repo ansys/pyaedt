@@ -301,16 +301,15 @@ class MonostaticRCSExporter(PyAedtBase):
                 )
                 df = pd.DataFrame(x, columns=list(data.intrinsics.keys()))
                 df[self.expression] = re + 1j * im
-                df.set_index(list(data.intrinsics.keys()), inplace=True)
+                df = df.set_index(list(data.intrinsics.keys()))
                 df.index.names = list(data.intrinsics.keys())
                 df = unit_converter(
                     df, unit_system="Length", input_units=data.units_data[self.expression], output_units="meter"
                 )
-                df.rename(
+                df = df.rename(
                     columns={
                         self.expression: self.column_name,
                     },
-                    inplace=True,
                 )
                 try:
                     df.to_hdf(self.data_file, key="df", mode="w", format="table")
