@@ -1,0 +1,6 @@
+plot\_eye\_diagram
+==================
+
+.. currentmodule:: ansys.aedt.core.visualization.plot.matplotlib
+
+.. automethod:: ReportPlotter.plot_eye_diagram

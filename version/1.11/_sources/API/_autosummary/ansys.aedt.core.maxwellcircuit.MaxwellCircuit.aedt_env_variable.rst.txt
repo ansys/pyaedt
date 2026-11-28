@@ -1,0 +1,6 @@
+aedt\_env\_variable
+===================
+
+.. currentmodule:: ansys.aedt.core.maxwellcircuit
+
+.. autoproperty:: MaxwellCircuit.aedt_env_variable

@@ -1,0 +1,6 @@
+frequency\_sweep
+================
+
+.. currentmodule:: ansys.aedt.core.visualization.advanced.frtm_visualization
+
+.. autoproperty:: FRTMData.frequency_sweep

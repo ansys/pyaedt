@@ -1,0 +1,6 @@
+add\_band
+=========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.radio_node
+
+.. automethod:: RadioNode.add_band

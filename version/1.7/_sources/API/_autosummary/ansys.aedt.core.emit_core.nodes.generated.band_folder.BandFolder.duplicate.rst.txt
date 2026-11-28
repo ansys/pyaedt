@@ -1,0 +1,6 @@
+duplicate
+=========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.band_folder
+
+.. automethod:: BandFolder.duplicate

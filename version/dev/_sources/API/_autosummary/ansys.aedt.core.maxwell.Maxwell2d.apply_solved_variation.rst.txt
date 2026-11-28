@@ -1,0 +1,6 @@
+apply\_solved\_variation
+========================
+
+.. currentmodule:: ansys.aedt.core.maxwell
+
+.. automethod:: Maxwell2d.apply_solved_variation

@@ -1,0 +1,6 @@
+create\_fresnel\_variables
+==========================
+
+.. currentmodule:: ansys.aedt.core.hfss
+
+.. automethod:: Hfss.create_fresnel_variables

@@ -1,0 +1,104 @@
+﻿PlacementPinMapping
+===================
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.mcad_assembly
+
+.. autoclass:: PlacementPinMapping
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      PlacementPinMapping.construct
+      
+      
+      PlacementPinMapping.copy
+      
+      
+      PlacementPinMapping.dict
+      
+      
+      PlacementPinMapping.from_orm
+      
+      
+      PlacementPinMapping.json
+      
+      
+      PlacementPinMapping.model_construct
+      
+      
+      PlacementPinMapping.model_copy
+      
+      
+      PlacementPinMapping.model_dump
+      
+      
+      PlacementPinMapping.model_dump_json
+      
+      
+      PlacementPinMapping.model_json_schema
+      
+      
+      PlacementPinMapping.model_parametrized_name
+      
+      
+      PlacementPinMapping.model_post_init
+      
+      
+      PlacementPinMapping.model_rebuild
+      
+      
+      PlacementPinMapping.model_validate
+      
+      
+      PlacementPinMapping.model_validate_json
+      
+      
+      PlacementPinMapping.model_validate_strings
+      
+      
+      PlacementPinMapping.parse_file
+      
+      
+      PlacementPinMapping.parse_obj
+      
+      
+      PlacementPinMapping.parse_raw
+      
+      
+      PlacementPinMapping.schema
+      
+      
+      PlacementPinMapping.schema_json
+      
+      
+      PlacementPinMapping.update_forward_refs
+      
+      
+      PlacementPinMapping.validate
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      PlacementPinMapping.model_computed_fields
+      PlacementPinMapping.model_config
+      PlacementPinMapping.model_extra
+      PlacementPinMapping.model_fields
+      PlacementPinMapping.model_fields_set
+      PlacementPinMapping.reference_designator
+      PlacementPinMapping.pin_1_loc
+      PlacementPinMapping.pin_2_loc
+   
+   

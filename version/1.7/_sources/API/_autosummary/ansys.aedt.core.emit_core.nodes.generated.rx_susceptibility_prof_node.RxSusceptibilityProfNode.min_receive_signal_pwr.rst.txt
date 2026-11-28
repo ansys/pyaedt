@@ -1,0 +1,6 @@
+min\_receive\_signal\_pwr
+=========================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.rx_susceptibility_prof_node
+
+.. autoproperty:: RxSusceptibilityProfNode.min_receive_signal_pwr

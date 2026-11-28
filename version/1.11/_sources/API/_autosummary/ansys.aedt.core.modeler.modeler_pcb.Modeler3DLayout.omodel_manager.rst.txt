@@ -1,0 +1,6 @@
+omodel\_manager
+===============
+
+.. currentmodule:: ansys.aedt.core.modeler.modeler_pcb
+
+.. autoproperty:: Modeler3DLayout.omodel_manager

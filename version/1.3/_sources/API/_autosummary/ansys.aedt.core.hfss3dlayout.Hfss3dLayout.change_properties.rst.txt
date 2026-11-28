@@ -1,0 +1,6 @@
+change\_properties
+==================
+
+.. currentmodule:: ansys.aedt.core.hfss3dlayout
+
+.. automethod:: Hfss3dLayout.change_properties

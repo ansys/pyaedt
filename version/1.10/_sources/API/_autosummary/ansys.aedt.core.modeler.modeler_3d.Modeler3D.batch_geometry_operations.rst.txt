@@ -1,0 +1,6 @@
+batch\_geometry\_operations
+===========================
+
+.. currentmodule:: ansys.aedt.core.modeler.modeler_3d
+
+.. automethod:: Modeler3D.batch_geometry_operations

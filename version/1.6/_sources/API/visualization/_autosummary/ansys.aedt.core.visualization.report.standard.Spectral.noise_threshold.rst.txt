@@ -1,0 +1,6 @@
+noise\_threshold
+================
+
+.. currentmodule:: ansys.aedt.core.visualization.report.standard
+
+.. autoproperty:: Spectral.noise_threshold

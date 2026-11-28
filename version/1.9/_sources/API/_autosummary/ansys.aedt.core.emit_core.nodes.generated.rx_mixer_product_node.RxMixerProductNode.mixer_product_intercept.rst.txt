@@ -1,0 +1,6 @@
+mixer\_product\_intercept
+=========================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.rx_mixer_product_node
+
+.. autoproperty:: RxMixerProductNode.mixer_product_intercept

@@ -1,0 +1,6 @@
+launch\_job\_monitor
+====================
+
+.. currentmodule:: ansys.aedt.core.desktop
+
+.. automethod:: Desktop.launch_job_monitor

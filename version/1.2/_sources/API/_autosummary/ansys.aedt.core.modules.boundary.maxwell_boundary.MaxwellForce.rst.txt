@@ -1,0 +1,55 @@
+﻿MaxwellForce
+============
+
+.. currentmodule:: ansys.aedt.core.modules.boundary.maxwell_boundary
+
+.. autoclass:: MaxwellForce
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      MaxwellForce.create
+      
+      
+      MaxwellForce.delete
+      
+      
+      MaxwellForce.jsonalize_tree
+      
+      
+      MaxwellForce.suppress_all
+      
+      
+      MaxwellForce.unsuppress_all
+      
+      
+      MaxwellForce.update
+      
+      
+      MaxwellForce.update_property
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      MaxwellForce.available_properties
+      MaxwellForce.children
+      MaxwellForce.command
+      MaxwellForce.name
+      MaxwellForce.properties
+      MaxwellForce.props
+      MaxwellForce.public_dir
+   
+   

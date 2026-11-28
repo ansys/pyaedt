@@ -1,0 +1,6 @@
+nb\_detector\_threshold
+=======================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.waveform
+
+.. autoproperty:: Waveform.nb_detector_threshold

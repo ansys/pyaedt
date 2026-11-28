@@ -1,0 +1,6 @@
+y\_axis\_min
+============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.result_plot_node
+
+.. autoproperty:: ResultPlotNode.y_axis_min

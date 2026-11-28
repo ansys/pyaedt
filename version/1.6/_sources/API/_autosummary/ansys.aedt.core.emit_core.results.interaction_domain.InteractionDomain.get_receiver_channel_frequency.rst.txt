@@ -1,0 +1,6 @@
+get\_receiver\_channel\_frequency
+=================================
+
+.. currentmodule:: ansys.aedt.core.emit_core.results.interaction_domain
+
+.. automethod:: InteractionDomain.get_receiver_channel_frequency

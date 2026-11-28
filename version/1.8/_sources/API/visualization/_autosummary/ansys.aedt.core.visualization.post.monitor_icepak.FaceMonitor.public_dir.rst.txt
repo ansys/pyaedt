@@ -1,0 +1,6 @@
+public\_dir
+===========
+
+.. currentmodule:: ansys.aedt.core.visualization.post.monitor_icepak
+
+.. autoproperty:: FaceMonitor.public_dir

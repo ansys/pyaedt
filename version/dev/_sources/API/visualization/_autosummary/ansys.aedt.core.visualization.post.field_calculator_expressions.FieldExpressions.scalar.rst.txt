@@ -1,0 +1,6 @@
+scalar
+======
+
+.. currentmodule:: ansys.aedt.core.visualization.post.field_calculator_expressions
+
+.. automethod:: FieldExpressions.scalar

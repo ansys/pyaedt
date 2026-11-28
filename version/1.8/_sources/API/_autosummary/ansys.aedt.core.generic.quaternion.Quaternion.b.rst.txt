@@ -1,0 +1,6 @@
+b
+=
+
+.. currentmodule:: ansys.aedt.core.generic.quaternion
+
+.. autoproperty:: Quaternion.b

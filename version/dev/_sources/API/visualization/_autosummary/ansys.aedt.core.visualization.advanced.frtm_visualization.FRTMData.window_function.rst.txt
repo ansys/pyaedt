@@ -1,0 +1,6 @@
+window\_function
+================
+
+.. currentmodule:: ansys.aedt.core.visualization.advanced.frtm_visualization
+
+.. automethod:: FRTMData.window_function

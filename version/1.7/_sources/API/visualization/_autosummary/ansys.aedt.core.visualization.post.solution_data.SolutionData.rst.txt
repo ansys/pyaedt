@@ -1,0 +1,85 @@
+﻿SolutionData
+============
+
+.. currentmodule:: ansys.aedt.core.visualization.post.solution_data
+
+.. autoclass:: SolutionData
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      SolutionData.export_data_to_csv
+      
+      
+      SolutionData.get_expression_data
+      
+      
+      SolutionData.get_report_plotter
+      
+      
+      SolutionData.ifft
+      
+      
+      SolutionData.ifft_to_file
+      
+      
+      SolutionData.init_solutions_data
+      
+      
+      SolutionData.intrinsics_by_variation
+      
+      
+      SolutionData.is_real_only
+      
+      
+      SolutionData.lookup_column_value
+      
+      
+      SolutionData.plot
+      
+      
+      SolutionData.plot_3d
+      
+      
+      SolutionData.set_active_variation
+      
+      
+      SolutionData.to_degrees
+      
+      
+      SolutionData.to_radians
+      
+      
+      SolutionData.update_sweeps
+      
+      
+      SolutionData.variation_values
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      SolutionData.active_variation
+      SolutionData.enable_pandas_output
+      SolutionData.expressions
+      SolutionData.full_matrix_mag_phase
+      SolutionData.full_matrix_real_imag
+      SolutionData.intrinsics
+      SolutionData.nominal_variation
+      SolutionData.primary_sweep
+      SolutionData.primary_sweep_values
+      SolutionData.public_dir
+   
+   

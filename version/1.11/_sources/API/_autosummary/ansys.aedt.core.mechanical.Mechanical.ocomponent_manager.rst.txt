@@ -1,0 +1,6 @@
+ocomponent\_manager
+===================
+
+.. currentmodule:: ansys.aedt.core.mechanical
+
+.. autoproperty:: Mechanical.ocomponent_manager

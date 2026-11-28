@@ -1,0 +1,85 @@
+﻿VectorComplex
+=============
+
+.. currentmodule:: ansys.aedt.core.visualization.post.field_calculator_expressions
+
+.. autoclass:: VectorComplex
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      VectorComplex.add
+      
+      
+      VectorComplex.checkpoint
+      
+      
+      VectorComplex.component_magnitude
+      
+      
+      VectorComplex.conjugate
+      
+      
+      VectorComplex.curl
+      
+      
+      VectorComplex.divergence
+      
+      
+      VectorComplex.evaluate
+      
+      
+      VectorComplex.export
+      
+      
+      VectorComplex.imaginary
+      
+      
+      VectorComplex.magnitude
+      
+      
+      VectorComplex.real
+      
+      
+      VectorComplex.scalar_x
+      
+      
+      VectorComplex.scalar_y
+      
+      
+      VectorComplex.scalar_z
+      
+      
+      VectorComplex.smooth
+      
+      
+      VectorComplex.stack_depth
+      
+      
+      VectorComplex.to_dict
+      
+      
+      VectorComplex.verify
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      VectorComplex.is_complex
+      VectorComplex.is_vector
+      VectorComplex.operations
+      VectorComplex.public_dir
+   
+   

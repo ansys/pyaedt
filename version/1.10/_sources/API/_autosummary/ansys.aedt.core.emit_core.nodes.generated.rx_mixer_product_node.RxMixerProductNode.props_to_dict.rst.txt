@@ -1,0 +1,6 @@
+props\_to\_dict
+===============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.rx_mixer_product_node
+
+.. automethod:: RxMixerProductNode.props_to_dict

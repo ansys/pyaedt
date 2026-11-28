@@ -1,0 +1,6 @@
+to\_axis\_angle
+===============
+
+.. currentmodule:: ansys.aedt.core.generic.quaternion
+
+.. automethod:: Quaternion.to_axis_angle

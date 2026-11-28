@@ -1,0 +1,34 @@
+﻿DistributedParasitics
+=====================
+
+.. currentmodule:: ansys.aedt.core.filtersolutions_core.distributed_parasitics
+
+.. autoclass:: DistributedParasitics
+
+   
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      DistributedParasitics.capacitor_ls
+      DistributedParasitics.capacitor_q
+      DistributedParasitics.capacitor_rp
+      DistributedParasitics.capacitor_rs
+      DistributedParasitics.inductor_cp
+      DistributedParasitics.inductor_q
+      DistributedParasitics.inductor_rp
+      DistributedParasitics.inductor_rs
+      DistributedParasitics.line_even_conductance
+      DistributedParasitics.line_even_resistance
+      DistributedParasitics.line_min_segment_lengths
+      DistributedParasitics.line_odd_conductance
+      DistributedParasitics.line_odd_resistance
+   
+   

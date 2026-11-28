@@ -1,0 +1,6 @@
+export\_transient\_field\_file\_on\_points
+==========================================
+
+.. currentmodule:: ansys.aedt.core.visualization.post.post_3dlayout
+
+.. automethod:: PostProcessor3DLayout.export_transient_field_file_on_points

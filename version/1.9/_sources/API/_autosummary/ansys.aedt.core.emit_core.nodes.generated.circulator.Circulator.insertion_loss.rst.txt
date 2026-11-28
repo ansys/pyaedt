@@ -1,0 +1,6 @@
+insertion\_loss
+===============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.circulator
+
+.. autoproperty:: Circulator.insertion_loss

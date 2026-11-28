@@ -1,0 +1,6 @@
+axis\_directions
+================
+
+.. currentmodule:: ansys.aedt.core.icepak
+
+.. autoproperty:: Icepak.axis_directions

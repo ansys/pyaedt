@@ -1,0 +1,6 @@
+node\_type
+==========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.result_plot_node
+
+.. autoproperty:: ResultPlotNode.node_type

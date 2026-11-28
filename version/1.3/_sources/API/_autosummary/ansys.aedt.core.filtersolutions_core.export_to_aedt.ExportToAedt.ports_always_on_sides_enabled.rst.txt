@@ -1,0 +1,6 @@
+ports\_always\_on\_sides\_enabled
+=================================
+
+.. currentmodule:: ansys.aedt.core.filtersolutions_core.export_to_aedt
+
+.. autoproperty:: ExportToAedt.ports_always_on_sides_enabled

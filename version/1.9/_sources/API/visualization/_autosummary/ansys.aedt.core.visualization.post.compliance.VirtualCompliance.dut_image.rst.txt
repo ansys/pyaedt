@@ -1,0 +1,6 @@
+dut\_image
+==========
+
+.. currentmodule:: ansys.aedt.core.visualization.post.compliance
+
+.. autoproperty:: VirtualCompliance.dut_image

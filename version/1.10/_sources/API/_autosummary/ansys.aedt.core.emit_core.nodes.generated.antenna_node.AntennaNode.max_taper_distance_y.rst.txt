@@ -1,0 +1,6 @@
+max\_taper\_distance\_y
+=======================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.antenna_node
+
+.. autoproperty:: AntennaNode.max_taper_distance_y

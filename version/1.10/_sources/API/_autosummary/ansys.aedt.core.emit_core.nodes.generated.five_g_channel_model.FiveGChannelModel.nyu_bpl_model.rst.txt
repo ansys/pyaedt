@@ -1,0 +1,6 @@
+nyu\_bpl\_model
+===============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.five_g_channel_model
+
+.. autoproperty:: FiveGChannelModel.nyu_bpl_model

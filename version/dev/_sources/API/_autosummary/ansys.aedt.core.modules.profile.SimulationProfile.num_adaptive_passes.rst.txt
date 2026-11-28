@@ -1,0 +1,6 @@
+num\_adaptive\_passes
+=====================
+
+.. currentmodule:: ansys.aedt.core.modules.profile
+
+.. autoproperty:: SimulationProfile.num_adaptive_passes

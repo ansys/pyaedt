@@ -1,0 +1,6 @@
+get\_all\_emitter\_radios
+=========================
+
+.. currentmodule:: ansys.aedt.core.emit_core.results.revision
+
+.. automethod:: Revision.get_all_emitter_radios

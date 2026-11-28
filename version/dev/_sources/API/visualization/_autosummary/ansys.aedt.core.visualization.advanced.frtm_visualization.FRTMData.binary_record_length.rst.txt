@@ -1,0 +1,6 @@
+binary\_record\_length
+======================
+
+.. currentmodule:: ansys.aedt.core.visualization.advanced.frtm_visualization
+
+.. autoproperty:: FRTMData.binary_record_length
