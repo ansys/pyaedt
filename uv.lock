@@ -2784,7 +2784,7 @@ wheels = [
 
 [[package]]
 name = "osmnx"
-version = "2.1.1"
+version = "2.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "geopandas" },
@@ -2794,9 +2794,9 @@ dependencies = [
     { name = "requests" },
     { name = "shapely" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/0c/6d/42279fb31b09f0532ec4de90604ee8078adad66b89865887cdf014f651f1/osmnx-2.1.1.tar.gz", hash = "sha256:0785166487d4d8da5a551dac3d1562fe114fb39f3bf66f261c8b4d60baee9295", size = 90368, upload-time = "2026-07-21T19:24:06.779Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/97/28/88068f1e7e9c6f31da91fed370d2b4a17933fc0b534d6b435db54ad8b9e8/osmnx-2.2.0.tar.gz", hash = "sha256:da7dd76814f3c8c8eee913e1f13f1505d74e946fcd5e015a0d3e2f7de5280576", size = 95136, upload-time = "2026-11-18T21:40:25.865Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ed/08/450c5c707493cf3a1da91050cf6b9b92e5279676f28e85d85b81d9e46f85/osmnx-2.1.1-py3-none-any.whl", hash = "sha256:6680c98312a8c327dea01da8ec59328bf1d7b0e0cab42db6ce500d0cb83b87e5", size = 104711, upload-time = "2026-07-21T19:24:05.274Z" },
+    { url = "https://files.pythonhosted.org/packages/b3/fd/23e4594b0f3a3dc95a7783c38b66785a7194b9d4f72f963ef7a9ff06ce87/osmnx-2.2.0-py3-none-any.whl", hash = "sha256:1df6d0cacedfd2189e33fda9358af631d54eaec545d613bf022ae769f8f179cd", size = 108068, upload-time = "2026-11-18T21:40:24.303Z" },
 ]
 
 [[package]]
